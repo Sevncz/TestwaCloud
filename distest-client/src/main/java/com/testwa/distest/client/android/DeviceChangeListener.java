@@ -16,7 +16,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- *
+ * 设备监听器
  */
 public class DeviceChangeListener implements AndroidDebugBridge.IDeviceChangeListener {
 
@@ -74,13 +74,7 @@ public class DeviceChangeListener implements AndroidDebugBridge.IDeviceChangeLis
     public void deviceDisconnected(IDevice device) {
         logger.info("deviceDisconnected {}", device.getSerialNumber());
         AndroidDevice ad = new DefaultHardwareDevice(device);
-        Iterator<Map.Entry<IDevice, AndroidDevice>> entryIterator = connectedDevices.entrySet().iterator();
-        while (entryIterator.hasNext()) {
-            Map.Entry entry = entryIterator.next();
-            if (entry.getValue().equals(ad)) {
-                entryIterator.remove();
-            }
-        }
+        connectedDevices.entrySet().removeIf(entry -> entry.getValue().equals(ad));
         sendDeviceDisconnectMessage(ad.getDevice().getSerialNumber());
     }
 
