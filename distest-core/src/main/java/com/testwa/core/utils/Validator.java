@@ -1,7 +1,7 @@
-package com.testwa.distest.server.util;
+package com.testwa.core.utils;
 
 import java.util.regex.Pattern;
- 
+
 /**
  * 校验器：利用正则表达式校验邮箱、手机号等
  * 

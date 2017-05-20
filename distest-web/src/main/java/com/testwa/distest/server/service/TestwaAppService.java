@@ -1,5 +1,8 @@
 package com.testwa.distest.server.service;
 
+import com.testwa.core.utils.AppType;
+import com.testwa.core.utils.IOUtil;
+import com.testwa.core.utils.ZipUtil;
 import com.testwa.distest.server.android.TestwaAndroidApp;
 import com.testwa.distest.server.model.TestwaApp;
 import com.testwa.distest.server.model.TestwaProcedureInfo;
@@ -7,9 +10,6 @@ import com.testwa.distest.server.repository.TestwaAppRepository;
 import com.testwa.distest.server.repository.TestwaReportRepository;
 import com.testwa.distest.server.repository.TestwaScriptRepository;
 import com.testwa.distest.server.repository.TestwaTestcaseRepository;
-import com.testwa.distest.server.util.AppType;
-import com.testwa.distest.server.util.IOUtil;
-import com.testwa.distest.server.util.ZipUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

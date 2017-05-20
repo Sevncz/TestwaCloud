@@ -1,5 +1,7 @@
 package com.testwa.distest.server.web;
 
+import com.testwa.core.utils.Identities;
+import com.testwa.core.utils.Validator;
 import com.testwa.distest.server.authorization.Constants;
 import com.testwa.distest.server.authorization.annotation.Authorization;
 import com.testwa.distest.server.authorization.annotation.CurrentUser;
@@ -7,8 +9,6 @@ import com.testwa.distest.server.model.User;
 import com.testwa.distest.server.model.permission.UserShareScope;
 import com.testwa.distest.server.service.UserService;
 import com.testwa.distest.server.service.security.TestwaTokenService;
-import com.testwa.distest.server.util.Identities;
-import com.testwa.distest.server.util.Validator;
 import com.testwa.distest.server.model.message.ResultCode;
 import com.testwa.distest.server.model.message.ResultInfo;
 import io.jsonwebtoken.Claims;

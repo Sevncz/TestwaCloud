@@ -1,20 +1,19 @@
-package com.testwa.distest.client.util;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package com.testwa.core.utils;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.logging.Logger;
+
 public class LocalSystem {
-    private static final Logger log = LoggerFactory.getLogger(LocalSystem.class);
+    private static final Logger log = Logger.getLogger(LocalSystem.class.getName());
 
     public static InetAddress getInetAddress(){
         try{
             return InetAddress.getLocalHost();
         }catch(UnknownHostException e){
-            log.error("UnknownHostException", e);
+            log.severe("UnknownHostException");
         }
         return null;
 

@@ -1,15 +1,13 @@
 package com.testwa.distest.client.appium.manager;
 
+import com.testwa.core.utils.Identities;
 import com.testwa.distest.client.appium.utils.Config;
 import com.testwa.distest.client.util.Constant;
-import com.testwa.distest.client.util.Identities;
-import com.testwa.distest.client.util.TimeUtil;
 import io.appium.java_client.service.local.AppiumDriverLocalService;
 import io.appium.java_client.service.local.AppiumServiceBuilder;
 import io.appium.java_client.service.local.flags.AndroidServerFlag;
 import io.appium.java_client.service.local.flags.GeneralServerFlag;
 import io.appium.java_client.service.local.flags.ServerArgument;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

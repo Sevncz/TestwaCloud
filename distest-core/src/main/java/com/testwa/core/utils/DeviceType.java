@@ -1,15 +1,15 @@
-package com.testwa.distest.server.util;
+package com.testwa.core.utils;
 
 /**
  * Created by wen on 16/9/4.
  */
-public enum ScriptType {
+public enum DeviceType {
 
-    PYTHON("python"), JAVA("java"), RUBY("ruby"), JAVASCRIPT("javascript"), OTHER("other");
+    ANDROID("Android"), IPHONE("iPhone"), OTHER("other");
 
     private String name;
 
-    ScriptType(String name) {
+    DeviceType(String name) {
         this.name = name;
     }
 

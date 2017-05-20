@@ -8,13 +8,13 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import com.google.protobuf.ByteString;
+import com.testwa.core.utils.Identities;
 import com.testwa.distest.client.appium.manager.AvailabelPorts;
 import com.testwa.distest.client.appium.utils.Config;
 import com.testwa.distest.client.rpc.client.ScreenCaptureClient;
 import com.testwa.core.service.AdbDriverService;
 import com.testwa.core.service.MinicapServiceBuilder;
 import com.testwa.distest.client.util.Constant;
-import com.testwa.distest.client.util.Identities;
 
 import com.android.ddmlib.AdbCommandRejectedException;
 import com.android.ddmlib.CollectingOutputReceiver;

@@ -1,4 +1,4 @@
-package com.testwa.distest.server.util;
+package com.testwa.core.utils;
 
 import net.sourceforge.pinyin4j.PinyinHelper;
 import net.sourceforge.pinyin4j.format.HanyuPinyinCaseType;
@@ -25,11 +25,11 @@ public class PinYinTool {
 
         try {
             for (int i = 0; i < input.length; i++) {
-                if (java.lang.Character.toString(input[i]).matches("[\\u4E00-\\u9FA5]+")) {
+                if (Character.toString(input[i]).matches("[\\u4E00-\\u9FA5]+")) {
                     String[] temp = PinyinHelper.toHanyuPinyinStringArray(input[i], format);
                     output += temp[0];
                 } else
-                    output += java.lang.Character.toString(input[i]);
+                    output += Character.toString(input[i]);
             }
         } catch (BadHanyuPinyinOutputFormatCombination e) {
             e.printStackTrace();

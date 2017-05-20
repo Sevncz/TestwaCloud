@@ -3,10 +3,7 @@ package com.testwa.distest.client.web.startup;
 import com.testwa.distest.client.appium.utils.Config;
 import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.service.HttpService;
-import com.testwa.core.os.filewatch.FileActionCallback;
-import com.testwa.core.os.filewatch.WatchDir;
 import com.testwa.distest.client.util.Constant;
-import com.testwa.distest.client.util.Http;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
@@ -21,9 +18,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by wen on 16/8/27.

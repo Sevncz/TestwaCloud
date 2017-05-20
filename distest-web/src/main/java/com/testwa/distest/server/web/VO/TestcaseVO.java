@@ -1,8 +1,8 @@
 package com.testwa.distest.server.web.VO;
 
+import com.testwa.core.utils.TimeUtil;
 import com.testwa.distest.server.model.TestwaApp;
 import com.testwa.distest.server.model.TestwaTestcase;
-import com.testwa.distest.server.util.TimeUtil;
 
 
 /**

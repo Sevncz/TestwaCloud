@@ -1,4 +1,4 @@
-package com.testwa.distest.client.util;
+package com.testwa.core.utils;
 
 import java.security.SecureRandom;
 import java.util.UUID;
@@ -11,6 +11,15 @@ import java.util.UUID;
 public class Identities {
 
 	private static SecureRandom random = new SecureRandom();
+
+	/**
+	 * 基于Base62编码的SecureRandom随机生成bytes.
+	 */
+	public static String randomBase62(int length) {
+		byte[] randomBytes = new byte[length];
+		random.nextBytes(randomBytes);
+		return Encodes.encodeBase62(randomBytes);
+	}
 
 	/**
 	 * 使用SecureRandom随机生成Long.

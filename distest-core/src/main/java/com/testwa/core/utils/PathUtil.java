@@ -1,4 +1,4 @@
-package com.testwa.distest.server.util;
+package com.testwa.core.utils;
 
 import java.io.File;
 import java.security.MessageDigest;

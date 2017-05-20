@@ -1,14 +1,9 @@
 package com.testwa.distest.server.web.VO;
 
+import com.testwa.core.utils.TimeUtil;
 import com.testwa.distest.server.model.TestwaApp;
 import com.testwa.distest.server.model.TestwaProject;
 import com.testwa.distest.server.model.TestwaScript;
-import com.testwa.distest.server.util.TimeUtil;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Transient;
-
-import java.util.Date;
 
 /**
  * Created by wen on 2016/11/19.

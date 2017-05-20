@@ -1,14 +1,10 @@
-package com.testwa.distest.server.util;
+package com.testwa.core.utils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Enumeration;
 import org.apache.tools.zip.ZipEntry;
 import org.apache.tools.zip.ZipFile;
+
+import java.io.*;
+import java.util.Enumeration;
 
 public class ZipUtil {
 

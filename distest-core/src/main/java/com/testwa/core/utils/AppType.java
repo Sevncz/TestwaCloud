@@ -1,6 +1,4 @@
-package com.testwa.distest.server.util;
-
-import org.apache.commons.lang3.StringUtils;
+package com.testwa.core.utils;
 
 /**
  * Created by wen on 16/9/4.

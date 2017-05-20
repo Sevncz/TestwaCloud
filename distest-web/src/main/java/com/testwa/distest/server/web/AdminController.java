@@ -1,10 +1,10 @@
 package com.testwa.distest.server.web;
 
+import com.testwa.core.utils.Validator;
 import com.testwa.distest.server.authorization.annotation.Authorization;
 import com.testwa.distest.server.model.User;
 import com.testwa.distest.server.model.permission.UserShareScope;
 import com.testwa.distest.server.service.UserService;
-import com.testwa.distest.server.util.Validator;
 import com.testwa.distest.server.model.message.ResultCode;
 import com.testwa.distest.server.model.message.ResultInfo;
 import io.swagger.annotations.Api;

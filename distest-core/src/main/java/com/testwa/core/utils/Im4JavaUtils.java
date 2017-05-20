@@ -1,17 +1,17 @@
-package com.testwa.distest.client.util;
+package com.testwa.core.utils;
+
+import org.im4java.core.ConvertCmd;
+import org.im4java.core.IMOperation;
+import org.im4java.core.IdentifyCmd;
+import org.im4java.core.ImageCommand;
+import org.im4java.process.ArrayListOutputConsumer;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
- 
-import org.im4java.core.ConvertCmd;
-import org.im4java.core.IMOperation;
-import org.im4java.core.IdentifyCmd;
-import org.im4java.core.ImageCommand;
-import org.im4java.process.ArrayListOutputConsumer;
- 
+
 public class Im4JavaUtils {
     /** 是否使用 GraphicsMagick **/
     private static final boolean USE_GRAPHICS_MAGICK_PATH = true;

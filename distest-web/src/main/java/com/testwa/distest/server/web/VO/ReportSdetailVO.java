@@ -1,13 +1,10 @@
 package com.testwa.distest.server.web.VO;
 
+import com.testwa.core.utils.TimeUtil;
 import com.testwa.distest.server.model.TestwaReportSdetail;
 import com.testwa.distest.server.model.TestwaScript;
-import com.testwa.distest.server.util.TimeUtil;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
 
 import java.text.ParseException;
-import java.util.Date;
 
 /**
  * Created by wen on 2016/9/24.

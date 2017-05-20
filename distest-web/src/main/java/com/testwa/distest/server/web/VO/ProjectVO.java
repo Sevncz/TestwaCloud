@@ -1,7 +1,7 @@
 package com.testwa.distest.server.web.VO;
 
+import com.testwa.core.utils.TimeUtil;
 import com.testwa.distest.server.model.TestwaProject;
-import com.testwa.distest.server.util.TimeUtil;
 
 import java.util.List;
 

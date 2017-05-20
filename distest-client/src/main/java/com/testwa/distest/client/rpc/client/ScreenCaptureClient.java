@@ -6,7 +6,6 @@ import io.grpc.StatusRuntimeException;
 import io.grpc.testwa.device.CommonReply;
 import io.grpc.testwa.device.ScreenCaptureGrpc;
 import io.grpc.testwa.device.ScreenCaptureRequest;
-import io.grpc.testwa.helloworld.GreeterGrpc;
 
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;

@@ -55,6 +55,13 @@
                 <artifactId>commons-daemon</artifactId>
                 <version>1.0.15</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.5</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
@@ -189,6 +196,12 @@
                 <groupId>cn.apiclub.tool</groupId>
                 <artifactId>simplecaptcha</artifactId>
                 <version>1.2.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.belerweb</groupId>
+                <artifactId>pinyin4j</artifactId>
+                <version>2.5.0</version>
             </dependency>
 
         </dependencies>

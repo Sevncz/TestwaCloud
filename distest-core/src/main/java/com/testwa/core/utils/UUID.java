@@ -1,4 +1,4 @@
-package com.testwa.distest.client.util;
+package com.testwa.core.utils;
 
 public  class UUID {
 	private static final char[] CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".toCharArray();

@@ -1,7 +1,7 @@
 package com.testwa.distest.client.model;
 
+import com.testwa.core.utils.LocalSystem;
 import com.testwa.distest.client.rpc.proto.Agent;
-import com.testwa.distest.client.util.LocalSystem;
 
 import java.net.InetAddress;
 import java.net.SocketException;

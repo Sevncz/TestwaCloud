@@ -1,4 +1,4 @@
-package com.testwa.distest.server.util;
+package com.testwa.core.utils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -53,9 +53,13 @@ public class TimeUtil {
     public static synchronized String formatTimeStamp(long epochTime) {
         return TIME_FORMAT.format(new Date(epochTime));
     }
-    
+
     public static String getTimestamp() {
         return formatTimeStamp(System.currentTimeMillis());
+    }
+
+    public static Long getTimestampLong() {
+        return System.currentTimeMillis();
     }
     
     public static synchronized String formatTimeStampMsec(long epochTime) {

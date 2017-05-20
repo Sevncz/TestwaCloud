@@ -2,22 +2,16 @@ package com.testwa.distest.client.web;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.ByteString;
-import com.testwa.distest.client.appium.utils.Config;
+import com.testwa.core.utils.TimeUtil;
 import com.testwa.distest.client.boost.TestwaSocket;
 import com.testwa.distest.client.model.UserInfo;
-import com.testwa.distest.client.service.HelloGrpcService;
 import com.testwa.distest.client.service.HttpService;
 import com.testwa.distest.client.task.Testcase;
 import com.testwa.distest.client.task.TestcaseTaskCaches;
-import com.testwa.distest.client.rpc.proto.Agent;
 import com.testwa.distest.client.util.Http;
-import com.testwa.distest.client.util.Identities;
-import com.testwa.distest.client.util.Im4JavaUtils;
-import com.testwa.distest.client.util.TimeUtil;
 import io.grpc.testwa.testcase.RunningLogRequest;
 import io.socket.client.Socket;
 import org.apache.commons.lang3.StringUtils;
-import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.remote.RemoteLogs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,9 +20,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.nio.file.Paths;
 import java.util.Map;
 
 /**
@@ -46,16 +37,12 @@ public class IndexController {
     private HttpService httpService;
 
     @Autowired
-    private HelloGrpcService helloGrpcService;
-
-    @Autowired
     public IndexController(Socket socket) {
         this.socket = socket;
     }
 
     @RequestMapping("/")
     String index() {
-        helloGrpcService.sayHello();
         return "Hello World!";
     }
 
