@@ -1,10 +1,8 @@
 package com.testwa.distest.server.model;
 
-import com.testwa.distest.server.rpc.proto.Agent;
 import io.grpc.testwa.device.Device;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 /**

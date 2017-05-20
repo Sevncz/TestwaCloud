@@ -4,17 +4,17 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 import io.grpc.testwa.device.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Created by wen on 2016/12/4.
  */
 public class LogcatClient {
 
-    private static final Logger logger = Logger.getLogger(LogcatClient.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(LogcatClient.class);
 
     private final ManagedChannel channel;
     private final LogcatGrpc.LogcatBlockingStub blockingStub;
@@ -42,7 +42,7 @@ public class LogcatClient {
         try {
             response = blockingStub.sender(request);
         } catch (StatusRuntimeException e) {
-            logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
+            logger.error("RPC failed: {0}", e.getStatus());
             return;
         }
         logger.info("Logcat: " + response.getMessage());

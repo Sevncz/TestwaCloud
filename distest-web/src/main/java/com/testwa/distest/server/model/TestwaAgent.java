@@ -1,6 +1,6 @@
 package com.testwa.distest.server.model;
 
-import com.testwa.distest.server.rpc.proto.Agent;
+import com.testwa.distest.client.rpc.proto.Agent;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 

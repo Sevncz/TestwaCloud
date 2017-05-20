@@ -1,6 +1,5 @@
 package com.testwa.distest.server.model;
 
-import com.testwa.distest.server.rpc.proto.Agent;
 import io.grpc.testwa.testcase.RunningLogRequest;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -8,7 +7,6 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
-import java.util.Map;
 
 /**
  * Created by wen on 16/8/27.

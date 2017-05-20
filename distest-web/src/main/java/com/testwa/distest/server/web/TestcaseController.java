@@ -1,12 +1,12 @@
 package com.testwa.distest.server.web;
 
 import com.corundumstudio.socketio.SocketIOServer;
+import com.testwa.distest.client.rpc.proto.Agent;
 import com.testwa.distest.server.authorization.annotation.Authorization;
 import com.testwa.distest.server.authorization.annotation.CurrentUser;
 import com.testwa.distest.server.config.EventConstant;
 import com.testwa.distest.server.model.*;
 import com.testwa.distest.server.model.params.QueryTableFilterParams;
-import com.testwa.distest.server.rpc.proto.Agent;
 import com.testwa.distest.server.service.*;
 import com.testwa.distest.server.web.VO.TestcaseVO;
 import com.testwa.distest.server.model.message.ResultCode;

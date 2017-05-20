@@ -2,6 +2,7 @@ package com.testwa.distest.server.web;
 
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
+import com.testwa.distest.client.rpc.proto.Agent;
 import com.testwa.distest.server.authorization.annotation.Authorization;
 import com.testwa.distest.server.authorization.annotation.CurrentUser;
 import com.testwa.distest.server.model.TestwaAgent;
@@ -12,7 +13,6 @@ import com.testwa.distest.server.model.params.QueryOperator;
 import com.testwa.distest.server.model.params.QueryFilters;
 import com.testwa.distest.server.model.params.QueryTableFilterParams;
 import com.testwa.distest.server.model.permission.UserShareScope;
-import com.testwa.distest.server.rpc.proto.Agent;
 import com.testwa.distest.server.service.TestwaAgentService;
 import com.testwa.distest.server.service.TestwaDeviceService;
 import com.testwa.distest.server.service.UserDeviceHisService;

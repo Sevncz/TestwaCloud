@@ -6,17 +6,17 @@ import io.grpc.StatusRuntimeException;
 import io.grpc.testwa.device.CommonReply;
 import io.grpc.testwa.device.ScreenCaptureGrpc;
 import io.grpc.testwa.device.ScreenCaptureRequest;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Created by wen on 2016/12/4.
  */
 public class ScreenCaptureClient {
 
-    private static final Logger logger = Logger.getLogger(ScreenCaptureClient.class.getName());
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ScreenCaptureClient.class);
 
     private final ManagedChannel channel;
     private final ScreenCaptureGrpc.ScreenCaptureBlockingStub blockingStub;
@@ -44,7 +44,7 @@ public class ScreenCaptureClient {
         try {
             response = blockingStub.sender(request);
         } catch (StatusRuntimeException e) {
-            logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
+            logger.error("RPC failed: {0}", e.getStatus());
             return;
         }
         logger.info("S: " + response.getMessage());
