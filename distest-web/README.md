@@ -1,4 +1,5 @@
-# Webcenter
+# distest-web
+分布式测试管理web服务模块
 
 ## 依赖工具
 1. mongodb
