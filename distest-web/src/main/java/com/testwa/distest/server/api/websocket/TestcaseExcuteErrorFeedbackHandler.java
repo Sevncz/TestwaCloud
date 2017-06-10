@@ -5,8 +5,8 @@ import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.annotation.OnEvent;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.rpc.proto.Agent;
-import com.testwa.distest.server.config.EventConstant;
 import com.testwa.distest.server.model.TestwaReport;
 import com.testwa.distest.server.service.TestwaReportService;
 import org.slf4j.Logger;
@@ -28,7 +28,7 @@ public class TestcaseExcuteErrorFeedbackHandler {
         this.server = server;
     }
 
-    @OnEvent(value = EventConstant.feedback_appium_error)
+    @OnEvent(value = WebsocketEvent.FB_APPIUM_ERROR)
     public void onAppiumError(SocketIOClient client, byte[] data, AckRequest ackRequest) {
 
         log.info("receive message for appium run");

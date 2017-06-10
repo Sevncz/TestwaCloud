@@ -6,8 +6,8 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.annotation.OnEvent;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.googlecode.protobuf.format.JsonFormat;
+import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.rpc.proto.Agent;
-import com.testwa.distest.server.config.EventConstant;
 import com.testwa.distest.server.model.TestwaProcedureInfo;
 import io.grpc.testwa.testcase.RunningLogRequest;
 import org.codehaus.jackson.JsonGenerationException;
@@ -37,7 +37,7 @@ public class RunningLogFeedbackHandler {
         this.server = server;
     }
 
-    @OnEvent(value = EventConstant.feedback_runningLog)
+    @OnEvent(value = WebsocketEvent.FB_RUNNGING_LOG)
     public void onEvent(SocketIOClient client, byte[] data, AckRequest ackRequest) {
 
         try {
@@ -47,7 +47,7 @@ public class RunningLogFeedbackHandler {
             procedureInfo.toEntity(request);
             String json = mapper.writeValueAsString(procedureInfo);
             log.info("json -----> {}", json);
-            template.opsForList().leftPush(EventConstant.feedback_runningLog, json);
+            template.opsForList().leftPush(WebsocketEvent.FB_RUNNGING_LOG, json);
         } catch (InvalidProtocolBufferException e) {
             log.error("InvalidProtocolBufferException", e);
         } catch (JsonGenerationException e) {
@@ -59,13 +59,13 @@ public class RunningLogFeedbackHandler {
         }
     }
 
-    @OnEvent(value = EventConstant.feedback_scriptend)
+    @OnEvent(value = WebsocketEvent.FB_SCRIPT_END)
     public void scriptEndEvent(SocketIOClient client, byte[] data, AckRequest ackRequest){
         try {
             Agent.RunningLogFeedbackEnd end = Agent.RunningLogFeedbackEnd.parseFrom(data);
             JsonFormat jf = new JsonFormat();
             String fbJson = jf.printToString(end);
-            template.opsForList().leftPush(EventConstant.feedback_scriptend, fbJson);
+            template.opsForList().leftPush(WebsocketEvent.FB_SCRIPT_END, fbJson);
         } catch (InvalidProtocolBufferException e) {
             log.error("InvalidProtocolBufferException", e);
         }

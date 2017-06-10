@@ -33,7 +33,7 @@ public class LogcatService extends LogcatGrpc.LogcatImplBase{
     private SocketIOServer server;
 
     @Override
-    public void sender(LogcatRequest request, StreamObserver<CommonReply> responseObserver) {
+    public void forward(LogcatRequest request, StreamObserver<CommonReply> responseObserver) {
 //        deviceRedisService.saveImgData(request);
         String serial = request.getSerial();
         String sessionId = template.opsForValue().get(String.format("flag.%s.%s", WSFlagEnum.LOGCAT.getValue(), serial));

@@ -1,5 +1,6 @@
 package com.testwa.distest.client.web.startup;
 
+import com.alibaba.fastjson.JSONObject;
 import com.testwa.distest.client.appium.utils.Config;
 import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.service.HttpService;
@@ -8,7 +9,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * Created by wen on 16/8/27.
@@ -57,12 +58,12 @@ public class TestwaEnvCheck implements CommandLineRunner {
                     System.exit(0);
                 }else{
                     try {
-                        String json_string = EntityUtils.toString(response.getEntity());
-                        JSONObject result = new JSONObject(json_string);
-                        Integer resultCode = result.getInt("code");
+                        String content = EntityUtils.toString(response.getEntity());
+                        Object result = JSONObject.parse(content);
+                        Integer resultCode = ((JSONObject)result).getInteger("code");
 
                         if(resultCode == 0){
-                            JSONObject data = (JSONObject) result.get("data");
+                            JSONObject data = (JSONObject) ((JSONObject) result).get("data");
                             String token = data.getString("access_token");
                             String userId = data.getString("userId");
 

@@ -5,6 +5,7 @@ import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.annotation.OnEvent;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.rpc.proto.Agent;
 import com.testwa.distest.server.model.TestwaAgent;
 import com.testwa.distest.server.service.TestwaAgentService;
@@ -38,7 +39,7 @@ public class AgentHandler {
         this.server = server;
     }
 
-    @OnEvent(value = "agentRegister")
+    @OnEvent(value = WebsocketEvent.ON_REGISTER)
     public void onEvent(SocketIOClient client, byte[] data, AckRequest ackRequest) {
         try {
             Agent.SystemInfo systemInfo = Agent.SystemInfo.parseFrom(data);

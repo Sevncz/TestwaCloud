@@ -1,10 +1,10 @@
 package com.testwa.distest.server.web;
 
 import com.corundumstudio.socketio.SocketIOServer;
+import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.rpc.proto.Agent;
 import com.testwa.distest.server.authorization.annotation.Authorization;
 import com.testwa.distest.server.authorization.annotation.CurrentUser;
-import com.testwa.distest.server.config.EventConstant;
 import com.testwa.distest.server.model.*;
 import com.testwa.distest.server.model.params.QueryTableFilterParams;
 import com.testwa.distest.server.service.*;
@@ -189,7 +189,7 @@ public class TestcaseController extends BaseController{
 
         // 检查设备是否在线
         for(String key : deviceIds){
-            String sessionId = (String) template.opsForHash().get(EventConstant.feedback_device, key);
+            String sessionId = (String) template.opsForHash().get(WebsocketEvent.DEVICE, key);
             if(StringUtils.isBlank(sessionId)){
                 return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), String.format("设备:[%s]已离线", key)), HttpStatus.INTERNAL_SERVER_ERROR);
             }
@@ -220,7 +220,7 @@ public class TestcaseController extends BaseController{
             String detailId = reportDetail.getId();
             testwaReportSdetailService.saveAll(detailId, testcase.getScripts());
 
-            String sessionId = (String) template.opsForHash().get(EventConstant.feedback_device, key);
+            String sessionId = (String) template.opsForHash().get(WebsocketEvent.DEVICE, key);
             Agent.TestcaseMessage testcaseMessage = Agent.TestcaseMessage.newBuilder()
                     .setReportDetailId(reportDetail.getId())
                     .setAppId(testcase.getAppId())
@@ -230,7 +230,7 @@ public class TestcaseController extends BaseController{
                     .setInstall("true").build();
 
             server.getClient(UUID.fromString(sessionId))
-                    .sendEvent("testcaseRun", testcaseMessage.toByteArray());
+                    .sendEvent(WebsocketEvent.ON_TESTCASE_RUN, testcaseMessage.toByteArray());
         }
     }
 

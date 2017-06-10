@@ -1,9 +1,11 @@
 package com.testwa.distest.client.boost.impl;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.appium.manager.AppiumCache;
 import com.testwa.distest.client.boost.TestwaException;
 import com.testwa.distest.client.boost.TestwaNotificationCallback;
+import com.testwa.distest.client.control.client.boost.MessageException;
 import com.testwa.distest.client.service.HttpService;
 import com.testwa.distest.client.task.Testcase;
 import com.testwa.distest.client.task.TestcaseTaskCaches;
@@ -25,7 +27,7 @@ import java.util.List;
 public class RunTestcaseCallbackImpl implements TestwaNotificationCallback{
     private static Logger LOG = LoggerFactory.getLogger(RunTestcaseCallbackImpl.class);
 
-    private static final String channel = "feedback.appium.error";
+    private static final String channel = WebsocketEvent.FB_APPIUM_ERROR;
 
     @Value("${agent.web.url}")
     private String agentWebUrl;
@@ -37,7 +39,7 @@ public class RunTestcaseCallbackImpl implements TestwaNotificationCallback{
     private HttpService httpService;
 
     @Override
-    public void done(Object o, TestwaException e) throws TestwaException {
+    public void done(Object o, TestwaException e) throws MessageException {
         /**
          * 运行一个测试案例
          * 需要参数?

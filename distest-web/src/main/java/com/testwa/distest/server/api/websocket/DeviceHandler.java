@@ -6,8 +6,8 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.annotation.OnEvent;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.googlecode.protobuf.format.JsonFormat;
+import com.testwa.core.WebsocketEvent;
 import com.testwa.core.utils.DeviceType;
-import com.testwa.distest.server.config.EventConstant;
 import com.testwa.distest.server.model.TestwaDevice;
 import com.testwa.distest.server.model.UserDeviceHis;
 import com.testwa.distest.server.service.TestwaDeviceService;
@@ -63,7 +63,7 @@ public class DeviceHandler {
         }
     }
 
-    @OnEvent(value = "device")
+    @OnEvent(value = WebsocketEvent.DEVICE)
     public void onEvent(SocketIOClient client, byte[] data, AckRequest ackRequest) {
         String username = client.getHandshakeData().getSingleUrlParam("username");
         log.info("username  ==== {}", username);
@@ -115,14 +115,13 @@ public class DeviceHandler {
         } catch (InvalidProtocolBufferException e) {
             log.error("Method onEvent error", e);
         }
-        client.sendEvent("device_feedback", "success");
         Long end = System.currentTimeMillis();
 
         log.debug("接受设备信息, 花费时间 ------ {}ms", end - start);
     }
 
 
-    @OnEvent(value = EventConstant.feedback_runninglog_screen)
+    @OnEvent(value = WebsocketEvent.FB_RUNNING_SCREEN)
     public void onScreenEvent(SocketIOClient client, byte[] data, AckRequest ackRequest) {
 
         try {
@@ -140,11 +139,9 @@ public class DeviceHandler {
             log.error("Method onScreenEvent error", e);
         }
 
-        client.sendEvent(EventConstant.feedback_runninglog_screen, "success");
-
     }
 
-    @OnEvent(value = "deviceDisconnect")
+    @OnEvent(value = WebsocketEvent.ON_DEVICE_DISCONNECT)
     public void deviceDisconnect(SocketIOClient client, byte[] data, AckRequest ackRequest) {
         try {
             NoUsedDeviceRequest noUsedDevice =NoUsedDeviceRequest.parseFrom(data);
@@ -160,7 +157,7 @@ public class DeviceHandler {
     }
 
 
-    @OnEvent(value = "deviceOffLine")
+    @OnEvent(value = WebsocketEvent.ON_DEVICE_OFFLINE)
     public void deviceOffLine(SocketIOClient client, byte[] data, AckRequest ackRequest) {
         try {
             NoUsedDeviceRequest noUsedDevice =NoUsedDeviceRequest.parseFrom(data);

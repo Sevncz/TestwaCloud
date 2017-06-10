@@ -4,7 +4,26 @@ import java.io.File;
 import java.nio.file.Paths;
 
 public class Constant {
-//	private static final String ROOT = System.getProperty("user.dir");
+
+    // CPU架构的种类
+    public static final String ABIS_ARM64_V8A = "arm64-v8a";
+    public static final String ABIS_ARMEABI_V7A = "armeabi-v7a";
+    public static final String ABIS_X86 = "x86";
+    public static final String ABIS_X86_64 = "x86_64";
+
+	public static final String PROP_ABI = "ro.product.cpu.abi";
+	public static final String PROP_SDK = "ro.build.version.sdk";
+    public static final String PROP_REL = "ro.build.version.release";
+
+    public static final String MINICAP_BIN = "minicap";
+    public static final String MINICAP_SO = "minicap.so";
+    public static final String MINICAP_NOPIE = "minicap-nopie";
+    public static final String MINICAP_DIR = "/data/local/tmp/minicap-devel";
+
+
+    public static final String MINITOUCH_BIN = "minitouch";
+    public static final String MINITOUCH_NOPIE = "minitouch-nopie";
+    public static final String MINITOUCH_DIR = "/data/local/tmp/minitouch-devel";
 
 	public static final String APP_URL = "%s/download/app/%s";
 	public static final String SCRIPT_URL = "%s/download/script/%s";
@@ -18,6 +37,57 @@ public class Constant {
 	public static final String localLogcatPath = Paths.get(System.getProperty("java.io.tmpdir"), "testwa_agent", "logcat").toString();
 
 
+    public static File getResourceDir() {
+        String path = System.getProperty("java.class.path");
+        if (path.indexOf(";") > 0) {
+            path = path.substring(0, path.indexOf(";"));
+        }
+        File resources = new File(new File(path).getParent(), "resources");
+
+        return resources;
+    }
+
+    public static File getResourceFile(String name) {
+        File dir = getResourceDir();
+        return new File(dir, name);
+    }
+
+    public static File getMinicap(String abi) {
+        File resources = getResourceDir();
+        if (resources.exists()) {
+            return new File(resources, "minicap" + File.separator + "bin" +
+                    File.separator + abi + File.separator + "minicap");
+        }
+        return null;
+    }
+
+    public static File getMinicapSo(String abi, String sdk) {
+        File resources = getResourceDir();
+        if (resources.exists()) {
+            return new File(resources, "minicap" + File.separator + "shared" +
+                    File.separator + "android-" + sdk + File.separator + abi + File.separator + "minicap.so");
+        }
+        return null;
+    }
+
+    public static File getMinitouchBin(String abi) {
+        File resources = getResourceDir();
+        if (resources.exists()) {
+            return new File(resources, "minitouch" + File.separator +
+                    File.separator + abi + File.separator + "minitouch");
+        }
+        return null;
+    }
+
+    public static File getTmpFile(String fileName) {
+        String tmpdir = System.getProperty("java.io.tmpdir");
+        File tmp = new File(tmpdir);
+        tmp = new File(tmp, "distest-agent");
+        if (!tmp.exists()) {
+            tmp.mkdirs();
+        }
+        return new File(tmp, fileName);
+    }
 
 	public static File getMinicap() {
 		return new File(Constant.class.getResource(File.separator + "minicap").getPath());

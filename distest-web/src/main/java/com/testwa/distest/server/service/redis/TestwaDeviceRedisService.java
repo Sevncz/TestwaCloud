@@ -1,6 +1,5 @@
 package com.testwa.distest.server.service.redis;
 
-import com.testwa.distest.server.config.EventConstant;
 import io.grpc.testwa.device.ScreenCaptureRequest;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
@@ -20,6 +19,7 @@ import java.util.Set;
 public class TestwaDeviceRedisService {
     private static final Logger log = LoggerFactory.getLogger(TestwaDeviceRedisService.class);
     private static String clientSessionDevicesKey = "client.session.devices.%s";
+    private static final String devicesQueue = "t.devices";
 
     @Autowired
     private StringRedisTemplate template;
@@ -35,17 +35,17 @@ public class TestwaDeviceRedisService {
         /**
          * 保存device对应的session, one to one
          */
-        template.opsForHash().put(EventConstant.feedback_device, deviceId, sessionId);
+        template.opsForHash().put(devicesQueue, deviceId, sessionId);
     }
 
     public void delDeviceClientSession(String deviceId, String needDelSessionId) {
         /**
          * 删除device
          */
-        String sessionId = (String) template.opsForHash().get(EventConstant.feedback_device, deviceId);
+        String sessionId = (String) template.opsForHash().get(devicesQueue, deviceId);
         if(StringUtils.isNotBlank(needDelSessionId) &&  needDelSessionId.equals(sessionId)){
 
-            template.opsForHash().delete(EventConstant.feedback_device, deviceId);
+            template.opsForHash().delete(devicesQueue, deviceId);
 
         }
 
@@ -73,7 +73,7 @@ public class TestwaDeviceRedisService {
     }
 
     public String getSessionIdById(String deviceId) {
-        return (String) template.opsForHash().get(EventConstant.feedback_device, deviceId);
+        return (String) template.opsForHash().get(devicesQueue, deviceId);
     }
 
     public void saveImgData(ScreenCaptureRequest request) {

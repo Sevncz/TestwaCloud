@@ -42,7 +42,7 @@ public class ScreenCaptureClient {
     public void sender(ScreenCaptureRequest request) {
         CommonReply response;
         try {
-            response = blockingStub.sender(request);
+            response = blockingStub.forward(request);
         } catch (StatusRuntimeException e) {
             logger.error("RPC failed: {0}", e.getStatus());
             return;

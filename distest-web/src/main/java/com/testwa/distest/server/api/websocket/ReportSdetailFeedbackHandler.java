@@ -5,8 +5,8 @@ import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.annotation.OnEvent;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.rpc.proto.Agent;
-import com.testwa.distest.server.config.EventConstant;
 import com.testwa.distest.server.model.TestwaReportSdetail;
 import com.testwa.distest.server.service.TestwaReportSdetailService;
 import com.testwa.distest.server.service.TestwaReportService;
@@ -38,7 +38,7 @@ public class ReportSdetailFeedbackHandler {
         this.server = server;
     }
 
-    @OnEvent(value = EventConstant.feedback_report_sdetail)
+    @OnEvent(value = WebsocketEvent.FB_REPORT_SDETAIL)
     public void onSdetail(SocketIOClient client, byte[] data, AckRequest ackRequest) {
         /**
          * 纪录一个脚本执行的起止时间

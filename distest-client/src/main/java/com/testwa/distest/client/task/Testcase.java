@@ -3,9 +3,10 @@ package com.testwa.distest.client.task;
 import com.github.cosysoft.device.android.AndroidApp;
 import com.github.cosysoft.device.android.AndroidDevice;
 import com.github.cosysoft.device.android.impl.DefaultAndroidApp;
+import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.appium.manager.AppiumCache;
 import com.testwa.distest.client.appium.manager.AppiumParallelTest;
-import com.testwa.distest.client.boost.TestwaSocket;
+import com.testwa.distest.client.control.client.MainClient;
 import com.testwa.distest.client.service.HttpService;
 import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.distest.client.rpc.proto.Agent;
@@ -41,7 +42,7 @@ import java.util.regex.Pattern;
  */
 public class Testcase {
     private static Logger LOG = LoggerFactory.getLogger(Testcase.class);
-    public static final String feedback_report_sdetail = "feedback.report.sdetail";
+    public static final String feedback_report_sdetail = WebsocketEvent.FB_REPORT_SDETAIL;
 
     private String appId;
     private String serial;
@@ -131,7 +132,7 @@ public class Testcase {
                                     .setReportDetailId(this.reportDetailId)
                                     .setScriptId(this.currScript)
                                     .setType(Agent.ReportSdetailType.end).build();
-                            TestwaSocket.getSocket().emit(feedback_report_sdetail, rs.toByteArray());
+                            MainClient.getWs().emit(feedback_report_sdetail, rs.toByteArray());
                         }
                     }
                     boolean status = runOneScript(appPath, basePackage, mainActivity);
@@ -209,7 +210,7 @@ public class Testcase {
                 .setScriptId(runscriptId)
                 .setMatchineName(hostname)
                 .setType(Agent.ReportSdetailType.start).build();
-        TestwaSocket.getSocket().emit(feedback_report_sdetail, rs.toByteArray());
+        MainClient.getWs().emit(feedback_report_sdetail, rs.toByteArray());
 
         return true;
     }

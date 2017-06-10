@@ -3,6 +3,7 @@ package com.testwa.distest.client.boost.impl;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.testwa.distest.client.boost.TestwaException;
 import com.testwa.distest.client.boost.TestwaNotificationCallback;
+import com.testwa.distest.client.control.client.boost.MessageException;
 import com.testwa.distest.client.task.AsyncTask;
 import io.grpc.testwa.device.LogcatStartRequest;
 import io.grpc.testwa.device.ScreenCaptureStartRequest;
@@ -25,7 +26,7 @@ public class LogcatStartCallbackImpl implements TestwaNotificationCallback{
     private AsyncTask asyncTask;
 
     @Override
-    public void done(Object o, TestwaException e) throws TestwaException {
+    public void done(Object o, TestwaException e) throws MessageException {
         byte[] b = (byte[])o;
         try {
             LogcatStartRequest request = LogcatStartRequest.parseFrom(b);

@@ -1,6 +1,6 @@
 package com.testwa.distest.server.run;
 
-import com.testwa.distest.server.config.EventConstant;
+import com.testwa.core.WebsocketEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +24,8 @@ public class RedisInitRunner implements CommandLineRunner {
 
     @Override
     public void run(String... strings) throws Exception {
-        template.delete(EventConstant.connect_session);
-        template.delete(EventConstant.feedback_device);
+        template.delete(WebsocketEvent.CONNECT_SESSION);
+        template.delete(WebsocketEvent.DEVICE);
 
         Set<String> keys = template.keys("client.session.devices.*");
         for(String key : keys){

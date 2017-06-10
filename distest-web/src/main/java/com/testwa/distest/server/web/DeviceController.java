@@ -2,6 +2,7 @@ package com.testwa.distest.server.web;
 
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
+import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.rpc.proto.Agent;
 import com.testwa.distest.server.authorization.annotation.Authorization;
 import com.testwa.distest.server.authorization.annotation.CurrentUser;
@@ -349,7 +350,7 @@ public class DeviceController extends BaseController{
         ScreenCaptureStartRequest request = ScreenCaptureStartRequest.newBuilder()
                 .setSerial(deviceId)
                 .build();
-        client.sendEvent("screenStart", request.toByteArray());
+        client.sendEvent(WebsocketEvent.ON_SCREEN_SHOW_START, request.toByteArray());
         return new ResponseEntity<>(successInfo(), HttpStatus.OK);
     }
 
@@ -365,7 +366,7 @@ public class DeviceController extends BaseController{
         ScreenCaptureEndRequest request = ScreenCaptureEndRequest.newBuilder()
                 .setSerial(deviceId)
                 .build();
-        client.sendEvent("screenStop", request.toByteArray());
+        client.sendEvent(WebsocketEvent.ON_SCREEN_SHOW_STOP, request.toByteArray());
         return new ResponseEntity<>(successInfo(), HttpStatus.OK);
     }
 
@@ -384,7 +385,7 @@ public class DeviceController extends BaseController{
                 .setLevel("E")
                 .setTag("")
                 .build();
-        client.sendEvent("logcatStart", request.toByteArray());
+        client.sendEvent(WebsocketEvent.ON_LOGCAT_SHOW_START, request.toByteArray());
         return new ResponseEntity<>(successInfo(), HttpStatus.OK);
     }
 
@@ -400,7 +401,7 @@ public class DeviceController extends BaseController{
         LogcatEndRequest request = LogcatEndRequest.newBuilder()
                 .setSerial(deviceId)
                 .build();
-        client.sendEvent("logcatStop", request.toByteArray());
+        client.sendEvent(WebsocketEvent.ON_LOGCAT_SHOW_STOP, request.toByteArray());
         return new ResponseEntity<>(successInfo(), HttpStatus.OK);
     }
 

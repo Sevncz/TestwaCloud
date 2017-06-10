@@ -4,7 +4,7 @@ import com.android.ddmlib.AndroidDebugBridge;
 import com.android.ddmlib.IDevice;
 import com.github.cosysoft.device.android.AndroidDevice;
 import com.github.cosysoft.device.android.impl.DefaultHardwareDevice;
-import com.testwa.distest.client.boost.TestwaSocket;
+import com.testwa.distest.client.control.client.MainClient;
 import com.testwa.distest.client.model.TestwaDevice;
 import com.testwa.distest.client.rpc.proto.Agent;
 import io.grpc.testwa.device.Device;
@@ -67,7 +67,7 @@ public class DeviceChangeListener implements AndroidDebugBridge.IDeviceChangeLis
             testwaDevice.setStatus(Agent.Device.LineStatus.OFF.name());
         }
         Device message = testwaDevice.toAgentDevice();
-        TestwaSocket.getSocket().emit("device", message.toByteArray());
+        MainClient.getWs().emit("device", message.toByteArray());
     }
 
     @Override
@@ -83,7 +83,7 @@ public class DeviceChangeListener implements AndroidDebugBridge.IDeviceChangeLis
                 .setDeviceId(deviceId)
                 .setStatus(NoUsedDeviceRequest.LineStatus.DISCONNECTED)
                 .build();
-        TestwaSocket.getSocket().emit("deviceDisconnect", message.toByteArray());
+        MainClient.getWs().emit("deviceDisconnect", message.toByteArray());
     }
 
     @Override

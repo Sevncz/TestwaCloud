@@ -2,6 +2,7 @@ package com.testwa.distest.client.boost.impl;
 
 import com.testwa.distest.client.boost.TestwaException;
 import com.testwa.distest.client.boost.TestwaNotificationCallback;
+import com.testwa.distest.client.control.client.boost.MessageException;
 import org.springframework.stereotype.Component;
 
 /**
@@ -12,7 +13,7 @@ public class InstallAppCallbackImpl implements TestwaNotificationCallback {
 
 
     @Override
-    public void done(Object o, TestwaException e) throws TestwaException {
+    public void done(Object o, TestwaException e) throws MessageException {
         /**
          * 安装app的流程:
          * 1. 接受到安装app的请求

@@ -1,7 +1,8 @@
 package com.testwa.distest.client.web.startup;
 
-import com.testwa.distest.client.boost.TestwaApp;
+import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.boost.TestwaNotificationCallback;
+import com.testwa.distest.client.control.client.MainClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
@@ -12,8 +13,8 @@ import org.springframework.stereotype.Component;
  * Created by wen on 16/8/14.
  */
 @Component
-public class TestwaSocketNotificationRegister implements CommandLineRunner {
-    private final TestwaApp app;
+public class MainMessageRegister implements CommandLineRunner {
+    private final MainClient client;
 
     @Autowired
     @Qualifier("runTestcaseCallbackImpl")
@@ -44,26 +45,28 @@ public class TestwaSocketNotificationRegister implements CommandLineRunner {
     private TestwaNotificationCallback uninstallAppCB;
 
     @Autowired
-    public TestwaSocketNotificationRegister(TestwaApp app) {
-        this.app = app;
+    public MainMessageRegister(MainClient client) {
+        this.client = client;
     }
 
     @Override
     public void run(String... strings) throws Exception {
 //        app.receive("test_one_app", tnotificationCB);
         // 运行
-        app.receive("testcaseRun", tnotificationRunCB);
-        // 获得屏幕开始
-        app.receive("screenStart", screenCaptureStartCB);
-        // 获得屏幕结束
-        app.receive("screenStop", screenCaptureStopCB);
-        // 安装
-        app.receive("installApp", installAppCB);
-        // 卸载
-        app.receive("uninstallApp", uninstallAppCB);
-        // 获得logcat开始
-        app.receive("logcatStart", logcatStartCB);
-        // 获得logcat结束
-        app.receive("logcatStop", logcatStopCB);
+//        client.receive(WebsocketEvent.ON_TESTCASE_RUN, tnotificationRunCB);
+//        // 获得屏幕开始
+//        client.receive(WebsocketEvent.ON_SCREEN_SHOW_START, screenCaptureStartCB);
+//        // 获得屏幕结束
+//        client.receive(WebsocketEvent.ON_SCREEN_SHOW_STOP, screenCaptureStopCB);
+//        // 安装
+//        client.receive(WebsocketEvent.ON_APP_INSTALL, installAppCB);
+//        // 卸载
+//        client.receive(WebsocketEvent.ON_APP_UNINSTALL, uninstallAppCB);
+//        // 获得logcat开始
+//        client.receive(WebsocketEvent.ON_LOGCAT_SHOW_START, logcatStartCB);
+//        // 获得logcat结束
+//        client.receive(WebsocketEvent.ON_LOGCAT_SHOW_STOP, logcatStopCB);
+
+
     }
 }

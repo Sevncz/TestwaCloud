@@ -40,7 +40,7 @@ public class LogcatClient {
     public void sender(LogcatRequest request) {
         CommonReply response;
         try {
-            response = blockingStub.sender(request);
+            response = blockingStub.forward(request);
         } catch (StatusRuntimeException e) {
             logger.error("RPC failed: {0}", e.getStatus());
             return;

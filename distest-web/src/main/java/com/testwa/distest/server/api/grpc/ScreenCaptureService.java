@@ -34,7 +34,7 @@ public class ScreenCaptureService extends ScreenCaptureGrpc.ScreenCaptureImplBas
     private SocketIOServer server;
 
     @Override
-    public void sender(ScreenCaptureRequest request, StreamObserver<CommonReply> responseObserver) {
+    public void forward(ScreenCaptureRequest request, StreamObserver<CommonReply> responseObserver) {
 //        deviceRedisService.saveImgData(request);
         String serial = request.getSerial();
         String sessionId = template.opsForValue().get(String.format("flag.%s.%s", WSFlagEnum.SCREEN.getValue(), serial));

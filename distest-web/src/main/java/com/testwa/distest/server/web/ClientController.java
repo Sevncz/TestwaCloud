@@ -1,6 +1,6 @@
 package com.testwa.distest.server.web;
 
-import com.testwa.distest.server.config.EventConstant;
+import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.server.model.message.ResultInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,14 +32,14 @@ public class ClientController extends BaseController{
     @ResponseBody
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<ResultInfo> getAll() {
-        Set<String> sessionIds = template.opsForSet().members(EventConstant.connect_session);
+        Set<String> sessionIds = template.opsForSet().members(WebsocketEvent.CONNECT_SESSION);
         return new ResponseEntity<>(dataInfo(sessionIds), HttpStatus.OK);
     }
 
     @ResponseBody
     @RequestMapping(value = "/devices", method = RequestMethod.GET)
     public ResponseEntity<ResultInfo> devices() {
-        Map devices = template.opsForHash().entries(EventConstant.feedback_device);
+        Map devices = template.opsForHash().entries(WebsocketEvent.DEVICE);
         return new ResponseEntity<>(dataInfo(devices), HttpStatus.OK);
     }
 

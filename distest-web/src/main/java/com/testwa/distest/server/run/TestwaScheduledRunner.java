@@ -1,8 +1,7 @@
 package com.testwa.distest.server.run;
 
-import com.testwa.distest.server.config.EventConstant;
+import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.server.model.TestwaProcedureInfo;
-import com.testwa.distest.server.model.TestwaReportDetail;
 import com.testwa.distest.server.model.TestwaReportSdetail;
 import com.testwa.distest.server.service.TestwaReportDetailService;
 import com.testwa.distest.server.service.TestwaReportSdetailService;
@@ -16,10 +15,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
@@ -46,7 +42,7 @@ public class TestwaScheduledRunner {
 
     @Scheduled(cron = "0/10 * * * * ?")
     public void storeRunningLog() throws Exception {
-        Long logSize = template.opsForList().size(EventConstant.feedback_runningLog);
+        Long logSize = template.opsForList().size(WebsocketEvent.FB_RUNNGING_LOG);
         if(logSize == 0){
             return;
         }
@@ -54,7 +50,7 @@ public class TestwaScheduledRunner {
         List<TestwaProcedureInfo> logers = new ArrayList<>();
         for(int i=0;i < logSize; i++){
             try {
-                String loger_s = template.opsForList().rightPop(EventConstant.feedback_runningLog);
+                String loger_s = template.opsForList().rightPop(WebsocketEvent.FB_RUNNGING_LOG);
                 TestwaProcedureInfo procedure = mapper.readValue(loger_s, TestwaProcedureInfo.class);
                 String screenPath = procedure.getScreenshotPath();
                 // 转换文件分隔符

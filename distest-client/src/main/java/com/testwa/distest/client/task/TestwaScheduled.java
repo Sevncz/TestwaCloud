@@ -3,7 +3,8 @@ package com.testwa.distest.client.task;
 import com.github.cosysoft.device.android.AndroidDevice;
 import com.github.cosysoft.device.shell.ShellCommandException;
 import com.google.protobuf.ByteString;
-import com.testwa.distest.client.boost.TestwaSocket;
+import com.testwa.core.WebsocketEvent;
+import com.testwa.distest.client.control.client.MainClient;
 import com.testwa.distest.client.model.TestwaDevice;
 import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.service.HttpService;
@@ -49,7 +50,7 @@ public class TestwaScheduled {
 
     @Scheduled(cron = "0/10 * * * * ?")
     public void senderDevice() {
-        if(TestwaSocket.getSocket().connected()){
+        if(MainClient.getWs().connected()){
             try{
 
                 TreeSet<AndroidDevice> androidDevices = AndroidHelper.getInstance().getAllDevices();
@@ -89,12 +90,16 @@ public class TestwaScheduled {
                     result.add(device.toAgentDevice());
                 }
 
+                if(UserInfo.userId == null){
+                    logger.error("userId was null");
+                    return;
+                }
                 DevicesRequest devices = DevicesRequest.newBuilder()
                         .setCount(result.size())
                         .setUserId(UserInfo.userId)
                         .addAllDevice(result)
                         .build();
-                TestwaSocket.getSocket().emit("device", devices.toByteArray());
+                MainClient.getWs().emit(WebsocketEvent.DEVICE, devices.toByteArray());
             }catch (ShellCommandException e){
                 logger.error("Adb get props error", e);
             }

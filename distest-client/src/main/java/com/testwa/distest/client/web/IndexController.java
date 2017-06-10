@@ -2,8 +2,9 @@ package com.testwa.distest.client.web;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.ByteString;
+import com.testwa.core.WebsocketEvent;
 import com.testwa.core.utils.TimeUtil;
-import com.testwa.distest.client.boost.TestwaSocket;
+import com.testwa.distest.client.control.client.MainClient;
 import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.service.HttpService;
 import com.testwa.distest.client.task.Testcase;
@@ -96,7 +97,7 @@ public class IndexController {
                 .setDescription("")
                 .setUserId(UserInfo.userId)
                 .build();
-        TestwaSocket.getSocket().emit("feedback.runninglog", fb.toByteArray());
+        MainClient.getWs().emit(WebsocketEvent.FB_RUNNGING_LOG, fb.toByteArray());
         return "ok";
     }
 

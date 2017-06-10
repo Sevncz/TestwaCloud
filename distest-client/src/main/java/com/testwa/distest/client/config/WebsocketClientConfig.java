@@ -1,7 +1,6 @@
 package com.testwa.distest.client.config;
 
-import com.testwa.distest.client.boost.TestwaApp;
-import com.testwa.distest.client.boost.TestwaSocket;
+import com.testwa.distest.client.control.client.MainClient;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 
 /**
@@ -18,25 +18,23 @@ import java.net.URISyntaxException;
 @Configuration
 public class WebsocketClientConfig {
 
-    @Value("${agent.id}")
-    private String agent_id;
-
-    @Value("${agent.key}")
-    private String agent_key;
-
     @Autowired
     private Environment env;
 
     @Bean
-    public Socket socket() throws URISyntaxException {
-        Socket socket = IO.socket(String.format("%s?username=%s&password=%s", env.getProperty("agent.socket.url"), env.getProperty("username"), env.getProperty("password")));
-        TestwaSocket.setSocket(socket);
+    public Socket socket() throws IOException, URISyntaxException {
+        String url = env.getProperty("agent.socket.url");
+        String username = env.getProperty("username");
+        String password = env.getProperty("password");
+
+        Socket socket = IO.socket(String.format("%s?username=%s&password=%s", url, username, password));
+        MainClient.setWs(socket);
         return socket;
     }
 
     @Bean
-    public TestwaApp app(){
-        return new TestwaApp(agent_id, agent_key);
+    public MainClient app(){
+        return new MainClient(env.getProperty("username"), env.getProperty("password"));
     }
 
 

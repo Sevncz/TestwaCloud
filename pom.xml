@@ -41,6 +41,7 @@
         <quartz.version>2.2.1</quartz.version>
         <quartz-mongodb.version>2.0.0</quartz-mongodb.version>
         <mongodb.version>3.3.0</mongodb.version>
+        <fastjson.version>1.2.31</fastjson.version>
     </properties>
 
     <dependencyManagement>
@@ -209,6 +210,14 @@
                 <artifactId>slf4j-log4j12</artifactId>
                 <version>1.7.2</version>
             </dependency>
+
+            <!-- fastjson -->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>${fastjson.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

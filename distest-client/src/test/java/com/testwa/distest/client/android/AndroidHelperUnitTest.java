@@ -29,12 +29,6 @@ public class AndroidHelperUnitTest {
 
 
     @Test
-    public void testScreenshot() {
-        String path = AndroidHelper.getInstance().screenshot(deviceId, "");
-        System.out.println(path);
-    }
-
-    @Test
     public void testInstallApp(){
         AndroidHelper.getInstance().installApp("/Users/wen/Documents/testwa/ContactManager.apk", deviceId);
         Client[] clients = AndroidHelper.getInstance().getAllClient(deviceId);

@@ -4,8 +4,8 @@ import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.annotation.OnConnect;
 import com.corundumstudio.socketio.annotation.OnDisconnect;
+import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.server.api.WSFlagEnum;
-import com.testwa.distest.server.config.EventConstant;
 import com.testwa.distest.server.service.redis.TestwaAgentRedisService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -51,7 +51,7 @@ public class WebConnectionHandler {
             }
         }
 
-        template.opsForSet().add(EventConstant.connect_session, client.getSessionId().toString());
+        template.opsForSet().add(WebsocketEvent.CONNECT_SESSION, client.getSessionId().toString());
     }
 
     @OnDisconnect
@@ -65,10 +65,10 @@ public class WebConnectionHandler {
         // 清除设备和agent的关联
         for(String d : deviceIds){
             log.info("client disconnect, clear no used device, {}", d);
-            template.opsForHash().delete(EventConstant.feedback_device, d);
+            template.opsForHash().delete(WebsocketEvent.DEVICE, d);
         }
         // 清除agent的session信息
-        template.opsForSet().remove(EventConstant.connect_session, client.getSessionId().toString());
+        template.opsForSet().remove(WebsocketEvent.CONNECT_SESSION, client.getSessionId().toString());
         // 删除agent和device的关联
         template.delete(String.format("client.session.devices.%s", client.getSessionId().toString()));
 
