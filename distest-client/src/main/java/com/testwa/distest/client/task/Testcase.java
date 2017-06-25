@@ -6,34 +6,25 @@ import com.github.cosysoft.device.android.impl.DefaultAndroidApp;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.appium.manager.AppiumCache;
 import com.testwa.distest.client.appium.manager.AppiumParallelTest;
-import com.testwa.distest.client.control.client.MainClient;
+import com.testwa.distest.client.control.client.MainSocket;
 import com.testwa.distest.client.service.HttpService;
 import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.distest.client.rpc.proto.Agent;
 import com.testwa.core.service.PythonScriptDriverService;
 import com.testwa.core.service.PythonServiceBuilder;
 import com.testwa.distest.client.util.*;
-import io.appium.java_client.AppiumDriver;
-import io.appium.java_client.MobileElement;
-import io.appium.java_client.android.AndroidDriver;
-import io.appium.java_client.remote.AndroidMobileCapabilityType;
-import io.appium.java_client.remote.MobileCapabilityType;
 import org.apache.commons.lang3.StringUtils;
-import org.openqa.selenium.logging.LogEntry;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.InetAddress;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -132,7 +123,7 @@ public class Testcase {
                                     .setReportDetailId(this.reportDetailId)
                                     .setScriptId(this.currScript)
                                     .setType(Agent.ReportSdetailType.end).build();
-                            MainClient.getWs().emit(feedback_report_sdetail, rs.toByteArray());
+                            MainSocket.getSocket().emit(feedback_report_sdetail, rs.toByteArray());
                         }
                     }
                     boolean status = runOneScript(appPath, basePackage, mainActivity);
@@ -210,7 +201,7 @@ public class Testcase {
                 .setScriptId(runscriptId)
                 .setMatchineName(hostname)
                 .setType(Agent.ReportSdetailType.start).build();
-        MainClient.getWs().emit(feedback_report_sdetail, rs.toByteArray());
+        MainSocket.getSocket().emit(feedback_report_sdetail, rs.toByteArray());
 
         return true;
     }

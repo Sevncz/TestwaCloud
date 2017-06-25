@@ -37,46 +37,8 @@ public class Constant {
 	public static final String localLogcatPath = Paths.get(System.getProperty("java.io.tmpdir"), "testwa_agent", "logcat").toString();
 
 
-    public static File getResourceDir() {
-        String path = System.getProperty("java.class.path");
-        if (path.indexOf(";") > 0) {
-            path = path.substring(0, path.indexOf(";"));
-        }
-        File resources = new File(new File(path).getParent(), "resources");
-
-        return resources;
-    }
-
-    public static File getResourceFile(String name) {
-        File dir = getResourceDir();
-        return new File(dir, name);
-    }
-
-    public static File getMinicap(String abi) {
-        File resources = getResourceDir();
-        if (resources.exists()) {
-            return new File(resources, "minicap" + File.separator + "bin" +
-                    File.separator + abi + File.separator + "minicap");
-        }
-        return null;
-    }
-
-    public static File getMinicapSo(String abi, String sdk) {
-        File resources = getResourceDir();
-        if (resources.exists()) {
-            return new File(resources, "minicap" + File.separator + "shared" +
-                    File.separator + "android-" + sdk + File.separator + abi + File.separator + "minicap.so");
-        }
-        return null;
-    }
-
-    public static File getMinitouchBin(String abi) {
-        File resources = getResourceDir();
-        if (resources.exists()) {
-            return new File(resources, "minitouch" + File.separator +
-                    File.separator + abi + File.separator + "minitouch");
-        }
-        return null;
+    public static File getMinitouchBin(String abi, String bin) {
+        return new File(Constant.class.getResource(File.separator + "minitouch" + File.separator + abi + File.separator + bin).getPath());
     }
 
     public static File getTmpFile(String fileName) {

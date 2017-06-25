@@ -1,46 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration monitorInterval="60">
+<Configuration status="debug" strict="true" name="XMLConfigTest"
+               packages="com.testwa.distest.server">
     <Properties>
-        <Property name="log-path">/Users/wen/dev/testWa/logs</Property>
+        <Property name="filename">/data/logs/distest-server.log</Property>
     </Properties>
+    <Filter type="ThresholdFilter" level="trace"/>
+
     <Appenders>
-        <Console name="Console-Appender" target="SYSTEM_OUT">
-            <PatternLayout>
-                <pattern>
-                    [%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n
-                </pattern>>
-            </PatternLayout>
-        </Console>
-        <File name="App-File-Appender" fileName="${log-path}/testwa_server.log" >
-            <PatternLayout>
-                <pattern>
-                    [%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n
-                </pattern>
-            </PatternLayout>
-        </File>
-        <File name="SpringBoot-File-Appender" fileName="${log-path}/testwa_springboot.log" >
-            <PatternLayout>
-                <pattern>
-                    [%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n
-                </pattern>
-            </PatternLayout>
-        </File>
+        <Appender type="Console" name="STDOUT">
+            <Layout type="PatternLayout" pattern="%d %p %C{1.} [%t] %m%n"/>
+            <Filters>
+                <Filter type="MarkerFilter" marker="FLOW" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <Filter type="MarkerFilter" marker="EXCEPTION" onMatch="DENY" onMismatch="ACCEPT"/>
+            </Filters>
+        </Appender>
+        <Appender type="Console" name="FLOW">
+            <Layout type="PatternLayout" pattern="%d %p %C{1.} [%t] %m%n"/><!-- class and line number -->
+            <Filters>
+                <Filter type="MarkerFilter" marker="FLOW" onMatch="ACCEPT" onMismatch="NEUTRAL"/>
+                <Filter type="MarkerFilter" marker="EXCEPTION" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+        </Appender>
+        <Appender type="File" name="File" fileName="${filename}">
+            <Layout type="PatternLayout">
+                <Pattern>%d %p %C{1.} [%t] %m%n</Pattern>
+            </Layout>
+        </Appender>
+        <Appender type="List" name="List">
+        </Appender>
     </Appenders>
+
     <Loggers>
-        <Logger name="org.springframework.web" level="debug" additivity="false">
-            <AppenderRef ref="SpringBoot-File-Appender"/>
-            <AppenderRef ref="Console-Appender"/>
+        <Logger name="org.springframework.web" level="info" additivity="false">
+            <AppenderRef ref="File"/>
+            <AppenderRef ref="STDOUT"/>
         </Logger>
-        <Logger name="org.springframework.data.mongodb" level="debug" additivity="false">
-            <AppenderRef ref="SpringBoot-File-Appender"/>
-            <AppenderRef ref="Console-Appender"/>
+        <Logger name="org.springframework.data.mongodb" level="info" additivity="false">
+            <AppenderRef ref="File"/>
+            <AppenderRef ref="STDOUT"/>
         </Logger>
         <Logger name="com.testwa.distest.server" level="debug" additivity="false">
-            <AppenderRef ref="App-File-Appender"/>
-            <AppenderRef ref="Console-Appender"/>
+            <AppenderRef ref="File"/>
+            <AppenderRef ref="STDOUT"/>
         </Logger>
-        <Root>
-            <AppenderRef ref="Console-Appender"/>
+
+        <Root level="trace">
+            <AppenderRef ref="List"/>
         </Root>
     </Loggers>
+
 </Configuration>

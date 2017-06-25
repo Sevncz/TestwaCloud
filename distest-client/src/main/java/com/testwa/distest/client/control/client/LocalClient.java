@@ -1,13 +1,10 @@
 package com.testwa.distest.client.control.client;
 
-import com.sun.scenario.effect.ImageData;
-import com.testwa.distest.client.control.Protocol;
 import com.testwa.distest.client.minicap.Banner;
 import com.testwa.distest.client.minicap.Minicap;
 import com.testwa.distest.client.minicap.MinicapListener;
 import com.testwa.distest.client.minitouch.Minitouch;
 import com.testwa.distest.client.minitouch.MinitouchListener;
-import io.netty.channel.ChannelHandlerContext;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -20,11 +17,6 @@ public class LocalClient extends BaseClient implements MinicapListener, Minitouc
     private boolean isWaitting = false;
     private BlockingQueue<ImageData> dataQueue = new LinkedBlockingQueue<ImageData>();
 
-    private Protocol protocol;
-
-    public LocalClient(Protocol protocol) {
-        this.protocol = protocol;
-    }
 
 
     public static class ImageData {
@@ -35,7 +27,6 @@ public class LocalClient extends BaseClient implements MinicapListener, Minitouc
         long timesp;
         byte[] data;
     }
-
 
     @Override
     public void onStartup(Minicap minicap, boolean success) {

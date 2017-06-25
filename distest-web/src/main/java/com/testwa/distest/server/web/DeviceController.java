@@ -2,6 +2,7 @@ package com.testwa.distest.server.web;
 
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
+import com.testwa.core.Command;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.rpc.proto.Agent;
 import com.testwa.distest.server.authorization.annotation.Authorization;
@@ -17,10 +18,9 @@ import com.testwa.distest.server.model.permission.UserShareScope;
 import com.testwa.distest.server.service.TestwaAgentService;
 import com.testwa.distest.server.service.TestwaDeviceService;
 import com.testwa.distest.server.service.UserDeviceHisService;
-import com.testwa.distest.server.service.redis.TestwaAgentRedisService;
-import com.testwa.distest.server.service.redis.TestwaDeviceRedisService;
 import com.testwa.distest.server.model.message.ResultCode;
 import com.testwa.distest.server.model.message.ResultInfo;
+import com.testwa.distest.server.service.cache.RemoteClientService;
 import com.testwa.distest.server.web.VO.DeviceOwnerTableVO;
 import io.grpc.testwa.device.*;
 import io.swagger.annotations.Api;
@@ -57,16 +57,13 @@ public class DeviceController extends BaseController{
     private final SocketIOServer server;
 
     @Autowired
-    private TestwaDeviceRedisService deviceRedisService;
-
-    @Autowired
-    private TestwaAgentRedisService agentRedisService;
-
-    @Autowired
     private TestwaAgentService testwaAgentService;
 
     @Autowired
     private UserDeviceHisService userDeviceHisService;
+
+    @Autowired
+    private RemoteClientService remoteClientService;
 
     @Autowired
     private Environment env;
@@ -250,12 +247,12 @@ public class DeviceController extends BaseController{
         for (UserDeviceHis his : userDevicePage) {
             TestwaDevice device = testwaDeviceService.getDeviceById(his.getDeviceId());
             DeviceOwnerTableVO vo = new DeviceOwnerTableVO(device);
-            String sessionId = deviceRedisService.getSessionIdById(his.getDeviceId());
+            String sessionId = remoteClientService.getMainSessionByDeviceId(his.getDeviceId());
             if (StringUtils.isNotBlank(sessionId)) {
                 // 状态已经保存在数据库了，这里就不用修改了，只需要拿到agent的信息
 //                    d.setStatus("ON");
                 vo.setSessionId(sessionId);
-                String agentId = agentRedisService.getAgentBySessionId(sessionId);
+                String agentId = remoteClientService.getMainInfoBySession(sessionId);
                 if (StringUtils.isNotBlank(agentId)) {
                     TestwaAgent agent = testwaAgentService.getTestwaAgentById(agentId);
                     vo.setAgent(agent);
@@ -342,15 +339,12 @@ public class DeviceController extends BaseController{
     @ResponseBody
     @RequestMapping(value = "/show/screen/start/{deviceId}", method= RequestMethod.GET)
     public ResponseEntity<ResultInfo> showScreenStart(@PathVariable String deviceId){
-        String sessionId = deviceRedisService.getSessionIdById(deviceId);
+        String sessionId = remoteClientService.getMainSessionByDeviceId(deviceId);
         if(StringUtils.isBlank(sessionId)){
             return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "sessionId not found"), HttpStatus.SERVICE_UNAVAILABLE);
         }
         SocketIOClient client = server.getClient(UUID.fromString(sessionId));
-        ScreenCaptureStartRequest request = ScreenCaptureStartRequest.newBuilder()
-                .setSerial(deviceId)
-                .build();
-        client.sendEvent(WebsocketEvent.ON_SCREEN_SHOW_START, request.toByteArray());
+        client.sendEvent(Command.Schem.OPEN.getSchemString(), deviceId);
         return new ResponseEntity<>(successInfo(), HttpStatus.OK);
     }
 
@@ -358,7 +352,7 @@ public class DeviceController extends BaseController{
     @ResponseBody
     @RequestMapping(value = "/show/screen/stop/{deviceId}", method= RequestMethod.GET)
     public ResponseEntity<ResultInfo> showScreenStop(@PathVariable String deviceId){
-        String sessionId = deviceRedisService.getSessionIdById(deviceId);
+        String sessionId = remoteClientService.getMainSessionByDeviceId(deviceId);
         if(StringUtils.isBlank(sessionId)){
             return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "sessionId not found"), HttpStatus.SERVICE_UNAVAILABLE);
         }
@@ -374,7 +368,7 @@ public class DeviceController extends BaseController{
     @ResponseBody
     @RequestMapping(value = "/show/logcat/start/{deviceId}", method= RequestMethod.GET)
     public ResponseEntity<ResultInfo> showLogcatStart(@PathVariable String deviceId){
-        String sessionId = deviceRedisService.getSessionIdById(deviceId);
+        String sessionId = remoteClientService.getMainSessionByDeviceId(deviceId);
         if(StringUtils.isBlank(sessionId)){
             return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "sessionId not found"), HttpStatus.SERVICE_UNAVAILABLE);
         }
@@ -393,7 +387,7 @@ public class DeviceController extends BaseController{
     @ResponseBody
     @RequestMapping(value = "/show/logcat/stop/{deviceId}", method= RequestMethod.GET)
     public ResponseEntity<ResultInfo> showLogcatStop(@PathVariable String deviceId){
-        String sessionId = deviceRedisService.getSessionIdById(deviceId);
+        String sessionId = remoteClientService.getMainSessionByDeviceId(deviceId);
         if(StringUtils.isBlank(sessionId)){
             return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "sessionId not found"), HttpStatus.SERVICE_UNAVAILABLE);
         }

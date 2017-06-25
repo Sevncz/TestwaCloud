@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 /**
  *  Hosts embedded gRPC server.
  */
-public class GRpcServerRunner implements CommandLineRunner,DisposableBean  {
+public class GRpcServerRunner implements CommandLineRunner, DisposableBean  {
     private static final Logger log = LoggerFactory.getLogger(GRpcServerRunner.class);
 
     @Autowired

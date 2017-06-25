@@ -39,15 +39,9 @@ public class Command {
     private Schem schem;
     private Object content;
 
-    public Command(String command) throws InvalidParameterException {
+    public Command(String event, String command) throws InvalidParameterException {
         // 截取schem
-        int splitIndex = -1;
-        if ((splitIndex = command.indexOf("://")) == -1) {
-            throw new InvalidParameterException(command + " 不是一个合法的Command");
-        }
-
-        String schemStr = command.substring(0, splitIndex);
-        switch (schemStr) {
+        switch (event) {
             case "wait":
                 schem = Schem.WAIT;
                 break;
@@ -91,17 +85,20 @@ public class Command {
                 throw new InvalidParameterException(command + " 未知的schem");
         }
 
-        String contentStr = command.substring(splitIndex + 3);
-
         // 此消息不是json格式。其他都为json键值对
-        if (!schem.equals(Schem.TOUCH) && !schem.equals(Schem.KEYEVENT) && !schem.equals(Schem.INPUT) && !schem.equals(Schem.MINICAP) && !schem.equals(Schem.MINITOUCH) && !schem.equals(Schem.MESSAGE)) {
+        if (!schem.equals(Schem.TOUCH) &&
+                !schem.equals(Schem.KEYEVENT) &&
+                !schem.equals(Schem.INPUT) &&
+                !schem.equals(Schem.MINICAP) &&
+                !schem.equals(Schem.MINITOUCH) &&
+                !schem.equals(Schem.MESSAGE)) {
             try {
-                this.content = parseContentJson(contentStr);
+                this.content = parseContentJson(command);
             } catch (JSONException e) {
                 throw new InvalidParameterException(e.getMessage());
             }
         } else {
-            this.content = contentStr;
+            this.content = command;
         }
     }
 
@@ -151,9 +148,9 @@ public class Command {
         return null;
     }
 
-    public static Command ParseCommand(String command) {
+    public static Command ParseCommand(String event, String command) {
         try {
-            Command cmd = new Command(command);
+            Command cmd = new Command(event, command);
             return cmd;
         } catch (InvalidParameterException ex) {
             return null;

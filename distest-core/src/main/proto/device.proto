@@ -8,19 +8,18 @@ option objc_class_prefix = "HLW";
 package device;
 
 
-service ScreenCapture {
-    rpc forward (ScreenCaptureRequest) returns ( CommonReply ) {}
-}
-
-service Logcat {
-    rpc forward (LogcatRequest) returns ( CommonReply ) {}
-}
-
-service Control {
+service ControlService {
     rpc forward (CommandRequest) returns ( CommonReply ) {}
 
 }
 
+service DeviceService {
+    rpc all (DevicesRequest) returns ( CommonReply ) {}
+    rpc disconnect (NoUsedDeviceRequest) returns ( CommonReply ) {}
+    rpc offline (NoUsedDeviceRequest) returns ( CommonReply ) {}
+    rpc logcat(LogcatRequest) returns ( CommonReply ) {}
+    rpc screen(ScreenCaptureRequest) returns ( CommonReply ) {}
+}
 
 message Device {
     string deviceId = 1;
@@ -60,7 +59,6 @@ message NoUsedDeviceRequest {
     LineStatus status = 2;
 
 }
-
 
 message ScreenCaptureRequest {
     bytes img = 1;

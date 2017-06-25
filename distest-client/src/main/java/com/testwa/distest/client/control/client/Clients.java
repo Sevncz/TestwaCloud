@@ -1,5 +1,9 @@
 package com.testwa.distest.client.control.client;
 
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import io.grpc.testwa.device.DeviceServiceGrpc;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,5 +26,18 @@ public class Clients {
 
     public static List<RemoteClient> all(){
         return new ArrayList<>(all.values());
+    }
+
+    public static void remove(String serial){
+        all.remove(serial);
+    }
+
+
+    public static DeviceServiceGrpc.DeviceServiceFutureStub deviceService(String webHost, Integer webPort) {
+        final ManagedChannel channel = ManagedChannelBuilder.forAddress(webHost, webPort)
+                .usePlaintext(true)
+                .build();
+        final DeviceServiceGrpc.DeviceServiceFutureStub stub = DeviceServiceGrpc.newFutureStub(channel);
+        return stub;
     }
 }

@@ -3,8 +3,8 @@ package com.testwa.distest.client.task;
 import com.github.cosysoft.device.android.AndroidDevice;
 import com.github.cosysoft.device.shell.ShellCommandException;
 import com.google.protobuf.ByteString;
-import com.testwa.core.WebsocketEvent;
-import com.testwa.distest.client.control.client.MainClient;
+import com.testwa.distest.client.control.client.Clients;
+import com.testwa.distest.client.control.client.MainSocket;
 import com.testwa.distest.client.model.TestwaDevice;
 import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.service.HttpService;
@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -47,10 +48,12 @@ public class TestwaScheduled {
 
     @Autowired
     private HttpService httpService;
+    @Autowired
+    private Environment env;
 
     @Scheduled(cron = "0/10 * * * * ?")
     public void senderDevice() {
-        if(MainClient.getWs().connected()){
+        if(MainSocket.getSocket() != null && MainSocket.getSocket().connected()){
             try{
 
                 TreeSet<AndroidDevice> androidDevices = AndroidHelper.getInstance().getAllDevices();
@@ -99,7 +102,9 @@ public class TestwaScheduled {
                         .setUserId(UserInfo.userId)
                         .addAllDevice(result)
                         .build();
-                MainClient.getWs().emit(WebsocketEvent.DEVICE, devices.toByteArray());
+                String webHost = env.getProperty("grpc.host");
+                Integer webPort = Integer.parseInt(env.getProperty("grpc.port"));
+                Clients.deviceService(webHost, webPort).all(devices);
             }catch (ShellCommandException e){
                 logger.error("Adb get props error", e);
             }

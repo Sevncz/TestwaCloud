@@ -29,7 +29,8 @@ public class WebSocketConfig {
         config.setAuthorizationListener(handshakeData -> {
             String username = handshakeData.getSingleUrlParam("username");
             String password = handshakeData.getSingleUrlParam("password");
-            log.info("websocket username: {}, password: {}", username, password);
+            String token = handshakeData.getSingleUrlParam("token");
+            log.info("websocket username: {}, password: {}, token: {}", username, password, token);
             return true;
         });
         return new SocketIOServer(config);

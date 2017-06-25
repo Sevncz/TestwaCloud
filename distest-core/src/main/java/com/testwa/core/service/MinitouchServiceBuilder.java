@@ -8,25 +8,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 /**
  * Created by wen on 16/8/28.
  */
-public final class MinicapServiceBuilder extends AdbServiceBuilder {
+public final class MinitouchServiceBuilder extends AdbServiceBuilder {
     private String getAdbExecutable;
     private long startupTimeout = 120L;
     private TimeUnit timeUnit;
     private String libPath;
     private String size;
     private Integer rotate;
-    private String bin;
+    private String execute;
     private String deviceId;
     private String name;
     private Boolean shipFrame;
     private String[] args;
 
-    public MinicapServiceBuilder() {
+    public MinitouchServiceBuilder() {
         this.timeUnit = TimeUnit.SECONDS;
     }
 
@@ -48,21 +46,10 @@ public final class MinicapServiceBuilder extends AdbServiceBuilder {
         argList.add("-s");
         argList.add(this.deviceId);
         argList.add("shell");
-        argList.add(String.format("LD_LIBRARY_PATH=%s", this.libPath));
-        argList.add(String.format("%s/%s", this.libPath, this.bin));
-        argList.add("-P");
-        argList.add(this.size);
-        if(this.name != null){
-            argList.add("-n");
-            argList.add(this.name);
-        }
-        if (this.shipFrame)
-            argList.add("-S");
-        if (this.args != null) {
-            for (String s : args) {
-                argList.add(s);
-            }
-        }
+        argList.add(this.execute);
+        argList.add("-n");
+        argList.add(this.name);
+
         return (new ImmutableList.Builder()).addAll(argList).build();
     }
 
@@ -77,43 +64,20 @@ public final class MinicapServiceBuilder extends AdbServiceBuilder {
     }
 
 
-    public MinicapServiceBuilder whithLibPath(String libPath) {
-        this.libPath = libPath;
+    public MinitouchServiceBuilder whithExecute(String execute) {
+        this.execute = execute;
         return this;
     }
 
-    public MinicapServiceBuilder whithSize(String size) {
-        this.size = size;
+    public MinitouchServiceBuilder whithName(String name) {
+        this.name = name;
         return this;
     }
 
-    public MinicapServiceBuilder whithBin(String bin) {
-        this.bin = bin;
-        return this;
-    }
-
-    public MinicapServiceBuilder whithDeviceId(String deviceId) {
+    public MinitouchServiceBuilder whithDeviceId(String deviceId) {
         this.deviceId = deviceId;
         return this;
     }
 
-    public MinicapServiceBuilder whithRotate(Integer rotate) {
-        this.rotate = rotate;
-        return this;
-    }
-
-    public MinicapServiceBuilder whithShipFrame(Boolean shipFrame) {
-        this.shipFrame = shipFrame;
-        return this;
-    }
-
-    public MinicapServiceBuilder whithArgs(String[] args) {
-        this.args = args;
-        return this;
-    }
-    public MinicapServiceBuilder whithName(String name) {
-        this.name = name;
-        return this;
-    }
 
 }

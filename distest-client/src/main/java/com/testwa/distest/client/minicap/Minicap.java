@@ -1,8 +1,6 @@
 package com.testwa.distest.client.minicap;
 
 import com.android.ddmlib.*;
-import com.github.cosysoft.device.android.AndroidDevice;
-import com.google.protobuf.ByteString;
 import com.testwa.core.service.AdbDriverService;
 import com.testwa.core.service.MinicapServiceBuilder;
 import com.testwa.core.utils.Identities;
@@ -11,10 +9,8 @@ import com.testwa.core.utils.Common;
 
 import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.distest.client.android.util.*;
-import com.testwa.distest.client.appium.utils.Config;
-import com.testwa.distest.client.rpc.client.ScreenCaptureClient;
+import com.testwa.distest.client.control.port.ScreenPortProvider;
 import com.testwa.distest.client.util.Constant;
-import io.grpc.testwa.device.ScreenCaptureRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class Minicap {
 
-    private static Logger LOG = LoggerFactory.getLogger(MiniCapUtil.class);
+    private static Logger log = LoggerFactory.getLogger(Minicap.class);
 
     private BlockingQueue<byte[]> dataQueue = new LinkedBlockingQueue<>();
 
@@ -51,9 +47,8 @@ public class Minicap {
     private static String MINICAP_CHMOD_COMMAND = "chmod 777 %s/%s";
     private static String MINICAP_WM_SIZE_COMMAND = "wm size";
     private static String MINICAP_DIR_COMMAND = String.format("mkdir %s 2>/dev/null || true", Constant.MINICAP_DIR);
-    private static String MINICAP_TAKESCREENSHOT_COMMAND = "LD_LIBRARY_PATH=%s %s/%s -P %dx%d@%dx%d/0 -s > %s";
+//    private static String MINICAP_TAKESCREENSHOT_COMMAND = "LD_LIBRARY_PATH=%s %s/%s -P %dx%d@%dx%d/0 -s > %s";
 
-    private ScreenCaptureClient screenCaptureClient;
     private AdbDriverService service;
     // 启动minicap的线程
     private Thread minicapInitialThread, dataReaderThread, imageParserThread;
@@ -78,8 +73,6 @@ public class Minicap {
             int screenHeight = Integer.parseInt(sizeStr.split("x")[1].trim());
             deviceSize = new Size(screenWidth, screenHeight);
         }
-
-//        this.screenCaptureClient = new ScreenCaptureClient(webHost, webPort);
     }
 
     public Minicap(String serialNumber){
@@ -150,10 +143,11 @@ public class Minicap {
     public AdbForward createForward() {
         forward = generateForwardInfo();
         try {
+//            device.createForward(forward.getPort(), forward.getLocalabstract(), IDevice.DeviceUnixSocketNamespace.ABSTRACT);
             device.createForward(forward.getPort(), forward.getLocalabstract(), IDevice.DeviceUnixSocketNamespace.ABSTRACT);
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("create forward failed");
+            log.error("create forward failed");
         }
         return forward;
     }
@@ -191,7 +185,7 @@ public class Minicap {
         maxNumber += 1;
 
         String forwardStr = String.format("%s_cap_%d", device.getSerialNumber(), maxNumber);
-        int freePort = Common.getFreePort();
+        int freePort = ScreenPortProvider.pullPort();
         AdbForward forward = new AdbForward(device.getSerialNumber(), freePort, forwardStr);
         return forward;
     }
@@ -223,6 +217,7 @@ public class Minicap {
             }
         }
         String command = StringUtils.join(commands, " ");
+        log.info("minicap start command {}", command);
         return command;
     }
 
@@ -290,7 +285,7 @@ public class Minicap {
                 .whithArgs(args)
                 .build();
         service.start();
-
+        log.info("minicap service start, forward port {}", forward.getPort());
         minicapInitialThread = new Thread(new StartInitial("127.0.0.1", forward.getPort()));
         minicapInitialThread.start();
     }
@@ -367,24 +362,24 @@ public class Minicap {
         }
 
         public void run() {
-            LOG.debug("StartInitial run start");
-            InputStream stream = null;
+            log.info("StartInitial run start, host{}, port{}", this.host, this.port);
             try {
-                minicapSocket = new Socket(host, port);
-                stream = minicapSocket.getInputStream();
                 byte[] bytes = null;
                 int tryTime = 20;
+                // 连接minicap启动的服务
                 while (true) {
-                    // 连接minicap启动的服务
-                    minicapSocket = new Socket(host, port);
-                    InputStream inputStream = minicapSocket.getInputStream();
+                    minicapSocket = new Socket(this.host, this.port);
+                    InputStream stream = minicapSocket.getInputStream();
                     bytes = new byte[4096];
-                    int n = inputStream.read(bytes);
 
+                    int n = stream.read(bytes);
                     if (n == -1) {
-                        Thread.sleep(10);
+                        Thread.sleep(1000);
+                        log.info("minicap socket close, retry again");
                         minicapSocket.close();
                     } else {
+
+                        log.info("minicap ---------- start ");
                         // bytes内包含有信息，需要给Dataparser处理
                         dataQueue.add(Arrays.copyOfRange(bytes, 0, n));
                         isRunning = true;
@@ -403,28 +398,12 @@ public class Minicap {
                     }
                 }
             } catch (IOException e) {
-                LOG.error("StartInitial error", e);
+                log.error("StartInitial error", e);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } finally {
-                if (minicapSocket != null && minicapSocket.isConnected()) {
-                    try {
-                        minicapSocket.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (stream != null) {
-                    try {
-                        stream.close();
-                    } catch (IOException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                }
             }
 
-            LOG.debug("图片二进制数据收集器已关闭");
         }
 
     }
@@ -493,6 +472,8 @@ public class Minicap {
         }
 
         public void readData() throws IOException {
+            log.info("start read data");
+
             DataInputStream stream = new DataInputStream(inputStream);
             while (isRunning) {
                 byte[] buffer = new byte[BUFF_SIZ];

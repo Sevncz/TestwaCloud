@@ -32,8 +32,7 @@ public class ClientController extends BaseController{
     @ResponseBody
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<ResultInfo> getAll() {
-        Set<String> sessionIds = template.opsForSet().members(WebsocketEvent.CONNECT_SESSION);
-        return new ResponseEntity<>(dataInfo(sessionIds), HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @ResponseBody

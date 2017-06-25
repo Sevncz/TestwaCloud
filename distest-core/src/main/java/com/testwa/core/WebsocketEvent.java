@@ -15,6 +15,9 @@ public class WebsocketEvent {
     public static final String ON_REGISTER = "agentRegister";
     public static final String ON_DEVICE_DISCONNECT = "deviceDisconnect";
     public static final String ON_DEVICE_OFFLINE = "deviceOffLine";
+    public static final String ON_START = "onstart";
+
+    public static final String ON_SEND_CMD = "sendCmd";
 
     public static final String FB_RUNNGING_LOG = "feedback.runninglog";
     public static final String FB_APPIUM_ERROR = "feedback.appium.error";
@@ -23,9 +26,6 @@ public class WebsocketEvent {
     public static final String FB_RUNNING_SCREEN = "feedback.running.screen";
     public static final String FB_SCRIPT_END = "feedback.script.end";
 
-    public static final String CONNECT_SESSION = "connect.session";
     public static final String DEVICE = "device";
-
-
 
 }

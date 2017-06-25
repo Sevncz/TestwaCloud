@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.ByteString;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.core.utils.TimeUtil;
-import com.testwa.distest.client.control.client.MainClient;
+import com.testwa.distest.client.control.client.MainSocket;
 import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.service.HttpService;
 import com.testwa.distest.client.task.Testcase;
@@ -29,18 +29,12 @@ import java.util.Map;
 @RestController
 public class IndexController {
     private static Logger logger = LoggerFactory.getLogger(IndexController.class);
-    private final Socket socket;
 
     @Autowired
     private Environment evn;
 
     @Autowired
     private HttpService httpService;
-
-    @Autowired
-    public IndexController(Socket socket) {
-        this.socket = socket;
-    }
 
     @RequestMapping("/")
     String index() {
@@ -97,7 +91,7 @@ public class IndexController {
                 .setDescription("")
                 .setUserId(UserInfo.userId)
                 .build();
-        MainClient.getWs().emit(WebsocketEvent.FB_RUNNGING_LOG, fb.toByteArray());
+        MainSocket.getSocket().emit(WebsocketEvent.FB_RUNNGING_LOG, fb.toByteArray());
         return "ok";
     }
 

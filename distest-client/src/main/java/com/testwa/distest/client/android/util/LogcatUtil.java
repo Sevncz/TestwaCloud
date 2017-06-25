@@ -1,9 +1,9 @@
 package com.testwa.distest.client.android.util;
 
 import com.google.protobuf.ByteString;
-import com.testwa.distest.client.rpc.client.LogcatClient;
 import com.testwa.core.service.AdbDriverService;
 import com.testwa.core.service.LogcatServiceBuilder;
+import com.testwa.distest.client.control.client.Clients;
 import io.grpc.testwa.device.LogcatRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,19 +20,22 @@ public class LogcatUtil {
     private static Logger LOG = LoggerFactory.getLogger(LogcatUtil.class);
 
     private AdbDriverService service;
-    private LogcatClient logcatClient;
     private PipedOutputStream outputStream;
     private PipedInputStream inputStream;
     private String deviceId;
     private boolean isRunning = false;
+    private String host;
+    private Integer port;
 
 
 
     public LogcatUtil(String host, Integer port, String deviceId) {
-        this.logcatClient = new LogcatClient(host, port);
         this.outputStream = new PipedOutputStream();
         this.inputStream = new PipedInputStream();
         this.deviceId = deviceId;
+
+        this.host = host;
+        this.port = port;
 
         try {
             inputStream.connect(outputStream);
@@ -72,7 +75,7 @@ public class LogcatUtil {
                                     .setContent(ByteString.copyFrom(buf))
                                     .setSerial(deviceId)
                                     .build();
-                            logcatClient.sender(request);
+                            Clients.deviceService(this.host, this.port).logcat(request);
                             LOG.info("sender ---====--=-=-=-=-=-=-=-=-=-=");
                         }).start();
                     }

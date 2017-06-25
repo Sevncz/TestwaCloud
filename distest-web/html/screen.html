@@ -1,52 +1,52 @@
-<!doctype html>
-<canvas id="canvas" style="border: 1px solid red;"></canvas>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Device</title>
+</head>
+<body>
+<canvas id="phone-screen"></canvas>
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+
+<!-- jQuery -->
+<script src="js/jquery.min.js"></script>
+<script src="js/jquery.jsonp.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/bootstrap-notify.min.js"></script>
+<script src="js/keyeventConvert.js"></script>
+<script src="js/encoding-indexes.js"></script>
+<script src="js/encoding.js"></script>
+
 <script>
 /*jshint browser:true*/
+var util = {
+    setMinicapScale:function (scale) {
+        localStorage.setItem("minicap_scale", scale);
+    },
+    getMinicapScale:function () {
+        return localStorage.getItem("minicap_scale");
+    },
+    setMinicapRotate:function (rotate) {
+        localStorage.setItem("minicap_rotate", rotate);
+    },
+    getMinicapRotate:function () {
+        return localStorage.getItem("minicap_rotate");
+    },
+    screenW:1080,
+    screenH:1920
 
+}
 var BLANK_IMG =
   'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
 
-var canvas = document.getElementById('canvas')
+var canvas = document.getElementById('phone-screen')
   , g = canvas.getContext('2d')
 
-//var ws = new WebSocket('ws://localhost:9002', 'minicap')
-
-//ws.binaryType = 'blob'
-//
-//ws.onclose = function() {
-//  console.log('onclose', arguments)
-//}
-//
-//ws.onerror = function() {
-//  console.log('onerror', arguments)
-//}
-//
-//ws.onmessage = function(message) {
-//  var blob = new Blob([message.data], {type: 'image/jpeg'})
-//  var URL = window.URL || window.webkitURL
-//  var img = new Image()
-//  img.onload = function() {
-//    console.log(img.width, img.height)
-//    canvas.width = img.width
-//    canvas.height = img.height
-//    g.drawImage(img, 0, 0)
-//    img.onload = null
-//    img.src = BLANK_IMG
-//    img = null
-//    u = null
-//    blob = null
-//  }
-//  var u = URL.createObjectURL(blob)
-//  img.src = u
-//}
-//
-//ws.onopen = function() {
-//  console.log('onopen', arguments)
-//  ws.send('1920x1080/0')
-//}
-var socket = io('http://localhost:9092?flag=screen&deviceId=ZX1G427G93');
-socket.on('connect', function(){});
+var socket = io('http://localhost:9092?func=screen&deviceId=ZX1G427G93&type=browser');
+socket.on('connect', function(){
+    util.serverConnected = true
+});
 socket.on('minicap', function(message){
   console.log("get message", message)
   var blob = new Blob([message], {type: 'image/jpeg'})
@@ -66,6 +66,121 @@ socket.on('minicap', function(message){
   var u = URL.createObjectURL(blob)
   img.src = u
 });
-socket.on('disconnect', function(){});
+socket.on('disconnect', function(){
+    util.serverConnected = false;
+});
+
+var isDown = false;
+
+// 获取鼠标在html中的绝对位置
+function mouseCoords(event){
+    if(event.pageX || event.pageY){
+        return {x:event.pageX, y:event.pageY};
+    }
+    return{
+        x:event.clientX + document.body.scrollLeft - document.body.clientLeft,
+        y:event.clientY + document.body.scrollTop - document.body.clientTop
+    };
+}
+// 获取鼠标在控件的相对位置
+function getXAndY(control, event){
+    //鼠标点击的绝对位置
+    Ev= event || window.event;
+    var mousePos = mouseCoords(event);
+    var x = mousePos.x;
+    var y = mousePos.y;
+    //alert("鼠标点击的绝对位置坐标："+x+","+y);
+
+    //获取div在body中的绝对位置
+    var x1 = control.offsetLeft;
+    var y1 = control.offsetTop;
+
+    //鼠标点击位置相对于div的坐标
+    var x2 = x - x1;
+    var y2 = y - y1;
+    return {x:x2,y:y2};
+}
+
+function sendTouchEvent(minitouchStr) {
+    socket.emit("touch", minitouchStr)
+}
+
+function sendDown(argx, argy, isRo) {
+    var scalex = util.screenW / canvas.width;
+    var scaley = util.screenH / canvas.height;
+    var x = argx, y = argy;
+    if (isRo) {
+        x = (canvas.height - argy) * (canvas.width / canvas.height);
+        y = argx * (canvas.height / canvas.width);
+    }
+    x = Math.round(x * scalex);
+    y = Math.round(y * scaley);
+    var command = "d 0 " + x + " " + y + " 50\n";
+    command += "c\n";
+    sendTouchEvent(command);
+}
+
+function sendMove(argx, argy, isRo) {
+    var scalex = util.screenW / canvas.width;
+    var scaley = util.screenH / canvas.height;
+    var x = argx, y = argy;
+    if (isRo) {
+        x = (canvas.height - argy) * (canvas.width / canvas.height);
+        y = argx * (canvas.height / canvas.width);
+    }
+    x = Math.round(x * scalex);
+    y = Math.round(y * scaley);
+
+    var command = "m 0 " + x + " " + y + " 50\n";
+    command += "c\n";
+    sendTouchEvent(command);
+}
+
+function sendUp() {
+    var command = "u 0\n";
+    command += "c\n";
+    sendTouchEvent(command);
+}
+
+canvas.onmousedown = function (event) {
+    if (!util.serverConnected) {
+        return;
+    }
+    isDown = true;
+    var pos = getXAndY(canvas, event);
+    sendDown(pos.x, pos.y, util.isRotate);
+};
+
+canvas.onmousemove = function (event) {
+    if (!util.serverConnected || !isDown) {
+        return;
+    }
+    var pos = getXAndY(canvas, event);
+
+    sendMove(pos.x, pos.y, util.isRotate);
+};
+
+canvas.onmouseover = function (event) {
+    console.log("onmouseover");
+};
+
+canvas.onmouseout = function (event) {
+    if (!util.serverConnected || !isDown) {
+        return;
+    }
+    isDown = false;
+    sendUp();
+};
+
+canvas.onmouseup = function (event) {
+    if (!util.serverConnected || !isDown) {
+        return;
+    }
+    isDown = false;
+    sendUp();
+};
 
 </script>
+
+</body>
+</html>
