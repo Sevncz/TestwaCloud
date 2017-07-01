@@ -2,7 +2,7 @@ package com.testwa.distest.client.minitouch;
 
 
 /**
- * Created by harry on 2017/4/19.
+ * Created by wen on 2017/4/19.
  */
 public interface MinitouchListener {
     // minitouch启动完毕后

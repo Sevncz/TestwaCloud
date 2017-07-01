@@ -7,7 +7,7 @@ import java.io.OutputStream;
 import java.util.Arrays;
 
 /**
- * Created by harry on 2017/4/17.
+ * Created by wen on 2017/4/17.
  */
 public class BinaryOutputReceiver implements IShellOutputReceiver {
 

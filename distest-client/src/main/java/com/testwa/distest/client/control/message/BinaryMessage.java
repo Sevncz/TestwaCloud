@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by harry on 2017/5/10.
+ * Created by wen on 2017/5/10.
  */
 public class BinaryMessage {
 

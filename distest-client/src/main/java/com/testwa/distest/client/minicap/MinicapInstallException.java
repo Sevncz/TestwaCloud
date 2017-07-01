@@ -1,7 +1,7 @@
 package com.testwa.distest.client.minicap;
 
 /**
- * Created by harry on 2017/4/17.
+ * Created by wen on 2017/4/17.
  */
 public class MinicapInstallException extends Exception {
 

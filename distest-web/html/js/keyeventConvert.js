@@ -1,5 +1,5 @@
 /**
- * Created by harry on 2017/4/26.
+ * Created by wen on 2017/4/26.
  */
 
 function convertAndroidKeyCode(keycode) {

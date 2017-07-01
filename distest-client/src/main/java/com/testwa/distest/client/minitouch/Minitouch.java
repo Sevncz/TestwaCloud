@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Created by harry on 2017/4/19.
+ * Created by wen on 2017/4/19.
  */
 public class Minitouch {
     private static Logger log = LoggerFactory.getLogger(Minitouch.class);

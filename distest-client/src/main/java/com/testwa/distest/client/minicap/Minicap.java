@@ -27,7 +27,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by harry on 2017/4/17.
+ * Created by wen on 2017/4/17.
  */
 public class Minicap {
 
