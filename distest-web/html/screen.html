@@ -33,9 +33,10 @@ var util = {
     getMinicapRotate:function () {
         return localStorage.getItem("minicap_rotate");
     },
-    screenW:1080,
-    screenH:1920
-
+    isRotate: false,
+    screenW: 1080,
+    screenH: 1920,
+    scala: 0.25,
 }
 var BLANK_IMG =
   'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
@@ -47,8 +48,13 @@ var socket = io('http://localhost:9092?func=screen&deviceId=ZX1G427G93&type=brow
 socket.on('connect', function(){
     util.serverConnected = true
 });
+socket.on('devices', function(message){
+    var device = JSON.parse(message)
+    console.log(device)
+    util.screenW = parseFloat(device.width)
+    util.screenH = parseFloat(device.height)
+});
 socket.on('minicap', function(message){
-  console.log("get message", message)
   var blob = new Blob([message], {type: 'image/jpeg'})
   var URL = window.URL || window.webkitURL
   var img = new Image()
@@ -89,7 +95,6 @@ function getXAndY(control, event){
     var mousePos = mouseCoords(event);
     var x = mousePos.x;
     var y = mousePos.y;
-    //alert("鼠标点击的绝对位置坐标："+x+","+y);
 
     //获取div在body中的绝对位置
     var x1 = control.offsetLeft;
@@ -109,14 +114,15 @@ function sendDown(argx, argy, isRo) {
     var scalex = util.screenW / canvas.width;
     var scaley = util.screenH / canvas.height;
     var x = argx, y = argy;
-    if (isRo) {
-        x = (canvas.height - argy) * (canvas.width / canvas.height);
-        y = argx * (canvas.height / canvas.width);
-    }
+//    if (isRo) {
+//        x = (canvas.height - argy) * (canvas.width / canvas.height);
+//        y = argx * (canvas.height / canvas.width);
+//    }
     x = Math.round(x * scalex);
     y = Math.round(y * scaley);
     var command = "d 0 " + x + " " + y + " 50\n";
     command += "c\n";
+    console.log("command: " + command)
     sendTouchEvent(command);
 }
 

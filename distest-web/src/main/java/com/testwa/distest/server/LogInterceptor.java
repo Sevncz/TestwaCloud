@@ -16,7 +16,7 @@ public class LogInterceptor implements ServerInterceptor {
     @Override
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers,
                                                                  ServerCallHandler<ReqT, RespT> next) {
-        log.info(call.getMethodDescriptor().getFullMethodName());
+        log.debug(call.getMethodDescriptor().getFullMethodName());
         return next.startCall(call, headers);
     }
 }

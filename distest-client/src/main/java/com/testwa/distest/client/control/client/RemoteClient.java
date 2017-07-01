@@ -49,7 +49,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
     Minicap minicap = null;
     Minitouch minitouch = null;
 
-    public RemoteClient(String url,String controller, String serialNumber, String webHost, int webPort) throws IOException, URISyntaxException {
+    public RemoteClient(String url, String controller, String serialNumber, String webHost, int webPort) throws IOException, URISyntaxException {
         log.info("Remote Client init");
         this.url = url;
         this.controller = controller;

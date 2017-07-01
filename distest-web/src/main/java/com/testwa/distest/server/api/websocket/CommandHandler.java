@@ -97,7 +97,6 @@ public class CommandHandler {
 
     }
 
-
     private void requestStartMinitouch(SocketIOClient client){
         Map<String, Object> params = new HashMap<>();
         params.put("type", "minitouch");
@@ -109,7 +108,7 @@ public class CommandHandler {
         params.put("type", "minicap");
         Map<String, Object> config = new HashMap<>();
 //        config.put("rotate", 0.0f);
-        config.put("scale", 0.3f);
+        config.put("scale", 0.25f);
         params.put("config", config);
         client.sendEvent(Command.Schem.START.getSchemString(), JSON.toJSONString(params));
     }

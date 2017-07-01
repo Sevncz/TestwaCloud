@@ -18,7 +18,6 @@ public class LocalClient extends BaseClient implements MinicapListener, Minitouc
     private BlockingQueue<ImageData> dataQueue = new LinkedBlockingQueue<ImageData>();
 
 
-
     public static class ImageData {
         ImageData(byte[] d) {
             timesp = System.currentTimeMillis();

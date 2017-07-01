@@ -15,14 +15,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by wen on 2017/4/19.
@@ -217,13 +215,15 @@ public class Minitouch {
                         log.info("minitouch socket close, retry again");
                         socket.close();
                     } else {
-                        log.info("minitouch socket listener start");
+                        String str = new String(bytes);
+                        log.info("minitouch socket listener start, [{}]", str);
                         minitouchSocket = socket;
                         minitouchOutputStream = outputStream;
                         onStartup(true);
                         break;
                     }
                 } catch (Exception ex) {
+                    log.error("minitouch connect error", ex);
                     if (socket != null) {
                         try {
                             socket.close();

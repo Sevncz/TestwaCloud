@@ -7,6 +7,8 @@ import com.corundumstudio.socketio.annotation.OnConnect;
 import com.corundumstudio.socketio.annotation.OnDisconnect;
 import com.testwa.core.Command;
 import com.testwa.distest.server.api.WSFuncEnum;
+import com.testwa.distest.server.model.TestwaDevice;
+import com.testwa.distest.server.service.TestwaDeviceService;
 import com.testwa.distest.server.service.cache.RemoteClientService;
 import com.testwa.distest.server.service.security.TestwaTokenService;
 import io.jsonwebtoken.Claims;
@@ -33,6 +35,8 @@ public class WebConnectionHandler {
     private RemoteClientService remoteClientService;
     @Autowired
     private TestwaTokenService tokenService;
+    @Autowired
+    private TestwaDeviceService deviceService;
 
     @Autowired
     public WebConnectionHandler(SocketIOServer server) {
@@ -72,6 +76,8 @@ public class WebConnectionHandler {
                 if(WSFuncEnum.contains(func)){
                     remoteClientService.subscribeDeviceEvent(deviceId, func, client.getSessionId().toString());
                 }
+                TestwaDevice td = deviceService.getDeviceById(deviceId);
+                client.sendEvent("devices", JSON.toJSONString(td));
             }else{
                 client.sendEvent("error", "参数不能为空");
             }

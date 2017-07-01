@@ -10,7 +10,7 @@
 ## 开发环境搭建
 
 - 启动时增加参数:
-    --spring.config.location=/Users/wen/IdeaProjects/webcenter/src/main/config/application.properties
+    --spring.config.location=/Users/wen/IdeaProjects/distest/src/main/config/application.properties
 - 修改application.properties
     logging.config = /Users/wen/IdeaProjects/webcenter/src/main/config/log4j2.xml
 

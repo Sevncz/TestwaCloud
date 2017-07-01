@@ -23,9 +23,7 @@ public class BaseClient {
         try {
             RemoteClient remoteClient = new RemoteClient(wsUrl, "", device.getSerialNumber(), webHost, webPort);
             Clients.add(device.getSerialNumber(), remoteClient);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (URISyntaxException e) {
+        } catch (IOException | URISyntaxException e) {
             e.printStackTrace();
         }
     }
