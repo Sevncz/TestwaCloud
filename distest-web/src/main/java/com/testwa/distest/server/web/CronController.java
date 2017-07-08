@@ -1,7 +1,6 @@
 package com.testwa.distest.server.web;
 
-import com.testwa.distest.server.model.message.ResultInfo;
-import com.testwa.distest.server.quartz.job.SimpleCron;
+import com.testwa.distest.server.model.message.Result;
 import com.testwa.distest.server.quartz.model.ScheduleJob;
 import com.testwa.distest.server.quartz.service.SchedulerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,28 +58,28 @@ public class CronController  extends BaseController{
 	}
 
 	@RequestMapping(value = "alljobs", method= RequestMethod.GET)
-	public ResponseEntity<ResultInfo> allJobs() {
+	public Result allJobs() {
 
 		List result = schedulerService.getAllJobs();
 
-		return new ResponseEntity<>(dataInfo(result), HttpStatus.OK);
+		return ok(result);
 	}
 
 	@RequestMapping(value = "pause/all", method= RequestMethod.GET)
-	public ResponseEntity<ResultInfo> shutdownAll() {
+	public Result shutdownAll() {
 
 		schedulerService.pauseAll();
 
-		return new ResponseEntity<>(successInfo(), HttpStatus.OK);
+		return ok();
 	}
 
 
 	@RequestMapping(value = "resume/all", method= RequestMethod.GET)
-	public ResponseEntity<ResultInfo> startAll() {
+	public Result startAll() {
 
 		schedulerService.resumeAll();
 
-		return new ResponseEntity<>(successInfo(), HttpStatus.OK);
+		return ok();
 	}
 
 }

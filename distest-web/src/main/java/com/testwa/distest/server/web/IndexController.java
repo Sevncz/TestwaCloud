@@ -1,6 +1,6 @@
 package com.testwa.distest.server.web;
 
-import com.testwa.distest.server.model.message.ResultInfo;
+import com.testwa.distest.server.model.message.Result;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,8 +22,8 @@ public class IndexController extends BaseController{
 
     @ResponseBody
     @RequestMapping(value = "/env")
-    ResponseEntity<ResultInfo> evn() {
-        return new ResponseEntity<>(successInfo(), HttpStatus.OK);
+    Result evn() {
+        return ok();
     }
 
 }

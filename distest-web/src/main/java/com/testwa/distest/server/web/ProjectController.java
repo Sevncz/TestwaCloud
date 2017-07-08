@@ -9,7 +9,7 @@ import com.testwa.distest.server.service.TestwaProjectService;
 import com.testwa.distest.server.service.UserService;
 import com.testwa.distest.server.web.VO.ProjectVO;
 import com.testwa.distest.server.model.message.ResultCode;
-import com.testwa.distest.server.model.message.ResultInfo;
+import com.testwa.distest.server.model.message.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -43,28 +43,28 @@ public class ProjectController extends BaseController {
 
     @ResponseBody
     @RequestMapping(method= RequestMethod.GET)
-    ResponseEntity<ResultInfo> index(HttpServletRequest req) {
-        ResultInfo<String> r = new ResultInfo<>();
+    Result index(HttpServletRequest req) {
+        Result<String> r = new Result<>();
         r.setCode(ResultCode.SUCCESS.getValue());
         r.setData("Welcome, this is project index.");
         r.setMessage("index");
         r.setUrl(req.getRequestURL().toString());
-        return new ResponseEntity<>(r, HttpStatus.OK);
+        return ok(r);
     }
 
     @ApiOperation(value="生成一个项目", notes="")
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/save", method= RequestMethod.POST)
-    public ResponseEntity<ResultInfo> save(@ApiParam(required=true, name="params", value="{'name': ''}")
+    public Result save(@ApiParam(required=true, name="params", value="{'name': ''}")
                                            @RequestBody Map<String, String> projectMap,
-                                           @ApiIgnore @CurrentUser User user,
-                                           @ApiIgnore HttpServletRequest req){
+                                       @ApiIgnore @CurrentUser User user,
+                                       @ApiIgnore HttpServletRequest req){
         Map<String, Object> result = new HashMap<>();
         TestwaProject testwaProject = new TestwaProject();
         String name = projectMap.getOrDefault("name", "");
         if(StringUtils.isBlank(name)){
-            return new ResponseEntity<>(errorInfo(ResultCode.INVALID_PARAM.getValue(), "参数错误"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.INVALID_PARAM.getValue(), "参数错误");
         }
         testwaProject.setName(name);
         testwaProject.setCreateDate(new Date());
@@ -72,7 +72,7 @@ public class ProjectController extends BaseController {
         testwaProject.setUserName(user.getUsername());
         projectService.save(testwaProject);
 
-        return new ResponseEntity<>(dataInfo(result), HttpStatus.CREATED);
+        return ok(result);
     }
 
 
@@ -80,7 +80,7 @@ public class ProjectController extends BaseController {
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/delete", method= RequestMethod.POST)
-    public ResponseEntity<ResultInfo> delete(@ApiParam(required=true, name="params", value="{'ids': [1,2,3,4]}")
+    public Result delete(@ApiParam(required=true, name="params", value="{'ids': [1,2,3,4]}")
                                                  @RequestBody Map<String, Object> params){
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type","application/json;charset=utf-8");
@@ -88,23 +88,23 @@ public class ProjectController extends BaseController {
         try {
             ids = cast(params.getOrDefault("ids", null));
         }catch (Exception e){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "ids参数格式不正确"), headers, HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "ids参数格式不正确");
         }
         if (ids == null) {
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "ids为空"), headers, HttpStatus.OK);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "ids为空");
         }
         for(String id : ids){
             projectService.deleteById(id);
         }
-        return new ResponseEntity<>(successInfo(), headers, HttpStatus.OK);
+        return ok();
     }
 
     @ApiOperation(value="获取项目列表，分页")
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/table", method= RequestMethod.POST)
-    public ResponseEntity<ResultInfo> tableList(@RequestBody QueryTableFilterParams filter,
-                                                @ApiIgnore @CurrentUser User user){
+    public Result tableList(@RequestBody QueryTableFilterParams filter,
+                                            @ApiIgnore @CurrentUser User user){
         Map<String, Object> result = new HashMap<>();
         try{
 
@@ -127,10 +127,10 @@ public class ProjectController extends BaseController {
             result.put("records", lists);
             result.put("totalRecords", projects.getTotalElements());
 
-            return new ResponseEntity<>(dataInfo(result), HttpStatus.OK);
+            return ok(result);
         }catch (Exception e){
             log.error(String.format("Get project table error, %s", filter.toString()), e);
-            return new ResponseEntity<>(errorInfo(ResultCode.SERVER_ERROR.getValue(), "服务器错误"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.SERVER_ERROR.getValue(), "服务器错误");
         }
 
     }
@@ -139,7 +139,7 @@ public class ProjectController extends BaseController {
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/list", method= RequestMethod.GET)
-    public ResponseEntity<ResultInfo> list(@ApiIgnore @CurrentUser User user){
+    public Result list(@ApiIgnore @CurrentUser User user){
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type","application/json;charset=utf-8");
         Map<String, Object> result = new HashMap<>();
@@ -158,51 +158,51 @@ public class ProjectController extends BaseController {
             maps.add(map);
         }
         result.put("records", maps);
-        return new ResponseEntity<>(dataInfo(result), headers, HttpStatus.OK);
+        return ok(result);
     }
 
 
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/member/add", method= RequestMethod.POST)
-    public ResponseEntity<ResultInfo> addMember(@ApiParam(required=true, name="params", value="{'projectId': '', 'username': ''}")
+    public Result addMember(@ApiParam(required=true, name="params", value="{'projectId': '', 'username': ''}")
                                                     @RequestBody Map<String, Object> params){
         String projectId = (String) params.getOrDefault("projectId", "");
         String username = (String) params.getOrDefault("username", "");
         if(StringUtils.isBlank(projectId) || StringUtils.isBlank(username)){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "参数错误"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "参数错误");
         }
         TestwaProject project = projectService.getProjectById(projectId);
         if(project == null){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "项目不存在"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "项目不存在");
         }
 //        if(!project.getUserId().equals(user.getId())){
-//            return new ResponseEntity<>(errorInfo(ResultCode.NO_AUTH.getValue(), "没有权限"), headers, HttpStatus.FORBIDDEN);
+//            return fail(ResultCode.NO_AUTH.getValue(), "没有权限"), headers, HttpStatus.FORBIDDEN);
 //        }
         User member = userService.findByUsername(username);
         if(member == null){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "用户不存在"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "用户不存在");
         }
 
         projectService.addMember(projectId, member);
 
-        return new ResponseEntity<>(successInfo(), HttpStatus.OK);
+        return ok();
     }
 
 
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/member/del", method= RequestMethod.POST)
-    public ResponseEntity<ResultInfo> delMember(@ApiParam(required=true, name="params", value="{'projectId': '', 'username': ''}")
+    public Result delMember(@ApiParam(required=true, name="params", value="{'projectId': '', 'username': ''}")
                                                     @RequestBody Map<String, Object> params, @ApiIgnore @CurrentUser User user){
         String projectId = (String) params.getOrDefault("projectId", "");
         String username = (String) params.getOrDefault("username", "");
         if(StringUtils.isBlank(projectId) || StringUtils.isBlank(username)){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "参数不能为空"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "参数不能为空");
         }
         TestwaProject project = projectService.getProjectById(projectId);
         if(project == null){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "项目不存在"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "项目不存在");
         }
 
 //        if(!project.getUserId().equals(user.getId())){
@@ -211,28 +211,28 @@ public class ProjectController extends BaseController {
 
         User member = userService.findByUsername(username);
         if(member == null){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "用户不存在"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "用户不存在");
         }
 
         projectService.delMember(projectId, member);
 
-        return new ResponseEntity<>(successInfo(), HttpStatus.OK);
+        return ok();
     }
 
 
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/members/{projectId}", method= RequestMethod.GET)
-    public ResponseEntity<ResultInfo> members(@PathVariable String projectId){
+    public Result members(@PathVariable String projectId){
         Map<String, Object> result = new HashMap<>();
         TestwaProject project = projectService.getProjectById(projectId);
         if(project == null){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "项目不存在"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "项目不存在");
         }
 
         List<String> usernames = project.getMembers();
         result.put("records", usernames);
-        return new ResponseEntity<>(dataInfo(result), HttpStatus.OK);
+        return ok(result);
     }
 
 }

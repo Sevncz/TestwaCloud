@@ -21,6 +21,7 @@ import io.grpc.testwa.device.DeviceServiceGrpc;
 import io.grpc.testwa.device.ScreenCaptureRequest;
 import io.socket.client.IO;
 import io.socket.client.Socket;
+import net.bramp.ffmpeg.FFmpeg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

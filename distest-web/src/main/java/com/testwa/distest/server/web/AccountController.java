@@ -10,7 +10,7 @@ import com.testwa.distest.server.model.permission.UserShareScope;
 import com.testwa.distest.server.service.UserService;
 import com.testwa.distest.server.service.security.TestwaTokenService;
 import com.testwa.distest.server.model.message.ResultCode;
-import com.testwa.distest.server.model.message.ResultInfo;
+import com.testwa.distest.server.model.message.Result;
 import io.jsonwebtoken.Claims;
 import io.swagger.annotations.Api;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -54,92 +54,92 @@ public class AccountController extends BaseController{
     private TestwaTokenService testwaTokenService;
 
     @RequestMapping(value = "login", method=RequestMethod.POST, produces={"application/json"})
-    public ResponseEntity<ResultInfo> login(@RequestBody final UserInfo login,
-                                            @ApiIgnore HttpServletRequest request,
-                                            @ApiIgnore HttpServletResponse response)
+    public Result login(@RequestBody final UserInfo login,
+                        @ApiIgnore HttpServletRequest request,
+                        @ApiIgnore HttpServletResponse response)
         throws ServletException {
         Map<String, String> result = new HashMap<>();
 
         // 暂时取消验证码验证功能
 //        if(StringUtils.isBlank(login.captcha)){
-//            return new ResponseEntity<>(new CustomResponseEntity("验证码为空"), HttpStatus.INTERNAL_SERVER_ERROR);
+//            return new ResponseEntity<>(new CustomResponseEntity("验证码为空");
 //        }
 //        String captchaKey = testwaTokenService.getCaptchaKey(request);
 //        String captchaValue = (String) redisTemplate.opsForValue().get(captchaKey);
 //        if (StringUtils.isBlank(captchaValue)){
 //            log.error("captchaKey ============= {}", captchaKey);
-//            return new ResponseEntity<>(new CustomResponseEntity("验证码已过期"), HttpStatus.INTERNAL_SERVER_ERROR);
+//            return new ResponseEntity<>(new CustomResponseEntity("验证码已过期");
 //        }
 //        redisTemplate.delete(captchaKey);
 //        if (captchaValue.compareTo(login.captcha) != 0){
-//            return new ResponseEntity<>(new CustomResponseEntity("非法的验证码"), HttpStatus.INTERNAL_SERVER_ERROR);
+//            return new ResponseEntity<>(new CustomResponseEntity("非法的验证码");
 //        }
 
         if (StringUtils.isBlank(login.username) || StringUtils.isBlank(login.password)) {
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "用户名密码为空"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "用户名密码为空");
         }
         User user = userService.findByUsername(login.username);
         if(user == null){
             user = userService.findByEmail(login.username);
         }
         if(user == null || !passwordEncoder.matches(login.password, user.getPassword())){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "用户名密码错误"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "用户名密码错误");
         }
         String token = testwaTokenService.createToken(user.getId(), Constants.TOKEN_ISS, user.getUsername());
         result.put("access_token", token);
         testwaTokenService.saveToken(response, token);
-        return new ResponseEntity<>(dataInfo(result), HttpStatus.OK);
+        return ok(result);
     }
 
 
     @RequestMapping(value = "purelogin", method= RequestMethod.POST, produces={"application/json"})
-    public ResponseEntity<ResultInfo> pureLogin(@RequestBody final UserInfo login)
+    public Result pureLogin(@RequestBody final UserInfo login)
             throws ServletException {
         Map<String, String> result = new HashMap<>();
 
         if (StringUtils.isBlank(login.username) || StringUtils.isBlank(login.password)) {
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "用户名密码为空"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "用户名密码为空");
         }
         User user = userService.findByUsername(login.username);
         if(user == null){
             user = userService.findByEmail(login.username);
         }
         if(user == null || !passwordEncoder.matches(login.password, user.getPassword())){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "用户名密码错误"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "用户名密码错误");
         }
         String token = testwaTokenService.createToken(user.getId(), Constants.TOKEN_ISS, user.getUsername());
         result.put("access_token", token);
         result.put("userId", user.getId());
-        return new ResponseEntity<>(dataInfo(result), HttpStatus.OK);
+        return ok(result);
     }
 
     @RequestMapping(value = "register", method= RequestMethod.POST, produces={"application/json"})
-    public ResponseEntity<ResultInfo> register(@RequestBody final UserInfo register)
+    public Result register(@RequestBody final UserInfo register)
             throws ServletException {
         if(StringUtils.isBlank(register.password)
                 || StringUtils.isBlank(register.username)
                 || StringUtils.isBlank(register.email)){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "用户名密码不能为空"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "用户名密码不能为空");
         }
 
         // 校验用户名
         if(!Validator.isUsername(register.username)){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "用户名格式不正确"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "用户名格式不正确");
         }
 
         // 校验邮箱
         if(!Validator.isEmail(register.email)){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "邮箱格式不正确"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "邮箱格式不正确");
         }
 
         User emailUser = userService.findByEmail(register.email);
         if(emailUser != null){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "该邮箱已存在"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "该邮箱已存在");
         }
 
         User usernameUser = userService.findByUsername(register.username);
         if(usernameUser != null){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "该用户名已存在"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "该用户名已存在");
         }
 
         User awesomeUser = new User();
@@ -149,22 +149,22 @@ public class AccountController extends BaseController{
         awesomeUser.setUsername(register.username);
         awesomeUser.setShareScope(UserShareScope.Self.getValue());
         userService.save(awesomeUser);
-        return new ResponseEntity<>(successInfo(), HttpStatus.OK);
+        return ok();
     }
 
 
     @RequestMapping(value = "verify", method= RequestMethod.GET)
-    public ResponseEntity<ResultInfo> verify(@ApiIgnore HttpServletRequest request){
+    public Result verify(@ApiIgnore HttpServletRequest request){
         String token = testwaTokenService.getToken(request);
         if(StringUtils.isBlank(token)){
-            return new ResponseEntity<>(errorInfo(ResultCode.NO_AUTH.getValue(), "Token信息为空"), HttpStatus.UNAUTHORIZED);
+            return fail(ResultCode.NO_AUTH.getValue(), "Token信息为空");
         }
         try {
             Claims claims = testwaTokenService.parserToken(token);
         } catch (Exception e) {
-            return new ResponseEntity<>(errorInfo(ResultCode.NO_AUTH.getValue(), "用户登录信息已过期"), HttpStatus.UNAUTHORIZED);
+            return fail(ResultCode.NO_AUTH.getValue(), "用户登录信息已过期");
         }
-        return new ResponseEntity<>(successInfo(), HttpStatus.OK);
+        return ok();
     }
 
 
@@ -206,48 +206,48 @@ public class AccountController extends BaseController{
     }
 
     @RequestMapping(value = "logout", method= RequestMethod.POST, produces={"application/json"})
-    public ResponseEntity<ResultInfo> logout(HttpServletRequest request,
+    public Result logout(HttpServletRequest request,
                                          HttpServletResponse response){
         testwaTokenService.deleteToken(response);
-        return new ResponseEntity<>(successInfo(), HttpStatus.OK);
+        return ok();
     }
 
     @RequestMapping(value = "verify/username/{username}", method= RequestMethod.GET)
-    public ResponseEntity<ResultInfo> checkUsername(@PathVariable String username){
+    public Result checkUsername(@PathVariable String username){
         // 校验用户名
         if(!Validator.isUsername(username)){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "用户名格式不正确"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "用户名格式不正确");
         }
         User usernameUser = userService.findByUsername(username);
         if(usernameUser != null){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "该用户名已存在"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "该用户名已存在");
         }
-        return new ResponseEntity<>(successInfo(), HttpStatus.OK);
+        return ok();
     }
 
     @RequestMapping(value = "verify/email/{email}", method= RequestMethod.GET)
-    public ResponseEntity<ResultInfo> checkEmail(@PathVariable String email){
+    public Result checkEmail(@PathVariable String email){
         // 校验邮箱
         if(!Validator.isEmail(email)){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "邮箱格式不正确"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "邮箱格式不正确");
         }
         User usernameUser = userService.findByEmail(email);
         if(usernameUser != null){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "该邮箱已存在"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "该邮箱已存在");
         }
-        return new ResponseEntity<>(successInfo(), HttpStatus.OK);
+        return ok();
     }
 
 
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/my/scopes", method= RequestMethod.GET)
-    public ResponseEntity<ResultInfo> myScopes(@ApiIgnore @CurrentUser User user){
+    public Result myScopes(@ApiIgnore @CurrentUser User user){
         Integer scope = user.getShareScope();
         List<UserShareScope> scopes = UserShareScope.lteScope(scope);
         Map<String, Object> result = new HashMap<>();
         result.put("scops", scopes);
-        return new ResponseEntity<>(dataInfo(result), HttpStatus.OK);
+        return ok(result);
     }
 
 }

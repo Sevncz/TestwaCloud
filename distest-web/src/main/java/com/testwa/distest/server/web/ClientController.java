@@ -1,7 +1,7 @@
 package com.testwa.distest.server.web;
 
 import com.testwa.core.WebsocketEvent;
-import com.testwa.distest.server.model.message.ResultInfo;
+import com.testwa.distest.server.model.message.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by wen on 16/9/7.
@@ -31,15 +30,15 @@ public class ClientController extends BaseController{
 
     @ResponseBody
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<ResultInfo> getAll() {
-        return new ResponseEntity<>(HttpStatus.OK);
+    public Result getAll() {
+        return ok();
     }
 
     @ResponseBody
     @RequestMapping(value = "/devices", method = RequestMethod.GET)
-    public ResponseEntity<ResultInfo> devices() {
+    public Result devices() {
         Map devices = template.opsForHash().entries(WebsocketEvent.DEVICE);
-        return new ResponseEntity<>(dataInfo(devices), HttpStatus.OK);
+        return ok(devices);
     }
 
 

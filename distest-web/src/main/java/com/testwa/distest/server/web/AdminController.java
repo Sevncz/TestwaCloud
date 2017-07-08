@@ -6,7 +6,7 @@ import com.testwa.distest.server.model.User;
 import com.testwa.distest.server.model.permission.UserShareScope;
 import com.testwa.distest.server.service.UserService;
 import com.testwa.distest.server.model.message.ResultCode;
-import com.testwa.distest.server.model.message.ResultInfo;
+import com.testwa.distest.server.model.message.Result;
 import io.swagger.annotations.Api;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -49,32 +49,32 @@ public class AdminController extends BaseController{
     @Authorization
     @ResponseBody
     @RequestMapping(value = "create", method= RequestMethod.POST, produces={"application/json"})
-    public ResponseEntity<ResultInfo> create(@RequestBody final UserInfo register)
+    public Result create(@RequestBody final UserInfo register)
             throws ServletException {
         if(StringUtils.isBlank(register.password)
                 || StringUtils.isBlank(register.username)
                 || StringUtils.isBlank(register.email)){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "用户名密码不能为空"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "用户名密码不能为空");
         }
 
         // 校验用户名
         if(!Validator.isUsername(register.username)){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "用户名格式不正确"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "用户名格式不正确");
         }
 
         // 校验邮箱
         if(!Validator.isEmail(register.email)){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "邮箱格式不正确"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "邮箱格式不正确");
         }
 
         User emailUser = userService.findByEmail(register.email);
         if(emailUser != null){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "该邮箱已存在"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "该邮箱已存在");
         }
 
         User usernameUser = userService.findByUsername(register.username);
         if(usernameUser != null){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "该用户名已存在"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "该用户名已存在");
         }
 
         User awesomeUser = new User();
@@ -83,34 +83,34 @@ public class AdminController extends BaseController{
         awesomeUser.setDateCreated(new Date());
         awesomeUser.setUsername(register.username);
 
-        ResponseEntity<ResultInfo> result = setScopeForUser(register.scope, awesomeUser);
+        Result result = setScopeForUser(register.scope, awesomeUser);
         if (result != null) return result;
 
         userService.save(awesomeUser);
-        return new ResponseEntity<>(successInfo(), HttpStatus.OK);
+        return ok();
     }
 
     @Authorization
     @ResponseBody
     @RequestMapping(value = "modify/scope", method= RequestMethod.POST, produces={"application/json"})
-    public ResponseEntity<ResultInfo> modifyScope(@RequestBody Map<String, Object> params){
+    public Result modifyScope(@RequestBody Map<String, Object> params){
 
         String userId = (String) params.getOrDefault("userId", "");
         String scope = (String) params.getOrDefault("scope", "");
         if(StringUtils.isBlank(userId) || scope == null){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "参数不能为空"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "参数不能为空");
         }
         User user = userService.findById(userId);
         if(user == null){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "用户不存在"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "用户不存在");
         }
-        ResponseEntity<ResultInfo> result = setScopeForUser(scope, user);
+        Result result = setScopeForUser(scope, user);
         if (result != null) return result;
         userService.save(user);
-        return new ResponseEntity<>(successInfo(), HttpStatus.OK);
+        return ok();
     }
 
-    private ResponseEntity<ResultInfo> setScopeForUser(String scope, User user) {
+    private Result setScopeForUser(String scope, User user) {
         if(UserShareScope.contains(scope)){
             switch (UserShareScope.valueOf(scope)){
                 case Self:
@@ -127,7 +127,7 @@ public class AdminController extends BaseController{
                     break;
             }
         }else{
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "Scope参数错误"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "Scope参数错误");
         }
         return null;
     }
@@ -135,10 +135,10 @@ public class AdminController extends BaseController{
     @Authorization
     @ResponseBody
     @RequestMapping(value = "scope/all", method= RequestMethod.GET)
-    public ResponseEntity<ResultInfo> scopeAll(){
+    public Result scopeAll(){
         Map<String, Object> result = new HashMap<>();
         result.put("scops", UserShareScope.values());
-        return new ResponseEntity<>(dataInfo(result), HttpStatus.OK);
+        return ok(result);
     }
 
 }

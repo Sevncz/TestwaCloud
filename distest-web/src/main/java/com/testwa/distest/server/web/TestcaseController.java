@@ -10,7 +10,7 @@ import com.testwa.distest.server.model.params.QueryTableFilterParams;
 import com.testwa.distest.server.service.*;
 import com.testwa.distest.server.web.VO.TestcaseVO;
 import com.testwa.distest.server.model.message.ResultCode;
-import com.testwa.distest.server.model.message.ResultInfo;
+import com.testwa.distest.server.model.message.Result;
 import io.swagger.annotations.Api;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -64,24 +64,24 @@ public class TestcaseController extends BaseController{
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/save", method= RequestMethod.POST)
-    public ResponseEntity<ResultInfo> save(@RequestBody Map<String, Object> params, @ApiIgnore @CurrentUser User user){
+    public Result save(@RequestBody Map<String, Object> params, @ApiIgnore @CurrentUser User user){
         String casename = (String) params.getOrDefault("caseName", "");
         List<String> scriptIds = cast(params.getOrDefault("scriptIds", null));
 
         if(StringUtils.isBlank(casename) || scriptIds == null || scriptIds.size() == 0){
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "参数不能为空");
         }
         // 检查是否属于同一个app
         Set<String> appIdSet = new HashSet<>();
         for(String scriptId : scriptIds){
             TestwaScript script = testwaScriptService.getScriptById(scriptId);
             if(script == null){
-                return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), String.format("脚本id不存在, %s", scriptId)), HttpStatus.INTERNAL_SERVER_ERROR);
+                return fail(ResultCode.PARAM_ERROR.getValue(), String.format("脚本id不存在, %s", scriptId));
             }
             appIdSet.add(script.getAppId());
         }
         if(appIdSet.size() > 1){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "请选择同一个App下的脚本"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "请选择同一个App下的脚本");
         }
         Iterator it = appIdSet.iterator();
         if(it.hasNext()){
@@ -90,7 +90,7 @@ public class TestcaseController extends BaseController{
             testcase.setScripts(scriptIds);
             TestwaApp app = testwaAppService.getAppById(appId);
             if(app == null){
-                return new ResponseEntity<>(errorInfo(ResultCode.SERVER_ERROR.getValue(), "App 不存在"), HttpStatus.INTERNAL_SERVER_ERROR);
+                return fail(ResultCode.SERVER_ERROR.getValue(), "App 不存在");
             }
             testcase.setAppId(appId);
             testcase.setProjectId(app.getProjectId());
@@ -101,36 +101,36 @@ public class TestcaseController extends BaseController{
             testcase.setCreateDate(new Date());
             testwaTestcaseService.save(testcase);
         }else{
-            return new ResponseEntity<>(errorInfo(ResultCode.SERVER_ERROR.getValue(), "App 不存在"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.SERVER_ERROR.getValue(), "App 不存在");
         }
-        return new ResponseEntity<>(successInfo(), HttpStatus.CREATED);
+        return ok();
     }
 
 
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/delete", method= RequestMethod.POST)
-    public ResponseEntity<ResultInfo> delete(@RequestBody Map<String, Object> params){
+    public Result delete(@RequestBody Map<String, Object> params){
         List<String> ids;
         try {
             ids = cast(params.getOrDefault("ids", null));
         }catch (Exception e){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "ids参数格式不正确"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "ids参数格式不正确");
         }
         if (ids == null) {
-            return new ResponseEntity<>(successInfo(), HttpStatus.OK);
+            return ok();
         }
         for(String id : ids){
             testwaTestcaseService.deleteById(id);
         }
-        return new ResponseEntity<>(successInfo(), HttpStatus.OK);
+        return ok();
     }
 
 
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/table", method= RequestMethod.POST)
-    public ResponseEntity<ResultInfo> tableList(@RequestBody QueryTableFilterParams filter, @ApiIgnore @CurrentUser User user){
+    public Result tableList(@RequestBody QueryTableFilterParams filter, @ApiIgnore @CurrentUser User user){
         Map<String, Object> result = new HashMap<>();
         try{
 
@@ -152,10 +152,10 @@ public class TestcaseController extends BaseController{
             }
             result.put("records", lists);
             result.put("totalRecords", testwaTestcases.getTotalElements());
-            return new ResponseEntity<>(dataInfo(result), HttpStatus.OK);
+            return ok(result);
         }catch (Exception e){
             log.error(String.format("Get scripts table error, %s", filter.toString()), e);
-            return new ResponseEntity<>(errorInfo(ResultCode.SERVER_ERROR.getValue(), e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.SERVER_ERROR.getValue(), e.getMessage());
         }
 
     }
@@ -164,26 +164,26 @@ public class TestcaseController extends BaseController{
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/deploy", method= RequestMethod.POST)
-    public ResponseEntity<ResultInfo> deploy(@RequestBody Map<String, Object> params, @ApiIgnore @CurrentUser User user){
+    public Result deploy(@RequestBody Map<String, Object> params, @ApiIgnore @CurrentUser User user){
 
         String id = (String) params.getOrDefault("id", "");
         List<String> deviceIds;
         try {
             deviceIds = cast(params.getOrDefault("deviceIds", null));
         }catch (Exception e){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "deviceIds参数不正确"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "deviceIds参数不正确");
         }
         if(StringUtils.isBlank(id) || deviceIds.size() == 0){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "参数不正确"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "参数不正确");
         }
 
         TestwaTestcase testcase = testwaTestcaseService.getTestcaseById(id);
         if(testcase == null){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "测试案例找不到"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "测试案例找不到");
         }
         TestwaApp app = testwaAppService.getAppById(testcase.getAppId());
         if(app == null){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), String.format("应用:[%s]找不到", testcase.getAppId())), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), String.format("应用:[%s]找不到", testcase.getAppId()));
         }
 
 
@@ -191,13 +191,13 @@ public class TestcaseController extends BaseController{
         for(String key : deviceIds){
             String sessionId = (String) template.opsForHash().get(WebsocketEvent.DEVICE, key);
             if(StringUtils.isBlank(sessionId)){
-                return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), String.format("设备:[%s]已离线", key)), HttpStatus.INTERNAL_SERVER_ERROR);
+                return fail(ResultCode.PARAM_ERROR.getValue(), String.format("设备:[%s]已离线", key));
             }
         }
 
         startOneTestcase(user, deviceIds, testcase, app);
 
-        return new ResponseEntity<>(successInfo(), HttpStatus.OK);
+        return ok();
     }
 
     private void startOneTestcase(User user, List<String> deviceIds, TestwaTestcase testcase, TestwaApp app) {
@@ -210,7 +210,7 @@ public class TestcaseController extends BaseController{
             // save testcasedetail
             TestwaDevice d = testwaDeviceService.getDeviceById(key);
             if(d == null){
-//                return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), String.format("设备:[%s]找不到", key)), HttpStatus.INTERNAL_SERVER_ERROR);
+//                return fail(ResultCode.PARAM_ERROR.getValue(), String.format("设备:[%s]找不到", key));
                 log.error(String.format("设备:[%s]找不到", key));
                 // TODO 记录该错误
                 continue;

@@ -19,7 +19,7 @@ import com.testwa.distest.server.service.TestwaAgentService;
 import com.testwa.distest.server.service.TestwaDeviceService;
 import com.testwa.distest.server.service.UserDeviceHisService;
 import com.testwa.distest.server.model.message.ResultCode;
-import com.testwa.distest.server.model.message.ResultInfo;
+import com.testwa.distest.server.model.message.Result;
 import com.testwa.distest.server.service.cache.RemoteClientService;
 import com.testwa.distest.server.web.VO.DeviceOwnerTableVO;
 import io.grpc.testwa.device.*;
@@ -74,18 +74,18 @@ public class DeviceController extends BaseController{
     }
 
     @RequestMapping(value = "/screen", method = RequestMethod.GET)
-    public ResponseEntity<ResultInfo> getScreen() {
-        return new ResponseEntity<>(successInfo(), HttpStatus.OK);
+    public Result getScreen() {
+        return ok();
     }
 
     @RequestMapping(value = "/receive/logcat", method = RequestMethod.POST, produces = "application/x-protobuf")
-    public ResponseEntity<ResultInfo> logcat(@RequestBody Agent.AppiumLogFeedback message) {
+    public Result logcat(@RequestBody Agent.AppiumLogFeedback message) {
         String[] messageName = message.getName().split("\\\\|/");
         Path logcatPath = Paths.get(env.getProperty("logcat.path"), messageName);
         Path logcatDir = logcatPath.getParent();
         saveMessageFile(message.getLog().toByteArray(), logcatPath, logcatDir);
 
-        return new ResponseEntity<>(successInfo(), HttpStatus.CREATED);
+        return ok();
     }
 
     private void saveMessageFile(byte[] message, Path logPath, Path logDir) {
@@ -102,13 +102,13 @@ public class DeviceController extends BaseController{
 
 
     @RequestMapping(value = "/receive/appiumlog", method = RequestMethod.POST, produces = "application/x-protobuf")
-    public ResponseEntity<ResultInfo> appiumlog(@RequestBody Agent.AppiumLogFeedback message) {
+    public Result appiumlog(@RequestBody Agent.AppiumLogFeedback message) {
         String[] messageName = message.getName().split("\\\\|/");
         Path appiumPath = Paths.get(env.getProperty("appium.log.path"), messageName);
         Path appiumDir = appiumPath.getParent();
         saveMessageFile(message.getLog().toByteArray(), appiumPath, appiumDir);
 
-        return new ResponseEntity<>(successInfo(), HttpStatus.OK);
+        return ok();
     }
 
     /***
@@ -120,8 +120,8 @@ public class DeviceController extends BaseController{
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/table", method= RequestMethod.POST, produces={"application/json"})
-    public ResponseEntity<ResultInfo> tableList(@RequestBody QueryTableFilterParams filter,
-                                                @ApiIgnore @CurrentUser User user){
+    public Result tableList(@RequestBody QueryTableFilterParams filter,
+                                            @ApiIgnore @CurrentUser User user){
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type","application/json;charset=utf-8");
         Map<String, Object> result = new HashMap<>();
@@ -139,10 +139,10 @@ public class DeviceController extends BaseController{
 
             result.put("records", lists);
             result.put("totalRecords", userDevicePage.getTotalElements());
-            return new ResponseEntity<>(dataInfo(result), headers, HttpStatus.OK);
+            return ok(result);
         }catch (Exception e){
             log.error(String.format("Get devices table error, %s", filter.toString()), e);
-            return new ResponseEntity<>(errorInfo(ResultCode.SERVER_ERROR.getValue(), e.getMessage()), headers, HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.SERVER_ERROR.getValue(), e.getMessage());
         }
 
     }
@@ -156,8 +156,8 @@ public class DeviceController extends BaseController{
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/table/shared", method= RequestMethod.POST, produces={"application/json"})
-    public ResponseEntity<ResultInfo> sharedtableList(@RequestBody QueryTableFilterParams filter,
-                                                        @ApiIgnore @CurrentUser User user){
+    public Result sharedtableList(@RequestBody QueryTableFilterParams filter,
+                                                  @ApiIgnore @CurrentUser User user){
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type","application/json;charset=utf-8");
         Map<String, Object> result = new HashMap<>();
@@ -184,10 +184,10 @@ public class DeviceController extends BaseController{
 
             result.put("records", lists);
             result.put("totalRecords", userDevicePage.getTotalElements());
-            return new ResponseEntity<>(dataInfo(result), headers, HttpStatus.OK);
+            return ok(result);
         }catch (Exception e){
             log.error(String.format("Get devices table error, %s", filter.toString()), e);
-            return new ResponseEntity<>(errorInfo(ResultCode.SERVER_ERROR.getValue(), e.getMessage()), headers, HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.SERVER_ERROR.getValue(), e.getMessage());
         }
 
     }
@@ -202,8 +202,8 @@ public class DeviceController extends BaseController{
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/table/available", method= RequestMethod.POST, produces={"application/json"})
-    public ResponseEntity<ResultInfo> availabletableList(@RequestBody QueryTableFilterParams filter,
-                                                         @ApiIgnore @CurrentUser User user){
+    public Result availabletableList(@RequestBody QueryTableFilterParams filter,
+                                                     @ApiIgnore @CurrentUser User user){
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type","application/json;charset=utf-8");
         Map<String, Object> result = new HashMap<>();
@@ -233,10 +233,10 @@ public class DeviceController extends BaseController{
 
             result.put("records", lists);
             result.put("totalRecords", userDevicePage.getTotalElements());
-            return new ResponseEntity<>(dataInfo(result), headers, HttpStatus.OK);
+            return ok(result);
         }catch (Exception e){
             log.error(String.format("Get devices table error, %s", filter.toString()), e);
-            return new ResponseEntity<>(errorInfo(ResultCode.SERVER_ERROR.getValue(), e.getMessage()), headers, HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.SERVER_ERROR.getValue(), e.getMessage());
         }
 
     }
@@ -278,7 +278,7 @@ public class DeviceController extends BaseController{
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/list", method= RequestMethod.GET, produces={"application/json"})
-    public ResponseEntity<ResultInfo> list(){
+    public Result list(){
         Map<String, Object> result = new HashMap<>();
 
         List<TestwaDevice> devices = testwaDeviceService.findAll();
@@ -290,14 +290,14 @@ public class DeviceController extends BaseController{
             maps.add(map);
         }
         result.put("records", maps);
-        return new ResponseEntity<>(dataInfo(result), HttpStatus.OK);
+        return ok(result);
     }
 
 
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/share/to/scope", method= RequestMethod.POST, produces={"application/json"})
-    public ResponseEntity<ResultInfo> shareScope(@RequestBody Map<String, Object> params, @ApiIgnore @CurrentUser User user){
+    public Result shareScope(@RequestBody Map<String, Object> params, @ApiIgnore @CurrentUser User user){
         String deviceId = (String) params.getOrDefault("deviceId", "");
         String scope = (String) params.getOrDefault("scope", "");
         String currentUserId = user.getId();
@@ -311,7 +311,7 @@ public class DeviceController extends BaseController{
         }
         userDeviceHisService.save(udh);
 
-        return new ResponseEntity<>(successInfo(), HttpStatus.OK);
+        return ok();
     }
 
 
@@ -319,7 +319,7 @@ public class DeviceController extends BaseController{
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/share/to/user", method= RequestMethod.POST, produces={"application/json"})
-    public ResponseEntity<ResultInfo> shareTo(@RequestBody Map<String, Object> params, @ApiIgnore @CurrentUser User user){
+    public Result shareTo(@RequestBody Map<String, Object> params, @ApiIgnore @CurrentUser User user){
         String deviceId = (String) params.getOrDefault("deviceId", "");
         String userId = (String) params.getOrDefault("userId", "");
         String currentUserId = user.getId();
@@ -332,45 +332,45 @@ public class DeviceController extends BaseController{
         userIds.add(userId);
         userDeviceHisService.save(udh);
 
-        return new ResponseEntity<>(successInfo(), HttpStatus.OK);
+        return ok();
     }
 
 
     @ResponseBody
     @RequestMapping(value = "/show/screen/start/{deviceId}", method= RequestMethod.GET)
-    public ResponseEntity<ResultInfo> showScreenStart(@PathVariable String deviceId){
+    public Result showScreenStart(@PathVariable String deviceId){
         String sessionId = remoteClientService.getMainSessionByDeviceId(deviceId);
         if(StringUtils.isBlank(sessionId)){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "sessionId not found"), HttpStatus.SERVICE_UNAVAILABLE);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "sessionId not found");
         }
         SocketIOClient client = server.getClient(UUID.fromString(sessionId));
         client.sendEvent(Command.Schem.OPEN.getSchemString(), deviceId);
-        return new ResponseEntity<>(successInfo(), HttpStatus.OK);
+        return ok();
     }
 
 
     @ResponseBody
     @RequestMapping(value = "/show/screen/stop/{deviceId}", method= RequestMethod.GET)
-    public ResponseEntity<ResultInfo> showScreenStop(@PathVariable String deviceId){
+    public Result showScreenStop(@PathVariable String deviceId){
         String sessionId = remoteClientService.getMainSessionByDeviceId(deviceId);
         if(StringUtils.isBlank(sessionId)){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "sessionId not found"), HttpStatus.SERVICE_UNAVAILABLE);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "sessionId not found");
         }
         SocketIOClient client = server.getClient(UUID.fromString(sessionId));
         ScreenCaptureEndRequest request = ScreenCaptureEndRequest.newBuilder()
                 .setSerial(deviceId)
                 .build();
         client.sendEvent(WebsocketEvent.ON_SCREEN_SHOW_STOP, request.toByteArray());
-        return new ResponseEntity<>(successInfo(), HttpStatus.OK);
+        return ok();
     }
 
 
     @ResponseBody
     @RequestMapping(value = "/show/logcat/start/{deviceId}", method= RequestMethod.GET)
-    public ResponseEntity<ResultInfo> showLogcatStart(@PathVariable String deviceId){
+    public Result showLogcatStart(@PathVariable String deviceId){
         String sessionId = remoteClientService.getMainSessionByDeviceId(deviceId);
         if(StringUtils.isBlank(sessionId)){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "sessionId not found"), HttpStatus.SERVICE_UNAVAILABLE);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "sessionId not found");
         }
         SocketIOClient client = server.getClient(UUID.fromString(sessionId));
         LogcatStartRequest request = LogcatStartRequest.newBuilder()
@@ -380,23 +380,23 @@ public class DeviceController extends BaseController{
                 .setTag("")
                 .build();
         client.sendEvent(WebsocketEvent.ON_LOGCAT_SHOW_START, request.toByteArray());
-        return new ResponseEntity<>(successInfo(), HttpStatus.OK);
+        return ok();
     }
 
 
     @ResponseBody
     @RequestMapping(value = "/show/logcat/stop/{deviceId}", method= RequestMethod.GET)
-    public ResponseEntity<ResultInfo> showLogcatStop(@PathVariable String deviceId){
+    public Result showLogcatStop(@PathVariable String deviceId){
         String sessionId = remoteClientService.getMainSessionByDeviceId(deviceId);
         if(StringUtils.isBlank(sessionId)){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "sessionId not found"), HttpStatus.SERVICE_UNAVAILABLE);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "sessionId not found");
         }
         SocketIOClient client = server.getClient(UUID.fromString(sessionId));
         LogcatEndRequest request = LogcatEndRequest.newBuilder()
                 .setSerial(deviceId)
                 .build();
         client.sendEvent(WebsocketEvent.ON_LOGCAT_SHOW_STOP, request.toByteArray());
-        return new ResponseEntity<>(successInfo(), HttpStatus.OK);
+        return ok();
     }
 
 

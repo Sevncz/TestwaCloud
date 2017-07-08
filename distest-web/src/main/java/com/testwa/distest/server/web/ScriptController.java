@@ -14,7 +14,7 @@ import com.testwa.distest.server.service.TestwaProjectService;
 import com.testwa.distest.server.service.TestwaScriptService;
 import com.testwa.distest.server.web.VO.ScriptVO;
 import com.testwa.distest.server.model.message.ResultCode;
-import com.testwa.distest.server.model.message.ResultInfo;
+import com.testwa.distest.server.model.message.Result;
 import io.swagger.annotations.Api;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -58,22 +58,22 @@ public class ScriptController extends BaseController{
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/save", method= RequestMethod.POST, produces={"application/json"})
-    public ResponseEntity<ResultInfo> save(@RequestBody Map<String, String> params, @ApiIgnore @CurrentUser User user){
+    public Result save(@RequestBody Map<String, String> params, @ApiIgnore @CurrentUser User user){
         String appId = params.getOrDefault("appId", "");
         String id = params.getOrDefault("id", "");
         if(StringUtils.isBlank(appId)
                 || StringUtils.isBlank(id)){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "参数错误"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "参数错误");
         }
         TestwaScript script = testwaScriptService.getScriptById(id);
         if(script == null){
             log.error("ScriptId get script was null", id);
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(),"ScriptId找不到"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(),"ScriptId找不到");
         }
         TestwaApp app = testwaAppService.getAppById(appId);
         if(app == null){
             log.error("AppId get app was null", appId);
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(),"app不存在"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(),"app不存在");
         }
         script.setAppId(appId);
         script.setProjectId(app.getProjectId());
@@ -81,17 +81,17 @@ public class ScriptController extends BaseController{
         script.setUserId(user.getId());
         script.setUsername(user.getUsername());
         testwaScriptService.save(script);
-        return new ResponseEntity<>(successInfo(), HttpStatus.OK);
+        return ok();
     }
 
 
     @Authorization
     @ResponseBody
     @RequestMapping(value="/upload-script", method= RequestMethod.POST)
-    public ResponseEntity<ResultInfo> upload(@RequestParam("file") MultipartFile uploadfile){
+    public Result upload(@RequestParam("file") MultipartFile uploadfile){
         Map<String, String> result = new HashMap<>();
         if(uploadfile.isEmpty()){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "文件为空"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "文件为空");
         }
 
         try {
@@ -109,11 +109,11 @@ public class ScriptController extends BaseController{
             String size = uploadfile.getSize() + "";
             TestwaScript script = testwaScriptService.saveScript(filename, aliasName, filepath.toString(), size, type);
             result.put("id", script.getId());
-            return new ResponseEntity<>(dataInfo(result), HttpStatus.OK);
+            return ok(result);
         }
         catch (Exception e) {
             log.error(String.format("upload app error %s", uploadfile.getSize()), e);
-            return new ResponseEntity<>(errorInfo(ResultCode.SERVER_ERROR.getValue(), e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.SERVER_ERROR.getValue(), e.getMessage());
         }
     }
 
@@ -121,26 +121,26 @@ public class ScriptController extends BaseController{
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/delete", method= RequestMethod.POST, produces={"application/json"})
-    public ResponseEntity<ResultInfo> delete(@RequestBody Map<String, Object> params){
+    public Result delete(@RequestBody Map<String, Object> params){
         List<String> ids;
         try {
             ids = cast(params.getOrDefault("ids", null));
         }catch (Exception e){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), e.getMessage());
         }
         if (ids == null) {
-            return new ResponseEntity<>(successInfo(), HttpStatus.OK);
+            return ok();
         }
         for(String id : ids){
             testwaScriptService.deleteById(id);
         }
-        return new ResponseEntity<>(successInfo(), HttpStatus.OK);
+        return ok();
     }
 
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/table", method= RequestMethod.POST, produces={"application/json"})
-    public ResponseEntity<ResultInfo> tableList(@RequestBody QueryTableFilterParams filter, @ApiIgnore @CurrentUser User user){
+    public Result tableList(@RequestBody QueryTableFilterParams filter, @ApiIgnore @CurrentUser User user){
         Map<String, Object> result = new HashMap<>();
         try{
 
@@ -171,10 +171,10 @@ public class ScriptController extends BaseController{
             }
             result.put("records", lists);
             result.put("totalRecords", testwaScripts.getTotalElements());
-            return new ResponseEntity<>(dataInfo(result), HttpStatus.OK);
+            return ok(result);
         }catch (Exception e){
             log.error(String.format("Get scripts table error, %s", filter.toString()), e);
-            return new ResponseEntity<>(errorInfo(ResultCode.SERVER_ERROR.getValue(), e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.SERVER_ERROR.getValue(), e.getMessage());
         }
 
     }
@@ -183,7 +183,7 @@ public class ScriptController extends BaseController{
     @Authorization
     @ResponseBody
     @RequestMapping(value="/{id}", method= RequestMethod.GET)
-    public ResponseEntity<ResultInfo> readScript(@PathVariable String id){
+    public Result readScript(@PathVariable String id){
         TestwaScript script = testwaScriptService.getScriptById(id);
         String path = script.getPath();
         StringBuffer sb = new StringBuffer();
@@ -191,24 +191,24 @@ public class ScriptController extends BaseController{
             Files.lines(Paths.get(path)).forEach(line -> sb.append(line).append("\n"));
         } catch (IOException e) {
             log.error("Read file error", e);
-            return new ResponseEntity<>(errorInfo(ResultCode.SERVER_ERROR.getValue(), e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.SERVER_ERROR.getValue(), e.getMessage());
         }
-        return new ResponseEntity<>(dataInfo(sb.toString()), HttpStatus.OK);
+        return ok(sb.toString());
     }
 
     @Authorization
     @ResponseBody
     @RequestMapping(value={"/{id}"}, method = { RequestMethod.POST}, produces={"application/json"})
-    public ResponseEntity<ResultInfo> writeScript(@PathVariable String id,
-                                                  @RequestBody Map<String, String> params,
-                                                  @ApiIgnore @CurrentUser User user){
+    public Result writeScript(@PathVariable String id,
+                                              @RequestBody Map<String, String> params,
+                                              @ApiIgnore @CurrentUser User user){
         TestwaScript script = testwaScriptService.getScriptById(id);
         String path = script.getPath();
 
         String content = params.getOrDefault("content", "");
         if(StringUtils.isBlank(content)){
             log.error("Send content is null");
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "参数错误"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "参数错误");
         }
         try {
             content = replaceBlank(content);
@@ -226,9 +226,9 @@ public class ScriptController extends BaseController{
             script.setModifyUserId(user.getUsername());
         } catch (IOException e) {
             log.error("Write file error", e);
-            return new ResponseEntity<>(errorInfo(ResultCode.SERVER_ERROR.getValue(), e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.SERVER_ERROR.getValue(), e.getMessage());
         }
-        return new ResponseEntity<>(successInfo(), HttpStatus.CREATED);
+        return ok();
     }
 
     /**

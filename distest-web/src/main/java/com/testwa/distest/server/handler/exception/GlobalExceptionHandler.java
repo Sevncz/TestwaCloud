@@ -1,7 +1,7 @@
 package com.testwa.distest.server.handler.exception;
 
 import com.testwa.distest.server.model.message.ResultCode;
-import com.testwa.distest.server.model.message.ResultInfo;
+import com.testwa.distest.server.model.message.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -16,9 +16,9 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(value = Exception.class)
     @ResponseBody
-    public ResultInfo defaultErrorHandler(HttpServletRequest req, Exception e) throws Exception {
+    public Result defaultErrorHandler(HttpServletRequest req, Exception e) throws Exception {
         log.error("Unknow error", e);
-        ResultInfo<String> r = new ResultInfo<>();
+        Result<String> r = new Result<>();
         r.setCode(ResultCode.SERVER_ERROR.getValue());
         r.setData("Some error in server.");
         r.setMessage(e.getMessage());

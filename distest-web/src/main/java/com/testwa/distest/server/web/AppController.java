@@ -12,7 +12,7 @@ import com.testwa.distest.server.service.TestwaAppService;
 import com.testwa.distest.server.service.TestwaProjectService;
 import com.testwa.distest.server.web.VO.AppVO;
 import com.testwa.distest.server.model.message.ResultCode;
-import com.testwa.distest.server.model.message.ResultInfo;
+import com.testwa.distest.server.model.message.Result;
 import io.swagger.annotations.Api;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -54,9 +54,7 @@ public class AppController extends BaseController{
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/save", method= RequestMethod.POST, produces={"application/json"})
-    public ResponseEntity<ResultInfo> save(@RequestBody Map<String, String> appMap, @ApiIgnore @CurrentUser User user){
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type","application/json;charset=utf-8");
+    public Result save(@RequestBody Map<String, String> appMap, @ApiIgnore @CurrentUser User user){
         String appId = appMap.getOrDefault("id", "");
         String projectId = appMap.getOrDefault("projectId", "");
         String version = appMap.getOrDefault("version", "");
@@ -64,17 +62,17 @@ public class AppController extends BaseController{
                 || StringUtils.isBlank(version)
                 || StringUtils.isBlank(projectId)){
             log.error("appId: {}, version: {}, projectId: {}", appId, version, projectId);
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "参数错误"), headers, HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "参数错误");
         }
         TestwaApp app = testwaAppService.getAppById(appId);
         if(app == null){
             log.error("AppId get app was null", appId);
-            return new ResponseEntity<>(errorInfo(ResultCode.SERVER_ERROR.getValue(), "App找不到"), headers, HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.SERVER_ERROR.getValue(), "App找不到");
         }
         TestwaProject project = testwaProjectService.getProjectById(projectId);
         if(project == null){
             log.error("ProjectId get project was null", projectId);
-            return new ResponseEntity<>(errorInfo(ResultCode.SERVER_ERROR.getValue(), "项目id错误,找不到对应的项目"), headers, HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.SERVER_ERROR.getValue(), "项目id错误,找不到对应的项目");
         }
         app.setProjectId(projectId);
         app.setProjectName(project.getName());
@@ -83,16 +81,16 @@ public class AppController extends BaseController{
         app.setUsername(user.getUsername());
         app.setDisable(true);
         testwaAppService.update(app);
-        return new ResponseEntity<>(successInfo(),headers, HttpStatus.CREATED);
+        return ok();
     }
 
     @Authorization
     @ResponseBody
     @RequestMapping(value="/upload-app", method= RequestMethod.POST)
-    public ResponseEntity<ResultInfo> upload(@RequestParam("file") MultipartFile uploadfile){
+    public Result upload(@RequestParam("file") MultipartFile uploadfile){
         Map<String, String> result = new HashMap<>();
         if(uploadfile.isEmpty()){
-            return new ResponseEntity<>(errorInfo(ResultCode.SERVER_ERROR.getValue(), "文件是空"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.SERVER_ERROR.getValue(), "文件是空");
         }
         try {
             String filename = uploadfile.getOriginalFilename();
@@ -113,11 +111,11 @@ public class AppController extends BaseController{
             result.put("type", app.getType());
             result.put("sdkVersion", app.getSdkVersion());
             result.put("targetSdkVersion", app.getTargetSdkVersion());
-            return new ResponseEntity<>(dataInfo(result), HttpStatus.OK);
+            return ok(result);
         }
         catch (Exception e) {
             log.error(String.format("upload app error %s", uploadfile.getSize()), e);
-            return new ResponseEntity<>(errorInfo(ResultCode.SERVER_ERROR.getValue(), "服务器异常"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.SERVER_ERROR.getValue(), "服务器异常");
         }
     }
 
@@ -125,29 +123,27 @@ public class AppController extends BaseController{
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/delete", method= RequestMethod.POST, produces={"application/json"})
-    public ResponseEntity<ResultInfo> delete(@RequestBody Map<String, Object> params){
+    public Result delete(@RequestBody Map<String, Object> params){
         List<String> ids;
         try {
             ids = cast(params.getOrDefault("ids", null));
         }catch (Exception e){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "ids参数格式不正确"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "ids参数格式不正确");
         }
         if (ids == null) {
-            return new ResponseEntity<>(successInfo(), HttpStatus.OK);
+            return ok();
         }
         for(String id : ids){
             testwaAppService.deleteById(id);
         }
-        return new ResponseEntity<>(successInfo(), HttpStatus.OK);
+        return ok();
     }
 
 
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/table", method= RequestMethod.POST, produces={"application/json"})
-    public ResponseEntity<ResultInfo> tableList(@RequestBody QueryTableFilterParams filter, @ApiIgnore @CurrentUser User user){
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type","application/json;charset=utf-8");
+    public Result tableList(@RequestBody QueryTableFilterParams filter, @ApiIgnore @CurrentUser User user){
         Map<String, Object> result = new HashMap<>();
         try{
             PageRequest pageRequest = buildPageRequest(filter);
@@ -166,10 +162,10 @@ public class AppController extends BaseController{
             }
             result.put("records", lists);
             result.put("totalRecords", testwaScripts.getTotalElements());
-            return new ResponseEntity<>(dataInfo(result), headers, HttpStatus.OK);
+            return ok(result);
         }catch (Exception e){
             log.error(String.format("Get scripts table error, %s", filter.toString()), e);
-            return new ResponseEntity<>(errorInfo(ResultCode.SERVER_ERROR.getValue(), e.getMessage()), headers, HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.SERVER_ERROR.getValue(), e.getMessage());
         }
 
     }
@@ -177,7 +173,7 @@ public class AppController extends BaseController{
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/list", method= RequestMethod.GET, produces={"application/json"})
-    public ResponseEntity<ResultInfo> list(@ApiIgnore @CurrentUser User user){
+    public Result list(@ApiIgnore @CurrentUser User user){
         Map<String, Object> result = new HashMap<>();
 
         List filters = new ArrayList<>();
@@ -195,7 +191,7 @@ public class AppController extends BaseController{
             maps.add(map);
         }
         result.put("records", maps);
-        return new ResponseEntity<>(dataInfo(result), HttpStatus.OK);
+        return ok(result);
     }
 
 }

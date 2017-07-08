@@ -153,10 +153,14 @@
             <artifactId>grpc-stub</artifactId>
         </dependency>
 
-
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>net.bramp.ffmpeg</groupId>
+            <artifactId>ffmpeg</artifactId>
         </dependency>
 
     </dependencies>

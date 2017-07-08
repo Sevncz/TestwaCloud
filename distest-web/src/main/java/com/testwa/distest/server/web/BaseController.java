@@ -1,7 +1,7 @@
 package com.testwa.distest.server.web;
 
 import com.testwa.distest.server.model.message.ResultCode;
-import com.testwa.distest.server.model.message.ResultInfo;
+import com.testwa.distest.server.model.message.Result;
 import com.testwa.distest.server.model.params.QueryTableFilterParams;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
@@ -14,21 +14,21 @@ import java.util.*;
  */
 public class BaseController {
 
-    public ResultInfo<String> errorInfo(Integer code, String message) {
-        ResultInfo<String> r = new ResultInfo<>();
+    public Result<String> fail(Integer code, String message) {
+        Result<String> r = new Result<>();
         r.setCode(code);
         r.setMessage(message);
         return r;
     }
 
-    public ResultInfo<String> successInfo() {
-        ResultInfo<String> r = new ResultInfo<>();
+    public Result<String> ok() {
+        Result<String> r = new Result<>();
         r.setCode(ResultCode.SUCCESS.getValue());
         return r;
     }
 
-    public ResultInfo<Object> dataInfo(Object data) {
-        ResultInfo<Object> r = new ResultInfo<>();
+    public Result<Object> ok(Object data) {
+        Result<Object> r = new Result<>();
         r.setCode(ResultCode.SUCCESS.getValue());
         r.setData(data);
         return r;

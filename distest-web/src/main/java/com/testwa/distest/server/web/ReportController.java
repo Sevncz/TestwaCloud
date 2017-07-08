@@ -7,7 +7,7 @@ import com.testwa.distest.server.model.params.QueryTableFilterParams;
 import com.testwa.distest.server.service.*;
 import com.testwa.distest.server.web.VO.*;
 import com.testwa.distest.server.model.message.ResultCode;
-import com.testwa.distest.server.model.message.ResultInfo;
+import com.testwa.distest.server.model.message.Result;
 import io.swagger.annotations.Api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +50,7 @@ public class ReportController extends BaseController {
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/table", method= RequestMethod.POST)
-    public ResponseEntity<ResultInfo> tableList(@RequestBody QueryTableFilterParams filter, @ApiIgnore @CurrentUser User user){
+    public Result tableList(@RequestBody QueryTableFilterParams filter, @ApiIgnore @CurrentUser User user){
         Map<String, Object> result = new HashMap<>();
         try{
 
@@ -90,10 +90,10 @@ public class ReportController extends BaseController {
             }
             result.put("records", lists);
             result.put("totalRecords", reports.getTotalElements());
-            return new ResponseEntity<>(dataInfo(result), HttpStatus.OK);
+            return ok(result);
         }catch (Exception e){
             log.error(String.format("Get project table error, %s", filter.toString()), e);
-            return new ResponseEntity<>(errorInfo(ResultCode.SERVER_ERROR.getValue(), e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.SERVER_ERROR.getValue(), e.getMessage());
         }
 
     }
@@ -101,20 +101,20 @@ public class ReportController extends BaseController {
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/delete", method= RequestMethod.POST)
-    public ResponseEntity<ResultInfo> delete(@RequestBody Map<String, Object> params){
+    public Result delete(@RequestBody Map<String, Object> params){
         List<String> ids;
         try {
             ids = cast(params.getOrDefault("ids", null));
         }catch (Exception e){
-            return new ResponseEntity<>(errorInfo(ResultCode.PARAM_ERROR.getValue(), "ids参数格式不正确"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.PARAM_ERROR.getValue(), "ids参数格式不正确");
         }
         if (ids == null) {
-            return new ResponseEntity<>(successInfo(), HttpStatus.OK);
+            return ok();
         }
         for(String id : ids){
             testwaReportService.deleteById(id);
         }
-        return new ResponseEntity<>(successInfo(), HttpStatus.OK);
+        return ok();
     }
 
 
@@ -126,7 +126,7 @@ public class ReportController extends BaseController {
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/detail/{detailId}", method= RequestMethod.GET)
-    public ResponseEntity<ResultInfo> reportDetail(@PathVariable String detailId){
+    public Result reportDetail(@PathVariable String detailId){
         log.info("get Reportdetail");
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type","application/json;charset=utf-8");
@@ -141,12 +141,12 @@ public class ReportController extends BaseController {
             }
 
         }catch (ParseException e){
-            return new ResponseEntity<>(errorInfo(ResultCode.SERVER_ERROR.getValue(), "时间转换错误"), headers, HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.SERVER_ERROR.getValue(), "时间转换错误");
         }
 
         Map<String, Object> result = new HashMap<>();
         result.put("records", sdetailVOs);
-        return new ResponseEntity<>(dataInfo(result), headers, HttpStatus.OK);
+        return ok(result);
     }
 
     /**
@@ -158,7 +158,7 @@ public class ReportController extends BaseController {
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/detail/{detailId}/script/{scriptId}", method= RequestMethod.GET)
-    public ResponseEntity<ResultInfo> stepList(@PathVariable String detailId, @PathVariable String scriptId){
+    public Result stepList(@PathVariable String detailId, @PathVariable String scriptId){
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type","application/json;charset=utf-8");
 
@@ -169,7 +169,7 @@ public class ReportController extends BaseController {
         }
         Map<String, Object> result = new HashMap<>();
         result.put("steps", stepInfoVOs);
-        return new ResponseEntity<>(dataInfo(result), headers, HttpStatus.OK);
+        return ok(result);
     }
 
     /**
@@ -180,18 +180,18 @@ public class ReportController extends BaseController {
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/detail/script/step/{stepId}", method = RequestMethod.GET)
-    public ResponseEntity<ResultInfo> stepInfo(@PathVariable String stepId){
+    public Result stepInfo(@PathVariable String stepId){
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type","application/json;charset=utf-8");
 
         TestwaProcedureInfo stepInfo = testwaProcedureInfoService.getProcedureInfoById(stepId);
         if(stepInfo == null){
-            return new ResponseEntity<>(errorInfo(ResultCode.SERVER_ERROR.getValue(), "stepInfo not found"), headers, HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.SERVER_ERROR.getValue(), "stepInfo not found");
         }
         TestwaProcedureInfo lastStepInfo = testwaProcedureInfoService.findLastProcedureInfo(stepInfo);
 
         StepInfoVO vo = new StepInfoVO(stepInfo, lastStepInfo);
-        return new ResponseEntity<>(dataInfo(vo), headers, HttpStatus.OK);
+        return ok(vo);
     }
 
     /**
@@ -203,23 +203,23 @@ public class ReportController extends BaseController {
     @Authorization
     @ResponseBody
     @RequestMapping(value = "/detail/{detailId}/script/{scriptId}/summary", method = RequestMethod.GET)
-    public ResponseEntity<ResultInfo> stepInfoSummary(@PathVariable String detailId, @PathVariable String scriptId){
+    public Result stepInfoSummary(@PathVariable String detailId, @PathVariable String scriptId){
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type","application/json;charset=utf-8");
 
         TestwaReportSdetail sdetail = testwaReportSdetailService.findTestcaseSdetailByDetailIdScriptId(detailId, scriptId);
         if(sdetail == null){
-            return new ResponseEntity<>(errorInfo(ResultCode.SERVER_ERROR.getValue(), "sdetail not found"), headers, HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.SERVER_ERROR.getValue(), "sdetail not found");
         }
 
         TestwaReportDetail detail = testwaReportDetailService.getTestcaseDetailById(detailId);
         if(detail == null){
-            return new ResponseEntity<>(errorInfo(ResultCode.SERVER_ERROR.getValue(), "detail not found"), headers, HttpStatus.INTERNAL_SERVER_ERROR);
+            return fail(ResultCode.SERVER_ERROR.getValue(), "detail not found");
         }
 
         StepSummaryVO vo = new StepSummaryVO(detail, sdetail);
 
-        return new ResponseEntity<>(dataInfo(vo), headers, HttpStatus.OK);
+        return ok(vo);
     }
 
 }

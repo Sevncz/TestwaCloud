@@ -3,7 +3,7 @@ package com.testwa.distest.server.model.message;
 /**
  * Created by wen on 2016/11/19.
  */
-public class ResultInfo<T> {
+public class Result<T> {
 
     private String message;
     private T data;
