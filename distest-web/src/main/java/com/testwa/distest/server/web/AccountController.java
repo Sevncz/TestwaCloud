@@ -2,13 +2,9 @@ package com.testwa.distest.server.web;
 
 import com.testwa.core.utils.Identities;
 import com.testwa.core.utils.Validator;
-import com.testwa.distest.server.authorization.Constants;
-import com.testwa.distest.server.authorization.annotation.Authorization;
-import com.testwa.distest.server.authorization.annotation.CurrentUser;
 import com.testwa.distest.server.model.User;
-import com.testwa.distest.server.model.permission.UserShareScope;
+import com.testwa.distest.server.model.UserShareScope;
 import com.testwa.distest.server.service.UserService;
-import com.testwa.distest.server.service.security.TestwaTokenService;
 import com.testwa.distest.server.model.message.ResultCode;
 import com.testwa.distest.server.model.message.Result;
 import io.jsonwebtoken.Claims;
@@ -19,9 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import cn.apiclub.captcha.Captcha;
@@ -50,68 +44,7 @@ public class AccountController extends BaseController{
     private PasswordEncoder passwordEncoder;
     @Autowired
     private RedisTemplate redisTemplate;
-    @Autowired
-    private TestwaTokenService testwaTokenService;
 
-    @RequestMapping(value = "login", method=RequestMethod.POST, produces={"application/json"})
-    public Result login(@RequestBody final UserInfo login,
-                        @ApiIgnore HttpServletRequest request,
-                        @ApiIgnore HttpServletResponse response)
-        throws ServletException {
-        Map<String, String> result = new HashMap<>();
-
-        // 暂时取消验证码验证功能
-//        if(StringUtils.isBlank(login.captcha)){
-//            return new ResponseEntity<>(new CustomResponseEntity("验证码为空");
-//        }
-//        String captchaKey = testwaTokenService.getCaptchaKey(request);
-//        String captchaValue = (String) redisTemplate.opsForValue().get(captchaKey);
-//        if (StringUtils.isBlank(captchaValue)){
-//            log.error("captchaKey ============= {}", captchaKey);
-//            return new ResponseEntity<>(new CustomResponseEntity("验证码已过期");
-//        }
-//        redisTemplate.delete(captchaKey);
-//        if (captchaValue.compareTo(login.captcha) != 0){
-//            return new ResponseEntity<>(new CustomResponseEntity("非法的验证码");
-//        }
-
-        if (StringUtils.isBlank(login.username) || StringUtils.isBlank(login.password)) {
-            return fail(ResultCode.PARAM_ERROR.getValue(), "用户名密码为空");
-        }
-        User user = userService.findByUsername(login.username);
-        if(user == null){
-            user = userService.findByEmail(login.username);
-        }
-        if(user == null || !passwordEncoder.matches(login.password, user.getPassword())){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "用户名密码错误");
-        }
-        String token = testwaTokenService.createToken(user.getId(), Constants.TOKEN_ISS, user.getUsername());
-        result.put("access_token", token);
-        testwaTokenService.saveToken(response, token);
-        return ok(result);
-    }
-
-
-    @RequestMapping(value = "purelogin", method= RequestMethod.POST, produces={"application/json"})
-    public Result pureLogin(@RequestBody final UserInfo login)
-            throws ServletException {
-        Map<String, String> result = new HashMap<>();
-
-        if (StringUtils.isBlank(login.username) || StringUtils.isBlank(login.password)) {
-            return fail(ResultCode.PARAM_ERROR.getValue(), "用户名密码为空");
-        }
-        User user = userService.findByUsername(login.username);
-        if(user == null){
-            user = userService.findByEmail(login.username);
-        }
-        if(user == null || !passwordEncoder.matches(login.password, user.getPassword())){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "用户名密码错误");
-        }
-        String token = testwaTokenService.createToken(user.getId(), Constants.TOKEN_ISS, user.getUsername());
-        result.put("access_token", token);
-        result.put("userId", user.getId());
-        return ok(result);
-    }
 
     @RequestMapping(value = "register", method= RequestMethod.POST, produces={"application/json"})
     public Result register(@RequestBody final UserInfo register)
@@ -155,15 +88,6 @@ public class AccountController extends BaseController{
 
     @RequestMapping(value = "verify", method= RequestMethod.GET)
     public Result verify(@ApiIgnore HttpServletRequest request){
-        String token = testwaTokenService.getToken(request);
-        if(StringUtils.isBlank(token)){
-            return fail(ResultCode.NO_AUTH.getValue(), "Token信息为空");
-        }
-        try {
-            Claims claims = testwaTokenService.parserToken(token);
-        } catch (Exception e) {
-            return fail(ResultCode.NO_AUTH.getValue(), "用户登录信息已过期");
-        }
         return ok();
     }
 
@@ -193,8 +117,6 @@ public class AccountController extends BaseController{
         redisTemplate.opsForValue().set(uuid, captcha.getAnswer(), captchaExpires, TimeUnit.SECONDS);
 
         //将验证码key，及验证码的图片返回
-        Cookie cookie = new Cookie(Constants.CAPTCHACODE, uuid);
-        response.addCookie(cookie);
         ByteArrayOutputStream bao = new ByteArrayOutputStream();
         try {
             ImageIO.write(captcha.getImage(), "png", bao);
@@ -208,7 +130,6 @@ public class AccountController extends BaseController{
     @RequestMapping(value = "logout", method= RequestMethod.POST, produces={"application/json"})
     public Result logout(HttpServletRequest request,
                                          HttpServletResponse response){
-        testwaTokenService.deleteToken(response);
         return ok();
     }
 
@@ -239,15 +160,11 @@ public class AccountController extends BaseController{
     }
 
 
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "/my/scopes", method= RequestMethod.GET)
-    public Result myScopes(@ApiIgnore @CurrentUser User user){
-        Integer scope = user.getShareScope();
-        List<UserShareScope> scopes = UserShareScope.lteScope(scope);
-        Map<String, Object> result = new HashMap<>();
-        result.put("scops", scopes);
-        return ok(result);
+    public Result myScopes(){
+        return ok();
     }
 
 }

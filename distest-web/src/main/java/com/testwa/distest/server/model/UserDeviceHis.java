@@ -1,13 +1,11 @@
 package com.testwa.distest.server.model;
 
-import com.testwa.distest.server.model.permission.UserShareScope;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -49,7 +47,7 @@ public class UserDeviceHis {
     public UserDeviceHis() {
     }
 
-    public UserDeviceHis(String userId, TestwaDevice device) {
+    public UserDeviceHis(String userId, TDevice device) {
 
         this.userId = userId;
         this.deviceId = device.getId();

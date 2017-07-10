@@ -2,14 +2,13 @@ package com.testwa.distest.server.web;
 
 import com.testwa.core.utils.Identities;
 import com.testwa.core.utils.PinYinTool;
-import com.testwa.distest.server.authorization.annotation.Authorization;
-import com.testwa.distest.server.authorization.annotation.CurrentUser;
-import com.testwa.distest.server.model.TestwaApp;
-import com.testwa.distest.server.model.TestwaProject;
+import com.testwa.distest.server.model.App;
+import com.testwa.distest.server.model.Project;
 import com.testwa.distest.server.model.User;
 import com.testwa.distest.server.model.params.QueryTableFilterParams;
-import com.testwa.distest.server.service.TestwaAppService;
-import com.testwa.distest.server.service.TestwaProjectService;
+import com.testwa.distest.server.service.AppService;
+import com.testwa.distest.server.service.ProjectService;
+import com.testwa.distest.server.service.UserService;
 import com.testwa.distest.server.web.VO.AppVO;
 import com.testwa.distest.server.model.message.ResultCode;
 import com.testwa.distest.server.model.message.Result;
@@ -21,12 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import springfox.documentation.annotations.ApiIgnore;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,17 +39,19 @@ public class AppController extends BaseController{
     private static final Logger log = LoggerFactory.getLogger(AppController.class);
 
     @Autowired
-    private TestwaAppService testwaAppService;
+    private AppService appService;
     @Autowired
-    private TestwaProjectService testwaProjectService;
+    private ProjectService projectService;
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private Environment env;
 
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "/save", method= RequestMethod.POST, produces={"application/json"})
-    public Result save(@RequestBody Map<String, String> appMap, @ApiIgnore @CurrentUser User user){
+    public Result save(@RequestBody Map<String, String> appMap){
         String appId = appMap.getOrDefault("id", "");
         String projectId = appMap.getOrDefault("projectId", "");
         String version = appMap.getOrDefault("version", "");
@@ -64,27 +61,30 @@ public class AppController extends BaseController{
             log.error("appId: {}, version: {}, projectId: {}", appId, version, projectId);
             return fail(ResultCode.PARAM_ERROR.getValue(), "参数错误");
         }
-        TestwaApp app = testwaAppService.getAppById(appId);
+        App app = appService.getAppById(appId);
         if(app == null){
             log.error("AppId get app was null", appId);
             return fail(ResultCode.SERVER_ERROR.getValue(), "App找不到");
         }
-        TestwaProject project = testwaProjectService.getProjectById(projectId);
+        Project project = projectService.getProjectById(projectId);
         if(project == null){
             log.error("ProjectId get project was null", projectId);
             return fail(ResultCode.SERVER_ERROR.getValue(), "项目id错误,找不到对应的项目");
         }
+
+        User currentUser = userService.findByUsername(getCurrentUsername());
+
         app.setProjectId(projectId);
         app.setProjectName(project.getName());
         app.setVersion(version);
-        app.setUserId(user.getId());
-        app.setUsername(user.getUsername());
+        app.setUserId(currentUser.getId());
+        app.setUsername(currentUser.getUsername());
         app.setDisable(true);
-        testwaAppService.update(app);
+        appService.update(app);
         return ok();
     }
 
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value="/upload-app", method= RequestMethod.POST)
     public Result upload(@RequestParam("file") MultipartFile uploadfile){
@@ -103,7 +103,7 @@ public class AppController extends BaseController{
             String type = filename.substring(filename.lastIndexOf(".") + 1);
 
             String size = uploadfile.getSize() + "";
-            TestwaApp app = testwaAppService.saveApp(filename, aliasName, filepath.toString(), size, type);
+            App app = appService.saveApp(filename, aliasName, filepath.toString(), size, type);
             result.put("id", app.getId());
             result.put("name", app.getName());
             result.put("packageName", app.getPackageName());
@@ -120,7 +120,7 @@ public class AppController extends BaseController{
     }
 
 
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "/delete", method= RequestMethod.POST, produces={"application/json"})
     public Result delete(@RequestBody Map<String, Object> params){
@@ -134,28 +134,28 @@ public class AppController extends BaseController{
             return ok();
         }
         for(String id : ids){
-            testwaAppService.deleteById(id);
+            appService.deleteById(id);
         }
         return ok();
     }
 
 
-    @Authorization
     @ResponseBody
     @RequestMapping(value = "/table", method= RequestMethod.POST, produces={"application/json"})
-    public Result tableList(@RequestBody QueryTableFilterParams filter, @ApiIgnore @CurrentUser User user){
+    public Result tableList(@RequestBody QueryTableFilterParams filter){
         Map<String, Object> result = new HashMap<>();
         try{
             PageRequest pageRequest = buildPageRequest(filter);
             // contains, startwith, endwith
             List filters = filter.filters;
 //            filterDisable(filters);
-            List<TestwaProject> projectsOfUser = testwaProjectService.findByUser(user);
+            User user = userService.findByUsername(getCurrentUsername());
+            List<Project> projectsOfUser = projectService.findByUser(user);
             List<String> projectIds = new ArrayList<>();
             projectsOfUser.forEach(item -> projectIds.add(item.getId()));
             filters = filterProject(filters, "projectId", projectIds);
-            Page<TestwaApp> testwaScripts =  testwaAppService.find(filters, pageRequest);
-            Iterator<TestwaApp> testwaScriptsIter =  testwaScripts.iterator();
+            Page<App> testwaScripts =  appService.find(filters, pageRequest);
+            Iterator<App> testwaScriptsIter =  testwaScripts.iterator();
             List<AppVO> lists = new ArrayList<>();
             while(testwaScriptsIter.hasNext()){
                 lists.add(new AppVO(testwaScriptsIter.next()));
@@ -170,21 +170,22 @@ public class AppController extends BaseController{
 
     }
 
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "/list", method= RequestMethod.GET, produces={"application/json"})
-    public Result list(@ApiIgnore @CurrentUser User user){
+    public Result list(){
         Map<String, Object> result = new HashMap<>();
 
         List filters = new ArrayList<>();
-        List<TestwaProject> projectsOfUser = testwaProjectService.findByUser(user);
+        User currentUser = userService.findByUsername(getCurrentUsername());
+        List<Project> projectsOfUser = projectService.findByUser(currentUser);
         List<String> projectIds = new ArrayList<>();
         projectsOfUser.forEach(item -> projectIds.add(item.getId()));
         filters = filterProject(filters, "projectId", projectIds);
 
-        List<TestwaApp> apps = testwaAppService.find(filters);
+        List<App> apps = appService.find(filters);
         List<Map<String, String>> maps = new ArrayList<>();
-        for(TestwaApp a : apps){
+        for(App a : apps){
             Map<String, String> map = new HashMap<>();
             map.put("name", a.getName());
             map.put("id", a.getId());

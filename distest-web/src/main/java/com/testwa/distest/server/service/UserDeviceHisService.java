@@ -1,22 +1,14 @@
 package com.testwa.distest.server.service;
 
-import com.testwa.distest.server.android.TestwaAndroidApp;
-import com.testwa.distest.server.model.TestwaApp;
 import com.testwa.distest.server.model.UserDeviceHis;
 import com.testwa.distest.server.model.params.QueryFilters;
 import com.testwa.distest.server.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 

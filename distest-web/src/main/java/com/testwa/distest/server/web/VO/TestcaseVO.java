@@ -1,8 +1,8 @@
 package com.testwa.distest.server.web.VO;
 
 import com.testwa.core.utils.TimeUtil;
-import com.testwa.distest.server.model.TestwaApp;
-import com.testwa.distest.server.model.TestwaTestcase;
+import com.testwa.distest.server.model.App;
+import com.testwa.distest.server.model.Testcase;
 
 
 /**
@@ -20,7 +20,7 @@ public class TestcaseVO {
     private String name;
     private String projectName;
 
-    public TestcaseVO(TestwaTestcase testcase, TestwaApp app) {
+    public TestcaseVO(Testcase testcase, App app) {
         this.id = testcase.getId();
         if(app != null){
             this.appName = app.getName();

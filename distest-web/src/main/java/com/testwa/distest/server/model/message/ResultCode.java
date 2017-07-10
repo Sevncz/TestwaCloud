@@ -22,7 +22,7 @@ public enum ResultCode {
     INVALID_IP(-3), //IP没有权限。
     OVERLOCK(-4), //超过访问频率。
     ILLEGAL_TOKEN(-5), //非法token。
-    NO_API(-5), //API不存在。
+    NO_API(-6), //API不存在。
     ;
 
     private int value;

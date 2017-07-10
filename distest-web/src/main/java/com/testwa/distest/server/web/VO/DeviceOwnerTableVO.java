@@ -1,8 +1,7 @@
 package com.testwa.distest.server.web.VO;
 
-import com.testwa.distest.server.model.TestwaAgent;
-import com.testwa.distest.server.model.TestwaDevice;
-import org.springframework.data.annotation.Transient;
+import com.testwa.distest.server.model.Agent;
+import com.testwa.distest.server.model.TDevice;
 
 /**
  * Created by wen on 07/01/2017.
@@ -23,9 +22,9 @@ public class DeviceOwnerTableVO {
     private String version; // 系统版本 6.0.1
     private String host; // vpba27.mtv.corp.google.com
     private String sessionId;
-    private TestwaAgent agent;
+    private Agent agent;
 
-    public DeviceOwnerTableVO(TestwaDevice device) {
+    public DeviceOwnerTableVO(TDevice device) {
         this.id = device.getId();
         this.status = device.getStatus();
         this.cpuabi = device.getCpuabi();
@@ -145,11 +144,11 @@ public class DeviceOwnerTableVO {
         this.sessionId = sessionId;
     }
 
-    public TestwaAgent getAgent() {
+    public Agent getAgent() {
         return agent;
     }
 
-    public void setAgent(TestwaAgent agent) {
+    public void setAgent(Agent agent) {
         this.agent = agent;
     }
 }

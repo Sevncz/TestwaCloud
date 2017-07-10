@@ -35,7 +35,7 @@ public class StepSummaryVO {
     private String deviceVersion; // 系统版本 6.0.1
     private String deviceHost; // vpba27.mtv.corp.google.com
 
-    public StepSummaryVO(TestwaReportDetail detail, TestwaReportSdetail sdetail) {
+    public StepSummaryVO(ReportDetail detail, ReportSdetail sdetail) {
         this.startTime = TimeUtil.formatTimeStamp(sdetail.getStartTime().getTime());
         this.totalTime = sdetail.getTotalTime();
         this.machineName = sdetail.getMachineName();

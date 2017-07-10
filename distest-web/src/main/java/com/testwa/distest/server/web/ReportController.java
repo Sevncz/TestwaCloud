@@ -1,7 +1,5 @@
 package com.testwa.distest.server.web;
 
-import com.testwa.distest.server.authorization.annotation.Authorization;
-import com.testwa.distest.server.authorization.annotation.CurrentUser;
 import com.testwa.distest.server.model.*;
 import com.testwa.distest.server.model.params.QueryTableFilterParams;
 import com.testwa.distest.server.service.*;
@@ -14,11 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
 
 import java.text.ParseException;
 import java.util.*;
@@ -33,24 +27,24 @@ public class ReportController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(ReportController.class);
 
     @Autowired
-    private TestwaTestcaseService testcaseService;
+    private TestcaseService testcaseService;
     @Autowired
-    private TestwaReportService testwaReportService;
+    private ReportService reportService;
     @Autowired
-    private TestwaReportDetailService testwaReportDetailService;
+    private ReportDetailService reportDetailService;
     @Autowired
-    private TestwaReportSdetailService testwaReportSdetailService;
+    private ReportSdetailService reportSdetailService;
     @Autowired
-    private TestwaScriptService testwaScriptService;
+    private ScriptService scriptService;
     @Autowired
-    private TestwaProcedureInfoService testwaProcedureInfoService;
+    private ProcedureInfoService procedureInfoService;
     @Autowired
-    private TestwaProjectService testwaProjectService;
+    private ProjectService projectService;
 
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "/table", method= RequestMethod.POST)
-    public Result tableList(@RequestBody QueryTableFilterParams filter, @ApiIgnore @CurrentUser User user){
+    public Result tableList(@RequestBody QueryTableFilterParams filter){
         Map<String, Object> result = new HashMap<>();
         try{
 
@@ -58,19 +52,19 @@ public class ReportController extends BaseController {
             // contains, startwith, endwith
             List filters = filter.filters;
 //            filterDisable(filters);
-            List<TestwaProject> projectsOfUser = testwaProjectService.findByUser(user);
+            List<Project> projectsOfUser = projectService.findByUser(getCurrentUsername());
             List<String> projectIds = new ArrayList<>();
             projectsOfUser.forEach(item -> projectIds.add(item.getId()));
             filters = filterProject(filters, "projectId", projectIds);
-            Page<TestwaReport> reports =  testwaReportService.find(filters, pageRequest);
+            Page<Report> reports =  reportService.find(filters, pageRequest);
 
-            Iterator<TestwaReport> reportsIter =  reports.iterator();
+            Iterator<Report> reportsIter =  reports.iterator();
             List<ReportTableVO> lists = new ArrayList<>();
             while(reportsIter.hasNext()){
-                TestwaReport report = reportsIter.next();
-                List<TestwaReportDetail> details = testwaReportDetailService.findByReportId(report.getId());
-                Long successScript = testwaReportSdetailService.findSuccessScriptCount(details);
-                Long errorScript = testwaReportSdetailService.findErrorScriptCount(details);
+                Report report = reportsIter.next();
+                List<ReportDetail> details = reportDetailService.findByReportId(report.getId());
+                Long successScript = reportSdetailService.findSuccessScriptCount(details);
+                Long errorScript = reportSdetailService.findErrorScriptCount(details);
                 ReportTableVO vo = new ReportTableVO(report, details);
                 vo.setSuccess(successScript);
                 vo.setFail(errorScript);
@@ -81,8 +75,8 @@ public class ReportController extends BaseController {
                 List<ReportDetailVO> dvos1 = new ArrayList<>();
 
                 for(ReportDetailVO dvo : dvos){
-                    Long successScript_dvo = testwaReportSdetailService.findSuccessScriptCount(dvo.getDetailId());
-                    Long errorScript_dvo = testwaReportSdetailService.findErrorScriptCount(dvo.getDetailId());
+                    Long successScript_dvo = reportSdetailService.findSuccessScriptCount(dvo.getDetailId());
+                    Long errorScript_dvo = reportSdetailService.findErrorScriptCount(dvo.getDetailId());
                     dvo.setStatus(successScript_dvo, errorScript_dvo);
                     dvos1.add(dvo);
                 }
@@ -98,7 +92,7 @@ public class ReportController extends BaseController {
 
     }
 
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "/delete", method= RequestMethod.POST)
     public Result delete(@RequestBody Map<String, Object> params){
@@ -112,7 +106,7 @@ public class ReportController extends BaseController {
             return ok();
         }
         for(String id : ids){
-            testwaReportService.deleteById(id);
+            reportService.deleteById(id);
         }
         return ok();
     }
@@ -123,19 +117,19 @@ public class ReportController extends BaseController {
      * @param detailId
      * @return
      */
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "/detail/{detailId}", method= RequestMethod.GET)
     public Result reportDetail(@PathVariable String detailId){
         log.info("get Reportdetail");
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type","application/json;charset=utf-8");
-        List<TestwaReportSdetail> sdetails = testwaReportSdetailService.findByDetailId(detailId);
+
+
+        List<ReportSdetail> sdetails = reportSdetailService.findByDetailId(detailId);
         List<ReportSdetailVO> sdetailVOs = new ArrayList<>();
         try {
 
-            for(TestwaReportSdetail sdetail : sdetails){
-                TestwaScript script = testwaScriptService.getScriptById(sdetail.getScriptId());
+            for(ReportSdetail sdetail : sdetails){
+                Script script = scriptService.getScriptById(sdetail.getScriptId());
                 ReportSdetailVO vo = new ReportSdetailVO(sdetail, script);
                 sdetailVOs.add(vo);
             }
@@ -155,16 +149,16 @@ public class ReportController extends BaseController {
      * @param scriptId
      * @return
      */
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "/detail/{detailId}/script/{scriptId}", method= RequestMethod.GET)
     public Result stepList(@PathVariable String detailId, @PathVariable String scriptId){
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type","application/json;charset=utf-8");
 
-        List<TestwaProcedureInfo> infos = testwaProcedureInfoService.findByReportDetailIdAndScriptId(detailId, scriptId);
+
+
+        List<ProcedureInfo> infos = procedureInfoService.findByReportDetailIdAndScriptId(detailId, scriptId);
         List<ReportStepInfoVO> stepInfoVOs = new ArrayList<>();
-        for(TestwaProcedureInfo info : infos){
+        for(ProcedureInfo info : infos){
             stepInfoVOs.add(new ReportStepInfoVO(info));
         }
         Map<String, Object> result = new HashMap<>();
@@ -177,18 +171,18 @@ public class ReportController extends BaseController {
      * @param stepId
      * @return
      */
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "/detail/script/step/{stepId}", method = RequestMethod.GET)
     public Result stepInfo(@PathVariable String stepId){
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type","application/json;charset=utf-8");
 
-        TestwaProcedureInfo stepInfo = testwaProcedureInfoService.getProcedureInfoById(stepId);
+
+
+        ProcedureInfo stepInfo = procedureInfoService.getProcedureInfoById(stepId);
         if(stepInfo == null){
             return fail(ResultCode.SERVER_ERROR.getValue(), "stepInfo not found");
         }
-        TestwaProcedureInfo lastStepInfo = testwaProcedureInfoService.findLastProcedureInfo(stepInfo);
+        ProcedureInfo lastStepInfo = procedureInfoService.findLastProcedureInfo(stepInfo);
 
         StepInfoVO vo = new StepInfoVO(stepInfo, lastStepInfo);
         return ok(vo);
@@ -200,19 +194,19 @@ public class ReportController extends BaseController {
      * @param scriptId
      * @return
      */
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "/detail/{detailId}/script/{scriptId}/summary", method = RequestMethod.GET)
     public Result stepInfoSummary(@PathVariable String detailId, @PathVariable String scriptId){
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type","application/json;charset=utf-8");
 
-        TestwaReportSdetail sdetail = testwaReportSdetailService.findTestcaseSdetailByDetailIdScriptId(detailId, scriptId);
+
+
+        ReportSdetail sdetail = reportSdetailService.findTestcaseSdetailByDetailIdScriptId(detailId, scriptId);
         if(sdetail == null){
             return fail(ResultCode.SERVER_ERROR.getValue(), "sdetail not found");
         }
 
-        TestwaReportDetail detail = testwaReportDetailService.getTestcaseDetailById(detailId);
+        ReportDetail detail = reportDetailService.getTestcaseDetailById(detailId);
         if(detail == null){
             return fail(ResultCode.SERVER_ERROR.getValue(), "detail not found");
         }

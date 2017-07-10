@@ -3,8 +3,6 @@ package com.testwa.distest.server.web;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.rpc.proto.Agent;
-import com.testwa.distest.server.authorization.annotation.Authorization;
-import com.testwa.distest.server.authorization.annotation.CurrentUser;
 import com.testwa.distest.server.model.*;
 import com.testwa.distest.server.model.params.QueryTableFilterParams;
 import com.testwa.distest.server.service.*;
@@ -19,10 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.*;
 
@@ -36,21 +31,23 @@ public class TestcaseController extends BaseController{
     private static final Logger log = LoggerFactory.getLogger(TestcaseController.class);
 
     @Autowired
-    private TestwaAppService testwaAppService;
+    private AppService appService;
     @Autowired
-    private TestwaScriptService testwaScriptService;
+    private ScriptService scriptService;
     @Autowired
-    private TestwaTestcaseService testwaTestcaseService;
+    private TestcaseService testcaseService;
     @Autowired
-    private TestwaReportDetailService testwaReportDetailService;
+    private ReportDetailService reportDetailService;
     @Autowired
-    private TestwaReportService testwaReportService;
+    private ReportService reportService;
     @Autowired
-    private TestwaDeviceService testwaDeviceService;
+    private DeviceService deviceService;
     @Autowired
-    private TestwaReportSdetailService testwaReportSdetailService;
+    private ReportSdetailService reportSdetailService;
     @Autowired
-    private TestwaProjectService testwaProjectService;
+    private ProjectService projectService;
+    @Autowired
+    private UserService userService;
     @Autowired
     private StringRedisTemplate template;
 
@@ -61,10 +58,10 @@ public class TestcaseController extends BaseController{
         this.server = server;
     }
 
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "/save", method= RequestMethod.POST)
-    public Result save(@RequestBody Map<String, Object> params, @ApiIgnore @CurrentUser User user){
+    public Result save(@RequestBody Map<String, Object> params){
         String casename = (String) params.getOrDefault("caseName", "");
         List<String> scriptIds = cast(params.getOrDefault("scriptIds", null));
 
@@ -74,7 +71,7 @@ public class TestcaseController extends BaseController{
         // 检查是否属于同一个app
         Set<String> appIdSet = new HashSet<>();
         for(String scriptId : scriptIds){
-            TestwaScript script = testwaScriptService.getScriptById(scriptId);
+            Script script = scriptService.getScriptById(scriptId);
             if(script == null){
                 return fail(ResultCode.PARAM_ERROR.getValue(), String.format("脚本id不存在, %s", scriptId));
             }
@@ -86,12 +83,13 @@ public class TestcaseController extends BaseController{
         Iterator it = appIdSet.iterator();
         if(it.hasNext()){
             String appId = appIdSet.iterator().next();
-            TestwaTestcase testcase = new TestwaTestcase();
+            Testcase testcase = new Testcase();
             testcase.setScripts(scriptIds);
-            TestwaApp app = testwaAppService.getAppById(appId);
+            App app = appService.getAppById(appId);
             if(app == null){
                 return fail(ResultCode.SERVER_ERROR.getValue(), "App 不存在");
             }
+            User user = userService.findByUsername(getCurrentUsername());
             testcase.setAppId(appId);
             testcase.setProjectId(app.getProjectId());
             testcase.setProjectName(app.getProjectName());
@@ -99,7 +97,7 @@ public class TestcaseController extends BaseController{
             testcase.setUserId(user.getId());
             testcase.setUserName(user.getUsername());
             testcase.setCreateDate(new Date());
-            testwaTestcaseService.save(testcase);
+            testcaseService.save(testcase);
         }else{
             return fail(ResultCode.SERVER_ERROR.getValue(), "App 不存在");
         }
@@ -107,7 +105,7 @@ public class TestcaseController extends BaseController{
     }
 
 
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "/delete", method= RequestMethod.POST)
     public Result delete(@RequestBody Map<String, Object> params){
@@ -121,16 +119,16 @@ public class TestcaseController extends BaseController{
             return ok();
         }
         for(String id : ids){
-            testwaTestcaseService.deleteById(id);
+            testcaseService.deleteById(id);
         }
         return ok();
     }
 
 
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "/table", method= RequestMethod.POST)
-    public Result tableList(@RequestBody QueryTableFilterParams filter, @ApiIgnore @CurrentUser User user){
+    public Result tableList(@RequestBody QueryTableFilterParams filter){
         Map<String, Object> result = new HashMap<>();
         try{
 
@@ -138,16 +136,16 @@ public class TestcaseController extends BaseController{
             // contains, startwith, endwith
             List filters = filter.filters;
 //            filterDisable(filters);
-            List<TestwaProject> projectsOfUser = testwaProjectService.findByUser(user);
+            List<Project> projectsOfUser = projectService.findByUser(getCurrentUsername());
             List<String> projectIds = new ArrayList<>();
             projectsOfUser.forEach(item -> projectIds.add(item.getId()));
             filters = filterProject(filters, "projectId", projectIds);
-            Page<TestwaTestcase> testwaTestcases = testwaTestcaseService.find(filters, pageRequest);
-            Iterator<TestwaTestcase> testwaTestcasesIter =  testwaTestcases.iterator();
+            Page<Testcase> testwaTestcases = testcaseService.find(filters, pageRequest);
+            Iterator<Testcase> testwaTestcasesIter =  testwaTestcases.iterator();
             List<TestcaseVO> lists = new ArrayList<>();
             while(testwaTestcasesIter.hasNext()){
-                TestwaTestcase testcase = testwaTestcasesIter.next();
-                TestwaApp app = testwaAppService.getAppById(testcase.getAppId());
+                Testcase testcase = testwaTestcasesIter.next();
+                App app = appService.getAppById(testcase.getAppId());
                 lists.add(new TestcaseVO(testcase, app));
             }
             result.put("records", lists);
@@ -161,10 +159,10 @@ public class TestcaseController extends BaseController{
     }
 
 
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "/deploy", method= RequestMethod.POST)
-    public Result deploy(@RequestBody Map<String, Object> params, @ApiIgnore @CurrentUser User user){
+    public Result deploy(@RequestBody Map<String, Object> params){
 
         String id = (String) params.getOrDefault("id", "");
         List<String> deviceIds;
@@ -177,11 +175,11 @@ public class TestcaseController extends BaseController{
             return fail(ResultCode.PARAM_ERROR.getValue(), "参数不正确");
         }
 
-        TestwaTestcase testcase = testwaTestcaseService.getTestcaseById(id);
+        Testcase testcase = testcaseService.getTestcaseById(id);
         if(testcase == null){
             return fail(ResultCode.PARAM_ERROR.getValue(), "测试案例找不到");
         }
-        TestwaApp app = testwaAppService.getAppById(testcase.getAppId());
+        App app = appService.getAppById(testcase.getAppId());
         if(app == null){
             return fail(ResultCode.PARAM_ERROR.getValue(), String.format("应用:[%s]找不到", testcase.getAppId()));
         }
@@ -195,30 +193,31 @@ public class TestcaseController extends BaseController{
             }
         }
 
+        User user = userService.findByUsername(getCurrentUsername());
         startOneTestcase(user, deviceIds, testcase, app);
 
         return ok();
     }
 
-    private void startOneTestcase(User user, List<String> deviceIds, TestwaTestcase testcase, TestwaApp app) {
+    private void startOneTestcase(User user, List<String> deviceIds, Testcase testcase, App app) {
         // save a report
-        TestwaReport report = new TestwaReport(testcase, app, deviceIds, user);
-        testwaReportService.save(report);
+        Report report = new Report(testcase, app, deviceIds, user);
+        reportService.save(report);
 
         // 这里面可以作为一个quartz任务来处理, 暂时先同步实现
         for(String key : deviceIds){
             // save testcasedetail
-            TestwaDevice d = testwaDeviceService.getDeviceById(key);
+            TDevice d = deviceService.getDeviceById(key);
             if(d == null){
 //                return fail(ResultCode.PARAM_ERROR.getValue(), String.format("设备:[%s]找不到", key));
                 log.error(String.format("设备:[%s]找不到", key));
                 // TODO 记录该错误
                 continue;
             }
-            TestwaReportDetail reportDetail = new TestwaReportDetail(report, app, d, "");
-            testwaReportDetailService.save(reportDetail);
+            ReportDetail reportDetail = new ReportDetail(report, app, d, "");
+            reportDetailService.save(reportDetail);
             String detailId = reportDetail.getId();
-            testwaReportSdetailService.saveAll(detailId, testcase.getScripts());
+            reportSdetailService.saveAll(detailId, testcase.getScripts());
 
             String sessionId = (String) template.opsForHash().get(WebsocketEvent.DEVICE, key);
             Agent.TestcaseMessage testcaseMessage = Agent.TestcaseMessage.newBuilder()

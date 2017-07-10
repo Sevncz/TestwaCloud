@@ -4,17 +4,20 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.validation.constraints.Size;
 import java.util.Date;
 import java.util.List;
 
 /**
  * Created by wen on 16/8/27.
  */
-@Document(collection = "oauth2_user")
+@Document(collection = "t_user")
 public class User {
     @Id
     private String id;
+    @Size(min = 4, max = 50)
     private String email;
+    private String phone;
     private String username;
     private String password;
     private List<String> rights;
@@ -22,8 +25,19 @@ public class User {
     private Date dateCreated;
     // 拥有设备可分享范围的权限
     private Integer shareScope;
-    private Integer roleCode;
-    private Boolean disable;
+
+    // 角色列表
+    private List<String> roles;
+    // 上次修改密码时间
+    private Date lastPasswordResetDate;
+    // 已使用过的密码
+    private List<String> oldPasswordList;
+    private Date lastLoginTime;
+    private Date loginTime;
+    private Integer loginIp;
+    private Integer lastLoginIp;
+
+    private Boolean enabled;
 
     public User() {
     }
@@ -84,19 +98,75 @@ public class User {
         this.shareScope = shareScope;
     }
 
-    public Integer getRoleCode() {
-        return roleCode;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setRoleCode(Integer roleCode) {
-        this.roleCode = roleCode;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
-    public Boolean getDisable() {
-        return disable;
+    public Date getLastPasswordResetDate() {
+        return lastPasswordResetDate;
     }
 
-    public void setDisable(Boolean disable) {
-        this.disable = disable;
+    public void setLastPasswordResetDate(Date lastPasswordResetDate) {
+        this.lastPasswordResetDate = lastPasswordResetDate;
+    }
+
+    public List<String> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
+    }
+
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public Date getLastLoginTime() {
+        return lastLoginTime;
+    }
+
+    public void setLastLoginTime(Date lastLoginTime) {
+        this.lastLoginTime = lastLoginTime;
+    }
+
+    public Date getLoginTime() {
+        return loginTime;
+    }
+
+    public void setLoginTime(Date loginTime) {
+        this.loginTime = loginTime;
+    }
+
+    public Integer getLoginIp() {
+        return loginIp;
+    }
+
+    public void setLoginIp(Integer loginIp) {
+        this.loginIp = loginIp;
+    }
+
+    public Integer getLastLoginIp() {
+        return lastLoginIp;
+    }
+
+    public void setLastLoginIp(Integer lastLoginIp) {
+        this.lastLoginIp = lastLoginIp;
+    }
+
+    public List<String> getOldPasswordList() {
+        return oldPasswordList;
+    }
+
+    public void setOldPasswordList(List<String> oldPasswordList) {
+        this.oldPasswordList = oldPasswordList;
     }
 }

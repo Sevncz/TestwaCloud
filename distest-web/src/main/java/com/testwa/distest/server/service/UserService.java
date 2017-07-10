@@ -5,14 +5,10 @@
  */
 package com.testwa.distest.server.service;
 
-import com.testwa.distest.server.model.TestwaTestcase;
 import com.testwa.distest.server.model.User;
-import com.testwa.distest.server.model.permission.Role;
+import com.testwa.distest.server.model.Role;
 import com.testwa.distest.server.repository.RoleRepository;
 import com.testwa.distest.server.repository.UserRepository;
-import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,9 +20,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.spec.SecretKeySpec;
-import javax.xml.bind.DatatypeConverter;
-import java.security.Key;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -82,12 +76,16 @@ public class UserService extends BaseService {
             awesomeUser.setId("thisis-awesome-1");
             awesomeUser.setDateCreated(new Date());
             awesomeUser.setUsername("admin");
+            awesomeUser.setEnabled(true);
+            awesomeUser.setLastPasswordResetDate(new Date());
 
             Role role = roleRepository.findByValue("admin");
             if(role == null){
                 log.error("role admin is null");
             }else{
-                awesomeUser.setRoleCode(role.getCode());
+                List<String> roles = new ArrayList<>();
+                roles.add(role.getValue());
+                awesomeUser.setRoles(roles);
                 save(awesomeUser);
             }
         }

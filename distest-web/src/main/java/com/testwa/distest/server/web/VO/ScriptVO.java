@@ -1,9 +1,9 @@
 package com.testwa.distest.server.web.VO;
 
 import com.testwa.core.utils.TimeUtil;
-import com.testwa.distest.server.model.TestwaApp;
-import com.testwa.distest.server.model.TestwaProject;
-import com.testwa.distest.server.model.TestwaScript;
+import com.testwa.distest.server.model.App;
+import com.testwa.distest.server.model.Project;
+import com.testwa.distest.server.model.Script;
 
 /**
  * Created by wen on 2016/11/19.
@@ -24,7 +24,7 @@ public class ScriptVO {
     private String modifyUserName;
     private String porjectName;
 
-    public ScriptVO(TestwaScript script, TestwaApp app, TestwaProject project) {
+    public ScriptVO(Script script, App app, Project project) {
         this.id = script.getId();
         this.name = script.getName();
         this.aliasName = script.getAliasName();

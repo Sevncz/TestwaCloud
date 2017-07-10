@@ -5,15 +5,13 @@
  */
 package com.testwa.distest.server.repository;
 
-import com.testwa.distest.server.model.permission.Role;
+import com.testwa.distest.server.model.Role;
 
 import java.io.Serializable;
 
 public interface RoleRepository extends CommonRepository<Role, Serializable> {
 
     Role findById(String id);
-
-    Role findByCode(Integer code);
 
     Role findByValue(String value);
 }

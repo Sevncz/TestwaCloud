@@ -1,9 +1,8 @@
 package com.testwa.distest.server.web;
 
 import com.testwa.core.utils.Validator;
-import com.testwa.distest.server.authorization.annotation.Authorization;
 import com.testwa.distest.server.model.User;
-import com.testwa.distest.server.model.permission.UserShareScope;
+import com.testwa.distest.server.model.UserShareScope;
 import com.testwa.distest.server.service.UserService;
 import com.testwa.distest.server.model.message.ResultCode;
 import com.testwa.distest.server.model.message.Result;
@@ -12,8 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,7 +43,7 @@ public class AdminController extends BaseController{
         public String scope;
     }
 
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "create", method= RequestMethod.POST, produces={"application/json"})
     public Result create(@RequestBody final UserInfo register)
@@ -90,7 +87,7 @@ public class AdminController extends BaseController{
         return ok();
     }
 
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "modify/scope", method= RequestMethod.POST, produces={"application/json"})
     public Result modifyScope(@RequestBody Map<String, Object> params){
@@ -132,7 +129,7 @@ public class AdminController extends BaseController{
         return null;
     }
 
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "scope/all", method= RequestMethod.GET)
     public Result scopeAll(){

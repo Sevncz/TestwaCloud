@@ -1,11 +1,9 @@
 package com.testwa.distest.server.web;
 
-import com.testwa.distest.server.authorization.annotation.Authorization;
-import com.testwa.distest.server.authorization.annotation.CurrentUser;
-import com.testwa.distest.server.model.TestwaProject;
+import com.testwa.distest.server.model.Project;
 import com.testwa.distest.server.model.User;
 import com.testwa.distest.server.model.params.QueryTableFilterParams;
-import com.testwa.distest.server.service.TestwaProjectService;
+import com.testwa.distest.server.service.ProjectService;
 import com.testwa.distest.server.service.UserService;
 import com.testwa.distest.server.web.VO.ProjectVO;
 import com.testwa.distest.server.model.message.ResultCode;
@@ -19,9 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -37,7 +32,7 @@ import java.util.*;
 public class ProjectController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(ProjectController.class);
     @Autowired
-    private TestwaProjectService projectService;
+    private ProjectService projectService;
     @Autowired
     private UserService userService;
 
@@ -53,37 +48,37 @@ public class ProjectController extends BaseController {
     }
 
     @ApiOperation(value="生成一个项目", notes="")
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "/save", method= RequestMethod.POST)
     public Result save(@ApiParam(required=true, name="params", value="{'name': ''}")
-                                           @RequestBody Map<String, String> projectMap,
-                                       @ApiIgnore @CurrentUser User user,
+                                       @RequestBody Map<String, String> projectMap,
                                        @ApiIgnore HttpServletRequest req){
         Map<String, Object> result = new HashMap<>();
-        TestwaProject testwaProject = new TestwaProject();
+        Project project = new Project();
         String name = projectMap.getOrDefault("name", "");
         if(StringUtils.isBlank(name)){
             return fail(ResultCode.INVALID_PARAM.getValue(), "参数错误");
         }
-        testwaProject.setName(name);
-        testwaProject.setCreateDate(new Date());
-        testwaProject.setUserId(user.getId());
-        testwaProject.setUserName(user.getUsername());
-        projectService.save(testwaProject);
+        User user = userService.findByUsername(getCurrentUsername());
+        project.setName(name);
+        project.setCreateDate(new Date());
+        project.setUserId(user.getId());
+        project.setUserName(user.getUsername());
+        projectService.save(project);
 
         return ok(result);
     }
 
 
     @ApiOperation(value="删除一个项目", notes="")
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "/delete", method= RequestMethod.POST)
     public Result delete(@ApiParam(required=true, name="params", value="{'ids': [1,2,3,4]}")
                                                  @RequestBody Map<String, Object> params){
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type","application/json;charset=utf-8");
+
+
         List<String> ids;
         try {
             ids = cast(params.getOrDefault("ids", null));
@@ -100,11 +95,10 @@ public class ProjectController extends BaseController {
     }
 
     @ApiOperation(value="获取项目列表，分页")
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "/table", method= RequestMethod.POST)
-    public Result tableList(@RequestBody QueryTableFilterParams filter,
-                                            @ApiIgnore @CurrentUser User user){
+    public Result tableList(@RequestBody QueryTableFilterParams filter){
         Map<String, Object> result = new HashMap<>();
         try{
 
@@ -113,13 +107,13 @@ public class ProjectController extends BaseController {
 //            List filters = (List) params.get("filters");
             List filters = filter.filters;
 //            filterDisable(filters);
-            List<TestwaProject> projectsOfUser = projectService.findByUser(user);
+            List<Project> projectsOfUser = projectService.findByUser(getCurrentUsername());
             List<String> projectIds = new ArrayList<>();
             projectsOfUser.forEach(item -> projectIds.add(item.getId()));
             filters = filterProject(filters, "_id", projectIds);
-            Page<TestwaProject> projects =  projectService.find(filters, pageRequest);
-            Iterator<TestwaProject> projectsIter =  projects.iterator();
-//            List<TestwaProject> lists = new ArrayList<>();
+            Page<Project> projects =  projectService.find(filters, pageRequest);
+            Iterator<Project> projectsIter =  projects.iterator();
+//            List<Project> lists = new ArrayList<>();
             List<ProjectVO> lists = new ArrayList<>();
             while(projectsIter.hasNext()){
                 lists.add(new ProjectVO(projectsIter.next()));
@@ -135,23 +129,21 @@ public class ProjectController extends BaseController {
 
     }
 
-
-    @Authorization
     @ResponseBody
     @RequestMapping(value = "/list", method= RequestMethod.GET)
-    public Result list(@ApiIgnore @CurrentUser User user){
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type","application/json;charset=utf-8");
+    public Result list(){
+
+
         Map<String, Object> result = new HashMap<>();
 
         List filters = new ArrayList<>();
-        List<TestwaProject> projectsOfUser = projectService.findByUser(user);
+        List<Project> projectsOfUser = projectService.findByUser(getCurrentUsername());
         List<String> projectIds = new ArrayList<>();
         projectsOfUser.forEach(item -> projectIds.add(item.getId()));
         filters = filterProject(filters, "_id", projectIds);
-        List<TestwaProject> projects = projectService.find(filters);
+        List<Project> projects = projectService.find(filters);
         List<Map<String, String>> maps = new ArrayList<>();
-        for(TestwaProject a : projects){
+        for(Project a : projects){
             Map<String, String> map = new HashMap<>();
             map.put("name", a.getName());
             map.put("id", a.getId());
@@ -162,7 +154,7 @@ public class ProjectController extends BaseController {
     }
 
 
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "/member/add", method= RequestMethod.POST)
     public Result addMember(@ApiParam(required=true, name="params", value="{'projectId': '', 'username': ''}")
@@ -172,7 +164,7 @@ public class ProjectController extends BaseController {
         if(StringUtils.isBlank(projectId) || StringUtils.isBlank(username)){
             return fail(ResultCode.PARAM_ERROR.getValue(), "参数错误");
         }
-        TestwaProject project = projectService.getProjectById(projectId);
+        Project project = projectService.getProjectById(projectId);
         if(project == null){
             return fail(ResultCode.PARAM_ERROR.getValue(), "项目不存在");
         }
@@ -190,17 +182,17 @@ public class ProjectController extends BaseController {
     }
 
 
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "/member/del", method= RequestMethod.POST)
     public Result delMember(@ApiParam(required=true, name="params", value="{'projectId': '', 'username': ''}")
-                                                    @RequestBody Map<String, Object> params, @ApiIgnore @CurrentUser User user){
+                                                    @RequestBody Map<String, Object> params){
         String projectId = (String) params.getOrDefault("projectId", "");
         String username = (String) params.getOrDefault("username", "");
         if(StringUtils.isBlank(projectId) || StringUtils.isBlank(username)){
             return fail(ResultCode.PARAM_ERROR.getValue(), "参数不能为空");
         }
-        TestwaProject project = projectService.getProjectById(projectId);
+        Project project = projectService.getProjectById(projectId);
         if(project == null){
             return fail(ResultCode.PARAM_ERROR.getValue(), "项目不存在");
         }
@@ -220,12 +212,12 @@ public class ProjectController extends BaseController {
     }
 
 
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "/members/{projectId}", method= RequestMethod.GET)
     public Result members(@PathVariable String projectId){
         Map<String, Object> result = new HashMap<>();
-        TestwaProject project = projectService.getProjectById(projectId);
+        Project project = projectService.getProjectById(projectId);
         if(project == null){
             return fail(ResultCode.PARAM_ERROR.getValue(), "项目不存在");
         }

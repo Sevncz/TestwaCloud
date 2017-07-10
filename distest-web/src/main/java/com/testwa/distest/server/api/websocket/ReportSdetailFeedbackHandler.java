@@ -7,9 +7,9 @@ import com.corundumstudio.socketio.annotation.OnEvent;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.rpc.proto.Agent;
-import com.testwa.distest.server.model.TestwaReportSdetail;
-import com.testwa.distest.server.service.TestwaReportSdetailService;
-import com.testwa.distest.server.service.TestwaReportService;
+import com.testwa.distest.server.model.ReportSdetail;
+import com.testwa.distest.server.service.ReportSdetailService;
+import com.testwa.distest.server.service.ReportService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +29,9 @@ public class ReportSdetailFeedbackHandler {
     private final SocketIOServer server;
 
     @Autowired
-    private TestwaReportService testwaReportService;
+    private ReportService reportService;
     @Autowired
-    private TestwaReportSdetailService testwaReportSdetailService;
+    private ReportSdetailService reportSdetailService;
 
     @Autowired
     public ReportSdetailFeedbackHandler(SocketIOServer server) {
@@ -45,16 +45,16 @@ public class ReportSdetailFeedbackHandler {
          */
         try {
             Agent.ReportSdetailFeedback rs = Agent.ReportSdetailFeedback.parseFrom(data);
-            TestwaReportSdetail sdetail = testwaReportSdetailService.findTestcaseSdetailByDetailIdScriptId(rs.getReportDetailId(), rs.getScriptId());
+            ReportSdetail sdetail = reportSdetailService.findTestcaseSdetailByDetailIdScriptId(rs.getReportDetailId(), rs.getScriptId());
             log.info("receive message for sdetail message, sdetailId: {}.", sdetail.getId());
             if(Agent.ReportSdetailType.start.name().equals(rs.getType().name())){
                 sdetail.setStartTime(new Date());
                 sdetail.setMachineName(rs.getMatchineName());
-                testwaReportSdetailService.save(sdetail);
+                reportSdetailService.save(sdetail);
             }
             if(Agent.ReportSdetailType.end.name().equals(rs.getType().name())){
                 sdetail.setEndTime(new Date());
-                testwaReportSdetailService.save(sdetail);
+                reportSdetailService.save(sdetail);
             }
 
         } catch (InvalidProtocolBufferException e) {

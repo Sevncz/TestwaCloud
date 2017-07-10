@@ -27,10 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@ImportResource({"classpath*:spring-security-oauth2.xml"})
 @SpringBootApplication
 @ServletComponentScan(value = {"com.testwa.distest.server.filter"})
-@EnableMongoRepositories(repositoryBaseClass = CommonMongoRepositoryImpl.class, basePackages = "com.testwa.distest.server.repository")
+@EnableMongoRepositories(repositoryBaseClass = CommonMongoRepositoryImpl.class, basePackages = {"com.testwa.distest.server.repository"})
 @EnableScheduling
 @EnableCaching
 public class WebServerApplication {

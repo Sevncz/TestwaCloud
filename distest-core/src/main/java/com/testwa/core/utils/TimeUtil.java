@@ -100,4 +100,8 @@ public class TimeUtil {
         return formatTimeStr;
     }
 
+    public static Date now(){
+        return new Date();
+    }
+
 }

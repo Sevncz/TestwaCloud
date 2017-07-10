@@ -1,10 +1,10 @@
 package com.testwa.distest.server.run;
 
 import com.testwa.core.WebsocketEvent;
-import com.testwa.distest.server.model.TestwaProcedureInfo;
-import com.testwa.distest.server.model.TestwaReportSdetail;
-import com.testwa.distest.server.service.TestwaReportDetailService;
-import com.testwa.distest.server.service.TestwaReportSdetailService;
+import com.testwa.distest.server.model.ProcedureInfo;
+import com.testwa.distest.server.model.ReportSdetail;
+import com.testwa.distest.server.service.ReportDetailService;
+import com.testwa.distest.server.service.ReportSdetailService;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,10 +35,10 @@ public class TestwaScheduledRunner {
     private Environment env;
 
     @Autowired
-    private TestwaReportDetailService testwaReportDetailService;
+    private ReportDetailService reportDetailService;
 
     @Autowired
-    private TestwaReportSdetailService testwaReportSdetailService;
+    private ReportSdetailService reportSdetailService;
 
     @Scheduled(cron = "0/10 * * * * ?")
     public void storeRunningLog() throws Exception {
@@ -47,11 +47,11 @@ public class TestwaScheduledRunner {
             return;
         }
 
-        List<TestwaProcedureInfo> logers = new ArrayList<>();
+        List<ProcedureInfo> logers = new ArrayList<>();
         for(int i=0;i < logSize; i++){
             try {
                 String loger_s = template.opsForList().rightPop(WebsocketEvent.FB_RUNNGING_LOG);
-                TestwaProcedureInfo procedure = mapper.readValue(loger_s, TestwaProcedureInfo.class);
+                ProcedureInfo procedure = mapper.readValue(loger_s, ProcedureInfo.class);
                 String screenPath = procedure.getScreenshotPath();
                 // 转换文件分隔符
                 String configScreenPath = env.getProperty("screeshot.path");
@@ -68,13 +68,13 @@ public class TestwaScheduledRunner {
                 if(procedure.getStatus() != 0){
                     String reportDetailId = procedure.getReportDetailId();
                     String scriptId = procedure.getScriptId();
-                    TestwaReportSdetail testwaReportSdetail = testwaReportSdetailService.findTestcaseSdetailByDetailIdScriptId(reportDetailId, scriptId);
-                    Integer sdetailStatus = testwaReportSdetail.getStepStatus();
+                    ReportSdetail reportSdetail = reportSdetailService.findTestcaseSdetailByDetailIdScriptId(reportDetailId, scriptId);
+                    Integer sdetailStatus = reportSdetail.getStepStatus();
                     if(sdetailStatus == null){
                         sdetailStatus = 0;
                     }
-                    testwaReportSdetail.setStepStatus(sdetailStatus + 1);
-                    testwaReportSdetailService.save(testwaReportSdetail);
+                    reportSdetail.setStepStatus(sdetailStatus + 1);
+                    reportSdetailService.save(reportSdetail);
                 }
 
             }catch (Exception e){

@@ -7,10 +7,10 @@ import com.corundumstudio.socketio.annotation.OnConnect;
 import com.corundumstudio.socketio.annotation.OnDisconnect;
 import com.testwa.core.Command;
 import com.testwa.distest.server.api.WSFuncEnum;
-import com.testwa.distest.server.model.TestwaDevice;
-import com.testwa.distest.server.service.TestwaDeviceService;
+import com.testwa.distest.server.model.TDevice;
+import com.testwa.distest.server.security.JwtTokenUtil;
+import com.testwa.distest.server.service.DeviceService;
 import com.testwa.distest.server.service.cache.RemoteClientService;
-import com.testwa.distest.server.service.security.TestwaTokenService;
 import io.jsonwebtoken.Claims;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -34,9 +34,9 @@ public class WebConnectionHandler {
     @Autowired
     private RemoteClientService remoteClientService;
     @Autowired
-    private TestwaTokenService tokenService;
+    private DeviceService deviceService;
     @Autowired
-    private TestwaDeviceService deviceService;
+    private JwtTokenUtil jwtTokenUtil;
 
     @Autowired
     public WebConnectionHandler(SocketIOServer server) {
@@ -61,8 +61,7 @@ public class WebConnectionHandler {
             try {
                 String token = client.getHandshakeData().getSingleUrlParam("token");
                 if(StringUtils.isNotBlank(token)){
-                    Claims claims = tokenService.parserToken(token);
-                    String userId = claims.getId();
+                    String userId = jwtTokenUtil.getUserIdFromToken(token);
                     remoteClientService.userLoginClient(userId, client.getSessionId().toString());
                 }
             } catch (Exception e) {
@@ -76,7 +75,7 @@ public class WebConnectionHandler {
                 if(WSFuncEnum.contains(func)){
                     remoteClientService.subscribeDeviceEvent(deviceId, func, client.getSessionId().toString());
                 }
-                TestwaDevice td = deviceService.getDeviceById(deviceId);
+                TDevice td = deviceService.getDeviceById(deviceId);
                 client.sendEvent("devices", JSON.toJSONString(td));
             }else{
                 client.sendEvent("error", "参数不能为空");

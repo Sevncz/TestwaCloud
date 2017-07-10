@@ -6,7 +6,10 @@ import com.testwa.distest.server.model.params.QueryTableFilterParams;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.security.Principal;
 import java.util.*;
 
 /**
@@ -24,6 +27,7 @@ public class BaseController {
     public Result<String> ok() {
         Result<String> r = new Result<>();
         r.setCode(ResultCode.SUCCESS.getValue());
+        r.setMessage("ok");
         return r;
     }
 
@@ -31,6 +35,7 @@ public class BaseController {
         Result<Object> r = new Result<>();
         r.setCode(ResultCode.SUCCESS.getValue());
         r.setData(data);
+        r.setMessage("ok");
         return r;
     }
 
@@ -114,6 +119,17 @@ public class BaseController {
         project.put("value", projectIds);
         filters.add(project);
         return filters;
+    }
+
+    public String getCurrentUsername() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            return ((UserDetails) principal).getUsername();
+        }
+        if (principal instanceof Principal) {
+            return ((Principal) principal).getName();
+        }
+        return String.valueOf(principal);
     }
 
 }

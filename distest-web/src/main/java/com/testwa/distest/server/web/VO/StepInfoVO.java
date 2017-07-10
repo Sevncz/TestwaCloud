@@ -1,10 +1,6 @@
 package com.testwa.distest.server.web.VO;
 
-import com.testwa.distest.server.model.TestwaProcedureInfo;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.mongodb.core.index.Indexed;
-
-import java.util.Date;
+import com.testwa.distest.server.model.ProcedureInfo;
 
 /**
  * Created by wen on 2016/9/24.
@@ -20,7 +16,7 @@ public class StepInfoVO {
     private String action;
 
 
-    public StepInfoVO(TestwaProcedureInfo info, TestwaProcedureInfo last) {
+    public StepInfoVO(ProcedureInfo info, ProcedureInfo last) {
         this.id = info.getId();
         this.status = info.getStatus();
         this.runtime = info.getRuntime();

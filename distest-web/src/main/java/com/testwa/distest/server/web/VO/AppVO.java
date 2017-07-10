@@ -2,9 +2,7 @@ package com.testwa.distest.server.web.VO;
 
 
 import com.testwa.core.utils.TimeUtil;
-import com.testwa.distest.server.model.TestwaApp;
-
-import java.util.Date;
+import com.testwa.distest.server.model.App;
 
 /**
  * Created by wen on 2016/11/19.
@@ -29,7 +27,7 @@ public class AppVO {
     private String userId;
     private String userName;
 
-    public AppVO(TestwaApp app){
+    public AppVO(App app){
         this.id = app.getId();
         this.name = app.getName();
         this.aliasName = app.getAliasName();

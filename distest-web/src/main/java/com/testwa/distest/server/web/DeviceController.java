@@ -4,22 +4,16 @@ import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.testwa.core.Command;
 import com.testwa.core.WebsocketEvent;
-import com.testwa.distest.client.rpc.proto.Agent;
-import com.testwa.distest.server.authorization.annotation.Authorization;
-import com.testwa.distest.server.authorization.annotation.CurrentUser;
-import com.testwa.distest.server.model.TestwaAgent;
-import com.testwa.distest.server.model.TestwaDevice;
-import com.testwa.distest.server.model.User;
-import com.testwa.distest.server.model.UserDeviceHis;
+import com.testwa.distest.server.model.*;
 import com.testwa.distest.server.model.params.QueryOperator;
 import com.testwa.distest.server.model.params.QueryFilters;
 import com.testwa.distest.server.model.params.QueryTableFilterParams;
-import com.testwa.distest.server.model.permission.UserShareScope;
-import com.testwa.distest.server.service.TestwaAgentService;
-import com.testwa.distest.server.service.TestwaDeviceService;
+import com.testwa.distest.server.service.AgentService;
+import com.testwa.distest.server.service.DeviceService;
 import com.testwa.distest.server.service.UserDeviceHisService;
 import com.testwa.distest.server.model.message.ResultCode;
 import com.testwa.distest.server.model.message.Result;
+import com.testwa.distest.server.service.UserService;
 import com.testwa.distest.server.service.cache.RemoteClientService;
 import com.testwa.distest.server.web.VO.DeviceOwnerTableVO;
 import io.grpc.testwa.device.*;
@@ -31,11 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
 
 import java.io.*;
 import java.nio.file.*;
@@ -52,18 +42,20 @@ public class DeviceController extends BaseController{
     private static final Logger log = LoggerFactory.getLogger(DeviceController.class);
 
     @Autowired
-    private TestwaDeviceService testwaDeviceService;
+    private DeviceService deviceService;
 
     private final SocketIOServer server;
 
     @Autowired
-    private TestwaAgentService testwaAgentService;
+    private AgentService testwaAgentService;
 
     @Autowired
     private UserDeviceHisService userDeviceHisService;
 
     @Autowired
     private RemoteClientService remoteClientService;
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private Environment env;
@@ -79,7 +71,7 @@ public class DeviceController extends BaseController{
     }
 
     @RequestMapping(value = "/receive/logcat", method = RequestMethod.POST, produces = "application/x-protobuf")
-    public Result logcat(@RequestBody Agent.AppiumLogFeedback message) {
+    public Result logcat(@RequestBody com.testwa.distest.client.rpc.proto.Agent.AppiumLogFeedback message) {
         String[] messageName = message.getName().split("\\\\|/");
         Path logcatPath = Paths.get(env.getProperty("logcat.path"), messageName);
         Path logcatDir = logcatPath.getParent();
@@ -102,7 +94,7 @@ public class DeviceController extends BaseController{
 
 
     @RequestMapping(value = "/receive/appiumlog", method = RequestMethod.POST, produces = "application/x-protobuf")
-    public Result appiumlog(@RequestBody Agent.AppiumLogFeedback message) {
+    public Result appiumlog(@RequestBody com.testwa.distest.client.rpc.proto.Agent.AppiumLogFeedback message) {
         String[] messageName = message.getName().split("\\\\|/");
         Path appiumPath = Paths.get(env.getProperty("appium.log.path"), messageName);
         Path appiumDir = appiumPath.getParent();
@@ -114,16 +106,12 @@ public class DeviceController extends BaseController{
     /***
      * 我自己的设备
      * @param filter
-     * @param user
      * @return
      */
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "/table", method= RequestMethod.POST, produces={"application/json"})
-    public Result tableList(@RequestBody QueryTableFilterParams filter,
-                                            @ApiIgnore @CurrentUser User user){
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type","application/json;charset=utf-8");
+    public Result tableList(@RequestBody QueryTableFilterParams filter){
         Map<String, Object> result = new HashMap<>();
         try{
             PageRequest pageRequest = buildPageRequest(filter);
@@ -132,7 +120,8 @@ public class DeviceController extends BaseController{
             if(filters == null){
                 filters = new ArrayList<>();
             }
-            Map<String, Object> userIdFilter = addOtherFilter(QueryOperator.is.getName(), "userId", user.getId());
+            User currentUser = userService.findByUsername(getCurrentUsername());
+            Map<String, Object> userIdFilter = addOtherFilter(QueryOperator.is.getName(), "userId", currentUser.getId());
             filters.add(userIdFilter);
             Page<UserDeviceHis> userDevicePage =  userDeviceHisService.find(filters, pageRequest);
             List<DeviceOwnerTableVO> lists = buildDeviceOwnerTableVO(userDevicePage);
@@ -150,18 +139,16 @@ public class DeviceController extends BaseController{
     /***
      * 分享给我的设备
      * @param filter
-     * @param user
      * @return
      */
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "/table/shared", method= RequestMethod.POST, produces={"application/json"})
-    public Result sharedtableList(@RequestBody QueryTableFilterParams filter,
-                                                  @ApiIgnore @CurrentUser User user){
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type","application/json;charset=utf-8");
+    public Result sharedtableList(@RequestBody QueryTableFilterParams filter){
+
         Map<String, Object> result = new HashMap<>();
         try{
+            User currentUser = userService.findByUsername(getCurrentUsername());
             PageRequest pageRequest = buildPageRequest(filter);
             // contains, startwith, endwith
             List filters = filter.filters;
@@ -170,7 +157,7 @@ public class DeviceController extends BaseController{
             }
             List orFilters = new ArrayList<>();
             List<String> value = new ArrayList<>();
-            value.add(user.getId());
+            value.add(currentUser.getId());
             Map<String, Object> shareUsers = addOtherFilter(QueryOperator.in.getName(), "shareUsers", value);
             orFilters.add(shareUsers);
 
@@ -196,30 +183,28 @@ public class DeviceController extends BaseController{
      * 所有可用设备
      *
      * @param filter
-     * @param user
      * @return
      */
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "/table/available", method= RequestMethod.POST, produces={"application/json"})
-    public Result availabletableList(@RequestBody QueryTableFilterParams filter,
-                                                     @ApiIgnore @CurrentUser User user){
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type","application/json;charset=utf-8");
+    public Result availabletableList(@RequestBody QueryTableFilterParams filter){
+
         Map<String, Object> result = new HashMap<>();
         try{
+            User currentUser = userService.findByUsername(getCurrentUsername());
             PageRequest pageRequest = buildPageRequest(filter);
             // contains, startwith, endwith
             List filters = filter.filters;
             if(filters == null){
                 filters = new ArrayList<>();
             }
-            Map<String, Object> userIdFilter = addOtherFilter(QueryOperator.is.getName(), "userId", user.getId());
+            Map<String, Object> userIdFilter = addOtherFilter(QueryOperator.is.getName(), "userId", currentUser.getId());
             filters.add(userIdFilter);
 
             List orFilters = new ArrayList<>();
             List<String> value = new ArrayList<>();
-            value.add(user.getId());
+            value.add(currentUser.getId());
             Map<String, Object> shareUsers = addOtherFilter(QueryOperator.in.getName(), "shareUsers", value);
             orFilters.add(shareUsers);
 
@@ -245,7 +230,7 @@ public class DeviceController extends BaseController{
     private List<DeviceOwnerTableVO> buildDeviceOwnerTableVO(Page<UserDeviceHis> userDevicePage) {
         List<DeviceOwnerTableVO> lists = new ArrayList<>();
         for (UserDeviceHis his : userDevicePage) {
-            TestwaDevice device = testwaDeviceService.getDeviceById(his.getDeviceId());
+            TDevice device = deviceService.getDeviceById(his.getDeviceId());
             DeviceOwnerTableVO vo = new DeviceOwnerTableVO(device);
             String sessionId = remoteClientService.getMainSessionByDeviceId(his.getDeviceId());
             if (StringUtils.isNotBlank(sessionId)) {
@@ -254,7 +239,7 @@ public class DeviceController extends BaseController{
                 vo.setSessionId(sessionId);
                 String agentId = remoteClientService.getMainInfoBySession(sessionId);
                 if (StringUtils.isNotBlank(agentId)) {
-                    TestwaAgent agent = testwaAgentService.getTestwaAgentById(agentId);
+                    Agent agent = testwaAgentService.getTestwaAgentById(agentId);
                     vo.setAgent(agent);
                 }
             } else {
@@ -275,15 +260,15 @@ public class DeviceController extends BaseController{
         return filterMe;
     }
 
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "/list", method= RequestMethod.GET, produces={"application/json"})
     public Result list(){
         Map<String, Object> result = new HashMap<>();
 
-        List<TestwaDevice> devices = testwaDeviceService.findAll();
+        List<TDevice> devices = deviceService.findAll();
         List<Map<String, String>> maps = new ArrayList<>();
-        for(TestwaDevice a : devices){
+        for(TDevice a : devices){
             Map<String, String> map = new HashMap<>();
             map.put("name", a.getModel());
             map.put("id", a.getId());
@@ -294,16 +279,17 @@ public class DeviceController extends BaseController{
     }
 
 
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "/share/to/scope", method= RequestMethod.POST, produces={"application/json"})
-    public Result shareScope(@RequestBody Map<String, Object> params, @ApiIgnore @CurrentUser User user){
+    public Result shareScope(@RequestBody Map<String, Object> params){
         String deviceId = (String) params.getOrDefault("deviceId", "");
         String scope = (String) params.getOrDefault("scope", "");
-        String currentUserId = user.getId();
+        User currentUser = userService.findByUsername(getCurrentUsername());
+        String currentUserId = currentUser.getId();
         UserDeviceHis udh = userDeviceHisService.findByUserIdAndDeviceId(deviceId, currentUserId);
         if(udh == null){
-            TestwaDevice device = testwaDeviceService.getDeviceById(deviceId);
+            TDevice device = deviceService.getDeviceById(deviceId);
             udh = new UserDeviceHis(currentUserId, device);
         }
         if(UserShareScope.contains(scope)){
@@ -316,16 +302,17 @@ public class DeviceController extends BaseController{
 
 
 
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "/share/to/user", method= RequestMethod.POST, produces={"application/json"})
-    public Result shareTo(@RequestBody Map<String, Object> params, @ApiIgnore @CurrentUser User user){
+    public Result shareTo(@RequestBody Map<String, Object> params){
         String deviceId = (String) params.getOrDefault("deviceId", "");
         String userId = (String) params.getOrDefault("userId", "");
-        String currentUserId = user.getId();
+        User currentUser = userService.findByUsername(getCurrentUsername());
+        String currentUserId = currentUser.getId();
         UserDeviceHis udh = userDeviceHisService.findByUserIdAndDeviceId(deviceId, userId);
         if(udh == null){
-            TestwaDevice device = testwaDeviceService.getDeviceById(deviceId);
+            TDevice device = deviceService.getDeviceById(deviceId);
             udh = new UserDeviceHis(currentUserId, device);
         }
         Set<String> userIds = udh.getShareUsers();

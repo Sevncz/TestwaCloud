@@ -1,6 +1,6 @@
 package com.testwa.distest.server.web.VO;
 
-import com.testwa.distest.server.model.TestwaProcedureInfo;
+import com.testwa.distest.server.model.ProcedureInfo;
 
 /**
  * Created by wen on 2016/9/24.
@@ -11,7 +11,7 @@ public class ReportStepInfoVO {
     private String id;
     private Integer status;
 
-    public ReportStepInfoVO(TestwaProcedureInfo info) {
+    public ReportStepInfoVO(ProcedureInfo info) {
         this.action = info.getAction();
         this.id = info.getId();
         this.status = info.getStatus();

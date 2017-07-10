@@ -8,7 +8,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.googlecode.protobuf.format.JsonFormat;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.rpc.proto.Agent;
-import com.testwa.distest.server.model.TestwaProcedureInfo;
+import com.testwa.distest.server.model.ProcedureInfo;
 import io.grpc.testwa.testcase.RunningLogRequest;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -43,7 +43,7 @@ public class RunningLogFeedbackHandler {
         try {
             RunningLogRequest request = RunningLogRequest.parseFrom(data);
             log.info("action -----> {}", request.getActionBytes().toStringUtf8());
-            TestwaProcedureInfo procedureInfo = new TestwaProcedureInfo();
+            ProcedureInfo procedureInfo = new ProcedureInfo();
             procedureInfo.toEntity(request);
             String json = mapper.writeValueAsString(procedureInfo);
             log.info("json -----> {}", json);

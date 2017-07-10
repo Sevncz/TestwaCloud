@@ -2,16 +2,15 @@ package com.testwa.distest.server.web;
 
 import com.testwa.core.utils.Identities;
 import com.testwa.core.utils.PinYinTool;
-import com.testwa.distest.server.authorization.annotation.Authorization;
-import com.testwa.distest.server.authorization.annotation.CurrentUser;
-import com.testwa.distest.server.model.TestwaApp;
-import com.testwa.distest.server.model.TestwaProject;
-import com.testwa.distest.server.model.TestwaScript;
+import com.testwa.distest.server.model.App;
+import com.testwa.distest.server.model.Project;
+import com.testwa.distest.server.model.Script;
 import com.testwa.distest.server.model.User;
 import com.testwa.distest.server.model.params.QueryTableFilterParams;
-import com.testwa.distest.server.service.TestwaAppService;
-import com.testwa.distest.server.service.TestwaProjectService;
-import com.testwa.distest.server.service.TestwaScriptService;
+import com.testwa.distest.server.service.AppService;
+import com.testwa.distest.server.service.ProjectService;
+import com.testwa.distest.server.service.ScriptService;
+import com.testwa.distest.server.service.UserService;
 import com.testwa.distest.server.web.VO.ScriptVO;
 import com.testwa.distest.server.model.message.ResultCode;
 import com.testwa.distest.server.model.message.Result;
@@ -23,11 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import springfox.documentation.annotations.ApiIgnore;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -46,46 +42,49 @@ public class ScriptController extends BaseController{
     private static final Logger log = LoggerFactory.getLogger(ScriptController.class);
 
     @Autowired
-    private TestwaScriptService testwaScriptService;
+    private ScriptService scriptService;
     @Autowired
-    private TestwaAppService testwaAppService;
+    private AppService appService;
     @Autowired
-    private TestwaProjectService testwaProjectService;
+    private ProjectService projectService;
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private Environment env;
 
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "/save", method= RequestMethod.POST, produces={"application/json"})
-    public Result save(@RequestBody Map<String, String> params, @ApiIgnore @CurrentUser User user){
+    public Result save(@RequestBody Map<String, String> params){
         String appId = params.getOrDefault("appId", "");
         String id = params.getOrDefault("id", "");
         if(StringUtils.isBlank(appId)
                 || StringUtils.isBlank(id)){
             return fail(ResultCode.PARAM_ERROR.getValue(), "参数错误");
         }
-        TestwaScript script = testwaScriptService.getScriptById(id);
+        Script script = scriptService.getScriptById(id);
         if(script == null){
             log.error("ScriptId get script was null", id);
             return fail(ResultCode.PARAM_ERROR.getValue(),"ScriptId找不到");
         }
-        TestwaApp app = testwaAppService.getAppById(appId);
+        App app = appService.getAppById(appId);
         if(app == null){
             log.error("AppId get app was null", appId);
             return fail(ResultCode.PARAM_ERROR.getValue(),"app不存在");
         }
+        User user = userService.findByUsername(getCurrentUsername());
         script.setAppId(appId);
         script.setProjectId(app.getProjectId());
         script.setDisable(true);
         script.setUserId(user.getId());
         script.setUsername(user.getUsername());
-        testwaScriptService.save(script);
+        scriptService.save(script);
         return ok();
     }
 
 
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value="/upload-script", method= RequestMethod.POST)
     public Result upload(@RequestParam("file") MultipartFile uploadfile){
@@ -107,7 +106,7 @@ public class ScriptController extends BaseController{
             String type = filename.substring(filename.lastIndexOf(".") + 1);
 
             String size = uploadfile.getSize() + "";
-            TestwaScript script = testwaScriptService.saveScript(filename, aliasName, filepath.toString(), size, type);
+            Script script = scriptService.saveScript(filename, aliasName, filepath.toString(), size, type);
             result.put("id", script.getId());
             return ok(result);
         }
@@ -118,7 +117,7 @@ public class ScriptController extends BaseController{
     }
 
 
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "/delete", method= RequestMethod.POST, produces={"application/json"})
     public Result delete(@RequestBody Map<String, Object> params){
@@ -132,15 +131,15 @@ public class ScriptController extends BaseController{
             return ok();
         }
         for(String id : ids){
-            testwaScriptService.deleteById(id);
+            scriptService.deleteById(id);
         }
         return ok();
     }
 
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value = "/table", method= RequestMethod.POST, produces={"application/json"})
-    public Result tableList(@RequestBody QueryTableFilterParams filter, @ApiIgnore @CurrentUser User user){
+    public Result tableList(@RequestBody QueryTableFilterParams filter){
         Map<String, Object> result = new HashMap<>();
         try{
 
@@ -148,24 +147,24 @@ public class ScriptController extends BaseController{
             // contains, startwith, endwith
             List filters = filter.filters;
             filterDisable(filters);
-            List<TestwaProject> projectsOfUser = testwaProjectService.findByUser(user);
+            List<Project> projectsOfUser = projectService.findByUser(getCurrentUsername());
             List<String> projectIds = new ArrayList<>();
             projectsOfUser.forEach(item -> projectIds.add(item.getId()));
             filters = filterProject(filters, "projectId", projectIds);
-            Page<TestwaScript> testwaScripts =  testwaScriptService.find(filters, pageRequest);
-            Iterator<TestwaScript> testwaScriptsIter =  testwaScripts.iterator();
+            Page<Script> testwaScripts =  scriptService.find(filters, pageRequest);
+            Iterator<Script> testwaScriptsIter =  testwaScripts.iterator();
             List<ScriptVO> lists = new ArrayList<>();
             while(testwaScriptsIter.hasNext()){
-                TestwaScript ts = testwaScriptsIter.next();
+                Script ts = testwaScriptsIter.next();
                 String appId = ts.getAppId();
                 if(StringUtils.isBlank(appId)){
                     log.error("This testcase's appId was not found", ts.toString());
                 }
-                TestwaApp app = testwaAppService.getAppById(appId);
+                App app = appService.getAppById(appId);
                 if(app == null){
                     log.error("This app: {}, was not found", appId);
                 }
-                TestwaProject project = testwaProjectService.findById(app.getProjectId());
+                Project project = projectService.findById(app.getProjectId());
 
                 lists.add(new ScriptVO(ts, app, project));
             }
@@ -180,11 +179,11 @@ public class ScriptController extends BaseController{
     }
 
 
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value="/{id}", method= RequestMethod.GET)
     public Result readScript(@PathVariable String id){
-        TestwaScript script = testwaScriptService.getScriptById(id);
+        Script script = scriptService.getScriptById(id);
         String path = script.getPath();
         StringBuffer sb = new StringBuffer();
         try {
@@ -196,13 +195,12 @@ public class ScriptController extends BaseController{
         return ok(sb.toString());
     }
 
-    @Authorization
+
     @ResponseBody
     @RequestMapping(value={"/{id}"}, method = { RequestMethod.POST}, produces={"application/json"})
     public Result writeScript(@PathVariable String id,
-                                              @RequestBody Map<String, String> params,
-                                              @ApiIgnore @CurrentUser User user){
-        TestwaScript script = testwaScriptService.getScriptById(id);
+                              @RequestBody Map<String, String> params){
+        Script script = scriptService.getScriptById(id);
         String path = script.getPath();
 
         String content = params.getOrDefault("content", "");
@@ -221,6 +219,7 @@ public class ScriptController extends BaseController{
             byte[] b = content.getBytes(StandardCharsets.UTF_8);
             Files.write(scriptPath, b);
 
+            User user = userService.findByUsername(getCurrentUsername());
             script.setModifyDate(new Date());
             script.setModifyUserId(user.getId());
             script.setModifyUserId(user.getUsername());

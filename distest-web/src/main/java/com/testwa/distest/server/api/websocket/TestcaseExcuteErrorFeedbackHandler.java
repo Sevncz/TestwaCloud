@@ -7,8 +7,8 @@ import com.corundumstudio.socketio.annotation.OnEvent;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.rpc.proto.Agent;
-import com.testwa.distest.server.model.TestwaReport;
-import com.testwa.distest.server.service.TestwaReportService;
+import com.testwa.distest.server.model.Report;
+import com.testwa.distest.server.service.ReportService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ public class TestcaseExcuteErrorFeedbackHandler {
     private final SocketIOServer server;
 
     @Autowired
-    private TestwaReportService testwaReportService;
+    private ReportService reportService;
 
     @Autowired
     public TestcaseExcuteErrorFeedbackHandler(SocketIOServer server) {
@@ -35,13 +35,13 @@ public class TestcaseExcuteErrorFeedbackHandler {
         try {
             Agent.AppiumRunErrorFeedback feedback = Agent.AppiumRunErrorFeedback.parseFrom(data);
             String reportDetailId = feedback.getReportDetailId();
-            TestwaReport report = testwaReportService.getReportById(reportDetailId);
+            Report report = reportService.getReportById(reportDetailId);
             if(report == null){
                 log.error("This reportId was not found", reportDetailId);
                 return;
             }
             report.putErrorInfo("APPIUM", feedback.getErrormsg());
-            testwaReportService.save(report);
+            reportService.save(report);
 
         } catch (InvalidProtocolBufferException e) {
             e.printStackTrace();

@@ -1,6 +1,6 @@
 package com.testwa.distest.server.web.VO;
 
-import com.testwa.distest.server.model.TestwaReportDetail;
+import com.testwa.distest.server.model.ReportDetail;
 
 /**
  * Created by wen on 2016/9/24.
@@ -24,7 +24,7 @@ public class ReportDetailVO {
     private Long success;
     private Long fail;
 
-    public ReportDetailVO(TestwaReportDetail d) {
+    public ReportDetailVO(ReportDetail d) {
         this.detailId = d.getId();
         this.deviceId = d.getDeviceId();
         this.cpu = d.getD_cpuabi();

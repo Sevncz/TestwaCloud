@@ -1,8 +1,8 @@
 package com.testwa.distest.server.web.VO;
 
 import com.testwa.core.utils.TimeUtil;
-import com.testwa.distest.server.model.TestwaReportSdetail;
-import com.testwa.distest.server.model.TestwaScript;
+import com.testwa.distest.server.model.ReportSdetail;
+import com.testwa.distest.server.model.Script;
 
 import java.text.ParseException;
 
@@ -21,7 +21,7 @@ public class ReportSdetailVO {
     private String username;
     private String status;
 
-    public ReportSdetailVO(TestwaReportSdetail sdetail, TestwaScript script) throws ParseException {
+    public ReportSdetailVO(ReportSdetail sdetail, Script script) throws ParseException {
         this.id = sdetail.getId();
         this.detailId = sdetail.getDetailId();
         this.scriptId = sdetail.getScriptId();

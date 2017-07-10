@@ -1,7 +1,7 @@
 package com.testwa.distest.server.web.VO;
 
 import com.testwa.core.utils.TimeUtil;
-import com.testwa.distest.server.model.TestwaProject;
+import com.testwa.distest.server.model.Project;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ public class ProjectVO {
     private List<String> members;
     private String description;
 
-    public ProjectVO(TestwaProject project) {
+    public ProjectVO(Project project) {
         this.id = project.getId();
         this.name = project.getName();
         this.userId = project.getUserId();

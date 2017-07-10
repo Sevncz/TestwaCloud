@@ -1,7 +1,7 @@
 package com.testwa.distest.server.web.VO;
 
-import com.testwa.distest.server.model.TestwaReport;
-import com.testwa.distest.server.model.TestwaReportDetail;
+import com.testwa.distest.server.model.Report;
+import com.testwa.distest.server.model.ReportDetail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,13 +21,13 @@ public class ReportTableVO {
 
     private List<ReportDetailVO> details;
 
-    public ReportTableVO(TestwaReport report, List<TestwaReportDetail> details) {
+    public ReportTableVO(Report report, List<ReportDetail> details) {
         this.id = report.getId();
         this.appName = report.getA_name();
         this.appVersion = report.getA_version();
         this.name = report.getTestcaseName();
         this.details = new ArrayList<>();
-        for(TestwaReportDetail d : details){
+        for(ReportDetail d : details){
             ReportDetailVO dvo = new ReportDetailVO(d);
             this.details.add(dvo);
         }

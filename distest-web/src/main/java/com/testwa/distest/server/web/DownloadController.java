@@ -1,9 +1,9 @@
 package com.testwa.distest.server.web;
 
-import com.testwa.distest.server.model.TestwaApp;
-import com.testwa.distest.server.model.TestwaScript;
-import com.testwa.distest.server.service.TestwaAppService;
-import com.testwa.distest.server.service.TestwaScriptService;
+import com.testwa.distest.server.model.App;
+import com.testwa.distest.server.model.Script;
+import com.testwa.distest.server.service.AppService;
+import com.testwa.distest.server.service.ScriptService;
 import io.swagger.annotations.Api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,11 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.apache.commons.io.FileUtils;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,9 +31,9 @@ public class DownloadController {
     private static final Logger log = LoggerFactory.getLogger(DownloadController.class);
 
     @Autowired
-    private TestwaAppService testwaAppService;
+    private AppService appService;
     @Autowired
-    private TestwaScriptService testwaScriptService;
+    private ScriptService scriptService;
 
     @ResponseBody
     @RequestMapping(value = "/script/{scriptId}", method = RequestMethod.GET)
@@ -44,7 +42,7 @@ public class DownloadController {
         String agentKey = request.getHeader("agentKey");
         String agentId = request.getHeader("agentId");
 
-        TestwaScript script = testwaScriptService.getScriptById(scriptId);
+        Script script = scriptService.getScriptById(scriptId);
         if (script == null) {
             return new ResponseEntity<>( HttpStatus.INTERNAL_SERVER_ERROR );
         }
@@ -63,7 +61,7 @@ public class DownloadController {
         String agentKey = request.getHeader("agentKey");
         String agentId = request.getHeader("agentId");
 
-        TestwaApp app = testwaAppService.getAppById(appId);
+        App app = appService.getAppById(appId);
         if (app == null) {
             return new ResponseEntity<>( HttpStatus.INTERNAL_SERVER_ERROR );
         }

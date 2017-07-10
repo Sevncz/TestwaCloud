@@ -1,6 +1,5 @@
 package com.testwa.distest.server.repository;
 
-import com.testwa.distest.server.model.TestwaDevice;
 import com.testwa.distest.server.model.UserDeviceHis;
 
 import java.io.Serializable;
