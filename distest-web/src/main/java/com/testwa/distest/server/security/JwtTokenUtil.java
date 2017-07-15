@@ -2,19 +2,18 @@ package com.testwa.distest.server.security;
 
 import com.alibaba.fastjson.JSON;
 import com.testwa.core.utils.TimeUtil;
+import com.testwa.distest.server.security.model.JwtUser;
 import com.testwa.distest.server.security.model.Scopes;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.CompressionCodecs;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mobile.device.Device;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import java.io.Serializable;
+
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenUtil {

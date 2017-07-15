@@ -1,4 +1,4 @@
-package com.testwa.distest.server.security;
+package com.testwa.distest.server.security.model;
 
 import java.util.Collection;
 import java.util.Date;
