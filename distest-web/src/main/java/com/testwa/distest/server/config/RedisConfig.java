@@ -20,9 +20,9 @@ import java.lang.reflect.Method;
 @Configuration
 @EnableCaching
 public class RedisConfig extends CachingConfigurerSupport {
-  
+
     @Bean
-    public KeyGenerator wiselyKeyGenerator(){
+    public KeyGenerator keyGenerator() {
         return (target, method, params) -> {
             StringBuilder sb = new StringBuilder();
             sb.append(target.getClass().getName());
@@ -32,7 +32,6 @@ public class RedisConfig extends CachingConfigurerSupport {
             }
             return sb.toString();
         };
-  
     }
 
     /**

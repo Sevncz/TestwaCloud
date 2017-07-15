@@ -1,7 +1,7 @@
 package com.testwa.distest.server.handler.exception;
 
-import com.testwa.distest.server.model.message.ResultCode;
-import com.testwa.distest.server.model.message.Result;
+import com.testwa.distest.server.mvc.model.message.ResultCode;
+import com.testwa.distest.server.mvc.model.message.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.ControllerAdvice;

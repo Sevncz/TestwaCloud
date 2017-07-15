@@ -1,7 +1,7 @@
 package com.testwa.distest.server.security.service;
 
-import com.testwa.distest.server.model.User;
-import com.testwa.distest.server.repository.UserRepository;
+import com.testwa.distest.server.mvc.model.User;
+import com.testwa.distest.server.mvc.repository.UserRepository;
 import com.testwa.distest.server.security.model.JwtUserFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

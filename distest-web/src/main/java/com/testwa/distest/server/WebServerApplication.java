@@ -3,7 +3,7 @@ package com.testwa.distest.server;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.annotation.SpringAnnotationScanner;
 import com.mongodb.MongoClientURI;
-import com.testwa.distest.server.repository.Impl.CommonMongoRepositoryImpl;
+import com.testwa.distest.server.mvc.repository.Impl.CommonMongoRepositoryImpl;
 import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -23,8 +23,7 @@ import java.net.UnknownHostException;
 
 
 @SpringBootApplication
-@ServletComponentScan(value = {"com.testwa.distest.server.filter"})
-@EnableMongoRepositories(repositoryBaseClass = CommonMongoRepositoryImpl.class, basePackages = {"com.testwa.distest.server.repository"})
+@EnableMongoRepositories(repositoryBaseClass = CommonMongoRepositoryImpl.class, basePackages = {"com.testwa.distest.server.mvc.repository"})
 @EnableScheduling
 @EnableCaching
 public class WebServerApplication {

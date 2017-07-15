@@ -3,8 +3,7 @@ package com.testwa.distest.server.security.model;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.testwa.distest.server.model.User;
-import com.testwa.distest.server.security.model.JwtUser;
+import com.testwa.distest.server.mvc.model.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 

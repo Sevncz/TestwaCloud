@@ -1,15 +1,15 @@
 package com.testwa.distest.server.security.controller;
 
 import com.google.common.net.InetAddresses;
-import com.testwa.distest.server.model.User;
-import com.testwa.distest.server.model.message.Result;
-import com.testwa.distest.server.model.message.ResultCode;
+import com.testwa.distest.server.mvc.model.User;
+import com.testwa.distest.server.mvc.model.message.Result;
+import com.testwa.distest.server.mvc.model.message.ResultCode;
 import com.testwa.distest.server.security.JwtAuthenticationRequest;
 import com.testwa.distest.server.security.JwtTokenUtil;
 import com.testwa.distest.server.security.model.JwtUser;
 import com.testwa.distest.server.security.service.JwtAuthenticationResponse;
-import com.testwa.distest.server.service.UserService;
-import com.testwa.distest.server.web.BaseController;
+import com.testwa.distest.server.mvc.service.UserService;
+import com.testwa.distest.server.mvc.api.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mobile.device.Device;

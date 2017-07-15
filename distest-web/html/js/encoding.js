@@ -1122,7 +1122,7 @@
       if (token === end_of_stream)
         break;
 
-      // 3. Otherwise, run these subsubsteps:
+      // 3. Otherwise, schedule these subsubsteps:
 
       // 1. Let result be the result of processing token for decoder,
       // stream, output, and error mode.
@@ -1172,7 +1172,7 @@
       // (Done in-place on array, rather than as a stream)
 
       // 2. If encoding is UTF-8, UTF-16BE, or UTF-16LE, and ignore
-      // BOM flag and BOM seen flag are unset, run these subsubsteps:
+      // BOM flag and BOM seen flag are unset, schedule these subsubsteps:
       if (includes(['UTF-8', 'UTF-16LE', 'UTF-16BE'], this._encoding.name) &&
           !this._ignoreBOM && !this._BOMseen) {
         if (stream.length > 0 && stream[0] === 0xFEFF) {
@@ -1288,7 +1288,7 @@
 
     /** @type {?(number|!Array.<number>)} */
     var result;
-    // 3. While true, run these substeps:
+    // 3. While true, schedule these substeps:
     while (true) {
       // 1. Let token be the result of reading from input.
       var token = input.read();
@@ -1425,7 +1425,7 @@
       }
 
       // 4. If byte is not in the range utf-8 lower boundary to utf-8
-      // upper boundary, inclusive, run these substeps:
+      // upper boundary, inclusive, schedule these substeps:
       if (!inRange(bite, utf8_lower_boundary, utf8_upper_boundary)) {
 
         // 1. Set utf-8 code point, utf-8 bytes needed, and utf-8
@@ -1708,7 +1708,7 @@
         decoderError(fatal);
       }
       var code_point;
-      // 3. If gb18030 third is not 0x00, run these substeps:
+      // 3. If gb18030 third is not 0x00, schedule these substeps:
       if (gb18030_third !== 0x00) {
         // 1. Let code point be null.
         code_point = null;
@@ -1743,7 +1743,7 @@
         return code_point;
       }
 
-      // 4. If gb18030 second is not 0x00, run these substeps:
+      // 4. If gb18030 second is not 0x00, schedule these substeps:
       if (gb18030_second !== 0x00) {
 
         // 1. If byte is in the range 0x81 to 0xFE, inclusive, set
@@ -1761,7 +1761,7 @@
         return decoderError(fatal);
       }
 
-      // 5. If gb18030 first is not 0x00, run these substeps:
+      // 5. If gb18030 first is not 0x00, schedule these substeps:
       if (gb18030_first !== 0x00) {
 
         // 1. If byte is in the range 0x30 to 0x39, inclusive, set
@@ -1864,7 +1864,7 @@
       // gb18030.
       var pointer = indexPointerFor(code_point, index('gb18030'));
 
-      // 6. If pointer is not null, run these substeps:
+      // 6. If pointer is not null, schedule these substeps:
       if (pointer !== null) {
 
         // 1. Let lead be floor(pointer / 190) + 0x81.
@@ -1963,7 +1963,7 @@
         return finished;
 
       // 3. If Big5 lead is not 0x00, let lead be Big5 lead, let
-      // pointer be null, set Big5 lead to 0x00, and then run these
+      // pointer be null, set Big5 lead to 0x00, and then schedule these
       // substeps:
       if (Big5_lead !== 0x00) {
         var lead = Big5_lead;
@@ -2148,7 +2148,7 @@
       }
 
       // 5. If euc-jp lead is not 0x00, let lead be euc-jp lead, set
-      // euc-jp lead to 0x00, and run these substeps:
+      // euc-jp lead to 0x00, and schedule these substeps:
       if (eucjp_lead !== 0x00) {
         var lead = eucjp_lead;
         eucjp_lead = 0x00;
@@ -2549,7 +2549,7 @@
         if (lead === 0x24 && (bite === 0x40 || bite === 0x42))
           state = states.LeadByte;
 
-        // 7. If state is non-null, run these substeps:
+        // 7. If state is non-null, schedule these substeps:
         if (state !== null) {
           // 1. Set iso-2022-jp decoder state and iso-2022-jp decoder
           // output state to states.
@@ -2636,7 +2636,7 @@
 
       // 5. If iso-2022-jp encoder state is Roman and code point is an
       // ASCII code point, excluding U+005C and U+007E, or is U+00A5
-      // or U+203E, run these substeps:
+      // or U+203E, schedule these substeps:
       if (iso2022jp_state === states.Roman &&
           ((isASCIICodePoint(code_point) &&
            code_point !== 0x005C && code_point !== 0x007E) ||
@@ -2753,7 +2753,7 @@
         return finished;
 
       // 3. If Shift_JIS lead is not 0x00, let lead be Shift_JIS lead,
-      // let pointer be null, set Shift_JIS lead to 0x00, and then run
+      // let pointer be null, set Shift_JIS lead to 0x00, and then schedule
       // these substeps:
       if (Shift_JIS_lead !== 0x00) {
         var lead = Shift_JIS_lead;
@@ -2934,7 +2934,7 @@
         return finished;
 
       // 3. If euc-kr lead is not 0x00, let lead be euc-kr lead, let
-      // pointer be null, set euc-kr lead to 0x00, and then run these
+      // pointer be null, set euc-kr lead to 0x00, and then schedule these
       // substeps:
       if (euckr_lead !== 0x00) {
         var lead = euckr_lead;
@@ -3120,7 +3120,7 @@
 
       // 5. If utf-16 lead surrogate is not null, let lead surrogate
       // be utf-16 lead surrogate, set utf-16 lead surrogate to null,
-      // and then run these substeps:
+      // and then schedule these substeps:
       if (utf16_lead_surrogate !== null) {
         var lead_surrogate = utf16_lead_surrogate;
         utf16_lead_surrogate = null;

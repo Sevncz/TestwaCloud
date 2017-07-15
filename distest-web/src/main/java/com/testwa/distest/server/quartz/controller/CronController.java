@@ -1,12 +1,10 @@
 package com.testwa.distest.server.quartz.controller;
 
-import com.testwa.distest.server.model.message.Result;
+import com.testwa.distest.server.mvc.model.message.Result;
 import com.testwa.distest.server.quartz.model.ScheduleJob;
 import com.testwa.distest.server.quartz.service.SchedulerService;
-import com.testwa.distest.server.web.BaseController;
+import com.testwa.distest.server.mvc.api.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
