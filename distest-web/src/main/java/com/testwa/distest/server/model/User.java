@@ -2,6 +2,7 @@ package com.testwa.distest.server.model;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.Size;
@@ -17,7 +18,10 @@ public class User {
     private String id;
     @Size(min = 4, max = 50)
     private String email;
+    @Indexed(unique = true)
+    @Size(min = 11, max = 11)
     private String phone;
+    @Indexed(unique = true)
     private String username;
     private String password;
     private List<String> rights;

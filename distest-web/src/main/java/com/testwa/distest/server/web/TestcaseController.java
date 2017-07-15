@@ -131,7 +131,6 @@ public class TestcaseController extends BaseController{
     public Result tableList(@RequestBody QueryTableFilterParams filter){
         Map<String, Object> result = new HashMap<>();
         try{
-
             PageRequest pageRequest = buildPageRequest(filter);
             // contains, startwith, endwith
             List filters = filter.filters;

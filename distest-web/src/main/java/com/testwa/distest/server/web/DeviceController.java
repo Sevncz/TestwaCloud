@@ -279,7 +279,6 @@ public class DeviceController extends BaseController{
     }
 
 
-
     @ResponseBody
     @RequestMapping(value = "/share/to/scope", method= RequestMethod.POST, produces={"application/json"})
     public Result shareScope(@RequestBody Map<String, Object> params){
@@ -299,8 +298,6 @@ public class DeviceController extends BaseController{
 
         return ok();
     }
-
-
 
 
     @ResponseBody

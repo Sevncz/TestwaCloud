@@ -2,6 +2,7 @@ package com.testwa.distest.server.security;
 
 import com.alibaba.fastjson.JSON;
 import com.testwa.core.utils.TimeUtil;
+import com.testwa.distest.server.security.model.Scopes;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.CompressionCodecs;
 import io.jsonwebtoken.Jwts;
@@ -12,16 +13,11 @@ import org.springframework.mobile.device.Device;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import java.io.Serializable;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenUtil {
-
-
-    public static final String ROLE_REFRESH_TOKEN = "ROLE_REFRESH_TOKEN";
 
     private static final String CLAIM_KEY_USERNAME = "sub";
     private static final String CLAIM_KEY_USER_ID = "user_id";
@@ -66,6 +62,21 @@ public class JwtTokenUtil {
             userId = null;
         }
         return userId;
+    }
+
+    public List<String> getScopeFromToken(String token) {
+        List<String> roles = new ArrayList<>();
+        try {
+            final Claims claims = getClaimsFromToken(token);
+            roles = (List<String>) claims.get(CLAIM_KEY_AUTHORITIES);
+        } catch (Exception e) {
+        }
+        return roles;
+    }
+
+    public boolean isRefreshToken(String token){
+        List<String> rules = getScopeFromToken(token);
+        return rules.contains(Scopes.REFRESH_TOKEN.authority());
     }
 
     public Date getCreatedDateFromToken(String token) {
@@ -144,8 +155,7 @@ public class JwtTokenUtil {
         JwtUser user = (JwtUser) userDetails;
         Map<String, Object> claims = generateClaims(user);
         // 只授于更新 token 的权限
-        String roles[] = new String[]{JwtTokenUtil.ROLE_REFRESH_TOKEN};
-        claims.put(CLAIM_KEY_AUTHORITIES, JSON.toJSON(roles));
+        claims.put(CLAIM_KEY_AUTHORITIES,  Arrays.asList(Scopes.REFRESH_TOKEN.authority()));
         return generateRefreshToken(user.getUsername(), claims);
     }
 
@@ -157,6 +167,7 @@ public class JwtTokenUtil {
         JwtUser user = (JwtUser) userDetails;
         Map<String, Object> claims = generateClaims(user);
         claims.put(CLAIM_KEY_AUDIENCE, generateAudience(device));
+        claims.put(CLAIM_KEY_AUTHORITIES, JSON.toJSON(userDetails.getAuthorities()));
         return generateAccessToken(userDetails.getUsername(), claims);
     }
 

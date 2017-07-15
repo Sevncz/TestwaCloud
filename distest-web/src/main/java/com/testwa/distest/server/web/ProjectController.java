@@ -48,7 +48,6 @@ public class ProjectController extends BaseController {
     }
 
     @ApiOperation(value="生成一个项目", notes="")
-
     @ResponseBody
     @RequestMapping(value = "/save", method= RequestMethod.POST)
     public Result save(@ApiParam(required=true, name="params", value="{'name': ''}")
@@ -72,13 +71,10 @@ public class ProjectController extends BaseController {
 
 
     @ApiOperation(value="删除一个项目", notes="")
-
     @ResponseBody
     @RequestMapping(value = "/delete", method= RequestMethod.POST)
     public Result delete(@ApiParam(required=true, name="params", value="{'ids': [1,2,3,4]}")
                                                  @RequestBody Map<String, Object> params){
-
-
         List<String> ids;
         try {
             ids = cast(params.getOrDefault("ids", null));
@@ -95,7 +91,6 @@ public class ProjectController extends BaseController {
     }
 
     @ApiOperation(value="获取项目列表，分页")
-
     @ResponseBody
     @RequestMapping(value = "/table", method= RequestMethod.POST)
     public Result tableList(@RequestBody QueryTableFilterParams filter){
@@ -154,11 +149,9 @@ public class ProjectController extends BaseController {
     }
 
 
-
     @ResponseBody
     @RequestMapping(value = "/member/add", method= RequestMethod.POST)
-    public Result addMember(@ApiParam(required=true, name="params", value="{'projectId': '', 'username': ''}")
-                                                    @RequestBody Map<String, Object> params){
+    public Result addMember(@ApiParam(required=true, name="params", value="{'projectId': '', 'username': ''}") @RequestBody Map<String, Object> params){
         String projectId = (String) params.getOrDefault("projectId", "");
         String username = (String) params.getOrDefault("username", "");
         if(StringUtils.isBlank(projectId) || StringUtils.isBlank(username)){
@@ -180,7 +173,6 @@ public class ProjectController extends BaseController {
 
         return ok();
     }
-
 
 
     @ResponseBody
@@ -210,7 +202,6 @@ public class ProjectController extends BaseController {
 
         return ok();
     }
-
 
 
     @ResponseBody

@@ -16,10 +16,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -30,9 +33,6 @@ public class UserService extends BaseService {
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
-    private Environment env;
-
-    @Autowired
     private UserRepository userRepository;
 
     @Autowired
@@ -41,30 +41,50 @@ public class UserService extends BaseService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public User getUserById(String id) {
-        return userRepository.findOne(id);
-    }
-
     public User save(User user) {
         return userRepository.save(user);
-    }
-
-    public User findByEmail(String email) {
-        return userRepository.findByEmail(email);
     }
 
     public void deleteAll() {
         userRepository.deleteAll();
     }
 
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
     public User findByUsername(String username) {
         return userRepository.findByUsername(username);
+    }
+
+    public User findById(String userId) {
+        assert StringUtils.isBlank(userId);
+        return userRepository.findById(userId);
     }
 
     public Page<User> find(List<Map<String, String>> filters, PageRequest pageRequest) {
         Query query = buildQuery(filters);
         return userRepository.find(query, pageRequest);
     }
+
+    /**
+     * 更新对象
+     * @param user
+     */
+    public void update(User user) {
+        Query query=new Query(Criteria.where("id").is(user.getId()));
+        Update update= new Update();
+        for(Field f : User.class.getDeclaredFields()){
+            try {
+                f.setAccessible(true);
+                update.set(f.getName(), f.get(user));
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        userRepository.updateInser(query, update);
+    }
+
 
     public void initAdmin() {
 
@@ -73,8 +93,8 @@ public class UserService extends BaseService {
             User awesomeUser = new User();
             awesomeUser.setEmail("admin@testwa.com");
             awesomeUser.setPassword(passwordEncoder.encode("admin"));
-            awesomeUser.setId("thisis-awesome-1");
             awesomeUser.setDateCreated(new Date());
+            awesomeUser.setPhone("18600753024");
             awesomeUser.setUsername("admin");
             awesomeUser.setEnabled(true);
             awesomeUser.setLastPasswordResetDate(new Date());
@@ -89,10 +109,5 @@ public class UserService extends BaseService {
                 save(awesomeUser);
             }
         }
-    }
-
-    public User findById(String userId) {
-        assert StringUtils.isBlank(userId);
-        return userRepository.findById(userId);
     }
 }

@@ -117,7 +117,6 @@ public class ReportController extends BaseController {
      * @param detailId
      * @return
      */
-
     @ResponseBody
     @RequestMapping(value = "/detail/{detailId}", method= RequestMethod.GET)
     public Result reportDetail(@PathVariable String detailId){
@@ -149,13 +148,9 @@ public class ReportController extends BaseController {
      * @param scriptId
      * @return
      */
-
     @ResponseBody
     @RequestMapping(value = "/detail/{detailId}/script/{scriptId}", method= RequestMethod.GET)
     public Result stepList(@PathVariable String detailId, @PathVariable String scriptId){
-
-
-
         List<ProcedureInfo> infos = procedureInfoService.findByReportDetailIdAndScriptId(detailId, scriptId);
         List<ReportStepInfoVO> stepInfoVOs = new ArrayList<>();
         for(ProcedureInfo info : infos){
@@ -171,13 +166,9 @@ public class ReportController extends BaseController {
      * @param stepId
      * @return
      */
-
     @ResponseBody
     @RequestMapping(value = "/detail/script/step/{stepId}", method = RequestMethod.GET)
     public Result stepInfo(@PathVariable String stepId){
-
-
-
         ProcedureInfo stepInfo = procedureInfoService.getProcedureInfoById(stepId);
         if(stepInfo == null){
             return fail(ResultCode.SERVER_ERROR.getValue(), "stepInfo not found");
@@ -198,9 +189,6 @@ public class ReportController extends BaseController {
     @ResponseBody
     @RequestMapping(value = "/detail/{detailId}/script/{scriptId}/summary", method = RequestMethod.GET)
     public Result stepInfoSummary(@PathVariable String detailId, @PathVariable String scriptId){
-
-
-
         ReportSdetail sdetail = reportSdetailService.findTestcaseSdetailByDetailIdScriptId(detailId, scriptId);
         if(sdetail == null){
             return fail(ResultCode.SERVER_ERROR.getValue(), "sdetail not found");
