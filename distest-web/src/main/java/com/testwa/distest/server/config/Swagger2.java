@@ -18,7 +18,7 @@ public class Swagger2 {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.testwa.distest.server.web"))
+                .apis(RequestHandlerSelectors.basePackage("com.testwa.distest.server.mvc.api"))
                 .paths(PathSelectors.any())
                 .build();
     }
@@ -26,7 +26,7 @@ public class Swagger2 {
         return new ApiInfoBuilder()
                 .title("Testwa RESTful APIs")
                 .description("Testwa 服务器和前端的接口 API")
-                .termsOfServiceUrl("http://www.testwa.cn/")
+                .termsOfServiceUrl("http://localhost:8080/")
                 .contact("Wen wen")
                 .version("1.0")
                 .build();

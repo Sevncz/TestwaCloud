@@ -1,8 +1,8 @@
 package com.testwa.distest.server.mvc.api;
 
-import com.testwa.distest.server.mvc.model.message.ResultCode;
-import com.testwa.distest.server.mvc.model.message.Result;
-import com.testwa.distest.server.mvc.model.params.QueryTableFilterParams;
+import com.testwa.distest.server.mvc.beans.PageQuery;
+import com.testwa.distest.server.mvc.beans.ResultCode;
+import com.testwa.distest.server.mvc.beans.Result;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -50,7 +50,7 @@ public class BaseController {
         return buildPageRequest(pageNum, rows, sortOrder, sortField);
     }
 
-    PageRequest buildPageRequest(QueryTableFilterParams filter) {
+    PageRequest buildPageRequest(PageQuery filter) {
         int first = filter.first == null ? 1 : filter.first;
         int rows = filter.rows == null ? 10 : filter.rows;
         String sortField = filter.sortField;

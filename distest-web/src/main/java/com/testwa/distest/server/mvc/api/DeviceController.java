@@ -4,18 +4,15 @@ import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.testwa.core.Command;
 import com.testwa.core.WebsocketEvent;
+import com.testwa.distest.server.mvc.beans.*;
 import com.testwa.distest.server.mvc.model.*;
-import com.testwa.distest.server.mvc.model.params.QueryOperator;
-import com.testwa.distest.server.mvc.model.params.QueryFilters;
-import com.testwa.distest.server.mvc.model.params.QueryTableFilterParams;
+import com.testwa.distest.server.mvc.beans.PageQuery;
 import com.testwa.distest.server.mvc.service.AgentService;
 import com.testwa.distest.server.mvc.service.DeviceService;
 import com.testwa.distest.server.mvc.service.UserDeviceHisService;
-import com.testwa.distest.server.mvc.model.message.ResultCode;
-import com.testwa.distest.server.mvc.model.message.Result;
 import com.testwa.distest.server.mvc.service.UserService;
 import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
-import com.testwa.distest.server.mvc.api.VO.DeviceOwnerTableVO;
+import com.testwa.distest.server.mvc.vo.DeviceOwnerTableVO;
 import io.grpc.testwa.device.*;
 import io.swagger.annotations.Api;
 import org.apache.commons.lang3.StringUtils;
@@ -111,7 +108,7 @@ public class DeviceController extends BaseController{
 
     @ResponseBody
     @RequestMapping(value = "/table", method= RequestMethod.POST, produces={"application/json"})
-    public Result tableList(@RequestBody QueryTableFilterParams filter){
+    public Result tableList(@RequestBody PageQuery filter){
         Map<String, Object> result = new HashMap<>();
         try{
             PageRequest pageRequest = buildPageRequest(filter);
@@ -138,20 +135,20 @@ public class DeviceController extends BaseController{
 
     /***
      * 分享给我的设备
-     * @param filter
+     * @param query
      * @return
      */
 
     @ResponseBody
     @RequestMapping(value = "/table/shared", method= RequestMethod.POST, produces={"application/json"})
-    public Result sharedtableList(@RequestBody QueryTableFilterParams filter){
+    public Result sharedtableList(@RequestBody PageQuery query){
 
         Map<String, Object> result = new HashMap<>();
         try{
             User currentUser = userService.findByUsername(getCurrentUsername());
-            PageRequest pageRequest = buildPageRequest(filter);
+            PageRequest pageRequest = buildPageRequest(query);
             // contains, startwith, endwith
-            List filters = filter.filters;
+            List filters = query.filters;
             if(filters == null){
                 filters = new ArrayList<>();
             }
@@ -163,17 +160,11 @@ public class DeviceController extends BaseController{
 
             Map<String, Object> allUser = addOtherFilter(QueryOperator.is.getName(), "scope", 100);
             orFilters.add(allUser);
-
             QueryFilters queryFilters = new QueryFilters(filters, orFilters);
-
             Page<UserDeviceHis> userDevicePage =  userDeviceHisService.find(queryFilters, pageRequest);
-            List<DeviceOwnerTableVO> lists = buildDeviceOwnerTableVO(userDevicePage);
-
-            result.put("records", lists);
-            result.put("totalRecords", userDevicePage.getTotalElements());
-            return ok(result);
+            return ok(new PageResult(buildDeviceOwnerTableVO(userDevicePage), userDevicePage.getTotalElements()));
         }catch (Exception e){
-            log.error(String.format("Get devices table error, %s", filter.toString()), e);
+            log.error(String.format("Get devices table error, %s", query.toString()), e);
             return fail(ResultCode.SERVER_ERROR.getValue(), e.getMessage());
         }
 
@@ -188,9 +179,8 @@ public class DeviceController extends BaseController{
 
     @ResponseBody
     @RequestMapping(value = "/table/available", method= RequestMethod.POST, produces={"application/json"})
-    public Result availabletableList(@RequestBody QueryTableFilterParams filter){
+    public Result availabletableList(@RequestBody PageQuery filter){
 
-        Map<String, Object> result = new HashMap<>();
         try{
             User currentUser = userService.findByUsername(getCurrentUsername());
             PageRequest pageRequest = buildPageRequest(filter);
@@ -214,11 +204,7 @@ public class DeviceController extends BaseController{
             QueryFilters queryFilters = new QueryFilters(filters, orFilters);
 
             Page<UserDeviceHis> userDevicePage =  userDeviceHisService.find(queryFilters, pageRequest);
-            List<DeviceOwnerTableVO> lists = buildDeviceOwnerTableVO(userDevicePage);
-
-            result.put("records", lists);
-            result.put("totalRecords", userDevicePage.getTotalElements());
-            return ok(result);
+            return ok(new PageResult(buildDeviceOwnerTableVO(userDevicePage), userDevicePage.getTotalElements()));
         }catch (Exception e){
             log.error(String.format("Get devices table error, %s", filter.toString()), e);
             return fail(ResultCode.SERVER_ERROR.getValue(), e.getMessage());

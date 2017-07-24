@@ -1,7 +1,7 @@
 package com.testwa.distest.server.mvc.service;
 
 import com.testwa.distest.server.mvc.model.UserDeviceHis;
-import com.testwa.distest.server.mvc.model.params.QueryFilters;
+import com.testwa.distest.server.mvc.beans.QueryFilters;
 import com.testwa.distest.server.mvc.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

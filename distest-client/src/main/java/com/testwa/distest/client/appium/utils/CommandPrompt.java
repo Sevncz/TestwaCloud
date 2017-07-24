@@ -1,7 +1,7 @@
 package com.testwa.distest.client.appium.utils;
 
 /**
- * Command Prompt - this class contains method to run windows and mac commands
+ * Command Prompt - this class contains method to schedule windows and mac commands
  */
 import java.io.BufferedReader;
 import java.io.IOException;

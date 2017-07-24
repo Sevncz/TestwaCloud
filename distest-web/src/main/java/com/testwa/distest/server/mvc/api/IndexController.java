@@ -1,6 +1,6 @@
 package com.testwa.distest.server.mvc.api;
 
-import com.testwa.distest.server.mvc.model.message.Result;
+import com.testwa.distest.server.mvc.beans.Result;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;

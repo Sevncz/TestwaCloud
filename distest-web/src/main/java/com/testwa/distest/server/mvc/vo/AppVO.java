@@ -1,4 +1,4 @@
-package com.testwa.distest.server.mvc.api.VO;
+package com.testwa.distest.server.mvc.vo;
 
 
 import com.testwa.core.utils.TimeUtil;

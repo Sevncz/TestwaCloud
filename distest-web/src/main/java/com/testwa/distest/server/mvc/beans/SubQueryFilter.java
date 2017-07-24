@@ -1,4 +1,4 @@
-package com.testwa.distest.server.mvc.model.params;
+package com.testwa.distest.server.mvc.beans;
 
 import java.util.Map;
 

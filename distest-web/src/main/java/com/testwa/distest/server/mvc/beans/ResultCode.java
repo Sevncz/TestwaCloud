@@ -1,4 +1,4 @@
-package com.testwa.distest.server.mvc.model.message;
+package com.testwa.distest.server.mvc.beans;
 
 /**
  * Created by wen on 2016/11/19.

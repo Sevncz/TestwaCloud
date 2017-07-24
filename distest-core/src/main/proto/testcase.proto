@@ -2,7 +2,7 @@ syntax = "proto3";
 
 
 option java_multiple_files = true;
-option java_package = "io.grpc.testwa.testcase";
+option java_package = "io.rpc.testwa.testcase";
 option java_outer_classname = "RunningLogProto";
 option objc_class_prefix = "RLP";
 

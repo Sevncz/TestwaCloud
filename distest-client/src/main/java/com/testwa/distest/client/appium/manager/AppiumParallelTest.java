@@ -24,7 +24,7 @@ public class AppiumParallelTest{
 
     public synchronized AppiumDriverLocalService startAppiumServer(String device_udid, String installApp, String testcaseLogId) throws Exception {
         if (device_udid == null) {
-            LOG.error("No devices are free to run test or Failed to run test");
+            LOG.error("No devices are free to schedule test or Failed to schedule test");
             return null;
         }
         this.device_udid = device_udid;

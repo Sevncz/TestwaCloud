@@ -2,16 +2,16 @@ package com.testwa.distest.server.mvc.api;
 
 import com.testwa.core.utils.Identities;
 import com.testwa.core.utils.PinYinTool;
+import com.testwa.distest.server.mvc.beans.PageQuery;
 import com.testwa.distest.server.mvc.model.App;
 import com.testwa.distest.server.mvc.model.Project;
 import com.testwa.distest.server.mvc.model.User;
-import com.testwa.distest.server.mvc.model.params.QueryTableFilterParams;
 import com.testwa.distest.server.mvc.service.AppService;
 import com.testwa.distest.server.mvc.service.ProjectService;
 import com.testwa.distest.server.mvc.service.UserService;
-import com.testwa.distest.server.mvc.api.VO.AppVO;
-import com.testwa.distest.server.mvc.model.message.ResultCode;
-import com.testwa.distest.server.mvc.model.message.Result;
+import com.testwa.distest.server.mvc.vo.AppVO;
+import com.testwa.distest.server.mvc.beans.ResultCode;
+import com.testwa.distest.server.mvc.beans.Result;
 import io.swagger.annotations.Api;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -142,7 +142,7 @@ public class AppController extends BaseController{
 
     @ResponseBody
     @RequestMapping(value = "/table", method= RequestMethod.POST, produces={"application/json"})
-    public Result tableList(@RequestBody QueryTableFilterParams filter){
+    public Result tableList(@RequestBody PageQuery filter){
         Map<String, Object> result = new HashMap<>();
         try{
             PageRequest pageRequest = buildPageRequest(filter);

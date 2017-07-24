@@ -5,8 +5,8 @@ import com.testwa.core.utils.Validator;
 import com.testwa.distest.server.mvc.model.User;
 import com.testwa.distest.server.mvc.model.UserShareScope;
 import com.testwa.distest.server.mvc.service.UserService;
-import com.testwa.distest.server.mvc.model.message.ResultCode;
-import com.testwa.distest.server.mvc.model.message.Result;
+import com.testwa.distest.server.mvc.beans.ResultCode;
+import com.testwa.distest.server.mvc.beans.Result;
 import io.swagger.annotations.Api;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.StringUtils;
@@ -82,13 +82,6 @@ public class AccountController extends BaseController{
         userService.save(awesomeUser);
         return ok();
     }
-
-
-    @RequestMapping(value = "verify", method= RequestMethod.GET)
-    public Result verify(@ApiIgnore HttpServletRequest request){
-        return ok();
-    }
-
 
     @SuppressWarnings("unused")
     private static class UserInfo {

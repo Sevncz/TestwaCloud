@@ -1,6 +1,6 @@
 package com.testwa.distest.server.quartz.controller;
 
-import com.testwa.distest.server.mvc.model.message.Result;
+import com.testwa.distest.server.mvc.beans.Result;
 import com.testwa.distest.server.quartz.model.ScheduleJob;
 import com.testwa.distest.server.quartz.service.SchedulerService;
 import com.testwa.distest.server.mvc.api.BaseController;

@@ -1,7 +1,7 @@
 package com.testwa.distest.server.mvc.api;
 
 import com.testwa.core.WebsocketEvent;
-import com.testwa.distest.server.mvc.model.message.Result;
+import com.testwa.distest.server.mvc.beans.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -62,6 +63,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .authorizeRequests()
                     .antMatchers(loginPath).permitAll()
                     .antMatchers(tokenRefreshPath).permitAll()
+                    .antMatchers( // for swagger
+                            HttpMethod.GET,
+                            "/",
+                            "/*.html",
+                            "/favicon.ico",
+                            "/**/*.html",
+                            "/**/*.css",
+                            "/**/*.js"
+                    ).permitAll()
                 .and()
                     .authorizeRequests()
                     .antMatchers(TOKEN_BASED_AUTH_ENTRY_POINT).authenticated()

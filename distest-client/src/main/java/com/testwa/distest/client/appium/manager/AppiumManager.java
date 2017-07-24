@@ -21,7 +21,7 @@ import java.nio.file.Paths;
 /**
  * Appium Manager - this class contains method to start and stops appium server
  * To execute the tests from eclipse, you need to set PATH as
- * /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin in run configuration
+ * /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin in schedule configuration
  */
 public class AppiumManager {
     private static Logger LOG = LoggerFactory.getLogger(AppiumManager.class);

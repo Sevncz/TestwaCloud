@@ -320,7 +320,7 @@ public class WindowsUtils {
      * Finds WMIC.exe
      *
      * @return the exact path to wmic.exe, or just the string "wmic" if it couldn't be found (in which
-     * case you can pass that to exec to try to run it from the path)
+     * case you can pass that to exec to try to schedule it from the path)
      */
     public static String findWMIC() {
         if (wmic != null) {
@@ -361,7 +361,7 @@ public class WindowsUtils {
      * Finds taskkill.exe
      *
      * @return the exact path to taskkill.exe, or just the string "taskkill" if it couldn't be found
-     * (in which case you can pass that to exec to try to run it from the path)
+     * (in which case you can pass that to exec to try to schedule it from the path)
      */
     public static String findTaskKill() {
         if (taskkill != null) {
@@ -382,7 +382,7 @@ public class WindowsUtils {
      * Finds reg.exe
      *
      * @return the exact path to reg.exe, or just the string "reg" if it couldn't be found (in which
-     * case you can pass that to exec to try to run it from the path)
+     * case you can pass that to exec to try to schedule it from the path)
      */
     public static String findReg() {
         if (reg != null) {

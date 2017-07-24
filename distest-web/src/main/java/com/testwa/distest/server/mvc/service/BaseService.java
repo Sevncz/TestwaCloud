@@ -1,9 +1,9 @@
 package com.testwa.distest.server.mvc.service;
 
-import com.testwa.distest.server.mvc.model.params.QueryFilters;
-import com.testwa.distest.server.mvc.model.params.SubQueryFilter;
+import com.testwa.distest.server.mvc.beans.QueryFilters;
+import com.testwa.distest.server.mvc.beans.SubQueryFilter;
 import com.testwa.distest.server.mvc.repository.CommonRepository;
-import com.testwa.distest.server.mvc.model.params.QueryOperator;
+import com.testwa.distest.server.mvc.beans.QueryOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.mongodb.core.query.Criteria;

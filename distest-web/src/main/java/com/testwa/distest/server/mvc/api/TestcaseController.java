@@ -3,12 +3,12 @@ package com.testwa.distest.server.mvc.api;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.rpc.proto.Agent;
+import com.testwa.distest.server.mvc.beans.PageQuery;
 import com.testwa.distest.server.mvc.model.*;
-import com.testwa.distest.server.mvc.model.params.QueryTableFilterParams;
 import com.testwa.distest.server.mvc.service.*;
-import com.testwa.distest.server.mvc.api.VO.TestcaseVO;
-import com.testwa.distest.server.mvc.model.message.ResultCode;
-import com.testwa.distest.server.mvc.model.message.Result;
+import com.testwa.distest.server.mvc.vo.TestcaseVO;
+import com.testwa.distest.server.mvc.beans.ResultCode;
+import com.testwa.distest.server.mvc.beans.Result;
 import io.swagger.annotations.Api;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -129,7 +128,7 @@ public class TestcaseController extends BaseController{
 
     @ResponseBody
     @RequestMapping(value = "/table", method= RequestMethod.POST)
-    public Result tableList(@RequestBody QueryTableFilterParams filter){
+    public Result tableList(@RequestBody PageQuery filter){
         Map<String, Object> result = new HashMap<>();
         try{
             PageRequest pageRequest = buildPageRequest(filter);

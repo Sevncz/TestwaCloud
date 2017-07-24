@@ -2,8 +2,8 @@ package com.testwa.distest.server.security.controller;
 
 import com.google.common.net.InetAddresses;
 import com.testwa.distest.server.mvc.model.User;
-import com.testwa.distest.server.mvc.model.message.Result;
-import com.testwa.distest.server.mvc.model.message.ResultCode;
+import com.testwa.distest.server.mvc.beans.Result;
+import com.testwa.distest.server.mvc.beans.ResultCode;
 import com.testwa.distest.server.security.JwtAuthenticationRequest;
 import com.testwa.distest.server.security.JwtTokenUtil;
 import com.testwa.distest.server.security.model.JwtUser;

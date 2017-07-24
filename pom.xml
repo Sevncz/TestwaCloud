@@ -87,7 +87,7 @@
                 <version>${socket.io-client.version}</version>
             </dependency>
 
-            <!-- grpc -->
+            <!-- rpcgrpc-->
             <dependency>
                 <groupId>io.grpc</groupId>
                 <artifactId>grpc-netty</artifactId>

@@ -1,11 +1,11 @@
 package com.testwa.distest.server.mvc.api;
 
-import com.testwa.distest.server.mvc.api.VO.*;
+import com.testwa.distest.server.mvc.beans.PageQuery;
+import com.testwa.distest.server.mvc.vo.*;
 import com.testwa.distest.server.mvc.model.*;
-import com.testwa.distest.server.mvc.model.params.QueryTableFilterParams;
 import com.testwa.distest.server.mvc.service.*;
-import com.testwa.distest.server.mvc.model.message.ResultCode;
-import com.testwa.distest.server.mvc.model.message.Result;
+import com.testwa.distest.server.mvc.beans.ResultCode;
+import com.testwa.distest.server.mvc.beans.Result;
 import io.swagger.annotations.Api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +44,7 @@ public class ReportController extends BaseController {
 
     @ResponseBody
     @RequestMapping(value = "/table", method= RequestMethod.POST)
-    public Result tableList(@RequestBody QueryTableFilterParams filter){
+    public Result tableList(@RequestBody PageQuery filter){
         Map<String, Object> result = new HashMap<>();
         try{
 

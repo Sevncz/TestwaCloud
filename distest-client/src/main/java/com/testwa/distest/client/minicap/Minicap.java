@@ -362,7 +362,7 @@ public class Minicap {
         }
 
         public void run() {
-            log.info("StartInitial run start, host{}, port{}", this.host, this.port);
+            log.info("StartInitial schedule start, host{}, port{}", this.host, this.port);
             try {
                 byte[] bytes = null;
                 int tryTime = 20;

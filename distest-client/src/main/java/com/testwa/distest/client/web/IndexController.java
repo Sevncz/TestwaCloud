@@ -66,7 +66,7 @@ public class IndexController {
             Map cmd = (Map)payload.get("command");
             if(cmd != null){
                 action = cmd.get("action") == null ?"" : (String)cmd.getOrDefault("action", "");
-                params = cmd.get("params") == null ?"" : (String)cmd.getOrDefault("params", "");
+                params = cmd.get("beans") == null ?"" : (String)cmd.getOrDefault("beans", "");
             }
         }
 
@@ -98,7 +98,7 @@ public class IndexController {
     @RequestMapping({ "/client/{deviceId}/{testcaselogId}/{prot}" })
     @ResponseBody
     public String start(@PathVariable("deviceId")String deviceId, @PathVariable("testcaselogId")Integer testcaselogId, @PathVariable("prot")Integer prot, HttpServletRequest request){
-        logger.info("start run py");
+        logger.info("start schedule py");
         return "ok";
     }
 

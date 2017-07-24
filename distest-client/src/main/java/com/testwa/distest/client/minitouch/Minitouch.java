@@ -198,7 +198,7 @@ public class Minitouch {
         }
 
         public void run() {
-            log.info("StartInitial run start, host{}, port{}", this.host, this.port);
+            log.info("StartInitial schedule start, host{}, port{}", this.host, this.port);
             int tryTime = 20;
             byte[] bytes = null;
             // 连接minicap启动的服务

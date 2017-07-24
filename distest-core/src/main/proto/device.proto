@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 option java_multiple_files = true;
-option java_package = "io.grpc.testwa.device";
+option java_package = "io.rpc.testwa.device";
 option java_outer_classname = "DeviceProto";
 option objc_class_prefix = "HLW";
 

@@ -1,13 +1,13 @@
 package com.testwa.distest.server.mvc.api;
 
+import com.testwa.distest.server.mvc.beans.PageQuery;
 import com.testwa.distest.server.mvc.model.Project;
 import com.testwa.distest.server.mvc.model.User;
-import com.testwa.distest.server.mvc.model.params.QueryTableFilterParams;
 import com.testwa.distest.server.mvc.service.ProjectService;
 import com.testwa.distest.server.mvc.service.UserService;
-import com.testwa.distest.server.mvc.api.VO.ProjectVO;
-import com.testwa.distest.server.mvc.model.message.ResultCode;
-import com.testwa.distest.server.mvc.model.message.Result;
+import com.testwa.distest.server.mvc.vo.ProjectVO;
+import com.testwa.distest.server.mvc.beans.ResultCode;
+import com.testwa.distest.server.mvc.beans.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -28,7 +28,7 @@ import java.util.*;
  */
 @Api("项目相关api")
 @RestController
-@RequestMapping(path = "project", produces={"application/json"})
+@RequestMapping(path = "/api/project", produces={"application/json"})
 public class ProjectController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(ProjectController.class);
     @Autowired
@@ -36,24 +36,12 @@ public class ProjectController extends BaseController {
     @Autowired
     private UserService userService;
 
-    @ResponseBody
-    @RequestMapping(method= RequestMethod.GET)
-    Result index(HttpServletRequest req) {
-        Result<String> r = new Result<>();
-        r.setCode(ResultCode.SUCCESS.getValue());
-        r.setData("Welcome, this is project index.");
-        r.setMessage("index");
-        r.setUrl(req.getRequestURL().toString());
-        return ok(r);
-    }
 
-    @ApiOperation(value="生成一个项目", notes="")
+    @ApiOperation(value="创建项目", notes="")
     @ResponseBody
     @RequestMapping(value = "/save", method= RequestMethod.POST)
-    public Result save(@ApiParam(required=true, name="params", value="{'name': ''}")
-                                       @RequestBody Map<String, String> projectMap,
-                                       @ApiIgnore HttpServletRequest req){
-        Map<String, Object> result = new HashMap<>();
+    public Result save(@ApiParam(required=true, name="beans", value="{'name': ''}")
+                                       @RequestBody Map<String, String> projectMap){
         Project project = new Project();
         String name = projectMap.getOrDefault("name", "");
         if(StringUtils.isBlank(name)){
@@ -66,14 +54,14 @@ public class ProjectController extends BaseController {
         project.setUserName(user.getUsername());
         projectService.save(project);
 
-        return ok(result);
+        return ok();
     }
 
 
-    @ApiOperation(value="删除一个项目", notes="")
+    @ApiOperation(value="删除项目", notes="")
     @ResponseBody
     @RequestMapping(value = "/delete", method= RequestMethod.POST)
-    public Result delete(@ApiParam(required=true, name="params", value="{'ids': [1,2,3,4]}")
+    public Result delete(@ApiParam(required=true, name="beans", value="{'ids': [1,2,3,4]}")
                                                  @RequestBody Map<String, Object> params){
         List<String> ids;
         try {
@@ -92,16 +80,13 @@ public class ProjectController extends BaseController {
 
     @ApiOperation(value="获取项目列表，分页")
     @ResponseBody
-    @RequestMapping(value = "/table", method= RequestMethod.POST)
-    public Result tableList(@RequestBody QueryTableFilterParams filter){
+    @RequestMapping(value = "/page", method= RequestMethod.POST)
+    public Result page(@RequestBody PageQuery query){
         Map<String, Object> result = new HashMap<>();
         try{
 
-            PageRequest pageRequest = buildPageRequest(filter);
-            // contains, startwith, endwith, in
-//            List filters = (List) params.get("filters");
-            List filters = filter.filters;
-//            filterDisable(filters);
+            PageRequest pageRequest = buildPageRequest(query);
+            List filters = query.filters;
             List<Project> projectsOfUser = projectService.findByUser(getCurrentUsername());
             List<String> projectIds = new ArrayList<>();
             projectsOfUser.forEach(item -> projectIds.add(item.getId()));
@@ -118,7 +103,7 @@ public class ProjectController extends BaseController {
 
             return ok(result);
         }catch (Exception e){
-            log.error(String.format("Get project table error, %s", filter.toString()), e);
+            log.error(String.format("Get project table error, %s", query.toString()), e);
             return fail(ResultCode.SERVER_ERROR.getValue(), "服务器错误");
         }
 
@@ -127,10 +112,6 @@ public class ProjectController extends BaseController {
     @ResponseBody
     @RequestMapping(value = "/list", method= RequestMethod.GET)
     public Result list(){
-
-
-        Map<String, Object> result = new HashMap<>();
-
         List filters = new ArrayList<>();
         List<Project> projectsOfUser = projectService.findByUser(getCurrentUsername());
         List<String> projectIds = new ArrayList<>();
@@ -144,14 +125,13 @@ public class ProjectController extends BaseController {
             map.put("id", a.getId());
             maps.add(map);
         }
-        result.put("records", maps);
-        return ok(result);
+        return ok(maps);
     }
 
 
     @ResponseBody
-    @RequestMapping(value = "/member/add", method= RequestMethod.POST)
-    public Result addMember(@ApiParam(required=true, name="params", value="{'projectId': '', 'username': ''}") @RequestBody Map<String, Object> params){
+    @RequestMapping(value = "/collaboration/invite", method= RequestMethod.POST)
+    public Result addMember(@ApiParam(required=true, name="beans", value="{'projectId': '', 'username': ''}") @RequestBody Map<String, Object> params){
         String projectId = (String) params.getOrDefault("projectId", "");
         String username = (String) params.getOrDefault("username", "");
         if(StringUtils.isBlank(projectId) || StringUtils.isBlank(username)){
@@ -176,8 +156,8 @@ public class ProjectController extends BaseController {
 
 
     @ResponseBody
-    @RequestMapping(value = "/member/del", method= RequestMethod.POST)
-    public Result delMember(@ApiParam(required=true, name="params", value="{'projectId': '', 'username': ''}")
+    @RequestMapping(value = "/collaboration/remove", method= RequestMethod.POST)
+    public Result delMember(@ApiParam(required=true, name="beans", value="{'projectId': '', 'username': ''}")
                                                     @RequestBody Map<String, Object> params){
         String projectId = (String) params.getOrDefault("projectId", "");
         String username = (String) params.getOrDefault("username", "");
@@ -205,17 +185,15 @@ public class ProjectController extends BaseController {
 
 
     @ResponseBody
-    @RequestMapping(value = "/members/{projectId}", method= RequestMethod.GET)
+    @RequestMapping(value = "/collaborators/{projectId}", method= RequestMethod.GET)
     public Result members(@PathVariable String projectId){
-        Map<String, Object> result = new HashMap<>();
         Project project = projectService.getProjectById(projectId);
         if(project == null){
             return fail(ResultCode.PARAM_ERROR.getValue(), "项目不存在");
         }
 
         List<String> usernames = project.getMembers();
-        result.put("records", usernames);
-        return ok(result);
+        return ok(usernames);
     }
 
 }
