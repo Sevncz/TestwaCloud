@@ -10,7 +10,7 @@ import com.testwa.distest.client.service.HttpService;
 import com.testwa.distest.client.task.Testcase;
 import com.testwa.distest.client.task.TestcaseTaskCaches;
 import com.testwa.distest.client.util.Http;
-import io.grpc.testwa.testcase.RunningLogRequest;
+import io.rpc.testwa.testcase.RunningLogRequest;
 import io.socket.client.Socket;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.remote.RemoteLogs;

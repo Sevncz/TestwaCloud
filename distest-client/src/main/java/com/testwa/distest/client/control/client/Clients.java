@@ -2,7 +2,7 @@ package com.testwa.distest.client.control.client;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import io.grpc.testwa.device.DeviceServiceGrpc;
+import io.rpc.testwa.device.DeviceServiceGrpc;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -18,11 +18,9 @@
     <url>http://www.testwa.com/</url>
 
     <modules>
-        <module>distest-base</module>
         <module>distest-core</module>
         <module>distest-client</module>
         <module>distest-web</module>
-        <module>distest-base</module>
     </modules>
 
     <properties>
@@ -51,7 +49,7 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.testwa.distest</groupId>
+                <groupId>com.testwa</groupId>
                 <artifactId>distest-core</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
@@ -252,10 +250,4 @@
         </dependencies>
     </dependencyManagement>
 
-    <repositories>
-        <repository>
-            <id>michaelklishin</id>
-            <url>https://dl.bintray.com/michaelklishin/maven/</url>
-        </repository>
-    </repositories>
 </project>

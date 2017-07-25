@@ -9,7 +9,7 @@ import com.googlecode.protobuf.format.JsonFormat;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.rpc.proto.Agent;
 import com.testwa.distest.server.mvc.model.ProcedureInfo;
-import io.grpc.testwa.testcase.RunningLogRequest;
+import io.rpc.testwa.testcase.RunningLogRequest;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;

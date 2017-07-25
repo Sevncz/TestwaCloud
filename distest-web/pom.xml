@@ -24,7 +24,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.testwa.distest</groupId>
+			<groupId>com.testwa</groupId>
 			<artifactId>distest-core</artifactId>
 		</dependency>
 

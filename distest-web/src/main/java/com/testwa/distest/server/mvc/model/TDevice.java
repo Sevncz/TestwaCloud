@@ -1,6 +1,6 @@
 package com.testwa.distest.server.mvc.model;
 
-import io.grpc.testwa.device.Device;
+import io.rpc.testwa.device.Device;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;

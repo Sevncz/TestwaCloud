@@ -1,6 +1,6 @@
 package com.testwa.distest.server.mvc.model;
 
-import io.grpc.testwa.testcase.RunningLogRequest;
+import io.rpc.testwa.testcase.RunningLogRequest;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
