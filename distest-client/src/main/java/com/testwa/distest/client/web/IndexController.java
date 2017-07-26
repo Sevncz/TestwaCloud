@@ -89,7 +89,7 @@ public class IndexController {
                 .setTimestamp(TimeUtil.getTimestampLong())
                 .setLogcatFile(logcatFileName)
                 .setDescription("")
-                .setUserId(UserInfo.userId)
+//                .setUserId(UserInfo.userId)
                 .build();
         MainSocket.getSocket().emit(WebsocketEvent.FB_RUNNGING_LOG, fb.toByteArray());
         return "ok";

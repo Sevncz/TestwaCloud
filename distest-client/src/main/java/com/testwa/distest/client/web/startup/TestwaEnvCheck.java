@@ -72,10 +72,8 @@ public class TestwaEnvCheck implements CommandLineRunner {
                         if(resultCode == 0){
                             JSONObject data = (JSONObject) ((JSONObject) result).get("data");
                             String token = data.getString("access_token");
-                            String userId = data.getString("userId");
 
                             UserInfo.token = token;
-                            UserInfo.userId = userId;
 
                             String url = env.getProperty("agent.socket.url");
                             MainSocket.connect(url, token);
@@ -106,7 +104,7 @@ public class TestwaEnvCheck implements CommandLineRunner {
 
             }
         };
-        httpService.postJson(String.format("%s/account/purelogin", agentWebUrl), new User(username, password), cb);
+        httpService.postJson(String.format("%s/auth/login", agentWebUrl), new User(username, password), cb);
 //        User userData = new User(username, password)
 //        Http.post(String.format("%s/account/purelogin", agentWebUrl), 60000, )
         return true;
