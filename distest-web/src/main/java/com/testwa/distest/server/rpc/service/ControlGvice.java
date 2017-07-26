@@ -4,7 +4,7 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.testwa.distest.server.LogInterceptor;
 import com.testwa.distest.server.rpc.GRpcService;
 import io.grpc.stub.StreamObserver;
-import io.grpc.testwa.device.*;
+import io.rpc.testwa.device.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

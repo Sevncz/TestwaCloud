@@ -9,7 +9,6 @@ import com.testwa.distest.client.control.client.RemoteClient;
 import com.testwa.distest.client.control.client.boost.MessageCallback;
 import com.testwa.distest.client.control.client.boost.MessageException;
 import com.testwa.distest.client.model.UserInfo;
-import io.grpc.testwa.device.RemoteClientStartRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;

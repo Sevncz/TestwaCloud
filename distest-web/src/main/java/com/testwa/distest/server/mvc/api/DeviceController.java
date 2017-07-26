@@ -13,7 +13,7 @@ import com.testwa.distest.server.mvc.service.UserDeviceHisService;
 import com.testwa.distest.server.mvc.service.UserService;
 import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
 import com.testwa.distest.server.mvc.vo.DeviceOwnerTableVO;
-import io.grpc.testwa.device.*;
+import io.rpc.testwa.device.*;
 import io.swagger.annotations.Api;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

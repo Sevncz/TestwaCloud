@@ -11,8 +11,8 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
-    <groupId>com.testwa.distest</groupId>
-    <artifactId>distest-base</artifactId>
+    <groupId>com.testwa</groupId>
+    <artifactId>distest</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <url>http://www.testwa.com/</url>
@@ -42,12 +42,14 @@
         <fastjson.version>1.2.31</fastjson.version>
         <ffmpeg.version>0.6.1</ffmpeg.version>
         <com.google.guava.version>22.0</com.google.guava.version>
+        <mybatis-spring-boot>1.2.0</mybatis-spring-boot>
+        <mysql-connector>5.1.39</mysql-connector>
     </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.testwa.distest</groupId>
+                <groupId>com.testwa</groupId>
                 <artifactId>distest-core</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
@@ -222,14 +224,30 @@
                 <artifactId>guava</artifactId>
                 <version>${com.google.guava.version}</version>
             </dependency>
+            <!-- MySQL 连接驱动依赖 -->
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql-connector}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mybatis.spring.boot</groupId>
+                <artifactId>mybatis-spring-boot-starter</artifactId>
+                <version>${mybatis-spring-boot}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-pool2</artifactId>
+                <version>2.4.2</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>1.9.2</version>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>
 
-    <repositories>
-        <repository>
-            <id>michaelklishin</id>
-            <url>https://dl.bintray.com/michaelklishin/maven/</url>
-        </repository>
-    </repositories>
 </project>

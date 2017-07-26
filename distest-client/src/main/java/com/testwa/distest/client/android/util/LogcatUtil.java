@@ -4,7 +4,7 @@ import com.google.protobuf.ByteString;
 import com.testwa.core.service.AdbDriverService;
 import com.testwa.core.service.LogcatServiceBuilder;
 import com.testwa.distest.client.control.client.Clients;
-import io.grpc.testwa.device.LogcatRequest;
+import io.rpc.testwa.device.LogcatRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

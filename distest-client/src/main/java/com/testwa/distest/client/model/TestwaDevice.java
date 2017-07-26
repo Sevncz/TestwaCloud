@@ -1,7 +1,7 @@
 package com.testwa.distest.client.model;
 
 import com.testwa.distest.client.rpc.proto.Agent;
-import io.grpc.testwa.device.Device;
+import io.rpc.testwa.device.Device;
 import org.apache.commons.lang3.StringUtils;
 
 /**
