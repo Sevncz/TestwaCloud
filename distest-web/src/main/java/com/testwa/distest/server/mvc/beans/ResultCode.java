@@ -12,17 +12,19 @@ package com.testwa.distest.server.mvc.beans;
  */
 public enum ResultCode {
     SUCCESS(0),
+
     PARAM_ERROR(1),
-    ILLEGAL_OP(1000), // 非法操作，通常是进行了不被授权的操作
-    SERVER_ERROR(1001), // 服务器内部错误
-    NO_LOGIN(1002), // 没有登录
-    ACCOUNT_FREEZE(1001), //账户冻结
+    ILLEGAL_OP(100), // 非法操作，通常是进行了不被授权的操作
+    NO_LOGIN(101), // 没有登录信息
+    ACCOUNT_FREEZE(102), //账户冻结
+
     INVALID_PARAM(-1), //无效参数
     NO_AUTH(-2), //无API访问权限。
     INVALID_IP(-3), //IP没有权限。
     OVERLOCK(-4), //超过访问频率。
     ILLEGAL_TOKEN(-5), //非法token。
     NO_API(-6), //API不存在。
+    SERVER_ERROR(-500), // 服务器内部错误
     ;
 
     private int value;

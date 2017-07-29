@@ -50,27 +50,27 @@ public class AccountController extends BaseController{
         if(StringUtils.isBlank(register.password)
                 || StringUtils.isBlank(register.username)
                 || StringUtils.isBlank(register.email)){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "用户名密码不能为空");
+            return fail(ResultCode.PARAM_ERROR, "用户名密码不能为空");
         }
 
         // 校验用户名
         if(!Validator.isUsername(register.username)){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "用户名格式不正确");
+            return fail(ResultCode.PARAM_ERROR, "用户名格式不正确");
         }
 
         // 校验邮箱
         if(!Validator.isEmail(register.email)){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "邮箱格式不正确");
+            return fail(ResultCode.PARAM_ERROR, "邮箱格式不正确");
         }
 
         User emailUser = userService.findByEmail(register.email);
         if(emailUser != null){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "该邮箱已存在");
+            return fail(ResultCode.PARAM_ERROR, "该邮箱已存在");
         }
 
         User usernameUser = userService.findByUsername(register.username);
         if(usernameUser != null){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "该用户名已存在");
+            return fail(ResultCode.PARAM_ERROR, "该用户名已存在");
         }
 
         User awesomeUser = new User();
@@ -128,11 +128,11 @@ public class AccountController extends BaseController{
     public Result checkUsername(@PathVariable String username){
         // 校验用户名
         if(!Validator.isUsername(username)){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "用户名格式不正确");
+            return fail(ResultCode.PARAM_ERROR, "用户名格式不正确");
         }
         User usernameUser = userService.findByUsername(username);
         if(usernameUser != null){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "该用户名已存在");
+            return fail(ResultCode.PARAM_ERROR, "该用户名已存在");
         }
         return ok();
     }
@@ -141,11 +141,11 @@ public class AccountController extends BaseController{
     public Result checkEmail(@PathVariable String email){
         // 校验邮箱
         if(!Validator.isEmail(email)){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "邮箱格式不正确");
+            return fail(ResultCode.PARAM_ERROR, "邮箱格式不正确");
         }
         User usernameUser = userService.findByEmail(email);
         if(usernameUser != null){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "该邮箱已存在");
+            return fail(ResultCode.PARAM_ERROR, "该邮箱已存在");
         }
         return ok();
     }

@@ -16,9 +16,10 @@ import java.util.List;
 public class User {
     @Id
     private String id;
+    @Indexed(unique = true)
     @Size(min = 4, max = 50)
     private String email;
-    @Indexed(unique = true)
+    @Indexed
     @Size(min = 11, max = 11)
     private String phone;
     @Indexed(unique = true)

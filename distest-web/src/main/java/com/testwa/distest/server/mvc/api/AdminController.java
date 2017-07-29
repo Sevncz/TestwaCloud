@@ -51,27 +51,27 @@ public class AdminController extends BaseController{
         if(StringUtils.isBlank(register.password)
                 || StringUtils.isBlank(register.username)
                 || StringUtils.isBlank(register.email)){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "用户名密码不能为空");
+            return fail(ResultCode.PARAM_ERROR, "用户名密码不能为空");
         }
 
         // 校验用户名
         if(!Validator.isUsername(register.username)){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "用户名格式不正确");
+            return fail(ResultCode.PARAM_ERROR, "用户名格式不正确");
         }
 
         // 校验邮箱
         if(!Validator.isEmail(register.email)){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "邮箱格式不正确");
+            return fail(ResultCode.PARAM_ERROR, "邮箱格式不正确");
         }
 
         User emailUser = userService.findByEmail(register.email);
         if(emailUser != null){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "该邮箱已存在");
+            return fail(ResultCode.PARAM_ERROR, "该邮箱已存在");
         }
 
         User usernameUser = userService.findByUsername(register.username);
         if(usernameUser != null){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "该用户名已存在");
+            return fail(ResultCode.PARAM_ERROR, "该用户名已存在");
         }
 
         User awesomeUser = new User();
@@ -95,11 +95,11 @@ public class AdminController extends BaseController{
         String userId = (String) params.getOrDefault("userId", "");
         String scope = (String) params.getOrDefault("scope", "");
         if(StringUtils.isBlank(userId) || scope == null){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "参数不能为空");
+            return fail(ResultCode.PARAM_ERROR, "参数不能为空");
         }
         User user = userService.findById(userId);
         if(user == null){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "用户不存在");
+            return fail(ResultCode.PARAM_ERROR, "用户不存在");
         }
         Result result = setScopeForUser(scope, user);
         if (result != null) return result;
@@ -124,7 +124,7 @@ public class AdminController extends BaseController{
                     break;
             }
         }else{
-            return fail(ResultCode.PARAM_ERROR.getValue(), "Scope参数错误");
+            return fail(ResultCode.PARAM_ERROR, "Scope参数错误");
         }
         return null;
     }

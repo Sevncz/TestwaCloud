@@ -59,23 +59,23 @@ public class AppController extends BaseController{
                 || StringUtils.isBlank(version)
                 || StringUtils.isBlank(projectId)){
             log.error("appId: {}, version: {}, projectId: {}", appId, version, projectId);
-            return fail(ResultCode.PARAM_ERROR.getValue(), "参数错误");
+            return fail(ResultCode.PARAM_ERROR, "参数错误");
         }
         App app = appService.getAppById(appId);
         if(app == null){
             log.error("AppId get app was null", appId);
-            return fail(ResultCode.SERVER_ERROR.getValue(), "App找不到");
+            return fail(ResultCode.SERVER_ERROR, "App找不到");
         }
         Project project = projectService.getProjectById(projectId);
         if(project == null){
             log.error("ProjectId get project was null", projectId);
-            return fail(ResultCode.SERVER_ERROR.getValue(), "项目id错误,找不到对应的项目");
+            return fail(ResultCode.SERVER_ERROR, "项目id错误,找不到对应的项目");
         }
 
         User currentUser = userService.findByUsername(getCurrentUsername());
 
         app.setProjectId(projectId);
-        app.setProjectName(project.getName());
+        app.setProjectName(project.getProjectName());
         app.setVersion(version);
         app.setUserId(currentUser.getId());
         app.setUsername(currentUser.getUsername());
@@ -90,7 +90,7 @@ public class AppController extends BaseController{
     public Result upload(@RequestParam("file") MultipartFile uploadfile){
         Map<String, String> result = new HashMap<>();
         if(uploadfile.isEmpty()){
-            return fail(ResultCode.SERVER_ERROR.getValue(), "文件是空");
+            return fail(ResultCode.SERVER_ERROR, "文件是空");
         }
         try {
             String filename = uploadfile.getOriginalFilename();
@@ -115,7 +115,7 @@ public class AppController extends BaseController{
         }
         catch (Exception e) {
             log.error(String.format("upload app error %s", uploadfile.getSize()), e);
-            return fail(ResultCode.SERVER_ERROR.getValue(), "服务器异常");
+            return fail(ResultCode.SERVER_ERROR, "服务器异常");
         }
     }
 
@@ -128,7 +128,7 @@ public class AppController extends BaseController{
         try {
             ids = cast(params.getOrDefault("ids", null));
         }catch (Exception e){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "ids参数格式不正确");
+            return fail(ResultCode.PARAM_ERROR, "ids参数格式不正确");
         }
         if (ids == null) {
             return ok();
@@ -147,7 +147,7 @@ public class AppController extends BaseController{
         try{
             PageRequest pageRequest = buildPageRequest(filter);
             // contains, startwith, endwith
-            List filters = filter.filters;
+            List filters = new ArrayList();
 //            filterDisable(filters);
             User user = userService.findByUsername(getCurrentUsername());
             List<Project> projectsOfUser = projectService.findByUser(user);
@@ -165,7 +165,7 @@ public class AppController extends BaseController{
             return ok(result);
         }catch (Exception e){
             log.error(String.format("Get scripts table error, %s", filter.toString()), e);
-            return fail(ResultCode.SERVER_ERROR.getValue(), e.getMessage());
+            return fail(ResultCode.SERVER_ERROR, e.getMessage());
         }
 
     }

@@ -44,7 +44,7 @@ public class ScriptVO {
             this.modifyUserName = script.getModifyUserName();
         }
 
-        this.porjectName = project.getName();
+        this.porjectName = project.getProjectName();
 
     }
 

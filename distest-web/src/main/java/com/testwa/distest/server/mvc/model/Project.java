@@ -1,31 +1,27 @@
 package com.testwa.distest.server.mvc.model;
 
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Date;
-import java.util.List;
-
 /**
+ * 项目表
  * Created by wen on 16/8/30.
  */
 @Document(collection = "t_project")
 public class Project {
     @Id
     private String id;
-    private String name;
-    @CreatedDate
-    private Date createDate;
-    // owner
-    private String userId;
-    private String userName;
-
-    private List<String> members;
-
+    @Indexed
+    private String projectName;
+    private Long createTime;
+    private Long modifyTime;
     private String description;
-    private Boolean disable = true;
-    private Date modifyDate;
+
+    // owner
+    @Indexed
+    private String userId;
+    private String username;
 
     public String getId() {
         return id;
@@ -35,36 +31,28 @@ public class Project {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getProjectName() {
+        return projectName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
     }
 
-    public String getUserId() {
-        return userId;
+    public Long getCreateTime() {
+        return createTime;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setCreateTime(Long createTime) {
+        this.createTime = createTime;
     }
 
-    public Date getCreateDate() {
-        return createDate;
+    public Long getModifyTime() {
+        return modifyTime;
     }
 
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setModifyTime(Long modifyTime) {
+        this.modifyTime = modifyTime;
     }
 
     public String getDescription() {
@@ -75,27 +63,19 @@ public class Project {
         this.description = description;
     }
 
-    public Boolean getDisable() {
-        return disable;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setDisable(Boolean disable) {
-        this.disable = disable;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
-    public List<String> getMembers() {
-        return members;
+    public String getUsername() {
+        return username;
     }
 
-    public void setMembers(List<String> members) {
-        this.members = members;
-    }
-
-    public Date getModifyDate() {
-        return modifyDate;
-    }
-
-    public void setModifyDate(Date modifyDate) {
-        this.modifyDate = modifyDate;
+    public void setUsername(String username) {
+        this.username = username;
     }
 }
