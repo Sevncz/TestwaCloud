@@ -1,6 +1,5 @@
 package com.testwa.distest.server.security.service;
 
-
 public class JwtAuthenticationResponse {
 
     private final String accessToken;
@@ -13,15 +12,15 @@ public class JwtAuthenticationResponse {
         this.expiresIn = expiresIn;
     }
 
-    public String getAccess_token() {
+    public String getAccessToken() {
         return accessToken;
     }
 
-    public String getRefresh_token() {
+    public String getRefreshToken() {
         return refreshToken;
     }
 
-    public long getExpires_in() {
+    public long getExpiresIn() {
         return expiresIn;
     }
 }
