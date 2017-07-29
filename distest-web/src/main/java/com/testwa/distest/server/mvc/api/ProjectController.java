@@ -269,4 +269,28 @@ public class ProjectController extends BaseController {
         return ok(vo);
     }
 
+
+
+    @ResponseBody
+    @RequestMapping(value = "/member/query", method= RequestMethod.GET)
+    public Result queryMember(@RequestParam(value = "projectId")String projectId,
+                              @RequestParam(value = "memberName")String memberName){
+        Project project = projectService.getProjectById(projectId);
+        if(project == null){
+            log.error("project not found, {}", projectId);
+            return fail(ResultCode.PARAM_ERROR, "项目不存在");
+        }
+        Map<String, List<User>> users = projectService.getMembers(projectId, memberName);
+        Map<String, List<UserVO>> vo = new HashMap<>();
+
+        for(String key : users.keySet()){
+            List<UserVO> v = new ArrayList<>();
+            for(User u : users.get(key)){
+                v.add(new UserVO(u));
+            }
+            vo.put(key, v);
+        }
+        return ok(vo);
+    }
+
 }

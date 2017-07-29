@@ -23,7 +23,8 @@ public enum ResultCode {
     INVALID_IP(-3), //IP没有权限。
     OVERLOCK(-4), //超过访问频率。
     ILLEGAL_TOKEN(-5), //非法token。
-    NO_API(-6), //API不存在。
+    EXPRIED_TOKEN(-6), //token过期。
+    NO_API(-10), //API不存在。
     SERVER_ERROR(-500), // 服务器内部错误
     ;
 

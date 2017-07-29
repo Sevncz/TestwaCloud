@@ -7,6 +7,7 @@ import com.testwa.distest.server.mvc.beans.ResultCode;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -33,18 +34,20 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setContentType("application/json");
         String token = request.getHeader(tokenHeader);
         Result<String> r = new Result<>();
-        try {
-            Jwts.parser()
-                    .setSigningKey(secret)
-                    .parseClaimsJws(token)
-                    .getBody();
-        } catch (ExpiredJwtException e) {
+        if(StringUtils.isNotEmpty(token)){
+            try {
+                Jwts.parser()
+                        .setSigningKey(secret)
+                        .parseClaimsJws(token)
+                        .getBody();
+            } catch (ExpiredJwtException e) {
 
-            r.setCode(ResultCode.EXPRIED_TOKEN.getValue());
-            r.setMessage("token已过期");
-            response.getWriter().println(JSON.toJSON(r));
-            response.getWriter().flush();
-            return;
+                r.setCode(ResultCode.EXPRIED_TOKEN.getValue());
+                r.setMessage("token已过期");
+                response.getWriter().println(JSON.toJSON(r));
+                response.getWriter().flush();
+                return;
+            }
         }
         r.setCode(ResultCode.ILLEGAL_TOKEN.getValue());
         r.setMessage("非法的token");

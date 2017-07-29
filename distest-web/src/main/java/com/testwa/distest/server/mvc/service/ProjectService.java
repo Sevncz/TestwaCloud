@@ -16,10 +16,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -196,5 +193,30 @@ public class ProjectService extends BaseService {
         query.addCriteria(Criteria.where("memberId").is(userId));
 
         return projectMemberRepository.find(query);
+    }
+
+    public Map<String, List<User>> getMembers(String projectId, String memberName) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("username").regex(memberName));
+        List<User> users = userRepository.find(query);
+
+        Query query1 = new Query();
+        query1.addCriteria(Criteria.where("memberId").in(users.stream().map(s -> s.getId()).collect(Collectors.toList())));
+        query1.addCriteria(Criteria.where("projectId").is(projectId));
+        List<ProjectMember> pms = projectMemberRepository.find(query1);
+
+        List<User> projectUser = new ArrayList<>();
+        for(User u : users){
+            for(ProjectMember p : pms){
+                if(u.getId().equals(p.getMemberId())){
+                    projectUser.add(u);
+                }
+            }
+        }
+        users.removeAll(projectUser);
+        Map<String, List<User>> result = new HashMap<>();
+        result.put("inproject", projectUser);
+        result.put("unproject", users);
+        return result;
     }
 }
