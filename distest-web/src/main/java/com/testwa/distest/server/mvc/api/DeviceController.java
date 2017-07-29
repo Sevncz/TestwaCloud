@@ -113,7 +113,7 @@ public class DeviceController extends BaseController{
         try{
             PageRequest pageRequest = buildPageRequest(filter);
             // contains, startwith, endwith
-            List filters = filter.filters;
+            List filters = new ArrayList();
             if(filters == null){
                 filters = new ArrayList<>();
             }
@@ -128,7 +128,7 @@ public class DeviceController extends BaseController{
             return ok(result);
         }catch (Exception e){
             log.error(String.format("Get devices table error, %s", filter.toString()), e);
-            return fail(ResultCode.SERVER_ERROR.getValue(), e.getMessage());
+            return fail(ResultCode.SERVER_ERROR, e.getMessage());
         }
 
     }
@@ -148,7 +148,7 @@ public class DeviceController extends BaseController{
             User currentUser = userService.findByUsername(getCurrentUsername());
             PageRequest pageRequest = buildPageRequest(query);
             // contains, startwith, endwith
-            List filters = query.filters;
+            List filters = new ArrayList();
             if(filters == null){
                 filters = new ArrayList<>();
             }
@@ -165,7 +165,7 @@ public class DeviceController extends BaseController{
             return ok(new PageResult(buildDeviceOwnerTableVO(userDevicePage), userDevicePage.getTotalElements()));
         }catch (Exception e){
             log.error(String.format("Get devices table error, %s", query.toString()), e);
-            return fail(ResultCode.SERVER_ERROR.getValue(), e.getMessage());
+            return fail(ResultCode.SERVER_ERROR, e.getMessage());
         }
 
     }
@@ -185,7 +185,7 @@ public class DeviceController extends BaseController{
             User currentUser = userService.findByUsername(getCurrentUsername());
             PageRequest pageRequest = buildPageRequest(filter);
             // contains, startwith, endwith
-            List filters = filter.filters;
+            List filters = new ArrayList();
             if(filters == null){
                 filters = new ArrayList<>();
             }
@@ -207,7 +207,7 @@ public class DeviceController extends BaseController{
             return ok(new PageResult(buildDeviceOwnerTableVO(userDevicePage), userDevicePage.getTotalElements()));
         }catch (Exception e){
             log.error(String.format("Get devices table error, %s", filter.toString()), e);
-            return fail(ResultCode.SERVER_ERROR.getValue(), e.getMessage());
+            return fail(ResultCode.SERVER_ERROR, e.getMessage());
         }
 
     }
@@ -311,7 +311,7 @@ public class DeviceController extends BaseController{
     public Result showScreenStart(@PathVariable String deviceId){
         String sessionId = remoteClientService.getMainSessionByDeviceId(deviceId);
         if(StringUtils.isBlank(sessionId)){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "sessionId not found");
+            return fail(ResultCode.PARAM_ERROR, "sessionId not found");
         }
         SocketIOClient client = server.getClient(UUID.fromString(sessionId));
         client.sendEvent(Command.Schem.OPEN.getSchemString(), deviceId);
@@ -324,7 +324,7 @@ public class DeviceController extends BaseController{
     public Result showScreenStop(@PathVariable String deviceId){
         String sessionId = remoteClientService.getMainSessionByDeviceId(deviceId);
         if(StringUtils.isBlank(sessionId)){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "sessionId not found");
+            return fail(ResultCode.PARAM_ERROR, "sessionId not found");
         }
         SocketIOClient client = server.getClient(UUID.fromString(sessionId));
         ScreenCaptureEndRequest request = ScreenCaptureEndRequest.newBuilder()
@@ -340,7 +340,7 @@ public class DeviceController extends BaseController{
     public Result showLogcatStart(@PathVariable String deviceId){
         String sessionId = remoteClientService.getMainSessionByDeviceId(deviceId);
         if(StringUtils.isBlank(sessionId)){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "sessionId not found");
+            return fail(ResultCode.PARAM_ERROR, "sessionId not found");
         }
         SocketIOClient client = server.getClient(UUID.fromString(sessionId));
         LogcatStartRequest request = LogcatStartRequest.newBuilder()
@@ -359,7 +359,7 @@ public class DeviceController extends BaseController{
     public Result showLogcatStop(@PathVariable String deviceId){
         String sessionId = remoteClientService.getMainSessionByDeviceId(deviceId);
         if(StringUtils.isBlank(sessionId)){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "sessionId not found");
+            return fail(ResultCode.PARAM_ERROR, "sessionId not found");
         }
         SocketIOClient client = server.getClient(UUID.fromString(sessionId));
         LogcatEndRequest request = LogcatEndRequest.newBuilder()

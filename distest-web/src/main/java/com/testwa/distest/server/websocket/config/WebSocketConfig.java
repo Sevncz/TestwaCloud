@@ -1,12 +1,11 @@
-package com.testwa.distest.server.config;
+package com.testwa.distest.server.websocket.config;
 
-import com.corundumstudio.socketio.AuthorizationListener;
-import com.corundumstudio.socketio.HandshakeData;
 import com.corundumstudio.socketio.SocketIOServer;
+import com.testwa.distest.server.security.JwtTokenUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -20,6 +19,8 @@ public class WebSocketConfig {
 
     @Autowired
     private Environment env;
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
 
     @Bean
     public SocketIOServer socketIOServer() {
@@ -27,11 +28,10 @@ public class WebSocketConfig {
         config.setHostname(env.getProperty("wss.server.host"));
         config.setPort(Integer.parseInt(env.getProperty("wss.server.port")));
         config.setAuthorizationListener(handshakeData -> {
-            String username = handshakeData.getSingleUrlParam("username");
-            String password = handshakeData.getSingleUrlParam("password");
             String token = handshakeData.getSingleUrlParam("token");
-            log.info("websocket username: {}, password: {}, token: {}", username, password, token);
-            return true;
+            log.info("websocket token: {}", token);
+            String username = jwtTokenUtil.getUsernameFromToken(token);
+            return StringUtils.isNotEmpty(username);
         });
         return new SocketIOServer(config);
     }

@@ -109,4 +109,11 @@ public class UserService extends BaseService {
             }
         }
     }
+
+    public List<User> findByUserIds(List<String> userIds) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("id").in(userIds));
+        return userRepository.find(query);
+
+    }
 }
