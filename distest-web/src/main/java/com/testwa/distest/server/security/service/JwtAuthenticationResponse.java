@@ -1,27 +1,26 @@
 package com.testwa.distest.server.security.service;
 
-
 public class JwtAuthenticationResponse {
 
-    private final String access_token;
-    private final String refresh_token;
-    private final long expires_in;
+    private final String accessToken;
+    private final String refreshToken;
+    private final long expiresIn;
 
-    public JwtAuthenticationResponse(String access_token, String refresh_token, long expires_in) {
-        this.access_token = access_token;
-        this.refresh_token = refresh_token;
-        this.expires_in = expires_in;
+    public JwtAuthenticationResponse(String accessToken, String refreshToken, long expiresIn) {
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+        this.expiresIn = expiresIn;
     }
 
-    public String getAccess_token() {
-        return access_token;
+    public String getAccessToken() {
+        return accessToken;
     }
 
-    public String getRefresh_token() {
-        return refresh_token;
+    public String getRefreshToken() {
+        return refreshToken;
     }
 
-    public long getExpires_in() {
-        return expires_in;
+    public long getExpiresIn() {
+        return expiresIn;
     }
 }

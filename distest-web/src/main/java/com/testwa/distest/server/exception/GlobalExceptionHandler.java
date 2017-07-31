@@ -23,6 +23,7 @@ class GlobalExceptionHandler {
         r.setData("Some error in server.");
         r.setMessage(e.getMessage());
         r.setUrl(req.getRequestURL().toString());
+
         return r;
     }
 

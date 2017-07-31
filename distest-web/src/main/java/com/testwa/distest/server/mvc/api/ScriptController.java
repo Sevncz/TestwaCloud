@@ -61,17 +61,17 @@ public class ScriptController extends BaseController{
         String id = params.getOrDefault("id", "");
         if(StringUtils.isBlank(appId)
                 || StringUtils.isBlank(id)){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "参数错误");
+            return fail(ResultCode.PARAM_ERROR, "参数错误");
         }
         Script script = scriptService.getScriptById(id);
         if(script == null){
             log.error("ScriptId get script was null", id);
-            return fail(ResultCode.PARAM_ERROR.getValue(),"ScriptId找不到");
+            return fail(ResultCode.PARAM_ERROR,"ScriptId找不到");
         }
         App app = appService.getAppById(appId);
         if(app == null){
             log.error("AppId get app was null", appId);
-            return fail(ResultCode.PARAM_ERROR.getValue(),"app不存在");
+            return fail(ResultCode.PARAM_ERROR,"app不存在");
         }
         User user = userService.findByUsername(getCurrentUsername());
         script.setAppId(appId);
@@ -90,7 +90,7 @@ public class ScriptController extends BaseController{
     public Result upload(@RequestParam("file") MultipartFile uploadfile){
         Map<String, String> result = new HashMap<>();
         if(uploadfile.isEmpty()){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "文件为空");
+            return fail(ResultCode.PARAM_ERROR, "文件为空");
         }
 
         try {
@@ -112,7 +112,7 @@ public class ScriptController extends BaseController{
         }
         catch (Exception e) {
             log.error(String.format("upload app error %s", uploadfile.getSize()), e);
-            return fail(ResultCode.SERVER_ERROR.getValue(), e.getMessage());
+            return fail(ResultCode.SERVER_ERROR, e.getMessage());
         }
     }
 
@@ -125,7 +125,7 @@ public class ScriptController extends BaseController{
         try {
             ids = cast(params.getOrDefault("ids", null));
         }catch (Exception e){
-            return fail(ResultCode.PARAM_ERROR.getValue(), e.getMessage());
+            return fail(ResultCode.PARAM_ERROR, e.getMessage());
         }
         if (ids == null) {
             return ok();
@@ -145,7 +145,7 @@ public class ScriptController extends BaseController{
 
             PageRequest pageRequest = buildPageRequest(filter);
             // contains, startwith, endwith
-            List filters = filter.filters;
+            List filters = new ArrayList();
             filterDisable(filters);
             List<Project> projectsOfUser = projectService.findByUser(getCurrentUsername());
             List<String> projectIds = new ArrayList<>();
@@ -173,7 +173,7 @@ public class ScriptController extends BaseController{
             return ok(result);
         }catch (Exception e){
             log.error(String.format("Get scripts table error, %s", filter.toString()), e);
-            return fail(ResultCode.SERVER_ERROR.getValue(), e.getMessage());
+            return fail(ResultCode.SERVER_ERROR, e.getMessage());
         }
 
     }
@@ -190,7 +190,7 @@ public class ScriptController extends BaseController{
             Files.lines(Paths.get(path)).forEach(line -> sb.append(line).append("\n"));
         } catch (IOException e) {
             log.error("Read file error", e);
-            return fail(ResultCode.SERVER_ERROR.getValue(), e.getMessage());
+            return fail(ResultCode.SERVER_ERROR, e.getMessage());
         }
         return ok(sb.toString());
     }
@@ -206,7 +206,7 @@ public class ScriptController extends BaseController{
         String content = params.getOrDefault("content", "");
         if(StringUtils.isBlank(content)){
             log.error("Send content is null");
-            return fail(ResultCode.PARAM_ERROR.getValue(), "参数错误");
+            return fail(ResultCode.PARAM_ERROR, "参数错误");
         }
         try {
             content = replaceBlank(content);
@@ -225,7 +225,7 @@ public class ScriptController extends BaseController{
             script.setModifyUserId(user.getUsername());
         } catch (IOException e) {
             log.error("Write file error", e);
-            return fail(ResultCode.SERVER_ERROR.getValue(), e.getMessage());
+            return fail(ResultCode.SERVER_ERROR, e.getMessage());
         }
         return ok();
     }

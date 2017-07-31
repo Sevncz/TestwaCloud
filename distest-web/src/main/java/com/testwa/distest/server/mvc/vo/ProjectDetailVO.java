@@ -2,21 +2,25 @@ package com.testwa.distest.server.mvc.vo;
 
 import com.testwa.core.utils.TimeUtil;
 import com.testwa.distest.server.mvc.model.Project;
+import com.testwa.distest.server.mvc.model.ProjectMember;
+import com.testwa.distest.server.mvc.model.User;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by wen on 2016/11/19.
  */
-public class ProjectVO {
+public class ProjectDetailVO {
     private String id;
     private String projectName;
     private String createTime;
     private String owerId;
     private String owername;
     private String description;
+    private List<UserVO> projectMembers = new ArrayList<>();
 
-    public ProjectVO(Project project) {
+    public ProjectDetailVO(Project project, List<User> members) {
         this.id = project.getId();
         this.projectName = project.getProjectName();
         this.owerId = project.getUserId();
@@ -24,6 +28,9 @@ public class ProjectVO {
         this.description = project.getDescription();
         if(project.getCreateTime() != null){
             this.createTime = TimeUtil.formatTimeStamp(project.getCreateTime());
+        }
+        for(User u : members){
+            projectMembers.add(new UserVO(u));
         }
     }
 

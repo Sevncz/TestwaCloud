@@ -101,7 +101,7 @@ public class AuthenticationRestController extends BaseController{
                 return ok(new JwtAuthenticationResponse(access_token, token, access_token_expiration));
             }
         }
-        return fail(ResultCode.ILLEGAL_TOKEN.getValue(), "非法的token，无法刷新");
+        return fail(ResultCode.ILLEGAL_TOKEN, "非法的token，无法刷新");
 
     }
 

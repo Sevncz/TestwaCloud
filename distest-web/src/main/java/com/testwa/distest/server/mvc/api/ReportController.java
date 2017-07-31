@@ -50,7 +50,7 @@ public class ReportController extends BaseController {
 
             PageRequest pageRequest = buildPageRequest(filter);
             // contains, startwith, endwith
-            List filters = filter.filters;
+            List filters = new ArrayList();
 //            filterDisable(filters);
             List<Project> projectsOfUser = projectService.findByUser(getCurrentUsername());
             List<String> projectIds = new ArrayList<>();
@@ -87,7 +87,7 @@ public class ReportController extends BaseController {
             return ok(result);
         }catch (Exception e){
             log.error(String.format("Get project table error, %s", filter.toString()), e);
-            return fail(ResultCode.SERVER_ERROR.getValue(), e.getMessage());
+            return fail(ResultCode.SERVER_ERROR, e.getMessage());
         }
 
     }
@@ -100,7 +100,7 @@ public class ReportController extends BaseController {
         try {
             ids = cast(params.getOrDefault("ids", null));
         }catch (Exception e){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "ids参数格式不正确");
+            return fail(ResultCode.PARAM_ERROR, "ids参数格式不正确");
         }
         if (ids == null) {
             return ok();
@@ -134,7 +134,7 @@ public class ReportController extends BaseController {
             }
 
         }catch (ParseException e){
-            return fail(ResultCode.SERVER_ERROR.getValue(), "时间转换错误");
+            return fail(ResultCode.SERVER_ERROR, "时间转换错误");
         }
 
         Map<String, Object> result = new HashMap<>();
@@ -171,7 +171,7 @@ public class ReportController extends BaseController {
     public Result stepInfo(@PathVariable String stepId){
         ProcedureInfo stepInfo = procedureInfoService.getProcedureInfoById(stepId);
         if(stepInfo == null){
-            return fail(ResultCode.SERVER_ERROR.getValue(), "stepInfo not found");
+            return fail(ResultCode.SERVER_ERROR, "stepInfo not found");
         }
         ProcedureInfo lastStepInfo = procedureInfoService.findLastProcedureInfo(stepInfo);
 
@@ -191,12 +191,12 @@ public class ReportController extends BaseController {
     public Result stepInfoSummary(@PathVariable String detailId, @PathVariable String scriptId){
         ReportSdetail sdetail = reportSdetailService.findTestcaseSdetailByDetailIdScriptId(detailId, scriptId);
         if(sdetail == null){
-            return fail(ResultCode.SERVER_ERROR.getValue(), "sdetail not found");
+            return fail(ResultCode.SERVER_ERROR, "sdetail not found");
         }
 
         ReportDetail detail = reportDetailService.getTestcaseDetailById(detailId);
         if(detail == null){
-            return fail(ResultCode.SERVER_ERROR.getValue(), "detail not found");
+            return fail(ResultCode.SERVER_ERROR, "detail not found");
         }
 
         StepSummaryVO vo = new StepSummaryVO(detail, sdetail);

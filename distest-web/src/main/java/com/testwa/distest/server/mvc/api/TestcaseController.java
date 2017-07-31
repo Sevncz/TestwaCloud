@@ -66,19 +66,19 @@ public class TestcaseController extends BaseController{
         List<String> scriptIds = cast(params.getOrDefault("scriptIds", null));
 
         if(StringUtils.isBlank(casename) || scriptIds == null || scriptIds.size() == 0){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "参数不能为空");
+            return fail(ResultCode.PARAM_ERROR, "参数不能为空");
         }
         // 检查是否属于同一个app
         Set<String> appIdSet = new HashSet<>();
         for(String scriptId : scriptIds){
             Script script = scriptService.getScriptById(scriptId);
             if(script == null){
-                return fail(ResultCode.PARAM_ERROR.getValue(), String.format("脚本id不存在, %s", scriptId));
+                return fail(ResultCode.PARAM_ERROR, String.format("脚本id不存在, %s", scriptId));
             }
             appIdSet.add(script.getAppId());
         }
         if(appIdSet.size() > 1){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "请选择同一个App下的脚本");
+            return fail(ResultCode.PARAM_ERROR, "请选择同一个App下的脚本");
         }
         Iterator it = appIdSet.iterator();
         if(it.hasNext()){
@@ -87,7 +87,7 @@ public class TestcaseController extends BaseController{
             testcase.setScripts(scriptIds);
             App app = appService.getAppById(appId);
             if(app == null){
-                return fail(ResultCode.SERVER_ERROR.getValue(), "App 不存在");
+                return fail(ResultCode.SERVER_ERROR, "App 不存在");
             }
             User user = userService.findByUsername(getCurrentUsername());
             testcase.setAppId(appId);
@@ -99,7 +99,7 @@ public class TestcaseController extends BaseController{
             testcase.setCreateDate(new Date());
             testcaseService.save(testcase);
         }else{
-            return fail(ResultCode.SERVER_ERROR.getValue(), "App 不存在");
+            return fail(ResultCode.SERVER_ERROR, "App 不存在");
         }
         return ok();
     }
@@ -113,7 +113,7 @@ public class TestcaseController extends BaseController{
         try {
             ids = cast(params.getOrDefault("ids", null));
         }catch (Exception e){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "ids参数格式不正确");
+            return fail(ResultCode.PARAM_ERROR, "ids参数格式不正确");
         }
         if (ids == null) {
             return ok();
@@ -133,7 +133,7 @@ public class TestcaseController extends BaseController{
         try{
             PageRequest pageRequest = buildPageRequest(filter);
             // contains, startwith, endwith
-            List filters = filter.filters;
+            List filters = new ArrayList();
 //            filterDisable(filters);
             List<Project> projectsOfUser = projectService.findByUser(getCurrentUsername());
             List<String> projectIds = new ArrayList<>();
@@ -152,7 +152,7 @@ public class TestcaseController extends BaseController{
             return ok(result);
         }catch (Exception e){
             log.error(String.format("Get scripts table error, %s", filter.toString()), e);
-            return fail(ResultCode.SERVER_ERROR.getValue(), e.getMessage());
+            return fail(ResultCode.SERVER_ERROR, e.getMessage());
         }
 
     }
@@ -168,19 +168,19 @@ public class TestcaseController extends BaseController{
         try {
             deviceIds = cast(params.getOrDefault("deviceIds", null));
         }catch (Exception e){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "deviceIds参数不正确");
+            return fail(ResultCode.PARAM_ERROR, "deviceIds参数不正确");
         }
         if(StringUtils.isBlank(id) || deviceIds.size() == 0){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "参数不正确");
+            return fail(ResultCode.PARAM_ERROR, "参数不正确");
         }
 
         Testcase testcase = testcaseService.getTestcaseById(id);
         if(testcase == null){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "测试案例找不到");
+            return fail(ResultCode.PARAM_ERROR, "测试案例找不到");
         }
         App app = appService.getAppById(testcase.getAppId());
         if(app == null){
-            return fail(ResultCode.PARAM_ERROR.getValue(), String.format("应用:[%s]找不到", testcase.getAppId()));
+            return fail(ResultCode.PARAM_ERROR, String.format("应用:[%s]找不到", testcase.getAppId()));
         }
 
 
@@ -188,7 +188,7 @@ public class TestcaseController extends BaseController{
         for(String key : deviceIds){
             String sessionId = (String) redisTemplate.opsForHash().get(WebsocketEvent.DEVICE, key);
             if(StringUtils.isBlank(sessionId)){
-                return fail(ResultCode.PARAM_ERROR.getValue(), String.format("设备:[%s]已离线", key));
+                return fail(ResultCode.PARAM_ERROR, String.format("设备:[%s]已离线", key));
             }
         }
 
@@ -208,7 +208,7 @@ public class TestcaseController extends BaseController{
             // save testcasedetail
             TDevice d = deviceService.getDeviceById(key);
             if(d == null){
-//                return fail(ResultCode.PARAM_ERROR.getValue(), String.format("设备:[%s]找不到", key));
+//                return fail(ResultCode.PARAM_ERROR, String.format("设备:[%s]找不到", key));
                 log.error(String.format("设备:[%s]找不到", key));
                 // TODO 记录该错误
                 continue;

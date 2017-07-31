@@ -1,13 +1,15 @@
 package com.testwa.distest.server.mvc.api;
 
-import com.testwa.distest.server.mvc.beans.PageQuery;
+import com.testwa.core.utils.TimeUtil;
+import com.testwa.distest.server.mvc.beans.*;
 import com.testwa.distest.server.mvc.model.Project;
+import com.testwa.distest.server.mvc.model.ProjectMember;
 import com.testwa.distest.server.mvc.model.User;
 import com.testwa.distest.server.mvc.service.ProjectService;
 import com.testwa.distest.server.mvc.service.UserService;
+import com.testwa.distest.server.mvc.vo.ProjectDetailVO;
 import com.testwa.distest.server.mvc.vo.ProjectVO;
-import com.testwa.distest.server.mvc.beans.ResultCode;
-import com.testwa.distest.server.mvc.beans.Result;
+import com.testwa.distest.server.mvc.vo.UserVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -37,40 +39,54 @@ public class ProjectController extends BaseController {
     private UserService userService;
 
 
-    @ApiOperation(value="创建项目", notes="")
+    @SuppressWarnings("unused")
+    private static class ProjectInfo {
+        public String projectName;
+        public String description;
+
+        @Override
+        public String toString() {
+            return "ProjectInfo{" +
+                    "projectName='" + projectName + '\'' +
+                    ", description='" + description + '\'' +
+                    '}';
+        }
+    }
+
+    @ApiOperation(value="创建项目", notes="参数：{\"projectName\": \"name\", \"description\": \"desc\"}")
     @ResponseBody
     @RequestMapping(value = "/save", method= RequestMethod.POST)
-    public Result save(@ApiParam(required=true, name="beans", value="{'name': ''}")
-                                       @RequestBody Map<String, String> projectMap){
+    public Result save(@RequestBody ProjectInfo projectInfo){
         Project project = new Project();
-        String name = projectMap.getOrDefault("name", "");
-        if(StringUtils.isBlank(name)){
-            return fail(ResultCode.INVALID_PARAM.getValue(), "参数错误");
+        String projectName = projectInfo.projectName;
+        if(StringUtils.isBlank(projectName)){
+            log.error("params projectName is none");
+            return fail(ResultCode.PARAM_ERROR, "参数不能为空");
         }
+        String description = projectInfo.description;
         User user = userService.findByUsername(getCurrentUsername());
-        project.setName(name);
-        project.setCreateDate(new Date());
+        if(user == null){
+            log.error("login user not found");
+            return fail(ResultCode.NO_LOGIN, "请重新登录");
+        }
+        project.setProjectName(projectName);
+        project.setDescription(description);
+        project.setCreateTime(TimeUtil.getTimestampLong());
         project.setUserId(user.getId());
-        project.setUserName(user.getUsername());
+        project.setUsername(user.getUsername());
         projectService.save(project);
-
-        return ok();
+        return ok(project);
     }
 
 
     @ApiOperation(value="删除项目", notes="")
     @ResponseBody
     @RequestMapping(value = "/delete", method= RequestMethod.POST)
-    public Result delete(@ApiParam(required=true, name="beans", value="{'ids': [1,2,3,4]}")
-                                                 @RequestBody Map<String, Object> params){
-        List<String> ids;
-        try {
-            ids = cast(params.getOrDefault("ids", null));
-        }catch (Exception e){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "ids参数格式不正确");
-        }
-        if (ids == null) {
-            return fail(ResultCode.PARAM_ERROR.getValue(), "ids为空");
+    public Result delete(@RequestBody DelParams del){
+        List<String> ids = del.ids;
+        if (ids == null || ids.size() == 0) {
+            log.error("ids is null");
+            return fail(ResultCode.INVALID_PARAM, "参数为空");
         }
         for(String id : ids){
             projectService.deleteById(id);
@@ -78,33 +94,31 @@ public class ProjectController extends BaseController {
         return ok();
     }
 
-    @ApiOperation(value="获取项目列表，分页")
+    @ApiOperation(value="获取我的项目和我参加的项目列表，分页", notes = "http://localhost:8080/testwa/api/project/page?page=1&size=20&sortField=id&sortOrder=desc&projectName=")
     @ResponseBody
-    @RequestMapping(value = "/page", method= RequestMethod.POST)
-    public Result page(@RequestBody PageQuery query){
-        Map<String, Object> result = new HashMap<>();
+    @RequestMapping(value = "/page", method=RequestMethod.GET)
+    public Result page(@RequestParam(value = "page")Integer page,
+                       @RequestParam(value = "size")Integer size ,
+                       @RequestParam(value = "sortField")String sortField,
+                       @RequestParam(value = "sortOrder")String sortOrder,
+                       @RequestParam(required=false) String projectName){
         try{
 
-            PageRequest pageRequest = buildPageRequest(query);
-            List filters = query.filters;
+            PageRequest pageRequest = buildPageRequest(page, size, sortField, sortOrder);
             List<Project> projectsOfUser = projectService.findByUser(getCurrentUsername());
             List<String> projectIds = new ArrayList<>();
             projectsOfUser.forEach(item -> projectIds.add(item.getId()));
-            filters = filterProject(filters, "_id", projectIds);
-            Page<Project> projects =  projectService.find(filters, pageRequest);
+            Page<Project> projects =  projectService.findPage(pageRequest, projectIds, projectName);
             Iterator<Project> projectsIter =  projects.iterator();
-//            List<Project> lists = new ArrayList<>();
             List<ProjectVO> lists = new ArrayList<>();
             while(projectsIter.hasNext()){
                 lists.add(new ProjectVO(projectsIter.next()));
             }
-            result.put("records", lists);
-            result.put("totalRecords", projects.getTotalElements());
-
-            return ok(result);
+            PageResult<ProjectVO> pr = new PageResult<>(lists, projects.getTotalElements());
+            return ok(pr);
         }catch (Exception e){
-            log.error(String.format("Get project table error, %s", query.toString()), e);
-            return fail(ResultCode.SERVER_ERROR.getValue(), "服务器错误");
+            log.error("Get project table error", e);
+            return fail(ResultCode.SERVER_ERROR, "服务器错误");
         }
 
     }
@@ -112,16 +126,14 @@ public class ProjectController extends BaseController {
     @ResponseBody
     @RequestMapping(value = "/list", method= RequestMethod.GET)
     public Result list(){
-        List filters = new ArrayList<>();
         List<Project> projectsOfUser = projectService.findByUser(getCurrentUsername());
         List<String> projectIds = new ArrayList<>();
         projectsOfUser.forEach(item -> projectIds.add(item.getId()));
-        filters = filterProject(filters, "_id", projectIds);
-        List<Project> projects = projectService.find(filters);
+        List<Project> projects = projectService.findAll(projectIds);
         List<Map<String, String>> maps = new ArrayList<>();
         for(Project a : projects){
             Map<String, String> map = new HashMap<>();
-            map.put("name", a.getName());
+            map.put("name", a.getProjectName());
             map.put("id", a.getId());
             maps.add(map);
         }
@@ -130,70 +142,155 @@ public class ProjectController extends BaseController {
 
 
     @ResponseBody
-    @RequestMapping(value = "/collaboration/invite", method= RequestMethod.POST)
-    public Result addMember(@ApiParam(required=true, name="beans", value="{'projectId': '', 'username': ''}") @RequestBody Map<String, Object> params){
-        String projectId = (String) params.getOrDefault("projectId", "");
-        String username = (String) params.getOrDefault("username", "");
-        if(StringUtils.isBlank(projectId) || StringUtils.isBlank(username)){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "参数错误");
+    @RequestMapping(value = "/detail/{projectId}", method= RequestMethod.GET)
+    public Result detail(@PathVariable String projectId){
+        Project p = projectService.findById(projectId);
+        if(p == null){
+            log.error("project not found, {}", projectId);
+            return fail(ResultCode.INVALID_PARAM, "项目不存在");
         }
-        Project project = projectService.getProjectById(projectId);
+        List<User> users = projectService.getUserMembersByProject(projectId);
+        ProjectDetailVO vo = new ProjectDetailVO(p, users);
+        return ok(vo);
+    }
+
+    @SuppressWarnings("unused")
+    private static class MembersParams {
+        public String projectId;
+        public List<String> usernames;
+
+        @Override
+        public String toString() {
+            return "MembersParams{" +
+                    "projectId='" + projectId + '\'' +
+                    ", usernames=" + usernames +
+                    '}';
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/member/add", method= RequestMethod.POST)
+    public Result addMember(@RequestBody MembersParams params){
+        if(StringUtils.isBlank(params.projectId) || params.usernames == null || params.usernames.size() == 0){
+            log.error("params is none, {}", params);
+            return fail(ResultCode.INVALID_PARAM, "参数不能为空");
+        }
+        Project project = projectService.getProjectById(params.projectId);
         if(project == null){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "项目不存在");
+            log.error("project not found, {}", params.projectId);
+            return fail(ResultCode.INVALID_PARAM, "项目不存在");
         }
-//        if(!project.getUserId().equals(user.getId())){
-//            return fail(ResultCode.NO_AUTH.getValue(), "没有权限"), headers, HttpStatus.FORBIDDEN);
-//        }
-        User member = userService.findByUsername(username);
-        if(member == null){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "用户不存在");
+        if(params.usernames.contains(getCurrentUsername())){
+            log.error("can not add self, {}", params.toString());
+            return fail(ResultCode.INVALID_PARAM, "无法添加自己，你已经在项目中");
         }
 
-        projectService.addMember(projectId, member);
+
+        User owner = userService.findByUsername(getCurrentUsername());
+
+        if(!project.getUserId().equals(owner.getId())){
+            log.error("login user not owner of the project, projectId: {}, currentUsername: {}", params.projectId, getCurrentUsername());
+            return fail(ResultCode.NO_AUTH, "您不是项目所有者，无法删除项目成员");
+        }
+
+        for(String username : params.usernames){
+
+            User member = userService.findByUsername(username);
+            if(member == null){
+                log.error("member not found, {}", username);
+                return fail(ResultCode.PARAM_ERROR, "用户不存在");
+            }
+
+            List<ProjectMember> pm = projectService.getMembersByProjectAndUsername(params.projectId, member.getId());
+            if(pm != null && pm.size() > 0){
+                log.error("ProjectMember is not null, {}", username);
+                return fail(ResultCode.PARAM_ERROR, String.format("用户%s已在项目中", username));
+            }
+            projectService.addMember(params.projectId, member.getId());
+        }
 
         return ok();
     }
 
 
     @ResponseBody
-    @RequestMapping(value = "/collaboration/remove", method= RequestMethod.POST)
-    public Result delMember(@ApiParam(required=true, name="beans", value="{'projectId': '', 'username': ''}")
-                                                    @RequestBody Map<String, Object> params){
-        String projectId = (String) params.getOrDefault("projectId", "");
-        String username = (String) params.getOrDefault("username", "");
-        if(StringUtils.isBlank(projectId) || StringUtils.isBlank(username)){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "参数不能为空");
+    @RequestMapping(value = "/member/remove", method= RequestMethod.POST)
+    public Result delMember(@RequestBody MembersParams params){
+        if(StringUtils.isBlank(params.projectId) || params.usernames == null || params.usernames.size() == 0){
+            log.error("params is none, {}", params);
+            return fail(ResultCode.PARAM_ERROR, "参数不能为空");
         }
-        Project project = projectService.getProjectById(projectId);
+        Project project = projectService.getProjectById(params.projectId);
         if(project == null){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "项目不存在");
+            log.error("project not found, {}", params.projectId);
+            return fail(ResultCode.PARAM_ERROR, "项目不存在");
+        }
+        if(params.usernames.contains(getCurrentUsername())){
+            log.error("can not add self, {}", params.toString());
+            return fail(ResultCode.INVALID_PARAM, "无法删除自己");
         }
 
-//        if(!project.getUserId().equals(user.getId())){
-//            return new ResponseEntity<>(new CustomResponseEntity("没有权限"), headers, HttpStatus.FORBIDDEN);
-//        }
+        User owner = userService.findByUsername(getCurrentUsername());
 
-        User member = userService.findByUsername(username);
-        if(member == null){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "用户不存在");
+        if(!project.getUserId().equals(owner.getId())){
+            log.error("login user not owner of the project, projectId: {}, currentUsername: {}", params.projectId, getCurrentUsername());
+            return fail(ResultCode.NO_AUTH, "您不是项目所有者，无法删除项目成员");
         }
 
-        projectService.delMember(projectId, member);
+        for(String username : params.usernames){
+
+            User member = userService.findByUsername(username);
+            if(member == null){
+                log.error("member not found, {}", username);
+                return fail(ResultCode.PARAM_ERROR, "用户不存在");
+            }
+
+            projectService.delMember(params.projectId, member.getId());
+        }
 
         return ok();
     }
 
 
     @ResponseBody
-    @RequestMapping(value = "/collaborators/{projectId}", method= RequestMethod.GET)
+    @RequestMapping(value = "/members/{projectId}", method= RequestMethod.GET)
     public Result members(@PathVariable String projectId){
         Project project = projectService.getProjectById(projectId);
         if(project == null){
-            return fail(ResultCode.PARAM_ERROR.getValue(), "项目不存在");
+            log.error("project not found, {}", projectId);
+            return fail(ResultCode.PARAM_ERROR, "项目不存在");
         }
 
-        List<String> usernames = project.getMembers();
-        return ok(usernames);
+        List<User> users = projectService.getUserMembersByProject(projectId);
+        List<UserVO> vo = new ArrayList<>();
+        for(User u : users){
+            vo.add(new UserVO(u));
+        }
+        return ok(vo);
+    }
+
+
+
+    @ResponseBody
+    @RequestMapping(value = "/member/query", method= RequestMethod.GET)
+    public Result queryMember(@RequestParam(value = "projectId")String projectId,
+                              @RequestParam(value = "memberName")String memberName){
+        Project project = projectService.getProjectById(projectId);
+        if(project == null){
+            log.error("project not found, {}", projectId);
+            return fail(ResultCode.PARAM_ERROR, "项目不存在");
+        }
+        Map<String, List<User>> users = projectService.getMembers(projectId, memberName);
+        Map<String, List<UserVO>> vo = new HashMap<>();
+
+        for(String key : users.keySet()){
+            List<UserVO> v = new ArrayList<>();
+            for(User u : users.get(key)){
+                v.add(new UserVO(u));
+            }
+            vo.put(key, v);
+        }
+        return ok(vo);
     }
 
 }

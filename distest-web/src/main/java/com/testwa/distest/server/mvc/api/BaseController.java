@@ -17,9 +17,9 @@ import java.util.*;
  */
 public class BaseController {
 
-    public Result<String> fail(Integer code, String message) {
+    public Result<String> fail(ResultCode code, String message) {
         Result<String> r = new Result<>();
-        r.setCode(code);
+        r.setCode(code.getValue());
         r.setMessage(message);
         return r;
     }
@@ -51,8 +51,8 @@ public class BaseController {
     }
 
     PageRequest buildPageRequest(PageQuery filter) {
-        int first = filter.first == null ? 1 : filter.first;
-        int rows = filter.rows == null ? 10 : filter.rows;
+        int first = filter.page == null ? 1 : filter.page;
+        int rows = filter.limit == null ? 10 : filter.limit;
         String sortField = filter.sortField;
         String sortOrder = filter.sortOrder;
 
@@ -62,14 +62,14 @@ public class BaseController {
 
     protected PageRequest buildPageRequest(int pageNumber, int pageSize, String sortOrder, String sortField) {
         Sort sort = null;
-        if (StringUtils.isBlank(sortOrder) || "0".equals(sortOrder)) {
+        if (StringUtils.isBlank(sortOrder) || "".equals(sortOrder)) {
             if(StringUtils.isBlank(sortField)){
                 sortField = "id";
             }
             sort = new Sort(Sort.Direction.DESC, sortField);
-        } else if ("1".equals(sortOrder)) {
+        } else if ("asc".equals(sortOrder)) {
             sort = new Sort(Sort.Direction.ASC, sortField);
-        } else if ("-1".equals(sortOrder)) {
+        } else if ("desc".equals(sortOrder)) {
             sort = new Sort(Sort.Direction.DESC, sortField);
         }
         //参数1表示当前第几页,参数2表示每页的大小,参数3表示排序
