@@ -41,40 +41,78 @@ public class ProjectController extends BaseController {
 
     @SuppressWarnings("unused")
     private static class ProjectInfo {
+        public String projectId;
         public String projectName;
         public String description;
+        public List<String> members;
 
         @Override
         public String toString() {
             return "ProjectInfo{" +
-                    "projectName='" + projectName + '\'' +
+                    "projectId='" + projectId + '\'' +
+                    ", projectName='" + projectName + '\'' +
                     ", description='" + description + '\'' +
+                    ", members=" + members +
                     '}';
         }
     }
 
-    @ApiOperation(value="创建项目", notes="参数：{\"projectName\": \"name\", \"description\": \"desc\"}")
+    @ApiOperation(value="创建和更新项目")
     @ResponseBody
     @RequestMapping(value = "/save", method= RequestMethod.POST)
     public Result save(@RequestBody ProjectInfo projectInfo){
-        Project project = new Project();
         String projectName = projectInfo.projectName;
         if(StringUtils.isBlank(projectName)){
             log.error("params projectName is none");
             return fail(ResultCode.PARAM_ERROR, "参数不能为空");
         }
-        String description = projectInfo.description;
+
+        if(projectInfo.members != null){
+            for(String member : projectInfo.members){
+                User one = userService.findByUsername(member);
+                if(one == null){
+                    log.error("member not found, {}", member);
+                    return fail(ResultCode.PARAM_ERROR, "用户不存在");
+                }
+            }
+        }
+
         User user = userService.findByUsername(getCurrentUsername());
         if(user == null){
             log.error("login user not found");
             return fail(ResultCode.NO_LOGIN, "请重新登录");
         }
-        project.setProjectName(projectName);
-        project.setDescription(description);
-        project.setCreateTime(TimeUtil.getTimestampLong());
-        project.setUserId(user.getId());
-        project.setUsername(user.getUsername());
-        projectService.save(project);
+        Project project = null;
+        if(StringUtils.isBlank(projectInfo.projectId)){
+            String description = projectInfo.description;
+            project = new Project();
+            project.setProjectName(projectName);
+            project.setDescription(description);
+            project.setCreateTime(TimeUtil.getTimestampLong());
+            project.setUserId(user.getId());
+            project.setUsername(user.getUsername());
+            project = projectService.save(project);
+        }else{
+            project = projectService.findById(projectInfo.projectId);
+            project.setModifyTime(TimeUtil.getTimestampLong());
+            project.setProjectName(projectInfo.projectName);
+            project.setDescription(projectInfo.description);
+            projectService.save(project);
+        }
+
+        if(projectInfo.members != null){
+            projectService.delAllMember(projectInfo.projectId);
+            for(String member : projectInfo.members){
+                User one = userService.findByUsername(member);
+                if(one == null){
+                    log.error("member not found, {}", member);
+//                    return fail(ResultCode.PARAM_ERROR, "用户不存在");
+                    continue;
+                }
+                projectService.addMember(project.getId(), one.getId());
+            }
+        }
+
         return ok(project);
     }
 
@@ -268,7 +306,6 @@ public class ProjectController extends BaseController {
         }
         return ok(vo);
     }
-
 
 
     @ResponseBody
