@@ -249,5 +249,11 @@
 
         </dependencies>
     </dependencyManagement>
+    <repositories>
+        <repository>
+            <id>michaelklishin</id>
+            <url>https://dl.bintray.com/michaelklishin/maven/</url>
+        </repository>
+    </repositories>
 
 </project>
