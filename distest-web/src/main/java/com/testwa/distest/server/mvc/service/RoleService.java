@@ -28,7 +28,7 @@ public class RoleService extends BaseService {
         if(findByValue(admin.getValue()) == null){
             save(admin);
         }
-        Role user = save(new Role("普通用户", "user"));
+        Role user = new Role("普通用户", "user");
         if(findByValue(user.getValue()) == null){
             save(user);
         }

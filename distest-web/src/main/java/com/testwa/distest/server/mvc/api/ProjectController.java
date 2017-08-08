@@ -12,7 +12,6 @@ import com.testwa.distest.server.mvc.vo.ProjectVO;
 import com.testwa.distest.server.mvc.vo.UserVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,9 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 /**
@@ -75,6 +72,7 @@ public class ProjectController extends BaseController {
         project.setUserId(user.getId());
         project.setUsername(user.getUsername());
         projectService.save(project);
+        projectService.saveProjectOwner(project.getId(), user.getId());
         return ok(project);
     }
 
@@ -201,12 +199,12 @@ public class ProjectController extends BaseController {
                 return fail(ResultCode.PARAM_ERROR, "用户不存在");
             }
 
-            List<ProjectMember> pm = projectService.getMembersByProjectAndUsername(params.projectId, member.getId());
+            List<ProjectMember> pm = projectService.getMembersByProjectAndUserId(params.projectId, member.getId());
             if(pm != null && pm.size() > 0){
                 log.error("ProjectMember is not null, {}", username);
                 return fail(ResultCode.PARAM_ERROR, String.format("用户%s已在项目中", username));
             }
-            projectService.addMember(params.projectId, member.getId());
+            projectService.saveProjectMember(params.projectId, member.getId());
         }
 
         return ok();
