@@ -43,8 +43,8 @@ public class ProjectService extends BaseService {
     @Autowired
     private UserService userService;
 
-    public void save(Project project){
-        projectRepository.save(project);
+    public Project save(Project project){
+        return projectRepository.save(project);
     }
 
     public void deleteById(String projectId){
@@ -215,8 +215,13 @@ public class ProjectService extends BaseService {
         }
         users.removeAll(projectUser);
         Map<String, List<User>> result = new HashMap<>();
-        result.put("inproject", projectUser);
-        result.put("unproject", users);
+        result.put("in", projectUser);
+        result.put("out", users);
         return result;
+    }
+
+    public void delAllMember(String projectId) {
+        List<ProjectMember> pms = projectMemberRepository.findByProjectId(projectId);
+        projectMemberRepository.delete(pms);
     }
 }
