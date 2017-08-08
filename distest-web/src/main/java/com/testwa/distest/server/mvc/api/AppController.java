@@ -87,7 +87,7 @@ public class AppController extends BaseController{
         app.setVersion(version);
         app.setUserId(currentUser.getId());
         app.setUsername(currentUser.getUsername());
-        app.setDisable(true);
+        app.setDisable(false);
         appService.update(app);
         return ok();
     }
@@ -139,7 +139,7 @@ public class AppController extends BaseController{
             return fail(ResultCode.INVALID_PARAM, "参数为空");
         }
         for(String id : ids){
-            projectService.deleteById(id);
+            appService.deleteById(id);
         }
         return ok();
     }
@@ -168,7 +168,7 @@ public class AppController extends BaseController{
                 }
                 projectIds.add(projectId);
             }
-            Page<App> apps =  appService.findPage(pageRequest, projectIds, appName);
+            Page<App> apps = appService.findPage(pageRequest, projectIds, appName);
             Iterator<App> appIter = apps.iterator();
             List<AppVO> lists = new ArrayList<>();
             while(appIter.hasNext()){

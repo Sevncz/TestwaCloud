@@ -115,7 +115,7 @@ public class AppService extends BaseService {
         app.setName(filename);
         app.setPath(filepath);
         app.setCreateDate(new Date());
-        app.setDisable(false);
+        app.setDisable(true);
         app.setSize(size);
         app.setMd5(IOUtil.fileMD5(filepath));
 
