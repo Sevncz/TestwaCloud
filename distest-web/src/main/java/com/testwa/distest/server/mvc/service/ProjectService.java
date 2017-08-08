@@ -211,9 +211,13 @@ public class ProjectService extends BaseService {
         }
         users.removeAll(projectUser);
         Map<String, List<User>> result = new HashMap<>();
-        result.put("inproject", projectUser);
-        result.put("unproject", users);
+        result.put("in", projectUser);
+        result.put("out", users);
         return result;
     }
 
+    public void delAllMember(String projectId) {
+        List<ProjectMember> pms = projectMemberRepository.findByProjectId(projectId);
+        projectMemberRepository.delete(pms);
+    }
 }

@@ -12,6 +12,7 @@ import com.testwa.distest.server.mvc.vo.ProjectVO;
 import com.testwa.distest.server.mvc.vo.UserVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 /**
@@ -38,41 +41,78 @@ public class ProjectController extends BaseController {
 
     @SuppressWarnings("unused")
     private static class ProjectInfo {
+        public String projectId;
         public String projectName;
         public String description;
+        public List<String> members;
 
         @Override
         public String toString() {
             return "ProjectInfo{" +
-                    "projectName='" + projectName + '\'' +
+                    "projectId='" + projectId + '\'' +
+                    ", projectName='" + projectName + '\'' +
                     ", description='" + description + '\'' +
+                    ", members=" + members +
                     '}';
         }
     }
 
-    @ApiOperation(value="创建项目", notes="参数：{\"projectName\": \"name\", \"description\": \"desc\"}")
+    @ApiOperation(value="创建和更新项目")
     @ResponseBody
     @RequestMapping(value = "/save", method= RequestMethod.POST)
     public Result save(@RequestBody ProjectInfo projectInfo){
-        Project project = new Project();
         String projectName = projectInfo.projectName;
         if(StringUtils.isBlank(projectName)){
             log.error("params projectName is none");
             return fail(ResultCode.PARAM_ERROR, "参数不能为空");
         }
-        String description = projectInfo.description;
+
+        if(projectInfo.members != null){
+            for(String member : projectInfo.members){
+                User one = userService.findByUsername(member);
+                if(one == null){
+                    log.error("member not found, {}", member);
+                    return fail(ResultCode.PARAM_ERROR, "用户不存在");
+                }
+            }
+        }
+
         User user = userService.findByUsername(getCurrentUsername());
         if(user == null){
             log.error("login user not found");
             return fail(ResultCode.NO_LOGIN, "请重新登录");
         }
-        project.setProjectName(projectName);
-        project.setDescription(description);
-        project.setCreateTime(TimeUtil.getTimestampLong());
-        project.setUserId(user.getId());
-        project.setUsername(user.getUsername());
-        projectService.save(project);
-        projectService.saveProjectOwner(project.getId(), user.getId());
+        Project project = null;
+        if(StringUtils.isBlank(projectInfo.projectId)){
+            String description = projectInfo.description;
+            project = new Project();
+            project.setProjectName(projectName);
+            project.setDescription(description);
+            project.setCreateTime(TimeUtil.getTimestampLong());
+            project.setUserId(user.getId());
+            project.setUsername(user.getUsername());
+            project = projectService.save(project);
+        }else{
+            project = projectService.findById(projectInfo.projectId);
+            project.setModifyTime(TimeUtil.getTimestampLong());
+            project.setProjectName(projectInfo.projectName);
+            project.setDescription(projectInfo.description);
+            projectService.save(project);
+        }
+
+        if(projectInfo.members != null){
+            projectService.delAllMember(projectInfo.projectId);
+            for(String member : projectInfo.members){
+                User one = userService.findByUsername(member);
+                if(one == null){
+                    log.error("member not found, {}", member);
+//                    return fail(ResultCode.PARAM_ERROR, "用户不存在");
+                    continue;
+                }
+                projectService.addMember(project.getId(), one.getId());
+            }
+        }
+
         return ok(project);
     }
 
@@ -199,12 +239,12 @@ public class ProjectController extends BaseController {
                 return fail(ResultCode.PARAM_ERROR, "用户不存在");
             }
 
-            List<ProjectMember> pm = projectService.getMembersByProjectAndUserId(params.projectId, member.getId());
+            List<ProjectMember> pm = projectService.getMembersByProjectAndUsername(params.projectId, member.getId());
             if(pm != null && pm.size() > 0){
                 log.error("ProjectMember is not null, {}", username);
                 return fail(ResultCode.PARAM_ERROR, String.format("用户%s已在项目中", username));
             }
-            projectService.saveProjectMember(params.projectId, member.getId());
+            projectService.addMember(params.projectId, member.getId());
         }
 
         return ok();
@@ -266,7 +306,6 @@ public class ProjectController extends BaseController {
         }
         return ok(vo);
     }
-
 
 
     @ResponseBody
