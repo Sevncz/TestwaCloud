@@ -109,9 +109,10 @@ public class ProjectController extends BaseController {
 //                    return fail(ResultCode.PARAM_ERROR, "用户不存在");
                     continue;
                 }
-                projectService.saveProjectOwner(project.getId(), one.getId());
+                projectService.saveProjectMember(project.getId(), one.getId());
             }
         }
+        projectService.saveProjectOwner(project.getId(), user.getId());
 
         return ok(project);
     }
