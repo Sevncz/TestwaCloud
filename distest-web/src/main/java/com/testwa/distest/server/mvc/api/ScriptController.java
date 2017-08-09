@@ -4,20 +4,19 @@ import com.testwa.core.utils.Identities;
 import com.testwa.core.utils.PinYinTool;
 import com.testwa.distest.server.exception.NotInProjectException;
 import com.testwa.distest.server.mvc.beans.PageResult;
-import com.testwa.distest.server.mvc.model.*;
-import com.testwa.distest.server.mvc.beans.PageQuery;
+import com.testwa.distest.server.mvc.beans.Result;
+import com.testwa.distest.server.mvc.beans.ResultCode;
+import com.testwa.distest.server.mvc.model.Script;
+import com.testwa.distest.server.mvc.model.User;
 import com.testwa.distest.server.mvc.service.AppService;
 import com.testwa.distest.server.mvc.service.ProjectService;
 import com.testwa.distest.server.mvc.service.ScriptService;
 import com.testwa.distest.server.mvc.service.UserService;
 import com.testwa.distest.server.mvc.vo.CreateAppVO;
 import com.testwa.distest.server.mvc.vo.DeleteVO;
+import com.testwa.distest.server.mvc.vo.ModifyScriptVO;
 import com.testwa.distest.server.mvc.vo.ScriptVO;
-import com.testwa.distest.server.mvc.beans.ResultCode;
-import com.testwa.distest.server.mvc.beans.Result;
 import io.swagger.annotations.Api;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.tools.ant.taskdefs.Delete;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -29,9 +28,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.io.*;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -138,7 +140,7 @@ public class ScriptController extends BaseController {
 
 
     @ResponseBody
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @GetMapping(value = "/{id}")
     public Result readScript(@PathVariable String id) {
         Script script = scriptService.getScriptById(id);
         String path = script.getPath();
@@ -154,17 +156,13 @@ public class ScriptController extends BaseController {
 
 
     @ResponseBody
-    @RequestMapping(value = {"/{id}"}, method = {RequestMethod.POST}, produces = {"application/json"})
+    @PostMapping(value = {"/{id}"})
     public Result writeScript(@PathVariable String id,
-                              @RequestBody Map<String, String> params) {
+                              @RequestBody ModifyScriptVO modifyScriptVO) {
         Script script = scriptService.getScriptById(id);
         String path = script.getPath();
 
-        String content = params.getOrDefault("content", "");
-        if (StringUtils.isBlank(content)) {
-            log.error("Send content is null");
-            return fail(ResultCode.PARAM_ERROR, "参数错误");
-        }
+        String content = modifyScriptVO.getContent();
         try {
             content = replaceBlank(content);
             Path scriptPath = Paths.get(path);
