@@ -5,6 +5,7 @@ import com.testwa.core.utils.ScriptType;
 import com.testwa.distest.server.mvc.model.Script;
 import com.testwa.distest.server.mvc.repository.ScriptRepository;
 import com.testwa.distest.server.mvc.repository.TestcaseRepository;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,6 +15,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -113,4 +115,8 @@ public class ScriptService extends BaseService{
         return scriptRepository.find(query, pageRequest);
     }
 
+    public Page<Script> findPage(PageRequest pageRequest, List<String> projectIds, String scriptName) {
+        Query query = buildQuery(projectIds, scriptName);
+        return scriptRepository.find(query, pageRequest);
+    }
 }

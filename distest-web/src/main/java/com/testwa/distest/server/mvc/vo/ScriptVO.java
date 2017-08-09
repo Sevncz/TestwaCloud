@@ -5,6 +5,8 @@ import com.testwa.distest.server.mvc.model.App;
 import com.testwa.distest.server.mvc.model.Project;
 import com.testwa.distest.server.mvc.model.Script;
 
+import java.util.Date;
+
 /**
  * Created by wen on 2016/11/19.
  */
@@ -23,6 +25,9 @@ public class ScriptVO {
     private String modifyDate;
     private String modifyUserName;
     private String porjectName;
+
+    public ScriptVO() {
+    }
 
     public ScriptVO(Script script, App app, Project project) {
         this.id = script.getId();
@@ -88,6 +93,10 @@ public class ScriptVO {
         this.createDate = createDate;
     }
 
+    public void setCreateDate(Date createDate) {
+        this.createDate = TimeUtil.formatTimeStamp(createDate.getTime());
+    }
+
     public String getType() {
         return type;
     }
@@ -126,6 +135,10 @@ public class ScriptVO {
 
     public void setModifyDate(String modifyDate) {
         this.modifyDate = modifyDate;
+    }
+
+    public void setModifyDate(Date modifyDate) {
+        this.modifyDate = TimeUtil.formatTimeStamp(modifyDate.getTime());
     }
 
     public String getModifyUserName() {

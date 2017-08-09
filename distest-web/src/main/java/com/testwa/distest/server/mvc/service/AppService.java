@@ -161,20 +161,7 @@ public class AppService extends BaseService {
     }
 
     public Page<App> findPage(PageRequest pageRequest, List<String> projectIds, String appName) {
-
-        Query query = new Query();
-        List<Criteria> andCriteria = new ArrayList<>();
-        if(StringUtils.isNotEmpty(appName)){
-            andCriteria.add(Criteria.where("name").regex(appName));
-        }
-        andCriteria.add(Criteria.where("projectId").in(projectIds));
-        andCriteria.add(Criteria.where("disable").is(false));
-
-        Criteria criteria = new Criteria();
-        Criteria[] criteriaArr = new Criteria[andCriteria.size()];
-        criteriaArr = andCriteria.toArray(criteriaArr);
-        criteria.andOperator(criteriaArr);
-        query.addCriteria(criteria);
+        Query query = buildQuery(projectIds, appName);
         return appRepository.find(query, pageRequest);
     }
 

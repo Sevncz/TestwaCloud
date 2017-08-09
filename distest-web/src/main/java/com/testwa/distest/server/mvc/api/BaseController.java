@@ -1,8 +1,14 @@
 package com.testwa.distest.server.mvc.api;
 
+import com.testwa.distest.server.exception.NotInProjectException;
 import com.testwa.distest.server.mvc.beans.PageQuery;
 import com.testwa.distest.server.mvc.beans.ResultCode;
 import com.testwa.distest.server.mvc.beans.Result;
+import com.testwa.distest.server.mvc.model.Project;
+import com.testwa.distest.server.mvc.model.ProjectMember;
+import com.testwa.distest.server.mvc.model.User;
+import com.testwa.distest.server.mvc.service.ProjectService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -15,6 +21,7 @@ import java.util.*;
 /**
  * Created by wen on 16/9/4.
  */
+@Slf4j
 public class BaseController {
 
     public Result<String> fail(ResultCode code, String message) {
@@ -130,6 +137,22 @@ public class BaseController {
             return ((Principal) principal).getName();
         }
         return String.valueOf(principal);
+    }
+
+    protected List<String> getProjectIds(ProjectService projectService, User user, String projectId) throws NotInProjectException {
+        List<String> projectIds = new ArrayList<>();
+        if(StringUtils.isBlank(projectId)){
+            List<Project> projectsOfUser = projectService.findByUser(user);
+            projectsOfUser.forEach(item -> projectIds.add(item.getId()));
+        }else{
+            List<ProjectMember> pms = projectService.getMembersByProjectAndUserId(projectId, user.getId());
+            if(pms == null || pms.size() == 0){
+                log.error("ProjectMember is null, user {} not in project {}", user.getId(), projectId);
+                throw new NotInProjectException("用户不属于该项目");
+            }
+            projectIds.add(projectId);
+        }
+        return projectIds;
     }
 
 }

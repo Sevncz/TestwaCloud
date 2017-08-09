@@ -2,23 +2,25 @@ package com.testwa.distest.server.mvc.api;
 
 import com.testwa.core.utils.Identities;
 import com.testwa.core.utils.PinYinTool;
-import com.testwa.distest.server.mvc.model.App;
-import com.testwa.distest.server.mvc.model.Project;
-import com.testwa.distest.server.mvc.model.Script;
-import com.testwa.distest.server.mvc.model.User;
+import com.testwa.distest.server.exception.NotInProjectException;
+import com.testwa.distest.server.mvc.beans.PageResult;
+import com.testwa.distest.server.mvc.model.*;
 import com.testwa.distest.server.mvc.beans.PageQuery;
 import com.testwa.distest.server.mvc.service.AppService;
 import com.testwa.distest.server.mvc.service.ProjectService;
 import com.testwa.distest.server.mvc.service.ScriptService;
 import com.testwa.distest.server.mvc.service.UserService;
 import com.testwa.distest.server.mvc.vo.CreateAppVO;
+import com.testwa.distest.server.mvc.vo.DeleteVO;
 import com.testwa.distest.server.mvc.vo.ScriptVO;
 import com.testwa.distest.server.mvc.beans.ResultCode;
 import com.testwa.distest.server.mvc.beans.Result;
 import io.swagger.annotations.Api;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tools.ant.taskdefs.Delete;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
@@ -40,7 +42,7 @@ import java.util.regex.Pattern;
 @Api("脚本相关api")
 @RestController
 @RequestMapping(path = "/api/script")
-public class ScriptController extends BaseController{
+public class ScriptController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(ScriptController.class);
 
     @Autowired
@@ -56,8 +58,8 @@ public class ScriptController extends BaseController{
     private Environment env;
 
     @ResponseBody
-    @RequestMapping(value = "/save", method= RequestMethod.POST, produces={"application/json"})
-    public Result save(@Valid @RequestBody CreateAppVO createAppDTO){
+    @RequestMapping(value = "/save", method = RequestMethod.POST, produces = {"application/json"})
+    public Result save(@Valid @RequestBody CreateAppVO createAppDTO) {
         String projectId = createAppDTO.getProjectId();
         String id = createAppDTO.getId();
         Script script = scriptService.getScriptById(id);
@@ -71,12 +73,11 @@ public class ScriptController extends BaseController{
     }
 
 
-
     @ResponseBody
-    @RequestMapping(value="/upload", method= RequestMethod.POST)
-    public Result upload(@RequestParam("file") MultipartFile uploadfile){
+    @RequestMapping(value = "/upload", method = RequestMethod.POST)
+    public Result upload(@RequestParam("file") MultipartFile uploadfile) {
         Map<String, String> result = new HashMap<>();
-        if(uploadfile.isEmpty()){
+        if (uploadfile.isEmpty()) {
             return fail(ResultCode.PARAM_ERROR, "文件为空");
         }
 
@@ -84,7 +85,7 @@ public class ScriptController extends BaseController{
             String filename = uploadfile.getOriginalFilename();
             String aliasName = PinYinTool.getPingYin(filename);
             Path dir = Paths.get(env.getProperty("script.save.path"), Identities.uuid2());
-            if(!Files.exists(dir)){
+            if (!Files.exists(dir)) {
                 Files.createDirectories(dir);
             }
             Path filepath = Paths.get(dir.toString(), aliasName);
@@ -96,28 +97,17 @@ public class ScriptController extends BaseController{
             Script script = scriptService.saveScript(filename, aliasName, filepath.toString(), size, type);
             result.put("id", script.getId());
             return ok(result);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error(String.format("upload app error %s", uploadfile.getSize()), e);
             return fail(ResultCode.SERVER_ERROR, e.getMessage());
         }
     }
 
 
-
     @ResponseBody
-    @RequestMapping(value = "/delete", method= RequestMethod.POST, produces={"application/json"})
-    public Result delete(@RequestBody Map<String, Object> params){
-        List<String> ids;
-        try {
-            ids = cast(params.getOrDefault("ids", null));
-        }catch (Exception e){
-            return fail(ResultCode.PARAM_ERROR, e.getMessage());
-        }
-        if (ids == null) {
-            return ok();
-        }
-        for(String id : ids){
+    @RequestMapping(value = "/delete", method = RequestMethod.POST, produces = {"application/json"})
+    public Result delete(@Valid @RequestBody DeleteVO deleteVO) {
+        for (String id : deleteVO.getIds()) {
             scriptService.deleteById(id);
         }
         return ok();
@@ -125,51 +115,31 @@ public class ScriptController extends BaseController{
 
 
     @ResponseBody
-    @RequestMapping(value = "/table", method= RequestMethod.POST, produces={"application/json"})
-    public Result tableList(@RequestBody PageQuery filter){
-        Map<String, Object> result = new HashMap<>();
-        try{
-
-            PageRequest pageRequest = buildPageRequest(filter);
-            // contains, startwith, endwith
-            List filters = new ArrayList();
-            filterDisable(filters);
-            List<Project> projectsOfUser = projectService.findByUser(getCurrentUsername());
-            List<String> projectIds = new ArrayList<>();
-            projectsOfUser.forEach(item -> projectIds.add(item.getId()));
-            filters = filterProject(filters, "projectId", projectIds);
-            Page<Script> testwaScripts =  scriptService.find(filters, pageRequest);
-            Iterator<Script> testwaScriptsIter =  testwaScripts.iterator();
-            List<ScriptVO> lists = new ArrayList<>();
-            while(testwaScriptsIter.hasNext()){
-                Script ts = testwaScriptsIter.next();
-//                String appId = ts.getAppId();
-//                if(StringUtils.isBlank(appId)){
-//                    log.error("This testcase's appId was not found", ts.toString());
-//                }
-//                App app = appService.getAppById(appId);
-//                if(app == null){
-//                    log.error("This app: {}, was not found", appId);
-//                }
-//                Project project = projectService.findById(app.getProjectId());
-//
-//                lists.add(new ScriptVO(ts, app, project));
-            }
-            result.put("records", lists);
-            result.put("totalRecords", testwaScripts.getTotalElements());
-            return ok(result);
-        }catch (Exception e){
-            log.error(String.format("Get scripts table error, %s", filter.toString()), e);
-            return fail(ResultCode.SERVER_ERROR, e.getMessage());
-        }
-
+    @RequestMapping(value = "/page", method = RequestMethod.GET)
+    public Result tableList(@RequestParam(value = "page") Integer page,
+                            @RequestParam(value = "size") Integer size,
+                            @RequestParam(value = "sortField") String sortField,
+                            @RequestParam(value = "sortOrder") String sortOrder,
+                            @RequestParam(required = false) String projectId,
+                            @RequestParam(required = false) String scriptName) throws NotInProjectException {
+        PageRequest pageRequest = buildPageRequest(page, size, sortField, sortOrder);
+        User user = userService.findByUsername(getCurrentUsername());
+        List<String> projectIds = getProjectIds(projectService, user, projectId);
+        Page<Script> scripts = scriptService.findPage(pageRequest, projectIds, scriptName);
+        List<ScriptVO> lists = new ArrayList<>();
+        scripts.forEach(script -> {
+            ScriptVO scriptVO = new ScriptVO();
+            BeanUtils.copyProperties(script, scriptVO);
+            lists.add(scriptVO);
+        });
+        PageResult<ScriptVO> pr = new PageResult<>(lists, scripts.getTotalElements());
+        return ok(pr);
     }
 
 
-
     @ResponseBody
-    @RequestMapping(value="/{id}", method= RequestMethod.GET)
-    public Result readScript(@PathVariable String id){
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    public Result readScript(@PathVariable String id) {
         Script script = scriptService.getScriptById(id);
         String path = script.getPath();
         StringBuffer sb = new StringBuffer();
@@ -184,14 +154,14 @@ public class ScriptController extends BaseController{
 
 
     @ResponseBody
-    @RequestMapping(value={"/{id}"}, method = { RequestMethod.POST}, produces={"application/json"})
+    @RequestMapping(value = {"/{id}"}, method = {RequestMethod.POST}, produces = {"application/json"})
     public Result writeScript(@PathVariable String id,
-                              @RequestBody Map<String, String> params){
+                              @RequestBody Map<String, String> params) {
         Script script = scriptService.getScriptById(id);
         String path = script.getPath();
 
         String content = params.getOrDefault("content", "");
-        if(StringUtils.isBlank(content)){
+        if (StringUtils.isBlank(content)) {
             log.error("Send content is null");
             return fail(ResultCode.PARAM_ERROR, "参数错误");
         }
@@ -199,7 +169,7 @@ public class ScriptController extends BaseController{
             content = replaceBlank(content);
             Path scriptPath = Paths.get(path);
             Path target = Paths.get(System.getProperty("java.io.tmpdir"), env.getProperty("server.context-path").replace("/", ""), String.valueOf(Identities.randomLong()));
-            if(Files.notExists(target)){
+            if (Files.notExists(target)) {
                 Files.createDirectories(target);
             }
             Files.move(scriptPath, target.resolve(scriptPath.getFileName()), StandardCopyOption.REPLACE_EXISTING);
@@ -219,12 +189,13 @@ public class ScriptController extends BaseController{
 
     /**
      * change tab to blankspace
+     *
      * @param str
      * @return string
      */
     public static String replaceBlank(String str) {
         String dest = "";
-        if (str!=null) {
+        if (str != null) {
             Pattern p = Pattern.compile("\t");
             Matcher m = p.matcher(str);
             dest = m.replaceAll("\u0020\u0020\u0020\u0020");
