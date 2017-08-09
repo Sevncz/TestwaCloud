@@ -43,8 +43,8 @@ public class ProjectService extends BaseService {
     @Autowired
     private UserService userService;
 
-    public void save(Project project){
-        projectRepository.save(project);
+    public Project save(Project project){
+        return projectRepository.save(project);
     }
 
     public void deleteById(String projectId){
@@ -86,21 +86,21 @@ public class ProjectService extends BaseService {
         return projectRepository.findAll();
     }
 
-//    public Page<Project> find(List<Map<String, String>> filters, PageRequest pageRequest) {
-//        Query query = buildQuery(filters);
-//        return projectRepository.find(query, pageRequest);
-//    }
+    public void saveProjectOwner(String projectId, String userId) {
+        addMember(projectId, userId, true, 0);
+    }
 
-//    public List<Project> find(List<Map<String, String>> filters) {
-//        Query query = buildQuery(filters);
-//        return projectRepository.find(query);
-//    }
+    public void saveProjectMember(String projectId, String userId) {
+        addMember(projectId, userId, false, -1);
+    }
 
-    public void addMember(String projectId, String userId) {
+    private void addMember(String projectId, String userId, Boolean isOwner, Integer role) {
         ProjectMember pm = new ProjectMember();
         pm.setJoinTime(TimeUtil.getTimestampLong());
         pm.setMemberId(userId);
         pm.setProjectId(projectId);
+        pm.setRole(role);
+        pm.setOwner(isOwner);
         projectMemberRepository.save(pm);
     }
 
@@ -121,15 +121,11 @@ public class ProjectService extends BaseService {
      * @return
      */
     public List<Project> findByUser(User user) {
-        List<Project> ownerProjects = projectRepository.findByUserId(user.getId());
-        if(ownerProjects == null){
-            ownerProjects = new ArrayList<>();
-        }
+        List<Project> ownerProjects = new ArrayList<>();
         List<ProjectMember> joinProjects = projectMemberRepository.findByMemberId(user.getId());
         if(joinProjects == null){
             joinProjects = new ArrayList<>();
         }else{
-
             Query query = new Query();
             query.addCriteria(Criteria.where("id").in(joinProjects.stream().map(s -> s.getProjectId()).collect(Collectors.toList())));
             List<Project> project = projectRepository.find(query);
@@ -140,7 +136,7 @@ public class ProjectService extends BaseService {
 
     public List<Project> findByUser(String username) {
         User user = userRepository.findByUsername(username);
-        return this.findByUser(user);
+        return findByUser(user);
     }
 
     public Project findById(String projectId) {
@@ -187,7 +183,7 @@ public class ProjectService extends BaseService {
         return projectRepository.find(query);
     }
 
-    public List<ProjectMember> getMembersByProjectAndUsername(String projectId, String userId) {
+    public List<ProjectMember> getMembersByProjectAndUserId(String projectId, String userId) {
         Query query = new Query();
         query.addCriteria(Criteria.where("projectId").is(projectId));
         query.addCriteria(Criteria.where("memberId").is(userId));
@@ -215,8 +211,13 @@ public class ProjectService extends BaseService {
         }
         users.removeAll(projectUser);
         Map<String, List<User>> result = new HashMap<>();
-        result.put("inproject", projectUser);
-        result.put("unproject", users);
+        result.put("in", projectUser);
+        result.put("out", users);
         return result;
+    }
+
+    public void delAllMember(String projectId) {
+        List<ProjectMember> pms = projectMemberRepository.findByProjectId(projectId);
+        projectMemberRepository.delete(pms);
     }
 }

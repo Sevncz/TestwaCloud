@@ -11,6 +11,7 @@ import com.testwa.distest.server.mvc.service.AppService;
 import com.testwa.distest.server.mvc.service.ProjectService;
 import com.testwa.distest.server.mvc.service.ScriptService;
 import com.testwa.distest.server.mvc.service.UserService;
+import com.testwa.distest.server.mvc.vo.CreateAppVO;
 import com.testwa.distest.server.mvc.vo.ScriptVO;
 import com.testwa.distest.server.mvc.beans.ResultCode;
 import com.testwa.distest.server.mvc.beans.Result;
@@ -25,6 +26,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
@@ -37,7 +39,7 @@ import java.util.regex.Pattern;
  */
 @Api("脚本相关api")
 @RestController
-@RequestMapping(path = "script")
+@RequestMapping(path = "/api/script")
 public class ScriptController extends BaseController{
     private static final Logger log = LoggerFactory.getLogger(ScriptController.class);
 
@@ -53,29 +55,14 @@ public class ScriptController extends BaseController{
     @Autowired
     private Environment env;
 
-
     @ResponseBody
     @RequestMapping(value = "/save", method= RequestMethod.POST, produces={"application/json"})
-    public Result save(@RequestBody Map<String, String> params){
-        String appId = params.getOrDefault("appId", "");
-        String id = params.getOrDefault("id", "");
-        if(StringUtils.isBlank(appId)
-                || StringUtils.isBlank(id)){
-            return fail(ResultCode.PARAM_ERROR, "参数错误");
-        }
+    public Result save(@Valid @RequestBody CreateAppVO createAppDTO){
+        String projectId = createAppDTO.getProjectId();
+        String id = createAppDTO.getId();
         Script script = scriptService.getScriptById(id);
-        if(script == null){
-            log.error("ScriptId get script was null", id);
-            return fail(ResultCode.PARAM_ERROR,"ScriptId找不到");
-        }
-        App app = appService.getAppById(appId);
-        if(app == null){
-            log.error("AppId get app was null", appId);
-            return fail(ResultCode.PARAM_ERROR,"app不存在");
-        }
         User user = userService.findByUsername(getCurrentUsername());
-        script.setAppId(appId);
-        script.setProjectId(app.getProjectId());
+        script.setProjectId(projectId);
         script.setDisable(true);
         script.setUserId(user.getId());
         script.setUsername(user.getUsername());
@@ -86,7 +73,7 @@ public class ScriptController extends BaseController{
 
 
     @ResponseBody
-    @RequestMapping(value="/upload-script", method= RequestMethod.POST)
+    @RequestMapping(value="/upload", method= RequestMethod.POST)
     public Result upload(@RequestParam("file") MultipartFile uploadfile){
         Map<String, String> result = new HashMap<>();
         if(uploadfile.isEmpty()){
@@ -156,17 +143,17 @@ public class ScriptController extends BaseController{
             List<ScriptVO> lists = new ArrayList<>();
             while(testwaScriptsIter.hasNext()){
                 Script ts = testwaScriptsIter.next();
-                String appId = ts.getAppId();
-                if(StringUtils.isBlank(appId)){
-                    log.error("This testcase's appId was not found", ts.toString());
-                }
-                App app = appService.getAppById(appId);
-                if(app == null){
-                    log.error("This app: {}, was not found", appId);
-                }
-                Project project = projectService.findById(app.getProjectId());
-
-                lists.add(new ScriptVO(ts, app, project));
+//                String appId = ts.getAppId();
+//                if(StringUtils.isBlank(appId)){
+//                    log.error("This testcase's appId was not found", ts.toString());
+//                }
+//                App app = appService.getAppById(appId);
+//                if(app == null){
+//                    log.error("This app: {}, was not found", appId);
+//                }
+//                Project project = projectService.findById(app.getProjectId());
+//
+//                lists.add(new ScriptVO(ts, app, project));
             }
             result.put("records", lists);
             result.put("totalRecords", testwaScripts.getTotalElements());

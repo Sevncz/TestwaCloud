@@ -17,7 +17,6 @@ public class Script {
     private String name;
     private String aliasName;
     private String size;
-    private String appId;
     @CreatedDate
     private Date createDate;
     // 上传创建者
@@ -57,14 +56,6 @@ public class Script {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getAppId() {
-        return appId;
-    }
-
-    public void setAppId(String appId) {
-        this.appId = appId;
     }
 
     public Date getCreateDate() {
@@ -131,7 +122,6 @@ public class Script {
                 ", username='" + name + '\'' +
                 ", aliasName='" + aliasName + '\'' +
                 ", size='" + size + '\'' +
-                ", appId='" + appId + '\'' +
                 ", createDate=" + createDate +
                 ", userId='" + userId + '\'' +
                 ", disable=" + disable +

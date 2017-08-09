@@ -75,7 +75,7 @@ public class TestcaseController extends BaseController{
             if(script == null){
                 return fail(ResultCode.PARAM_ERROR, String.format("脚本id不存在, %s", scriptId));
             }
-            appIdSet.add(script.getAppId());
+//            appIdSet.add(script.getAppId());
         }
         if(appIdSet.size() > 1){
             return fail(ResultCode.PARAM_ERROR, "请选择同一个App下的脚本");
