@@ -109,9 +109,10 @@ public class ProjectController extends BaseController {
 //                    return fail(ResultCode.PARAM_ERROR, "用户不存在");
                     continue;
                 }
-                projectService.addMember(project.getId(), one.getId());
+                projectService.saveProjectMember(project.getId(), one.getId());
             }
         }
+        projectService.saveProjectOwner(project.getId(), user.getId());
 
         return ok(project);
     }
@@ -239,12 +240,12 @@ public class ProjectController extends BaseController {
                 return fail(ResultCode.PARAM_ERROR, "用户不存在");
             }
 
-            List<ProjectMember> pm = projectService.getMembersByProjectAndUsername(params.projectId, member.getId());
+            List<ProjectMember> pm = projectService.getMembersByProjectAndUserId(params.projectId, member.getId());
             if(pm != null && pm.size() > 0){
                 log.error("ProjectMember is not null, {}", username);
                 return fail(ResultCode.PARAM_ERROR, String.format("用户%s已在项目中", username));
             }
-            projectService.addMember(params.projectId, member.getId());
+            projectService.saveProjectMember(params.projectId, member.getId());
         }
 
         return ok();

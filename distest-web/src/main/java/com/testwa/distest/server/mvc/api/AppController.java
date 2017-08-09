@@ -2,17 +2,18 @@ package com.testwa.distest.server.mvc.api;
 
 import com.testwa.core.utils.Identities;
 import com.testwa.core.utils.PinYinTool;
-import com.testwa.distest.server.mvc.beans.PageQuery;
+import com.testwa.distest.server.mvc.beans.*;
 import com.testwa.distest.server.mvc.model.App;
 import com.testwa.distest.server.mvc.model.Project;
+import com.testwa.distest.server.mvc.model.ProjectMember;
 import com.testwa.distest.server.mvc.model.User;
 import com.testwa.distest.server.mvc.service.AppService;
 import com.testwa.distest.server.mvc.service.ProjectService;
 import com.testwa.distest.server.mvc.service.UserService;
 import com.testwa.distest.server.mvc.vo.AppVO;
-import com.testwa.distest.server.mvc.beans.ResultCode;
-import com.testwa.distest.server.mvc.beans.Result;
+import com.testwa.distest.server.mvc.vo.ProjectVO;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,7 @@ import java.util.*;
  */
 @Api("应用相关api")
 @RestController
-@RequestMapping(path = "app")
+@RequestMapping(path = "/api/app")
 public class AppController extends BaseController{
     private static final Logger log = LoggerFactory.getLogger(AppController.class);
 
@@ -44,17 +45,24 @@ public class AppController extends BaseController{
     private ProjectService projectService;
     @Autowired
     private UserService userService;
-
     @Autowired
     private Environment env;
 
 
+    @SuppressWarnings("unused")
+    private static class AppInfo {
+        public String appId;
+        public String projectId;
+        public String version;
+
+    }
+
     @ResponseBody
     @RequestMapping(value = "/save", method= RequestMethod.POST, produces={"application/json"})
-    public Result save(@RequestBody Map<String, String> appMap){
-        String appId = appMap.getOrDefault("id", "");
-        String projectId = appMap.getOrDefault("projectId", "");
-        String version = appMap.getOrDefault("version", "");
+    public Result save(@RequestBody AppInfo appInfo){
+        String appId = appInfo.appId;
+        String projectId = appInfo.projectId;
+        String version = appInfo.version;
         if(StringUtils.isBlank(appId)
                 || StringUtils.isBlank(version)
                 || StringUtils.isBlank(projectId)){
@@ -64,7 +72,7 @@ public class AppController extends BaseController{
         App app = appService.getAppById(appId);
         if(app == null){
             log.error("AppId get app was null", appId);
-            return fail(ResultCode.SERVER_ERROR, "App找不到");
+            return fail(ResultCode.PARAM_ERROR, "App找不到");
         }
         Project project = projectService.getProjectById(projectId);
         if(project == null){
@@ -79,18 +87,18 @@ public class AppController extends BaseController{
         app.setVersion(version);
         app.setUserId(currentUser.getId());
         app.setUsername(currentUser.getUsername());
-        app.setDisable(true);
+        app.setDisable(false);
         appService.update(app);
         return ok();
     }
 
 
     @ResponseBody
-    @RequestMapping(value="/upload-app", method= RequestMethod.POST)
+    @RequestMapping(value="/upload", method= RequestMethod.POST)
     public Result upload(@RequestParam("file") MultipartFile uploadfile){
         Map<String, String> result = new HashMap<>();
         if(uploadfile.isEmpty()){
-            return fail(ResultCode.SERVER_ERROR, "文件是空");
+            return fail(ResultCode.PARAM_ERROR, "文件是空");
         }
         try {
             String filename = uploadfile.getOriginalFilename();
@@ -121,17 +129,14 @@ public class AppController extends BaseController{
 
 
 
+    @ApiOperation(value="删除项目", notes="")
     @ResponseBody
-    @RequestMapping(value = "/delete", method= RequestMethod.POST, produces={"application/json"})
-    public Result delete(@RequestBody Map<String, Object> params){
-        List<String> ids;
-        try {
-            ids = cast(params.getOrDefault("ids", null));
-        }catch (Exception e){
-            return fail(ResultCode.PARAM_ERROR, "ids参数格式不正确");
-        }
-        if (ids == null) {
-            return ok();
+    @RequestMapping(value = "/delete", method= RequestMethod.POST)
+    public Result delete(@RequestBody DelParams del){
+        List<String> ids = del.ids;
+        if (ids == null || ids.size() == 0) {
+            log.error("ids is null");
+            return fail(ResultCode.INVALID_PARAM, "参数为空");
         }
         for(String id : ids){
             appService.deleteById(id);
@@ -141,30 +146,38 @@ public class AppController extends BaseController{
 
 
     @ResponseBody
-    @RequestMapping(value = "/table", method= RequestMethod.POST, produces={"application/json"})
-    public Result tableList(@RequestBody PageQuery filter){
-        Map<String, Object> result = new HashMap<>();
+    @RequestMapping(value = "/page", method= RequestMethod.GET)
+    public Result page(@RequestParam(value = "page")Integer page,
+                            @RequestParam(value = "size")Integer size ,
+                            @RequestParam(value = "sortField")String sortField,
+                            @RequestParam(value = "sortOrder")String sortOrder,
+                            @RequestParam(required=false) String projectId,
+                            @RequestParam(required=false) String appName){
         try{
-            PageRequest pageRequest = buildPageRequest(filter);
-            // contains, startwith, endwith
-            List filters = new ArrayList();
-//            filterDisable(filters);
+            PageRequest pageRequest = buildPageRequest(page, size, sortField, sortOrder);
             User user = userService.findByUsername(getCurrentUsername());
-            List<Project> projectsOfUser = projectService.findByUser(user);
             List<String> projectIds = new ArrayList<>();
-            projectsOfUser.forEach(item -> projectIds.add(item.getId()));
-            filters = filterProject(filters, "projectId", projectIds);
-            Page<App> testwaScripts =  appService.find(filters, pageRequest);
-            Iterator<App> testwaScriptsIter =  testwaScripts.iterator();
-            List<AppVO> lists = new ArrayList<>();
-            while(testwaScriptsIter.hasNext()){
-                lists.add(new AppVO(testwaScriptsIter.next()));
+            if(StringUtils.isBlank(projectId)){
+                List<Project> projectsOfUser = projectService.findByUser(user);
+                projectsOfUser.forEach(item -> projectIds.add(item.getId()));
+            }else{
+                List<ProjectMember> pms = projectService.getMembersByProjectAndUserId(projectId, user.getId());
+                if(pms == null || pms.size() == 0){
+                    log.error("ProjectMember is null, user {} not in project {}", user.getId(), projectId);
+                    return fail(ResultCode.INVALID_PARAM, "用户不属于该项目");
+                }
+                projectIds.add(projectId);
             }
-            result.put("records", lists);
-            result.put("totalRecords", testwaScripts.getTotalElements());
-            return ok(result);
+            Page<App> apps = appService.findPage(pageRequest, projectIds, appName);
+            Iterator<App> appIter = apps.iterator();
+            List<AppVO> lists = new ArrayList<>();
+            while(appIter.hasNext()){
+                lists.add(new AppVO(appIter.next()));
+            }
+            PageResult<AppVO> pr = new PageResult<>(lists, apps.getTotalElements());
+            return ok(pr);
         }catch (Exception e){
-            log.error(String.format("Get scripts table error, %s", filter.toString()), e);
+            log.error("Get app page error", e);
             return fail(ResultCode.SERVER_ERROR, e.getMessage());
         }
 
@@ -173,26 +186,27 @@ public class AppController extends BaseController{
 
     @ResponseBody
     @RequestMapping(value = "/list", method= RequestMethod.GET, produces={"application/json"})
-    public Result list(){
-        Map<String, Object> result = new HashMap<>();
-
-        List filters = new ArrayList<>();
-        User currentUser = userService.findByUsername(getCurrentUsername());
-        List<Project> projectsOfUser = projectService.findByUser(currentUser);
+    public Result list(@RequestParam(required=false) String projectId,
+                        @RequestParam(required=false) String appName){
+        User user = userService.findByUsername(getCurrentUsername());
         List<String> projectIds = new ArrayList<>();
-        projectsOfUser.forEach(item -> projectIds.add(item.getId()));
-        filters = filterProject(filters, "projectId", projectIds);
-
-        List<App> apps = appService.find(filters);
-        List<Map<String, String>> maps = new ArrayList<>();
-        for(App a : apps){
-            Map<String, String> map = new HashMap<>();
-            map.put("name", a.getName());
-            map.put("id", a.getId());
-            maps.add(map);
+        if(StringUtils.isBlank(projectId)){
+            List<Project> projectsOfUser = projectService.findByUser(user);
+            projectsOfUser.forEach(item -> projectIds.add(item.getId()));
+        }else{
+            List<ProjectMember> pms = projectService.getMembersByProjectAndUserId(projectId, user.getId());
+            if(pms == null || pms.size() == 0){
+                log.error("ProjectMember is null, user {} not in project {}", user.getId(), projectId);
+                return fail(ResultCode.INVALID_PARAM, "用户不属于该项目");
+            }
+            projectIds.add(projectId);
         }
-        result.put("records", maps);
-        return ok(result);
+        List<App> apps = appService.find(projectIds, appName);
+        List<AppVO> lists = new ArrayList<>();
+        for(App app : apps){
+            lists.add(new AppVO(app));
+        }
+        return ok(lists);
     }
 
 }
