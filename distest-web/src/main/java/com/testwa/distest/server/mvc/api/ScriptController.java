@@ -39,7 +39,7 @@ import java.util.regex.Pattern;
  */
 @Api("脚本相关api")
 @RestController
-@RequestMapping(path = "script")
+@RequestMapping(path = "/api/script")
 public class ScriptController extends BaseController{
     private static final Logger log = LoggerFactory.getLogger(ScriptController.class);
 
@@ -73,7 +73,7 @@ public class ScriptController extends BaseController{
 
 
     @ResponseBody
-    @RequestMapping(value="/upload-script", method= RequestMethod.POST)
+    @RequestMapping(value="/upload", method= RequestMethod.POST)
     public Result upload(@RequestParam("file") MultipartFile uploadfile){
         Map<String, String> result = new HashMap<>();
         if(uploadfile.isEmpty()){
