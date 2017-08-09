@@ -211,7 +211,7 @@ public class ProjectService extends BaseService {
         }
         users.removeAll(projectUser);
         Map<String, List<User>> result = new HashMap<>();
-        result.put("in", projectUser);
+        result.put("inPro", projectUser);
         result.put("out", users);
         return result;
     }
