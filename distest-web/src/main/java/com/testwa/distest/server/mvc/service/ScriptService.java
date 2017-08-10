@@ -3,9 +3,9 @@ package com.testwa.distest.server.mvc.service;
 import com.testwa.core.utils.IOUtil;
 import com.testwa.core.utils.ScriptType;
 import com.testwa.distest.server.mvc.model.Script;
+import com.testwa.distest.server.mvc.repository.ProjectRepository;
 import com.testwa.distest.server.mvc.repository.ScriptRepository;
 import com.testwa.distest.server.mvc.repository.TestcaseRepository;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,7 +15,6 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
