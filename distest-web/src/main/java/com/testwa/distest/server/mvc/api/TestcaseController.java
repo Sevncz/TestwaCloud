@@ -3,19 +3,22 @@ package com.testwa.distest.server.mvc.api;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.testwa.distest.server.exception.NoSuchProjectException;
 import com.testwa.distest.server.exception.NoSuchScriptException;
+import com.testwa.distest.server.exception.NoSuchTestcaseException;
+import com.testwa.distest.server.exception.NotInProjectException;
 import com.testwa.distest.server.mvc.beans.PageQuery;
+import com.testwa.distest.server.mvc.beans.PageResult;
 import com.testwa.distest.server.mvc.beans.Result;
 import com.testwa.distest.server.mvc.beans.ResultCode;
 import com.testwa.distest.server.mvc.model.Project;
+import com.testwa.distest.server.mvc.model.Script;
 import com.testwa.distest.server.mvc.model.Testcase;
 import com.testwa.distest.server.mvc.model.User;
 import com.testwa.distest.server.mvc.service.*;
-import com.testwa.distest.server.mvc.vo.CreateCaseVO;
-import com.testwa.distest.server.mvc.vo.DeleteVO;
-import com.testwa.distest.server.mvc.vo.TestcaseVO;
+import com.testwa.distest.server.mvc.vo.*;
 import io.swagger.annotations.Api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -71,6 +74,14 @@ public class TestcaseController extends BaseController {
         return ok();
     }
 
+    @ResponseBody
+    @PostMapping(value = "/modify")
+    public Result save(@Valid @RequestBody ModifyCaseVO modifyCaseVO) throws NoSuchProjectException, NoSuchScriptException, NoSuchTestcaseException{
+        User user = userService.findByUsername(getCurrentUsername());
+        testcaseService.modifyCase(modifyCaseVO, user);
+        return ok();
+    }
+
 
     @ResponseBody
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
@@ -82,6 +93,29 @@ public class TestcaseController extends BaseController {
         return ok();
     }
 
+    @ResponseBody
+    @RequestMapping(value = "/page", method = RequestMethod.GET)
+    public Result tableList(@RequestParam(value = "page") Integer page,
+                            @RequestParam(value = "size") Integer size,
+                            @RequestParam(value = "sortField") String sortField,
+                            @RequestParam(value = "sortOrder") String sortOrder,
+                            @RequestParam(required = false) String projectId,
+                            @RequestParam(required = false) String caseName) throws NotInProjectException {
+        PageRequest pageRequest = buildPageRequest(page, size, sortField, sortOrder);
+        User user = userService.findByUsername(getCurrentUsername());
+        List<String> projectIds = getProjectIds(projectService, user, projectId);
+
+        Page<Testcase> cases = testcaseService.findPage(pageRequest, projectIds, caseName);
+        PageResult<Testcase> pr = new PageResult<>(cases.getContent(), cases.getTotalElements());
+        return ok(pr);
+    }
+
+    @ResponseBody
+    @GetMapping(value = "/detail/{caseId}")
+    public Result detail(@PathVariable String caseId){
+        TestcaseVO testcaseVO = testcaseService.getTestcaseVO(caseId);
+        return ok(testcaseVO);
+    }
 
     @ResponseBody
     @RequestMapping(value = "/table", method = RequestMethod.POST)

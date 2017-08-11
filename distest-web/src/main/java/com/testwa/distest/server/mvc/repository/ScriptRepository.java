@@ -10,4 +10,6 @@ import java.util.List;
  */
 public interface ScriptRepository extends CommonRepository<Script, Serializable> {
     List<Script> findByIdNotIn(List<String> scriptIds);
+
+    List<Script> findByIdIn(List<String> scripts);
 }
