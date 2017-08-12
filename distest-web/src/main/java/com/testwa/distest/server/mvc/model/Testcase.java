@@ -30,7 +30,7 @@ public class Testcase {
     private String projectId;
     private String projectName;
 
-    private Boolean disable = true;
+    private Boolean disable = false;
 
     private Date modifyDate;
 
