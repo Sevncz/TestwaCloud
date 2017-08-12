@@ -5,6 +5,7 @@ import com.testwa.core.utils.IOUtil;
 import com.testwa.core.utils.ZipUtil;
 import com.testwa.distest.server.android.TestwaAndroidApp;
 import com.testwa.distest.server.mvc.model.App;
+import com.testwa.distest.server.mvc.model.UserDeviceHis;
 import com.testwa.distest.server.mvc.repository.AppRepository;
 import com.testwa.distest.server.mvc.repository.ReportRepository;
 import com.testwa.distest.server.mvc.repository.ScriptRepository;
@@ -131,16 +132,6 @@ public class AppService extends BaseService {
         return appRepository.findAll();
     }
 
-    public Page<App> find(List<Map<String, String>> filters, PageRequest pageRequest) {
-        Query query = buildQuery(filters);
-        return appRepository.find(query, pageRequest);
-    }
-
-    public List<App> find(List<Map<String, String>> filters){
-        Query query = buildQuery(filters);
-        return appRepository.find(query);
-    }
-
     public List<App> find(List<String> projectIds, String appName) {
         List<Criteria> andCriteria = new ArrayList<>();
         if(StringUtils.isNotEmpty(appName)){
@@ -149,12 +140,7 @@ public class AppService extends BaseService {
         andCriteria.add(Criteria.where("projectId").in(projectIds));
         andCriteria.add(Criteria.where("disable").is(false));
 
-        Query query = new Query();
-        Criteria criteria = new Criteria();
-        Criteria[] criteriaArr = new Criteria[andCriteria.size()];
-        criteriaArr = andCriteria.toArray(criteriaArr);
-        criteria.andOperator(criteriaArr);
-        query.addCriteria(criteria);
+        Query query = buildQueryByCriteria(andCriteria, null);
 
         return appRepository.find(query);
 
@@ -162,7 +148,6 @@ public class AppService extends BaseService {
 
     public Page<App> findPage(PageRequest pageRequest, List<String> projectIds, String appName) {
 
-        Query query = new Query();
         List<Criteria> andCriteria = new ArrayList<>();
         if(StringUtils.isNotEmpty(appName)){
             andCriteria.add(Criteria.where("name").regex(appName));
@@ -170,11 +155,7 @@ public class AppService extends BaseService {
         andCriteria.add(Criteria.where("projectId").in(projectIds));
         andCriteria.add(Criteria.where("disable").is(false));
 
-        Criteria criteria = new Criteria();
-        Criteria[] criteriaArr = new Criteria[andCriteria.size()];
-        criteriaArr = andCriteria.toArray(criteriaArr);
-        criteria.andOperator(criteriaArr);
-        query.addCriteria(criteria);
+        Query query = buildQueryByCriteria(andCriteria, null);
         return appRepository.find(query, pageRequest);
     }
 

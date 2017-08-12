@@ -161,18 +161,13 @@ public class ProjectService extends BaseService {
 
     public Page<Project> findPage(PageRequest pageRequest, List<String> projectIds, String projectName) {
 
-        Query query = new Query();
         List<Criteria> andCriteria = new ArrayList<>();
         if(StringUtils.isNotEmpty(projectName)){
             andCriteria.add(Criteria.where("projectName").regex(projectName));
         }
         andCriteria.add(Criteria.where("id").in(projectIds));
 
-        Criteria criteria = new Criteria();
-        Criteria[] criteriaArr = new Criteria[andCriteria.size()];
-        criteriaArr = andCriteria.toArray(criteriaArr);
-        criteria.andOperator(criteriaArr);
-        query.addCriteria(criteria);
+        Query query = buildQueryByCriteria(andCriteria, null);
         return projectRepository.find(query, pageRequest);
 
     }

@@ -118,7 +118,7 @@ public class ScriptController extends BaseController {
 
     @ResponseBody
     @RequestMapping(value = "/page", method = RequestMethod.GET)
-    public Result tableList(@RequestParam(value = "page") Integer page,
+    public Result page(@RequestParam(value = "page") Integer page,
                             @RequestParam(value = "size") Integer size,
                             @RequestParam(value = "sortField") String sortField,
                             @RequestParam(value = "sortOrder") String sortOrder,

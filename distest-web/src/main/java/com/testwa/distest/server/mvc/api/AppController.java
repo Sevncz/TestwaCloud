@@ -148,11 +148,11 @@ public class AppController extends BaseController{
     @ResponseBody
     @RequestMapping(value = "/page", method= RequestMethod.GET)
     public Result page(@RequestParam(value = "page")Integer page,
-                            @RequestParam(value = "size")Integer size ,
-                            @RequestParam(value = "sortField")String sortField,
-                            @RequestParam(value = "sortOrder")String sortOrder,
-                            @RequestParam(required=false) String projectId,
-                            @RequestParam(required=false) String appName){
+                        @RequestParam(value = "size")Integer size ,
+                        @RequestParam(value = "sortField")String sortField,
+                        @RequestParam(value = "sortOrder")String sortOrder,
+                        @RequestParam(required=false) String projectId,
+                        @RequestParam(required=false) String appName){
         try{
             PageRequest pageRequest = buildPageRequest(page, size, sortField, sortOrder);
             User user = userService.findByUsername(getCurrentUsername());
