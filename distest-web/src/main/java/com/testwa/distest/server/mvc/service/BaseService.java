@@ -149,7 +149,7 @@ public class BaseService {
         query.addCriteria(Criteria.where("id").is(id));
 
         Update update = new Update();
-        update.set("disable", false);
+        update.set("disable", true);
         update.set("modifyDate", new Date());
 
         repository.updateMulti(query, update);

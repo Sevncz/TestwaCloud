@@ -128,12 +128,7 @@ public class ScriptController extends BaseController {
         User user = userService.findByUsername(getCurrentUsername());
         List<String> projectIds = getProjectIds(projectService, user, projectId);
         Page<Script> scripts = scriptService.findPage(pageRequest, projectIds, scriptName);
-        List<ScriptVO> lists = new ArrayList<>();
-        scripts.forEach(script -> {
-            ScriptVO scriptVO = new ScriptVO();
-            BeanUtils.copyProperties(script, scriptVO);
-            lists.add(scriptVO);
-        });
+        List<ScriptVO> lists = getScriptVOsFromScripts(scripts.getContent());
         PageResult<ScriptVO> pr = new PageResult<>(lists, scripts.getTotalElements());
         return ok(pr);
     }
@@ -183,6 +178,32 @@ public class ScriptController extends BaseController {
             return fail(ResultCode.SERVER_ERROR, e.getMessage());
         }
         return ok();
+    }
+
+    @ResponseBody
+    @GetMapping(value = "/list")
+    public Result list(@RequestParam(required=false) String projectId,
+                       @RequestParam(required=false) String name) throws NotInProjectException{
+        User user = userService.findByUsername(getCurrentUsername());
+        List<String> projectIds = getProjectIds(projectService, user, projectId);
+        List<Script> scripts = scriptService.find(projectIds, name);
+        List<ScriptVO> lists = getScriptVOsFromScripts(scripts);
+        return ok(lists);
+    }
+
+    private List<ScriptVO> getScriptVOsFromScripts(List<Script> scripts) {
+        List<ScriptVO> lists = new ArrayList<>();
+        scripts.forEach(script -> {
+            ScriptVO scriptVO = getScriptVOFromScript(script);
+            lists.add(scriptVO);
+        });
+        return lists;
+    }
+
+    private ScriptVO getScriptVOFromScript(Script script) {
+        ScriptVO scriptVO = new ScriptVO();
+        BeanUtils.copyProperties(script, scriptVO);
+        return scriptVO;
     }
 
     /**

@@ -67,7 +67,7 @@ public class AppService extends BaseService {
         query.addCriteria(Criteria.where("appId").is(appId));
 
         Update update = new Update();
-        update.set("disable", false);
+        update.set("disable", true);
         update.set("modifyDate", new Date());
 
         scriptRepository.updateMulti(query, update);

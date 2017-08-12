@@ -117,37 +117,6 @@ public class TestcaseController extends BaseController {
         return ok(testcaseVO);
     }
 
-    @ResponseBody
-    @RequestMapping(value = "/table", method = RequestMethod.POST)
-    public Result tableList(@RequestBody PageQuery filter) {
-        Map<String, Object> result = new HashMap<>();
-        try {
-            PageRequest pageRequest = buildPageRequest(filter);
-            // contains, startwith, endwith
-            List filters = new ArrayList();
-//            filterDisable(filters);
-            List<Project> projectsOfUser = projectService.findByUser(getCurrentUsername());
-            List<String> projectIds = new ArrayList<>();
-            projectsOfUser.forEach(item -> projectIds.add(item.getId()));
-            filters = filterProject(filters, "projectId", projectIds);
-            Page<Testcase> testwaTestcases = testcaseService.find(filters, pageRequest);
-            Iterator<Testcase> testwaTestcasesIter = testwaTestcases.iterator();
-            List<TestcaseVO> lists = new ArrayList<>();
-            while (testwaTestcasesIter.hasNext()) {
-                Testcase testcase = testwaTestcasesIter.next();
-//                App app = appService.getAppById(testcase.getAppId());
-//                lists.add(new TestcaseVO(testcase, app));
-            }
-            result.put("records", lists);
-            result.put("totalRecords", testwaTestcases.getTotalElements());
-            return ok(result);
-        } catch (Exception e) {
-            log.error(String.format("Get scripts table error, %s", filter.toString()), e);
-            return fail(ResultCode.SERVER_ERROR, e.getMessage());
-        }
-
-    }
-
 
     // deploy 在case中不存在了
 //    @ResponseBody
