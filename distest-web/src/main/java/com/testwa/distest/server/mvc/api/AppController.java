@@ -129,7 +129,7 @@ public class AppController extends BaseController{
 
 
 
-    @ApiOperation(value="删除项目", notes="")
+    @ApiOperation(value="删除应用", notes="")
     @ResponseBody
     @RequestMapping(value = "/delete", method= RequestMethod.POST)
     public Result delete(@RequestBody DelParams del){
