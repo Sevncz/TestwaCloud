@@ -3,7 +3,6 @@ package com.testwa.distest.server.mvc.service;
 import com.testwa.distest.server.exception.NoSuchProjectException;
 import com.testwa.distest.server.exception.NoSuchScriptException;
 import com.testwa.distest.server.exception.NoSuchTestcaseException;
-import com.testwa.distest.server.exception.NotInProjectException;
 import com.testwa.distest.server.mvc.model.Project;
 import com.testwa.distest.server.mvc.model.Script;
 import com.testwa.distest.server.mvc.model.Testcase;
@@ -62,6 +61,11 @@ public class TestcaseService extends BaseService {
         return testcaseRepository.find(query, pageRequest);
     }
 
+    public List<Testcase> find(List<String> projectIds, String name) {
+        Query query = buildQuery(projectIds, name);
+        return testcaseRepository.find(query);
+    }
+
     public void createCase(CreateCaseVO createCaseVO, User user) throws NoSuchScriptException, NoSuchProjectException {
 
         List<String> scriptIds = createCaseVO.getScriptIds();
@@ -88,8 +92,8 @@ public class TestcaseService extends BaseService {
     }
 
     private void checkScripts(List<String> scriptIds) throws NoSuchScriptException {
-        List<Script> scripts = this.scriptRepository.findByIdNotIn(scriptIds);
-        if (scripts.size() > 0) {
+        List<Script> scripts = this.scriptRepository.findByIdIn(scriptIds);
+        if (scripts.size() != scriptIds.size()) {
             throw new NoSuchScriptException("没有此脚本!");
         }
     }
@@ -116,7 +120,7 @@ public class TestcaseService extends BaseService {
         return testcaseVO;
     }
 
-    public void modifyCase(ModifyCaseVO modifyCaseVO, User user) throws NoSuchTestcaseException, NoSuchScriptException, NoSuchProjectException {
+    public void modifyCase(ModifyCaseVO modifyCaseVO) throws NoSuchTestcaseException, NoSuchScriptException, NoSuchProjectException {
         Testcase testcase = testcaseRepository.findOne(modifyCaseVO.getId());
         if (testcase == null) {
             throw new NoSuchTestcaseException("无此案例！");
@@ -127,5 +131,10 @@ public class TestcaseService extends BaseService {
 
         testcase.setScripts(scriptIds);
         testcase.setName(modifyCaseVO.getName());
+    }
+
+    public List<Script> findList(List<String> projectIds, String name) {
+
+        return null;
     }
 }

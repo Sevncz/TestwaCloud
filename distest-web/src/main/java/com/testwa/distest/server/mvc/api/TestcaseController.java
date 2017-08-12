@@ -33,30 +33,16 @@ import java.util.*;
  */
 @Api("测试案例相关api")
 @RestController
-@RequestMapping(path = "case", produces = {"application/json"})
+@RequestMapping(path = "/api/case", produces = {"application/json"})
 public class TestcaseController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(TestcaseController.class);
 
     @Autowired
-    private AppService appService;
-    @Autowired
-    private ScriptService scriptService;
-    @Autowired
     private TestcaseService testcaseService;
-    @Autowired
-    private ReportDetailService reportDetailService;
-    @Autowired
-    private ReportService reportService;
-    @Autowired
-    private DeviceService deviceService;
-    @Autowired
-    private ReportSdetailService reportSdetailService;
     @Autowired
     private ProjectService projectService;
     @Autowired
     private UserService userService;
-    @Autowired
-    private RedisTemplate redisTemplate;
 
     private final SocketIOServer server;
 
@@ -64,7 +50,6 @@ public class TestcaseController extends BaseController {
     public TestcaseController(SocketIOServer server) {
         this.server = server;
     }
-
 
     @ResponseBody
     @RequestMapping(value = "/save", method = RequestMethod.POST)
@@ -77,11 +62,9 @@ public class TestcaseController extends BaseController {
     @ResponseBody
     @PostMapping(value = "/modify")
     public Result save(@Valid @RequestBody ModifyCaseVO modifyCaseVO) throws NoSuchProjectException, NoSuchScriptException, NoSuchTestcaseException{
-        User user = userService.findByUsername(getCurrentUsername());
-        testcaseService.modifyCase(modifyCaseVO, user);
+        testcaseService.modifyCase(modifyCaseVO);
         return ok();
     }
-
 
     @ResponseBody
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
@@ -115,6 +98,32 @@ public class TestcaseController extends BaseController {
     public Result detail(@PathVariable String caseId){
         TestcaseVO testcaseVO = testcaseService.getTestcaseVO(caseId);
         return ok(testcaseVO);
+    }
+
+    @ResponseBody
+    @GetMapping(value = "/list")
+    public Result list(@RequestParam(required=false) String projectId,
+                       @RequestParam(required=false) String name) throws NotInProjectException{
+        User user = userService.findByUsername(getCurrentUsername());
+        List<String> projectIds = getProjectIds(projectService, user, projectId);
+        List<Testcase> testcases = testcaseService.find(projectIds, name);
+        List<TestcaseVO> lists = getVOsFromModels(testcases);
+        return ok(lists);
+    }
+
+    private List<TestcaseVO> getVOsFromModels(List<Testcase> models) {
+        List<TestcaseVO> lists = new ArrayList<>();
+        models.forEach(model -> {
+            TestcaseVO scriptVO = getVOFromModel(model);
+            lists.add(scriptVO);
+        });
+        return lists;
+    }
+
+    private TestcaseVO getVOFromModel(Testcase model) {
+        TestcaseVO vo = new TestcaseVO();
+        BeanUtils.copyProperties(model, vo);
+        return vo;
     }
 
 
