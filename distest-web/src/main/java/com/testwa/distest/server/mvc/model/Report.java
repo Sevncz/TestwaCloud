@@ -52,7 +52,7 @@ public class Report {
         this.testcaseId = testcase.getId();
         this.testcaseName = testcase.getName();
         this.scripts = testcase.getScripts();
-        this.appId = testcase.getAppId();
+//        this.appId = testcase.getAppId();
         this.a_name = app.getName();
         this.a_packageName = app.getPackageName();
         this.a_activity = app.getActivity();

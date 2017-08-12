@@ -3,6 +3,7 @@ package com.testwa.distest.server.mvc.service;
 import com.testwa.core.utils.IOUtil;
 import com.testwa.core.utils.ScriptType;
 import com.testwa.distest.server.mvc.model.Script;
+import com.testwa.distest.server.mvc.repository.ProjectRepository;
 import com.testwa.distest.server.mvc.repository.ScriptRepository;
 import com.testwa.distest.server.mvc.repository.TestcaseRepository;
 import org.apache.commons.lang3.StringUtils;
@@ -62,7 +63,7 @@ public class ScriptService extends BaseService{
         query.addCriteria(Criteria.where("scriptId").in(scriptId));
 
         Update update = new Update();
-        update.set("disable", false);
+        update.set("disable", true);
         update.set("modifyDate", new Date());
 
         testcaseRepository.updateMulti(query, update);
@@ -113,6 +114,11 @@ public class ScriptService extends BaseService{
     public Page<Script> find(List<Map<String, String>> filters, PageRequest pageRequest) {
         Query query = buildQuery(filters);
         return scriptRepository.find(query, pageRequest);
+    }
+
+    public List<Script> find(List<String> projectIds, String name) {
+        Query query = buildQuery(projectIds, name);
+        return scriptRepository.find(query);
     }
 
     public Page<Script> findPage(PageRequest pageRequest, List<String> projectIds, String scriptName) {

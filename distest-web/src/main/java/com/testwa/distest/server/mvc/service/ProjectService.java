@@ -65,7 +65,7 @@ public class ProjectService extends BaseService {
         query.addCriteria(Criteria.where("projectId").is(projectId));
 
         Update update = new Update();
-        update.set("disable", false);
+        update.set("disable", true);
         update.set("modifyDate", new Date());
 
         appRepository.updateMulti(query, update);
