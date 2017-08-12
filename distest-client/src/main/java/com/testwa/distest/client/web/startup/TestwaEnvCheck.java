@@ -72,7 +72,6 @@ public class TestwaEnvCheck implements CommandLineRunner {
                         if(resultCode == 0){
                             JSONObject data = (JSONObject) ((JSONObject) result).get("data");
                             String token = data.getString("access_token");
-
                             UserInfo.token = token;
 
                             String url = env.getProperty("agent.socket.url");
