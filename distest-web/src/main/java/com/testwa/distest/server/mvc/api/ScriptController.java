@@ -67,7 +67,7 @@ public class ScriptController extends BaseController {
         Script script = scriptService.getScriptById(id);
         User user = userService.findByUsername(getCurrentUsername());
         script.setProjectId(projectId);
-        script.setDisable(true);
+        script.setDisable(false);
         script.setUserId(user.getId());
         script.setUsername(user.getUsername());
         scriptService.save(script);
