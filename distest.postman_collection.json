@@ -510,7 +510,7 @@
 					},
 					"response": [
 						{
-							"id": "0ef2ac5f-86bd-46bc-b919-71e8414c74ee",
+							"id": "881ade2d-0154-4cbf-9c16-3bffb5dd3ac8",
 							"name": "200",
 							"originalRequest": {
 								"url": "{{base_url}}/api/script/upload",
@@ -627,7 +627,7 @@
 					},
 					"response": [
 						{
-							"id": "b01b4590-f873-4a40-9af4-8bd20ceda619",
+							"id": "646af893-6d37-4880-b9c2-66db403291bb",
 							"name": "200",
 							"originalRequest": {
 								"url": "{{base_url}}/api/script/save",
@@ -915,7 +915,7 @@
 					},
 					"response": [
 						{
-							"id": "4008be47-7393-4a32-adb5-06c444f122ac",
+							"id": "51c6421d-73b1-42c3-98dd-fa74b685b576",
 							"name": "200",
 							"originalRequest": {
 								"url": "{{base_url}}/api/case/save",
@@ -1006,7 +1006,7 @@
 				{
 					"name": "改",
 					"request": {
-						"url": "{{base_url}}/api/case/save",
+						"url": "{{base_url}}/api/case/modify",
 						"method": "POST",
 						"header": [
 							{
@@ -1022,13 +1022,13 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"name\": \"test\",\n\t\"projectId\": \"598d51691525ae14ecffbdf2\",\n\t\"scriptIds\": [\"598d518a1525ae14ecffbdf5\"]\n}"
+							"raw": "{\n\t\"id\": \"598ea04e1525ae6a7856ea20\",\n\t\"name\": \"testtset\",\n\t\"projectId\": \"598d51691525ae14ecffbdf2\",\n\t\"scriptIds\": [\"598d518a1525ae14ecffbdf5\"]\n}"
 						},
 						"description": ""
 					},
 					"response": [
 						{
-							"id": "dd2fa5cb-66a8-4139-a490-55bc0c02945e",
+							"id": "a3fc36e2-3738-44d7-931c-135236cdf422",
 							"name": "200",
 							"originalRequest": {
 								"url": "{{base_url}}/api/case/modify",
@@ -1201,7 +1201,7 @@
 					},
 					"response": [
 						{
-							"id": "fe68517c-4575-42e4-be79-231271be41e7",
+							"id": "453b2afb-3bac-426d-88de-8ace5ca29fec",
 							"name": "200response",
 							"originalRequest": {
 								"url": {
@@ -1365,6 +1365,103 @@
 						"description": "查询条件和分页一样\n如果传projectId，则返回该项目（必须是该用户可见的项目）下所有的应用；\n如果不传projectId，则返回该用户可见项目的所有应用。\nappName 支持模糊查询"
 					},
 					"response": []
+				},
+				{
+					"name": "详情",
+					"request": {
+						"url": "{{base_url}}/api/case/detail/598ea04e1525ae6a7856ea20",
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-TOKEN",
+								"value": "{{X-TOKEN}}",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": [
+						{
+							"id": "1dabfbd5-e11f-4dd1-aada-aaa5e41c4773",
+							"name": "200",
+							"originalRequest": {
+								"url": "{{base_url}}/api/case/detail/598ea04e1525ae6a7856ea20",
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-TOKEN",
+										"value": "{{X-TOKEN}}",
+										"description": ""
+									}
+								],
+								"body": {}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"_postman_previewtype": "text",
+							"header": [
+								{
+									"name": "cache-control",
+									"key": "cache-control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate",
+									"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
+								},
+								{
+									"name": "content-type",
+									"key": "content-type",
+									"value": "application/json;charset=UTF-8",
+									"description": "The mime type of this content"
+								},
+								{
+									"name": "date",
+									"key": "date",
+									"value": "Tue, 15 Aug 2017 03:29:45 GMT",
+									"description": "The date and time that the message was sent"
+								},
+								{
+									"name": "expires",
+									"key": "expires",
+									"value": "0",
+									"description": "Gives the date/time after which the response is considered stale"
+								},
+								{
+									"name": "pragma",
+									"key": "pragma",
+									"value": "no-cache",
+									"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
+								},
+								{
+									"name": "transfer-encoding",
+									"key": "transfer-encoding",
+									"value": "chunked",
+									"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
+								},
+								{
+									"name": "x-content-type-options",
+									"key": "x-content-type-options",
+									"value": "nosniff",
+									"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
+								},
+								{
+									"name": "x-frame-options",
+									"key": "x-frame-options",
+									"value": "DENY",
+									"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
+								},
+								{
+									"name": "x-xss-protection",
+									"key": "x-xss-protection",
+									"value": "1; mode=block",
+									"description": "Cross-site scripting (XSS) filter"
+								}
+							],
+							"cookie": [],
+							"responseTime": 127,
+							"body": "{\"message\":\"ok\",\"data\":{\"id\":\"598ea04e1525ae6a7856ea20\",\"type\":null,\"userName\":\"admin\",\"createDate\":null,\"name\":\"test\",\"projectName\":\"xxxx1\",\"scriptVOs\":[{\"id\":\"598d518a1525ae14ecffbdf5\",\"name\":\"contact.py\",\"aliasName\":\"contact.py\",\"size\":\"2697\",\"createDate\":null,\"userName\":null,\"type\":\"python\",\"md5\":\"C08D2DEF083DD5E7675411124C12AF2F\",\"modifyDate\":null,\"modifyUserName\":null,\"porjectName\":null}]},\"code\":0,\"url\":null}"
+						}
+					]
 				}
 			]
 		},
@@ -1420,7 +1517,7 @@
 			},
 			"response": [
 				{
-					"id": "daebcb88-fea3-4175-acf3-c4ea480f211c",
+					"id": "fb2ab2c1-1d36-4b03-89bf-f9498706ca1f",
 					"name": "response example",
 					"originalRequest": {
 						"url": "{{base_url}}/auth/login",
