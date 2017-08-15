@@ -74,6 +74,7 @@ public class TestcaseService extends BaseService {
         Project project = checkProject(projectId);
 
         Testcase testcase = new Testcase();
+        testcase.setDescription(createCaseVO.getDescription());
         testcase.setScripts(scriptIds);
         testcase.setProjectId(projectId);
         testcase.setProjectName(project.getProjectName());
@@ -108,7 +109,7 @@ public class TestcaseService extends BaseService {
         TestcaseVO testcaseVO = new TestcaseVO();
         BeanUtils.copyProperties(testcase, testcaseVO);
         // get scriptVOs
-        List<Script> scripts = scriptRepository.findByIdIn(testcase.getScripts());
+        List<Script> scripts = findScriptList(testcase.getScripts());
         List<ScriptVO> scriptVOs = new ArrayList<>();
         scripts.forEach(script -> {
             ScriptVO scriptVO = new ScriptVO();
@@ -118,6 +119,16 @@ public class TestcaseService extends BaseService {
         testcaseVO.setScriptVOs(scriptVOs);
 
         return testcaseVO;
+    }
+
+    private List<Script> findScriptList(List<String> scripts) {
+        // 修复返回列表不按照顺序的bug 使用逐个获取策略
+        List<Script> scriptList = new ArrayList<>();
+        scripts.forEach(scriptId -> {
+            Script script = scriptRepository.findOne(scriptId);
+            scriptList.add(script);
+        });
+        return scriptList;
     }
 
     public void modifyCase(ModifyCaseVO modifyCaseVO) throws NoSuchTestcaseException, NoSuchScriptException, NoSuchProjectException {

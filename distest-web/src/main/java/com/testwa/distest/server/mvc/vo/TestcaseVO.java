@@ -16,6 +16,7 @@ import java.util.List;
 public class TestcaseVO {
 
     private String id;
+    private String description;
     private String type;
     private String userName;
     private String createDate;
