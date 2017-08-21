@@ -92,9 +92,11 @@ public class TestcaseService extends BaseService {
     }
 
     private void checkScripts(List<String> scriptIds) throws NoSuchScriptException {
-        List<Script> scripts = this.scriptRepository.findByIdIn(scriptIds);
-        if (scripts.size() != scriptIds.size()) {
-            throw new NoSuchScriptException("没有此脚本!");
+        for(int i = 0 ;i < scriptIds.size(); i++){
+            Script script =  this.scriptRepository.findOne(scriptIds.get(i));
+            if (null == script) {
+                throw new NoSuchScriptException("没有此脚本!");
+            }
         }
     }
 
@@ -108,7 +110,10 @@ public class TestcaseService extends BaseService {
         TestcaseVO testcaseVO = new TestcaseVO();
         BeanUtils.copyProperties(testcase, testcaseVO);
         // get scriptVOs
-        List<Script> scripts = scriptRepository.findByIdIn(testcase.getScripts());
+        List<Script> scripts = new ArrayList<>();
+        testcase.getScripts().forEach(scriptId ->{
+            scripts.add((Script)this.scriptRepository.findOne(scriptId));
+        });
         List<ScriptVO> scriptVOs = new ArrayList<>();
         scripts.forEach(script -> {
             ScriptVO scriptVO = new ScriptVO();
