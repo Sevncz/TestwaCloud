@@ -37,15 +37,16 @@ public class TaskService extends BaseService{
         return taskRepository.findAll(pageRequest);
     }
 
-    public Page<Task> findPage(PageRequest pageRequest, String appId, String projectId) {
+    public Page<Task> findPage(PageRequest pageRequest, String appId, List<String> projectIds) {
         List<Criteria> andCriteria = new ArrayList<>();
         if(StringUtils.isNotEmpty(appId)){
             andCriteria.add(Criteria.where("appId").is(appId));
         }
-        andCriteria.add(Criteria.where("projectId").is(projectId));
+        andCriteria.add(Criteria.where("projectId").in(projectIds));
         andCriteria.add(Criteria.where("disable").is(false));
 
         Query query = buildQueryByCriteria(andCriteria, null);
         return taskRepository.find(query, pageRequest);
     }
+
 }

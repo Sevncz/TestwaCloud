@@ -38,7 +38,7 @@ public class DeviceService extends BaseService{
         return deviceRepository.findAll(page);
     }
 
-    @Cacheable(value = "cache.device", keyGenerator = "wiselyKeyGenerator")
+    @Cacheable(value = "cache.device")
     public TDevice getDeviceById(String deviceId){
         TDevice td = deviceRepository.findOne(deviceId);
         return td;

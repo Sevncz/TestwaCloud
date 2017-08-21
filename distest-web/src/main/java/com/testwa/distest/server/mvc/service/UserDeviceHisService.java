@@ -76,7 +76,7 @@ public class UserDeviceHisService extends BaseService {
             andCriteria.add(Criteria.where("deviceId").regex(deviceId));
         }
         if(StringUtils.isNotEmpty(userId)){
-            orCriteria.add(Criteria.where("shareUsers").in(userId));
+            orCriteria.add(Criteria.where("shareUsers").is(userId));
         }
         orCriteria.add(Criteria.where("scope").is(UserShareScope.All.getValue()));
 

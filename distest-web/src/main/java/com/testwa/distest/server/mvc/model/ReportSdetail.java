@@ -36,7 +36,7 @@ public class ReportSdetail {
     // 步骤运行状态，每有一个错误步骤+1
     private Integer stepStatus = 0;
 
-    private Boolean disable = true;
+    private Boolean disable = false;
 
     public ReportSdetail() {
     }

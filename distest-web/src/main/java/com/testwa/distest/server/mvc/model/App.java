@@ -33,7 +33,7 @@ public class App {
     private String userId;
     private String username;
 
-    private Boolean disable = true;
+    private Boolean disable = false;
 
     private String md5;
     private String size;

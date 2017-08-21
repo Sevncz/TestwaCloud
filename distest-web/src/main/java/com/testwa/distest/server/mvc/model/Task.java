@@ -6,6 +6,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by wen on 12/08/2017.
@@ -18,9 +19,9 @@ public class Task {
 
     private String appId;
 
-    private String caseId;
+    private String projectId;
 
-    private String deviceId;
+    private List<String> testcaseIds;
 
     private String creator;
 
@@ -28,5 +29,6 @@ public class Task {
     private Date createDate;
 
     private Date modifyDate;
+
 
 }

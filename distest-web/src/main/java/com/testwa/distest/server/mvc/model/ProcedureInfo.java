@@ -38,7 +38,7 @@ public class ProcedureInfo {
     private String userId;
 
     private String logcatFile;
-    private Boolean disable = true;
+    private Boolean disable = false;
     private Date modifyDate;
 
     public Integer getStatus() {

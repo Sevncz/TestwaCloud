@@ -5,6 +5,7 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.googlecode.protobuf.format.JsonFormat;
 import com.testwa.core.utils.DeviceType;
 import com.testwa.distest.server.LogInterceptor;
+import com.testwa.distest.server.security.JwtTokenUtil;
 import com.testwa.distest.server.websocket.WSFuncEnum;
 import com.testwa.distest.server.rpc.GRpcService;
 import com.testwa.distest.server.mvc.model.TDevice;
@@ -14,6 +15,7 @@ import com.testwa.distest.server.mvc.service.UserDeviceHisService;
 import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.device.*;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,13 +41,15 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     private DeviceService deviceService;
     @Autowired
     private UserDeviceHisService userDeviceHisService;
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
 
     @Override
     public void all(DevicesRequest request, StreamObserver<CommonReply> responseObserver) {
         JsonFormat jf = new JsonFormat();
-        String userId = request.getUserId();
+        String token = request.getUserId();
         List<Device> l = request.getDeviceList();
-
+        String userId = jwtTokenUtil.getUserIdFromToken(token);
         for(Device device : l){
             String fbJson = jf.printToString(device);
             if("ON".equals(device.getStatus().name().toUpperCase())){

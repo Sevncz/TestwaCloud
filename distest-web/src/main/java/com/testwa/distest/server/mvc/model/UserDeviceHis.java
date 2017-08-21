@@ -64,7 +64,7 @@ public class UserDeviceHis {
         this.d_version = device.getVersion();
         this.d_width = device.getWidth();
 
-        this.disable = true;
+        this.disable = false;
         this.createDate = new Date();
 
         this.scope = UserShareScope.All.getValue();
