@@ -130,6 +130,7 @@ public class TestcaseService extends BaseService {
 
         testcase.setScripts(scriptIds);
         testcase.setName(modifyCaseVO.getName());
+        testcaseRepository.save(testcase);
     }
 
     public List<Script> findList(List<String> projectIds, String name) {
