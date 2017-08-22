@@ -76,6 +76,7 @@ public class TaskController extends BaseController{
         task.setAppId(appId);
         task.setProjectId(projectId);
         task.setTestcaseIds(caseIds);
+        task.setDisable(false);
         taskService.save(task);
         return ok();
     }
@@ -83,7 +84,7 @@ public class TaskController extends BaseController{
 
     @ApiOperation(value="任务分页列表")
     @ResponseBody
-    @RequestMapping(value = "/page", method = RequestMethod.POST)
+    @RequestMapping(value = "/page", method = RequestMethod.GET)
     public Result page(@RequestParam(value = "page") Integer page,
                        @RequestParam(value = "size") Integer size,
                        @RequestParam(value = "sortField") String sortField,

@@ -25,8 +25,10 @@ public class Task {
 
     private String creator;
 
+    private boolean disable;
+
     @CreatedDate
-    private Date createDate;
+    private Date createDate = new Date();
 
     private Date modifyDate;
 
