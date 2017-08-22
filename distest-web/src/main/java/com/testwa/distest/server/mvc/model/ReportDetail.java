@@ -50,7 +50,7 @@ public class ReportDetail {
     // project info
     private String projectId;
 
-    private Boolean disable = true;
+    private Boolean disable = false;
 
 
     public ReportDetail() {

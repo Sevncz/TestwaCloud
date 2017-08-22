@@ -2,13 +2,17 @@ package com.testwa.distest.server.mvc.service;
 
 import com.testwa.distest.server.mvc.model.UserDeviceHis;
 import com.testwa.distest.server.mvc.beans.QueryFilters;
+import com.testwa.distest.server.mvc.model.UserShareScope;
 import com.testwa.distest.server.mvc.repository.*;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -45,22 +49,61 @@ public class UserDeviceHisService extends BaseService {
         return userDeviceHisRepository.findAll();
     }
 
-    public Page<UserDeviceHis> find(List<Map<String, String>> filters, PageRequest pageRequest) {
-        Query query = buildQuery(filters);
-        return userDeviceHisRepository.find(query, pageRequest);
-    }
-
-    public Page<UserDeviceHis> find(QueryFilters filters, PageRequest pageRequest) {
-        Query query = buildQuery(filters);
-        return userDeviceHisRepository.find(query, pageRequest);
-    }
-
-    public List<UserDeviceHis> find(List<Map<String, String>> filters){
-        Query query = buildQuery(filters);
-        return userDeviceHisRepository.find(query);
-    }
-
     public UserDeviceHis findByUserIdAndDeviceId(String userId, String deviceId) {
         return userDeviceHisRepository.findByUserIdAndDeviceId(userId, deviceId);
+    }
+
+    public Page<UserDeviceHis> findOwnerUserPage(PageRequest pageRequest, String userId, String deviceId) {
+
+        List<Criteria> andCriteria = new ArrayList<>();
+        if(StringUtils.isNotEmpty(deviceId)){
+            andCriteria.add(Criteria.where("deviceId").regex(deviceId));
+        }
+        if(StringUtils.isNotEmpty(userId)){
+            andCriteria.add(Criteria.where("userId").is(userId));
+        }
+        andCriteria.add(Criteria.where("disable").is(false));
+
+        Query query = buildQueryByCriteria(andCriteria, null);
+        return userDeviceHisRepository.find(query, pageRequest);
+    }
+
+    public Page<UserDeviceHis> findSharedUserPage(PageRequest pageRequest, String userId, String deviceId) {
+
+        List<Criteria> andCriteria = new ArrayList<>();
+        List<Criteria> orCriteria = new ArrayList<>();
+        if(StringUtils.isNotEmpty(deviceId)){
+            andCriteria.add(Criteria.where("deviceId").regex(deviceId));
+        }
+        if(StringUtils.isNotEmpty(userId)){
+            orCriteria.add(Criteria.where("shareUsers").is(userId));
+        }
+        orCriteria.add(Criteria.where("scope").is(UserShareScope.All.getValue()));
+
+        andCriteria.add(Criteria.where("disable").is(false));
+        Query query = buildQueryByCriteria(andCriteria, orCriteria);
+        return userDeviceHisRepository.find(query, pageRequest);
+
+    }
+
+    public Page<UserDeviceHis> findAvailablePage(PageRequest pageRequest, String userId, String deviceId) {
+
+        List<Criteria> andCriteria = new ArrayList<>();
+        List<Criteria> orCriteria = new ArrayList<>();
+        if(StringUtils.isNotEmpty(deviceId)){
+            andCriteria.add(Criteria.where("deviceId").regex(deviceId));
+        }
+        if(StringUtils.isNotEmpty(userId)){
+            orCriteria.add(Criteria.where("shareUsers").in(userId));
+        }
+        if(StringUtils.isNotEmpty(userId)){
+            orCriteria.add(Criteria.where("userId").is(userId));
+        }
+        orCriteria.add(Criteria.where("scope").is(UserShareScope.All.getValue()));
+
+        andCriteria.add(Criteria.where("disable").is(false));
+        Query query = buildQueryByCriteria(andCriteria, orCriteria);
+        return userDeviceHisRepository.find(query, pageRequest);
+
     }
 }

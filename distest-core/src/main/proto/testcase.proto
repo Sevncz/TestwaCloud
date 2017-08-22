@@ -3,7 +3,7 @@ syntax = "proto3";
 
 option java_multiple_files = true;
 option java_package = "io.rpc.testwa.testcase";
-option java_outer_classname = "RunningLogProto";
+option java_outer_classname = "TestcaseProto";
 option objc_class_prefix = "RLP";
 
 package testcase;
@@ -25,6 +25,16 @@ message RunningLogRequest {
     int64 timestamp = 15;
     string logcatFile = 16;
     string userId = 17;
+}
+
+
+message TestcaseStartMessage {
+    string reportDetailId = 1;
+    string serial = 2;
+    string install = 3;
+    string appId = 4;
+    repeated string scriptIds = 5;
+    int32 frequency = 6;
 }
 
 

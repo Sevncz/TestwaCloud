@@ -22,7 +22,7 @@ public class TestcaseLogger {
     @CreatedDate
     private Date createDate;
     private Integer looptime; // 循环次数
-    private Boolean disable = true;
+    private Boolean disable = false;
 
     public String getId() {
         return id;
