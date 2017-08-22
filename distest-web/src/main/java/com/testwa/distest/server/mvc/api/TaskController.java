@@ -59,6 +59,7 @@ public class TaskController extends BaseController{
         public String projectId;
         public List<String> caseIds;
         public String appId;
+        public String name;
         public List<String> deviceIds;
 
     }
@@ -70,12 +71,15 @@ public class TaskController extends BaseController{
     public Result save(@RequestBody TaskInfo taskInfo){
         String appId = taskInfo.appId;
         String projectId = taskInfo.projectId;
+        String name = taskInfo.name;
         List<String> caseIds = taskInfo.caseIds;
 
         Task task = new Task();
         task.setAppId(appId);
+        task.setName(name);
         task.setProjectId(projectId);
         task.setTestcaseIds(caseIds);
+        task.setCreator(getCurrentUsername());
         task.setDisable(false);
         taskService.save(task);
         return ok();
