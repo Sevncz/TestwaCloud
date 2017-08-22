@@ -3,13 +3,15 @@ package com.testwa.distest.server.mvc.api;
 import com.alibaba.fastjson.JSON;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.testwa.core.WebsocketEvent;
-import com.testwa.core.utils.TimeUtil;
 import com.testwa.distest.server.mvc.beans.PageResult;
 import com.testwa.distest.server.mvc.beans.Result;
 import com.testwa.distest.server.mvc.beans.ResultCode;
-import com.testwa.distest.server.mvc.model.*;
+import com.testwa.distest.server.mvc.model.Project;
+import com.testwa.distest.server.mvc.model.ProjectMember;
+import com.testwa.distest.server.mvc.model.Task;
+import com.testwa.distest.server.mvc.model.User;
 import com.testwa.distest.server.mvc.service.*;
-import com.testwa.distest.server.mvc.vo.AppVO;
+import com.testwa.distest.server.mvc.vo.DeleteVO;
 import com.testwa.distest.server.mvc.vo.TaskVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -22,7 +24,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by wen on 12/08/2017.
@@ -152,7 +158,14 @@ public class TaskController extends BaseController{
         return ok();
     }
 
-
+    @ResponseBody
+    @RequestMapping(value = "/delete", method = RequestMethod.POST, produces = {"application/json"})
+    public Result delete(@Valid @RequestBody DeleteVO deleteVO) {
+        for (String id : deleteVO.getIds()) {
+            taskService.deleteById(id);
+        }
+        return ok();
+    }
     @ResponseBody
     @RequestMapping(value = "/test", method = RequestMethod.GET)
     public Result test(@RequestParam(value = "sessionId")String sessionId){
