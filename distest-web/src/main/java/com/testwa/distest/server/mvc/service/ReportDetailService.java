@@ -41,7 +41,6 @@ public class ReportDetailService extends BaseService {
     }
 
     public Page<ReportDetail> find(List<Map<String, String>> filters, PageRequest pageRequest) {
-        Query query = buildQuery(filters);
-        return reportDetailRepository.find(query, pageRequest);
+        return null;
     }
 }

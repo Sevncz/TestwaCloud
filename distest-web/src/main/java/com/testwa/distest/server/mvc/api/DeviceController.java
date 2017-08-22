@@ -100,113 +100,92 @@ public class DeviceController extends BaseController{
         return ok();
     }
 
-    /***
+
+    /**
      * 我自己的设备
-     * @param filter
+     * @param page
+     * @param size
+     * @param sortField
+     * @param sortOrder
+     * @param deviceId
      * @return
      */
-
     @ResponseBody
-    @RequestMapping(value = "/table", method= RequestMethod.POST, produces={"application/json"})
-    public Result tableList(@RequestBody PageQuery filter){
-        Map<String, Object> result = new HashMap<>();
+    @RequestMapping(value = "/owner/page", method= RequestMethod.GET)
+    public Result page(@RequestParam(value = "page")Integer page,
+                       @RequestParam(value = "size")Integer size ,
+                       @RequestParam(value = "sortField")String sortField,
+                       @RequestParam(value = "sortOrder")String sortOrder,
+                       @RequestParam(required=false) String deviceId){
         try{
-            PageRequest pageRequest = buildPageRequest(filter);
-            // contains, startwith, endwith
-            List filters = new ArrayList();
-            if(filters == null){
-                filters = new ArrayList<>();
-            }
-            User currentUser = userService.findByUsername(getCurrentUsername());
-            Map<String, Object> userIdFilter = addOtherFilter(QueryOperator.is.getName(), "userId", currentUser.getId());
-            filters.add(userIdFilter);
-            Page<UserDeviceHis> userDevicePage =  userDeviceHisService.find(filters, pageRequest);
-            List<DeviceOwnerTableVO> lists = buildDeviceOwnerTableVO(userDevicePage);
+            PageRequest pageRequest = buildPageRequest(page, size, sortField, sortOrder);
 
-            result.put("records", lists);
-            result.put("totalRecords", userDevicePage.getTotalElements());
-            return ok(result);
+            User currentUser = userService.findByUsername(getCurrentUsername());
+            Page<UserDeviceHis> userDevicePage = userDeviceHisService.findOwnerUserPage(pageRequest, currentUser.getId(), deviceId);
+            List<DeviceOwnerTableVO> userDeviceOVList = buildDeviceOwnerTableVO(userDevicePage);
+
+            PageResult<DeviceOwnerTableVO> pr = new PageResult<>(userDeviceOVList, userDevicePage.getTotalElements());
+            return ok(pr);
         }catch (Exception e){
-            log.error(String.format("Get devices table error, %s", filter.toString()), e);
+            log.error("Get devices table error", e);
             return fail(ResultCode.SERVER_ERROR, e.getMessage());
         }
 
     }
 
-    /***
+    /**
      * 分享给我的设备
-     * @param query
+     * @param page
+     * @param size
+     * @param sortField
+     * @param sortOrder
+     * @param deviceId
      * @return
      */
-
     @ResponseBody
-    @RequestMapping(value = "/table/shared", method= RequestMethod.POST, produces={"application/json"})
-    public Result sharedtableList(@RequestBody PageQuery query){
-
-        Map<String, Object> result = new HashMap<>();
+    @RequestMapping(value = "/shared/page", method= RequestMethod.GET)
+    public Result sharedPage(@RequestParam(value = "page")Integer page,
+                                  @RequestParam(value = "size")Integer size ,
+                                  @RequestParam(value = "sortField")String sortField,
+                                  @RequestParam(value = "sortOrder")String sortOrder,
+                                  @RequestParam(required=false) String deviceId){
         try{
             User currentUser = userService.findByUsername(getCurrentUsername());
-            PageRequest pageRequest = buildPageRequest(query);
-            // contains, startwith, endwith
-            List filters = new ArrayList();
-            if(filters == null){
-                filters = new ArrayList<>();
-            }
-            List orFilters = new ArrayList<>();
-            List<String> value = new ArrayList<>();
-            value.add(currentUser.getId());
-            Map<String, Object> shareUsers = addOtherFilter(QueryOperator.in.getName(), "shareUsers", value);
-            orFilters.add(shareUsers);
-
-            Map<String, Object> allUser = addOtherFilter(QueryOperator.is.getName(), "scope", 100);
-            orFilters.add(allUser);
-            QueryFilters queryFilters = new QueryFilters(filters, orFilters);
-            Page<UserDeviceHis> userDevicePage =  userDeviceHisService.find(queryFilters, pageRequest);
-            return ok(new PageResult(buildDeviceOwnerTableVO(userDevicePage), userDevicePage.getTotalElements()));
+            PageRequest pageRequest = buildPageRequest(page, size, sortField, sortOrder);
+            Page<UserDeviceHis> userDevicePage =  userDeviceHisService.findSharedUserPage(pageRequest, currentUser.getId(), deviceId);
+            PageResult<DeviceOwnerTableVO> pr = new PageResult<>(buildDeviceOwnerTableVO(userDevicePage), userDevicePage.getTotalElements());
+            return ok(pr);
         }catch (Exception e){
-            log.error(String.format("Get devices table error, %s", query.toString()), e);
+            log.error("Get devices table error", e);
             return fail(ResultCode.SERVER_ERROR, e.getMessage());
         }
 
     }
 
-    /***
+    /**
      * 所有可用设备
-     *
-     * @param filter
+     * @param page
+     * @param size
+     * @param sortField
+     * @param sortOrder
+     * @param deviceId
      * @return
      */
-
     @ResponseBody
-    @RequestMapping(value = "/table/available", method= RequestMethod.POST, produces={"application/json"})
-    public Result availabletableList(@RequestBody PageQuery filter){
-
+    @RequestMapping(value = "/available/page", method= RequestMethod.GET)
+    public Result availabletablePage(@RequestParam(value = "page")Integer page,
+                                     @RequestParam(value = "size")Integer size ,
+                                     @RequestParam(value = "sortField")String sortField,
+                                     @RequestParam(value = "sortOrder")String sortOrder,
+                                     @RequestParam(required=false) String deviceId){
         try{
             User currentUser = userService.findByUsername(getCurrentUsername());
-            PageRequest pageRequest = buildPageRequest(filter);
-            // contains, startwith, endwith
-            List filters = new ArrayList();
-            if(filters == null){
-                filters = new ArrayList<>();
-            }
-            Map<String, Object> userIdFilter = addOtherFilter(QueryOperator.is.getName(), "userId", currentUser.getId());
-            filters.add(userIdFilter);
-
-            List orFilters = new ArrayList<>();
-            List<String> value = new ArrayList<>();
-            value.add(currentUser.getId());
-            Map<String, Object> shareUsers = addOtherFilter(QueryOperator.in.getName(), "shareUsers", value);
-            orFilters.add(shareUsers);
-
-            Map<String, Object> allUser = addOtherFilter(QueryOperator.is.getName(), "scope", 100);
-            orFilters.add(allUser);
-
-            QueryFilters queryFilters = new QueryFilters(filters, orFilters);
-
-            Page<UserDeviceHis> userDevicePage =  userDeviceHisService.find(queryFilters, pageRequest);
-            return ok(new PageResult(buildDeviceOwnerTableVO(userDevicePage), userDevicePage.getTotalElements()));
+            PageRequest pageRequest = buildPageRequest(page, size, sortField, sortOrder);
+            Page<UserDeviceHis> userDevicePage =  userDeviceHisService.findAvailablePage(pageRequest, currentUser.getId(), deviceId);
+            PageResult<DeviceOwnerTableVO> pr = new PageResult<>(buildDeviceOwnerTableVO(userDevicePage), userDevicePage.getTotalElements());
+            return ok(pr);
         }catch (Exception e){
-            log.error(String.format("Get devices table error, %s", filter.toString()), e);
+            log.error("Get devices table error", e);
             return fail(ResultCode.SERVER_ERROR, e.getMessage());
         }
 
@@ -238,38 +217,18 @@ public class DeviceController extends BaseController{
     }
 
 
-    private Map<String, Object> addOtherFilter(String mode, String name, Object value){
-        Map<String, Object> filterMe = new HashMap<>();
-        filterMe.put("matchMode", mode);
-        filterMe.put("name", name);
-        filterMe.put("value", value);
-        return filterMe;
-    }
-
-
     @ResponseBody
-    @RequestMapping(value = "/list", method= RequestMethod.GET, produces={"application/json"})
-    public Result list(){
-        Map<String, Object> result = new HashMap<>();
-
-        List<TDevice> devices = deviceService.findAll();
-        List<Map<String, String>> maps = new ArrayList<>();
-        for(TDevice a : devices){
-            Map<String, String> map = new HashMap<>();
-            map.put("name", a.getModel());
-            map.put("id", a.getId());
-            maps.add(map);
-        }
-        result.put("records", maps);
-        return ok(result);
+    @RequestMapping(value = "/list", method= RequestMethod.GET)
+    public Result list(@RequestParam(required=false) String deviceId){
+        List<TDevice> devices = deviceService.find(deviceId);
+        return ok();
     }
 
 
     @ResponseBody
     @RequestMapping(value = "/share/to/scope", method= RequestMethod.POST, produces={"application/json"})
-    public Result shareScope(@RequestBody Map<String, Object> params){
-        String deviceId = (String) params.getOrDefault("deviceId", "");
-        String scope = (String) params.getOrDefault("scope", "");
+    public Result shareScope(@RequestParam() String deviceId,
+                            @RequestParam() String scope){
         User currentUser = userService.findByUsername(getCurrentUsername());
         String currentUserId = currentUser.getId();
         UserDeviceHis udh = userDeviceHisService.findByUserIdAndDeviceId(deviceId, currentUserId);

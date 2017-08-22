@@ -61,7 +61,6 @@ public class ProcedureInfoService extends BaseService {
     }
 
     public Page<ProcedureInfo> find(List<Map<String, String>> filters, PageRequest pageRequest) {
-        Query query = buildQuery(filters);
-        return procedureInfoRepository.find(query, pageRequest);
+        return null;
     }
 }

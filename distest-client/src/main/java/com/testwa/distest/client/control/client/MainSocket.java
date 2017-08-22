@@ -2,6 +2,7 @@ package com.testwa.distest.client.control.client;
 
 import com.testwa.distest.client.control.client.boost.Message;
 import com.testwa.distest.client.control.client.boost.MessageCallback;
+import com.testwa.distest.client.model.UserInfo;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import org.slf4j.Logger;
@@ -22,10 +23,13 @@ public class MainSocket extends BaseClient{
     }
 
     public static void connect(String url, String token) {
-        log.info("websocket url == {}, token == {}", url, token);
         Socket socket = null;
+        IO.Options opts = new IO.Options();
+        opts.forceNew = true;
+        opts.reconnectionDelay = 1000; //失败重连的时间间隔
+        opts.timeout = 500; //连接超时时间(ms)
         try {
-            socket = IO.socket(String.format("%s?token=%s&type=client", url, token));
+            socket = IO.socket(String.format("%s?token=%s&type=client", url, token), opts);
             socket.connect();
             MainSocket.socket = socket;
             MainSocket.socket.on(Socket.EVENT_CONNECT, objects -> {

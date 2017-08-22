@@ -61,11 +61,6 @@ public class UserService extends BaseService {
         return userRepository.findById(userId);
     }
 
-    public Page<User> find(List<Map<String, String>> filters, PageRequest pageRequest) {
-        Query query = buildQuery(filters);
-        return userRepository.find(query, pageRequest);
-    }
-
     /**
      * 更新对象
      * @param user

@@ -57,8 +57,7 @@ public class TestcaseService extends BaseService {
     }
 
     public Page<Testcase> find(List<Map<String, String>> filters, PageRequest pageRequest) {
-        Query query = buildQuery(filters);
-        return testcaseRepository.find(query, pageRequest);
+        return null;
     }
 
     public List<Testcase> find(List<String> projectIds, String name) {

@@ -22,7 +22,7 @@ public class Script {
     // 上传创建者
     private String userId;
     private String username;
-    private boolean disable = true;
+    private boolean disable = false;
     private String type;
     private String md5;
     private String projectId;

@@ -111,11 +111,6 @@ public class ScriptService extends BaseService{
         return scriptRepository.findAll(pageRequest);
     }
 
-    public Page<Script> find(List<Map<String, String>> filters, PageRequest pageRequest) {
-        Query query = buildQuery(filters);
-        return scriptRepository.find(query, pageRequest);
-    }
-
     public List<Script> find(List<String> projectIds, String name) {
         Query query = buildQuery(projectIds, name);
         return scriptRepository.find(query);

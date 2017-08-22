@@ -52,7 +52,6 @@ public class AgentService extends BaseService {
     }
 
     public Page<Agent> find(List<Map<String, String>> filters, PageRequest pageRequest) {
-        Query query = buildQuery(filters);
-        return agentRepository.find(query, pageRequest);
+        return null;
     }
 }

@@ -32,7 +32,7 @@ public class TDevice {
     private String sessionId;
     @Transient
     private Agent agent;
-    private Boolean disable = true;
+    private Boolean disable = false;
 
     public TDevice() {
     }
