@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -117,12 +116,7 @@ public class TaskController extends BaseController{
             projectIds.add(projectId);
         }
         Page<Task> tasks = taskService.findPage(pageRequest, appId, projectIds);
-        Iterator<Task> taskIter = tasks.iterator();
-        List<TaskVO> lists = new ArrayList<>();
-        while(taskIter.hasNext()){
-            lists.add(new TaskVO(taskIter.next()));
-        }
-        PageResult<TaskVO> pr = new PageResult<>(lists, tasks.getTotalElements());
+        PageResult<Task> pr = new PageResult<>(tasks.getContent(), tasks.getTotalElements());
         return ok(pr);
     }
 
@@ -178,7 +172,12 @@ public class TaskController extends BaseController{
                     .sendEvent(WebsocketEvent.ON_TESTCASE_RUN, JSON.toJSONString(params));
         return ok();
     }
-
+    @ResponseBody
+    @GetMapping(value = "/detail/{taskId}")
+    public Result detail(@PathVariable String taskId){
+        TaskVO taskVO = taskService.getTaskVO(taskId);
+        return ok(taskVO);
+    }
     @Data
     private class RunTestcaseParams{
 
@@ -189,6 +188,5 @@ public class TaskController extends BaseController{
         private String install;
 
     }
-
 
 }
