@@ -98,6 +98,8 @@ public class ScriptController extends BaseController {
             String size = uploadfile.getSize() + "";
             Script script = scriptService.saveScript(filename, aliasName, filepath.toString(), size, type);
             result.put("id", script.getId());
+            result.put("size",script.getSize());
+            result.put("type",script.getType());
             return ok(result);
         } catch (Exception e) {
             log.error(String.format("upload app error %s", uploadfile.getSize()), e);

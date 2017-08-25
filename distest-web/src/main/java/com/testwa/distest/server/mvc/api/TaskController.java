@@ -11,6 +11,7 @@ import com.testwa.distest.server.mvc.model.ProjectMember;
 import com.testwa.distest.server.mvc.model.Task;
 import com.testwa.distest.server.mvc.model.User;
 import com.testwa.distest.server.mvc.service.*;
+import com.testwa.distest.server.mvc.vo.DeleteVO;
 import com.testwa.distest.server.mvc.vo.TaskVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -23,8 +24,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -63,6 +64,7 @@ public class TaskController extends BaseController{
         public String projectId;
         public List<String> caseIds;
         public String appId;
+        public String name;
         public List<String> deviceIds;
 
     }
@@ -74,12 +76,15 @@ public class TaskController extends BaseController{
     public Result save(@RequestBody TaskInfo taskInfo){
         String appId = taskInfo.appId;
         String projectId = taskInfo.projectId;
+        String name = taskInfo.name;
         List<String> caseIds = taskInfo.caseIds;
 
         Task task = new Task();
         task.setAppId(appId);
+        task.setName(name);
         task.setProjectId(projectId);
         task.setTestcaseIds(caseIds);
+        task.setCreator(getCurrentUsername());
         task.setDisable(false);
         taskService.save(task);
         return ok();
@@ -111,12 +116,7 @@ public class TaskController extends BaseController{
             projectIds.add(projectId);
         }
         Page<Task> tasks = taskService.findPage(pageRequest, appId, projectIds);
-        Iterator<Task> taskIter = tasks.iterator();
-        List<TaskVO> lists = new ArrayList<>();
-        while(taskIter.hasNext()){
-            lists.add(new TaskVO(taskIter.next()));
-        }
-        PageResult<TaskVO> pr = new PageResult<>(lists, tasks.getTotalElements());
+        PageResult<Task> pr = new PageResult<>(tasks.getContent(), tasks.getTotalElements());
         return ok(pr);
     }
 
@@ -152,6 +152,14 @@ public class TaskController extends BaseController{
         return ok();
     }
 
+    @ResponseBody
+    @RequestMapping(value = "/delete", method = RequestMethod.POST, produces = {"application/json"})
+    public Result delete(@Valid @RequestBody DeleteVO deleteVO) {
+        for (String id : deleteVO.getIds()) {
+            taskService.deleteById(id);
+        }
+        return ok();
+    }
 
     @ResponseBody
     @RequestMapping(value = "/test", method = RequestMethod.GET)
@@ -166,6 +174,13 @@ public class TaskController extends BaseController{
         return ok();
     }
 
+    @ResponseBody
+    @GetMapping(value = "/detail/{taskId}")
+    public Result detail(@PathVariable String taskId){
+        TaskVO taskVO = taskService.getTaskVO(taskId);
+        return ok(taskVO);
+    }
+
     @Data
     private class RunTestcaseParams{
 
@@ -176,6 +191,4 @@ public class TaskController extends BaseController{
         private String install;
 
     }
-
-
 }

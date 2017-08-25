@@ -19,6 +19,8 @@ public class Task {
 
     private String appId;
 
+    private String name;
+
     private String projectId;
 
     private List<String> testcaseIds;
