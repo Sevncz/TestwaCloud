@@ -4,7 +4,10 @@ import com.testwa.distest.server.mvc.model.Task;
 import com.testwa.distest.server.mvc.model.Testcase;
 import com.testwa.distest.server.mvc.repository.TaskRepository;
 import com.testwa.distest.server.mvc.repository.TestcaseRepository;
+import com.testwa.distest.server.mvc.vo.TaskVO;
+import com.testwa.distest.server.mvc.vo.TestcaseVO;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by wen on 16/9/7.
@@ -24,6 +26,9 @@ public class TaskService extends BaseService{
 
     @Autowired
     private TaskRepository taskRepository;
+
+    @Autowired
+    private TestcaseRepository testcaseRepository;
 
     public void save(Task task){
         taskRepository.save(task);
@@ -49,4 +54,23 @@ public class TaskService extends BaseService{
         return taskRepository.find(query, pageRequest);
     }
 
+    public TaskVO getTaskVO(String taskId) {
+        Task task = taskRepository.findOne(taskId);
+        TaskVO taskVO = new TaskVO();
+        BeanUtils.copyProperties(task, taskVO);
+
+        List<Testcase> testcases = new ArrayList<>();
+        task.getTestcaseIds().forEach(caseId ->{
+            testcases.add( this.testcaseRepository.findOne(caseId));
+        });
+        List<TestcaseVO> testcaseVOs = new ArrayList<>();
+        testcases.forEach(testcase -> {
+            TestcaseVO testcaseVO = new TestcaseVO();
+            BeanUtils.copyProperties(testcase, testcaseVO );
+            testcaseVOs.add(testcaseVO);
+        });
+        taskVO.setTestcaseVOs(testcaseVOs);
+
+        return taskVO;
+    }
 }

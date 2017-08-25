@@ -1,6 +1,7 @@
 package com.testwa.distest.server.mvc.service;
 
 import com.testwa.core.utils.TimeUtil;
+import com.testwa.distest.server.exception.NoSuchProjectException;
 import com.testwa.distest.server.mvc.model.Project;
 import com.testwa.distest.server.mvc.model.ProjectMember;
 import com.testwa.distest.server.mvc.model.User;
@@ -40,6 +41,8 @@ public class ProjectService extends BaseService {
     private UserRepository userRepository;
     @Autowired
     private ProjectMemberRepository projectMemberRepository;
+    @Autowired
+    private RoleRepository roleRepository;
     @Autowired
     private UserService userService;
 
@@ -214,5 +217,20 @@ public class ProjectService extends BaseService {
     public void delAllMember(String projectId) {
         List<ProjectMember> pms = projectMemberRepository.findByProjectId(projectId);
         projectMemberRepository.delete(pms);
+    }
+
+    private Project checkProject(String projectId) throws NoSuchProjectException {
+        Project project = this.projectRepository.findOne(projectId);
+        if (project == null) {
+            throw new NoSuchProjectException("没有此项目!");
+        }
+        return project;
+    }
+    public ProjectMember getRoleNameByPro(String projectId, String userId) throws NoSuchProjectException{
+       this.checkProject(projectId);
+        Query query = new Query();
+        query.addCriteria(Criteria.where("projectId").is(projectId));
+        query.addCriteria(Criteria.where("memberId").is(userId));
+        return projectMemberRepository.findOne(query);
     }
 }
