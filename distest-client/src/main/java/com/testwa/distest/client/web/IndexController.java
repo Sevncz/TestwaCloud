@@ -63,11 +63,17 @@ public class IndexController {
         String action = "";
         String params = "";
         if(payload.containsKey("command")){
-            Map cmd = (Map)payload.get("command");
-            if(cmd != null){
-                action = cmd.get("action") == null ?"" : (String)cmd.getOrDefault("action", "");
-                params = cmd.get("beans") == null ?"" : (String)cmd.getOrDefault("beans", "");
+            if(payload.get("command") instanceof String){
+                action = (String) payload.get("command");
             }
+            if(payload.get("command") instanceof Map){
+                Map cmd = (Map)payload.get("command");
+                if(cmd != null){
+                    action = cmd.get("action") == null ?"" : (String)cmd.getOrDefault("action", "");
+                    params = cmd.get("beans") == null ?"" : (String)cmd.getOrDefault("beans", "");
+                }
+            }
+
         }
 
         String screenpath = (String) payload.getOrDefault("screenshotPath", "");
