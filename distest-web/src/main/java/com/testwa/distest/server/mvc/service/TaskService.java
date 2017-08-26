@@ -41,17 +41,19 @@ public class TaskService extends BaseService{
     @Autowired
     private TaskRepository taskRepository;
     @Autowired
-    private TestcaseService testcaseService;
-    @Autowired
     private ScriptService scriptService;
-    @Autowired
-    private AppService appService;
     @Autowired
     private RemoteClientService remoteClientService;
     @Autowired
     private DeviceService deviceService;
     @Autowired
     private ExecutionTaskRepository executionTaskRepository;
+    @Autowired
+    private TestcaseRepository testcaseRepository;
+    @Autowired
+    private TestcaseService testcaseService;
+    @Autowired
+    private AppService appService;
 
     private final SocketIOServer server;
 
@@ -59,12 +61,6 @@ public class TaskService extends BaseService{
     public TaskService(SocketIOServer server) {
         this.server = server;
     }
-    @Autowired
-    private TestcaseRepository testcaseRepository;
-    @Autowired
-    private TestcaseService testcaseService;
-    @Autowired
-    private AppService appService;
 
     public void save(Task task){
         taskRepository.save(task);
