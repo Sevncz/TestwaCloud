@@ -91,8 +91,8 @@ public class TaskService extends BaseService{
 
         List<String> caseIds = modifyTaskVO.getCaseIds();
         this.testcaseService.checkTestcases(modifyTaskVO.getCaseIds());
-
         task.setTestcaseIds(caseIds);
+
         task.setName(modifyTaskVO.getName());
         taskRepository.save(task);
     }
