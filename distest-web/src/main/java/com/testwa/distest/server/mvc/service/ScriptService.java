@@ -2,6 +2,7 @@ package com.testwa.distest.server.mvc.service;
 
 import com.testwa.core.utils.IOUtil;
 import com.testwa.core.utils.ScriptType;
+import com.testwa.distest.server.exception.NoSuchScriptException;
 import com.testwa.distest.server.mvc.model.Script;
 import com.testwa.distest.server.mvc.repository.ProjectRepository;
 import com.testwa.distest.server.mvc.repository.ScriptRepository;
@@ -119,5 +120,22 @@ public class ScriptService extends BaseService{
     public Page<Script> findPage(PageRequest pageRequest, List<String> projectIds, String scriptName) {
         Query query = buildQuery(projectIds, scriptName);
         return scriptRepository.find(query, pageRequest);
+    }
+
+    protected void checkScripts(List<String> scriptIds) throws NoSuchScriptException {
+        List<Script> scripts = this.findScriptList(scriptIds);
+        if (scripts.size() != scriptIds.size()) {
+            throw new NoSuchScriptException("没有此脚本!");
+        }
+    }
+
+    protected List<Script> findScriptList(List<String> scripts) {
+        // 修复返回列表不按照顺序的bug 使用逐个获取策略
+        List<Script> scriptList = new ArrayList<>();
+        scripts.forEach(scriptId -> {
+            Script script = scriptRepository.findOne(scriptId);
+            scriptList.add(script);
+        });
+        return scriptList;
     }
 }

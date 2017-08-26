@@ -12,6 +12,7 @@ import java.util.List;
 public class CreateCaseVO {
     @NotNull
     public String name;
+    public String description;
     @NotNull
     public String projectId;
     @NotNull

@@ -8,10 +8,18 @@ import com.testwa.core.model.RemoteRunCommand;
 import com.testwa.core.model.RemoteTestcaseContent;
 import com.testwa.distest.server.mvc.model.*;
 import com.testwa.distest.server.mvc.repository.ExecutionTaskRepository;
+import com.testwa.distest.server.exception.NoSuchTaskException;
+import com.testwa.distest.server.exception.NoSuchTestcaseException;
+import com.testwa.distest.server.mvc.api.TaskController;
+import com.testwa.distest.server.mvc.model.Task;
+import com.testwa.distest.server.mvc.model.Testcase;
 import com.testwa.distest.server.mvc.repository.TaskRepository;
 import com.testwa.distest.server.mvc.repository.TestcaseRepository;
 import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
+import com.testwa.distest.server.mvc.vo.TaskVO;
+import com.testwa.distest.server.mvc.vo.TestcaseVO;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +28,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.*;
 
 /**
@@ -49,6 +59,12 @@ public class TaskService extends BaseService{
     public TaskService(SocketIOServer server) {
         this.server = server;
     }
+    @Autowired
+    private TestcaseRepository testcaseRepository;
+    @Autowired
+    private TestcaseService testcaseService;
+    @Autowired
+    private AppService appService;
 
     public void save(Task task){
         taskRepository.save(task);
@@ -79,6 +95,42 @@ public class TaskService extends BaseService{
         return taskRepository.find(query, pageRequest);
     }
 
+    public TaskVO getTaskVO(String taskId) {
+        Task task = taskRepository.findOne(taskId);
+        TaskVO taskVO = new TaskVO();
+        BeanUtils.copyProperties(task, taskVO);
+
+        //get app
+        taskVO.setApp(this.appService.getAppVOById(task.getAppId()));
+
+        List<Testcase> testcases = new ArrayList<>();
+        task.getTestcaseIds().forEach(caseId ->{
+            testcases.add( this.testcaseRepository.findOne(caseId));
+        });
+        List<TestcaseVO> testcaseVOs = new ArrayList<>();
+        testcases.forEach(testcase -> {
+            TestcaseVO testcaseVO = new TestcaseVO();
+            BeanUtils.copyProperties(testcase, testcaseVO );
+            testcaseVOs.add(testcaseVO);
+        });
+        taskVO.setTestcaseVOs(testcaseVOs);
+
+        return taskVO;
+    }
+
+    public void modifyTask(TaskController.TaskInfo modifyTaskVO) throws NoSuchTaskException, NoSuchTestcaseException{
+        Task task = taskRepository.findOne(modifyTaskVO.getTaskId());
+        if (task == null) {
+            throw new NoSuchTaskException("无此任务！");
+        }
+
+        List<String> caseIds = modifyTaskVO.getCaseIds();
+        this.testcaseService.checkTestcases(modifyTaskVO.getCaseIds());
+        task.setTestcaseIds(caseIds);
+
+        task.setName(modifyTaskVO.getName());
+        taskRepository.save(task);
+    }
     public void run(String taskId, List<String> deviceIds) throws Exception {
 
         ExecutionTask et = new ExecutionTask();

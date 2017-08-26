@@ -10,7 +10,9 @@ import com.testwa.distest.server.mvc.repository.AppRepository;
 import com.testwa.distest.server.mvc.repository.ReportRepository;
 import com.testwa.distest.server.mvc.repository.ScriptRepository;
 import com.testwa.distest.server.mvc.repository.TestcaseRepository;
+import com.testwa.distest.server.mvc.vo.AppVO;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -159,4 +161,12 @@ public class AppService extends BaseService {
         return appRepository.find(query, pageRequest);
     }
 
+    public AppVO getAppVOById(String appId) {
+        AppVO appVO = new AppVO();
+        App app = this.getAppById(appId);
+        if (app != null) {
+            BeanUtils.copyProperties(app, appVO);
+        }
+        return appVO;
+    }
 }

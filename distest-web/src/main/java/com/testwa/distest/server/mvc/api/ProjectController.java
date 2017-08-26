@@ -1,7 +1,11 @@
 package com.testwa.distest.server.mvc.api;
 
 import com.testwa.core.utils.TimeUtil;
-import com.testwa.distest.server.mvc.beans.*;
+import com.testwa.distest.server.exception.NoSuchProjectException;
+import com.testwa.distest.server.mvc.beans.DelParams;
+import com.testwa.distest.server.mvc.beans.PageResult;
+import com.testwa.distest.server.mvc.beans.Result;
+import com.testwa.distest.server.mvc.beans.ResultCode;
 import com.testwa.distest.server.mvc.model.Project;
 import com.testwa.distest.server.mvc.model.ProjectMember;
 import com.testwa.distest.server.mvc.model.User;
@@ -12,7 +16,6 @@ import com.testwa.distest.server.mvc.vo.ProjectVO;
 import com.testwa.distest.server.mvc.vo.UserVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,9 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 /**
@@ -331,4 +332,18 @@ public class ProjectController extends BaseController {
         return ok(vo);
     }
 
+    @ResponseBody
+    @RequestMapping(value = "/role", method= RequestMethod.GET)
+    public Result getRoleByUserAndPro(@RequestParam(value = "projectId")String projectId) throws NoSuchProjectException {
+      User user = userService.findByUsername(getCurrentUsername());
+       ProjectMember pm =  projectService.getRoleNameByPro(projectId, user.getId());
+       Map<String, Object> res = new HashMap<>();
+       if (null != pm){
+           res.put("role",pm.getRole());
+           res.put("projectId", projectId);
+       }else {
+           return fail(ResultCode.NO_AUTH, "该用户不属于此项目");
+       }
+       return ok(res);
+    }
 }

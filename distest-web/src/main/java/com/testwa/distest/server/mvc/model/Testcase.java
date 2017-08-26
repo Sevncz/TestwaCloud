@@ -16,6 +16,7 @@ import java.util.List;
 public class Testcase {
     @Id
     private String id;
+    private String description;
 
     private List<String> scripts;
 

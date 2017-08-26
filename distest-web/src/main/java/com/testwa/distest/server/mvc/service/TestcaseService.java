@@ -38,6 +38,8 @@ public class TestcaseService extends BaseService {
     @Autowired
     private ScriptRepository scriptRepository;
     @Autowired
+    private ScriptService scriptService;
+    @Autowired
     private ProjectRepository projectReporsitory;
 
     public void save(Testcase testcase) {
@@ -68,11 +70,12 @@ public class TestcaseService extends BaseService {
     public void createCase(CreateCaseVO createCaseVO, User user) throws NoSuchScriptException, NoSuchProjectException {
 
         List<String> scriptIds = createCaseVO.getScriptIds();
-        checkScripts(scriptIds);
+        this.scriptService.checkScripts(scriptIds);
         String projectId = createCaseVO.getProjectId();
         Project project = checkProject(projectId);
 
         Testcase testcase = new Testcase();
+        testcase.setDescription(createCaseVO.getDescription());
         testcase.setScripts(scriptIds);
         testcase.setProjectId(projectId);
         testcase.setProjectName(project.getProjectName());
@@ -90,13 +93,6 @@ public class TestcaseService extends BaseService {
         return project;
     }
 
-    private void checkScripts(List<String> scriptIds) throws NoSuchScriptException {
-        List<Script> scripts = this.scriptRepository.findByIdIn(scriptIds);
-        if (scripts.size() != scriptIds.size()) {
-            throw new NoSuchScriptException("没有此脚本!");
-        }
-    }
-
     public Page<Testcase> findPage(PageRequest pageRequest, List<String> projectIds, String caseName) {
         Query query = buildQuery(projectIds, caseName);
         return testcaseRepository.find(query, pageRequest);
@@ -107,7 +103,7 @@ public class TestcaseService extends BaseService {
         TestcaseVO testcaseVO = new TestcaseVO();
         BeanUtils.copyProperties(testcase, testcaseVO);
         // get scriptVOs
-        List<Script> scripts = scriptRepository.findByIdIn(testcase.getScripts());
+        List<Script> scripts = this.scriptService.findScriptList(testcase.getScripts());
         List<ScriptVO> scriptVOs = new ArrayList<>();
         scripts.forEach(script -> {
             ScriptVO scriptVO = new ScriptVO();
@@ -126,7 +122,7 @@ public class TestcaseService extends BaseService {
         }
 
         List<String> scriptIds = modifyCaseVO.getScriptIds();
-        checkScripts(scriptIds);
+        this.scriptService.checkScripts(scriptIds);
 
         testcase.setScripts(scriptIds);
         testcase.setName(modifyCaseVO.getName());
@@ -136,5 +132,22 @@ public class TestcaseService extends BaseService {
     public List<Script> findList(List<String> projectIds, String name) {
 
         return null;
+    }
+
+    protected void checkTestcases(List<String> caseIds) throws NoSuchTestcaseException {
+        List<Testcase> cases = this.findTestcaseList(caseIds);
+        if (cases.size() != caseIds.size()) {
+            throw new NoSuchTestcaseException("没有此案例!");
+        }
+    }
+
+    protected List<Testcase> findTestcaseList(List<String> cases) {
+        // 修复返回列表不按照顺序的bug 使用逐个获取策略
+        List<Testcase> caseList = new ArrayList<>();
+        cases.forEach(caseId -> {
+            Testcase testcase = testcaseRepository.findOne(caseId);
+            caseList.add(testcase);
+        });
+        return caseList;
     }
 }

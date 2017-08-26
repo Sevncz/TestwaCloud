@@ -19,14 +19,18 @@ public class Task {
 
     private String appId;
 
+    private String name;
+
     private String projectId;
 
     private List<String> testcaseIds;
 
     private String creator;
 
+    private boolean disable;
+
     @CreatedDate
-    private Date createDate;
+    private Date createDate = new Date();
 
     private Date modifyDate;
 
