@@ -3,6 +3,8 @@ package com.testwa.distest.server.mvc.api;
 import com.alibaba.fastjson.JSON;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.testwa.core.WebsocketEvent;
+import com.testwa.distest.server.exception.NoSuchTaskException;
+import com.testwa.distest.server.exception.NoSuchTestcaseException;
 import com.testwa.distest.server.mvc.beans.PageResult;
 import com.testwa.distest.server.mvc.beans.Result;
 import com.testwa.distest.server.mvc.beans.ResultCode;
@@ -59,7 +61,8 @@ public class TaskController extends BaseController{
     }
 
     @SuppressWarnings("unused")
-    private static class TaskInfo {
+    @Data
+    public static class TaskInfo {
         public String taskId;
         public String projectId;
         public List<String> caseIds;
@@ -90,6 +93,12 @@ public class TaskController extends BaseController{
         return ok();
     }
 
+    @ResponseBody
+    @PostMapping(value = "/modify")
+    public Result modify(@Valid @RequestBody TaskInfo modifyTaskVO) throws NoSuchTaskException, NoSuchTestcaseException {
+        taskService.modifyTask(modifyTaskVO);
+        return ok();
+    }
 
     @ApiOperation(value="任务分页列表")
     @ResponseBody

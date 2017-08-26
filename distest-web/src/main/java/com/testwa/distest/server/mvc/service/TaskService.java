@@ -1,5 +1,8 @@
 package com.testwa.distest.server.mvc.service;
 
+import com.testwa.distest.server.exception.NoSuchTaskException;
+import com.testwa.distest.server.exception.NoSuchTestcaseException;
+import com.testwa.distest.server.mvc.api.TaskController;
 import com.testwa.distest.server.mvc.model.Task;
 import com.testwa.distest.server.mvc.model.Testcase;
 import com.testwa.distest.server.mvc.repository.TaskRepository;
@@ -26,9 +29,12 @@ public class TaskService extends BaseService{
 
     @Autowired
     private TaskRepository taskRepository;
-
     @Autowired
     private TestcaseRepository testcaseRepository;
+    @Autowired
+    private TestcaseService testcaseService;
+    @Autowired
+    private AppService appService;
 
     public void save(Task task){
         taskRepository.save(task);
@@ -59,6 +65,9 @@ public class TaskService extends BaseService{
         TaskVO taskVO = new TaskVO();
         BeanUtils.copyProperties(task, taskVO);
 
+        //get app
+        taskVO.setApp(this.appService.getAppVOById(task.getAppId()));
+
         List<Testcase> testcases = new ArrayList<>();
         task.getTestcaseIds().forEach(caseId ->{
             testcases.add( this.testcaseRepository.findOne(caseId));
@@ -72,5 +81,19 @@ public class TaskService extends BaseService{
         taskVO.setTestcaseVOs(testcaseVOs);
 
         return taskVO;
+    }
+
+    public void modifyTask(TaskController.TaskInfo modifyTaskVO) throws NoSuchTaskException, NoSuchTestcaseException{
+        Task task = taskRepository.findOne(modifyTaskVO.getTaskId());
+        if (task == null) {
+            throw new NoSuchTaskException("无此任务！");
+        }
+
+        List<String> caseIds = modifyTaskVO.getCaseIds();
+        this.testcaseService.checkTestcases(modifyTaskVO.getCaseIds());
+
+        task.setTestcaseIds(caseIds);
+        task.setName(modifyTaskVO.getName());
+        taskRepository.save(task);
     }
 }

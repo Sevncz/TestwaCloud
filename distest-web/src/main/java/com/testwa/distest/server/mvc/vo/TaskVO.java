@@ -13,7 +13,7 @@ import java.util.List;
 public class TaskVO {
 
     private String id;
-    private String appId;
+    private AppVO app;
     private String projectId;
     private String creator;
     private String createDate;
@@ -26,7 +26,6 @@ public class TaskVO {
     public TaskVO(Task task) {
 
         this.id = task.getId();
-        this.appId = task.getAppId();
         this.projectId = task.getProjectId();
         this.createDate = TimeUtil.formatTimeStamp(task.getCreateDate().getTime());
     }
