@@ -93,13 +93,13 @@ public class TestwaScheduled {
                     result.add(device.toAgentDevice());
                 }
 
-                if(UserInfo.userId == null){
-                    logger.error("userId was null");
+                if(UserInfo.token == null){
+                    logger.error("token was null");
                     return;
                 }
                 DevicesRequest devices = DevicesRequest.newBuilder()
                         .setCount(result.size())
-                        .setUserId(UserInfo.userId)
+                        .setUserId(UserInfo.token)
                         .addAllDevice(result)
                         .build();
                 String webHost = env.getProperty("grpc.host");

@@ -18,9 +18,7 @@ public class Report {
     @Id
     private String id;
     @Indexed
-    private String testcaseId;
-    private String testcaseName;
-    private List<String> scripts;
+    private String taskId;
 
     private String appId;
     private String a_name;
@@ -35,7 +33,6 @@ public class Report {
     private String projectName;
     // 案例拥有者
     private String userId;
-    private String userName;
     // 执行者
     private String excuteUserId;
     private String excuteUserName;
@@ -48,11 +45,8 @@ public class Report {
     public Report() {
     }
 
-    public Report(Testcase testcase, App app, List<String> devices, User currentUser) {
-        this.testcaseId = testcase.getId();
-        this.testcaseName = testcase.getName();
-        this.scripts = testcase.getScripts();
-//        this.appId = testcase.getAppId();
+    public Report(Task task, App app, List<String> devices, User currentUser) {
+//        this.appId = task.getAppId();
         this.a_name = app.getName();
         this.a_packageName = app.getPackageName();
         this.a_activity = app.getActivity();
@@ -60,9 +54,8 @@ public class Report {
         this.a_targetSdkVersion = app.getTargetSdkVersion();
         this.a_version = app.getVersion();
         this.devices = devices;
-        this.projectId = testcase.getProjectId();
-        this.userId = testcase.getUserId();
-        this.userName = testcase.getUserName();
+        this.projectId = task.getProjectId();
+        this.userId = task.getCreator();
 
         this.excuteUserId = currentUser.getId();
         this.excuteUserName = currentUser.getUsername();
@@ -74,30 +67,6 @@ public class Report {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public String getTestcaseId() {
-        return testcaseId;
-    }
-
-    public void setTestcaseId(String testcaseId) {
-        this.testcaseId = testcaseId;
-    }
-
-    public String getTestcaseName() {
-        return testcaseName;
-    }
-
-    public void setTestcaseName(String testcaseName) {
-        this.testcaseName = testcaseName;
-    }
-
-    public List<String> getScripts() {
-        return scripts;
-    }
-
-    public void setScripts(List<String> scripts) {
-        this.scripts = scripts;
     }
 
     public String getAppId() {
@@ -214,14 +183,6 @@ public class Report {
 
     public void setProjectName(String projectName) {
         this.projectName = projectName;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
     }
 
     public String getExcuteUserId() {

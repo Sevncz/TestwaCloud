@@ -53,6 +53,8 @@ public class Testcase {
 
     private HttpService httpService;
 
+    private boolean isStart = true;
+
     public Testcase(String appId, String serial, List<String> scriptIds, String reportDetailId, String install, String agentWebUrl, HttpService httpService) {
         this.appId = appId;
         this.serial = serial;

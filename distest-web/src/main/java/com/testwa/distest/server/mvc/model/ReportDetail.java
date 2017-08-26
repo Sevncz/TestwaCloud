@@ -14,7 +14,7 @@ public class ReportDetail {
     @Id
     private String id;
 
-    // testcase info
+    // task info
     @Indexed
     private String testcaseId;
     @Indexed
@@ -55,32 +55,6 @@ public class ReportDetail {
 
     public ReportDetail() {
     }
-
-    public ReportDetail(Report report, App app, TDevice device, String userId) {
-        this.reportId = report.getId();
-        this.scripts = report.getScripts();
-        this.testcaseId = report.getTestcaseId();
-        this.appId = app.getId();
-        this.a_name = app.getName();
-        this.a_packageName = app.getPackageName();
-        this.a_activity = app.getActivity();
-        this.a_sdkVersion = app.getSdkVersion();
-        this.a_targetSdkVersion = app.getTargetSdkVersion();
-        this.deviceId = device.getId();
-        this.d_cpuabi = device.getCpuabi();
-        this.d_sdk = device.getSdk();
-        this.d_width = device.getWidth();
-        this.d_height = device.getHeight();
-        this.d_osName = device.getOsName();
-        this.d_density = device.getDensity();
-        this.d_model = device.getModel();
-        this.d_brand = device.getBrand();
-        this.d_version = device.getVersion();
-        this.d_host = device.getHost();
-        this.userId = userId;
-        this.projectId = app.getProjectId();
-    }
-
     public String getId() {
         return id;
     }

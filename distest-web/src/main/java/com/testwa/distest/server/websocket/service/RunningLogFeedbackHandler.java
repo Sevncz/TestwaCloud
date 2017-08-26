@@ -9,7 +9,7 @@ import com.googlecode.protobuf.format.JsonFormat;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.rpc.proto.Agent;
 import com.testwa.distest.server.mvc.model.ProcedureInfo;
-import io.rpc.testwa.testcase.RunningLogRequest;
+import io.rpc.testwa.task.ProcedureInfoRequest;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -41,7 +41,7 @@ public class RunningLogFeedbackHandler {
     public void onEvent(SocketIOClient client, byte[] data, AckRequest ackRequest) {
 
         try {
-            RunningLogRequest request = RunningLogRequest.parseFrom(data);
+            ProcedureInfoRequest request = ProcedureInfoRequest.parseFrom(data);
             log.info("action -----> {}", request.getActionBytes().toStringUtf8());
             ProcedureInfo procedureInfo = new ProcedureInfo();
             procedureInfo.toEntity(request);

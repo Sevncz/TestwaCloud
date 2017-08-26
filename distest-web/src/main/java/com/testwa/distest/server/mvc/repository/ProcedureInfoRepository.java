@@ -12,12 +12,8 @@ import java.util.List;
 
 public interface ProcedureInfoRepository extends CommonRepository<ProcedureInfo, Serializable> {
 
-    List<ProcedureInfo> findByReportDetailId(String infoId);
+    List<ProcedureInfo> findByExecutionTaskIdOrderByTimestampAsc(String infoId);
 
-    List<ProcedureInfo> findByReportDetailIdAndScriptId(String infoId, String scriptId);
-
-    List<ProcedureInfo> findByReportDetailIdOrderByTimestampAsc(String infoId);
-
-    List<ProcedureInfo> findByReportDetailIdAndScriptIdOrderByTimestampAsc(String infoId, String scriptId);
+    List<ProcedureInfo> findByExecutionTaskIdAndScriptIdOrderByTimestampAsc(String infoId, String scriptId);
 
 }

@@ -66,10 +66,12 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
             TDevice tDevice = deviceService.getDeviceById(device.getDeviceId());
             if(tDevice == null){
                 tDevice = new TDevice();
-                tDevice.toEntity(device);
-                tDevice.setType(DeviceType.ANDROID.getName());
+//                tDevice.toEntity(device);
+//                tDevice.setType(DeviceType.ANDROID.getName());
                 log.info("Save a new device to db, deviceId: {}.", device.getDeviceId());
             }
+            tDevice.toEntity(device);
+            tDevice.setType(DeviceType.ANDROID.getName());
 
             UserDeviceHis udh = userDeviceHisService.findByUserIdAndDeviceId(userId, device.getDeviceId());
             if(udh == null){

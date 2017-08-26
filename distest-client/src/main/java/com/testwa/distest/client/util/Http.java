@@ -3,6 +3,9 @@ package com.testwa.distest.client.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.testwa.core.utils.Identities;
+import com.testwa.core.utils.TimeUtil;
+import com.testwa.core.utils.UUID;
+import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.task.Testcase;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.HttpClient;
@@ -101,12 +104,14 @@ public class Http {
     public static String download(String url, String savePath){
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet(url);
+        httpGet.setHeader("X-TOKEN", UserInfo.token);
         OutputStream out = null;
         InputStream in = null;
         String localSavePath = null;
         try {
             HttpResponse httpResponse = httpclient.execute(httpGet);
             HttpEntity entity = httpResponse.getEntity();
+
             in = entity.getContent();
             long length = entity.getContentLength();
             if (length <= 0) {
@@ -116,7 +121,10 @@ public class Http {
 
             String filename = httpResponse.getLastHeader("filename").getValue();
 
-            localSavePath = Paths.get(savePath, filename).toString();
+            String[] f = filename.split("\\.");
+            String newFileName = f[0] + UUID.uuid(10) + "." + f[f.length - 1];
+
+            localSavePath = Paths.get(savePath, newFileName).toString();
             log.info("savePath ------------> " + localSavePath);
             File file = new File(localSavePath);
             if(!file.exists()){

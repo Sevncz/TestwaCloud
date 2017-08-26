@@ -10,6 +10,7 @@ public enum CustomServerFlag implements ServerArgument {
     TESTWA_DEVICE_ID("--testwaDeviceId"),
     INSTALL_APP("--installapp"),
     SCREEN_PATH("--screenpath"),
+    FOR_PORTAL("--portal"),
     SET_DEVICE("-U");
 
     private final String arg;

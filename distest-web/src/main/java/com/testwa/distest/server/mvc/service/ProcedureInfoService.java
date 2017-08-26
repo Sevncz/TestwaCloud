@@ -42,17 +42,9 @@ public class ProcedureInfoService extends BaseService {
         return procedureInfoRepository.findAll(pageRequest);
     }
 
-    public List<ProcedureInfo> findByReportDetailId(String infoId) {
-        return procedureInfoRepository.findByReportDetailIdOrderByTimestampAsc(infoId);
-    }
-
-    public List<ProcedureInfo> findByReportDetailIdAndScriptId(String infoId, String scriptId) {
-        return procedureInfoRepository.findByReportDetailIdAndScriptIdOrderByTimestampAsc(infoId, scriptId);
-    }
-
     public ProcedureInfo findLastProcedureInfo(ProcedureInfo stepInfo) {
         Criteria criatira = new Criteria();
-        criatira.andOperator(Criteria.where("reportDetailId").is(stepInfo.getReportDetailId()),
+        criatira.andOperator(Criteria.where("executionTaskId").is(stepInfo.getExecutionTaskId()),
                 Criteria.where("scriptId").is(stepInfo.getScriptId()),
                 Criteria.where("timestamp").lt(stepInfo.getTimestamp()));
         Sort sort = new Sort(Sort.Direction.DESC, "timestamp");

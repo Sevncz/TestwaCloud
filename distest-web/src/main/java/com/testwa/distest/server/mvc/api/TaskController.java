@@ -1,15 +1,17 @@
 package com.testwa.distest.server.mvc.api;
 
 import com.alibaba.fastjson.JSON;
+import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.testwa.core.WebsocketEvent;
-import com.testwa.core.utils.TimeUtil;
+import com.testwa.core.model.RemoteRunCommand;
+import com.testwa.core.model.RemoteTestcaseContent;
 import com.testwa.distest.server.mvc.beans.PageResult;
 import com.testwa.distest.server.mvc.beans.Result;
 import com.testwa.distest.server.mvc.beans.ResultCode;
 import com.testwa.distest.server.mvc.model.*;
 import com.testwa.distest.server.mvc.service.*;
-import com.testwa.distest.server.mvc.vo.AppVO;
+import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
 import com.testwa.distest.server.mvc.vo.TaskVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -45,6 +47,12 @@ public class TaskController extends BaseController{
     private TestcaseService testcaseService;
     @Autowired
     private TaskService taskService;
+    @Autowired
+    private ReportService reportService;
+    @Autowired
+    private DeviceService deviceService;
+    @Autowired
+    private RemoteClientService remoteClientService;
 
     private final SocketIOServer server;
 
@@ -132,6 +140,44 @@ public class TaskController extends BaseController{
         taskService.save(task);
 
         // 执行...
+        // save a report
+        App app = appService.getAppById(appId);
+        User user = userService.findByUsername(getCurrentUsername());
+
+        Report report = new Report(task, app, deviceIds, user);
+        reportService.save(report);
+
+        List<RemoteTestcaseContent> cases = new ArrayList<>();
+        for(String caseId : caseIds){
+
+            RemoteTestcaseContent content = new RemoteTestcaseContent();
+            content.setTestcaseId(caseId);
+            Testcase c = testcaseService.getTestcaseById(caseId);
+            content.setScriptIds(c.getScripts());
+            cases.add(content);
+
+        }
+
+        for (String key : deviceIds) {
+
+            TDevice d = deviceService.getDeviceById(key);
+            if (d == null) {
+                log.error(String.format("设备:[%s]找不到", key));
+                // TODO 记录该错误
+                continue;
+            }
+
+            String sessionId = remoteClientService.getClientSessionByDeviceId(key);
+
+            RemoteRunCommand cmd = new RemoteRunCommand();
+            cmd.setAppId(appId);
+            cmd.setCmd(0);
+            cmd.setDeviceId(key);
+            cmd.setTestcaseList(cases);
+
+            server.getClient(UUID.fromString(sessionId))
+                    .sendEvent(WebsocketEvent.ON_TESTCASE_RUN, JSON.toJSONString(cmd));
+        }
 
         return ok();
     }
@@ -139,38 +185,43 @@ public class TaskController extends BaseController{
     @ApiOperation(value="执行一个任务")
     @ResponseBody
     @RequestMapping(value = "/run", method = RequestMethod.POST)
-    public Result run(@RequestBody TaskInfo task){
-        String taskId = task.taskId;
-        //  查询任务...
+    public Result run(@RequestBody TaskInfo taskinfo){
+        try {
+            taskService.run(taskinfo.taskId, taskinfo.deviceIds);
+        } catch (Exception e) {
+            log.error("session not found ", e);
+            return fail(ResultCode.SERVER_ERROR, "设备已断开");
+        }
+        return ok();
+    }
 
-        // 执行...
+    @ApiOperation(value="杀掉一个设备任务")
+    @ResponseBody
+    @RequestMapping(value = "/kill", method = RequestMethod.POST)
+    public Result kill(@RequestBody TaskInfo taskinfo){
+        try {
+            taskService.run(taskinfo.taskId, taskinfo.deviceIds);
+        } catch (Exception e) {
+            log.error("session not found ", e);
+            return fail(ResultCode.SERVER_ERROR, "设备已断开");
+        }
         return ok();
     }
 
 
     @ResponseBody
     @RequestMapping(value = "/test", method = RequestMethod.GET)
-    public Result test(@RequestParam(value = "sessionId")String sessionId){
-        RunTestcaseParams params = new RunTestcaseParams();
+    public Result test(@RequestParam(value = "deviceId")String deviceId){
+        RemoteRunCommand params = new RemoteRunCommand();
+        params.setTaskId("");
         params.setAppId("");
         params.setDeviceId("");
-        params.setReportDetailId("");
         params.setInstall("");
-        server.getClient(UUID.fromString(sessionId))
+        params.setCmd(1);  // 启动
+        String agentSession = remoteClientService.getMainSessionByDeviceId(deviceId);
+        server.getClient(UUID.fromString(agentSession))
                     .sendEvent(WebsocketEvent.ON_TESTCASE_RUN, JSON.toJSONString(params));
         return ok();
     }
-
-    @Data
-    private class RunTestcaseParams{
-
-        private String appId;
-        private String deviceId;
-        private List<String> scriptIds;
-        private String reportDetailId;
-        private String install;
-
-    }
-
 
 }

@@ -67,7 +67,7 @@ public class ComplexReportFactory {
      * At any given instance there will be only one test running in a thread. We
      * are already maintaining a thread to extentest map. This method should be
      * used after some part of the code has already called getTest with proper
-     * testcase name and/or description.
+     * task name and/or description.
      *
      * Reason: This method is not for creating test but getting an existing test
      * reporter. sometime you are in a utility function and want to log

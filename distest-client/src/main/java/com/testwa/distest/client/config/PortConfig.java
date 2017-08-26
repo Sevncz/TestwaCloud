@@ -9,7 +9,10 @@ public class PortConfig {
 	public final static int screenPortStart=7500;//屏幕端口映射开始号
 	public final static int screenPortEnd=7999;
 	
-	public final static int apkPortStart=10000;//与手机端端口映射开始号
+	public final static int apkPortStart=10000; // 手机端端口映射开始号
 	public final static int apkPortEnd=10500;
+
+	public final static int appiumPortStart=15000;// appium端口映射开始号
+	public final static int appiumPortEnd=20000;
 	
 }

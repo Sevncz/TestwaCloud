@@ -2,13 +2,13 @@ syntax = "proto3";
 
 
 option java_multiple_files = true;
-option java_package = "io.rpc.testwa.testcase";
+option java_package = "io.rpc.testwa.task";
 option java_outer_classname = "TestcaseProto";
 option objc_class_prefix = "RLP";
 
 package testcase;
 
-message RunningLogRequest {
+message ProcedureInfoRequest {
     int32 status = 1;
     string value = 2;
     int32 runtime = 3;
@@ -16,7 +16,6 @@ message RunningLogRequest {
     string memory = 5;
     string sessionId = 6;
     string deviceId = 7;
-    string reportDetailId = 9;
     string screenshotPath = 10;
     string description = 11;
     string action = 12;
@@ -25,6 +24,8 @@ message RunningLogRequest {
     int64 timestamp = 15;
     string logcatFile = 16;
     string userId = 17;
+    string executionTaskId = 18;
+    string testcaseId = 19;
 }
 
 

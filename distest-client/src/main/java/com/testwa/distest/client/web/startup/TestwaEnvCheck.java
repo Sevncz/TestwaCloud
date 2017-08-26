@@ -39,6 +39,9 @@ public class TestwaEnvCheck implements CommandLineRunner {
     @Autowired
     @Qualifier("startRemoteClientCallbackImpl")
     private MessageCallback startRemoteClientCB;
+    @Autowired
+    @Qualifier("startTestcaseCallbackImpl")
+    private MessageCallback startTestcaseClientCB;
 
     @Override
     public void run(String... strings) throws Exception {
@@ -71,12 +74,13 @@ public class TestwaEnvCheck implements CommandLineRunner {
 
                         if(resultCode == 0){
                             JSONObject data = (JSONObject) ((JSONObject) result).get("data");
-                            String token = data.getString("access_token");
+                            String token = data.getString("accessToken");
                             UserInfo.token = token;
 
                             String url = env.getProperty("agent.socket.url");
                             MainSocket.connect(url, token);
                             MainSocket.receive(WebsocketEvent.ON_START, startRemoteClientCB);
+                            MainSocket.receive(WebsocketEvent.ON_TESTCASE_RUN, startTestcaseClientCB);
 
                         }else{
                             log.error("login error {}", resultCode);

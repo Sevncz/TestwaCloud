@@ -17,7 +17,7 @@ import java.util.Map;
  */
 @Component
 public class AsyncTask {
-    private static Logger LOG = LoggerFactory.getLogger(AsyncTask.class);
+    private static Logger log = LoggerFactory.getLogger(AsyncTask.class);
     private static Map<String, LogcatUtil> logcatMap = new HashMap<>();
 
     @Autowired

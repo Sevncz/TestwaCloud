@@ -1,6 +1,6 @@
 package com.testwa.distest.server.mvc.model;
 
-import io.rpc.testwa.testcase.RunningLogRequest;
+import io.rpc.testwa.task.ProcedureInfoRequest;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -24,7 +24,11 @@ public class ProcedureInfo {
     private String sessionId;
     @Indexed
     private String deviceId;
-    private String reportDetailId;
+    @Indexed
+    private String executionTaskId;
+    @Indexed
+    private String testcaseId;
+    @Indexed
     private String scriptId;
     private String screenshotPath;
     private String description;
@@ -95,14 +99,6 @@ public class ProcedureInfo {
 
     public void setDeviceId(String deviceId) {
         this.deviceId = deviceId;
-    }
-
-    public String getReportDetailId() {
-        return reportDetailId;
-    }
-
-    public void setReportDetailId(String reportDetailId) {
-        this.reportDetailId = reportDetailId;
     }
 
     public String getScreenshotPath() {
@@ -177,7 +173,7 @@ public class ProcedureInfo {
         this.logcatFile = logcatFile;
     }
 
-    public void toEntity(RunningLogRequest reqeust) {
+    public void toEntity(ProcedureInfoRequest reqeust) {
         this.action = reqeust.getActionBytes().toStringUtf8();
         this.cpurate = reqeust.getCpurate();
         this.description = reqeust.getDescription();
@@ -185,7 +181,6 @@ public class ProcedureInfo {
         this.logcatFile = reqeust.getLogcatFile();
         this.memory = reqeust.getMemory();
         this.params = reqeust.getParams();
-        this.reportDetailId = reqeust.getReportDetailId();
         this.runtime = reqeust.getRuntime();
         this.screenshotPath = reqeust.getScreenshotPath();
         this.sessionId = reqeust.getSessionId();
@@ -195,6 +190,8 @@ public class ProcedureInfo {
         this.value = reqeust.getValue();
         this.createDate = new Date();
         this.userId = reqeust.getUserId();
+        this.executionTaskId = reqeust.getExecutionTaskId();
+        this.testcaseId = reqeust.getTestcaseId();
     }
 
     public Boolean getDisable() {
@@ -219,5 +216,21 @@ public class ProcedureInfo {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public String getExecutionTaskId() {
+        return executionTaskId;
+    }
+
+    public void setExecutionTaskId(String executionTaskId) {
+        this.executionTaskId = executionTaskId;
+    }
+
+    public String getTestcaseId() {
+        return testcaseId;
+    }
+
+    public void setTestcaseId(String testcaseId) {
+        this.testcaseId = testcaseId;
     }
 }

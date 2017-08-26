@@ -143,13 +143,13 @@ public class TestcaseController extends BaseController {
 //            return fail(ResultCode.PARAM_ERROR, "参数不正确");
 //        }
 //
-//        Testcase testcase = testcaseService.getTestcaseById(id);
-//        if (testcase == null) {
+//        RemoteTestcaseContent task = testcaseService.getTestcaseById(id);
+//        if (task == null) {
 //            return fail(ResultCode.PARAM_ERROR, "测试案例找不到");
 //        }
-////        App app = appService.getAppById(testcase.getAppId());
+////        App app = appService.getAppById(task.getAppId());
 ////        if (app == null) {
-////            return fail(ResultCode.PARAM_ERROR, String.format("应用:[%s]找不到", testcase.getAppId()));
+////            return fail(ResultCode.PARAM_ERROR, String.format("应用:[%s]找不到", task.getAppId()));
 ////        }
 //
 //
@@ -162,14 +162,14 @@ public class TestcaseController extends BaseController {
 //        }
 //
 //        User user = userService.findByUsername(getCurrentUsername());
-////        startOneTestcase(user, deviceIds, testcase, app);
+////        startOneTestcase(user, deviceIds, task, app);
 //
 //        return ok();
 //    }
 
-//    private void startOneTestcase(User user, List<String> deviceIds, Testcase testcase, App app) {
+//    private void startOneTestcase(User user, List<String> deviceIds, RemoteTestcaseContent task, App app) {
 //        // save a report
-//        Report report = new Report(testcase, app, deviceIds, user);
+//        Report report = new Report(task, app, deviceIds, user);
 //        reportService.save(report);
 //
 //        // 这里面可以作为一个quartz任务来处理, 暂时先同步实现
@@ -185,14 +185,14 @@ public class TestcaseController extends BaseController {
 //            ReportDetail reportDetail = new ReportDetail(report, app, d, "");
 //            reportDetailService.save(reportDetail);
 //            String detailId = reportDetail.getId();
-//            reportSdetailService.saveAll(detailId, testcase.getScripts());
+//            reportSdetailService.saveAll(detailId, task.getScripts());
 //
 //            String sessionId = (String) redisTemplate.opsForHash().get(WebsocketEvent.DEVICE, key);
 //            Agent.TestcaseMessage testcaseMessage = Agent.TestcaseMessage.newBuilder()
 //                    .setReportDetailId(reportDetail.getId())
-////                    .setAppId(testcase.getAppId())
+////                    .setAppId(task.getAppId())
 //                    .setFrequency(1)
-//                    .addAllScriptIds(testcase.getScripts())
+//                    .addAllScriptIds(task.getScripts())
 //                    .setSerial(key)
 //                    .setInstall("true").build();
 //

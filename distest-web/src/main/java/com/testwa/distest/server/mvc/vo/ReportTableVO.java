@@ -14,7 +14,6 @@ public class ReportTableVO {
     private String id;
     private String appName;
     private String appVersion;
-    private String name;
     private String status;
     private Long success;
     private Long fail;
@@ -25,7 +24,6 @@ public class ReportTableVO {
         this.id = report.getId();
         this.appName = report.getA_name();
         this.appVersion = report.getA_version();
-        this.name = report.getTestcaseName();
         this.details = new ArrayList<>();
         for(ReportDetail d : details){
             ReportDetailVO dvo = new ReportDetailVO(d);
@@ -57,14 +55,6 @@ public class ReportTableVO {
 
     public void setAppVersion(String appVersion) {
         this.appVersion = appVersion;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getStatus() {

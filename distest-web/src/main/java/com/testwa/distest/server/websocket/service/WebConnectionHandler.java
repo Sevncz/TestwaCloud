@@ -6,6 +6,7 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.annotation.OnConnect;
 import com.corundumstudio.socketio.annotation.OnDisconnect;
 import com.testwa.core.Command;
+import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.server.websocket.WSFuncEnum;
 import com.testwa.distest.server.mvc.model.TDevice;
 import com.testwa.distest.server.security.JwtTokenUtil;
@@ -19,6 +20,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Created by wen on 16/9/5.
@@ -73,6 +76,13 @@ public class WebConnectionHandler {
             if(StringUtils.isNotBlank(func) && StringUtils.isNotBlank(deviceId) ){
                 if(WSFuncEnum.contains(func)){
                     remoteClientService.subscribeDeviceEvent(deviceId, func, client.getSessionId().toString());
+                    Set<Object> subscribes = remoteClientService.getSubscribes(deviceId, func);
+                    if(subscribes.size() == 1 && func.equals(WSFuncEnum.SCREEN.getValue())){
+                        String sessionId = remoteClientService.getClientSessionByDeviceId(deviceId);
+                        SocketIOClient agentClient = server.getClient(UUID.fromString(sessionId));
+                        requestStartMinitouch(agentClient);
+                        requestStartMinicap(agentClient);
+                    }
                 }
                 TDevice td = deviceService.getDeviceById(deviceId);
                 client.sendEvent("devices", JSON.toJSONString(td));
@@ -105,6 +115,23 @@ public class WebConnectionHandler {
                 client.sendEvent("error", "参数不能为空");
             }
         }
+    }
+
+
+    private void requestStartMinitouch(SocketIOClient client){
+        Map<String, Object> params = new HashMap<>();
+        params.put("type", "minitouch");
+        client.sendEvent(Command.Schem.START.getSchemString(), JSON.toJSONString(params));
+    }
+
+    private void requestStartMinicap(SocketIOClient client){
+        Map<String, Object> params = new HashMap<>();
+        params.put("type", "minicap");
+        Map<String, Object> config = new HashMap<>();
+//        config.put("rotate", 0.0f);
+        config.put("scale", 0.25f);
+        params.put("config", config);
+        client.sendEvent(Command.Schem.START.getSchemString(), JSON.toJSONString(params));
     }
 
 }

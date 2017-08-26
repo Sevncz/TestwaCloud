@@ -16,7 +16,7 @@ import org.springframework.core.env.Environment;
  */
 @Configuration
 public class GRpcConfig {
-    private static final Logger LOG = LoggerFactory.getLogger(HttpAsyncConfig.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GRpcConfig.class);
     @Autowired
     private Environment env;
 

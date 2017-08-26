@@ -64,19 +64,6 @@ public class TestwaScheduledRunner {
                 log.info("encodeResult =====> {}", encodeResult);
                 procedure.setAction(encodeResult);
                 logers.add(procedure);
-
-                if(procedure.getStatus() != 0){
-                    String reportDetailId = procedure.getReportDetailId();
-                    String scriptId = procedure.getScriptId();
-                    ReportSdetail reportSdetail = reportSdetailService.findTestcaseSdetailByDetailIdScriptId(reportDetailId, scriptId);
-                    Integer sdetailStatus = reportSdetail.getStepStatus();
-                    if(sdetailStatus == null){
-                        sdetailStatus = 0;
-                    }
-                    reportSdetail.setStepStatus(sdetailStatus + 1);
-                    reportSdetailService.save(reportSdetail);
-                }
-
             }catch (Exception e){
                 log.error("running log transfer error", e);
             }

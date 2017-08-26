@@ -151,14 +151,7 @@ public class ReportController extends BaseController {
     @ResponseBody
     @RequestMapping(value = "/detail/{detailId}/script/{scriptId}", method= RequestMethod.GET)
     public Result stepList(@PathVariable String detailId, @PathVariable String scriptId){
-        List<ProcedureInfo> infos = procedureInfoService.findByReportDetailIdAndScriptId(detailId, scriptId);
-        List<ReportStepInfoVO> stepInfoVOs = new ArrayList<>();
-        for(ProcedureInfo info : infos){
-            stepInfoVOs.add(new ReportStepInfoVO(info));
-        }
-        Map<String, Object> result = new HashMap<>();
-        result.put("steps", stepInfoVOs);
-        return ok(result);
+        return ok();
     }
 
     /**
