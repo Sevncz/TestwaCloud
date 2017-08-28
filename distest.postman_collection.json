@@ -1,2662 +1,2694 @@
 {
-	"variables": [],
-	"info": {
-		"name": "distest",
-		"_postman_id": "9a50cd9d-4e4b-8c8d-4245-d2fb4c9f7d0f",
-		"description": "",
-		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
-	},
-	"item": [
-		{
-			"name": "项目相关",
-			"description": "",
-			"item": [
-				{
-					"name": "新增项目",
-					"request": {
-						"url": "{{base_url}}/api/project/save",
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n\t\"projectId\": \"\",\n    \"description\": \"hahhahha\",\n    \"projectName\": \"xxxx1\",\n    \"members\": [\"wen03\"]\n}"
-						},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "分页列表 - 获得我创建的和我参加的所有项目",
-					"request": {
-						"url": {
-							"raw": "{{base_url}}/api/project/page?page=1&size=20&sortField=id&sortOrder=desc",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"project",
-								"page"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "size",
-									"value": "20",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "sortField",
-									"value": "id",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "sortOrder",
-									"value": "desc",
-									"equals": true,
-									"description": ""
-								}
-							],
-							"variable": []
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"first\": 1,\n  \"rows\": 15,\n  \"sortField\": \"id\",\n  \"sortOrder\": \"0\"\n}"
-						},
-						"description": "获得我创建的和我参加的所有项目，可按projectName模糊搜索"
-					},
-					"response": []
-				},
-				{
-					"name": "删除一个或多个项目",
-					"request": {
-						"url": "{{base_url}}/api/project/delete",
-						"method": "POST",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n\t\"ids\": [\"597c589dc6c09f796a582941\"]\n}"
-						},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "获得我的项目和我参加项目的列表",
-					"request": {
-						"url": "{{base_url}}/api/project/list",
-						"method": "GET",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "获得一个项目的详情（不包含成员）",
-					"request": {
-						"url": "{{base_url}}/api/project/detail/597c5907c6c09f796a582943",
-						"method": "GET",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "给某一个项目添加一个或多个成员",
-					"request": {
-						"url": "{{base_url}}/api/project/member/add",
-						"method": "POST",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n\t\"projectId\": \"597c5907c6c09f796a582943\",\n\t\"usernames\": [\"wen05\"]\n}"
-						},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "从项目中移除一个或多个成员",
-					"request": {
-						"url": "{{base_url}}/api/project/member/remove",
-						"method": "POST",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n\t\"projectId\": \"597c5907c6c09f796a582943\",\n\t\"usernames\": [\"wen02\"]\n}"
-						},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "获取某个项目的成员列表",
-					"request": {
-						"url": "{{base_url}}/api/project/members/597c5907c6c09f796a582943",
-						"method": "GET",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "模糊查询，用户是否在某个项目中",
-					"request": {
-						"url": {
-							"raw": "{{base_url}}/api/project/member/query?projectId=597c5907c6c09f796a582943&memberName=wen02",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"project",
-								"member",
-								"query"
-							],
-							"query": [
-								{
-									"key": "projectId",
-									"value": "597c5907c6c09f796a582943",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "memberName",
-									"value": "wen02",
-									"equals": true,
-									"description": ""
-								}
-							],
-							"variable": []
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"description": ""
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "应用相关",
-			"description": "",
-			"item": [
-				{
-					"name": "应用上传",
-					"request": {
-						"url": "{{base_url}}/api/app/upload",
-						"method": "POST",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "file",
-									"description": "",
-									"type": "file",
-									"src": "WeChatPolice_201609051450.apk",
-									"value": ""
-								}
-							]
-						},
-						"description": "上传app，保存app文件，返回app的基本信息，如name，sdkversion，ID，type等"
-					},
-					"response": []
-				},
-				{
-					"name": "应用信息补充",
-					"request": {
-						"url": "{{base_url}}/api/app/save",
-						"method": "POST",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n\t\"appId\": \"5989dcee5ac4fc556f437f04\",\n\t\"projectId\": \"5989dacb5ac4fc52610a4931\",\n\t\"version\": \"1.0.0\"\n}"
-						},
-						"description": "该app所属project，和该app实际的版本号"
-					},
-					"response": []
-				},
-				{
-					"name": "删除一个或多个应用",
-					"request": {
-						"url": "{{base_url}}/api/app/delete",
-						"method": "POST",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n\t\"ids\": [\"5989dcee5ac4fc556f437f04\"]\n}"
-						},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "应用分页列表查询",
-					"request": {
-						"url": {
-							"raw": "{{base_url}}/api/app/page?page=1&size=20&sortField=id&sortOrder=desc&projectId=5989dacb5ac4fc52610a4931&appName=We&=",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"app",
-								"page"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "size",
-									"value": "20",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "sortField",
-									"value": "id",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "sortOrder",
-									"value": "desc",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "projectId",
-									"value": "5989dacb5ac4fc52610a4931",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "appName",
-									"value": "We",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "",
-									"value": ""
-								}
-							],
-							"variable": []
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"description": "如果传projectId，则返回该项目（必须是该用户可见的项目）下所有的应用；\n如果不传projectId，则返回该用户可见项目的所有应用。\nappName 支持模糊查询"
-					},
-					"response": []
-				},
-				{
-					"name": "应用列表查询",
-					"request": {
-						"url": {
-							"raw": "{{base_url}}/api/app/list?projectId=5989dacb5ac4fc52610a4931&appName=We",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"app",
-								"list"
-							],
-							"query": [
-								{
-									"key": "projectId",
-									"value": "5989dacb5ac4fc52610a4931",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "appName",
-									"value": "We",
-									"equals": true,
-									"description": ""
-								}
-							],
-							"variable": []
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"description": "查询条件和分页一样\n如果传projectId，则返回该项目（必须是该用户可见的项目）下所有的应用；\n如果不传projectId，则返回该用户可见项目的所有应用。\nappName 支持模糊查询"
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "脚本相关",
-			"description": "",
-			"item": [
-				{
-					"name": "上传一个脚本",
-					"request": {
-						"url": "{{base_url}}/api/script/upload",
-						"method": "POST",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "file",
-									"description": "",
-									"type": "file",
-									"src": "WeChatPolice_201609051450.apk",
-									"value": ""
-								}
-							]
-						},
-						"description": ""
-					},
-					"response": [
-						{
-							"id": "994836aa-89e3-48f0-8ae4-39c6f8040482",
-							"name": "200",
-							"originalRequest": {
-								"url": "{{base_url}}/api/script/upload",
-								"method": "POST",
-								"header": [
-									{
-										"key": "X-TOKEN",
-										"value": "{{X-TOKEN}}",
-										"description": ""
-									}
-								],
-								"body": {
-									"mode": "formdata",
-									"formdata": [
-										{
-											"key": "file",
-											"description": "",
-											"type": "file",
-											"src": {
-												"0": {}
-											}
-										}
-									]
-								},
-								"description": ""
-							},
-							"status": "OK",
-							"code": 200,
-							"_postman_previewlanguage": "json",
-							"_postman_previewtype": "text",
-							"header": [
-								{
-									"name": "cache-control",
-									"key": "cache-control",
-									"value": "no-cache, no-store, max-age=0, must-revalidate",
-									"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
-								},
-								{
-									"name": "content-type",
-									"key": "content-type",
-									"value": "application/json;charset=UTF-8",
-									"description": "The mime type of this content"
-								},
-								{
-									"name": "date",
-									"key": "date",
-									"value": "Fri, 11 Aug 2017 06:41:15 GMT",
-									"description": "The date and time that the message was sent"
-								},
-								{
-									"name": "expires",
-									"key": "expires",
-									"value": "0",
-									"description": "Gives the date/time after which the response is considered stale"
-								},
-								{
-									"name": "pragma",
-									"key": "pragma",
-									"value": "no-cache",
-									"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
-								},
-								{
-									"name": "transfer-encoding",
-									"key": "transfer-encoding",
-									"value": "chunked",
-									"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
-								},
-								{
-									"name": "x-content-type-options",
-									"key": "x-content-type-options",
-									"value": "nosniff",
-									"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
-								},
-								{
-									"name": "x-frame-options",
-									"key": "x-frame-options",
-									"value": "DENY",
-									"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
-								},
-								{
-									"name": "x-xss-protection",
-									"key": "x-xss-protection",
-									"value": "1; mode=block",
-									"description": "Cross-site scripting (XSS) filter"
-								}
-							],
-							"cookie": [],
-							"responseTime": 237,
-							"body": "{\"message\":\"ok\",\"data\":{\"id\":\"598d518a1525ae14ecffbdf5\"},\"code\":0,\"url\":null}"
-						}
-					]
-				},
-				{
-					"name": "补充脚本信息",
-					"request": {
-						"url": "{{base_url}}/api/script/save",
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n\t\"id\": \"598d518a1525ae14ecffbdf5\",\n\t\"projectId\": \"598d51691525ae14ecffbdf2\"\n}"
-						},
-						"description": ""
-					},
-					"response": [
-						{
-							"id": "5358a04e-e91d-4dc1-8933-e5fe808ead35",
-							"name": "200",
-							"originalRequest": {
-								"url": "{{base_url}}/api/script/save",
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json",
-										"description": ""
-									},
-									{
-										"key": "X-TOKEN",
-										"value": "{{X-TOKEN}}",
-										"description": ""
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n\t\"id\": \"598d518a1525ae14ecffbdf5\",\n\t\"projectId\": \"598d51691525ae14ecffbdf2\"\n}"
-								},
-								"description": ""
-							},
-							"status": "OK",
-							"code": 200,
-							"_postman_previewlanguage": "json",
-							"_postman_previewtype": "text",
-							"header": [
-								{
-									"name": "cache-control",
-									"key": "cache-control",
-									"value": "no-cache, no-store, max-age=0, must-revalidate",
-									"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
-								},
-								{
-									"name": "content-type",
-									"key": "content-type",
-									"value": "application/json;charset=UTF-8",
-									"description": "The mime type of this content"
-								},
-								{
-									"name": "date",
-									"key": "date",
-									"value": "Fri, 11 Aug 2017 06:41:36 GMT",
-									"description": "The date and time that the message was sent"
-								},
-								{
-									"name": "expires",
-									"key": "expires",
-									"value": "0",
-									"description": "Gives the date/time after which the response is considered stale"
-								},
-								{
-									"name": "pragma",
-									"key": "pragma",
-									"value": "no-cache",
-									"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
-								},
-								{
-									"name": "transfer-encoding",
-									"key": "transfer-encoding",
-									"value": "chunked",
-									"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
-								},
-								{
-									"name": "x-content-type-options",
-									"key": "x-content-type-options",
-									"value": "nosniff",
-									"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
-								},
-								{
-									"name": "x-frame-options",
-									"key": "x-frame-options",
-									"value": "DENY",
-									"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
-								},
-								{
-									"name": "x-xss-protection",
-									"key": "x-xss-protection",
-									"value": "1; mode=block",
-									"description": "Cross-site scripting (XSS) filter"
-								}
-							],
-							"cookie": [],
-							"responseTime": 162,
-							"body": "{\"message\":\"ok\",\"data\":null,\"code\":0,\"url\":null}"
-						}
-					]
-				},
-				{
-					"name": "修改脚本",
-					"request": {
-						"url": "{{base_url}}/api/script/598a939ba6be50270014d02d",
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n\t\"content\":\"#coding:UTF-8\\nimport os,sys\\nfrom time import sleep\\n# import unittest\\nsys.path.append(r'C:\\\\Python27\\\\Lib\\\\site-packages')\\nfrom appium import webdriver\\nPATH = lambda p: os.path.abspath(\\n    os.path.join(os.path.dirname(__file__), p)\\n)\\n\\ndesired_caps = {}\\ndesired_caps['platformName'] = 'Android'\\n# desired_caps['platformVersion'] = '4.2.2'\\ndesired_caps['deviceName'] = 'Android Emulator1'\\n# desired_caps['udid'] = '192.168.187.101:5555'\\n# desired_caps['udid'] = 'b15d91f'\\ndesired_caps['app'] = PATH('C:/Users/yxin/Desktop/Projs/Testwa/ContactManager.apk')\\ndesired_caps['appPackage'] = 'com.example.android.contactmanager'\\ndesired_caps['appActivity'] = '.ContactManager'\\n# desired_caps['appPackage'] = 'com.tuniu.app.ui'\\n# desired_caps['appActivity'] = 'com.tuniu.app.ui.homepage.LaunchActivity'\\n# desired_caps['noReset'] = True\\n# desired_caps['newCommandTimeout'] = 1000\\ndesired_caps['testSuit'] = 1\\ndesired_caps['testcaseId'] = 2\\n# desired_caps['dontStopAppOnReset'] = True\\n\\nwd = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)\\n# wd.get_screenshot_as_file(r'C:\\\\Users\\\\yxin\\\\Desktop\\\\sc.png')\\n# wd.implicitly_wait(60)\\n\\n#record device width*height\\n# originScreenWidth = 1080\\n# originScreenHeight = 1920\\n# windows_size = wd.get_window_size()\\n# currentWidth = windows_size.get('width')\\n# currentHeight = windows_size.get('height')\\n# screenRatioX = currentWidth/originScreenWidth\\n# screenRatioY = currentHeight/originScreenHeight\\n# el = wd.find_element_by_name(\\\"Add Contact\\\")\\n# el = wd.find_element_by_accessibility_id(\\\"Add Contact======================\\\")\\nel = wd.check_element_by_accessibility_id(\\\"Add Contact======================\\\", \\\"test\\\")\\n# el = wd.find_element_by_android_uiautomator('new UiSelector().text(\\\"Add Contact\\\")')\\n# el = wd.find_element_by_xpath('//android.widget.Button[@text=\\\"Add Contact\\\"]')\\n# el.click()\\n# pngData = wd.get_screenshot_as_png()\\n\\n# print(pngData)\\n# wd.get_screenshot_as_file(\\\"C:/Users/yxin/Desktop/Projs/screenshot/testScreenshot.png\\\")\\n# textfields = wd.find_elements_by_class_name(\\\"android.widget.EditText\\\")\\n# textfields = wd.check_elements_by_class_name(\\\"android.widget.EditText\\\")\\n# textfields[0].send_keys('edwaard')\\n# textfields[1].send_keys('123d456')\\n# textfields[2].send_keys('lht82a1008@163.com')\\n\\n# wd.find_element_by_xpath(\\\"/hierarchy/android.widget.FrameLayout[1]/android.widget.LinearLayout[1]/android.widget.FrameLayout[1]/android.widget.RelativeLayout[1]/android.widget.RelativeLayout[2]/android.widget.TextView[1]\\\")\\n# sleep(2)\\n# wd.swipe(571*screenRatioX,1672*screenRatioY,571*screenRatioX,482*screenRatioY,800)\\n# wd.tap([(966*screenRatioX,1833*screenRatioY)],500)\\n# sleep(5)\\n\\nwd.quit()\\n\"\n}"
-						},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "删除一个或多个",
-					"request": {
-						"url": "{{base_url}}/api/script/delete",
-						"method": "POST",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n\t\"ids\": [\"5989dcee5ac4fc556f437f04\"]\n}"
-						},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "分页列表查询",
-					"request": {
-						"url": {
-							"raw": "{{base_url}}/api/script/page?page=1&size=20&sortField=id&sortOrder=desc&projectId=598d51691525ae14ecffbdf2",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"script",
-								"page"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "size",
-									"value": "20",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "sortField",
-									"value": "id",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "sortOrder",
-									"value": "desc",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "projectId",
-									"value": "598d51691525ae14ecffbdf2",
-									"equals": true,
-									"description": ""
-								}
-							],
-							"variable": []
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"description": "如果传projectId，则返回该项目（必须是该用户可见的项目）下所有的应用；\n如果不传projectId，则返回该用户可见项目的所有应用。\nappName 支持模糊查询"
-					},
-					"response": []
-				},
-				{
-					"name": "获取脚本内容",
-					"request": {
-						"url": "{{base_url}}/api/script/598a939ba6be50270014d02d",
-						"method": "GET",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "脚本列表模糊查询",
-					"request": {
-						"url": {
-							"raw": "{{base_url}}/api/script/list?projectId=598d51691525ae14ecffbdf2&name=con",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"script",
-								"list"
-							],
-							"query": [
-								{
-									"key": "projectId",
-									"value": "598d51691525ae14ecffbdf2",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "name",
-									"value": "con",
-									"equals": true,
-									"description": ""
-								}
-							],
-							"variable": []
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"description": "查询条件和分页一样\n如果传projectId，则返回该项目（必须是该用户可见的项目）下所有的应用；\n如果不传projectId，则返回该用户可见项目的所有应用。\nappName 支持模糊查询"
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "案例相关",
-			"description": "",
-			"item": [
-				{
-					"name": "增加一个案例",
-					"request": {
-						"url": "{{base_url}}/api/case/save",
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n\t\"name\": \"test\",\n\t\"projectId\": \"598d51691525ae14ecffbdf2\",\n\t\"scriptIds\": [\"598d518a1525ae14ecffbdf5\"]\n}"
-						},
-						"description": ""
-					},
-					"response": [
-						{
-							"id": "f0db777a-561d-4aea-bcf5-76e9c3d15a7d",
-							"name": "200",
-							"originalRequest": {
-								"url": "{{base_url}}/api/case/save",
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json",
-										"description": ""
-									},
-									{
-										"key": "X-TOKEN",
-										"value": "{{X-TOKEN}}",
-										"description": ""
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n\t\"name\": \"test\",\n\t\"projectId\": \"598d51691525ae14ecffbdf2\",\n\t\"scriptIds\": [\"598d518a1525ae14ecffbdf5\"]\n}"
-								},
-								"description": ""
-							},
-							"status": "OK",
-							"code": 200,
-							"_postman_previewlanguage": "json",
-							"_postman_previewtype": "text",
-							"header": [
-								{
-									"name": "cache-control",
-									"key": "cache-control",
-									"value": "no-cache, no-store, max-age=0, must-revalidate",
-									"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
-								},
-								{
-									"name": "content-type",
-									"key": "content-type",
-									"value": "application/json;charset=UTF-8",
-									"description": "The mime type of this content"
-								},
-								{
-									"name": "date",
-									"key": "date",
-									"value": "Sat, 12 Aug 2017 06:29:34 GMT",
-									"description": "The date and time that the message was sent"
-								},
-								{
-									"name": "expires",
-									"key": "expires",
-									"value": "0",
-									"description": "Gives the date/time after which the response is considered stale"
-								},
-								{
-									"name": "pragma",
-									"key": "pragma",
-									"value": "no-cache",
-									"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
-								},
-								{
-									"name": "transfer-encoding",
-									"key": "transfer-encoding",
-									"value": "chunked",
-									"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
-								},
-								{
-									"name": "x-content-type-options",
-									"key": "x-content-type-options",
-									"value": "nosniff",
-									"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
-								},
-								{
-									"name": "x-frame-options",
-									"key": "x-frame-options",
-									"value": "DENY",
-									"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
-								},
-								{
-									"name": "x-xss-protection",
-									"key": "x-xss-protection",
-									"value": "1; mode=block",
-									"description": "Cross-site scripting (XSS) filter"
-								}
-							],
-							"cookie": [],
-							"responseTime": 133,
-							"body": "{\"message\":\"ok\",\"data\":null,\"code\":0,\"url\":null}"
-						}
-					]
-				},
-				{
-					"name": "修改一个案例",
-					"request": {
-						"url": "{{base_url}}/api/case/modify",
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n\t\"id\": \"598ea04e1525ae6a7856ea20\",\n\t\"name\": \"testtset\",\n\t\"projectId\": \"598d51691525ae14ecffbdf2\",\n\t\"scriptIds\": [\"598d518a1525ae14ecffbdf5\"]\n}"
-						},
-						"description": ""
-					},
-					"response": [
-						{
-							"id": "50869e9e-47eb-4569-979a-485d06deb557",
-							"name": "200",
-							"originalRequest": {
-								"url": "{{base_url}}/api/case/modify",
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json",
-										"description": ""
-									},
-									{
-										"key": "X-TOKEN",
-										"value": "{{X-TOKEN}}",
-										"description": ""
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n\t\"id\": \"598ea04e1525ae6a7856ea20\",\n\t\"name\": \"test1\",\n\t\"projectId\": \"598d51691525ae14ecffbdf2\",\n\t\"scriptIds\": [\"598d518a1525ae14ecffbdf5\"]\n}"
-								},
-								"description": ""
-							},
-							"status": "OK",
-							"code": 200,
-							"_postman_previewlanguage": "json",
-							"_postman_previewtype": "text",
-							"header": [
-								{
-									"name": "cache-control",
-									"key": "cache-control",
-									"value": "no-cache, no-store, max-age=0, must-revalidate",
-									"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
-								},
-								{
-									"name": "content-type",
-									"key": "content-type",
-									"value": "application/json;charset=UTF-8",
-									"description": "The mime type of this content"
-								},
-								{
-									"name": "date",
-									"key": "date",
-									"value": "Sat, 12 Aug 2017 06:35:00 GMT",
-									"description": "The date and time that the message was sent"
-								},
-								{
-									"name": "expires",
-									"key": "expires",
-									"value": "0",
-									"description": "Gives the date/time after which the response is considered stale"
-								},
-								{
-									"name": "pragma",
-									"key": "pragma",
-									"value": "no-cache",
-									"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
-								},
-								{
-									"name": "transfer-encoding",
-									"key": "transfer-encoding",
-									"value": "chunked",
-									"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
-								},
-								{
-									"name": "x-content-type-options",
-									"key": "x-content-type-options",
-									"value": "nosniff",
-									"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
-								},
-								{
-									"name": "x-frame-options",
-									"key": "x-frame-options",
-									"value": "DENY",
-									"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
-								},
-								{
-									"name": "x-xss-protection",
-									"key": "x-xss-protection",
-									"value": "1; mode=block",
-									"description": "Cross-site scripting (XSS) filter"
-								}
-							],
-							"cookie": [],
-							"responseTime": 76,
-							"body": "{\"message\":\"ok\",\"data\":null,\"code\":0,\"url\":null}"
-						}
-					]
-				},
-				{
-					"name": "删除一个或多个",
-					"request": {
-						"url": "{{base_url}}/api/case/delete",
-						"method": "POST",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n\t\"ids\": [\"5989dcee5ac4fc556f437f04\"]\n}"
-						},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "分页列表查询",
-					"request": {
-						"url": {
-							"raw": "{{base_url}}/api/case/page?page=1&size=20&sortField=id&sortOrder=desc&projectId=598d51691525ae14ecffbdf2",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"case",
-								"page"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "size",
-									"value": "20",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "sortField",
-									"value": "id",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "sortOrder",
-									"value": "desc",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "projectId",
-									"value": "598d51691525ae14ecffbdf2",
-									"equals": true,
-									"description": ""
-								}
-							],
-							"variable": []
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"description": "如果传projectId，则返回该项目（必须是该用户可见的项目）下所有的应用；\n如果不传projectId，则返回该用户可见项目的所有应用。\nappName 支持模糊查询"
-					},
-					"response": [
-						{
-							"id": "0f7aeb01-5040-49e1-b8cf-866fbea23b33",
-							"name": "200response",
-							"originalRequest": {
-								"url": {
-									"raw": "{{base_url}}/api/case/page?page=1&size=20&sortField=id&sortOrder=desc&projectId=598d51691525ae14ecffbdf2",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"case",
-										"page"
-									],
-									"query": [
-										{
-											"key": "page",
-											"value": "1",
-											"equals": true,
-											"description": ""
-										},
-										{
-											"key": "size",
-											"value": "20",
-											"equals": true,
-											"description": ""
-										},
-										{
-											"key": "sortField",
-											"value": "id",
-											"equals": true,
-											"description": ""
-										},
-										{
-											"key": "sortOrder",
-											"value": "desc",
-											"equals": true,
-											"description": ""
-										},
-										{
-											"key": "projectId",
-											"value": "598d51691525ae14ecffbdf2",
-											"equals": true,
-											"description": ""
-										}
-									],
-									"variable": []
-								},
-								"method": "GET",
-								"header": [
-									{
-										"key": "X-TOKEN",
-										"value": "{{X-TOKEN}}",
-										"description": ""
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
-								"description": ""
-							},
-							"status": "OK",
-							"code": 200,
-							"_postman_previewlanguage": "json",
-							"_postman_previewtype": "text",
-							"header": [
-								{
-									"name": "cache-control",
-									"key": "cache-control",
-									"value": "no-cache, no-store, max-age=0, must-revalidate",
-									"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
-								},
-								{
-									"name": "content-type",
-									"key": "content-type",
-									"value": "application/json;charset=UTF-8",
-									"description": "The mime type of this content"
-								},
-								{
-									"name": "date",
-									"key": "date",
-									"value": "Sat, 12 Aug 2017 06:39:04 GMT",
-									"description": "The date and time that the message was sent"
-								},
-								{
-									"name": "expires",
-									"key": "expires",
-									"value": "0",
-									"description": "Gives the date/time after which the response is considered stale"
-								},
-								{
-									"name": "pragma",
-									"key": "pragma",
-									"value": "no-cache",
-									"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
-								},
-								{
-									"name": "transfer-encoding",
-									"key": "transfer-encoding",
-									"value": "chunked",
-									"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
-								},
-								{
-									"name": "x-content-type-options",
-									"key": "x-content-type-options",
-									"value": "nosniff",
-									"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
-								},
-								{
-									"name": "x-frame-options",
-									"key": "x-frame-options",
-									"value": "DENY",
-									"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
-								},
-								{
-									"name": "x-xss-protection",
-									"key": "x-xss-protection",
-									"value": "1; mode=block",
-									"description": "Cross-site scripting (XSS) filter"
-								}
-							],
-							"cookie": [],
-							"responseTime": 100,
-							"body": "{\"message\":\"ok\",\"data\":{\"pages\":[{\"id\":\"598ea04e1525ae6a7856ea20\",\"scripts\":[\"598d518a1525ae14ecffbdf5\"],\"userId\":\"5981cbf0fd2be02b34e6a9ea\",\"userName\":\"admin\",\"createDate\":1502519374639,\"name\":\"test\",\"projectId\":\"598d51691525ae14ecffbdf2\",\"projectName\":\"xxxx1\",\"disable\":false,\"modifyDate\":null}],\"total\":1},\"code\":0,\"url\":null}"
-						}
-					]
-				},
-				{
-					"name": "案例列表模糊查询",
-					"request": {
-						"url": {
-							"raw": "{{base_url}}/api/case/list?projectId=598d51691525ae14ecffbdf2&name=con",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"case",
-								"list"
-							],
-							"query": [
-								{
-									"key": "projectId",
-									"value": "598d51691525ae14ecffbdf2",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "name",
-									"value": "con",
-									"equals": true,
-									"description": ""
-								}
-							],
-							"variable": []
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"description": "查询条件和分页一样\n如果传projectId，则返回该项目（必须是该用户可见的项目）下所有的应用；\n如果不传projectId，则返回该用户可见项目的所有应用。\nappName 支持模糊查询"
-					},
-					"response": []
-				},
-				{
-					"name": "详情",
-					"request": {
-						"url": "{{base_url}}/api/case/detail/598ea04e1525ae6a7856ea20",
-						"method": "GET",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"description": ""
-					},
-					"response": [
-						{
-							"id": "67cd6fc6-e6b5-4720-91f4-784b5b79e1c8",
-							"name": "200",
-							"originalRequest": {
-								"url": "{{base_url}}/api/case/detail/598ea04e1525ae6a7856ea20",
-								"method": "GET",
-								"header": [
-									{
-										"key": "X-TOKEN",
-										"value": "{{X-TOKEN}}",
-										"description": ""
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
-								"description": ""
-							},
-							"status": "OK",
-							"code": 200,
-							"_postman_previewlanguage": "json",
-							"_postman_previewtype": "text",
-							"header": [
-								{
-									"name": "cache-control",
-									"key": "cache-control",
-									"value": "no-cache, no-store, max-age=0, must-revalidate",
-									"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
-								},
-								{
-									"name": "content-type",
-									"key": "content-type",
-									"value": "application/json;charset=UTF-8",
-									"description": "The mime type of this content"
-								},
-								{
-									"name": "date",
-									"key": "date",
-									"value": "Tue, 15 Aug 2017 03:29:45 GMT",
-									"description": "The date and time that the message was sent"
-								},
-								{
-									"name": "expires",
-									"key": "expires",
-									"value": "0",
-									"description": "Gives the date/time after which the response is considered stale"
-								},
-								{
-									"name": "pragma",
-									"key": "pragma",
-									"value": "no-cache",
-									"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
-								},
-								{
-									"name": "transfer-encoding",
-									"key": "transfer-encoding",
-									"value": "chunked",
-									"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
-								},
-								{
-									"name": "x-content-type-options",
-									"key": "x-content-type-options",
-									"value": "nosniff",
-									"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
-								},
-								{
-									"name": "x-frame-options",
-									"key": "x-frame-options",
-									"value": "DENY",
-									"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
-								},
-								{
-									"name": "x-xss-protection",
-									"key": "x-xss-protection",
-									"value": "1; mode=block",
-									"description": "Cross-site scripting (XSS) filter"
-								}
-							],
-							"cookie": [],
-							"responseTime": 127,
-							"body": "{\"message\":\"ok\",\"data\":{\"id\":\"598ea04e1525ae6a7856ea20\",\"type\":null,\"userName\":\"admin\",\"createDate\":null,\"name\":\"test\",\"projectName\":\"xxxx1\",\"scriptVOs\":[{\"id\":\"598d518a1525ae14ecffbdf5\",\"name\":\"contact.py\",\"aliasName\":\"contact.py\",\"size\":\"2697\",\"createDate\":null,\"userName\":null,\"type\":\"python\",\"md5\":\"C08D2DEF083DD5E7675411124C12AF2F\",\"modifyDate\":null,\"modifyUserName\":null,\"porjectName\":null}]},\"code\":0,\"url\":null}"
-						}
-					]
-				}
-			]
-		},
+	"id": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+	"name": "distest",
+	"description": "",
+	"order": [
+		"f222da53-a4c8-7577-71f5-12703814bfa0",
+		"f6ba25b9-c29c-3ce4-dc37-407e98bda894",
+		"0689fe25-cc03-9f12-daef-3270555d6eef",
+		"5a7ac993-a342-cb4e-1be9-758818d67c6b"
+	],
+	"folders": [
 		{
 			"name": "任务相关",
 			"description": "",
-			"item": [
-				{
-					"name": "修改任务",
-					"request": {
-						"url": "{{base_url}}/api/task/modify",
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"appId\": \"599b9bc60850711e2c4fc230\",\r\n  \"caseIds\": [\r\n    \"599b9ce90850711e2c4fc23a\"\r\n  ],\r\n  \"projectId\": \"599b9c570850711e2c4fc234\",\r\n  \"taskId\": \"string\",\r\n  \"name\": \"testname\"\r\n}"
-						},
-						"description": ""
-					},
-					"response": [
-						{
-							"id": "b053238d-c8f0-4ab8-8e02-f85f06553b9a",
-							"name": "新建反馈",
-							"originalRequest": {
-								"url": "{{base_url}}/api/task/save",
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json",
-										"description": ""
-									},
-									{
-										"key": "X-TOKEN",
-										"value": "{{X-TOKEN}}",
-										"description": ""
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n  \"appId\": \"599b9bc60850711e2c4fc230\",\r\n  \"caseIds\": [\r\n    \"599b9ce90850711e2c4fc23a\"\r\n  ],\r\n  \"projectId\": \"599b9c570850711e2c4fc234\"\r\n}"
-								},
-								"description": ""
-							},
-							"status": "OK",
-							"code": 200,
-							"_postman_previewlanguage": "json",
-							"_postman_previewtype": "text",
-							"header": [
-								{
-									"name": "cache-control",
-									"key": "cache-control",
-									"value": "no-cache, no-store, max-age=0, must-revalidate",
-									"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
-								},
-								{
-									"name": "content-type",
-									"key": "content-type",
-									"value": "application/json;charset=UTF-8",
-									"description": "The mime type of this content"
-								},
-								{
-									"name": "date",
-									"key": "date",
-									"value": "Tue, 22 Aug 2017 03:04:48 GMT",
-									"description": "The date and time that the message was sent"
-								},
-								{
-									"name": "expires",
-									"key": "expires",
-									"value": "0",
-									"description": "Gives the date/time after which the response is considered stale"
-								},
-								{
-									"name": "pragma",
-									"key": "pragma",
-									"value": "no-cache",
-									"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
-								},
-								{
-									"name": "transfer-encoding",
-									"key": "transfer-encoding",
-									"value": "chunked",
-									"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
-								},
-								{
-									"name": "x-content-type-options",
-									"key": "x-content-type-options",
-									"value": "nosniff",
-									"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
-								},
-								{
-									"name": "x-frame-options",
-									"key": "x-frame-options",
-									"value": "DENY",
-									"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
-								},
-								{
-									"name": "x-xss-protection",
-									"key": "x-xss-protection",
-									"value": "1; mode=block",
-									"description": "Cross-site scripting (XSS) filter"
-								}
-							],
-							"cookie": [],
-							"responseTime": 67,
-							"body": "{\"message\":\"ok\",\"data\":null,\"code\":0,\"url\":null}"
-						}
-					]
-				},
-				{
-					"name": "执行并保存一个任务",
-					"request": {
-						"url": "{{base_url}}/api/task/saveAndRun",
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"appId\": \"599b9bc60850711e2c4fc230\",\r\n  \"caseIds\": [\r\n    \"599b9ce90850711e2c4fc23a\"\r\n  ],\r\n  \"deviceIds\": [\r\n    \"string\"\r\n  ],\r\n  \"projectId\": \"599b9c570850711e2c4fc234\",\r\n  \"taskId\": \"string\"\r\n}"
-						},
-						"description": ""
-					},
-					"response": [
-						{
-							"id": "75df0f13-7ece-4ea3-9708-c8727688afb4",
-							"name": "执行并保存一个任务反馈",
-							"originalRequest": {
-								"url": "{{base_url}}/api/task/saveAndRun",
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json",
-										"type": "text",
-										"description": ""
-									},
-									{
-										"key": "X-TOKEN",
-										"value": "{{X-TOKEN}}",
-										"type": "text",
-										"description": ""
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n  \"appId\": \"599b9bc60850711e2c4fc230\",\r\n  \"caseIds\": [\r\n    \"599b9ce90850711e2c4fc23a\"\r\n  ],\r\n  \"deviceIds\": [\r\n    \"string\"\r\n  ],\r\n  \"projectId\": \"599b9c570850711e2c4fc234\",\r\n  \"taskId\": \"string\"\r\n}"
-								},
-								"description": ""
-							},
-							"status": "OK",
-							"code": 200,
-							"_postman_previewlanguage": "json",
-							"_postman_previewtype": "text",
-							"header": [
-								{
-									"name": "cache-control",
-									"key": "cache-control",
-									"value": "no-cache, no-store, max-age=0, must-revalidate",
-									"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
-								},
-								{
-									"name": "content-type",
-									"key": "content-type",
-									"value": "application/json;charset=UTF-8",
-									"description": "The mime type of this content"
-								},
-								{
-									"name": "date",
-									"key": "date",
-									"value": "Tue, 22 Aug 2017 03:07:56 GMT",
-									"description": "The date and time that the message was sent"
-								},
-								{
-									"name": "expires",
-									"key": "expires",
-									"value": "0",
-									"description": "Gives the date/time after which the response is considered stale"
-								},
-								{
-									"name": "pragma",
-									"key": "pragma",
-									"value": "no-cache",
-									"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
-								},
-								{
-									"name": "transfer-encoding",
-									"key": "transfer-encoding",
-									"value": "chunked",
-									"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
-								},
-								{
-									"name": "x-content-type-options",
-									"key": "x-content-type-options",
-									"value": "nosniff",
-									"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
-								},
-								{
-									"name": "x-frame-options",
-									"key": "x-frame-options",
-									"value": "DENY",
-									"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
-								},
-								{
-									"name": "x-xss-protection",
-									"key": "x-xss-protection",
-									"value": "1; mode=block",
-									"description": "Cross-site scripting (XSS) filter"
-								}
-							],
-							"cookie": [],
-							"responseTime": 78,
-							"body": "{\"message\":\"ok\",\"data\":null,\"code\":0,\"url\":null}"
-						}
-					]
-				},
-				{
-					"name": "执行一个任务",
-					"request": {
-						"url": "{{base_url}}/api/task/run",
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							},
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"deviceIds\": [\r\n    \"e301970f7d93\", \"b15d91f\"\r\n  ],\r\n  \"taskId\": \"59a15d7e9d0437ab3a944887\"\r\n}"
-						},
-						"description": ""
-					},
-					"response": [
-						{
-							"id": "5d70945f-0173-48a1-a0aa-7db0527384dd",
-							"name": "执行一个任务反馈",
-							"originalRequest": {
-								"url": "{{base_url}}/api/task/run",
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json",
-										"type": "text",
-										"description": ""
-									},
-									{
-										"key": "X-TOKEN",
-										"value": "{{X-TOKEN}}",
-										"type": "text",
-										"description": ""
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n  \"appId\": \"599b9bc60850711e2c4fc230\",\r\n  \"caseIds\": [\r\n    \"599b9ce90850711e2c4fc23a\"\r\n  ],\r\n  \"deviceIds\": [\r\n    \"string\"\r\n  ],\r\n  \"projectId\": \"599b9c570850711e2c4fc234\",\r\n  \"taskId\": \"string\"\r\n}"
-								},
-								"description": ""
-							},
-							"status": "OK",
-							"code": 200,
-							"_postman_previewlanguage": "json",
-							"_postman_previewtype": "text",
-							"header": [
-								{
-									"name": "cache-control",
-									"key": "cache-control",
-									"value": "no-cache, no-store, max-age=0, must-revalidate",
-									"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
-								},
-								{
-									"name": "content-type",
-									"key": "content-type",
-									"value": "application/json;charset=UTF-8",
-									"description": "The mime type of this content"
-								},
-								{
-									"name": "date",
-									"key": "date",
-									"value": "Tue, 22 Aug 2017 03:11:02 GMT",
-									"description": "The date and time that the message was sent"
-								},
-								{
-									"name": "expires",
-									"key": "expires",
-									"value": "0",
-									"description": "Gives the date/time after which the response is considered stale"
-								},
-								{
-									"name": "pragma",
-									"key": "pragma",
-									"value": "no-cache",
-									"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
-								},
-								{
-									"name": "transfer-encoding",
-									"key": "transfer-encoding",
-									"value": "chunked",
-									"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
-								},
-								{
-									"name": "x-content-type-options",
-									"key": "x-content-type-options",
-									"value": "nosniff",
-									"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
-								},
-								{
-									"name": "x-frame-options",
-									"key": "x-frame-options",
-									"value": "DENY",
-									"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
-								},
-								{
-									"name": "x-xss-protection",
-									"key": "x-xss-protection",
-									"value": "1; mode=block",
-									"description": "Cross-site scripting (XSS) filter"
-								}
-							],
-							"cookie": [],
-							"responseTime": 60,
-							"body": "{\"message\":\"ok\",\"data\":null,\"code\":0,\"url\":null}"
-						}
-					]
-				},
-				{
-					"name": "新增任务",
-					"request": {
-						"url": "{{base_url}}/api/task/save",
-						"method": "POST",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"appId\": \"599b9ba0a8426e1d20897aec\",\r\n  \"caseIds\": [\r\n    \"599aad1dd3aeb027ccf2f8d8\"\r\n  ],\r\n  \"name\": \"testname\",\r\n  \"projectId\": \"599aa61ba8426e1d9cf8709d\"\r\n}"
-						},
-						"description": "新增任务"
-					},
-					"response": []
-				},
-				{
-					"name": "任务列表分页",
-					"request": {
-						"url": {
-							"raw": "{{base_url}}/api/task/page?page=1&size=20&sortField=id&sortOrder=desc&projectId=599aa61ba8426e1d9cf8709d",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"task",
-								"page"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "size",
-									"value": "20",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "sortField",
-									"value": "id",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "sortOrder",
-									"value": "desc",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "projectId",
-									"value": "599aa61ba8426e1d9cf8709d",
-									"equals": true,
-									"description": ""
-								}
-							],
-							"variable": []
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "详情",
-					"request": {
-						"url": "{{base_url}}/api/task/detail/598ea04e1525ae6a7856ea20",
-						"method": "GET",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"description": ""
-					},
-					"response": [
-						{
-							"id": "c4c79d77-2fb2-4a76-a2bd-a5f01b56104d",
-							"name": "200",
-							"originalRequest": {
-								"url": "{{base_url}}/api/case/detail/598ea04e1525ae6a7856ea20",
-								"method": "GET",
-								"header": [
-									{
-										"key": "X-TOKEN",
-										"value": "{{X-TOKEN}}",
-										"description": ""
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
-								"description": ""
-							},
-							"status": "OK",
-							"code": 200,
-							"_postman_previewlanguage": "json",
-							"_postman_previewtype": "text",
-							"header": [
-								{
-									"name": "cache-control",
-									"key": "cache-control",
-									"value": "no-cache, no-store, max-age=0, must-revalidate",
-									"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
-								},
-								{
-									"name": "content-type",
-									"key": "content-type",
-									"value": "application/json;charset=UTF-8",
-									"description": "The mime type of this content"
-								},
-								{
-									"name": "date",
-									"key": "date",
-									"value": "Tue, 15 Aug 2017 03:29:45 GMT",
-									"description": "The date and time that the message was sent"
-								},
-								{
-									"name": "expires",
-									"key": "expires",
-									"value": "0",
-									"description": "Gives the date/time after which the response is considered stale"
-								},
-								{
-									"name": "pragma",
-									"key": "pragma",
-									"value": "no-cache",
-									"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
-								},
-								{
-									"name": "transfer-encoding",
-									"key": "transfer-encoding",
-									"value": "chunked",
-									"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
-								},
-								{
-									"name": "x-content-type-options",
-									"key": "x-content-type-options",
-									"value": "nosniff",
-									"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
-								},
-								{
-									"name": "x-frame-options",
-									"key": "x-frame-options",
-									"value": "DENY",
-									"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
-								},
-								{
-									"name": "x-xss-protection",
-									"key": "x-xss-protection",
-									"value": "1; mode=block",
-									"description": "Cross-site scripting (XSS) filter"
-								}
-							],
-							"cookie": [],
-							"responseTime": 127,
-							"body": "{\"message\":\"ok\",\"data\":{\"id\":\"598ea04e1525ae6a7856ea20\",\"type\":null,\"userName\":\"admin\",\"createDate\":null,\"name\":\"test\",\"projectName\":\"xxxx1\",\"scriptVOs\":[{\"id\":\"598d518a1525ae14ecffbdf5\",\"name\":\"contact.py\",\"aliasName\":\"contact.py\",\"size\":\"2697\",\"createDate\":null,\"userName\":null,\"type\":\"python\",\"md5\":\"C08D2DEF083DD5E7675411124C12AF2F\",\"modifyDate\":null,\"modifyUserName\":null,\"porjectName\":null}]},\"code\":0,\"url\":null}"
-						}
-					]
-				}
-			]
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"order": [
+				"2aa2b26e-5cea-6930-65bb-a45259fc3523",
+				"d5d1b813-017a-aac1-09b0-f12f6c85edea",
+				"3f7a8e6e-ec33-f68c-ea9d-0e134e7edeff",
+				"974d7b8c-de9b-767b-d14c-a3d925489379",
+				"9d1e40f9-226b-beb7-ae01-f4ee611b5a2f",
+				"a1836ea5-3936-2509-ab42-603460967288",
+				"78d5879e-d202-7ec4-0c1e-f8c9535b544c"
+			],
+			"owner": 0,
+			"folders_order": [],
+			"id": "70f59be3-3322-bd30-b6b3-6c047459670c"
+		},
+		{
+			"id": "8999a7d1-e0fc-7ffe-b309-b42936f80607",
+			"name": "应用相关",
+			"description": "",
+			"order": [
+				"5a5d4a80-e21d-f363-e707-30469de2d5ef",
+				"fdcde36c-448d-1a94-8f87-819b1c680aa0",
+				"3d3021df-cd10-8b57-9aec-f8a242289b3b",
+				"c4c73a1b-823f-787f-6ce8-cdbe99a2ee01",
+				"9b19b12e-fc40-8059-8ba2-96df5ad3d71c"
+			],
+			"folders_order": [],
+			"owner": 0,
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79"
+		},
+		{
+			"id": "fc116961-435f-392e-3d19-c3a0da4aafe2",
+			"name": "案例相关",
+			"description": "",
+			"order": [
+				"0521236f-0172-5707-4122-a44fc7ccab70",
+				"f309b2fc-45e4-5dee-af03-f19bfb1e648c",
+				"32677b62-4221-57f9-6b12-4eec3a930fd5",
+				"2485bf21-6d87-6b18-6576-3cee40a2c9e9",
+				"38027870-379a-9fed-1f46-f9bd59069c57",
+				"0f6ebb59-cf25-a52f-a548-af68b47707dc"
+			],
+			"folders_order": [],
+			"owner": 0,
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79"
+		},
+		{
+			"id": "9fd20d79-9708-d9c8-7fba-ed02241dc4bf",
+			"name": "脚本相关",
+			"description": "",
+			"order": [
+				"a3375acd-f7bd-2fa7-c451-d425890d5db6",
+				"4ab7b0b0-cb41-a34c-eb45-bbae30a3114f",
+				"ef30e06f-2403-a34d-9841-c0e034594848",
+				"06127aac-f390-8cfe-26e8-d51cb70e6f3b",
+				"d460cb26-ed7b-8ce3-f10b-2d2653c3d62d",
+				"bc0e1d37-3b57-6141-b817-c3bf9347f20b",
+				"69d23c4b-ce81-3760-17e7-ac2fa4cb0aed"
+			],
+			"folders_order": [],
+			"owner": 0,
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79"
 		},
 		{
 			"name": "设备相关",
 			"description": "",
-			"item": [
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"order": [
+				"b2ac34bd-1e2d-c3aa-7289-bb982eeb5df2",
+				"45a11380-5760-b6df-0752-97f5543b9c22",
+				"68161a05-81de-07f8-81a8-207602b28a85"
+			],
+			"owner": 0,
+			"folders_order": [],
+			"id": "4172e38b-7562-1dc2-769d-76f1591e6635"
+		},
+		{
+			"id": "fb1f276b-6fea-449b-ef32-31250177e61b",
+			"name": "项目相关",
+			"description": "",
+			"order": [
+				"c0d64e92-2275-db40-2b19-96884d8e8202",
+				"8a05976b-530e-f93a-3f51-02b0ea767038",
+				"62a99404-522a-70fe-1c8f-8b54022c9198",
+				"b5651ad8-55c5-9cf0-0fdd-a51da3d569e3",
+				"ccb3b076-c0be-6de8-eb8c-4a9e8bba7116",
+				"75b3a2ae-1b11-0b41-3304-ae74b70dcff3",
+				"5d4508d0-90d5-07a8-75b4-ba330a685eb2",
+				"c5bd774a-2cb7-89a1-5bb0-00bbc9c0f37b",
+				"febb2ef4-e72c-894f-0a4e-e8180179559e"
+			],
+			"folders_order": [],
+			"owner": 0,
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79"
+		}
+	],
+	"folders_order": [
+		"fb1f276b-6fea-449b-ef32-31250177e61b",
+		"8999a7d1-e0fc-7ffe-b309-b42936f80607",
+		"9fd20d79-9708-d9c8-7fba-ed02241dc4bf",
+		"fc116961-435f-392e-3d19-c3a0da4aafe2",
+		"70f59be3-3322-bd30-b6b3-6c047459670c",
+		"4172e38b-7562-1dc2-769d-76f1591e6635"
+	],
+	"timestamp": 0,
+	"owner": 0,
+	"public": false,
+	"requests": [
+		{
+			"id": "0521236f-0172-5707-4122-a44fc7ccab70",
+			"name": "增",
+			"description": "",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"method": "POST",
+			"headers": "Content-Type: application/json\nX-TOKEN: {{X-TOKEN}}",
+			"dataMode": "raw",
+			"data": [],
+			"rawModeData": "{\n\t\"name\": \"test\",\n\t\"projectId\": \"598d51691525ae14ecffbdf2\",\n\t\"scriptIds\": [\"598d518a1525ae14ecffbdf5\"]\n}",
+			"url": "{{base_url}}/api/case/save",
+			"responses": [
 				{
-					"name": "我自己的设备列表",
 					"request": {
-						"url": {
-							"raw": "{{base_url}}/device/owner/page?page=1&size=20&sortField=id&sortOrder=desc",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"device",
-								"owner",
-								"page"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "size",
-									"value": "20",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "sortField",
-									"value": "id",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "sortOrder",
-									"value": "desc",
-									"equals": true,
-									"description": ""
-								}
-							],
-							"variable": []
-						},
-						"method": "GET",
-						"header": [
+						"id": "ff4051ff-4f9c-4082-8074-f288fa4300b4",
+						"description": "",
+						"method": "POST",
+						"headers": "Content-Type: application/json\nX-TOKEN: {{X-TOKEN}}",
+						"dataMode": "raw",
+						"data": [],
+						"rawModeData": "{\n\t\"name\": \"test\",\n\t\"projectId\": \"598d51691525ae14ecffbdf2\",\n\t\"scriptIds\": [\"598d518a1525ae14ecffbdf5\"]\n}",
+						"url": "{{base_url}}/api/case/save",
+						"queryParams": [],
+						"headerData": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
 							{
 								"key": "X-TOKEN",
 								"value": "{{X-TOKEN}}",
 								"description": ""
 							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"unknownFields\": {599b9c570850711e2c4fc234}\r\n}"
-						},
-						"description": ""
+						]
 					},
-					"response": [
+					"requestObject": "{\"id\":\"ff4051ff-4f9c-4082-8074-f288fa4300b4\",\"description\":\"\",\"method\":\"POST\",\"headers\":\"Content-Type: application/json\\nX-TOKEN: {{X-TOKEN}}\",\"dataMode\":\"raw\",\"data\":[],\"rawModeData\":\"{\\n\\t\\\"name\\\": \\\"test\\\",\\n\\t\\\"projectId\\\": \\\"598d51691525ae14ecffbdf2\\\",\\n\\t\\\"scriptIds\\\": [\\\"598d518a1525ae14ecffbdf5\\\"]\\n}\",\"url\":\"{{base_url}}/api/case/save\",\"queryParams\":[],\"headerData\":[{\"key\":\"Content-Type\",\"value\":\"application/json\",\"description\":\"\"},{\"key\":\"X-TOKEN\",\"value\":\"{{X-TOKEN}}\",\"description\":\"\"}]}",
+					"id": "0331e20e-654b-0319-5fc9-cc7f4fe46fd4",
+					"name": "200",
+					"status": "OK",
+					"responseCode": {
+						"code": 200,
+						"name": "OK",
+						"detail": ""
+					},
+					"language": "json",
+					"previewType": "text",
+					"time": 133,
+					"headers": [
 						{
-							"id": "9c7812e4-f8bf-459d-a8cd-2c4454932e38",
-							"name": "我自己的设备反馈",
-							"originalRequest": {
-								"url": {
-									"raw": "{{base_url}}/device/owner/page?page=1&size=20&sortField=id&sortOrder=desc",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"device",
-										"owner",
-										"page"
-									],
-									"query": [
-										{
-											"key": "page",
-											"value": "1",
-											"equals": true,
-											"description": ""
-										},
-										{
-											"key": "size",
-											"value": "20",
-											"equals": true,
-											"description": ""
-										},
-										{
-											"key": "sortField",
-											"value": "id",
-											"equals": true,
-											"description": ""
-										},
-										{
-											"key": "sortOrder",
-											"value": "desc",
-											"equals": true,
-											"description": ""
-										}
-									],
-									"variable": []
-								},
-								"method": "GET",
-								"header": [
-									{
-										"key": "X-TOKEN",
-										"value": "{{X-TOKEN}}",
-										"description": "",
-										"warning": ""
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n  \"unknownFields\": {599b9c570850711e2c4fc234}\r\n}"
-								},
-								"description": ""
-							},
-							"status": "OK",
-							"code": 200,
-							"_postman_previewlanguage": "json",
-							"_postman_previewtype": "text",
-							"header": [
-								{
-									"name": "cache-control",
-									"key": "cache-control",
-									"value": "no-cache, no-store, max-age=0, must-revalidate",
-									"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
-								},
-								{
-									"name": "content-type",
-									"key": "content-type",
-									"value": "application/json;charset=UTF-8",
-									"description": "The mime type of this content"
-								},
-								{
-									"name": "date",
-									"key": "date",
-									"value": "Tue, 22 Aug 2017 03:38:26 GMT",
-									"description": "The date and time that the message was sent"
-								},
-								{
-									"name": "expires",
-									"key": "expires",
-									"value": "0",
-									"description": "Gives the date/time after which the response is considered stale"
-								},
-								{
-									"name": "pragma",
-									"key": "pragma",
-									"value": "no-cache",
-									"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
-								},
-								{
-									"name": "transfer-encoding",
-									"key": "transfer-encoding",
-									"value": "chunked",
-									"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
-								},
-								{
-									"name": "x-content-type-options",
-									"key": "x-content-type-options",
-									"value": "nosniff",
-									"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
-								},
-								{
-									"name": "x-frame-options",
-									"key": "x-frame-options",
-									"value": "DENY",
-									"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
-								},
-								{
-									"name": "x-xss-protection",
-									"key": "x-xss-protection",
-									"value": "1; mode=block",
-									"description": "Cross-site scripting (XSS) filter"
-								}
-							],
-							"cookie": [],
-							"responseTime": 98,
-							"body": "{\"message\":\"ok\",\"data\":{\"pages\":[],\"total\":0},\"code\":0,\"url\":null}"
+							"name": "cache-control",
+							"key": "cache-control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate",
+							"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
+						},
+						{
+							"name": "content-type",
+							"key": "content-type",
+							"value": "application/json;charset=UTF-8",
+							"description": "The mime type of this content"
+						},
+						{
+							"name": "date",
+							"key": "date",
+							"value": "Sat, 12 Aug 2017 06:29:34 GMT",
+							"description": "The date and time that the message was sent"
+						},
+						{
+							"name": "expires",
+							"key": "expires",
+							"value": "0",
+							"description": "Gives the date/time after which the response is considered stale"
+						},
+						{
+							"name": "pragma",
+							"key": "pragma",
+							"value": "no-cache",
+							"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
+						},
+						{
+							"name": "transfer-encoding",
+							"key": "transfer-encoding",
+							"value": "chunked",
+							"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
+						},
+						{
+							"name": "x-content-type-options",
+							"key": "x-content-type-options",
+							"value": "nosniff",
+							"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
+						},
+						{
+							"name": "x-frame-options",
+							"key": "x-frame-options",
+							"value": "DENY",
+							"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
+						},
+						{
+							"name": "x-xss-protection",
+							"key": "x-xss-protection",
+							"value": "1; mode=block",
+							"description": "Cross-site scripting (XSS) filter"
 						}
-					]
+					],
+					"cookies": [],
+					"text": "{\"message\":\"ok\",\"data\":null,\"code\":0,\"url\":null}",
+					"rawDataType": "text",
+					"owner": 0
+				}
+			],
+			"queryParams": [],
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": ""
 				},
 				{
-					"name": "分享给我的设备列表",
-					"request": {
-						"url": {
-							"raw": "{{base_url}}/device/shared/page?page=1&size=20&sortField=id&sortOrder=desc",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"device",
-								"shared",
-								"page"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "size",
-									"value": "20",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "sortField",
-									"value": "id",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "sortOrder",
-									"value": "desc",
-									"equals": true,
-									"description": ""
-								}
-							],
-							"variable": []
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"description": ""
-					},
-					"response": [
-						{
-							"id": "83d4a4b6-1d08-46b7-b5d6-32c32e5d6be4",
-							"name": "分享给我的设备反馈",
-							"originalRequest": {
-								"url": {
-									"raw": "{{base_url}}/device/shared/page?page=1&size=20&sortField=id&sortOrder=desc",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"device",
-										"shared",
-										"page"
-									],
-									"query": [
-										{
-											"key": "page",
-											"value": "1",
-											"equals": true,
-											"description": ""
-										},
-										{
-											"key": "size",
-											"value": "20",
-											"equals": true,
-											"description": ""
-										},
-										{
-											"key": "sortField",
-											"value": "id",
-											"equals": true,
-											"description": ""
-										},
-										{
-											"key": "sortOrder",
-											"value": "desc",
-											"equals": true,
-											"description": ""
-										}
-									],
-									"variable": []
-								},
-								"method": "GET",
-								"header": [
-									{
-										"key": "X-TOKEN",
-										"value": "{{X-TOKEN}}",
-										"type": "text",
-										"description": ""
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
-								"description": ""
-							},
-							"status": "OK",
-							"code": 200,
-							"_postman_previewlanguage": "json",
-							"_postman_previewtype": "text",
-							"header": [
-								{
-									"name": "cache-control",
-									"key": "cache-control",
-									"value": "no-cache, no-store, max-age=0, must-revalidate",
-									"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
-								},
-								{
-									"name": "content-type",
-									"key": "content-type",
-									"value": "application/json;charset=UTF-8",
-									"description": "The mime type of this content"
-								},
-								{
-									"name": "date",
-									"key": "date",
-									"value": "Tue, 22 Aug 2017 03:42:31 GMT",
-									"description": "The date and time that the message was sent"
-								},
-								{
-									"name": "expires",
-									"key": "expires",
-									"value": "0",
-									"description": "Gives the date/time after which the response is considered stale"
-								},
-								{
-									"name": "pragma",
-									"key": "pragma",
-									"value": "no-cache",
-									"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
-								},
-								{
-									"name": "transfer-encoding",
-									"key": "transfer-encoding",
-									"value": "chunked",
-									"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
-								},
-								{
-									"name": "x-content-type-options",
-									"key": "x-content-type-options",
-									"value": "nosniff",
-									"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
-								},
-								{
-									"name": "x-frame-options",
-									"key": "x-frame-options",
-									"value": "DENY",
-									"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
-								},
-								{
-									"name": "x-xss-protection",
-									"key": "x-xss-protection",
-									"value": "1; mode=block",
-									"description": "Cross-site scripting (XSS) filter"
-								}
-							],
-							"cookie": [],
-							"responseTime": 80,
-							"body": "{\"message\":\"ok\",\"data\":{\"pages\":[],\"total\":0},\"code\":0,\"url\":null}"
-						}
-					]
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": ""
+				}
+			],
+			"collection_id": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"folder": "fc116961-435f-392e-3d19-c3a0da4aafe2",
+			"preRequestScript": "",
+			"tests": ""
+		},
+		{
+			"id": "06127aac-f390-8cfe-26e8-d51cb70e6f3b",
+			"name": "分页列表查询",
+			"description": "如果传projectId，则返回该项目（必须是该用户可见的项目）下所有的应用；\n如果不传projectId，则返回该用户可见项目的所有应用。\nappName 支持模糊查询",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"method": "GET",
+			"headers": "X-TOKEN: {{X-TOKEN}}",
+			"data": [],
+			"rawModeData": "",
+			"pathVariables": {},
+			"url": "{{base_url}}/api/script/page?page=1&size=20&sortField=id&sortOrder=desc&projectId=598d51691525ae14ecffbdf2",
+			"responses": [],
+			"pathVariableData": [],
+			"queryParams": [
+				{
+					"key": "page",
+					"value": "1",
+					"equals": true,
+					"description": ""
 				},
 				{
-					"name": "所有可用设备列表",
+					"key": "size",
+					"value": "20",
+					"equals": true,
+					"description": ""
+				},
+				{
+					"key": "sortField",
+					"value": "id",
+					"equals": true,
+					"description": ""
+				},
+				{
+					"key": "sortOrder",
+					"value": "desc",
+					"equals": true,
+					"description": ""
+				},
+				{
+					"key": "projectId",
+					"value": "598d51691525ae14ecffbdf2",
+					"equals": true,
+					"description": ""
+				}
+			],
+			"headerData": [
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": ""
+				}
+			],
+			"collection_id": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"folder": "9fd20d79-9708-d9c8-7fba-ed02241dc4bf",
+			"preRequestScript": "",
+			"tests": ""
+		},
+		{
+			"id": "0689fe25-cc03-9f12-daef-3270555d6eef",
+			"name": "token刷新",
+			"description": "",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"method": "GET",
+			"headers": "Content-Type: application/json\nX-TOKEN: {{X-REFRESH-TOKEN}}",
+			"dataMode": "raw",
+			"data": [],
+			"rawModeData": "",
+			"tests": "tests[\"Status code is 200\"] = responseCode.code === 200;\n\nvar jsonData = JSON.parse(responseBody);\ntests[\"API result code is 200\"] = jsonData.code === 0;\n\nvar body = JSON.parse(responseBody);\n\nif (body.data.accessToken) {\n  tests[\"Body has token\"] = true;\n  postman.setEnvironmentVariable(\"X-TOKEN\", body.data.accessToken);\n}\nelse {\n  tests[\"Body has token\"] = false;\n}\n\nif (body.data.refreshToken) {\n  tests[\"Body has refreshToken\"] = true;\n  postman.setEnvironmentVariable(\"X-REFRESH-TOKEN\", body.data.refreshToken);\n}\nelse {\n  tests[\"Body has refreshToken\"] = false;\n}",
+			"preRequestScript": "",
+			"url": "{{base_url}}/auth/token",
+			"responses": [],
+			"queryParams": [],
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": ""
+				},
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-REFRESH-TOKEN}}",
+					"description": ""
+				}
+			],
+			"collection_id": "99a1775d-8863-928e-7b78-d3faa3ae0b79"
+		},
+		{
+			"id": "0f6ebb59-cf25-a52f-a548-af68b47707dc",
+			"headers": "X-TOKEN: {{X-TOKEN}}\n",
+			"headerData": [
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "{{base_url}}/api/case/detail/599ab2dbd3aeb025d441bcb0",
+			"queryParams": [],
+			"preRequestScript": "",
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "GET",
+			"data": [],
+			"dataMode": "params",
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1503576854562,
+			"name": "详情",
+			"description": "",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"responses": [
+				{
 					"request": {
-						"url": {
-							"raw": "{{base_url}}/device/available/page?page=1&size=20&sortField=id&sortOrder=desc",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"device",
-								"available",
-								"page"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "size",
-									"value": "20",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "sortField",
-									"value": "id",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "sortOrder",
-									"value": "desc",
-									"equals": true,
-									"description": ""
-								}
-							],
-							"variable": []
-						},
+						"id": "ecbfb24d-8755-4a54-b7cc-6ce9db400d11",
+						"description": "",
 						"method": "GET",
-						"header": [
+						"headers": "X-TOKEN: {{X-TOKEN}}",
+						"data": [],
+						"rawModeData": "",
+						"url": "{{base_url}}/api/case/detail/598ea04e1525ae6a7856ea20",
+						"queryParams": [],
+						"headerData": [
 							{
 								"key": "X-TOKEN",
 								"value": "{{X-TOKEN}}",
 								"description": ""
 							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"description": ""
+						]
 					},
-					"response": [
+					"requestObject": "{\"id\":\"ecbfb24d-8755-4a54-b7cc-6ce9db400d11\",\"description\":\"\",\"method\":\"GET\",\"headers\":\"X-TOKEN: {{X-TOKEN}}\",\"data\":[],\"rawModeData\":\"\",\"url\":\"{{base_url}}/api/case/detail/598ea04e1525ae6a7856ea20\",\"queryParams\":[],\"headerData\":[{\"key\":\"X-TOKEN\",\"value\":\"{{X-TOKEN}}\",\"description\":\"\"}]}",
+					"id": "7e424089-6226-34a3-67fe-33d564755f22",
+					"name": "200",
+					"status": "OK",
+					"responseCode": {
+						"code": 200,
+						"name": "OK",
+						"detail": ""
+					},
+					"language": "json",
+					"previewType": "text",
+					"time": 127,
+					"headers": [
 						{
-							"id": "a085c36c-54fb-4c46-a081-61295f289cf3",
-							"name": "所有可用设备反馈",
-							"originalRequest": {
-								"url": {
-									"raw": "{{base_url}}/device/available/page?page=1&size=20&sortField=id&sortOrder=desc",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"device",
-										"available",
-										"page"
-									],
-									"query": [
-										{
-											"key": "page",
-											"value": "1",
-											"equals": true,
-											"description": ""
-										},
-										{
-											"key": "size",
-											"value": "20",
-											"equals": true,
-											"description": ""
-										},
-										{
-											"key": "sortField",
-											"value": "id",
-											"equals": true,
-											"description": ""
-										},
-										{
-											"key": "sortOrder",
-											"value": "desc",
-											"equals": true,
-											"description": ""
-										}
-									],
-									"variable": []
-								},
-								"method": "GET",
-								"header": [
-									{
-										"key": "X-TOKEN",
-										"value": "{{X-TOKEN}}",
-										"type": "text",
-										"description": ""
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": ""
-								},
-								"description": ""
-							},
-							"status": "OK",
-							"code": 200,
-							"_postman_previewlanguage": "json",
-							"_postman_previewtype": "text",
-							"header": [
-								{
-									"name": "cache-control",
-									"key": "cache-control",
-									"value": "no-cache, no-store, max-age=0, must-revalidate",
-									"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
-								},
-								{
-									"name": "content-type",
-									"key": "content-type",
-									"value": "application/json;charset=UTF-8",
-									"description": "The mime type of this content"
-								},
-								{
-									"name": "date",
-									"key": "date",
-									"value": "Tue, 22 Aug 2017 03:46:23 GMT",
-									"description": "The date and time that the message was sent"
-								},
-								{
-									"name": "expires",
-									"key": "expires",
-									"value": "0",
-									"description": "Gives the date/time after which the response is considered stale"
-								},
-								{
-									"name": "pragma",
-									"key": "pragma",
-									"value": "no-cache",
-									"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
-								},
-								{
-									"name": "transfer-encoding",
-									"key": "transfer-encoding",
-									"value": "chunked",
-									"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
-								},
-								{
-									"name": "x-content-type-options",
-									"key": "x-content-type-options",
-									"value": "nosniff",
-									"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
-								},
-								{
-									"name": "x-frame-options",
-									"key": "x-frame-options",
-									"value": "DENY",
-									"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
-								},
-								{
-									"name": "x-xss-protection",
-									"key": "x-xss-protection",
-									"value": "1; mode=block",
-									"description": "Cross-site scripting (XSS) filter"
-								}
-							],
-							"cookie": [],
-							"responseTime": 87,
-							"body": "{\"message\":\"ok\",\"data\":{\"pages\":[],\"total\":0},\"code\":0,\"url\":null}"
+							"name": "cache-control",
+							"key": "cache-control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate",
+							"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
+						},
+						{
+							"name": "content-type",
+							"key": "content-type",
+							"value": "application/json;charset=UTF-8",
+							"description": "The mime type of this content"
+						},
+						{
+							"name": "date",
+							"key": "date",
+							"value": "Tue, 15 Aug 2017 03:29:45 GMT",
+							"description": "The date and time that the message was sent"
+						},
+						{
+							"name": "expires",
+							"key": "expires",
+							"value": "0",
+							"description": "Gives the date/time after which the response is considered stale"
+						},
+						{
+							"name": "pragma",
+							"key": "pragma",
+							"value": "no-cache",
+							"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
+						},
+						{
+							"name": "transfer-encoding",
+							"key": "transfer-encoding",
+							"value": "chunked",
+							"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
+						},
+						{
+							"name": "x-content-type-options",
+							"key": "x-content-type-options",
+							"value": "nosniff",
+							"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
+						},
+						{
+							"name": "x-frame-options",
+							"key": "x-frame-options",
+							"value": "DENY",
+							"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
+						},
+						{
+							"name": "x-xss-protection",
+							"key": "x-xss-protection",
+							"value": "1; mode=block",
+							"description": "Cross-site scripting (XSS) filter"
 						}
-					]
+					],
+					"cookies": [],
+					"text": "{\"message\":\"ok\",\"data\":{\"id\":\"598ea04e1525ae6a7856ea20\",\"type\":null,\"userName\":\"admin\",\"createDate\":null,\"name\":\"test\",\"projectName\":\"xxxx1\",\"scriptVOs\":[{\"id\":\"598d518a1525ae14ecffbdf5\",\"name\":\"contact.py\",\"aliasName\":\"contact.py\",\"size\":\"2697\",\"createDate\":null,\"userName\":null,\"type\":\"python\",\"md5\":\"C08D2DEF083DD5E7675411124C12AF2F\",\"modifyDate\":null,\"modifyUserName\":null,\"porjectName\":null}]},\"code\":0,\"url\":null}",
+					"rawDataType": "text",
+					"owner": 0
 				}
 			]
 		},
 		{
-			"name": "登录",
-			"event": [
+			"id": "2485bf21-6d87-6b18-6576-3cee40a2c9e9",
+			"headers": "X-TOKEN: {{X-TOKEN}}\n",
+			"headerData": [
 				{
-					"listen": "test",
-					"script": {
-						"type": "text/javascript",
-						"exec": [
-							"tests[\"Status code is 200\"] = responseCode.code === 200;",
-							"",
-							"var jsonData = JSON.parse(responseBody);",
-							"tests[\"API result code is 200\"] = jsonData.code === 0;",
-							"",
-							"var body = JSON.parse(responseBody);",
-							"",
-							"if (body.data.accessToken) {",
-							"  tests[\"Body has token\"] = true;",
-							"  postman.setEnvironmentVariable(\"X-TOKEN\", body.data.accessToken);",
-							"}",
-							"else {",
-							"  tests[\"Body has token\"] = false;",
-							"}",
-							"",
-							"if (body.data.refreshToken) {",
-							"  tests[\"Body has refreshToken\"] = true;",
-							"  postman.setEnvironmentVariable(\"X-REFRESH-TOKEN\", body.data.refreshToken);",
-							"}",
-							"else {",
-							"  tests[\"Body has refreshToken\"] = false;",
-							"}"
-						]
-					}
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": "",
+					"enabled": true
 				}
 			],
-			"request": {
-				"url": "{{base_url}}/auth/login",
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"description": ""
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n\t\"username\": \"admin\",\n\t\"password\": \"admin\"\n}"
-				},
-				"description": "登录"
-			},
-			"response": [
+			"url": "{{base_url}}/api/case/page?page=1&size=20&sortField=id&sortOrder=desc&projectId=599aaca3d3aeb027ccf2f8d2",
+			"queryParams": [
 				{
-					"id": "4729282d-75cc-482f-8a99-4f2135ba0a1f",
-					"name": "response example",
-					"originalRequest": {
-						"url": "{{base_url}}/auth/login",
+					"key": "page",
+					"value": "1",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "size",
+					"value": "20",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "sortField",
+					"value": "id",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "sortOrder",
+					"value": "desc",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "projectId",
+					"value": "599aaca3d3aeb027ccf2f8d2",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				}
+			],
+			"preRequestScript": "",
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "GET",
+			"data": [],
+			"dataMode": "params",
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1503575859742,
+			"name": "分页列表查询",
+			"description": "如果传projectId，则返回该项目（必须是该用户可见的项目）下所有的应用；\n如果不传projectId，则返回该用户可见项目的所有应用。\nappName 支持模糊查询",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"responses": [
+				{
+					"request": {
+						"id": "88e8588d-0252-43bd-881d-ef3220ba44e7",
+						"description": "",
+						"method": "GET",
+						"headers": "X-TOKEN: {{X-TOKEN}}",
+						"data": [],
+						"rawModeData": "",
+						"pathVariables": {},
+						"url": "{{base_url}}/api/case/page?page=1&size=20&sortField=id&sortOrder=desc&projectId=598d51691525ae14ecffbdf2",
+						"pathVariableData": [],
+						"queryParams": [
+							{
+								"key": "page",
+								"value": "1",
+								"equals": true,
+								"description": ""
+							},
+							{
+								"key": "size",
+								"value": "20",
+								"equals": true,
+								"description": ""
+							},
+							{
+								"key": "sortField",
+								"value": "id",
+								"equals": true,
+								"description": ""
+							},
+							{
+								"key": "sortOrder",
+								"value": "desc",
+								"equals": true,
+								"description": ""
+							},
+							{
+								"key": "projectId",
+								"value": "598d51691525ae14ecffbdf2",
+								"equals": true,
+								"description": ""
+							}
+						],
+						"headerData": [
+							{
+								"key": "X-TOKEN",
+								"value": "{{X-TOKEN}}",
+								"description": ""
+							}
+						]
+					},
+					"requestObject": "{\"id\":\"88e8588d-0252-43bd-881d-ef3220ba44e7\",\"description\":\"\",\"method\":\"GET\",\"headers\":\"X-TOKEN: {{X-TOKEN}}\",\"data\":[],\"rawModeData\":\"\",\"pathVariables\":{},\"url\":\"{{base_url}}/api/case/page?page=1&size=20&sortField=id&sortOrder=desc&projectId=598d51691525ae14ecffbdf2\",\"pathVariableData\":[],\"queryParams\":[{\"key\":\"page\",\"value\":\"1\",\"equals\":true,\"description\":\"\"},{\"key\":\"size\",\"value\":\"20\",\"equals\":true,\"description\":\"\"},{\"key\":\"sortField\",\"value\":\"id\",\"equals\":true,\"description\":\"\"},{\"key\":\"sortOrder\",\"value\":\"desc\",\"equals\":true,\"description\":\"\"},{\"key\":\"projectId\",\"value\":\"598d51691525ae14ecffbdf2\",\"equals\":true,\"description\":\"\"}],\"headerData\":[{\"key\":\"X-TOKEN\",\"value\":\"{{X-TOKEN}}\",\"description\":\"\"}]}",
+					"id": "89286116-7655-c073-384b-e76a58da7807",
+					"name": "200response",
+					"status": "OK",
+					"responseCode": {
+						"code": 200,
+						"name": "OK",
+						"detail": ""
+					},
+					"language": "json",
+					"previewType": "text",
+					"time": 100,
+					"headers": [
+						{
+							"name": "cache-control",
+							"key": "cache-control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate",
+							"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
+						},
+						{
+							"name": "content-type",
+							"key": "content-type",
+							"value": "application/json;charset=UTF-8",
+							"description": "The mime type of this content"
+						},
+						{
+							"name": "date",
+							"key": "date",
+							"value": "Sat, 12 Aug 2017 06:39:04 GMT",
+							"description": "The date and time that the message was sent"
+						},
+						{
+							"name": "expires",
+							"key": "expires",
+							"value": "0",
+							"description": "Gives the date/time after which the response is considered stale"
+						},
+						{
+							"name": "pragma",
+							"key": "pragma",
+							"value": "no-cache",
+							"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
+						},
+						{
+							"name": "transfer-encoding",
+							"key": "transfer-encoding",
+							"value": "chunked",
+							"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
+						},
+						{
+							"name": "x-content-type-options",
+							"key": "x-content-type-options",
+							"value": "nosniff",
+							"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
+						},
+						{
+							"name": "x-frame-options",
+							"key": "x-frame-options",
+							"value": "DENY",
+							"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
+						},
+						{
+							"name": "x-xss-protection",
+							"key": "x-xss-protection",
+							"value": "1; mode=block",
+							"description": "Cross-site scripting (XSS) filter"
+						}
+					],
+					"cookies": [],
+					"text": "{\"message\":\"ok\",\"data\":{\"pages\":[{\"id\":\"598ea04e1525ae6a7856ea20\",\"scripts\":[\"598d518a1525ae14ecffbdf5\"],\"userId\":\"5981cbf0fd2be02b34e6a9ea\",\"userName\":\"admin\",\"createDate\":1502519374639,\"name\":\"test\",\"projectId\":\"598d51691525ae14ecffbdf2\",\"projectName\":\"xxxx1\",\"disable\":false,\"modifyDate\":null}],\"total\":1},\"code\":0,\"url\":null}",
+					"rawDataType": "text",
+					"owner": 0
+				}
+			]
+		},
+		{
+			"id": "2aa2b26e-5cea-6930-65bb-a45259fc3523",
+			"headers": "Content-Type: application/json\nX-TOKEN: {{X-TOKEN}}\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "{{base_url}}/api/task/modify",
+			"queryParams": [],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1503905139186,
+			"name": "修改任务",
+			"description": "",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"responses": [
+				{
+					"status": "",
+					"responseCode": {
+						"code": 200,
+						"name": "OK",
+						"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+					},
+					"time": 67,
+					"headers": [
+						{
+							"name": "cache-control",
+							"key": "cache-control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate",
+							"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
+						},
+						{
+							"name": "content-type",
+							"key": "content-type",
+							"value": "application/json;charset=UTF-8",
+							"description": "The mime type of this content"
+						},
+						{
+							"name": "date",
+							"key": "date",
+							"value": "Tue, 22 Aug 2017 03:04:48 GMT",
+							"description": "The date and time that the message was sent"
+						},
+						{
+							"name": "expires",
+							"key": "expires",
+							"value": "0",
+							"description": "Gives the date/time after which the response is considered stale"
+						},
+						{
+							"name": "pragma",
+							"key": "pragma",
+							"value": "no-cache",
+							"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
+						},
+						{
+							"name": "transfer-encoding",
+							"key": "transfer-encoding",
+							"value": "chunked",
+							"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
+						},
+						{
+							"name": "x-content-type-options",
+							"key": "x-content-type-options",
+							"value": "nosniff",
+							"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
+						},
+						{
+							"name": "x-frame-options",
+							"key": "x-frame-options",
+							"value": "DENY",
+							"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
+						},
+						{
+							"name": "x-xss-protection",
+							"key": "x-xss-protection",
+							"value": "1; mode=block",
+							"description": "Cross-site scripting (XSS) filter"
+						}
+					],
+					"cookies": [],
+					"mime": "",
+					"text": "{\"message\":\"ok\",\"data\":null,\"code\":0,\"url\":null}",
+					"language": "json",
+					"rawDataType": "text",
+					"previewType": "text",
+					"searchResultScrolledTo": -1,
+					"forceNoPretty": false,
+					"write": true,
+					"empty": false,
+					"failed": false,
+					"name": "新建反馈",
+					"id": "99543005-e0ff-3c6a-bf27-19cbb0d949fc",
+					"request": {
+						"url": "{{base_url}}/api/task/save",
+						"pathVariables": {},
+						"pathVariableData": [],
+						"queryParams": [],
+						"headerData": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "",
+								"enabled": true
+							},
+							{
+								"key": "X-TOKEN",
+								"value": "{{X-TOKEN}}",
+								"description": "",
+								"enabled": true
+							}
+						],
+						"headers": "Content-Type: application/json\nX-TOKEN: {{X-TOKEN}}\n",
+						"data": "{\r\n  \"appId\": \"599b9bc60850711e2c4fc230\",\r\n  \"caseIds\": [\r\n    \"599b9ce90850711e2c4fc23a\"\r\n  ],\r\n  \"projectId\": \"599b9c570850711e2c4fc234\"\r\n}",
 						"method": "POST",
-						"header": [
+						"dataMode": "raw"
+					},
+					"owner": 0
+				}
+			],
+			"rawModeData": "{\r\n  \"appId\": \"599b9ba4a8426e1d20897aee\",\r\n  \"caseIds\": [\r\n    \"599aad1dd3aeb027ccf2f8d8\"\r\n  ],\r\n  \"taskId\": \"59a3c3df6ddfff2668ad9c2a\",\r\n  \"name\":\"test1\"\r\n}"
+		},
+		{
+			"id": "32677b62-4221-57f9-6b12-4eec3a930fd5",
+			"name": "删除一个或多个",
+			"description": "",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"method": "POST",
+			"headers": "X-TOKEN: {{X-TOKEN}}\nContent-Type: application/json",
+			"dataMode": "raw",
+			"data": [],
+			"rawModeData": "{\n\t\"ids\": [\"5989dcee5ac4fc556f437f04\"]\n}",
+			"url": "{{base_url}}/api/case/delete",
+			"responses": [],
+			"queryParams": [],
+			"headerData": [
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": ""
+				},
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": ""
+				}
+			],
+			"collection_id": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"folder": "fc116961-435f-392e-3d19-c3a0da4aafe2",
+			"preRequestScript": "",
+			"tests": ""
+		},
+		{
+			"id": "38027870-379a-9fed-1f46-f9bd59069c57",
+			"headers": "X-TOKEN: {{X-TOKEN}}\n",
+			"headerData": [
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "{{base_url}}/api/case/list?projectId=599aad04d3aeb027ccf2f8d6&name=",
+			"queryParams": [
+				{
+					"key": "projectId",
+					"value": "599aad04d3aeb027ccf2f8d6",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "name",
+					"value": "",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				}
+			],
+			"preRequestScript": "",
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "GET",
+			"data": [],
+			"dataMode": "params",
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1503576859190,
+			"name": "案例列表模糊查询",
+			"description": "查询条件和分页一样\n如果传projectId，则返回该项目（必须是该用户可见的项目）下所有的应用；\n如果不传projectId，则返回该用户可见项目的所有应用。\nappName 支持模糊查询",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"responses": []
+		},
+		{
+			"id": "3d3021df-cd10-8b57-9aec-f8a242289b3b",
+			"name": "删除一个或多个应用",
+			"description": "",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"method": "POST",
+			"headers": "X-TOKEN: {{X-TOKEN}}\nContent-Type: application/json",
+			"dataMode": "raw",
+			"data": [],
+			"rawModeData": "{\n\t\"ids\": [\"5989dcee5ac4fc556f437f04\"]\n}",
+			"url": "{{base_url}}/api/app/delete",
+			"responses": [],
+			"queryParams": [],
+			"headerData": [
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": ""
+				},
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": ""
+				}
+			],
+			"collection_id": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"folder": "8999a7d1-e0fc-7ffe-b309-b42936f80607",
+			"preRequestScript": "",
+			"tests": ""
+		},
+		{
+			"id": "3f7a8e6e-ec33-f68c-ea9d-0e134e7edeff",
+			"headers": "Content-Type: application/json\nX-TOKEN: {{X-TOKEN}}\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "{{base_url}}/api/task/run",
+			"queryParams": [],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"preRequestScript": null,
+			"method": "POST",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"data": [],
+			"dataMode": "raw",
+			"name": "执行一个任务",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1503371509668,
+			"version": 2,
+			"responses": [
+				{
+					"status": "",
+					"responseCode": {
+						"code": 200,
+						"name": "OK",
+						"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+					},
+					"time": 60,
+					"headers": [
+						{
+							"name": "cache-control",
+							"key": "cache-control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate",
+							"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
+						},
+						{
+							"name": "content-type",
+							"key": "content-type",
+							"value": "application/json;charset=UTF-8",
+							"description": "The mime type of this content"
+						},
+						{
+							"name": "date",
+							"key": "date",
+							"value": "Tue, 22 Aug 2017 03:11:02 GMT",
+							"description": "The date and time that the message was sent"
+						},
+						{
+							"name": "expires",
+							"key": "expires",
+							"value": "0",
+							"description": "Gives the date/time after which the response is considered stale"
+						},
+						{
+							"name": "pragma",
+							"key": "pragma",
+							"value": "no-cache",
+							"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
+						},
+						{
+							"name": "transfer-encoding",
+							"key": "transfer-encoding",
+							"value": "chunked",
+							"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
+						},
+						{
+							"name": "x-content-type-options",
+							"key": "x-content-type-options",
+							"value": "nosniff",
+							"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
+						},
+						{
+							"name": "x-frame-options",
+							"key": "x-frame-options",
+							"value": "DENY",
+							"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
+						},
+						{
+							"name": "x-xss-protection",
+							"key": "x-xss-protection",
+							"value": "1; mode=block",
+							"description": "Cross-site scripting (XSS) filter"
+						}
+					],
+					"cookies": [],
+					"mime": "",
+					"text": "{\"message\":\"ok\",\"data\":null,\"code\":0,\"url\":null}",
+					"language": "json",
+					"rawDataType": "text",
+					"previewType": "text",
+					"searchResultScrolledTo": -1,
+					"forceNoPretty": false,
+					"write": true,
+					"empty": false,
+					"failed": false,
+					"name": "执行一个任务反馈",
+					"id": "a9afac9d-4ab3-1237-693b-a07e57393988",
+					"request": {
+						"url": "{{base_url}}/api/task/run",
+						"pathVariables": {},
+						"pathVariableData": [],
+						"queryParams": [],
+						"headerData": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text",
+								"enabled": true,
+								"description": ""
+							},
+							{
+								"key": "X-TOKEN",
+								"value": "{{X-TOKEN}}",
+								"type": "text",
+								"enabled": true,
+								"description": ""
+							}
+						],
+						"headers": "Content-Type: application/json\nX-TOKEN: {{X-TOKEN}}\n",
+						"data": "{\r\n  \"appId\": \"599b9bc60850711e2c4fc230\",\r\n  \"caseIds\": [\r\n    \"599b9ce90850711e2c4fc23a\"\r\n  ],\r\n  \"deviceIds\": [\r\n    \"string\"\r\n  ],\r\n  \"projectId\": \"599b9c570850711e2c4fc234\",\r\n  \"taskId\": \"string\"\r\n}",
+						"method": "POST",
+						"dataMode": "raw"
+					},
+					"owner": 0
+				}
+			],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"folder": "70f59be3-3322-bd30-b6b3-6c047459670c",
+			"rawModeData": "{\r\n  \"appId\": \"599b9bc60850711e2c4fc230\",\r\n  \"caseIds\": [\r\n    \"599b9ce90850711e2c4fc23a\"\r\n  ],\r\n  \"deviceIds\": [\r\n    \"string\"\r\n  ],\r\n  \"projectId\": \"599b9c570850711e2c4fc234\",\r\n  \"taskId\": \"string\"\r\n}",
+			"collection_id": "99a1775d-8863-928e-7b78-d3faa3ae0b79"
+		},
+		{
+			"id": "45a11380-5760-b6df-0752-97f5543b9c22",
+			"headers": "X-TOKEN: {{X-TOKEN}}\n",
+			"headerData": [
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "{{base_url}}/device/shared/page?page=1&size=20&sortField=id&sortOrder=desc",
+			"queryParams": [
+				{
+					"key": "page",
+					"value": "1",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "size",
+					"value": "20",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "sortField",
+					"value": "id",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "sortOrder",
+					"value": "desc",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				}
+			],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"preRequestScript": null,
+			"method": "GET",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"data": null,
+			"dataMode": "params",
+			"name": "分享给我的设备列表",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1503373399033,
+			"version": 2,
+			"responses": [
+				{
+					"status": "",
+					"responseCode": {
+						"code": 200,
+						"name": "OK",
+						"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+					},
+					"time": 80,
+					"headers": [
+						{
+							"name": "cache-control",
+							"key": "cache-control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate",
+							"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
+						},
+						{
+							"name": "content-type",
+							"key": "content-type",
+							"value": "application/json;charset=UTF-8",
+							"description": "The mime type of this content"
+						},
+						{
+							"name": "date",
+							"key": "date",
+							"value": "Tue, 22 Aug 2017 03:42:31 GMT",
+							"description": "The date and time that the message was sent"
+						},
+						{
+							"name": "expires",
+							"key": "expires",
+							"value": "0",
+							"description": "Gives the date/time after which the response is considered stale"
+						},
+						{
+							"name": "pragma",
+							"key": "pragma",
+							"value": "no-cache",
+							"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
+						},
+						{
+							"name": "transfer-encoding",
+							"key": "transfer-encoding",
+							"value": "chunked",
+							"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
+						},
+						{
+							"name": "x-content-type-options",
+							"key": "x-content-type-options",
+							"value": "nosniff",
+							"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
+						},
+						{
+							"name": "x-frame-options",
+							"key": "x-frame-options",
+							"value": "DENY",
+							"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
+						},
+						{
+							"name": "x-xss-protection",
+							"key": "x-xss-protection",
+							"value": "1; mode=block",
+							"description": "Cross-site scripting (XSS) filter"
+						}
+					],
+					"cookies": [],
+					"mime": "",
+					"text": "{\"message\":\"ok\",\"data\":{\"pages\":[],\"total\":0},\"code\":0,\"url\":null}",
+					"language": "json",
+					"rawDataType": "text",
+					"previewType": "text",
+					"searchResultScrolledTo": -1,
+					"forceNoPretty": false,
+					"write": true,
+					"empty": false,
+					"failed": false,
+					"name": "分享给我的设备反馈",
+					"id": "0deb03f4-e7d4-a1a7-89e4-b9cdbbfb2261",
+					"request": {
+						"url": "{{base_url}}/device/shared/page?page=1&size=20&sortField=id&sortOrder=desc",
+						"pathVariables": {},
+						"pathVariableData": [],
+						"queryParams": [
+							{
+								"key": "page",
+								"value": "1",
+								"equals": true,
+								"description": "",
+								"enabled": true
+							},
+							{
+								"key": "size",
+								"value": "20",
+								"equals": true,
+								"description": "",
+								"enabled": true
+							},
+							{
+								"key": "sortField",
+								"value": "id",
+								"equals": true,
+								"description": "",
+								"enabled": true
+							},
+							{
+								"key": "sortOrder",
+								"value": "desc",
+								"equals": true,
+								"description": "",
+								"enabled": true
+							}
+						],
+						"headerData": [
+							{
+								"key": "X-TOKEN",
+								"value": "{{X-TOKEN}}",
+								"type": "text",
+								"enabled": true,
+								"description": ""
+							}
+						],
+						"headers": "X-TOKEN: {{X-TOKEN}}\n",
+						"data": null,
+						"method": "GET",
+						"dataMode": "params"
+					},
+					"owner": 0
+				}
+			],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"folder": "4172e38b-7562-1dc2-769d-76f1591e6635",
+			"collection_id": "99a1775d-8863-928e-7b78-d3faa3ae0b79"
+		},
+		{
+			"id": "4ab7b0b0-cb41-a34c-eb45-bbae30a3114f",
+			"name": "修改脚本",
+			"description": "",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"method": "POST",
+			"headers": "Content-Type: application/json\nX-TOKEN: {{X-TOKEN}}",
+			"dataMode": "raw",
+			"data": [],
+			"rawModeData": "{\n\t\"content\":\"#coding:UTF-8\\nimport os,sys\\nfrom time import sleep\\n# import unittest\\nsys.path.append(r'C:\\\\Python27\\\\Lib\\\\site-packages')\\nfrom appium import webdriver\\nPATH = lambda p: os.path.abspath(\\n    os.path.join(os.path.dirname(__file__), p)\\n)\\n\\ndesired_caps = {}\\ndesired_caps['platformName'] = 'Android'\\n# desired_caps['platformVersion'] = '4.2.2'\\ndesired_caps['deviceName'] = 'Android Emulator1'\\n# desired_caps['udid'] = '192.168.187.101:5555'\\n# desired_caps['udid'] = 'b15d91f'\\ndesired_caps['app'] = PATH('C:/Users/yxin/Desktop/Projs/Testwa/ContactManager.apk')\\ndesired_caps['appPackage'] = 'com.example.android.contactmanager'\\ndesired_caps['appActivity'] = '.ContactManager'\\n# desired_caps['appPackage'] = 'com.tuniu.app.ui'\\n# desired_caps['appActivity'] = 'com.tuniu.app.ui.homepage.LaunchActivity'\\n# desired_caps['noReset'] = True\\n# desired_caps['newCommandTimeout'] = 1000\\ndesired_caps['testSuit'] = 1\\ndesired_caps['testcaseId'] = 2\\n# desired_caps['dontStopAppOnReset'] = True\\n\\nwd = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)\\n# wd.get_screenshot_as_file(r'C:\\\\Users\\\\yxin\\\\Desktop\\\\sc.png')\\n# wd.implicitly_wait(60)\\n\\n#record device width*height\\n# originScreenWidth = 1080\\n# originScreenHeight = 1920\\n# windows_size = wd.get_window_size()\\n# currentWidth = windows_size.get('width')\\n# currentHeight = windows_size.get('height')\\n# screenRatioX = currentWidth/originScreenWidth\\n# screenRatioY = currentHeight/originScreenHeight\\n# el = wd.find_element_by_name(\\\"Add Contact\\\")\\n# el = wd.find_element_by_accessibility_id(\\\"Add Contact======================\\\")\\nel = wd.check_element_by_accessibility_id(\\\"Add Contact======================\\\", \\\"test\\\")\\n# el = wd.find_element_by_android_uiautomator('new UiSelector().text(\\\"Add Contact\\\")')\\n# el = wd.find_element_by_xpath('//android.widget.Button[@text=\\\"Add Contact\\\"]')\\n# el.click()\\n# pngData = wd.get_screenshot_as_png()\\n\\n# print(pngData)\\n# wd.get_screenshot_as_file(\\\"C:/Users/yxin/Desktop/Projs/screenshot/testScreenshot.png\\\")\\n# textfields = wd.find_elements_by_class_name(\\\"android.widget.EditText\\\")\\n# textfields = wd.check_elements_by_class_name(\\\"android.widget.EditText\\\")\\n# textfields[0].send_keys('edwaard')\\n# textfields[1].send_keys('123d456')\\n# textfields[2].send_keys('lht82a1008@163.com')\\n\\n# wd.find_element_by_xpath(\\\"/hierarchy/android.widget.FrameLayout[1]/android.widget.LinearLayout[1]/android.widget.FrameLayout[1]/android.widget.RelativeLayout[1]/android.widget.RelativeLayout[2]/android.widget.TextView[1]\\\")\\n# sleep(2)\\n# wd.swipe(571*screenRatioX,1672*screenRatioY,571*screenRatioX,482*screenRatioY,800)\\n# wd.tap([(966*screenRatioX,1833*screenRatioY)],500)\\n# sleep(5)\\n\\nwd.quit()\\n\"\n}",
+			"url": "{{base_url}}/api/script/598a939ba6be50270014d02d",
+			"responses": [],
+			"queryParams": [],
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": ""
+				},
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": ""
+				}
+			],
+			"collection_id": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"folder": "9fd20d79-9708-d9c8-7fba-ed02241dc4bf",
+			"preRequestScript": "",
+			"tests": ""
+		},
+		{
+			"id": "5a5d4a80-e21d-f363-e707-30469de2d5ef",
+			"name": "应用上传",
+			"description": "上传app，保存app文件，返回app的基本信息，如name，sdkversion，ID，type等",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"method": "POST",
+			"headers": "X-TOKEN: {{X-TOKEN}}",
+			"dataMode": "params",
+			"data": [
+				{
+					"key": "file",
+					"description": "",
+					"type": "file",
+					"src": "WeChatPolice_201609051450.apk",
+					"value": ""
+				}
+			],
+			"rawModeData": "",
+			"url": "{{base_url}}/api/app/upload",
+			"responses": [],
+			"queryParams": [],
+			"headerData": [
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": ""
+				}
+			],
+			"collection_id": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"folder": "8999a7d1-e0fc-7ffe-b309-b42936f80607",
+			"preRequestScript": "",
+			"tests": ""
+		},
+		{
+			"id": "5a7ac993-a342-cb4e-1be9-758818d67c6b",
+			"headers": "X-TOKEN: {{X-TOKEN}}\n",
+			"headerData": [
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "{{base_url}}/api/project/role?projectId=599ec3c1e35852272cf6b3e5",
+			"queryParams": [
+				{
+					"key": "projectId",
+					"value": "599ec3c1e35852272cf6b3e5",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				}
+			],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "GET",
+			"data": null,
+			"dataMode": "params",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1503638133444,
+			"name": "根据项目ID获取当前用户角色",
+			"description": "",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"responses": []
+		},
+		{
+			"id": "5d4508d0-90d5-07a8-75b4-ba330a685eb2",
+			"name": "从项目中移除一个或多个成员",
+			"description": "",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"method": "POST",
+			"headers": "X-TOKEN: {{X-TOKEN}}\nContent-Type: application/json",
+			"dataMode": "raw",
+			"data": [],
+			"rawModeData": "{\n\t\"projectId\": \"597c5907c6c09f796a582943\",\n\t\"usernames\": [\"wen02\"]\n}",
+			"url": "{{base_url}}/api/project/member/remove",
+			"responses": [],
+			"queryParams": [],
+			"headerData": [
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": ""
+				},
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": ""
+				}
+			],
+			"collection_id": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"folder": "fb1f276b-6fea-449b-ef32-31250177e61b",
+			"preRequestScript": "",
+			"tests": ""
+		},
+		{
+			"id": "62a99404-522a-70fe-1c8f-8b54022c9198",
+			"name": "删除一个或多个项目",
+			"description": "",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"method": "POST",
+			"headers": "X-TOKEN: {{X-TOKEN}}\nContent-Type: application/json",
+			"dataMode": "raw",
+			"data": [],
+			"rawModeData": "{\n\t\"ids\": [\"597c589dc6c09f796a582941\"]\n}",
+			"url": "{{base_url}}/api/project/delete",
+			"responses": [],
+			"queryParams": [],
+			"headerData": [
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": ""
+				},
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": ""
+				}
+			],
+			"collection_id": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"folder": "fb1f276b-6fea-449b-ef32-31250177e61b",
+			"preRequestScript": "",
+			"tests": ""
+		},
+		{
+			"id": "68161a05-81de-07f8-81a8-207602b28a85",
+			"headers": "X-TOKEN: {{X-TOKEN}}\n",
+			"headerData": [
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "{{base_url}}/device/available/page?page=1&size=20&sortField=id&sortOrder=desc",
+			"queryParams": [
+				{
+					"key": "page",
+					"value": "1",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "size",
+					"value": "20",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "sortField",
+					"value": "id",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "sortOrder",
+					"value": "desc",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				}
+			],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"preRequestScript": null,
+			"method": "GET",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"data": null,
+			"dataMode": "params",
+			"name": "所有可用设备列表",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1503373623135,
+			"version": 2,
+			"responses": [
+				{
+					"status": "",
+					"responseCode": {
+						"code": 200,
+						"name": "OK",
+						"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+					},
+					"time": 87,
+					"headers": [
+						{
+							"name": "cache-control",
+							"key": "cache-control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate",
+							"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
+						},
+						{
+							"name": "content-type",
+							"key": "content-type",
+							"value": "application/json;charset=UTF-8",
+							"description": "The mime type of this content"
+						},
+						{
+							"name": "date",
+							"key": "date",
+							"value": "Tue, 22 Aug 2017 03:46:23 GMT",
+							"description": "The date and time that the message was sent"
+						},
+						{
+							"name": "expires",
+							"key": "expires",
+							"value": "0",
+							"description": "Gives the date/time after which the response is considered stale"
+						},
+						{
+							"name": "pragma",
+							"key": "pragma",
+							"value": "no-cache",
+							"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
+						},
+						{
+							"name": "transfer-encoding",
+							"key": "transfer-encoding",
+							"value": "chunked",
+							"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
+						},
+						{
+							"name": "x-content-type-options",
+							"key": "x-content-type-options",
+							"value": "nosniff",
+							"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
+						},
+						{
+							"name": "x-frame-options",
+							"key": "x-frame-options",
+							"value": "DENY",
+							"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
+						},
+						{
+							"name": "x-xss-protection",
+							"key": "x-xss-protection",
+							"value": "1; mode=block",
+							"description": "Cross-site scripting (XSS) filter"
+						}
+					],
+					"cookies": [],
+					"mime": "",
+					"text": "{\"message\":\"ok\",\"data\":{\"pages\":[],\"total\":0},\"code\":0,\"url\":null}",
+					"language": "json",
+					"rawDataType": "text",
+					"previewType": "text",
+					"searchResultScrolledTo": -1,
+					"forceNoPretty": false,
+					"write": true,
+					"empty": false,
+					"failed": false,
+					"name": "所有可用设备反馈",
+					"id": "af757202-02ce-59d6-89f3-4c5479c71a4e",
+					"request": {
+						"url": "{{base_url}}/device/available/page?page=1&size=20&sortField=id&sortOrder=desc",
+						"pathVariables": {},
+						"pathVariableData": [],
+						"queryParams": [
+							{
+								"key": "page",
+								"value": "1",
+								"equals": true,
+								"description": "",
+								"enabled": true
+							},
+							{
+								"key": "size",
+								"value": "20",
+								"equals": true,
+								"description": "",
+								"enabled": true
+							},
+							{
+								"key": "sortField",
+								"value": "id",
+								"equals": true,
+								"description": "",
+								"enabled": true
+							},
+							{
+								"key": "sortOrder",
+								"value": "desc",
+								"equals": true,
+								"description": "",
+								"enabled": true
+							}
+						],
+						"headerData": [
+							{
+								"key": "X-TOKEN",
+								"value": "{{X-TOKEN}}",
+								"type": "text",
+								"enabled": true,
+								"description": ""
+							}
+						],
+						"headers": "X-TOKEN: {{X-TOKEN}}\n",
+						"data": null,
+						"method": "GET",
+						"dataMode": "params"
+					},
+					"owner": 0
+				}
+			],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"folder": "4172e38b-7562-1dc2-769d-76f1591e6635",
+			"collection_id": "99a1775d-8863-928e-7b78-d3faa3ae0b79"
+		},
+		{
+			"id": "69d23c4b-ce81-3760-17e7-ac2fa4cb0aed",
+			"headers": "X-TOKEN: {{X-TOKEN}}\n",
+			"headerData": [
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "{{base_url}}/api/script/upload",
+			"queryParams": [],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"preRequestScript": "",
+			"method": "POST",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"data": [
+				{
+					"key": "file",
+					"description": "",
+					"type": "file",
+					"src": "WeChatPolice_201609051450.apk",
+					"value": ""
+				}
+			],
+			"dataMode": "params",
+			"name": "上传脚本",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1503396399868,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"folder": "9fd20d79-9708-d9c8-7fba-ed02241dc4bf"
+		},
+		{
+			"id": "75b3a2ae-1b11-0b41-3304-ae74b70dcff3",
+			"name": "给某一个项目添加一个或多个成员",
+			"description": "",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"method": "POST",
+			"headers": "X-TOKEN: {{X-TOKEN}}\nContent-Type: application/json",
+			"dataMode": "raw",
+			"data": [],
+			"rawModeData": "{\n\t\"projectId\": \"597c5907c6c09f796a582943\",\n\t\"usernames\": [\"wen05\"]\n}",
+			"url": "{{base_url}}/api/project/member/add",
+			"responses": [],
+			"queryParams": [],
+			"headerData": [
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": ""
+				},
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": ""
+				}
+			],
+			"collection_id": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"folder": "fb1f276b-6fea-449b-ef32-31250177e61b",
+			"preRequestScript": "",
+			"tests": ""
+		},
+		{
+			"id": "78d5879e-d202-7ec4-0c1e-f8c9535b544c",
+			"headers": "X-TOKEN: {{X-TOKEN}}\n",
+			"headerData": [
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "{{base_url}}/api/task/detail/59a3ce236ddfff2808ed8102",
+			"queryParams": [],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "GET",
+			"data": null,
+			"dataMode": "params",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1503912416337,
+			"name": "任务详情",
+			"description": "",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"responses": []
+		},
+		{
+			"id": "8a05976b-530e-f93a-3f51-02b0ea767038",
+			"name": "分页列表 - 获得我创建的和我参加的所有项目",
+			"description": "获得我创建的和我参加的所有项目，可按projectName模糊搜索",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"method": "GET",
+			"headers": "X-TOKEN: {{X-TOKEN}}",
+			"dataMode": "raw",
+			"data": [],
+			"rawModeData": "{\n  \"first\": 1,\n  \"rows\": 15,\n  \"sortField\": \"id\",\n  \"sortOrder\": \"0\"\n}",
+			"pathVariables": {},
+			"url": "{{base_url}}/api/project/page?page=1&size=20&sortField=id&sortOrder=desc",
+			"responses": [],
+			"pathVariableData": [],
+			"queryParams": [
+				{
+					"key": "page",
+					"value": "1",
+					"equals": true,
+					"description": ""
+				},
+				{
+					"key": "size",
+					"value": "20",
+					"equals": true,
+					"description": ""
+				},
+				{
+					"key": "sortField",
+					"value": "id",
+					"equals": true,
+					"description": ""
+				},
+				{
+					"key": "sortOrder",
+					"value": "desc",
+					"equals": true,
+					"description": ""
+				}
+			],
+			"headerData": [
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": ""
+				}
+			],
+			"collection_id": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"folder": "fb1f276b-6fea-449b-ef32-31250177e61b",
+			"preRequestScript": "",
+			"tests": ""
+		},
+		{
+			"id": "974d7b8c-de9b-767b-d14c-a3d925489379",
+			"headers": "X-TOKEN: {{X-TOKEN}}\n",
+			"headerData": [
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "{{base_url}}/api/task/page?page=1&size=20&sortField=id&sortOrder=desc&projectId=599aa61ba8426e1d9cf8709d",
+			"queryParams": [
+				{
+					"key": "page",
+					"value": "1",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "size",
+					"value": "20",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "sortField",
+					"value": "id",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "sortOrder",
+					"value": "desc",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "projectId",
+					"value": "599aa61ba8426e1d9cf8709d",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				}
+			],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "GET",
+			"data": null,
+			"dataMode": "params",
+			"version": 2,
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1503912412309,
+			"name": "任务列表分页",
+			"description": "",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"responses": []
+		},
+		{
+			"id": "9b19b12e-fc40-8059-8ba2-96df5ad3d71c",
+			"name": "应用列表查询",
+			"description": "查询条件和分页一样\n如果传projectId，则返回该项目（必须是该用户可见的项目）下所有的应用；\n如果不传projectId，则返回该用户可见项目的所有应用。\nappName 支持模糊查询",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"method": "GET",
+			"headers": "X-TOKEN: {{X-TOKEN}}",
+			"dataMode": "raw",
+			"data": [],
+			"rawModeData": "",
+			"pathVariables": {},
+			"url": "{{base_url}}/api/app/list?projectId=5989dacb5ac4fc52610a4931&appName=We",
+			"responses": [],
+			"pathVariableData": [],
+			"queryParams": [
+				{
+					"key": "projectId",
+					"value": "5989dacb5ac4fc52610a4931",
+					"equals": true,
+					"description": ""
+				},
+				{
+					"key": "appName",
+					"value": "We",
+					"equals": true,
+					"description": ""
+				}
+			],
+			"headerData": [
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": ""
+				}
+			],
+			"collection_id": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"folder": "8999a7d1-e0fc-7ffe-b309-b42936f80607",
+			"preRequestScript": "",
+			"tests": ""
+		},
+		{
+			"id": "9d1e40f9-226b-beb7-ae01-f4ee611b5a2f",
+			"headers": "X-TOKEN: {{X-TOKEN}}\nContent-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "{{base_url}}/api/task/save",
+			"queryParams": [],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1503912408559,
+			"name": "新增任务",
+			"description": "新增任务",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"responses": [],
+			"rawModeData": "{\r\n  \"appId\": \"599b9ba0a8426e1d20897aec\",\r\n  \"caseIds\": [\r\n    \"599aad1dd3aeb027ccf2f8d8\"\r\n  ],\r\n  \"projectId\": \"599aa61ba8426e1d9cf8709d\",\r\n  \"name\":\"wwwaa\"\r\n  \r\n}"
+		},
+		{
+			"id": "a1836ea5-3936-2509-ab42-603460967288",
+			"headers": "X-TOKEN: {{X-TOKEN}}\nContent-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "{{base_url}}/api/task/delete",
+			"queryParams": [],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"preRequestScript": null,
+			"method": "POST",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"data": [],
+			"dataMode": "raw",
+			"name": "删除任务",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1503399873230,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"folder": "70f59be3-3322-bd30-b6b3-6c047459670c",
+			"rawModeData": "{\n\t\"ids\":[\"599c0070a8426e1144059422\"]\n}"
+		},
+		{
+			"id": "a3375acd-f7bd-2fa7-c451-d425890d5db6",
+			"name": "增",
+			"description": "",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"method": "POST",
+			"headers": "Content-Type: application/json\nX-TOKEN: {{X-TOKEN}}",
+			"dataMode": "raw",
+			"data": [],
+			"rawModeData": "{\n\t\"id\": \"598d518a1525ae14ecffbdf5\",\n\t\"projectId\": \"598d51691525ae14ecffbdf2\"\n}",
+			"url": "{{base_url}}/api/script/save",
+			"responses": [
+				{
+					"request": {
+						"id": "6c815fd9-0627-4775-8e8b-e170b7efad2d",
+						"description": "",
+						"method": "POST",
+						"headers": "Content-Type: application/json\nX-TOKEN: {{X-TOKEN}}",
+						"dataMode": "raw",
+						"data": [],
+						"rawModeData": "{\n\t\"id\": \"598d518a1525ae14ecffbdf5\",\n\t\"projectId\": \"598d51691525ae14ecffbdf2\"\n}",
+						"url": "{{base_url}}/api/script/save",
+						"queryParams": [],
+						"headerData": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-TOKEN",
+								"value": "{{X-TOKEN}}",
+								"description": ""
+							}
+						]
+					},
+					"requestObject": "{\"id\":\"6c815fd9-0627-4775-8e8b-e170b7efad2d\",\"description\":\"\",\"method\":\"POST\",\"headers\":\"Content-Type: application/json\\nX-TOKEN: {{X-TOKEN}}\",\"dataMode\":\"raw\",\"data\":[],\"rawModeData\":\"{\\n\\t\\\"id\\\": \\\"598d518a1525ae14ecffbdf5\\\",\\n\\t\\\"projectId\\\": \\\"598d51691525ae14ecffbdf2\\\"\\n}\",\"url\":\"{{base_url}}/api/script/save\",\"queryParams\":[],\"headerData\":[{\"key\":\"Content-Type\",\"value\":\"application/json\",\"description\":\"\"},{\"key\":\"X-TOKEN\",\"value\":\"{{X-TOKEN}}\",\"description\":\"\"}]}",
+					"id": "686dfe1b-0eb5-4f85-8d7a-7a27dd5ca693",
+					"name": "200",
+					"status": "OK",
+					"responseCode": {
+						"code": 200,
+						"name": "OK",
+						"detail": ""
+					},
+					"language": "json",
+					"previewType": "text",
+					"time": 162,
+					"headers": [
+						{
+							"name": "cache-control",
+							"key": "cache-control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate",
+							"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
+						},
+						{
+							"name": "content-type",
+							"key": "content-type",
+							"value": "application/json;charset=UTF-8",
+							"description": "The mime type of this content"
+						},
+						{
+							"name": "date",
+							"key": "date",
+							"value": "Fri, 11 Aug 2017 06:41:36 GMT",
+							"description": "The date and time that the message was sent"
+						},
+						{
+							"name": "expires",
+							"key": "expires",
+							"value": "0",
+							"description": "Gives the date/time after which the response is considered stale"
+						},
+						{
+							"name": "pragma",
+							"key": "pragma",
+							"value": "no-cache",
+							"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
+						},
+						{
+							"name": "transfer-encoding",
+							"key": "transfer-encoding",
+							"value": "chunked",
+							"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
+						},
+						{
+							"name": "x-content-type-options",
+							"key": "x-content-type-options",
+							"value": "nosniff",
+							"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
+						},
+						{
+							"name": "x-frame-options",
+							"key": "x-frame-options",
+							"value": "DENY",
+							"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
+						},
+						{
+							"name": "x-xss-protection",
+							"key": "x-xss-protection",
+							"value": "1; mode=block",
+							"description": "Cross-site scripting (XSS) filter"
+						}
+					],
+					"cookies": [],
+					"text": "{\"message\":\"ok\",\"data\":null,\"code\":0,\"url\":null}",
+					"rawDataType": "text",
+					"owner": 0
+				}
+			],
+			"queryParams": [],
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": ""
+				},
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": ""
+				}
+			],
+			"collection_id": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"folder": "9fd20d79-9708-d9c8-7fba-ed02241dc4bf",
+			"preRequestScript": "",
+			"tests": ""
+		},
+		{
+			"id": "b2ac34bd-1e2d-c3aa-7289-bb982eeb5df2",
+			"headers": "X-TOKEN: {{X-TOKEN}}\n",
+			"headerData": [
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "{{base_url}}/device/owner/page?page=1&size=20&sortField=id&sortOrder=desc",
+			"queryParams": [
+				{
+					"key": "page",
+					"value": "1",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "size",
+					"value": "20",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "sortField",
+					"value": "id",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "sortOrder",
+					"value": "desc",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				}
+			],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"preRequestScript": null,
+			"method": "GET",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"data": [],
+			"dataMode": "raw",
+			"name": "我自己的设备列表",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1503373238194,
+			"version": 2,
+			"responses": [
+				{
+					"status": "",
+					"responseCode": {
+						"code": 200,
+						"name": "OK",
+						"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+					},
+					"time": 98,
+					"headers": [
+						{
+							"name": "cache-control",
+							"key": "cache-control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate",
+							"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
+						},
+						{
+							"name": "content-type",
+							"key": "content-type",
+							"value": "application/json;charset=UTF-8",
+							"description": "The mime type of this content"
+						},
+						{
+							"name": "date",
+							"key": "date",
+							"value": "Tue, 22 Aug 2017 03:38:26 GMT",
+							"description": "The date and time that the message was sent"
+						},
+						{
+							"name": "expires",
+							"key": "expires",
+							"value": "0",
+							"description": "Gives the date/time after which the response is considered stale"
+						},
+						{
+							"name": "pragma",
+							"key": "pragma",
+							"value": "no-cache",
+							"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
+						},
+						{
+							"name": "transfer-encoding",
+							"key": "transfer-encoding",
+							"value": "chunked",
+							"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
+						},
+						{
+							"name": "x-content-type-options",
+							"key": "x-content-type-options",
+							"value": "nosniff",
+							"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
+						},
+						{
+							"name": "x-frame-options",
+							"key": "x-frame-options",
+							"value": "DENY",
+							"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
+						},
+						{
+							"name": "x-xss-protection",
+							"key": "x-xss-protection",
+							"value": "1; mode=block",
+							"description": "Cross-site scripting (XSS) filter"
+						}
+					],
+					"cookies": [],
+					"mime": "",
+					"text": "{\"message\":\"ok\",\"data\":{\"pages\":[],\"total\":0},\"code\":0,\"url\":null}",
+					"language": "json",
+					"rawDataType": "text",
+					"previewType": "text",
+					"searchResultScrolledTo": -1,
+					"forceNoPretty": false,
+					"write": true,
+					"empty": false,
+					"failed": false,
+					"name": "我自己的设备反馈",
+					"id": "2f8cff57-8478-a18c-ea13-8de5fbc1e033",
+					"request": {
+						"url": "{{base_url}}/device/owner/page?page=1&size=20&sortField=id&sortOrder=desc",
+						"pathVariables": {},
+						"pathVariableData": [],
+						"queryParams": [
+							{
+								"key": "page",
+								"value": "1",
+								"equals": true,
+								"description": "",
+								"enabled": true
+							},
+							{
+								"key": "size",
+								"value": "20",
+								"equals": true,
+								"description": "",
+								"enabled": true
+							},
+							{
+								"key": "sortField",
+								"value": "id",
+								"equals": true,
+								"description": "",
+								"enabled": true
+							},
+							{
+								"key": "sortOrder",
+								"value": "desc",
+								"equals": true,
+								"description": "",
+								"enabled": true
+							}
+						],
+						"headerData": [
+							{
+								"key": "X-TOKEN",
+								"value": "{{X-TOKEN}}",
+								"description": "",
+								"enabled": true,
+								"warning": ""
+							}
+						],
+						"headers": "X-TOKEN: {{X-TOKEN}}\n",
+						"data": "{\r\n  \"unknownFields\": {599b9c570850711e2c4fc234}\r\n}",
+						"method": "GET",
+						"dataMode": "raw"
+					},
+					"owner": 0
+				}
+			],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"folder": "4172e38b-7562-1dc2-769d-76f1591e6635",
+			"rawModeData": "{\r\n  \"unknownFields\": {599b9c570850711e2c4fc234}\r\n}",
+			"collection_id": "99a1775d-8863-928e-7b78-d3faa3ae0b79"
+		},
+		{
+			"id": "b5651ad8-55c5-9cf0-0fdd-a51da3d569e3",
+			"name": "获得我的项目和我参加项目的列表",
+			"description": "",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"method": "GET",
+			"headers": "X-TOKEN: {{X-TOKEN}}",
+			"dataMode": "raw",
+			"data": [],
+			"rawModeData": "",
+			"url": "{{base_url}}/api/project/list",
+			"responses": [],
+			"queryParams": [],
+			"headerData": [
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": ""
+				}
+			],
+			"collection_id": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"folder": "fb1f276b-6fea-449b-ef32-31250177e61b",
+			"preRequestScript": "",
+			"tests": ""
+		},
+		{
+			"id": "bc0e1d37-3b57-6141-b817-c3bf9347f20b",
+			"name": "脚本列表模糊查询",
+			"description": "查询条件和分页一样\n如果传projectId，则返回该项目（必须是该用户可见的项目）下所有的应用；\n如果不传projectId，则返回该用户可见项目的所有应用。\nappName 支持模糊查询",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"method": "GET",
+			"headers": "X-TOKEN: {{X-TOKEN}}",
+			"data": [],
+			"rawModeData": "",
+			"pathVariables": {},
+			"url": "{{base_url}}/api/script/list?projectId=598d51691525ae14ecffbdf2&name=con",
+			"responses": [],
+			"pathVariableData": [],
+			"queryParams": [
+				{
+					"key": "projectId",
+					"value": "598d51691525ae14ecffbdf2",
+					"equals": true,
+					"description": ""
+				},
+				{
+					"key": "name",
+					"value": "con",
+					"equals": true,
+					"description": ""
+				}
+			],
+			"headerData": [
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": ""
+				}
+			],
+			"collection_id": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"folder": "9fd20d79-9708-d9c8-7fba-ed02241dc4bf",
+			"preRequestScript": "",
+			"tests": ""
+		},
+		{
+			"id": "c0d64e92-2275-db40-2b19-96884d8e8202",
+			"headers": "Content-Type: application/json\nX-TOKEN: {{X-TOKEN}}\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "{{base_url}}/api/project/save",
+			"queryParams": [],
+			"preRequestScript": "",
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1503637405443,
+			"name": "新增项目",
+			"description": "",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"responses": [],
+			"rawModeData": "{\n\t\"projectId\": \"\",\n    \"description\": \"hahhahha\",\n    \"projectName\": \"xxxx1\",\n    \"members\": [\"wen03\"]\n}"
+		},
+		{
+			"id": "c4c73a1b-823f-787f-6ce8-cdbe99a2ee01",
+			"name": "应用分页列表查询",
+			"description": "如果传projectId，则返回该项目（必须是该用户可见的项目）下所有的应用；\n如果不传projectId，则返回该用户可见项目的所有应用。\nappName 支持模糊查询",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"method": "GET",
+			"headers": "X-TOKEN: {{X-TOKEN}}",
+			"dataMode": "raw",
+			"data": [],
+			"rawModeData": "",
+			"pathVariables": {},
+			"url": "{{base_url}}/api/app/page?page=1&size=20&sortField=id&sortOrder=desc&projectId=5989dacb5ac4fc52610a4931&appName=We&=",
+			"responses": [],
+			"pathVariableData": [],
+			"queryParams": [
+				{
+					"key": "page",
+					"value": "1",
+					"equals": true,
+					"description": ""
+				},
+				{
+					"key": "size",
+					"value": "20",
+					"equals": true,
+					"description": ""
+				},
+				{
+					"key": "sortField",
+					"value": "id",
+					"equals": true,
+					"description": ""
+				},
+				{
+					"key": "sortOrder",
+					"value": "desc",
+					"equals": true,
+					"description": ""
+				},
+				{
+					"key": "projectId",
+					"value": "5989dacb5ac4fc52610a4931",
+					"equals": true,
+					"description": ""
+				},
+				{
+					"key": "appName",
+					"value": "We",
+					"equals": true,
+					"description": ""
+				},
+				{
+					"key": "",
+					"value": ""
+				}
+			],
+			"headerData": [
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": ""
+				}
+			],
+			"collection_id": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"folder": "8999a7d1-e0fc-7ffe-b309-b42936f80607",
+			"preRequestScript": "",
+			"tests": ""
+		},
+		{
+			"id": "c5bd774a-2cb7-89a1-5bb0-00bbc9c0f37b",
+			"name": "获取某个项目的成员列表",
+			"description": "",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"method": "GET",
+			"headers": "X-TOKEN: {{X-TOKEN}}",
+			"dataMode": "raw",
+			"data": [],
+			"rawModeData": "",
+			"url": "{{base_url}}/api/project/members/597c5907c6c09f796a582943",
+			"responses": [],
+			"queryParams": [],
+			"headerData": [
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": ""
+				}
+			],
+			"collection_id": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"folder": "fb1f276b-6fea-449b-ef32-31250177e61b",
+			"preRequestScript": "",
+			"tests": ""
+		},
+		{
+			"id": "ccb3b076-c0be-6de8-eb8c-4a9e8bba7116",
+			"headers": "X-TOKEN: {{X-TOKEN}}\n",
+			"headerData": [
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "{{base_url}}/api/project/detail/599aa61ba8426e1d9cf8709d",
+			"queryParams": [],
+			"preRequestScript": "",
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "GET",
+			"data": [],
+			"dataMode": "raw",
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1503575874244,
+			"name": "获得一个项目的详情（不包含成员）",
+			"description": "",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"responses": [],
+			"rawModeData": ""
+		},
+		{
+			"id": "d460cb26-ed7b-8ce3-f10b-2d2653c3d62d",
+			"name": "获取脚本内容",
+			"description": "",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"method": "GET",
+			"headers": "X-TOKEN: {{X-TOKEN}}",
+			"data": [],
+			"rawModeData": "",
+			"url": "{{base_url}}/api/script/598a939ba6be50270014d02d",
+			"responses": [],
+			"queryParams": [],
+			"headerData": [
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": ""
+				}
+			],
+			"collection_id": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"folder": "9fd20d79-9708-d9c8-7fba-ed02241dc4bf",
+			"preRequestScript": "",
+			"tests": ""
+		},
+		{
+			"id": "d5d1b813-017a-aac1-09b0-f12f6c85edea",
+			"headers": "Content-Type: application/json\nX-TOKEN: {{X-TOKEN}}\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "{{base_url}}/api/task/saveAndRun",
+			"queryParams": [],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1503371302412,
+			"name": "执行并保存一个任务",
+			"description": "",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"responses": [
+				{
+					"status": "",
+					"responseCode": {
+						"code": 200,
+						"name": "OK",
+						"detail": "Standard response for successful HTTP requests. The actual response will depend on the request method used. In a GET request, the response will contain an entity corresponding to the requested resource. In a POST request the response will contain an entity describing or containing the result of the action."
+					},
+					"time": 78,
+					"headers": [
+						{
+							"name": "cache-control",
+							"key": "cache-control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate",
+							"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
+						},
+						{
+							"name": "content-type",
+							"key": "content-type",
+							"value": "application/json;charset=UTF-8",
+							"description": "The mime type of this content"
+						},
+						{
+							"name": "date",
+							"key": "date",
+							"value": "Tue, 22 Aug 2017 03:07:56 GMT",
+							"description": "The date and time that the message was sent"
+						},
+						{
+							"name": "expires",
+							"key": "expires",
+							"value": "0",
+							"description": "Gives the date/time after which the response is considered stale"
+						},
+						{
+							"name": "pragma",
+							"key": "pragma",
+							"value": "no-cache",
+							"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
+						},
+						{
+							"name": "transfer-encoding",
+							"key": "transfer-encoding",
+							"value": "chunked",
+							"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
+						},
+						{
+							"name": "x-content-type-options",
+							"key": "x-content-type-options",
+							"value": "nosniff",
+							"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
+						},
+						{
+							"name": "x-frame-options",
+							"key": "x-frame-options",
+							"value": "DENY",
+							"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
+						},
+						{
+							"name": "x-xss-protection",
+							"key": "x-xss-protection",
+							"value": "1; mode=block",
+							"description": "Cross-site scripting (XSS) filter"
+						}
+					],
+					"cookies": [],
+					"mime": "",
+					"text": "{\"message\":\"ok\",\"data\":null,\"code\":0,\"url\":null}",
+					"language": "json",
+					"rawDataType": "text",
+					"previewType": "text",
+					"searchResultScrolledTo": -1,
+					"forceNoPretty": false,
+					"write": true,
+					"empty": false,
+					"failed": false,
+					"name": "执行并保存一个任务反馈",
+					"id": "f88b9377-4473-f21e-47ff-5feefc245610",
+					"request": {
+						"url": "{{base_url}}/api/task/saveAndRun",
+						"pathVariables": {},
+						"pathVariableData": [],
+						"queryParams": [],
+						"headerData": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text",
+								"enabled": true,
+								"description": ""
+							},
+							{
+								"key": "X-TOKEN",
+								"value": "{{X-TOKEN}}",
+								"type": "text",
+								"enabled": true,
+								"description": ""
+							}
+						],
+						"headers": "Content-Type: application/json\nX-TOKEN: {{X-TOKEN}}\n",
+						"data": "{\r\n  \"appId\": \"599b9bc60850711e2c4fc230\",\r\n  \"caseIds\": [\r\n    \"599b9ce90850711e2c4fc23a\"\r\n  ],\r\n  \"deviceIds\": [\r\n    \"string\"\r\n  ],\r\n  \"projectId\": \"599b9c570850711e2c4fc234\",\r\n  \"taskId\": \"string\"\r\n}",
+						"method": "POST",
+						"dataMode": "raw"
+					},
+					"owner": 0
+				}
+			],
+			"rawModeData": "{\r\n  \"appId\": \"599b9bc60850711e2c4fc230\",\r\n  \"caseIds\": [\r\n    \"599b9ce90850711e2c4fc23a\"\r\n  ],\r\n  \"deviceIds\": [\r\n    \"string\"\r\n  ],\r\n  \"projectId\": \"599b9c570850711e2c4fc234\",\r\n  \"taskId\": \"string\"\r\n}",
+			"collection_id": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"folder": "70f59be3-3322-bd30-b6b3-6c047459670c"
+		},
+		{
+			"id": "ef30e06f-2403-a34d-9841-c0e034594848",
+			"name": "删除一个或多个",
+			"description": "",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"method": "POST",
+			"headers": "X-TOKEN: {{X-TOKEN}}\nContent-Type: application/json",
+			"dataMode": "raw",
+			"data": [],
+			"rawModeData": "{\n\t\"ids\": [\"5989dcee5ac4fc556f437f04\"]\n}",
+			"url": "{{base_url}}/api/script/delete",
+			"responses": [],
+			"queryParams": [],
+			"headerData": [
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": ""
+				},
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": ""
+				}
+			],
+			"collection_id": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"folder": "9fd20d79-9708-d9c8-7fba-ed02241dc4bf",
+			"preRequestScript": "",
+			"tests": ""
+		},
+		{
+			"id": "f222da53-a4c8-7577-71f5-12703814bfa0",
+			"headers": "Content-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "{{base_url}}/auth/login",
+			"queryParams": [],
+			"preRequestScript": "",
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"tests": "tests[\"Status code is 200\"] = responseCode.code === 200;\n\nvar jsonData = JSON.parse(responseBody);\ntests[\"API result code is 200\"] = jsonData.code === 0;\n\nvar body = JSON.parse(responseBody);\n\nif (body.data.accessToken) {\n  tests[\"Body has token\"] = true;\n  postman.setEnvironmentVariable(\"X-TOKEN\", body.data.accessToken);\n}\nelse {\n  tests[\"Body has token\"] = false;\n}\n\nif (body.data.refreshToken) {\n  tests[\"Body has refreshToken\"] = true;\n  postman.setEnvironmentVariable(\"X-REFRESH-TOKEN\", body.data.refreshToken);\n}\nelse {\n  tests[\"Body has refreshToken\"] = false;\n}",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1503637347828,
+			"name": "登录",
+			"description": "登录",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"responses": [
+				{
+					"request": {
+						"id": "3a4e4571-1c68-4940-a103-a7ab2d1131a0",
+						"description": "",
+						"method": "POST",
+						"headers": "Content-Type: application/json",
+						"dataMode": "raw",
+						"data": [],
+						"rawModeData": "{\n\t\"username\": \"admin\",\n\t\"password\": \"admin\"\n}",
+						"url": "{{base_url}}/auth/login",
+						"queryParams": [],
+						"headerData": [
 							{
 								"key": "Content-Type",
 								"value": "application/json",
 								"description": ""
 							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n\t\"username\": \"admin\",\n\t\"password\": \"admin\"\n}"
-						},
-						"description": ""
+						]
 					},
+					"requestObject": "{\"id\":\"3a4e4571-1c68-4940-a103-a7ab2d1131a0\",\"description\":\"\",\"method\":\"POST\",\"headers\":\"Content-Type: application/json\",\"dataMode\":\"raw\",\"data\":[],\"rawModeData\":\"{\\n\\t\\\"username\\\": \\\"admin\\\",\\n\\t\\\"password\\\": \\\"admin\\\"\\n}\",\"url\":\"{{base_url}}/auth/login\",\"queryParams\":[],\"headerData\":[{\"key\":\"Content-Type\",\"value\":\"application/json\",\"description\":\"\"}]}",
+					"id": "0029ad16-091e-333c-3910-7f9958019ad7",
+					"name": "response example",
 					"status": "OK",
-					"code": 200,
-					"_postman_previewlanguage": "json",
-					"_postman_previewtype": "text",
-					"header": [
+					"responseCode": {
+						"code": 200,
+						"name": "OK",
+						"detail": ""
+					},
+					"language": "json",
+					"previewType": "text",
+					"time": 210,
+					"headers": [
 						{
 							"name": "cache-control",
 							"key": "cache-control",
@@ -2712,93 +2744,240 @@
 							"description": "Cross-site scripting (XSS) filter"
 						}
 					],
-					"cookie": [],
-					"responseTime": 210,
-					"body": "{\"message\":\"ok\",\"data\":{\"accessToken\":\"eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjdEKgkAQRf9lnhXcddbVfiUiZnZH2igNXakQ_70RInq8l3PPXWFeGA5A8Z4GKICWmGQIotVTWItllumcombXtSZwX_XRslSWa5SGOiGFwiSURSHjKos1ovGt8QXMYXyo6riqN1_GKeX372s7FSCvx3eDptkHifK_RImB-Lab87RIAdecVOAxNq4RLq30XCJzVbIjLGsbybVI3ouF7QMAAP__.rTTlvHqwEIx91phhAI0d9VZY2zv-tzDzYODU9BNcE-s\",\"refreshToken\":\"eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjssKwjAQRf9l1ik0ySRpuq8IioXqTqRM0ilUfNEHCOK_G125vZx7OC-YlgAlUHcdbiBgmXhshy4txhcyhj7vOxU4V0EjW_JMCYoj08wJkiZXqBGlK2QhYIr3B0N5hKbeVm1TrZpqv24P9abawUkAPx-_i861V9IJGGj-dyTiRuHyFc_jwgLO85BCLCrjpMWsQ6Uz9M5mnqPNoiPsyZDsTYD3BwAA__8.H4_9SHflKPCFL6MYbfiSd3EYiQf2iXOHnVpupRI7zJI\",\"expiresIn\":7200},\"code\":0,\"url\":null}"
-				}
-			]
-		},
-		{
-			"name": "注册",
-			"request": {
-				"url": "{{base_url}}/account/register",
-				"method": "POST",
-				"header": [
-					{
-						"key": "X-TOKEN",
-						"value": "{{X-TOKEN}}",
-						"description": ""
-					},
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"description": ""
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n\t\"username\": \"wen03\",\n\t\"password\": \"1000\",\n\t\"email\": \"wen03@testwa.com\"\n}"
-				},
-				"description": ""
-			},
-			"response": []
-		},
-		{
-			"name": "token刷新",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"type": "text/javascript",
-						"exec": [
-							"tests[\"Status code is 200\"] = responseCode.code === 200;",
-							"",
-							"var jsonData = JSON.parse(responseBody);",
-							"tests[\"API result code is 200\"] = jsonData.code === 0;",
-							"",
-							"var body = JSON.parse(responseBody);",
-							"",
-							"if (body.data.accessToken) {",
-							"  tests[\"Body has token\"] = true;",
-							"  postman.setEnvironmentVariable(\"X-TOKEN\", body.data.accessToken);",
-							"}",
-							"else {",
-							"  tests[\"Body has token\"] = false;",
-							"}",
-							"",
-							"if (body.data.refreshToken) {",
-							"  tests[\"Body has refreshToken\"] = true;",
-							"  postman.setEnvironmentVariable(\"X-REFRESH-TOKEN\", body.data.refreshToken);",
-							"}",
-							"else {",
-							"  tests[\"Body has refreshToken\"] = false;",
-							"}"
-						]
-					}
+					"cookies": [],
+					"text": "{\"message\":\"ok\",\"data\":{\"accessToken\":\"eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjdEKgkAQRf9lnhXcddbVfiUiZnZH2igNXakQ_70RInq8l3PPXWFeGA5A8Z4GKICWmGQIotVTWItllumcombXtSZwX_XRslSWa5SGOiGFwiSURSHjKos1ovGt8QXMYXyo6riqN1_GKeX372s7FSCvx3eDptkHifK_RImB-Lab87RIAdecVOAxNq4RLq30XCJzVbIjLGsbybVI3ouF7QMAAP__.rTTlvHqwEIx91phhAI0d9VZY2zv-tzDzYODU9BNcE-s\",\"refreshToken\":\"eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjssKwjAQRf9l1ik0ySRpuq8IioXqTqRM0ilUfNEHCOK_G125vZx7OC-YlgAlUHcdbiBgmXhshy4txhcyhj7vOxU4V0EjW_JMCYoj08wJkiZXqBGlK2QhYIr3B0N5hKbeVm1TrZpqv24P9abawUkAPx-_i861V9IJGGj-dyTiRuHyFc_jwgLO85BCLCrjpMWsQ6Uz9M5mnqPNoiPsyZDsTYD3BwAA__8.H4_9SHflKPCFL6MYbfiSd3EYiQf2iXOHnVpupRI7zJI\",\"expiresIn\":7200},\"code\":0,\"url\":null}",
+					"rawDataType": "text",
+					"owner": 0
 				}
 			],
-			"request": {
-				"url": "{{base_url}}/auth/token",
-				"method": "GET",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"description": ""
+			"rawModeData": "{\n\t\"username\": \"admin\",\n\t\"password\": \"admin\"\n}"
+		},
+		{
+			"id": "f309b2fc-45e4-5dee-af03-f19bfb1e648c",
+			"name": "改",
+			"description": "",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"method": "POST",
+			"headers": "Content-Type: application/json\nX-TOKEN: {{X-TOKEN}}",
+			"dataMode": "raw",
+			"data": [],
+			"rawModeData": "{\n\t\"id\": \"598ea04e1525ae6a7856ea20\",\n\t\"name\": \"testtset\",\n\t\"projectId\": \"598d51691525ae14ecffbdf2\",\n\t\"scriptIds\": [\"598d518a1525ae14ecffbdf5\"]\n}",
+			"url": "{{base_url}}/api/case/modify",
+			"responses": [
+				{
+					"request": {
+						"id": "011ea8b8-9090-4718-a5c4-c7549e274df2",
+						"description": "",
+						"method": "POST",
+						"headers": "Content-Type: application/json\nX-TOKEN: {{X-TOKEN}}",
+						"dataMode": "raw",
+						"data": [],
+						"rawModeData": "{\n\t\"id\": \"598ea04e1525ae6a7856ea20\",\n\t\"name\": \"test1\",\n\t\"projectId\": \"598d51691525ae14ecffbdf2\",\n\t\"scriptIds\": [\"598d518a1525ae14ecffbdf5\"]\n}",
+						"url": "{{base_url}}/api/case/modify",
+						"queryParams": [],
+						"headerData": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "X-TOKEN",
+								"value": "{{X-TOKEN}}",
+								"description": ""
+							}
+						]
 					},
-					{
-						"key": "X-TOKEN",
-						"value": "{{X-REFRESH-TOKEN}}",
-						"description": ""
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": ""
+					"requestObject": "{\"id\":\"011ea8b8-9090-4718-a5c4-c7549e274df2\",\"description\":\"\",\"method\":\"POST\",\"headers\":\"Content-Type: application/json\\nX-TOKEN: {{X-TOKEN}}\",\"dataMode\":\"raw\",\"data\":[],\"rawModeData\":\"{\\n\\t\\\"id\\\": \\\"598ea04e1525ae6a7856ea20\\\",\\n\\t\\\"name\\\": \\\"test1\\\",\\n\\t\\\"projectId\\\": \\\"598d51691525ae14ecffbdf2\\\",\\n\\t\\\"scriptIds\\\": [\\\"598d518a1525ae14ecffbdf5\\\"]\\n}\",\"url\":\"{{base_url}}/api/case/modify\",\"queryParams\":[],\"headerData\":[{\"key\":\"Content-Type\",\"value\":\"application/json\",\"description\":\"\"},{\"key\":\"X-TOKEN\",\"value\":\"{{X-TOKEN}}\",\"description\":\"\"}]}",
+					"id": "97abebe7-025d-d4cd-8477-52b7a242605e",
+					"name": "200",
+					"status": "OK",
+					"responseCode": {
+						"code": 200,
+						"name": "OK",
+						"detail": ""
+					},
+					"language": "json",
+					"previewType": "text",
+					"time": 76,
+					"headers": [
+						{
+							"name": "cache-control",
+							"key": "cache-control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate",
+							"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
+						},
+						{
+							"name": "content-type",
+							"key": "content-type",
+							"value": "application/json;charset=UTF-8",
+							"description": "The mime type of this content"
+						},
+						{
+							"name": "date",
+							"key": "date",
+							"value": "Sat, 12 Aug 2017 06:35:00 GMT",
+							"description": "The date and time that the message was sent"
+						},
+						{
+							"name": "expires",
+							"key": "expires",
+							"value": "0",
+							"description": "Gives the date/time after which the response is considered stale"
+						},
+						{
+							"name": "pragma",
+							"key": "pragma",
+							"value": "no-cache",
+							"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
+						},
+						{
+							"name": "transfer-encoding",
+							"key": "transfer-encoding",
+							"value": "chunked",
+							"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
+						},
+						{
+							"name": "x-content-type-options",
+							"key": "x-content-type-options",
+							"value": "nosniff",
+							"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
+						},
+						{
+							"name": "x-frame-options",
+							"key": "x-frame-options",
+							"value": "DENY",
+							"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
+						},
+						{
+							"name": "x-xss-protection",
+							"key": "x-xss-protection",
+							"value": "1; mode=block",
+							"description": "Cross-site scripting (XSS) filter"
+						}
+					],
+					"cookies": [],
+					"text": "{\"message\":\"ok\",\"data\":null,\"code\":0,\"url\":null}",
+					"rawDataType": "text",
+					"owner": 0
+				}
+			],
+			"queryParams": [],
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": ""
 				},
-				"description": ""
-			},
-			"response": []
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": ""
+				}
+			],
+			"collection_id": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"folder": "fc116961-435f-392e-3d19-c3a0da4aafe2",
+			"preRequestScript": "",
+			"tests": ""
+		},
+		{
+			"id": "f6ba25b9-c29c-3ce4-dc37-407e98bda894",
+			"name": "注册",
+			"description": "",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"method": "POST",
+			"headers": "X-TOKEN: {{X-TOKEN}}\nContent-Type: application/json",
+			"dataMode": "raw",
+			"data": [],
+			"rawModeData": "{\n\t\"username\": \"wen03\",\n\t\"password\": \"1000\",\n\t\"email\": \"wen03@testwa.com\"\n}",
+			"url": "{{base_url}}/account/register",
+			"responses": [],
+			"queryParams": [],
+			"headerData": [
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": ""
+				},
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": ""
+				}
+			],
+			"collection_id": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"preRequestScript": "",
+			"tests": ""
+		},
+		{
+			"id": "fdcde36c-448d-1a94-8f87-819b1c680aa0",
+			"name": "应用信息补充",
+			"description": "该app所属project，和该app实际的版本号",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"method": "POST",
+			"headers": "X-TOKEN: {{X-TOKEN}}\nContent-Type: application/json",
+			"dataMode": "raw",
+			"data": [],
+			"rawModeData": "{\n\t\"appId\": \"5989dcee5ac4fc556f437f04\",\n\t\"projectId\": \"5989dacb5ac4fc52610a4931\",\n\t\"version\": \"1.0.0\"\n}",
+			"url": "{{base_url}}/api/app/save",
+			"responses": [],
+			"queryParams": [],
+			"headerData": [
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": ""
+				},
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": ""
+				}
+			],
+			"collection_id": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"folder": "8999a7d1-e0fc-7ffe-b309-b42936f80607",
+			"preRequestScript": "",
+			"tests": ""
+		},
+		{
+			"id": "febb2ef4-e72c-894f-0a4e-e8180179559e",
+			"name": "模糊查询，用户是否在某个项目中",
+			"description": "",
+			"collectionId": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"method": "GET",
+			"headers": "X-TOKEN: {{X-TOKEN}}",
+			"dataMode": "raw",
+			"data": [],
+			"rawModeData": "",
+			"pathVariables": {},
+			"url": "{{base_url}}/api/project/member/query?projectId=597c5907c6c09f796a582943&memberName=wen02",
+			"responses": [],
+			"pathVariableData": [],
+			"queryParams": [
+				{
+					"key": "projectId",
+					"value": "597c5907c6c09f796a582943",
+					"equals": true,
+					"description": ""
+				},
+				{
+					"key": "memberName",
+					"value": "wen02",
+					"equals": true,
+					"description": ""
+				}
+			],
+			"headerData": [
+				{
+					"key": "X-TOKEN",
+					"value": "{{X-TOKEN}}",
+					"description": ""
+				}
+			],
+			"collection_id": "99a1775d-8863-928e-7b78-d3faa3ae0b79",
+			"folder": "fb1f276b-6fea-449b-ef32-31250177e61b",
+			"preRequestScript": "",
+			"tests": ""
 		}
 	]
 }
