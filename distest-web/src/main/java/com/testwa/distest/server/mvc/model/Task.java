@@ -29,10 +29,9 @@ public class Task {
 
     private boolean disable;
 
-    @CreatedDate
-    private Date createDate = new Date();
+    private Long createDate;
 
-    private Date modifyDate;
+    private Long  modifyDate;
 
 
 }

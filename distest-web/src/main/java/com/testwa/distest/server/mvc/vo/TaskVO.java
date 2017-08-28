@@ -14,6 +14,7 @@ public class TaskVO {
 
     private String id;
     private AppVO app;
+    private String name;
     private String projectId;
     private String creator;
     private String createDate;
@@ -27,6 +28,14 @@ public class TaskVO {
 
         this.id = task.getId();
         this.projectId = task.getProjectId();
-        this.createDate = TimeUtil.formatTimeStamp(task.getCreateDate().getTime());
+        this.creator = task.getCreator();
+        this.name = task.getName();
+        if(task.getCreateDate() != null){
+            this.createDate = TimeUtil.formatTimeStamp(task.getCreateDate());
+        }
+        if(task.getModifyDate() != null){
+            this.modifyDate = TimeUtil.formatTimeStamp(task.getModifyDate());
+
+        }
     }
 }
