@@ -8,6 +8,7 @@ import com.testwa.distest.server.mvc.model.ReportSdetail;
 import com.testwa.distest.server.mvc.service.ReportDetailService;
 import com.testwa.distest.server.mvc.service.ReportSdetailService;
 import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,9 +92,15 @@ public class TestwaScheduledRunner {
         List<String> devices = remoteClientService.getAllDevice();
         devices.forEach(d -> {
             String mainSessionId = remoteClientService.getMainSessionByDeviceId(d);
+            if(StringUtils.isBlank(mainSessionId)){
+
+                remoteClientService.delDevice(d);
+                return;
+            }
             SocketIOClient client = server.getClient(UUID.fromString(mainSessionId));
             if( client == null ){
                 remoteClientService.delDevice(d);
+                return;
             }
         });
     }
