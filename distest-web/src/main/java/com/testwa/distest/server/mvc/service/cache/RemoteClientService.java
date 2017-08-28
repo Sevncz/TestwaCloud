@@ -30,7 +30,7 @@ public class RemoteClientService {
     public List<String> getAllDevice(){
         Set<String> keys = redisTemplate.keys(String.format(CacheKeys.device_user, "*"));
         List<String> r = new ArrayList<>();
-        keys.forEach(item -> r.add(item.substring("device.user.".length() - 1)));
+        keys.forEach(item -> r.add(item.substring("device.user.".length())));
         return r;
     }
     public boolean isOnline(String deviceId){
