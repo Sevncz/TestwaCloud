@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.testwa.core.WebsocketEvent;
+import com.testwa.core.utils.TimeUtil;
+import com.testwa.distest.server.exception.NoSuchAppException;
 import com.testwa.distest.server.exception.NoSuchTaskException;
 import com.testwa.distest.server.exception.NoSuchTestcaseException;
 import com.testwa.core.model.RemoteRunCommand;
@@ -15,6 +17,7 @@ import com.testwa.distest.server.mvc.model.*;
 import com.testwa.distest.server.mvc.service.*;
 import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
 import com.testwa.distest.server.mvc.vo.DeleteVO;
+import com.testwa.distest.server.mvc.vo.ProjectVO;
 import com.testwa.distest.server.mvc.vo.TaskVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -29,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -94,6 +98,8 @@ public class TaskController extends BaseController{
         task.setName(name);
         task.setProjectId(projectId);
         task.setTestcaseIds(caseIds);
+        task.setCreateDate(TimeUtil.getTimestampLong());
+        task.setModifyDate(TimeUtil.getTimestampLong());
         task.setCreator(getCurrentUsername());
         task.setDisable(false);
         taskService.save(task);
@@ -102,7 +108,7 @@ public class TaskController extends BaseController{
 
     @ResponseBody
     @PostMapping(value = "/modify")
-    public Result modify(@Valid @RequestBody TaskInfo modifyTaskVO) throws NoSuchTaskException, NoSuchTestcaseException {
+    public Result modify(@Valid @RequestBody TaskInfo modifyTaskVO) throws NoSuchTaskException, NoSuchTestcaseException, NoSuchAppException {
         taskService.modifyTask(modifyTaskVO);
         return ok();
     }
@@ -132,7 +138,12 @@ public class TaskController extends BaseController{
             projectIds.add(projectId);
         }
         Page<Task> tasks = taskService.findPage(pageRequest, appId, projectIds);
-        PageResult<Task> pr = new PageResult<>(tasks.getContent(), tasks.getTotalElements());
+        Iterator<Task> tasksIter = tasks.iterator();
+        List<TaskVO> lists = new ArrayList<>();
+        while(tasksIter.hasNext()){
+            lists.add(new TaskVO(tasksIter.next()));
+        }
+        PageResult<TaskVO> pr = new PageResult<>(lists, tasks.getTotalElements());
         return ok(pr);
     }
 

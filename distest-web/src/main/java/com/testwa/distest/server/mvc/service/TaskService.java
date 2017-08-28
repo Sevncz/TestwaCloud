@@ -6,6 +6,8 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.core.model.RemoteRunCommand;
 import com.testwa.core.model.RemoteTestcaseContent;
+import com.testwa.core.utils.TimeUtil;
+import com.testwa.distest.server.exception.NoSuchAppException;
 import com.testwa.distest.server.mvc.model.*;
 import com.testwa.distest.server.mvc.repository.ExecutionTaskRepository;
 import com.testwa.distest.server.exception.NoSuchTaskException;
@@ -110,20 +112,28 @@ public class TaskService extends BaseService{
             testcaseVOs.add(testcaseVO);
         });
         taskVO.setTestcaseVOs(testcaseVOs);
+        taskVO.setCreateDate(TimeUtil.formatTimeStamp(task.getCreateDate()));
+        taskVO.setModifyDate(TimeUtil.formatTimeStamp(task.getModifyDate()));
 
         return taskVO;
     }
 
-    public void modifyTask(TaskController.TaskInfo modifyTaskVO) throws NoSuchTaskException, NoSuchTestcaseException{
+    public void modifyTask(TaskController.TaskInfo modifyTaskVO) throws NoSuchTaskException, NoSuchTestcaseException,NoSuchAppException{
         Task task = taskRepository.findOne(modifyTaskVO.getTaskId());
         if (task == null) {
             throw new NoSuchTaskException("无此任务！");
         }
 
+       App app = this.appService. getAppById(modifyTaskVO.getAppId());
+
+        if ( null == app) {
+            throw new NoSuchAppException("无此应用！");
+        }
+
         List<String> caseIds = modifyTaskVO.getCaseIds();
         this.testcaseService.checkTestcases(modifyTaskVO.getCaseIds());
         task.setTestcaseIds(caseIds);
-
+        task.setModifyDate(TimeUtil.getTimestampLong());
         task.setName(modifyTaskVO.getName());
         taskRepository.save(task);
     }
