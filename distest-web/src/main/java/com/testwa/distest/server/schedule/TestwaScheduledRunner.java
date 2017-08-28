@@ -1,10 +1,13 @@
 package com.testwa.distest.server.schedule;
 
+import com.corundumstudio.socketio.SocketIOClient;
+import com.corundumstudio.socketio.SocketIOServer;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.server.mvc.model.ProcedureInfo;
 import com.testwa.distest.server.mvc.model.ReportSdetail;
 import com.testwa.distest.server.mvc.service.ReportDetailService;
 import com.testwa.distest.server.mvc.service.ReportSdetailService;
+import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +23,7 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class TestwaScheduledRunner {
@@ -39,6 +43,16 @@ public class TestwaScheduledRunner {
 
     @Autowired
     private ReportSdetailService reportSdetailService;
+    @Autowired
+    private RemoteClientService remoteClientService;
+
+    private final SocketIOServer server;
+
+    @Autowired
+    public TestwaScheduledRunner(SocketIOServer server) {
+        this.server = server;
+    }
+
 
     @Scheduled(cron = "0/10 * * * * ?")
     public void storeRunningLog() throws Exception {
@@ -70,6 +84,18 @@ public class TestwaScheduledRunner {
         }
         mongoTemplate.insertAll(logers);
 
+    }
+
+    @Scheduled(cron = "0/10 * * * * ?")
+    public void checkDeviceOnline() throws Exception {
+        List<String> devices = remoteClientService.getAllDevice();
+        devices.forEach(d -> {
+            String mainSessionId = remoteClientService.getMainSessionByDeviceId(d);
+            SocketIOClient client = server.getClient(UUID.fromString(mainSessionId));
+            if( client == null ){
+                remoteClientService.delDevice(d);
+            }
+        });
     }
 
     @Scheduled(cron = "0 1 * * * ?")
