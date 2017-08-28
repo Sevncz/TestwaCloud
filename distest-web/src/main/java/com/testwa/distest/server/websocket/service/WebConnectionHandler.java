@@ -102,6 +102,17 @@ public class WebConnectionHandler {
             // 设备连接断开
         }else if("client".equals(type)){
             // 客户端连接断开
+            // 清理该客户端的缓存
+            remoteClientService.delMainInfo(client.getSessionId().toString());
+            try {
+                String token = client.getHandshakeData().getSingleUrlParam("token");
+                if(StringUtils.isNotBlank(token)){
+                    String userId = jwtTokenUtil.getUserIdFromToken(token);
+                    remoteClientService.userLogoutClient(userId);
+                }
+            } catch (Exception e) {
+                log.error("parser token error", e);
+            }
         }else if("browser".equals(type)){
             // 浏览器连接断开
             log.debug("browser disconnect");
