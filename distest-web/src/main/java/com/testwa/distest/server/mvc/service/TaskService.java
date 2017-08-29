@@ -124,14 +124,10 @@ public class TaskService extends BaseService{
             throw new NoSuchTaskException("无此任务！");
         }
 
-       App app = this.appService. getAppById(modifyTaskVO.getAppId());
-
-        if ( null == app) {
-            throw new NoSuchAppException("无此应用！");
-        }
-
         List<String> caseIds = modifyTaskVO.getCaseIds();
         this.testcaseService.checkTestcases(modifyTaskVO.getCaseIds());
+        this.appService.checkApp(modifyTaskVO.getAppId());
+        task.setAppId(modifyTaskVO.getAppId());
         task.setTestcaseIds(caseIds);
         task.setModifyDate(TimeUtil.getTimestampLong());
         task.setName(modifyTaskVO.getName());
