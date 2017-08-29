@@ -1,11 +1,14 @@
 package com.testwa.distest.server.mvc.service.cache;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 
@@ -22,6 +25,16 @@ public class RemoteClientService {
 
     public void saveDevice(String userId, String deviceId){
         redisTemplate.opsForValue().set(String.format(CacheKeys.device_user, deviceId), userId);
+    }
+
+    public List<String> getAllDevice(){
+        Set<String> keys = redisTemplate.keys(String.format(CacheKeys.device_user, "*"));
+        List<String> r = new ArrayList<>();
+        keys.forEach(item -> r.add(item.substring("device.user.".length())));
+        return r;
+    }
+    public boolean isOnline(String deviceId){
+        return redisTemplate.hasKey(String.format(CacheKeys.device_user, deviceId));
     }
 
     public void delDevice(String deviceId){
