@@ -1,0 +1,1 @@
+java -jar distest-client-1.0-SNAPSHOT.jar --spring.config.location=application.properties --username=admin --password=admin
