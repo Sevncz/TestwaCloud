@@ -44,6 +44,9 @@ public class ProjectService extends BaseService {
     @Autowired
     private RoleRepository roleRepository;
     @Autowired
+    private TaskRepository taskRepository;
+
+    @Autowired
     private UserService userService;
 
     public Project save(Project project){
@@ -71,6 +74,7 @@ public class ProjectService extends BaseService {
         update.set("disable", true);
         update.set("modifyDate", new Date());
 
+        taskRepository.updateMulti(query, update);
         appRepository.updateMulti(query, update);
         scriptRepository.updateMulti(query, update);
         testcaseRepository.updateMulti(query, update);

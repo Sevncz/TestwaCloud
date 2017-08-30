@@ -4,6 +4,7 @@ import com.testwa.core.utils.AppType;
 import com.testwa.core.utils.IOUtil;
 import com.testwa.core.utils.ZipUtil;
 import com.testwa.distest.server.android.TestwaAndroidApp;
+import com.testwa.distest.server.exception.NoSuchAppException;
 import com.testwa.distest.server.mvc.model.App;
 import com.testwa.distest.server.mvc.model.UserDeviceHis;
 import com.testwa.distest.server.mvc.repository.AppRepository;
@@ -86,6 +87,12 @@ public class AppService extends BaseService {
         return appRepository.findOne(appId);
     }
 
+    public void checkApp(String appId) throws NoSuchAppException{
+        App app = this.getAppById(appId);
+        if ( null == app) {
+            throw new NoSuchAppException("无此应用！");
+        }
+    }
     public App saveApp(String filename, String aliasName, String filepath, String size, String type) throws IOException {
         App app = new App();
 
