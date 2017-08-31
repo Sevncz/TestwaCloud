@@ -91,11 +91,10 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     public void disconnect(NoUsedDeviceRequest request, StreamObserver<CommonReply> responseObserver) {
         log.info("device disconnect, {}", request.getDeviceId());
         remoteClientService.delDevice(request.getDeviceId());
-        // 修改设备状态为OFF
-        TDevice tDevice = deviceService.getDeviceById(request.getDeviceId());
-        tDevice.setStatus("OFF");
-        deviceService.save(tDevice);
-
+        // 修改设备状态为OFF 数据库不需要 off 状态标识
+//        TDevice tDevice = deviceService.getDeviceById(request.getDeviceId());
+//        tDevice.setStatus("OFF");
+//        deviceService.save(tDevice);
     }
 
     @Override

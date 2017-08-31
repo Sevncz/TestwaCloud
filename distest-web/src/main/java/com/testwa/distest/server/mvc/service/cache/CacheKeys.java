@@ -5,13 +5,14 @@ package com.testwa.distest.server.mvc.service.cache;
  */
 class CacheKeys {
 
-    public static final String device_user = "device.user.%s";
-    public static final String user_client_login = "user.client.login.%s";
-    public static final String device_client = "device.client.%s";
-    public static final String main_info = "main.info.%s";
-    public static final String subscribe_device_func = "subscribe.device.func.%s.%s";
-    public static final String onstart_screen_device = "onstart.screen.%s";
+    static final String device_user = "device.user.%s";
+    static final String user_client_login = "user.client.login.%s";
+    static final String device_client = "device.client.%s";
+    static final String main_info = "main.info.%s";
+    static final String subscribe_device_func = "subscribe.device.func.%s.%s";
+    static final String onstart_screen_device = "onstart.screen.%s";
 
-
+    // device shares 1 scope, 2 deviceId value device detail
+    static final String device_share = "device.share.%s.%s";
 
 }

@@ -11,11 +11,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
-
-import java.lang.reflect.Method;
 
 @Configuration
 @EnableCaching
@@ -55,6 +54,11 @@ public class RedisConfig extends CachingConfigurerSupport {
         return cacheManager;
     }
 
+    @Bean
+    JedisConnectionFactory jedisConnectionFactory() {
+        return new JedisConnectionFactory();
+    }
+
     @Bean  
     public RedisTemplate<String, String> redisTemplate(  
             RedisConnectionFactory factory) {
@@ -67,5 +71,5 @@ public class RedisConfig extends CachingConfigurerSupport {
         template.setValueSerializer(jackson2JsonRedisSerializer);  
         template.afterPropertiesSet();  
         return template;  
-    }  
+    }
 }  

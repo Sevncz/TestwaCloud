@@ -62,6 +62,8 @@ public class DeviceController extends BaseController{
         this.server = server;
     }
 
+
+
     @RequestMapping(value = "/screen", method = RequestMethod.GET)
     public Result getScreen() {
         return ok();

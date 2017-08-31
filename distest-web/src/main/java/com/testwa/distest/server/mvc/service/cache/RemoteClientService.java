@@ -1,6 +1,12 @@
 package com.testwa.distest.server.mvc.service.cache;
 
-import org.apache.commons.lang3.StringUtils;
+import com.testwa.distest.server.mvc.model.ProjectMember;
+import com.testwa.distest.server.mvc.model.TDevice;
+import com.testwa.distest.server.mvc.model.UserDeviceHis;
+import com.testwa.distest.server.mvc.model.UserShareScope;
+import com.testwa.distest.server.mvc.repository.DeviceRepository;
+import com.testwa.distest.server.mvc.repository.ProjectMemberRepository;
+import com.testwa.distest.server.mvc.repository.UserDeviceHisRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +27,36 @@ public class RemoteClientService {
 
     @Autowired
     private RedisTemplate redisTemplate;
-
+    @Autowired
+    private UserDeviceHisRepository userDeviceHisRepository;
+    @Autowired
+    private DeviceRepository deviceRepository;
+    @Autowired
+    private ProjectMemberRepository projectMemberRepository;
 
     public void saveDevice(String userId, String deviceId){
+        // user -- device
         redisTemplate.opsForValue().set(String.format(CacheKeys.device_user, deviceId), userId);
+        // device -- share scopes
+        UserDeviceHis userDeviceHis = userDeviceHisRepository.findByUserIdAndDeviceId(userId, deviceId);
+        TDevice tDevice = deviceRepository.findOne(userDeviceHis.getDeviceId());
+        shareDevice(userDeviceHis, tDevice);
+    }
+
+    private void shareDevice(UserDeviceHis userDeviceHis, TDevice tDevice) {
+        if (userDeviceHis.getScope() == UserShareScope.All.getValue()) {
+            redisTemplate.opsForValue().set(String.format(CacheKeys.device_share, "all", tDevice.getId()), tDevice);
+        } else if (userDeviceHis.getScope() == UserShareScope.Project.getValue()) {
+            List<ProjectMember> projectMembers = projectMemberRepository.findByMemberId(userDeviceHis.getUserId());
+            projectMembers.forEach(projectMember -> redisTemplate.opsForValue().set(String.format(CacheKeys.device_share, projectMember.getProjectId(), tDevice.getId()), tDevice));
+        } else {
+            if (userDeviceHis.getScope() == UserShareScope.User.getValue()) {
+                // for user list
+                userDeviceHis.getShareUsers().forEach(user -> redisTemplate.opsForValue().set(String.format(CacheKeys.device_share, user, tDevice.getId()), tDevice));
+            }
+            // for owner
+            redisTemplate.opsForValue().set(String.format(CacheKeys.device_share, userDeviceHis.getUserId(), tDevice.getId()), tDevice);
+        }
     }
 
     public List<String> getAllDevice(){
@@ -39,14 +71,22 @@ public class RemoteClientService {
 
     public void delDevice(String deviceId){
         redisTemplate.delete(String.format(CacheKeys.device_user, deviceId));
+        // remove share pool, can only loop through all keys
+        redisDeleteByPattern(String.format(CacheKeys.device_share, "*", deviceId));
+        // remove client
+        delDeviceForClient(deviceId);
+    }
+
+    private void redisDeleteByPattern(String pattern) {
+        Set<String> keys = redisTemplate.keys(pattern);
+        for (String k : keys){
+            redisTemplate.delete(k);
+        }
     }
 
     public void delDevice(){
         String parrentKey = String.format(CacheKeys.device_user, "*");
-        Set<String> keys = redisTemplate.keys(parrentKey);
-        for (String k : keys){
-            redisTemplate.delete(k);
-        }
+        redisDeleteByPattern(parrentKey);
     }
 
     public String getMainSessionByDeviceId(String deviceId){
