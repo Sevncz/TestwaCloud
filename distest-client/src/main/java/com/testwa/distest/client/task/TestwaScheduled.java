@@ -41,7 +41,7 @@ public class TestwaScheduled {
     public static BlockingQueue<String> screenUploadQueue = new ArrayBlockingQueue<>(10000);
     public static BlockingQueue<String> screenEmptyQueue = new ArrayBlockingQueue<>(10000);
 
-    private static final Map<String, TestwaDevice> a_devices = new ConcurrentHashMap<>();
+    public static final Map<String, TestwaDevice> a_devices = new ConcurrentHashMap<>();
 
     @Value("${agent.web.url}")
     private String agentWebUrl;
@@ -55,9 +55,10 @@ public class TestwaScheduled {
     public void senderDevice() {
         if(MainSocket.getSocket() != null && MainSocket.getSocket().connected()){
             try{
-
+                // todo: 1. 重新获取设备信息 2. 检测信息变化上报设备更新
                 TreeSet<AndroidDevice> androidDevices = AndroidHelper.getInstance().getAllDevices();
-                List<Device> result = new ArrayList<>();
+                // 上报列表，当有新的设备信息获取到时
+                List<Device> devicesToReport = new ArrayList<>();
                 for(AndroidDevice ad : androidDevices){
                     logger.debug("send device", ad);
                     TestwaDevice device;
@@ -65,6 +66,10 @@ public class TestwaScheduled {
                         device = new TestwaDevice();
                         device.setSerial(ad.getSerialNumber());
                         device.setBrand(ad.runAdbCommand("shell getprop ro.product.brand"));
+                        if (device.getBrand().isEmpty()) {
+                            // 设备没有同意连接，不做设备信息更新，等待下次检查时更新
+                            continue;
+                        }
                         device.setCpuabi(ad.runAdbCommand("shell getprop ro.product.cpu.abi"));
                         device.setDensity(ad.getDevice().getDensity() + "");
                         if(ad.getTargetPlatform() != null){
@@ -80,31 +85,34 @@ public class TestwaScheduled {
                         device.setModel(ad.runAdbCommand("shell getprop ro.product.model"));
                         device.setBrand(ad.runAdbCommand("shell getprop ro.product.brand"));
                         device.setVersion(ad.runAdbCommand("shell getprop ro.build.version.release"));
-                        a_devices.put(ad.getSerialNumber(), device);
-                    }else{
-                        device = a_devices.get(ad.getDevice().getSerialNumber());
-                    }
-                    // 检查在线设备列表是否在缓存设备列表
-                    if("ONLINE".equals(ad.getDevice().getState().name().toUpperCase())){
+
                         device.setStatus(Agent.Device.LineStatus.ON.name());
-                    }else{
-                        device.setStatus(Agent.Device.LineStatus.OFF.name());
+                        a_devices.put(ad.getSerialNumber(), device);
+                        devicesToReport.add(device.toAgentDevice());
                     }
-                    result.add(device.toAgentDevice());
+                    // 检查在线设备列表是否在缓存设备列表 无缓存信息
+//                    if("ONLINE".equals(ad.getDevice().getState().name().toUpperCase())){
+//                        device.setStatus(Agent.Device.LineStatus.ON.name());
+//                    }else{
+//                        device.setStatus(Agent.Device.LineStatus.OFF.name());
+//                    }
                 }
 
                 if(UserInfo.token == null){
                     logger.error("token was null");
                     return;
                 }
-                DevicesRequest devices = DevicesRequest.newBuilder()
-                        .setCount(result.size())
-                        .setUserId(UserInfo.token)
-                        .addAllDevice(result)
-                        .build();
-                String webHost = env.getProperty("grpc.host");
-                Integer webPort = Integer.parseInt(env.getProperty("grpc.port"));
-                Clients.deviceService(webHost, webPort).all(devices);
+                if (devicesToReport.size() > 0) {
+                    // 有新的设备需要上报
+                    DevicesRequest devices = DevicesRequest.newBuilder()
+                            .setCount(devicesToReport.size())
+                            .setUserId(UserInfo.token)
+                            .addAllDevice(devicesToReport)
+                            .build();
+                    String webHost = env.getProperty("grpc.host");
+                    Integer webPort = Integer.parseInt(env.getProperty("grpc.port"));
+                    Clients.deviceService(webHost, webPort).all(devices);
+                }
             }catch (ShellCommandException e){
                 logger.error("Adb get props error", e);
             }

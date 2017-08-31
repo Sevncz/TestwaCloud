@@ -9,6 +9,7 @@ import com.testwa.distest.client.control.client.Clients;
 import com.testwa.distest.client.control.client.MainSocket;
 import com.testwa.distest.client.model.TestwaDevice;
 import com.testwa.distest.client.rpc.proto.Agent;
+import com.testwa.distest.client.task.TestwaScheduled;
 import io.rpc.testwa.device.Device;
 import io.rpc.testwa.device.NoUsedDeviceRequest;
 import org.slf4j.Logger;
@@ -80,7 +81,10 @@ public class DeviceChangeListener implements AndroidDebugBridge.IDeviceChangeLis
         AndroidDevice ad = new DefaultHardwareDevice(device);
         connectedDevices.entrySet().removeIf(entry -> entry.getValue().equals(ad));
 //        sendDeviceDisconnectMessage(ad.getDevice().getSerialNumber());
+        // 汇报web设备断开
         sendDisconnectGrpc(ad.getDevice().getSerialNumber());
+        // 本地清楚缓存设备信息
+        TestwaScheduled.a_devices.remove(device.getSerialNumber());
     }
 
     private void sendDisconnectGrpc(String deviceId) {

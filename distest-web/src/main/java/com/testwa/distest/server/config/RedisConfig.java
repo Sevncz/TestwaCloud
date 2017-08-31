@@ -54,11 +54,6 @@ public class RedisConfig extends CachingConfigurerSupport {
         return cacheManager;
     }
 
-    @Bean
-    JedisConnectionFactory jedisConnectionFactory() {
-        return new JedisConnectionFactory();
-    }
-
     @Bean  
     public RedisTemplate<String, String> redisTemplate(  
             RedisConnectionFactory factory) {
