@@ -52,16 +52,6 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
         String userId = jwtTokenUtil.getUserIdFromToken(token);
         for(Device device : l){
             String fbJson = jf.printToString(device);
-            if("ON".equals(device.getStatus().name().toUpperCase())){
-
-                remoteClientService.saveDevice(userId, device.getDeviceId());
-
-            }
-
-            if("OFF".equals(device.getStatus().name().toUpperCase())){
-                log.info("OFFLINE, device info is {}", fbJson);
-                remoteClientService.delDevice(device.getDeviceId());
-            }
             // 看数据库有没有设备,没有则保存
             TDevice tDevice = deviceService.getDeviceById(device.getDeviceId());
             if(tDevice == null){
@@ -84,6 +74,17 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
             deviceService.save(tDevice);
             udh.setD_status(device.getStatus().name().toUpperCase());
             userDeviceHisService.save(udh);
+
+            if("ON".equals(device.getStatus().name().toUpperCase())){
+
+                remoteClientService.saveDevice(userId, device.getDeviceId());
+
+            }
+
+            if("OFF".equals(device.getStatus().name().toUpperCase())){
+                log.info("OFFLINE, device info is {}", fbJson);
+                remoteClientService.delDevice(device.getDeviceId());
+            }
         }
     }
 
