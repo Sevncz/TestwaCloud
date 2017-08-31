@@ -17,6 +17,7 @@ import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SessionCallback;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -92,15 +93,12 @@ public class RemoteClientService {
         delDeviceForClient(deviceId);
     }
 
-    private void redisDeleteByPattern(String pattern) {
+    private void redisDeleteByPattern(final String pattern) {
 
-        redisTemplate.executePipelined((RedisCallback<String>) redisConnection -> {
-
-            StringRedisConnection stringRedisConn = (StringRedisConnection)redisConnection;
-            Collection<String> keys = stringRedisConn.keys(pattern);
-            stringRedisConn.del(keys.toArray(new String[keys.size()]));
-            return null;
-        });
+        Set<String> keys = redisTemplate.keys(pattern);
+        for (String k : keys){
+            redisTemplate.delete(k);
+        }
     }
 
     public void delDevice(){
