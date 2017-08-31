@@ -38,9 +38,17 @@ public class RemoteClientService {
         // user -- device
         redisTemplate.opsForValue().set(String.format(CacheKeys.device_user, deviceId), userId);
         // device -- share scopes
+        log.debug("device add share scopes");
         UserDeviceHis userDeviceHis = userDeviceHisRepository.findByUserIdAndDeviceId(userId, deviceId);
-        TDevice tDevice = deviceRepository.findOne(userDeviceHis.getDeviceId());
-        shareDevice(userDeviceHis, tDevice);
+        if(userDeviceHis != null ){
+            TDevice tDevice = deviceRepository.findOne(userDeviceHis.getDeviceId());
+            if(tDevice != null){
+                shareDevice(userDeviceHis, tDevice);
+            }
+        }else{
+
+            log.debug("This device is new");
+        }
     }
 
     private void shareDevice(UserDeviceHis userDeviceHis, TDevice tDevice) {
