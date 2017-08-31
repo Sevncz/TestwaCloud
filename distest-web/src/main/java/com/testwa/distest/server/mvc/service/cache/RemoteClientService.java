@@ -10,10 +10,17 @@ import com.testwa.distest.server.mvc.repository.UserDeviceHisRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.StringRedisConnection;
+import org.springframework.data.redis.core.RedisCallback;
+import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.SessionCallback;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -86,10 +93,14 @@ public class RemoteClientService {
     }
 
     private void redisDeleteByPattern(String pattern) {
-        Set<String> keys = redisTemplate.keys(pattern);
-        for (String k : keys){
-            redisTemplate.delete(k);
-        }
+
+        redisTemplate.executePipelined((RedisCallback<String>) redisConnection -> {
+
+            StringRedisConnection stringRedisConn = (StringRedisConnection)redisConnection;
+            Collection<String> keys = stringRedisConn.keys(pattern);
+            stringRedisConn.del(keys.toArray(new String[keys.size()]));
+            return null;
+        });
     }
 
     public void delDevice(){
