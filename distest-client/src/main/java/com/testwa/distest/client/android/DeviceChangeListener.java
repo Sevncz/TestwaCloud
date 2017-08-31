@@ -4,23 +4,17 @@ import com.android.ddmlib.AndroidDebugBridge;
 import com.android.ddmlib.IDevice;
 import com.github.cosysoft.device.android.AndroidDevice;
 import com.github.cosysoft.device.android.impl.DefaultHardwareDevice;
-import com.testwa.distest.client.ApplicationContextUtil;
 import com.testwa.distest.client.control.client.BaseClient;
 import com.testwa.distest.client.control.client.Clients;
 import com.testwa.distest.client.control.client.MainSocket;
-import com.testwa.distest.client.control.client.RemoteClient;
 import com.testwa.distest.client.model.TestwaDevice;
-import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.rpc.proto.Agent;
 import io.rpc.testwa.device.Device;
 import io.rpc.testwa.device.NoUsedDeviceRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -31,7 +25,7 @@ public class DeviceChangeListener implements AndroidDebugBridge.IDeviceChangeLis
 
     private static final Logger logger = LoggerFactory
             .getLogger(DeviceChangeListener.class);
-    private final Map<IDevice, AndroidDevice> connectedDevices;
+    private Map<IDevice, AndroidDevice> connectedDevices = new HashMap<>();
 
     public DeviceChangeListener(Map<IDevice, AndroidDevice> connectedDevices) {
         this.connectedDevices = connectedDevices;
@@ -85,7 +79,15 @@ public class DeviceChangeListener implements AndroidDebugBridge.IDeviceChangeLis
         logger.info("deviceDisconnected {}", device.getSerialNumber());
         AndroidDevice ad = new DefaultHardwareDevice(device);
         connectedDevices.entrySet().removeIf(entry -> entry.getValue().equals(ad));
-        sendDeviceDisconnectMessage(ad.getDevice().getSerialNumber());
+//        sendDeviceDisconnectMessage(ad.getDevice().getSerialNumber());
+        sendDisconnectGrpc(ad.getDevice().getSerialNumber());
+    }
+
+    private void sendDisconnectGrpc(String deviceId) {
+        NoUsedDeviceRequest disconnectDevice = NoUsedDeviceRequest.newBuilder()
+                .setDeviceId(deviceId)
+                .build();
+        Clients.deviceService().disconnect(disconnectDevice);
     }
 
     private void sendDeviceDisconnectMessage(String deviceId) {

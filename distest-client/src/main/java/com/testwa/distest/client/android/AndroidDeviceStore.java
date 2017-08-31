@@ -1,6 +1,8 @@
 package com.testwa.distest.client.android;
 
-import com.android.ddmlib.*;
+import com.android.ddmlib.AndroidDebugBridge;
+import com.android.ddmlib.DdmPreferences;
+import com.android.ddmlib.IDevice;
 import com.github.cosysoft.device.DeviceStore;
 import com.github.cosysoft.device.android.AndroidDevice;
 import com.github.cosysoft.device.android.impl.DefaultHardwareDevice;
@@ -8,13 +10,12 @@ import com.github.cosysoft.device.exception.AndroidDeviceException;
 import com.github.cosysoft.device.exception.DeviceNotFoundException;
 import com.github.cosysoft.device.exception.NestedException;
 import com.github.cosysoft.device.shell.AndroidSdk;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class AndroidDeviceStore implements DeviceStore {
 
