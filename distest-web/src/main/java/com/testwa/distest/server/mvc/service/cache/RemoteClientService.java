@@ -183,4 +183,16 @@ public class RemoteClientService {
         }
     }
 
+    public List<TDevice> getDeviceByUserIdAndProjectId(String userId, String projectId) {
+        Set<String> keys = redisTemplate.keys(String.format(CacheKeys.device_share, "all", "*"));
+        keys.addAll(redisTemplate.keys(String.format(CacheKeys.device_share, projectId, "*")));
+        keys.addAll(redisTemplate.keys(String.format(CacheKeys.device_share, userId, "*")));
+
+        List<TDevice> deviceList = new ArrayList<>();
+        keys.forEach(key -> {
+            TDevice tDevice = (TDevice) redisTemplate.opsForValue().get(key);
+            deviceList.add(tDevice);
+        });
+        return deviceList;
+    }
 }

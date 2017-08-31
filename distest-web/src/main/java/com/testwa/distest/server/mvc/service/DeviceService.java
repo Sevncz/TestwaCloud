@@ -2,6 +2,7 @@ package com.testwa.distest.server.mvc.service;
 
 import com.testwa.distest.server.mvc.model.TDevice;
 import com.testwa.distest.server.mvc.repository.DeviceRepository;
+import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,8 @@ public class DeviceService extends BaseService{
 
     @Autowired
     private DeviceRepository deviceRepository;
+    @Autowired
+    private RemoteClientService remoteClientService;
 
     public List<TDevice> findAll(){
         return deviceRepository.findAll();
@@ -63,5 +66,9 @@ public class DeviceService extends BaseService{
         Query query = buildQueryByCriteria(andCriteria, null);
 
         return deviceRepository.find(query);
+    }
+
+    public List<TDevice> getDeviceByUserAndProject(String userId, String projectId) {
+        return remoteClientService.getDeviceByUserIdAndProjectId(userId, projectId);
     }
 }

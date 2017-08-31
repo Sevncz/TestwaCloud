@@ -4,13 +4,11 @@ import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.testwa.core.Command;
 import com.testwa.core.WebsocketEvent;
+import com.testwa.distest.server.exception.NotInProjectException;
 import com.testwa.distest.server.mvc.beans.*;
 import com.testwa.distest.server.mvc.model.*;
 import com.testwa.distest.server.mvc.beans.PageQuery;
-import com.testwa.distest.server.mvc.service.AgentService;
-import com.testwa.distest.server.mvc.service.DeviceService;
-import com.testwa.distest.server.mvc.service.UserDeviceHisService;
-import com.testwa.distest.server.mvc.service.UserService;
+import com.testwa.distest.server.mvc.service.*;
 import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
 import com.testwa.distest.server.mvc.vo.DeviceOwnerTableVO;
 import io.rpc.testwa.device.*;
@@ -42,18 +40,16 @@ public class DeviceController extends BaseController{
     private DeviceService deviceService;
 
     private final SocketIOServer server;
-
     @Autowired
     private AgentService testwaAgentService;
-
     @Autowired
     private UserDeviceHisService userDeviceHisService;
-
     @Autowired
     private RemoteClientService remoteClientService;
     @Autowired
+    private ProjectService projectService;
+    @Autowired
     private UserService userService;
-
     @Autowired
     private Environment env;
 
@@ -62,7 +58,15 @@ public class DeviceController extends BaseController{
         this.server = server;
     }
 
-
+    @ResponseBody
+    @RequestMapping(value = "/project/list", method = RequestMethod.GET)
+    public Result page(@RequestParam(required = true) String projectId,
+                       @RequestParam(required = false) String brand ) throws NotInProjectException{
+        User user = userService.findByUsername(getCurrentUsername());
+        checkUserInProject(projectService, user, projectId);
+        List<TDevice> deviceList = deviceService.getDeviceByUserAndProject(user.getId(),projectId);
+        return ok(deviceList);
+    }
 
     @RequestMapping(value = "/screen", method = RequestMethod.GET)
     public Result getScreen() {

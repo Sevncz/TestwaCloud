@@ -53,7 +53,7 @@ public class BaseController {
         String sortField = (String) params.getOrDefault("sortField", "");
         String sortOrder = (String) params.getOrDefault("sortOrder", "1");
 
-        int pageNum = first/rows + 1;
+        int pageNum = first / rows + 1;
         return buildPageRequest(pageNum, rows, sortOrder, sortField);
     }
 
@@ -63,14 +63,14 @@ public class BaseController {
         String sortField = filter.sortField;
         String sortOrder = filter.sortOrder;
 
-        int pageNum = first/rows + 1;
+        int pageNum = first / rows + 1;
         return buildPageRequest(pageNum, rows, sortOrder, sortField);
     }
 
     protected PageRequest buildPageRequest(int pageNumber, int pageSize, String sortOrder, String sortField) {
         Sort sort = null;
         if (StringUtils.isBlank(sortOrder) || "".equals(sortOrder)) {
-            if(StringUtils.isBlank(sortField)){
+            if (StringUtils.isBlank(sortField)) {
                 sortField = "id";
             }
             sort = new Sort(Sort.Direction.DESC, sortField);
@@ -80,7 +80,7 @@ public class BaseController {
             sort = new Sort(Sort.Direction.DESC, sortField);
         }
         //参数1表示当前第几页,参数2表示每页的大小,参数3表示排序
-        return new PageRequest(pageNumber-1, pageSize, sort);
+        return new PageRequest(pageNumber - 1, pageSize, sort);
     }
 
     @SuppressWarnings("unchecked")
@@ -90,7 +90,7 @@ public class BaseController {
 
 
     protected void filterDisable(List filters) {
-        if(filters == null){
+        if (filters == null) {
             filters = new ArrayList<>();
         }
         Map<String, Object> disable = new HashMap<>();
@@ -102,10 +102,10 @@ public class BaseController {
 
 
     protected void filterObjOfCurrentUser(List filters, String userId) {
-        if(filters == null){
+        if (filters == null) {
             filters = new ArrayList<>();
         }
-        if(StringUtils.isBlank(userId)){
+        if (StringUtils.isBlank(userId)) {
             return;
         }
         Map<String, Object> currentuser = new HashMap<>();
@@ -117,7 +117,7 @@ public class BaseController {
 
 
     protected List filterProject(List filters, String filed, List<String> projectIds) {
-        if(filters == null){
+        if (filters == null) {
             filters = new ArrayList<>();
         }
         Map<String, Object> project = new HashMap<>();
@@ -141,18 +141,22 @@ public class BaseController {
 
     protected List<String> getProjectIds(ProjectService projectService, User user, String projectId) throws NotInProjectException {
         List<String> projectIds = new ArrayList<>();
-        if(StringUtils.isBlank(projectId)){
+        if (StringUtils.isBlank(projectId)) {
             List<Project> projectsOfUser = projectService.findByUser(user);
             projectsOfUser.forEach(item -> projectIds.add(item.getId()));
-        }else{
-            List<ProjectMember> pms = projectService.getMembersByProjectAndUserId(projectId, user.getId());
-            if(pms == null || pms.size() == 0){
-                log.error("ProjectMember is null, user {} not in project {}", user.getId(), projectId);
-                throw new NotInProjectException("用户不属于该项目");
-            }
+        } else {
+            checkUserInProject(projectService, user, projectId);
             projectIds.add(projectId);
         }
         return projectIds;
+    }
+
+    protected void checkUserInProject(ProjectService projectService, User user, String projectId) throws NotInProjectException {
+        List<ProjectMember> pms = projectService.getMembersByProjectAndUserId(projectId, user.getId());
+        if (pms == null || pms.size() == 0) {
+            log.error("ProjectMember is null, user {} not in project {}", user.getId(), projectId);
+            throw new NotInProjectException("用户不属于该项目");
+        }
     }
 
 }
