@@ -214,4 +214,8 @@ public class RemoteClientService {
         });
         return deviceList;
     }
+
+    public void delShareDevice() {
+        redisDeleteByPattern(String.format(CacheKeys.device_share, "*", "*"));
+    }
 }

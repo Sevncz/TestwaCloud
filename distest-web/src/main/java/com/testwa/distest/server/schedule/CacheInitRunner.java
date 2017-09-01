@@ -22,6 +22,7 @@ public class CacheInitRunner implements CommandLineRunner {
     @Override
     public void run(String... strings) throws Exception {
         remoteClientService.delDeviceForClient();
+        remoteClientService.delShareDevice();
         remoteClientService.delMainInfo();
         remoteClientService.delOnstartScreenDevice();
         log.info("clean cache key");
