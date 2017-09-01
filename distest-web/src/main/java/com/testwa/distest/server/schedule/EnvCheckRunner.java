@@ -24,6 +24,7 @@ public class EnvCheckRunner implements CommandLineRunner {
 
     @Override
     public void run(String... strings) throws Exception {
+        // mongodb user and role init
         // role init
         roleService.init();
 
