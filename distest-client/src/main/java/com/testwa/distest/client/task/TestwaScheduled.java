@@ -41,7 +41,7 @@ public class TestwaScheduled {
     public static BlockingQueue<String> screenUploadQueue = new ArrayBlockingQueue<>(10000);
     public static BlockingQueue<String> screenEmptyQueue = new ArrayBlockingQueue<>(10000);
 
-    public static final Map<String, TestwaDevice> a_devices = new ConcurrentHashMap<>();
+    public static Map<String, TestwaDevice> a_devices = new ConcurrentHashMap<>();
 
     @Value("${agent.web.url}")
     private String agentWebUrl;
@@ -55,7 +55,6 @@ public class TestwaScheduled {
     public void senderDevice() {
         if(MainSocket.getSocket() != null && MainSocket.getSocket().connected()){
             try{
-                // todo: 1. 重新获取设备信息 2. 检测信息变化上报设备更新
                 TreeSet<AndroidDevice> androidDevices = AndroidHelper.getInstance().getAllDevices();
                 // 上报列表，当有新的设备信息获取到时
                 List<Device> devicesToReport = new ArrayList<>();
@@ -118,6 +117,8 @@ public class TestwaScheduled {
             }
         }else{
             logger.error("Websocket was disconnect");
+            // 与服务断开连接后，清空缓存的上报列表，待重连后， 重新上报。
+            a_devices = new ConcurrentHashMap<>();
         }
     }
 

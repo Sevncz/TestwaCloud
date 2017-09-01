@@ -5,13 +5,16 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.testwa.core.Command;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.server.exception.NotInProjectException;
-import com.testwa.distest.server.mvc.beans.*;
+import com.testwa.distest.server.mvc.beans.PageResult;
+import com.testwa.distest.server.mvc.beans.Result;
+import com.testwa.distest.server.mvc.beans.ResultCode;
 import com.testwa.distest.server.mvc.model.*;
-import com.testwa.distest.server.mvc.beans.PageQuery;
 import com.testwa.distest.server.mvc.service.*;
 import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
 import com.testwa.distest.server.mvc.vo.DeviceOwnerTableVO;
-import io.rpc.testwa.device.*;
+import io.rpc.testwa.device.LogcatEndRequest;
+import io.rpc.testwa.device.LogcatStartRequest;
+import io.rpc.testwa.device.ScreenCaptureEndRequest;
 import io.swagger.annotations.Api;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -22,10 +25,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.*;
-import java.nio.file.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
-import java.util.List;
 
 /**
  * Created by wen on 7/30/16.
@@ -58,14 +64,29 @@ public class DeviceController extends BaseController{
         this.server = server;
     }
 
+    /**
+     * 项目内可用在线设备列表
+     * @param projectId
+     * @param brand
+     * @return
+     * @throws NotInProjectException
+     */
     @ResponseBody
     @RequestMapping(value = "/project/list", method = RequestMethod.GET)
-    public Result page(@RequestParam(required = true) String projectId,
+    public Result page(@RequestParam String projectId,
                        @RequestParam(required = false) String brand ) throws NotInProjectException{
         User user = userService.findByUsername(getCurrentUsername());
         checkUserInProject(projectService, user, projectId);
         List<TDevice> deviceList = deviceService.getDeviceByUserAndProject(user.getId(),projectId);
         return ok(deviceList);
+    }
+
+    // todo： 用户设备分享，设备列表
+    @ResponseBody
+    @RequestMapping(value = "/user/list", method = RequestMethod.GET)
+    public Result page(@RequestParam(required = false) String brand ) throws NotInProjectException{
+        User user = userService.findByUsername(getCurrentUsername());
+        return ok();
     }
 
     @RequestMapping(value = "/screen", method = RequestMethod.GET)
