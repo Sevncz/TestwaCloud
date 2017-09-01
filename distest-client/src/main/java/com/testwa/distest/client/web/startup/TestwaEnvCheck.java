@@ -1,5 +1,6 @@
 package com.testwa.distest.client.web.startup;
 
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.appium.utils.Config;
@@ -46,7 +47,7 @@ public class TestwaEnvCheck implements CommandLineRunner {
     @Override
     public void run(String... strings) throws Exception {
         boolean isAuth = checkAuth(env.getProperty("username"), env.getProperty("password"));
-        if(!isAuth){
+        if (!isAuth) {
             log.error("username or password not match");
             System.exit(0);
         }
@@ -55,7 +56,7 @@ public class TestwaEnvCheck implements CommandLineRunner {
     }
 
     private boolean checkAuth(String username, String password) {
-        if(StringUtils.isBlank(username) || StringUtils.isBlank(password)){
+        if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
             return false;
         }
         String agentWebUrl = env.getProperty("agent.web.url");
@@ -63,16 +64,16 @@ public class TestwaEnvCheck implements CommandLineRunner {
             @Override
             public void completed(HttpResponse response) {
                 int code = response.getStatusLine().getStatusCode();
-                if(code != 200){
+                if (code != 200) {
                     log.error("Request code not 200， code is {}", code);
                     System.exit(0);
-                }else{
+                } else {
                     try {
                         String content = EntityUtils.toString(response.getEntity());
                         Object result = JSONObject.parse(content);
-                        Integer resultCode = ((JSONObject)result).getInteger("code");
+                        Integer resultCode = ((JSONObject) result).getInteger("code");
 
-                        if(resultCode == 0){
+                        if (resultCode == 0) {
                             JSONObject data = (JSONObject) ((JSONObject) result).get("data");
                             String token = data.getString("accessToken");
                             UserInfo.token = token;
@@ -82,13 +83,17 @@ public class TestwaEnvCheck implements CommandLineRunner {
                             MainSocket.receive(WebsocketEvent.ON_START, startRemoteClientCB);
                             MainSocket.receive(WebsocketEvent.ON_TESTCASE_RUN, startTestcaseClientCB);
 
-                        }else{
+                        } else {
                             log.error("login error {}", resultCode);
                             System.exit(0);
                         }
 
                     } catch (IOException e) {
                         log.error("Remote server fail", e);
+                        System.exit(0);
+                    } catch (JSONException e) {
+                        // 公司代理环境下 返回html页面
+                        log.error("Remote server response not parsable!", e);
                         System.exit(0);
                     }
                 }
@@ -113,7 +118,7 @@ public class TestwaEnvCheck implements CommandLineRunner {
         return true;
     }
 
-    private class User{
+    private class User {
         public String username;
         public String password;
 
@@ -123,34 +128,34 @@ public class TestwaEnvCheck implements CommandLineRunner {
         }
     }
 
-    private void checkTempDirPath(){
+    private void checkTempDirPath() {
         File localAppDir = new File(Constant.localAppPath);
-        if(!localAppDir.exists()){
+        if (!localAppDir.exists()) {
             localAppDir.mkdirs();
         }
 
         File localScriptDir = new File(Constant.localScriptPath);
-        if(!localScriptDir.exists()){
+        if (!localScriptDir.exists()) {
             localScriptDir.mkdirs();
         }
 
         File localScriptTmpDir = new File(Constant.localScriptTmpPath);
-        if(!localScriptTmpDir.exists()){
+        if (!localScriptTmpDir.exists()) {
             localScriptTmpDir.mkdirs();
         }
 
         File localAppiumlogDir = new File(Constant.localAppiumLogPath);
-        if(!localAppiumlogDir.exists()){
+        if (!localAppiumlogDir.exists()) {
             localAppiumlogDir.mkdirs();
         }
 
         File localScreenshotDir = new File(Constant.localScreenshotPath);
-        if(!localScreenshotDir.exists()){
+        if (!localScreenshotDir.exists()) {
             localScreenshotDir.mkdirs();
         }
 
         File locallogcatDir = new File(Constant.localLogcatPath);
-        if(!locallogcatDir.exists()){
+        if (!locallogcatDir.exists()) {
             locallogcatDir.mkdirs();
         }
 
