@@ -4,6 +4,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 /**
@@ -30,7 +31,8 @@ public class Script {
     private Date modifyDate;
     private String modifyUserId;
     private String modifyUserName;
-
+    private String tag;
+    private String description;
     public Script() {
     }
 
@@ -112,6 +114,22 @@ public class Script {
 
     public void setMd5(String md5) {
         this.md5 = md5;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @Override

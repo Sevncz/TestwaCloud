@@ -23,6 +23,7 @@ public class Testcase {
     private String userId;
     private String userName;
 
+    private String tag;
     @CreatedDate
     private Date createDate = new Date();
 

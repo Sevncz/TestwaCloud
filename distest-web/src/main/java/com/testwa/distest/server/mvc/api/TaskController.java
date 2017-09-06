@@ -80,6 +80,7 @@ public class TaskController extends BaseController{
         public String appId;
         public String name;
         public List<String> deviceIds;
+        public String description;
 
     }
 
@@ -98,6 +99,7 @@ public class TaskController extends BaseController{
         task.setName(name);
         task.setProjectId(projectId);
         task.setTestcaseIds(caseIds);
+        task.setDescription(taskInfo.getDescription());
         task.setCreateDate(TimeUtil.getTimestampLong());
         task.setModifyDate(TimeUtil.getTimestampLong());
         task.setCreator(getCurrentUsername());

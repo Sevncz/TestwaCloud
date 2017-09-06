@@ -10,7 +10,9 @@ public class CreateAppVO {
     public String id;
     @NotNull
     public String projectId;
-
+    @NotNull
+    private String tag;
+    private String description;
     public String getId() {
         return id;
     }
@@ -25,6 +27,22 @@ public class CreateAppVO {
 
     public void setProjectId(String projectId) {
         this.projectId = projectId;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @Override

@@ -37,6 +37,7 @@ public class App {
 
     private String md5;
     private String size;
+    public String description;
 
     @CreatedDate
     private Date createDate;
@@ -195,5 +196,13 @@ public class App {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

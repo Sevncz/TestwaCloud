@@ -33,5 +33,6 @@ public class Task {
 
     private Long  modifyDate;
 
+    public String description;
 
 }

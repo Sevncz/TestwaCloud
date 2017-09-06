@@ -17,4 +17,6 @@ public class CreateCaseVO {
     public String projectId;
     @NotNull
     public List<String> scriptIds;
+    @NotNull
+    private String tag;
 }
