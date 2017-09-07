@@ -37,7 +37,7 @@ public class App {
 
     private String md5;
     private String size;
-    public String description;
+    private String description;
 
     @CreatedDate
     private Date createDate;
