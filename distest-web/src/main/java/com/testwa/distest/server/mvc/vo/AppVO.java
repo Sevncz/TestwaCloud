@@ -15,6 +15,7 @@ public class AppVO {
 
     private String id;
     private String name;
+    private String description;
     private String aliasName;
     private String packageName;
     private String activity;
@@ -34,6 +35,7 @@ public class AppVO {
     public AppVO(App app){
         this.id = app.getId();
         this.name = app.getName();
+        this.description = app.getDescription();
         this.aliasName = app.getAliasName();
         this.packageName = app.getPackageName();
         this.activity = app.getActivity();

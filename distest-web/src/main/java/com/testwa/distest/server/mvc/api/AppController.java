@@ -54,6 +54,7 @@ public class AppController extends BaseController{
         public String appId;
         public String projectId;
         public String version;
+        public String description;
 
     }
 
@@ -88,6 +89,7 @@ public class AppController extends BaseController{
         app.setUserId(currentUser.getId());
         app.setUsername(currentUser.getUsername());
         app.setDisable(false);
+        app.setDescription(appInfo.description);
         appService.update(app);
         return ok();
     }

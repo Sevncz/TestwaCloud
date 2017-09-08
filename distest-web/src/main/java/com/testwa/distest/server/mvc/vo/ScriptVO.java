@@ -13,6 +13,8 @@ public class ScriptVO {
 
     private String id;
     private String name;
+    private String tag;
+    private String description;
     private String aliasName;
     private String size;
     private String createDate;

@@ -41,7 +41,7 @@ public class TestwaScheduled {
     public static BlockingQueue<String> screenUploadQueue = new ArrayBlockingQueue<>(10000);
     public static BlockingQueue<String> screenEmptyQueue = new ArrayBlockingQueue<>(10000);
 
-    public static final Map<String, TestwaDevice> a_devices = new ConcurrentHashMap<>();
+    public static Map<String, TestwaDevice> a_devices = new ConcurrentHashMap<>();
 
     @Value("${agent.web.url}")
     private String agentWebUrl;
@@ -53,16 +53,15 @@ public class TestwaScheduled {
 
     @Scheduled(cron = "0/10 * * * * ?")
     public void senderDevice() {
-        if(MainSocket.getSocket() != null && MainSocket.getSocket().connected()){
-            try{
-                // todo: 1. 重新获取设备信息 2. 检测信息变化上报设备更新
+        if (MainSocket.getSocket() != null && MainSocket.getSocket().connected()) {
+            try {
                 TreeSet<AndroidDevice> androidDevices = AndroidHelper.getInstance().getAllDevices();
                 // 上报列表，当有新的设备信息获取到时
                 List<Device> devicesToReport = new ArrayList<>();
-                for(AndroidDevice ad : androidDevices){
+                for (AndroidDevice ad : androidDevices) {
                     logger.debug("send device", ad);
                     TestwaDevice device;
-                    if(!a_devices.containsKey(ad.getSerialNumber())){
+                    if (!a_devices.containsKey(ad.getSerialNumber())) {
                         device = new TestwaDevice();
                         device.setSerial(ad.getSerialNumber());
                         device.setBrand(ad.runAdbCommand("shell getprop ro.product.brand"));
@@ -72,10 +71,10 @@ public class TestwaScheduled {
                         }
                         device.setCpuabi(ad.runAdbCommand("shell getprop ro.product.cpu.abi"));
                         device.setDensity(ad.getDevice().getDensity() + "");
-                        if(ad.getTargetPlatform() != null){
+                        if (ad.getTargetPlatform() != null) {
                             device.setOsName(ad.getTargetPlatform().formatedName());
                         }
-                        if(ad.getScreenSize() != null){
+                        if (ad.getScreenSize() != null) {
                             device.setWidth(String.valueOf(ad.getScreenSize().getWidth()));
                             device.setHeight(String.valueOf(ad.getScreenSize().getHeight()));
                         }
@@ -98,7 +97,7 @@ public class TestwaScheduled {
 //                    }
                 }
 
-                if(UserInfo.token == null){
+                if (UserInfo.token == null) {
                     logger.error("token was null");
                     return;
                 }
@@ -113,27 +112,29 @@ public class TestwaScheduled {
                     Integer webPort = Integer.parseInt(env.getProperty("grpc.port"));
                     Clients.deviceService(webHost, webPort).all(devices);
                 }
-            }catch (ShellCommandException e){
+            } catch (ShellCommandException e) {
                 logger.error("Adb get props error", e);
             }
-        }else{
+        } else {
             logger.error("Websocket was disconnect");
+            // 与服务断开连接后，清空缓存的上报列表，待重连后， 重新上报。
+            a_devices = new ConcurrentHashMap<>();
         }
     }
 
     @Scheduled(cron = "0/5 * * * * ?")
     private void uploadScreenCaptrue() {
-        for(;;){
+        for (; ; ) {
             try {
                 String filepath = screenUploadQueue.poll();
-                if(StringUtils.isBlank(filepath)){
+                if (StringUtils.isBlank(filepath)) {
                     break;
                 }
                 Path p = Paths.get(filepath);
 
                 String screenName = filepath.substring(Constant.localScreenshotPath.length() + 1);
 
-                if(p.toFile().length() == 0){
+                if (p.toFile().length() == 0) {
                     try {
                         screenEmptyQueue.put(filepath);
                     } catch (InterruptedException e) {
@@ -162,20 +163,20 @@ public class TestwaScheduled {
     @Scheduled(cron = "0/2 * * * * ?")
     private void processEmptyFile() {
         int len = screenEmptyQueue.size();
-        for(int i=0;i<len;i++){
+        for (int i = 0; i < len; i++) {
             String filepath = screenEmptyQueue.poll();
-            if(StringUtils.isBlank(filepath)){
+            if (StringUtils.isBlank(filepath)) {
                 break;
             }
             Path p = Paths.get(filepath);
 
-            if(p.toFile().length() == 0){
+            if (p.toFile().length() == 0) {
                 try {
                     screenEmptyQueue.put(filepath);
                 } catch (InterruptedException e) {
                     logger.error("Put screenEmptyQueue error", e);
                 }
-            }else{
+            } else {
                 try {
                     screenUploadQueue.put(filepath);
                 } catch (InterruptedException e) {

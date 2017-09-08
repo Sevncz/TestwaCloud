@@ -64,9 +64,13 @@ public class ScriptController extends BaseController {
     public Result save(@Valid @RequestBody CreateAppVO createAppDTO) {
         String projectId = createAppDTO.getProjectId();
         String id = createAppDTO.getId();
+        String tag = createAppDTO.getTag();
+        String description = createAppDTO.getDescription();
         Script script = scriptService.getScriptById(id);
         User user = userService.findByUsername(getCurrentUsername());
         script.setProjectId(projectId);
+        script.setTag(tag);
+        script.setDescription(description);
         script.setDisable(false);
         script.setUserId(user.getId());
         script.setUsername(user.getUsername());

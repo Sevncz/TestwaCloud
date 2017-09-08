@@ -81,6 +81,7 @@ public class TestcaseService extends BaseService {
         testcase.setProjectName(project.getProjectName());
         testcase.setName(createCaseVO.getName());
         testcase.setUserId(user.getId());
+        testcase.setTag(createCaseVO.getTag());
         testcase.setUserName(user.getUsername());
         save(testcase);
     }
@@ -125,6 +126,8 @@ public class TestcaseService extends BaseService {
         this.scriptService.checkScripts(scriptIds);
 
         testcase.setScripts(scriptIds);
+        testcase.setTag(modifyCaseVO.getTag());
+        testcase.setDescription(modifyCaseVO.getDescription());
         testcase.setName(modifyCaseVO.getName());
         testcaseRepository.save(testcase);
     }

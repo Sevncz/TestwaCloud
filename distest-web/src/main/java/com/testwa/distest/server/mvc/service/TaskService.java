@@ -129,6 +129,7 @@ public class TaskService extends BaseService{
         this.appService.checkApp(modifyTaskVO.getAppId());
         task.setAppId(modifyTaskVO.getAppId());
         task.setTestcaseIds(caseIds);
+        task.setDescription(modifyTaskVO.getDescription());
         task.setModifyDate(TimeUtil.getTimestampLong());
         task.setName(modifyTaskVO.getName());
         taskRepository.save(task);
