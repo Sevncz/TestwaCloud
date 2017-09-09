@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 public class RemoteRunCommand {
 
-    private String taskId;
+    private String exeId;
     private String appId;
     private String deviceId;
     private List<RemoteTestcaseContent> testcaseList;

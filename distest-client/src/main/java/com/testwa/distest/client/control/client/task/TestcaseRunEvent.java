@@ -16,6 +16,4 @@ public class TestcaseRunEvent extends ApplicationEvent {
         this.cmd = cmd;
     }
 
-
-
 }

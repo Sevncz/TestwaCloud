@@ -17,16 +17,21 @@ import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
 import org.springframework.data.mongodb.core.convert.*;
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.scheduling.annotation.AsyncConfigurerSupport;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.net.UnknownHostException;
+import java.util.concurrent.Executor;
 
 
 @SpringBootApplication
 @EnableMongoRepositories(repositoryBaseClass = CommonMongoRepositoryImpl.class, basePackages = {"com.testwa.distest.server.mvc.repository"})
 @EnableScheduling
 @EnableCaching
-public class WebServerApplication {
+@EnableAsync
+public class WebServerApplication extends AsyncConfigurerSupport {
 
     @Value("${spring.data.mongodb.uri}")
     private String mongoUri;
@@ -64,6 +69,18 @@ public class WebServerApplication {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+
+	@Override
+	public Executor getAsyncExecutor() {
+		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		executor.setCorePoolSize(1000);
+		executor.setMaxPoolSize(1000);
+		executor.setQueueCapacity(500);
+		executor.setThreadNamePrefix("ServerLookup-");
+		executor.initialize();
+		return executor;
 	}
 
 	public static void main(String[] args) {

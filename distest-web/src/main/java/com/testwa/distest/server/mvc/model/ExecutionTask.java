@@ -35,9 +35,41 @@ public class ExecutionTask {
     private String creator;
 
     @CreatedDate
-    private Date createDate;
+    private Date createTime;
 
     private Date modifyDate;
+
+    private Date endTime;
+
+
+    public enum StatusEnum{
+        NOT_EXECUTE(0),  // 未执行
+        START(1),   // 已开始
+        STOP(2),    // 已结束
+        CANCEL(3),  // 手动取消
+        ERROR(4);  // 异常
+
+        private int code ;
+
+        StatusEnum(int code){
+            this.code = code;
+        }
+
+        public static StatusEnum getEnumForValue(int value){
+            StatusEnum[] values = StatusEnum.values();
+            for(StatusEnum eachValue : values) {
+                if (eachValue.code == value) {
+                    return eachValue;
+                }
+            }
+            return null;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+    }
 
 
 }

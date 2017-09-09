@@ -1,7 +1,6 @@
 package com.testwa.distest.server.mvc.api;
 
 import com.alibaba.fastjson.JSON;
-import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.core.utils.TimeUtil;
@@ -17,7 +16,6 @@ import com.testwa.distest.server.mvc.model.*;
 import com.testwa.distest.server.mvc.service.*;
 import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
 import com.testwa.distest.server.mvc.vo.DeleteVO;
-import com.testwa.distest.server.mvc.vo.ProjectVO;
 import com.testwa.distest.server.mvc.vo.TaskVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -167,11 +165,12 @@ public class TaskController extends BaseController{
 
         // 执行...
         // save a report
-        App app = appService.getAppById(appId);
+//        App app = appService.getAppById(appId);
         User user = userService.findByUsername(getCurrentUsername());
 
-        Report report = new Report(task, app, deviceIds, user);
-        reportService.save(report);
+        // 执行完成之后再生成报告
+//        Report report = new Report(task, app, deviceIds, user);
+//        reportService.save(report);
 
         List<RemoteTestcaseContent> cases = new ArrayList<>();
         for(String caseId : caseIds){
@@ -247,7 +246,7 @@ public class TaskController extends BaseController{
     @RequestMapping(value = "/test", method = RequestMethod.GET)
     public Result test(@RequestParam(value = "deviceId")String deviceId){
         RemoteRunCommand params = new RemoteRunCommand();
-        params.setTaskId("");
+        params.setExeId("");
         params.setAppId("");
         params.setDeviceId("");
         params.setInstall("");
@@ -265,14 +264,4 @@ public class TaskController extends BaseController{
         return ok(taskVO);
     }
 
-    @Data
-    private class RunTestcaseParams{
-
-        private String appId;
-        private String deviceId;
-        private List<String> scriptIds;
-        private String reportDetailId;
-        private String install;
-
-    }
 }

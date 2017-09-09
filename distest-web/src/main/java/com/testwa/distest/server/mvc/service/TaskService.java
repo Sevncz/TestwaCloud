@@ -71,6 +71,9 @@ public class TaskService extends BaseService{
     public Task getTaskById(String taskId) {
         return taskRepository.findOne(taskId);
     }
+    public ExecutionTask getExeTaskById(String taskId) {
+        return executionTaskRepository.findOne(taskId);
+    }
 
 
     public void deleteById(String taskId){
@@ -179,9 +182,9 @@ public class TaskService extends BaseService{
             tds.add(t);
         }
         et.setDevices(tds);
-        executionTaskRepository.save(et);
+        et.setStatus(ExecutionTask.StatusEnum.START.getCode());
 
-        params.setTaskId(et.getId());
+        params.setExeId(et.getId());
         // 执行...
         for(String deviceId : deviceIds){
 
@@ -193,14 +196,18 @@ public class TaskService extends BaseService{
                 if(agentClient != null){
                     agentClient.sendEvent(WebsocketEvent.ON_TESTCASE_RUN, JSON.toJSONString(params));
                 }else{
+                    et.setStatus(ExecutionTask.StatusEnum.ERROR.getCode());
                     throw new Exception("agentClient not found");
                 }
             }else{
+                et.setStatus(ExecutionTask.StatusEnum.ERROR.getCode());
                 throw new Exception("session not found");
             }
         }
-
-
+        executionTaskRepository.save(et);
     }
 
+    public void saveExetask(ExecutionTask exeTask) {
+        executionTaskRepository.save(exeTask);
+    }
 }
