@@ -3,10 +3,20 @@ syntax = "proto3";
 
 option java_multiple_files = true;
 option java_package = "io.rpc.testwa.task";
-option java_outer_classname = "TestcaseProto";
+option java_outer_classname = "TaskProto";
 option objc_class_prefix = "RLP";
 
 package testcase;
+
+
+service TaskService {
+    rpc gameover (TaskOverRequest) returns ( CommonReply ) {}
+}
+
+message CommonReply {
+    int32 status = 1;
+    string message = 2;
+}
 
 message ProcedureInfoRequest {
     int32 status = 1;
@@ -29,13 +39,10 @@ message ProcedureInfoRequest {
 }
 
 
-message TestcaseStartMessage {
-    string reportDetailId = 1;
-    string serial = 2;
-    string install = 3;
-    string appId = 4;
-    repeated string scriptIds = 5;
-    int32 frequency = 6;
+message TaskOverRequest {
+    string exeId = 1;
+    int64 timestamp = 2;
+    string token = 3;
 }
 
 

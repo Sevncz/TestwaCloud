@@ -1,7 +1,11 @@
 package com.testwa.distest.client.control.client.task;
 
 import com.testwa.core.model.RemoteRunCommand;
+import com.testwa.core.utils.TimeUtil;
 import com.testwa.distest.client.control.client.task.pool.ExecutorPool;
+import io.grpc.ManagedChannel;
+import io.rpc.testwa.task.TaskOverRequest;
+import io.rpc.testwa.task.TaskServiceGrpc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +24,11 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
     private static Logger log = LoggerFactory.getLogger(TestcaseRunListener.class);
     private Map<String, Executor> excutors = new HashMap<>();
 
-    private int i = 0;
 
     @Autowired
     public ExecutorPool pool;
+    @Autowired
+    private ManagedChannel managedChannel;
 
     @Async
     @Override
@@ -54,7 +59,7 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
                     executor2.setAppId(cmd.getAppId());
                     executor2.setDeviceId(cmd.getDeviceId());
                     executor2.setInstall(cmd.getInstall());
-                    executor2.setTaskId(cmd.getTaskId());
+                    executor2.setTaskId(cmd.getExeId());
                     executor2.setTestcaseList(cmd.getTestcaseList());
                     executor2.runScripts();
                 }catch (Exception e){
@@ -63,6 +68,14 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
 
                     pool.release(executor2);
                     excutors.remove(cmd.getDeviceId());
+
+                    // 测试结束，通知服务器结束
+                    TaskOverRequest taskOverRequest = TaskOverRequest.newBuilder()
+                            .setExeId(cmd.getExeId())
+                            .setTimestamp(TimeUtil.getTimestampLong())
+                            .build();
+
+                    TaskServiceGrpc.newFutureStub(managedChannel).gameover(taskOverRequest);
                 }
                 log.info("excutors over!");
 

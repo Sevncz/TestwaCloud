@@ -200,4 +200,12 @@ public class Report {
     public void setExcuteUserName(String excuteUserName) {
         this.excuteUserName = excuteUserName;
     }
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
+    }
 }

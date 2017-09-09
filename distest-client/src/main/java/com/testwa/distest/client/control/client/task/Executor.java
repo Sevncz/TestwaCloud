@@ -126,8 +126,6 @@ public class Executor {
                     log.info("Complete All !");
                     break;
                 }
-
-
             }
         }catch (Exception e) {
             log.error("Execute script error", e);

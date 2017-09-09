@@ -22,7 +22,6 @@ public class GRpcConfig {
 
     @Bean
     public ManagedChannel managedChannel() throws IOReactorException {
-        LOG.info("~~~~~~~~~~~~~~~~~~~~~");
         return ManagedChannelBuilder
                 .forAddress(env.getProperty("grpc.host"), Integer.parseInt(env.getProperty("grpc.port")))
                 .usePlaintext(true)
