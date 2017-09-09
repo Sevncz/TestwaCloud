@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 class GlobalExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler(value = Exception.class)
+    @ExceptionHandler(value = RuntimeException.class)
     @ResponseBody
     public Result defaultErrorHandler(HttpServletRequest req, Exception e) throws Exception {
         log.error("Unknow error", e);
