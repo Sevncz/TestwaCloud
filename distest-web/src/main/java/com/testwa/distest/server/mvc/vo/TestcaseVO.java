@@ -17,6 +17,7 @@ public class TestcaseVO {
 
     private String id;
     private String description;
+    private String tag;
     private String type;
     private String userName;
     private String createDate;
@@ -27,6 +28,8 @@ public class TestcaseVO {
     public TestcaseVO(Testcase testcase) {
         this.id = testcase.getId();
         this.userName = testcase.getUserName();
+        this.description = testcase.getDescription();
+        this.tag = testcase.getTag();
         if(testcase.getCreateDate() != null){
             this.createDate = TimeUtil.formatTimeStamp(testcase.getCreateDate().getTime());
         }
