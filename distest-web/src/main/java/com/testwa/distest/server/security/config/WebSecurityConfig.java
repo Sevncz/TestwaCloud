@@ -63,6 +63,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .authorizeRequests()
                     .antMatchers(loginPath).permitAll()
                     .antMatchers(tokenRefreshPath).permitAll()
+                    .antMatchers("/account/register").permitAll()
                     .antMatchers( // for swagger
                             HttpMethod.GET,
                             "/",

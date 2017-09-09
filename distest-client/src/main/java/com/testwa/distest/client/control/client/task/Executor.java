@@ -356,6 +356,13 @@ public class Executor {
         this.testcases.addAll(testcaseList);
     }
 
+    public String getCurrScript(){
+        return currScript;
+    }
+    public String getCurrTestCaseId(){
+        return currTestCaseId;
+    }
+
     public void reset() {
         this.scripts = null;
         this.testcases = null;
