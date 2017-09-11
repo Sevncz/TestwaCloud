@@ -6,6 +6,7 @@ import com.testwa.distest.server.mvc.model.Project;
 import com.testwa.distest.server.mvc.model.ProjectMember;
 import com.testwa.distest.server.mvc.model.User;
 import com.testwa.distest.server.mvc.repository.*;
+import com.testwa.distest.server.mvc.service.cache.WebCacheService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,15 +46,16 @@ public class ProjectService extends BaseService {
     private RoleRepository roleRepository;
     @Autowired
     private TaskRepository taskRepository;
-
     @Autowired
     private UserService userService;
+    @Autowired
+    private WebCacheService webCacheService;
 
-    public Project save(Project project){
+    public Project save(Project project) {
         return projectRepository.save(project);
     }
 
-    public void deleteById(String projectId){
+    public void deleteById(String projectId) {
         projectRepository.delete(projectId);
         Query query = new Query();
         query.addCriteria(Criteria.where("id").is(projectId));
@@ -65,7 +67,7 @@ public class ProjectService extends BaseService {
         deleteAllRelatedObjectByProjectId(projectId);
     }
 
-    public void deleteAllRelatedObjectByProjectId(String projectId){
+    public void deleteAllRelatedObjectByProjectId(String projectId) {
 
         Query query = new Query();
         query.addCriteria(Criteria.where("projectId").is(projectId));
@@ -81,7 +83,7 @@ public class ProjectService extends BaseService {
         reportRepository.updateMulti(query, update);
     }
 
-    public Project getProjectById(String projectId){
+    public Project getProjectById(String projectId) {
         return projectRepository.findOne(projectId);
     }
 
@@ -114,7 +116,7 @@ public class ProjectService extends BaseService {
     public void delMember(String projectId, String memberId) {
 
         ProjectMember pm = projectMemberRepository.findByProjectIdAndMemberId(projectId, memberId);
-        if(pm != null){
+        if (pm != null) {
 
             projectMemberRepository.delete(pm);
 
@@ -124,15 +126,16 @@ public class ProjectService extends BaseService {
 
     /**
      * 获得用户创建的和用户参加的所有project
+     *
      * @param user
      * @return
      */
     public List<Project> findByUser(User user) {
         List<Project> ownerProjects = new ArrayList<>();
         List<ProjectMember> joinProjects = projectMemberRepository.findByMemberId(user.getId());
-        if(joinProjects == null){
+        if (joinProjects == null) {
             joinProjects = new ArrayList<>();
-        }else{
+        } else {
             Query query = new Query();
             query.addCriteria(Criteria.where("id").in(joinProjects.stream().map(s -> s.getProjectId()).collect(Collectors.toList())));
             List<Project> project = projectRepository.find(query);
@@ -153,12 +156,13 @@ public class ProjectService extends BaseService {
     public List<ProjectMember> getMembersByProject(String projectId) {
         return projectMemberRepository.findByProjectId(projectId);
     }
+
     public List<User> getUserMembersByProject(String projectId) {
         List<User> users = new ArrayList<>();
         List<ProjectMember> projectMembers = getMembersByProject(projectId);
-        if(projectMembers != null && projectMembers.size() > 0){
+        if (projectMembers != null && projectMembers.size() > 0) {
             List<String> userIds = new ArrayList<>();
-            for(ProjectMember pm : projectMembers){
+            for (ProjectMember pm : projectMembers) {
                 userIds.add(pm.getMemberId());
             }
             users = userService.findByUserIds(userIds);
@@ -169,7 +173,7 @@ public class ProjectService extends BaseService {
     public Page<Project> findPage(PageRequest pageRequest, List<String> projectIds, String projectName) {
 
         List<Criteria> andCriteria = new ArrayList<>();
-        if(StringUtils.isNotEmpty(projectName)){
+        if (StringUtils.isNotEmpty(projectName)) {
             andCriteria.add(Criteria.where("projectName").regex(projectName));
         }
         andCriteria.add(Criteria.where("id").in(projectIds));
@@ -179,7 +183,7 @@ public class ProjectService extends BaseService {
 
     }
 
-    public List<Project> findAll(List<String> projectIds){
+    public List<Project> findAll(List<String> projectIds) {
         Query query = new Query();
         query.addCriteria(Criteria.where("id").in(projectIds));
         return projectRepository.find(query);
@@ -204,9 +208,9 @@ public class ProjectService extends BaseService {
         List<ProjectMember> pms = projectMemberRepository.find(query1);
 
         List<User> projectUser = new ArrayList<>();
-        for(User u : users){
-            for(ProjectMember p : pms){
-                if(u.getId().equals(p.getMemberId())){
+        for (User u : users) {
+            for (ProjectMember p : pms) {
+                if (u.getId().equals(p.getMemberId())) {
                     projectUser.add(u);
                 }
             }
@@ -230,11 +234,20 @@ public class ProjectService extends BaseService {
         }
         return project;
     }
-    public ProjectMember getRoleNameByPro(String projectId, String userId) throws NoSuchProjectException{
-       this.checkProject(projectId);
+
+    public ProjectMember getRoleNameByPro(String projectId, String userId) throws NoSuchProjectException {
+        this.checkProject(projectId);
         Query query = new Query();
         query.addCriteria(Criteria.where("projectId").is(projectId));
         query.addCriteria(Criteria.where("memberId").is(userId));
         return projectMemberRepository.findOne(query);
+    }
+
+    public String enterProject(User user, String projectId) {
+        // todo: record in redis for user project history
+        webCacheService.userProjectHistory(user, projectId);
+        // todo: return user role in project
+        Project project = projectRepository.findOne(projectId);
+        return project.getUserId() == user.getId() ? "admin" : "user";
     }
 }

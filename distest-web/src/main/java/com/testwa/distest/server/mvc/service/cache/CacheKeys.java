@@ -15,4 +15,7 @@ class CacheKeys {
     // device shares 1 scope, 2 deviceId value device detail
     static final String device_share = "device.share.%s.%s";
 
+    // web cache
+    // user project history %s = userId
+    static final String user_project_history = "history.project.%s";
 }

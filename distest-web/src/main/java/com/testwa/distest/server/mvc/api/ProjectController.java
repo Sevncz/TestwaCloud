@@ -2,6 +2,7 @@ package com.testwa.distest.server.mvc.api;
 
 import com.testwa.core.utils.TimeUtil;
 import com.testwa.distest.server.exception.NoSuchProjectException;
+import com.testwa.distest.server.exception.NotInProjectException;
 import com.testwa.distest.server.mvc.beans.DelParams;
 import com.testwa.distest.server.mvc.beans.PageResult;
 import com.testwa.distest.server.mvc.beans.Result;
@@ -180,6 +181,19 @@ public class ProjectController extends BaseController {
         return ok(maps);
     }
 
+    /**
+     * 进入项目
+     * @param projectId
+     * @return
+     */
+    @ResponseBody
+    @GetMapping(value = "/enter")
+    public Result delete(@RequestParam String projectId) throws NotInProjectException{
+        User user = userService.findByUsername(getCurrentUsername());
+        checkUserInProject(projectService, user, projectId);
+        String projectRole = projectService.enterProject(user, projectId);
+        return ok(projectRole);
+    }
 
     @ResponseBody
     @RequestMapping(value = "/detail/{projectId}", method= RequestMethod.GET)
