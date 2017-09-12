@@ -38,7 +38,7 @@ public class WebCacheService {
             projects = new ArrayList<>();
             projects.add(projectId);
         } else {
-            Integer index = projects.indexOf(projectId);
+            int index = projects.indexOf(projectId);
             if (index != -1) {
                 projects.remove(index);
             }

@@ -244,9 +244,9 @@ public class ProjectService extends BaseService {
     }
 
     public String enterProject(User user, String projectId) {
-        // todo: record in redis for user project history
+        // record in redis for user project history
         webCacheService.userProjectHistory(user, projectId);
-        // todo: return user role in project
+        // return user role in project
         Project project = projectRepository.findOne(projectId);
         return project.getUserId() == user.getId() ? "admin" : "user";
     }
