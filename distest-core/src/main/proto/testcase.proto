@@ -11,6 +11,7 @@ package testcase;
 
 service TaskService {
     rpc gameover (TaskOverRequest) returns ( CommonReply ) {}
+    rpc currExeInfo (CurrentExeInfoRequest) returns ( CommonReply ) {}
 }
 
 message CommonReply {
@@ -22,8 +23,8 @@ message ProcedureInfoRequest {
     int32 status = 1;
     string value = 2;
     int32 runtime = 3;
-    string cpurate = 4;
-    string memory = 5;
+    int32 cpurate = 4;
+    int32 memory = 5;
     string sessionId = 6;
     string deviceId = 7;
     string screenshotPath = 10;
@@ -43,6 +44,14 @@ message TaskOverRequest {
     string exeId = 1;
     int64 timestamp = 2;
     string token = 3;
+}
+
+message CurrentExeInfoRequest {
+    string exeId = 1;
+    string deviceId = 2;
+    string token = 3;
+    string scriptId = 4;
+    string testcaseId = 5;
 }
 
 

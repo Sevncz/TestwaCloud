@@ -18,8 +18,8 @@ public class ProcedureInfo {
     private Integer status;
     private String value;
     private Integer runtime;
-    private String cpurate;
-    private String memory;
+    private Integer cpurate;
+    private Integer memory;
     @Indexed
     private String sessionId;
     @Indexed
@@ -69,19 +69,19 @@ public class ProcedureInfo {
         this.runtime = runtime;
     }
 
-    public String getCpurate() {
+    public Integer getCpurate() {
         return cpurate;
     }
 
-    public void setCpurate(String cpurate) {
+    public void setCpurate(Integer cpurate) {
         this.cpurate = cpurate;
     }
 
-    public String getMemory() {
+    public Integer getMemory() {
         return memory;
     }
 
-    public void setMemory(String memory) {
+    public void setMemory(Integer memory) {
         this.memory = memory;
     }
 
@@ -175,11 +175,11 @@ public class ProcedureInfo {
 
     public void toEntity(ProcedureInfoRequest reqeust) {
         this.action = reqeust.getActionBytes().toStringUtf8();
-        this.cpurate = reqeust.getCpurate();
+//        this.cpurate = reqeust.getCpurate();
         this.description = reqeust.getDescription();
         this.deviceId = reqeust.getDeviceId();
         this.logcatFile = reqeust.getLogcatFile();
-        this.memory = reqeust.getMemory();
+//        this.memory = reqeust.getMemory();
         this.params = reqeust.getParams();
         this.runtime = reqeust.getRuntime();
         this.screenshotPath = reqeust.getScreenshotPath();

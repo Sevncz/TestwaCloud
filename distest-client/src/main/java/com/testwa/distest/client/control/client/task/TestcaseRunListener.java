@@ -3,7 +3,9 @@ package com.testwa.distest.client.control.client.task;
 import com.testwa.core.model.RemoteRunCommand;
 import com.testwa.core.utils.TimeUtil;
 import com.testwa.distest.client.control.client.task.pool.ExecutorPool;
+import com.testwa.distest.client.model.UserInfo;
 import io.grpc.ManagedChannel;
+import io.rpc.testwa.task.CurrentExeInfoRequest;
 import io.rpc.testwa.task.TaskOverRequest;
 import io.rpc.testwa.task.TaskServiceGrpc;
 import org.slf4j.Logger;
@@ -24,7 +26,6 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
     private static Logger log = LoggerFactory.getLogger(TestcaseRunListener.class);
     private Map<String, Executor> excutors = new HashMap<>();
 
-
     @Autowired
     public ExecutorPool pool;
     @Autowired
@@ -38,6 +39,7 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
 
         switch (cmd.getCmd()){
             case 0:
+                // 停止
                 Executor executor1 = excutors.get(cmd.getDeviceId());
                 if(executor1 != null){
                     executor1.pythonStop();
@@ -45,6 +47,7 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
                 }
                 break;
             case 1:
+                // 启动
                 if(excutors.size() >= 5){
                     break;
                 }
@@ -80,6 +83,24 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
                 log.info("excutors over!");
 
                 break;
+            case 2:
+                // 检查
+                Executor executor4 = excutors.get(cmd.getDeviceId());
+                if(executor4 != null){
+                    String currScriptId = executor4.getCurrScript();
+                    String currTestcaseId = executor4.getCurrTestCaseId();
+                    CurrentExeInfoRequest request = CurrentExeInfoRequest.newBuilder()
+                            .setDeviceId(cmd.getDeviceId())
+                            .setExeId(cmd.getExeId())
+                            .setScriptId(currScriptId)
+                            .setTestcaseId(currTestcaseId)
+                            .setToken(UserInfo.token)
+                            .build();
+                    TaskServiceGrpc.newFutureStub(managedChannel).currExeInfo(request);
+                }
+                break;
+
+
         }
 
     }
