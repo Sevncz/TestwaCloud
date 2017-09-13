@@ -1,8 +1,11 @@
 package com.testwa.distest.server.mvc.vo;
 
+import com.testwa.distest.server.mvc.model.UserDeviceHis;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 /**
  * Created by yxin on 9/13/2017.
@@ -10,13 +13,13 @@ import lombok.NoArgsConstructor;
 @Data
 public class DashboardPlatformVO {
     private Stats stats;
+    private List<ProjectVO> projects;
+    private List<UserDeviceHis> devices;
 
-    public DashboardPlatformVO() {
-        this.stats = new Stats();
-    }
-
-    public DashboardPlatformVO(Integer projectCounts, Integer deviceCounts) {
+    public DashboardPlatformVO(Integer projectCounts, Integer deviceCounts, List<ProjectVO> projectVOs, List<UserDeviceHis> devices) {
         this.stats = new Stats(projectCounts,deviceCounts);
+        this.projects = projectVOs;
+        this.devices = devices;
     }
 
     @Data

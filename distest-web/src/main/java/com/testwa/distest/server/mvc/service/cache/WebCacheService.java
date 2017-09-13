@@ -48,4 +48,9 @@ public class WebCacheService {
             projects.remove(projects.size() - 1);
         redisTemplate.opsForValue().set(key, projects);
     }
+
+    public List<String> getUserProjectHistory(String userId) {
+        String key = String.format(CacheKeys.user_project_history, userId);
+        return (List<String>) redisTemplate.opsForValue().get(key);
+    }
 }

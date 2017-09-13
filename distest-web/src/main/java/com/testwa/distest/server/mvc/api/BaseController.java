@@ -8,6 +8,7 @@ import com.testwa.distest.server.mvc.model.Project;
 import com.testwa.distest.server.mvc.model.ProjectMember;
 import com.testwa.distest.server.mvc.model.User;
 import com.testwa.distest.server.mvc.service.ProjectService;
+import com.testwa.distest.server.mvc.vo.ProjectVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
@@ -157,6 +158,12 @@ public class BaseController {
             log.error("ProjectMember is null, user {} not in project {}", user.getId(), projectId);
             throw new NotInProjectException("用户不属于该项目");
         }
+    }
+
+    protected List<ProjectVO> projectsTOProjectVOs(List<Project> projects) {
+        List<ProjectVO> lists = new ArrayList<>();
+        projects.forEach(project -> lists.add(new ProjectVO(project)));
+        return lists;
     }
 
 }

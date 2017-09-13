@@ -17,4 +17,6 @@ public interface ProjectRepository extends CommonRepository<Project, Serializabl
     Project findById(String projectId);
 
     Integer countByUserId(String id);
+
+    List<Project> findByIdIn(List<String> projectIds);
 }

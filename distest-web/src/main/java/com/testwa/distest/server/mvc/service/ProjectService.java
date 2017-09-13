@@ -7,6 +7,7 @@ import com.testwa.distest.server.mvc.model.ProjectMember;
 import com.testwa.distest.server.mvc.model.User;
 import com.testwa.distest.server.mvc.repository.*;
 import com.testwa.distest.server.mvc.service.cache.WebCacheService;
+import com.testwa.distest.server.mvc.vo.ProjectVO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -253,5 +254,13 @@ public class ProjectService extends BaseService {
 
     public Integer getProjectCountByUser(User user) {
         return projectRepository.countByUserId(user.getId());
+    }
+
+    public List<Project> getHistoryUserProjectVO(User user) {
+        List<String> projectIds = webCacheService.getUserProjectHistory(user.getId());
+        if (null == projectIds) {
+            return new ArrayList<>();
+        }
+        return projectRepository.findByIdIn(projectIds);
     }
 }
