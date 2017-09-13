@@ -12,4 +12,7 @@ public interface AppRepository extends CommonRepository<App, Serializable> {
 
     List<App> findByUserId(String userId);
 
+    List<App> findByProjectId(String projectId);
+
+    Integer countByProjectId(String projectId);
 }

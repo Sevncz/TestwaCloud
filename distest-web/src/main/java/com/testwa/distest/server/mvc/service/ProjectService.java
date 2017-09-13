@@ -6,8 +6,11 @@ import com.testwa.distest.server.mvc.model.Project;
 import com.testwa.distest.server.mvc.model.ProjectMember;
 import com.testwa.distest.server.mvc.model.User;
 import com.testwa.distest.server.mvc.repository.*;
+import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
 import com.testwa.distest.server.mvc.service.cache.WebCacheService;
+import com.testwa.distest.server.mvc.vo.ProjectStats;
 import com.testwa.distest.server.mvc.vo.ProjectVO;
+import io.swagger.models.auth.In;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +54,16 @@ public class ProjectService extends BaseService {
     private UserService userService;
     @Autowired
     private WebCacheService webCacheService;
+    @Autowired
+    private RemoteClientService remoteClientService;
+    @Autowired
+    private ScriptService scriptService;
+    @Autowired
+    private AppService appService;
+    @Autowired
+    private TestcaseService testcaseService;
+    @Autowired
+    private TaskService taskService;
 
     public Project save(Project project) {
         return projectRepository.save(project);
@@ -262,5 +275,21 @@ public class ProjectService extends BaseService {
             return new ArrayList<>();
         }
         return projectRepository.findByIdIn(projectIds);
+    }
+
+    public ProjectStats getProjectStats(String projectId, User user) {
+        // get available device count
+        Integer devices = remoteClientService.getDeviceByUserIdAndProjectId(user.getId(), projectId).size();
+        // apps
+        Integer apps = appService.getCountAppByProjectId(projectId);
+        // scripts
+        Integer scripts = scriptService.getCountScriptByProjectId(projectId);
+        // cases
+        Integer cases = testcaseService.getCountCaseByProjectId(projectId);
+        // tasks
+        Integer tasks = taskService.getCountTaskByProjectId(projectId);
+        // todo: reports
+//        Integer reports =
+        return new ProjectStats(devices, apps, scripts, cases, tasks, 0);
     }
 }

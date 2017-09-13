@@ -176,4 +176,12 @@ public class AppService extends BaseService {
         }
         return appVO;
     }
+
+    public List<App> getAppByProjectId(String projectId) {
+        return appRepository.findByProjectId(projectId);
+    }
+
+    public Integer getCountAppByProjectId(String projectId) {
+        return appRepository.countByProjectId(projectId);
+    }
 }

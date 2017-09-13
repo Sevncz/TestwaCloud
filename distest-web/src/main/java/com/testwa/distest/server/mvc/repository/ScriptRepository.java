@@ -12,4 +12,8 @@ public interface ScriptRepository extends CommonRepository<Script, Serializable>
     List<Script> findByIdNotIn(List<String> scriptIds);
 
     List<Script> findByIdIn(List<String> scripts);
+
+    List<Script> findByProjectId(String projectId);
+
+    Integer countByProjectId(String projectId);
 }

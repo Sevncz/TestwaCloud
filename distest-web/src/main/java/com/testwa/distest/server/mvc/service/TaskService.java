@@ -210,4 +210,12 @@ public class TaskService extends BaseService{
     public void saveExetask(ExecutionTask exeTask) {
         executionTaskRepository.save(exeTask);
     }
+
+    public List<Task> getTaskByProjectId(String projectId) {
+        return taskRepository.findByProjectId(projectId);
+    }
+
+    public Integer getCountTaskByProjectId(String projectId) {
+        return taskRepository.countByProjectId(projectId);
+    }
 }

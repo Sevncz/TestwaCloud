@@ -153,4 +153,12 @@ public class TestcaseService extends BaseService {
         });
         return caseList;
     }
+
+    public List<Testcase> getCaseByProjectId(String projectId) {
+        return testcaseRepository.findByProjectId(projectId);
+    }
+
+    public Integer getCountCaseByProjectId(String projectId) {
+        return testcaseRepository.countByProjectId(projectId);
+    }
 }

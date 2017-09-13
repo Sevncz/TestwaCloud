@@ -138,4 +138,12 @@ public class ScriptService extends BaseService{
         });
         return scriptList;
     }
+
+    public List<Script> getScriptByProjectId(String projectId) {
+        return scriptRepository.findByProjectId(projectId);
+    }
+
+    public Integer getCountScriptByProjectId(String projectId) {
+        return scriptRepository.countByProjectId(projectId);
+    }
 }
