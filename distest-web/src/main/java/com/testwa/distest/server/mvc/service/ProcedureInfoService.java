@@ -1,7 +1,9 @@
 package com.testwa.distest.server.mvc.service;
 
 import com.testwa.distest.server.mvc.model.ProcedureInfo;
+import com.testwa.distest.server.mvc.model.ProcedureStatis;
 import com.testwa.distest.server.mvc.repository.ProcedureInfoRepository;
+import com.testwa.distest.server.mvc.repository.ProcedureStatisRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +24,8 @@ public class ProcedureInfoService extends BaseService {
 
     @Autowired
     private ProcedureInfoRepository procedureInfoRepository;
+    @Autowired
+    private ProcedureStatisRepository procedureStatisRepository;
 
     @Autowired
     private MongoTemplate mongoTemplate;
@@ -54,5 +58,13 @@ public class ProcedureInfoService extends BaseService {
 
     public Page<ProcedureInfo> find(List<Map<String, String>> filters, PageRequest pageRequest) {
         return null;
+    }
+
+    public ProcedureStatis getProcedureStatisByExeId(String exeId){
+        return procedureStatisRepository.findByExeId(exeId);
+    }
+
+    public void saveProcedureStatis(ProcedureStatis s) {
+        procedureStatisRepository.save(s);
     }
 }

@@ -3,6 +3,7 @@ package com.testwa.distest.server.mvc.event;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.testwa.distest.server.mvc.model.ProcedureStatis;
+import com.testwa.distest.server.mvc.service.ProcedureInfoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,8 @@ public class GameOverListener implements ApplicationListener<GameOverEvent> {
 
     @Autowired
     private MongoOperations mongoTemplate;
+    @Autowired
+    private ProcedureInfoService procedureInfoService;
 
     @Async
     @Override
@@ -46,13 +49,17 @@ public class GameOverListener implements ApplicationListener<GameOverEvent> {
         // 成功和失败数量
         List<Map> status = statisStatus(exeId);
 
-        ProcedureStatis s = new ProcedureStatis();
-        s.setExeId(exeId);
+
+        ProcedureStatis s = procedureInfoService.getProcedureStatisByExeId(exeId);
+        if(s == null){
+            s = new ProcedureStatis();
+            s.setExeId(exeId);
+        }
         s.setCpurateInfo(cpus);
         s.setMemoryInfo(mems);
         s.setStatusInfo(status);
 
-        mongoTemplate.save(s);
+        procedureInfoService.saveProcedureStatis(s);
     }
 
     private List<Map> statisStatus(String exeId) {
