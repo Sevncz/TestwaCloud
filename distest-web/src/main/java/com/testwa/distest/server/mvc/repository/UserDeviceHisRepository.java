@@ -10,4 +10,7 @@ import java.io.Serializable;
 public interface UserDeviceHisRepository extends CommonRepository<UserDeviceHis, Serializable> {
 
     UserDeviceHis findByUserIdAndDeviceId(String userId, String deviceId);
+
+    Integer countByUserId(String id);
+
 }

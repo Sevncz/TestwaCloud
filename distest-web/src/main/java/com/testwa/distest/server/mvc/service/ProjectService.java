@@ -250,4 +250,8 @@ public class ProjectService extends BaseService {
         Project project = projectRepository.findOne(projectId);
         return project.getUserId() == user.getId() ? "admin" : "user";
     }
+
+    public Integer getProjectCountByUser(User user) {
+        return projectRepository.countByUserId(user.getId());
+    }
 }

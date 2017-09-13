@@ -1,5 +1,6 @@
 package com.testwa.distest.server.mvc.service;
 
+import com.testwa.distest.server.mvc.model.User;
 import com.testwa.distest.server.mvc.model.UserDeviceHis;
 import com.testwa.distest.server.mvc.beans.QueryFilters;
 import com.testwa.distest.server.mvc.model.UserShareScope;
@@ -105,5 +106,9 @@ public class UserDeviceHisService extends BaseService {
         Query query = buildQueryByCriteria(andCriteria, orCriteria);
         return userDeviceHisRepository.find(query, pageRequest);
 
+    }
+
+    public Integer getDeviceCountByUser(User user) {
+        return userDeviceHisRepository.countByUserId(user.getId());
     }
 }
