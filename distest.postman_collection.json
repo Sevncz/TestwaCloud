@@ -267,7 +267,7 @@
 					},
 					"response": [
 						{
-							"id": "7b135e54-c335-47ef-a147-984bb4cf85a3",
+							"id": "1ee8743a-a172-4231-ad9c-0bcf049a6f10",
 							"name": "200",
 							"originalRequest": {
 								"url": {
@@ -648,7 +648,7 @@
 					},
 					"response": [
 						{
-							"id": "569f603d-4985-4697-ae17-9459b4ddb8fc",
+							"id": "d2e0042e-61b6-4c4b-89ad-b673861a6013",
 							"name": "200",
 							"originalRequest": {
 								"url": "{{base_url}}/api/script/save",
@@ -974,7 +974,7 @@
 					},
 					"response": [
 						{
-							"id": "ac3b2413-499a-4927-9478-e48eda7ef36d",
+							"id": "b321f3b3-6ede-4a57-b5ab-57f0d32e899b",
 							"name": "200",
 							"originalRequest": {
 								"url": "{{base_url}}/api/case/save",
@@ -1088,7 +1088,7 @@
 					},
 					"response": [
 						{
-							"id": "15c5779c-2ab6-4909-9076-46641af0fbf3",
+							"id": "940625e3-0fad-4d75-b19d-b65b94b090ed",
 							"name": "200",
 							"originalRequest": {
 								"url": "{{base_url}}/api/case/modify",
@@ -1262,7 +1262,7 @@
 					},
 					"response": [
 						{
-							"id": "b2ed903c-5532-4ced-93ab-2949327fe346",
+							"id": "10d214ab-8907-41d4-8c8b-729d7988ffa3",
 							"name": "200response",
 							"originalRequest": {
 								"url": {
@@ -1448,7 +1448,7 @@
 					},
 					"response": [
 						{
-							"id": "8e2f411d-0984-4d0b-bb26-9dfb4416593e",
+							"id": "a7098e64-531c-4952-b444-8033cf39fd79",
 							"name": "200",
 							"originalRequest": {
 								"url": "{{base_url}}/api/case/detail/598ea04e1525ae6a7856ea20",
@@ -1563,7 +1563,7 @@
 					},
 					"response": [
 						{
-							"id": "91b2cb01-f3f8-41a3-9f19-0b5a914ae288",
+							"id": "c277c947-5a0d-4cbf-8fa4-d14d615e9ceb",
 							"name": "新建反馈",
 							"originalRequest": {
 								"url": "{{base_url}}/api/task/save",
@@ -1676,7 +1676,7 @@
 					},
 					"response": [
 						{
-							"id": "67bdac4a-157c-4f21-8fa8-afdaed746bdf",
+							"id": "8ec864c3-ca87-4a69-9937-8ede3e8ce9cf",
 							"name": "执行并保存一个任务反馈",
 							"originalRequest": {
 								"url": "{{base_url}}/api/task/saveAndRun",
@@ -1791,7 +1791,7 @@
 					},
 					"response": [
 						{
-							"id": "cd0c53e6-ba5b-4f14-99fe-4842901302be",
+							"id": "4af04743-2a6c-4d57-84f0-d110d866f2cf",
 							"name": "执行一个任务反馈",
 							"originalRequest": {
 								"url": "{{base_url}}/api/task/run",
@@ -2071,7 +2071,7 @@
 					},
 					"response": [
 						{
-							"id": "48a1cbe8-52b3-4258-9fef-57eb18692298",
+							"id": "b197d1f9-9f2c-4262-972a-2a423a30ead2",
 							"name": "我自己的设备反馈",
 							"originalRequest": {
 								"url": {
@@ -2246,7 +2246,7 @@
 					},
 					"response": [
 						{
-							"id": "2399ed58-18e4-4191-b256-1a3098e5623b",
+							"id": "e3702b46-ac70-4bee-b8e5-2d6d901c75b2",
 							"name": "分享给我的设备反馈",
 							"originalRequest": {
 								"url": {
@@ -2418,7 +2418,7 @@
 					},
 					"response": [
 						{
-							"id": "39c21af8-e106-4b56-9201-e5d2f89c82f3",
+							"id": "08d2ba95-4749-423b-bc78-54dff38184be",
 							"name": "所有可用设备反馈",
 							"originalRequest": {
 								"url": {
@@ -2572,7 +2572,7 @@
 					},
 					"response": [
 						{
-							"id": "759324cd-528f-4f6d-933f-91017940feb1",
+							"id": "e9aea12e-1f82-4f2f-8f3a-ac65ac2be0c9",
 							"name": "所有可用设备反馈",
 							"originalRequest": {
 								"url": {
@@ -2689,7 +2689,7 @@
 							"body": "{\"message\":\"ok\",\"data\":{\"pages\":[],\"total\":0},\"code\":0,\"url\":null}"
 						},
 						{
-							"id": "f2acd2bb-c7cd-485c-b0a9-e7e5d7e026c4",
+							"id": "8c617530-a1b7-4853-acd9-0c0b210ba50e",
 							"name": "200",
 							"originalRequest": {
 								"url": {
@@ -2805,7 +2805,7 @@
 					},
 					"response": [
 						{
-							"id": "36b0c6ce-5e80-44a4-a458-596e2b2b62cb",
+							"id": "6b88ca1d-1650-4fae-b1fc-06f30b13519c",
 							"name": "所有可用设备反馈",
 							"originalRequest": {
 								"url": {
@@ -2922,7 +2922,7 @@
 							"body": "{\"message\":\"ok\",\"data\":{\"pages\":[],\"total\":0},\"code\":0,\"url\":null}"
 						},
 						{
-							"id": "0241f52d-47a4-4a99-bbc2-15268bcac95a",
+							"id": "96999873-2c58-44bf-be17-89b034bb06ae",
 							"name": "200",
 							"originalRequest": {
 								"url": "{{base_url}}/device/user/list",
@@ -3027,7 +3027,7 @@
 					},
 					"response": [
 						{
-							"id": "842101a7-5b2d-4362-a5f8-0cdb5a8d7f2c",
+							"id": "f93e7eca-9aa7-4744-854f-9ad9ddce8cf6",
 							"name": "所有可用设备反馈",
 							"originalRequest": {
 								"url": {
@@ -3144,7 +3144,7 @@
 							"body": "{\"message\":\"ok\",\"data\":{\"pages\":[],\"total\":0},\"code\":0,\"url\":null}"
 						},
 						{
-							"id": "78f20a6b-6593-4167-883f-d6892ab61fcf",
+							"id": "9015e011-668d-4471-af0c-ab751b48037f",
 							"name": "200",
 							"originalRequest": {
 								"url": {
@@ -3269,7 +3269,7 @@
 					},
 					"response": [
 						{
-							"id": "094da30e-5c00-4a38-b050-598eb7adc678",
+							"id": "a6707998-6481-4473-8e0b-a9165a47a3e3",
 							"name": "我自己的设备反馈",
 							"originalRequest": {
 								"url": {
@@ -3389,7 +3389,7 @@
 							"body": "{\"message\":\"ok\",\"data\":{\"pages\":[],\"total\":0},\"code\":0,\"url\":null}"
 						},
 						{
-							"id": "c3230a4a-d798-48dd-acb4-256f5b582f1a",
+							"id": "6b6bbc6d-8cfb-4497-9cfa-7bb9ca3de317",
 							"name": "200平台控制台",
 							"originalRequest": {
 								"url": "{{base_url}}/dashboard/platform",
@@ -3471,6 +3471,170 @@
 							"body": "{\"message\":\"ok\",\"data\":{\"stats\":{\"project\":1,\"device\":1},\"projects\":[{\"id\":\"598d51691525ae14ecffbdf2\",\"projectName\":\"xxxx1\",\"createTime\":\"2017-08-11 14:40:41\",\"owerId\":\"5981cbf0fd2be02b34e6a9ea\",\"owername\":\"admin\",\"description\":\"hahhahha\"}],\"devices\":[{\"id\":\"59a4d16590759f23a402fbb9\",\"userId\":\"5981cbf0fd2be02b34e6a9ea\",\"deviceId\":\"e301970f7d93\",\"d_type\":\"Android\",\"d_status\":\"ON\",\"d_cpuabi\":\"arm64-v8a\",\"d_sdk\":\"23\",\"d_width\":\"720.0\",\"d_height\":\"1280.0\",\"d_osName\":\"ANDROID23(6.0)\",\"d_density\":\"320\",\"d_model\":\"Redmi 4X\",\"d_brand\":\"Xiaomi\",\"d_version\":\"6.0.1\",\"d_host\":\"c3-miui-ota-bd55.bj\",\"createDate\":1503973733208,\"scope\":100,\"shareUsers\":[],\"disable\":false,\"modifyDate\":null}]},\"code\":0,\"url\":null}"
 						}
 					]
+				},
+				{
+					"name": "项目控制台",
+					"request": {
+						"url": {
+							"raw": "{{base_url}}/dashboard/project?projectId=59a4d40e5ac4fc20113ec5fe",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"dashboard",
+								"project"
+							],
+							"query": [
+								{
+									"key": "projectId",
+									"value": "59a4d40e5ac4fc20113ec5fe",
+									"equals": true,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-TOKEN",
+								"value": "{{X-TOKEN}}",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"unknownFields\": {599b9c570850711e2c4fc234}\r\n}"
+						},
+						"description": ""
+					},
+					"response": [
+						{
+							"id": "d294ccfb-1d60-45b5-82ac-400d090a7252",
+							"name": "200",
+							"originalRequest": {
+								"url": {
+									"raw": "{{base_url}}/dashboard/project?projectId=59a4d40e5ac4fc20113ec5fe",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"dashboard",
+										"project"
+									],
+									"query": [
+										{
+											"key": "projectId",
+											"value": "59a4d40e5ac4fc20113ec5fe",
+											"equals": true,
+											"description": ""
+										}
+									],
+									"variable": []
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-TOKEN",
+										"value": "{{X-TOKEN}}",
+										"description": ""
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"unknownFields\": {599b9c570850711e2c4fc234}\r\n}"
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"_postman_previewtype": "text",
+							"header": [
+								{
+									"name": "cache-control",
+									"key": "cache-control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate",
+									"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
+								},
+								{
+									"name": "content-type",
+									"key": "content-type",
+									"value": "application/json;charset=UTF-8",
+									"description": "The mime type of this content"
+								},
+								{
+									"name": "date",
+									"key": "date",
+									"value": "Sat, 16 Sep 2017 09:14:46 GMT",
+									"description": "The date and time that the message was sent"
+								},
+								{
+									"name": "expires",
+									"key": "expires",
+									"value": "0",
+									"description": "Gives the date/time after which the response is considered stale"
+								},
+								{
+									"name": "pragma",
+									"key": "pragma",
+									"value": "no-cache",
+									"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
+								},
+								{
+									"name": "transfer-encoding",
+									"key": "transfer-encoding",
+									"value": "chunked",
+									"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
+								},
+								{
+									"name": "x-content-type-options",
+									"key": "x-content-type-options",
+									"value": "nosniff",
+									"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
+								},
+								{
+									"name": "x-frame-options",
+									"key": "x-frame-options",
+									"value": "DENY",
+									"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
+								},
+								{
+									"name": "x-xss-protection",
+									"key": "x-xss-protection",
+									"value": "1; mode=block",
+									"description": "Cross-site scripting (XSS) filter"
+								}
+							],
+							"cookie": [],
+							"responseTime": 7337,
+							"body": "{\"message\":\"ok\",\"data\":{\"stats\":{\"device\":0,\"app\":0,\"script\":0,\"testcase\":0,\"task\":0,\"report\":0},\"runningTask\":[],\"recentFinishedTask\":[]},\"code\":0,\"url\":null}"
+						}
+					]
+				},
+				{
+					"name": "一键部署任务",
+					"request": {
+						"url": "{{base_url}}/dashboard/project/quickDeploy",
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-TOKEN",
+								"value": "{{X-TOKEN}}",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"projectId\": \"\",\r\n  \"appId\": \"\",\r\n  \"scipts\": [],\r\n  \"devices\": []\r\n}"
+						},
+						"description": ""
+					},
+					"response": []
 				}
 			]
 		},
@@ -3526,7 +3690,7 @@
 			},
 			"response": [
 				{
-					"id": "b2a94c5c-56ee-4de6-8cab-e8cffc41a3b3",
+					"id": "2b738cb4-09a6-4de5-bc0f-dff6a2e6e3ec",
 					"name": "response example",
 					"originalRequest": {
 						"url": "{{base_url}}/auth/login",
