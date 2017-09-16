@@ -99,8 +99,6 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
                     TaskServiceGrpc.newFutureStub(managedChannel).currExeInfo(request);
                 }
                 break;
-
-
         }
 
     }

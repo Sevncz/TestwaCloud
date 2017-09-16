@@ -5,6 +5,7 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.core.utils.TimeUtil;
 import com.testwa.distest.server.exception.NoSuchAppException;
+import com.testwa.distest.server.exception.NoSuchExecutionTaskException;
 import com.testwa.distest.server.exception.NoSuchTaskException;
 import com.testwa.distest.server.exception.NoSuchTestcaseException;
 import com.testwa.core.model.RemoteRunCommand;
@@ -16,6 +17,7 @@ import com.testwa.distest.server.mvc.model.*;
 import com.testwa.distest.server.mvc.service.*;
 import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
 import com.testwa.distest.server.mvc.vo.DeleteVO;
+import com.testwa.distest.server.mvc.vo.ExeTaskProgressVO;
 import com.testwa.distest.server.mvc.vo.TaskVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -29,10 +31,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Created by wen on 12/08/2017.
@@ -228,6 +227,7 @@ public class TaskController extends BaseController{
         }
         return ok();
     }
+
     @ApiOperation(value="杀掉一个设备任务")
     @ResponseBody
     @RequestMapping(value = "/kill", method = RequestMethod.POST)
@@ -239,6 +239,18 @@ public class TaskController extends BaseController{
             return fail(ResultCode.SERVER_ERROR, "设备已断开");
         }
         return ok();
+    }
+
+    @ApiOperation(value="查看一个执行任务的进度")
+    @ResponseBody
+    @RequestMapping(value = "/progress", method = RequestMethod.GET)
+    public Result progress(@RequestParam(value = "exeId") String exeId) throws NoSuchExecutionTaskException {
+        if(StringUtils.isBlank(exeId)){
+            log.error("exeId: {}", exeId);
+            return fail(ResultCode.PARAM_ERROR, "参数错误");
+        }
+        List<ExeTaskProgressVO> result = taskService.getProgress(exeId);
+        return ok(result);
     }
 
 

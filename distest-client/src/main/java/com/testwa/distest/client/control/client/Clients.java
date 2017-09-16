@@ -3,6 +3,7 @@ package com.testwa.distest.client.control.client;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.rpc.testwa.device.DeviceServiceGrpc;
+import io.rpc.testwa.task.TaskServiceGrpc;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -64,4 +65,13 @@ public class Clients {
         final DeviceServiceGrpc.DeviceServiceFutureStub stub = DeviceServiceGrpc.newFutureStub(channel);
         return stub;
     }
+
+    public static TaskServiceGrpc.TaskServiceFutureStub taskService() {
+        final ManagedChannel channel = ManagedChannelBuilder.forAddress(grpcHost, grpcPort)
+                .usePlaintext(true)
+                .build();
+        final TaskServiceGrpc.TaskServiceFutureStub stub = TaskServiceGrpc.newFutureStub(channel);
+        return stub;
+    }
+
 }

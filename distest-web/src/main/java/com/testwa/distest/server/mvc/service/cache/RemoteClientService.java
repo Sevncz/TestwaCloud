@@ -1,5 +1,6 @@
 package com.testwa.distest.server.mvc.service.cache;
 
+import com.alibaba.fastjson.JSON;
 import com.testwa.distest.server.mvc.model.ProjectMember;
 import com.testwa.distest.server.mvc.model.TDevice;
 import com.testwa.distest.server.mvc.model.UserDeviceHis;
@@ -7,15 +8,14 @@ import com.testwa.distest.server.mvc.model.UserShareScope;
 import com.testwa.distest.server.mvc.repository.DeviceRepository;
 import com.testwa.distest.server.mvc.repository.ProjectMemberRepository;
 import com.testwa.distest.server.mvc.repository.UserDeviceHisRepository;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -217,5 +217,43 @@ public class RemoteClientService {
 
     public void delShareDevice() {
         redisDeleteByPattern(String.format(CacheKeys.device_share, "*", "*"));
+    }
+
+    /**
+     * 保存设备上报的当前的执行情况
+     * @param exeId
+     * @param deviceId
+     * @param testcaseId
+     * @param scriptId
+     */
+    public void saveExeInfo(String exeId, String deviceId, String testcaseId, String scriptId){
+        assert StringUtils.isNotBlank(deviceId);
+        String key = CacheKeys.deviceExeInfoKey(deviceId);
+        Map<String, String> content = new HashMap<>();
+        content.put("exeId", exeId);
+        content.put("testcaseId", testcaseId);
+        content.put("scriptId", scriptId);
+        redisTemplate.opsForList().leftPush(key, JSON.toJSON(content));
+
+    }
+
+    /**
+     * 根据设备Id获得设备当前执行情况
+     * @param deviceId
+     * @return
+     */
+    public String getExeInfoProgress(String deviceId) {
+
+        String key = CacheKeys.deviceExeInfoKey(deviceId);
+        List<String> recentOne = redisTemplate.opsForList().range(key, 0l, 1l);
+        if(recentOne != null && recentOne.size() == 1){
+            return recentOne.get(0);
+        }
+        return null;
+    }
+    public Long getExeInfoSize(String deviceId) {
+
+        String key = CacheKeys.deviceExeInfoKey(deviceId);
+        return redisTemplate.opsForList().size(key);
     }
 }
