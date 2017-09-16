@@ -12,7 +12,5 @@ import java.util.List;
 
 public interface ProcedureStatisRepository extends CommonRepository<ProcedureStatis, Serializable> {
 
-    List<ProcedureStatis> findById(String Id);
-
     ProcedureStatis findByExeId(String exeId);
 }

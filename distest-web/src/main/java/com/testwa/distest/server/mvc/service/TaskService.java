@@ -25,6 +25,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
@@ -64,8 +65,8 @@ public class TaskService extends BaseService{
         this.server = server;
     }
 
-    public void save(Task task){
-        taskRepository.save(task);
+    public Task save(Task task){
+        return taskRepository.save(task);
     }
 
     public Task getTaskById(String taskId) {
@@ -137,7 +138,7 @@ public class TaskService extends BaseService{
         task.setName(modifyTaskVO.getName());
         taskRepository.save(task);
     }
-    public void run(String taskId, List<String> deviceIds) throws Exception {
+    public ExecutionTask run(String taskId, List<String> deviceIds) throws Exception {
 
         ExecutionTask et = new ExecutionTask();
         //  查询任务...
@@ -204,7 +205,7 @@ public class TaskService extends BaseService{
                 throw new Exception("session not found");
             }
         }
-        executionTaskRepository.save(et);
+        return executionTaskRepository.save(et);
     }
 
     public void saveExetask(ExecutionTask exeTask) {
@@ -217,5 +218,32 @@ public class TaskService extends BaseService{
 
     public Integer getCountTaskByProjectId(String projectId) {
         return taskRepository.countByProjectId(projectId);
+    }
+
+    public List<ExecutionTask> getRunningTask(String projectId, User user) {
+        return executionTaskRepository.findByProjectIdAndCreatorAndStatusIn(projectId, user.getId(), ExecutionTask.StatusEnum.notFinishedCode,
+                new PageRequest(0, 20, Sort.Direction.DESC, "createTime")).getContent();
+    }
+
+    public List<ExecutionTask> getRecentFinishedRunningTask(String projectId, User user) {
+        return executionTaskRepository.findByProjectIdAndCreatorAndStatusNotIn(projectId, user.getId(), ExecutionTask.StatusEnum.finishedCode,
+                new PageRequest(0, 20, Sort.Direction.DESC, "endTime")).getContent();
+    }
+
+    public String createTaskQuickAndDeploy(String projectId, User user, String appId, String caseId, List<String> devices) throws Exception{
+        Task task = new Task();
+        task.setType(TypeEnum.Quick.getCode());
+        task.setAppId(appId);
+        task.setName("quick deploy");
+        task.setProjectId(projectId);
+        task.setTestcaseIds(new ArrayList<>(Arrays.asList(caseId)));
+        task.setDescription("quick deploy");
+        task.setCreateDate(TimeUtil.getTimestampLong());
+        task.setModifyDate(TimeUtil.getTimestampLong());
+        task.setCreator(user.getId());
+        task.setDisable(false);
+        task = save(task);
+
+        return run(task.getId(), devices).getId();
     }
 }
