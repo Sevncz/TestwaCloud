@@ -179,7 +179,7 @@ public class TestcaseController extends BaseController {
 //            if (d == null) {
 ////                return fail(ResultCode.PARAM_ERROR, String.format("设备:[%s]找不到", key));
 //                log.error(String.format("设备:[%s]找不到", key));
-//                // TODO 记录该错误
+//                // 记录该错误
 //                continue;
 //            }
 //            ReportDetail reportDetail = new ReportDetail(report, app, d, "");

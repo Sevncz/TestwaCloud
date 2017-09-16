@@ -81,6 +81,20 @@ public class DeviceController extends BaseController{
         return ok(deviceList);
     }
 
+    /**
+     * 项目内可用在线设备列表
+     * @param projectId
+     * @return
+     * @throws NotInProjectException
+     */
+    @ResponseBody
+    @RequestMapping(value = "/project/list", method = RequestMethod.GET)
+    public Result listProjectFilter(@RequestParam String projectId) throws NotInProjectException{
+        User user = userService.findByUsername(getCurrentUsername());
+        checkUserInProject(projectService, user, projectId);
+        List<TDevice> deviceList = deviceService.getDeviceByUserAndProject(user.getId(),projectId);
+        return ok(deviceList);
+    }
 
     /**
      * 项目内可用在线设备列表 带过滤
@@ -98,12 +112,12 @@ public class DeviceController extends BaseController{
         return ok(deviceList);
     }
 
-    // todo： 用户设备分享，设备列表
     @ResponseBody
     @RequestMapping(value = "/user/list", method = RequestMethod.GET)
     public Result listUser() throws NotInProjectException{
         User user = userService.findByUsername(getCurrentUsername());
-        return ok();
+        List<UserDeviceHis> devices = userDeviceHisService.getUserDevice(user);
+        return ok(devices);
     }
 
     @RequestMapping(value = "/screen", method = RequestMethod.GET)
