@@ -18,4 +18,16 @@ class CacheKeys {
     // web cache
     // user project history %s = userId
     static final String user_project_history = "history.project.%s";
+
+
+    private static final String device_exe_info = "device.exe.info.%s";
+
+    /***
+     * 获得保存设备执行情况的key
+     * @param deviceId
+     * @return
+     */
+    public static String deviceExeInfoKey(String deviceId){
+        return String.format(device_exe_info, deviceId);
+    }
 }

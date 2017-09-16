@@ -6,10 +6,12 @@ import com.testwa.distest.server.mvc.event.GameOverEvent;
 import com.testwa.distest.server.mvc.model.ExecutionTask;
 import com.testwa.distest.server.mvc.model.Task;
 import com.testwa.distest.server.mvc.service.TaskService;
+import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
 import com.testwa.distest.server.rpc.GRpcService;
 import com.testwa.distest.server.security.JwtTokenUtil;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.task.CommonReply;
+import io.rpc.testwa.task.CurrentExeInfoRequest;
 import io.rpc.testwa.task.TaskOverRequest;
 import io.rpc.testwa.task.TaskServiceGrpc;
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +34,8 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     private TaskService taskService;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
+    @Autowired
+    private RemoteClientService remoteClientService;
     @Autowired
     ApplicationContext context;
 
@@ -58,6 +62,18 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
         }else{
             log.error("exeTask info not format. {}", request.toString());
         }
+    }
+
+    @Override
+    public void currExeInfo(CurrentExeInfoRequest request, StreamObserver<CommonReply> responseObserver){
+
+        String exeId = request.getExeId();
+        String deviceId = request.getDeviceId();
+        String scriptId = request.getScriptId();
+        String testcaseId = request.getTestcaseId();
+
+        remoteClientService.saveExeInfo(exeId, deviceId, testcaseId, scriptId);
+
     }
 
 }

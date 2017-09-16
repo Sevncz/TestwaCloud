@@ -7,22 +7,21 @@ import com.testwa.core.service.PythonScriptDriverService;
 import com.testwa.core.service.PythonServiceBuilder;
 import com.testwa.core.utils.Identities;
 import com.testwa.distest.client.appium.manager.CustomServerFlag;
-import com.testwa.distest.client.control.client.MainSocket;
+import com.testwa.distest.client.control.client.Clients;
 import com.testwa.distest.client.control.port.AppiumPortProvider;
-import com.testwa.distest.client.rpc.proto.Agent;
-import com.testwa.distest.client.task.Testcase;
+import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.util.Constant;
 import com.testwa.distest.client.util.Http;
 import io.appium.java_client.service.local.AppiumDriverLocalService;
 import io.appium.java_client.service.local.AppiumServiceBuilder;
 import io.appium.java_client.service.local.flags.AndroidServerFlag;
 import io.appium.java_client.service.local.flags.GeneralServerFlag;
+import io.rpc.testwa.task.CurrentExeInfoRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.net.InetAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,8 +30,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static com.testwa.distest.client.task.Testcase.feedback_report_sdetail;
 
 /**
  * Created by wen on 19/08/2017.
@@ -160,6 +157,7 @@ public class Executor {
 
         this.currScript = runscriptId;
 
+
         String scriptUrl = String.format(Constant.SCRIPT_URL, agentWebUrl, runscriptId);
 
         String scriptPath = Http.download(scriptUrl, Constant.localAppPath);
@@ -174,6 +172,9 @@ public class Executor {
                 .build();
         this.pyService.start();
         log.info("python script start......");
+
+        this.notifyCurrExeInfo();
+
         return true;
     }
 
@@ -376,4 +377,18 @@ public class Executor {
         this.install = null;
         this.isStop = false;
     }
+
+    public void notifyCurrExeInfo(){
+
+        CurrentExeInfoRequest request = CurrentExeInfoRequest.newBuilder()
+                .setDeviceId(this.deviceId)
+                .setExeId(this.taskId)
+                .setScriptId(this.currScript)
+                .setTestcaseId(this.currTestCaseId)
+                .setToken(UserInfo.token)
+                .build();
+//        TaskServiceGrpc.newFutureStub(managedChannel).currExeInfo(request);
+        Clients.taskService().currExeInfo(request);
+    }
+
 }
