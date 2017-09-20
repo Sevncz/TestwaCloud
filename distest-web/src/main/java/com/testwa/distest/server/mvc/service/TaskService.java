@@ -141,9 +141,11 @@ public class TaskService extends BaseService{
         task.setName(modifyTaskVO.getName());
         taskRepository.save(task);
     }
-    public ExecutionTask run(String taskId, List<String> deviceIds) throws Exception {
+    public ExecutionTask run(String projectId, User user, String taskId, List<String> deviceIds) throws Exception {
 
         ExecutionTask et = new ExecutionTask();
+        et.setProjectId(projectId);
+        et.setCreator(user.getId());
         //  查询任务...
         Task task = getTaskById(taskId);
         RemoteRunCommand params = new RemoteRunCommand();
@@ -266,7 +268,7 @@ public class TaskService extends BaseService{
     }
 
     public List<ExecutionTask> getRecentFinishedRunningTask(String projectId, User user) {
-        return executionTaskRepository.findByProjectIdAndCreatorAndStatusNotIn(projectId, user.getId(), ExecutionTask.StatusEnum.finishedCode,
+        return executionTaskRepository.findByProjectIdAndCreatorAndStatusIn(projectId, user.getId(), ExecutionTask.StatusEnum.finishedCode,
                 new PageRequest(0, 20, Sort.Direction.DESC, "endTime")).getContent();
     }
 
@@ -284,6 +286,6 @@ public class TaskService extends BaseService{
         task.setDisable(false);
         task = save(task);
 
-        return run(task.getId(), devices).getId();
+        return run(projectId, user, task.getId(), devices).getId();
     }
 }
