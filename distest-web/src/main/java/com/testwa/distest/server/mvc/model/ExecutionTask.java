@@ -17,6 +17,7 @@ public class ExecutionTask {
     private String id;
 
     private String taskId;
+    private String taskName;
 
     private App app;
 

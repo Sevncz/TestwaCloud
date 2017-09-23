@@ -157,6 +157,7 @@ public class TaskService extends BaseService{
 
 
         et.setTaskId(task.getId());
+        et.setTaskName(task.getName());
         App app = appService.getAppById(task.getAppId());
         et.setApp(app);
 
