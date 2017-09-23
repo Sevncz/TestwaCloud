@@ -16,6 +16,7 @@ import com.testwa.distest.server.exception.NoSuchTestcaseException;
 import com.testwa.distest.server.mvc.api.TaskController;
 import com.testwa.distest.server.mvc.model.Task;
 import com.testwa.distest.server.mvc.model.Testcase;
+import com.testwa.distest.server.mvc.repository.ProcedureStatisRepository;
 import com.testwa.distest.server.mvc.repository.TaskRepository;
 import com.testwa.distest.server.mvc.repository.TestcaseRepository;
 import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
@@ -59,6 +60,8 @@ public class TaskService extends BaseService{
     private TestcaseService testcaseService;
     @Autowired
     private AppService appService;
+    @Autowired
+    private ProcedureStatisRepository procedureStatisRepository;
 
     private final SocketIOServer server;
 
@@ -258,6 +261,17 @@ public class TaskService extends BaseService{
         float num= exedScriptNum/allScriptNum;
         DecimalFormat df = new DecimalFormat("0.00");//格式化小数
         return df.format(num);
+    }
+
+    public void executionTaskStatis(String exeId) throws NoSuchExecutionTaskException {
+
+        ExecutionTask et = this.getExeTaskById(exeId);
+        if(et == null){
+            throw new NoSuchExecutionTaskException("没有该执行任务");
+        }
+        ProcedureStatis ps = procedureStatisRepository.findByExeId(exeId);
+        ps.getCpurateInfo();
+
     }
 }
 

@@ -67,4 +67,12 @@ public class ProcedureInfoService extends BaseService {
     public void saveProcedureStatis(ProcedureStatis s) {
         procedureStatisRepository.save(s);
     }
+
+    public void deleteStatisById(String exeId) {
+        procedureStatisRepository.delete(exeId);
+    }
+
+    public List<ProcedureInfo> findBySessionId(String sessionId) {
+        return procedureInfoRepository.findBySessionId(sessionId);
+    }
 }

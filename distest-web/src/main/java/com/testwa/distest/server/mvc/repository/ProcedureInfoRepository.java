@@ -16,4 +16,5 @@ public interface ProcedureInfoRepository extends CommonRepository<ProcedureInfo,
 
     List<ProcedureInfo> findByExecutionTaskIdAndScriptIdOrderByTimestampAsc(String infoId, String scriptId);
 
+    List<ProcedureInfo> findBySessionId(String sessionId);
 }

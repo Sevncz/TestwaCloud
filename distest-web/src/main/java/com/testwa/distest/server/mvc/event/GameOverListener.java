@@ -2,8 +2,12 @@ package com.testwa.distest.server.mvc.event;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
+import com.testwa.distest.server.mvc.model.ExecutionTask;
+import com.testwa.distest.server.mvc.model.ProcedureInfo;
 import com.testwa.distest.server.mvc.model.ProcedureStatis;
+import com.testwa.distest.server.mvc.model.Script;
 import com.testwa.distest.server.mvc.service.ProcedureInfoService;
+import com.testwa.distest.server.mvc.service.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +19,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -32,6 +33,8 @@ public class GameOverListener implements ApplicationListener<GameOverEvent> {
     private MongoOperations mongoTemplate;
     @Autowired
     private ProcedureInfoService procedureInfoService;
+    @Autowired
+    private TaskService taskService;
 
     @Async
     @Override
@@ -39,6 +42,13 @@ public class GameOverListener implements ApplicationListener<GameOverEvent> {
         log.info("start...");
         String exeId = e.getExeId();
         // 根据前端需求开始统计报告
+        ExecutionTask et = taskService.getExeTaskById(exeId);
+        // 脚本数量
+        Map<String, List<Script>> taskScripts = et.getScripts();
+        int scriptNum = 0;
+        for(List l : taskScripts.values()){
+            scriptNum = scriptNum + l.size();
+        }
 
         // 统计cpu平均占用率
         List<Map> cpus = statisCpuRate(exeId);
@@ -46,56 +56,84 @@ public class GameOverListener implements ApplicationListener<GameOverEvent> {
         // 统计内存平均占用量
         List<Map> mems = statisMemory(exeId);
 
-        // 成功和失败数量
-        List<Map> status = statisStatus(exeId);
+        // 成功和失败步骤数量
+        List<Map> statusProcedure = statisStatus(exeId);
 
+        // 成功和失败session数量
+        List<Map> sessions = statisScript(exeId);
+        List<Map> statusScripts = new ArrayList<>();
+        Map<String, Integer> d = new HashMap<>();
+        for(Map s : sessions){
 
-        ProcedureStatis s = procedureInfoService.getProcedureStatisByExeId(exeId);
-        if(s == null){
-            s = new ProcedureStatis();
-            s.setExeId(exeId);
+            List<ProcedureInfo> l = procedureInfoService.findBySessionId((String) s.get("_id"));
+            if(l != null && l.size() > 0){
+                ProcedureInfo pi = l.get(0);
+                Integer scriptFailNum = d.getOrDefault(pi.getDeviceId(), 0);
+                if((Integer) s.get("count") > 0){
+                    scriptFailNum += 1;
+                }
+                d.put(pi.getDeviceId(), scriptFailNum);
+            }
         }
-        s.setCpurateInfo(cpus);
-        s.setMemoryInfo(mems);
-        s.setStatusInfo(status);
+        int finalScriptNum = scriptNum;
+        d.forEach((k, v) -> {
+            Map<String, Object> t = new HashMap<>();
+            t.put("deviceId", k);
+            t.put("fail", v);
+            t.put("success", finalScriptNum - v);
+            statusScripts.add(t);
+        });
 
-        procedureInfoService.saveProcedureStatis(s);
+
+        ProcedureStatis old = procedureInfoService.getProcedureStatisByExeId(exeId);
+        if(old != null){
+            procedureInfoService.deleteStatisById(old.getId());
+        }
+        ProcedureStatis ps = new ProcedureStatis();
+        ps.setExeId(exeId);
+        ps.setCpurateInfo(cpus);
+        ps.setMemoryInfo(mems);
+        ps.setStatusProcedureInfo(statusProcedure);
+        ps.setStatusScriptInfo(statusScripts);
+        ps.setScriptNum(scriptNum);
+
+        procedureInfoService.saveProcedureStatis(ps);
+    }
+
+    private List<Map> statisScript(String exeId) {
+        Aggregation agg = Aggregation.newAggregation(
+                Aggregation.match(Criteria.where("executionTaskId").is(exeId)),
+                Aggregation.group("sessionId").sum("status").as("count")
+        );
+        return getResult(agg);
     }
 
     private List<Map> statisStatus(String exeId) {
-        Aggregation status = Aggregation.newAggregation(
+        Aggregation agg = Aggregation.newAggregation(
                 Aggregation.match(Criteria.where("executionTaskId").is(exeId)),
                 Aggregation.group("deviceId", "status").count().as("count")
         );
-        AggregationResults<BasicDBObject> outputType = mongoTemplate.aggregate(status, "t_procedure_info", BasicDBObject.class);
-        List<Map> result = new ArrayList<>();
-        for (Iterator<BasicDBObject> iterator = outputType.iterator(); iterator.hasNext();) {
-            DBObject obj =iterator.next();
-            result.add(obj.toMap());
-        }
-        return result;
+        return getResult(agg);
     }
 
     private List<Map> statisMemory(String exeId) {
-        Aggregation mem = Aggregation.newAggregation(
+        Aggregation agg = Aggregation.newAggregation(
                 Aggregation.match(Criteria.where("executionTaskId").is(exeId)),
                 Aggregation.group("deviceId").avg("memory").as("value")
         );
-        AggregationResults<BasicDBObject> outputType = mongoTemplate.aggregate(mem, "t_procedure_info", BasicDBObject.class);
-        List<Map> result = new ArrayList<>();
-        for (Iterator<BasicDBObject> iterator = outputType.iterator(); iterator.hasNext();) {
-            DBObject obj =iterator.next();
-            result.add(obj.toMap());
-        }
-        return result;
+        return getResult(agg);
     }
 
     private List<Map> statisCpuRate(String exeId) {
-        Aggregation cpu = Aggregation.newAggregation(
+        Aggregation agg = Aggregation.newAggregation(
                 Aggregation.match(Criteria.where("executionTaskId").is(exeId)),
                 Aggregation.group("deviceId").avg("cpurate").as("value")
         );
-        AggregationResults<BasicDBObject> outputType = mongoTemplate.aggregate(cpu, "t_procedure_info", BasicDBObject.class);
+        return getResult(agg);
+    }
+
+    private List<Map> getResult(Aggregation agg) {
+        AggregationResults<BasicDBObject> outputType = mongoTemplate.aggregate(agg, "t_procedure_info", BasicDBObject.class);
         List<Map> result = new ArrayList<>();
         for (Iterator<BasicDBObject> iterator = outputType.iterator(); iterator.hasNext();) {
             DBObject obj =iterator.next();

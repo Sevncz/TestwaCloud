@@ -5,6 +5,7 @@
  */
 package com.testwa.distest.server.mvc.repository;
 
+import com.testwa.distest.server.mvc.model.ProcedureInfo;
 import com.testwa.distest.server.mvc.model.ProcedureStatis;
 
 import java.io.Serializable;
@@ -15,4 +16,5 @@ public interface ProcedureStatisRepository extends CommonRepository<ProcedureSta
     List<ProcedureStatis> findById(String Id);
 
     ProcedureStatis findByExeId(String exeId);
+
 }

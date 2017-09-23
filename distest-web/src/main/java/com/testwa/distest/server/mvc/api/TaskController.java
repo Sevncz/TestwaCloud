@@ -276,4 +276,17 @@ public class TaskController extends BaseController{
         return ok(taskVO);
     }
 
+
+    @ApiOperation(value="执行任务统计")
+    @ResponseBody
+    @RequestMapping(value = "/execut/statis", method = RequestMethod.GET)
+    public Result statis(@RequestParam(value = "exeId") String exeId) throws NoSuchExecutionTaskException {
+        if(StringUtils.isBlank(exeId)){
+            log.error("exeId: {}", exeId);
+            return fail(ResultCode.PARAM_ERROR, "参数错误");
+        }
+        taskService.executionTaskStatis(exeId);
+        return ok();
+    }
+
 }
