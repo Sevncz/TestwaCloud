@@ -14,6 +14,7 @@ import com.testwa.distest.server.mvc.vo.CreateCaseVO;
 import com.testwa.distest.server.mvc.vo.ModifyCaseVO;
 import com.testwa.distest.server.mvc.vo.ScriptVO;
 import com.testwa.distest.server.mvc.vo.TestcaseVO;
+import org.apache.logging.log4j.core.config.plugins.util.ResolverUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -42,8 +43,8 @@ public class TestcaseService extends BaseService {
     @Autowired
     private ProjectRepository projectReporsitory;
 
-    public void save(Testcase testcase) {
-        testcaseRepository.save(testcase);
+    public Testcase save(Testcase testcase) {
+        return testcaseRepository.save(testcase);
     }
 
     public void deleteById(String testcaseId) {
@@ -160,5 +161,21 @@ public class TestcaseService extends BaseService {
 
     public Integer getCountCaseByProjectId(String projectId) {
         return testcaseRepository.countByProjectId(projectId);
+    }
+
+    public String createCaseQuick(String projectId, User user, List<String> scripts) throws NoSuchScriptException, NoSuchProjectException{
+        this.scriptService.checkScripts(scripts);
+        Project project = checkProject(projectId);
+
+        Testcase testcase = new Testcase();
+        testcase.setDescription("quick deploy");
+        testcase.setScripts(scripts);
+        testcase.setProjectId(projectId);
+        testcase.setProjectName(project.getProjectName());
+        testcase.setName("quick deploy");
+        testcase.setUserId(user.getId());
+        testcase.setTag("quick deploy");
+        testcase.setUserName(user.getUsername());
+        return save(testcase).getId();
     }
 }

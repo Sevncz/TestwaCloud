@@ -16,6 +16,7 @@ import java.util.List;
 public class Testcase {
     @Id
     private String id;
+    private Integer type = TypeEnum.Normal.getCode();
     private String description;
 
     private List<String> scripts;
@@ -35,5 +36,4 @@ public class Testcase {
     private Boolean disable = false;
 
     private Date modifyDate;
-
 }

@@ -267,7 +267,7 @@
 					},
 					"response": [
 						{
-							"id": "41c1c2f3-1342-4897-9e32-53e5c6977038",
+							"id": "87af7741-454c-4c40-8bef-9f8cd3d40b62",
 							"name": "200",
 							"originalRequest": {
 								"url": {
@@ -642,13 +642,13 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": \"598d518a1525ae14ecffbdf5\",\n\t\"projectId\": \"598d51691525ae14ecffbdf2\"\n}"
+							"raw": "{\n\t\"id\": \"59c21ec48817492ab0c2d29d\",\n\t\"projectId\": \"598d51691525ae14ecffbdf2\",\n\t\"message\":\"test\",\n\t\"tag\":\"test\"\n}"
 						},
 						"description": ""
 					},
 					"response": [
 						{
-							"id": "3e214d3f-a864-48e6-a2f5-cc713b432656",
+							"id": "0056ace8-702e-4272-87ba-f6d89c6558e9",
 							"name": "200",
 							"originalRequest": {
 								"url": "{{base_url}}/api/script/save",
@@ -974,7 +974,7 @@
 					},
 					"response": [
 						{
-							"id": "77b9a8fc-4ead-4a8f-8c64-e7cc78062384",
+							"id": "43bb7932-2335-47cc-b067-53c7b27f90c2",
 							"name": "200",
 							"originalRequest": {
 								"url": "{{base_url}}/api/case/save",
@@ -1088,7 +1088,7 @@
 					},
 					"response": [
 						{
-							"id": "9f8b3373-6075-4e85-90c2-ef361d929aa8",
+							"id": "db5480a7-1ba5-441a-90ac-5d89375be227",
 							"name": "200",
 							"originalRequest": {
 								"url": "{{base_url}}/api/case/modify",
@@ -1262,7 +1262,7 @@
 					},
 					"response": [
 						{
-							"id": "fcd1e23b-674d-4d3c-9a93-11ea5bce6383",
+							"id": "ada95ebf-3a2b-4ae8-abf5-c6945be7ca17",
 							"name": "200response",
 							"originalRequest": {
 								"url": {
@@ -1448,7 +1448,7 @@
 					},
 					"response": [
 						{
-							"id": "1559d6da-52c3-4556-9894-5ed7abd4c940",
+							"id": "1d6975e8-b813-4f9e-bc85-76e2acec045c",
 							"name": "200",
 							"originalRequest": {
 								"url": "{{base_url}}/api/case/detail/598ea04e1525ae6a7856ea20",
@@ -1563,7 +1563,7 @@
 					},
 					"response": [
 						{
-							"id": "484757a5-039e-4857-818c-4794d8299dba",
+							"id": "56d9f069-f890-4094-bf4a-15c34e49a600",
 							"name": "新建反馈",
 							"originalRequest": {
 								"url": "{{base_url}}/api/task/save",
@@ -1676,7 +1676,7 @@
 					},
 					"response": [
 						{
-							"id": "4cb9b172-33cb-4730-b1d0-aa7d23864801",
+							"id": "836460aa-50ab-4199-9dab-e06758e09cf1",
 							"name": "执行并保存一个任务反馈",
 							"originalRequest": {
 								"url": "{{base_url}}/api/task/saveAndRun",
@@ -1791,7 +1791,7 @@
 					},
 					"response": [
 						{
-							"id": "94116ebd-452a-4e4d-bce4-686b94571112",
+							"id": "a37673bb-3899-455b-8e39-1792a1874eb8",
 							"name": "执行一个任务反馈",
 							"originalRequest": {
 								"url": "{{base_url}}/api/task/run",
@@ -2071,7 +2071,7 @@
 					},
 					"response": [
 						{
-							"id": "c6343c86-1a19-4a47-a8b2-36eaadde7f0b",
+							"id": "d02d98b3-89e6-4816-a172-4bfadb232947",
 							"name": "我自己的设备反馈",
 							"originalRequest": {
 								"url": {
@@ -2246,7 +2246,7 @@
 					},
 					"response": [
 						{
-							"id": "9d44b36f-c598-48db-8dde-b3119931f1fa",
+							"id": "25bd5849-9917-46e0-9711-c115c46ee663",
 							"name": "分享给我的设备反馈",
 							"originalRequest": {
 								"url": {
@@ -2418,7 +2418,7 @@
 					},
 					"response": [
 						{
-							"id": "dd3246c8-4dcd-46ab-924b-68812d10a91e",
+							"id": "d928aa30-115a-4cef-93f6-42ebcf7e0214",
 							"name": "所有可用设备反馈",
 							"originalRequest": {
 								"url": {
@@ -2572,7 +2572,7 @@
 					},
 					"response": [
 						{
-							"id": "4bdce91b-0d94-4415-8ef6-3a42a0a20422",
+							"id": "9204dfed-021b-42d6-a1aa-b9812b2e2c18",
 							"name": "所有可用设备反馈",
 							"originalRequest": {
 								"url": {
@@ -2689,7 +2689,7 @@
 							"body": "{\"message\":\"ok\",\"data\":{\"pages\":[],\"total\":0},\"code\":0,\"url\":null}"
 						},
 						{
-							"id": "84f58bfd-f894-4686-b6a8-0141a1ed14cf",
+							"id": "e3db8f6f-52ed-4c9e-a348-be61bc81c4e4",
 							"name": "200",
 							"originalRequest": {
 								"url": {
@@ -2712,6 +2712,220 @@
 									],
 									"variable": []
 								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-TOKEN",
+										"value": "{{X-TOKEN}}",
+										"description": ""
+									}
+								],
+								"body": {}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"_postman_previewtype": "text",
+							"header": [
+								{
+									"name": "cache-control",
+									"key": "cache-control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate",
+									"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
+								},
+								{
+									"name": "content-type",
+									"key": "content-type",
+									"value": "application/json;charset=UTF-8",
+									"description": "The mime type of this content"
+								},
+								{
+									"name": "date",
+									"key": "date",
+									"value": "Thu, 31 Aug 2017 07:16:47 GMT",
+									"description": "The date and time that the message was sent"
+								},
+								{
+									"name": "expires",
+									"key": "expires",
+									"value": "0",
+									"description": "Gives the date/time after which the response is considered stale"
+								},
+								{
+									"name": "pragma",
+									"key": "pragma",
+									"value": "no-cache",
+									"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
+								},
+								{
+									"name": "transfer-encoding",
+									"key": "transfer-encoding",
+									"value": "chunked",
+									"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
+								},
+								{
+									"name": "x-content-type-options",
+									"key": "x-content-type-options",
+									"value": "nosniff",
+									"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
+								},
+								{
+									"name": "x-frame-options",
+									"key": "x-frame-options",
+									"value": "DENY",
+									"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
+								},
+								{
+									"name": "x-xss-protection",
+									"key": "x-xss-protection",
+									"value": "1; mode=block",
+									"description": "Cross-site scripting (XSS) filter"
+								}
+							],
+							"cookie": [],
+							"responseTime": 85,
+							"body": "{\"message\":\"ok\",\"data\":[{\"id\":\"e301970f7d93\",\"type\":\"Android\",\"status\":\"ON\",\"cpuabi\":\"arm64-v8a\",\"sdk\":\"23\",\"width\":\"720.0\",\"height\":\"1280.0\",\"osName\":\"ANDROID23(6.0)\",\"density\":\"320\",\"model\":\"Redmi 4X\",\"brand\":\"Xiaomi\",\"version\":\"6.0.1\",\"host\":\"c3-miui-ota-bd55.bj\",\"sessionId\":null,\"agent\":null,\"disable\":false}],\"code\":0,\"url\":null}"
+						}
+					]
+				},
+				{
+					"name": "用户设备资源列表",
+					"request": {
+						"url": "{{base_url}}/device/user/list",
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-TOKEN",
+								"value": "{{X-TOKEN}}",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": [
+						{
+							"id": "0cd03422-16af-4efc-9b3b-68ec252e6637",
+							"name": "所有可用设备反馈",
+							"originalRequest": {
+								"url": {
+									"raw": "{{base_url}}/device/available/page?page=1&size=20&sortField=id&sortOrder=desc",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"device",
+										"available",
+										"page"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1",
+											"equals": true,
+											"description": ""
+										},
+										{
+											"key": "size",
+											"value": "20",
+											"equals": true,
+											"description": ""
+										},
+										{
+											"key": "sortField",
+											"value": "id",
+											"equals": true,
+											"description": ""
+										},
+										{
+											"key": "sortOrder",
+											"value": "desc",
+											"equals": true,
+											"description": ""
+										}
+									],
+									"variable": []
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-TOKEN",
+										"value": "{{X-TOKEN}}",
+										"type": "text",
+										"description": ""
+									}
+								],
+								"body": {}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"_postman_previewtype": "text",
+							"header": [
+								{
+									"name": "cache-control",
+									"key": "cache-control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate",
+									"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
+								},
+								{
+									"name": "content-type",
+									"key": "content-type",
+									"value": "application/json;charset=UTF-8",
+									"description": "The mime type of this content"
+								},
+								{
+									"name": "date",
+									"key": "date",
+									"value": "Tue, 22 Aug 2017 03:46:23 GMT",
+									"description": "The date and time that the message was sent"
+								},
+								{
+									"name": "expires",
+									"key": "expires",
+									"value": "0",
+									"description": "Gives the date/time after which the response is considered stale"
+								},
+								{
+									"name": "pragma",
+									"key": "pragma",
+									"value": "no-cache",
+									"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
+								},
+								{
+									"name": "transfer-encoding",
+									"key": "transfer-encoding",
+									"value": "chunked",
+									"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
+								},
+								{
+									"name": "x-content-type-options",
+									"key": "x-content-type-options",
+									"value": "nosniff",
+									"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
+								},
+								{
+									"name": "x-frame-options",
+									"key": "x-frame-options",
+									"value": "DENY",
+									"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
+								},
+								{
+									"name": "x-xss-protection",
+									"key": "x-xss-protection",
+									"value": "1; mode=block",
+									"description": "Cross-site scripting (XSS) filter"
+								}
+							],
+							"cookie": [],
+							"responseTime": 87,
+							"body": "{\"message\":\"ok\",\"data\":{\"pages\":[],\"total\":0},\"code\":0,\"url\":null}"
+						},
+						{
+							"id": "871a2f53-fd8e-4b82-9160-20707417a042",
+							"name": "200",
+							"originalRequest": {
+								"url": "{{base_url}}/device/user/list",
 								"method": "GET",
 								"header": [
 									{
@@ -2813,7 +3027,7 @@
 					},
 					"response": [
 						{
-							"id": "3b22c8e9-7066-48f4-9e47-fb3692a7aa41",
+							"id": "15fbe145-0755-476f-8302-03cea772d74a",
 							"name": "所有可用设备反馈",
 							"originalRequest": {
 								"url": {
@@ -2930,7 +3144,7 @@
 							"body": "{\"message\":\"ok\",\"data\":{\"pages\":[],\"total\":0},\"code\":0,\"url\":null}"
 						},
 						{
-							"id": "f402194e-646b-42a4-bbe2-14d3880fc254",
+							"id": "8bb3ae47-4731-41c9-a2d2-05b2cb7a7e49",
 							"name": "200",
 							"originalRequest": {
 								"url": {
@@ -3055,7 +3269,7 @@
 					},
 					"response": [
 						{
-							"id": "2d636d60-253c-475c-8f6f-4e7775f67f1a",
+							"id": "656d17ea-1df0-4624-b519-9c4a6b258df7",
 							"name": "我自己的设备反馈",
 							"originalRequest": {
 								"url": {
@@ -3175,7 +3389,7 @@
 							"body": "{\"message\":\"ok\",\"data\":{\"pages\":[],\"total\":0},\"code\":0,\"url\":null}"
 						},
 						{
-							"id": "ef2290de-c81f-4c05-b16f-a1f8903ea03a",
+							"id": "e3f1b277-4b54-4823-a1f6-4bfa05d31454",
 							"name": "200平台控制台",
 							"originalRequest": {
 								"url": "{{base_url}}/dashboard/platform",
@@ -3257,6 +3471,170 @@
 							"body": "{\"message\":\"ok\",\"data\":{\"stats\":{\"project\":1,\"device\":1},\"projects\":[{\"id\":\"598d51691525ae14ecffbdf2\",\"projectName\":\"xxxx1\",\"createTime\":\"2017-08-11 14:40:41\",\"owerId\":\"5981cbf0fd2be02b34e6a9ea\",\"owername\":\"admin\",\"description\":\"hahhahha\"}],\"devices\":[{\"id\":\"59a4d16590759f23a402fbb9\",\"userId\":\"5981cbf0fd2be02b34e6a9ea\",\"deviceId\":\"e301970f7d93\",\"d_type\":\"Android\",\"d_status\":\"ON\",\"d_cpuabi\":\"arm64-v8a\",\"d_sdk\":\"23\",\"d_width\":\"720.0\",\"d_height\":\"1280.0\",\"d_osName\":\"ANDROID23(6.0)\",\"d_density\":\"320\",\"d_model\":\"Redmi 4X\",\"d_brand\":\"Xiaomi\",\"d_version\":\"6.0.1\",\"d_host\":\"c3-miui-ota-bd55.bj\",\"createDate\":1503973733208,\"scope\":100,\"shareUsers\":[],\"disable\":false,\"modifyDate\":null}]},\"code\":0,\"url\":null}"
 						}
 					]
+				},
+				{
+					"name": "项目控制台",
+					"request": {
+						"url": {
+							"raw": "{{base_url}}/dashboard/project?projectId=59a4d40e5ac4fc20113ec5fe",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"dashboard",
+								"project"
+							],
+							"query": [
+								{
+									"key": "projectId",
+									"value": "59a4d40e5ac4fc20113ec5fe",
+									"equals": true,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-TOKEN",
+								"value": "{{X-TOKEN}}",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"unknownFields\": {599b9c570850711e2c4fc234}\r\n}"
+						},
+						"description": ""
+					},
+					"response": [
+						{
+							"id": "3bf11a4d-5d93-409e-a97a-196a51f02806",
+							"name": "200",
+							"originalRequest": {
+								"url": {
+									"raw": "{{base_url}}/dashboard/project?projectId=59a4d40e5ac4fc20113ec5fe",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"dashboard",
+										"project"
+									],
+									"query": [
+										{
+											"key": "projectId",
+											"value": "59a4d40e5ac4fc20113ec5fe",
+											"equals": true,
+											"description": ""
+										}
+									],
+									"variable": []
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-TOKEN",
+										"value": "{{X-TOKEN}}",
+										"description": ""
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"unknownFields\": {599b9c570850711e2c4fc234}\r\n}"
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"_postman_previewtype": "text",
+							"header": [
+								{
+									"name": "cache-control",
+									"key": "cache-control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate",
+									"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
+								},
+								{
+									"name": "content-type",
+									"key": "content-type",
+									"value": "application/json;charset=UTF-8",
+									"description": "The mime type of this content"
+								},
+								{
+									"name": "date",
+									"key": "date",
+									"value": "Sat, 16 Sep 2017 09:14:46 GMT",
+									"description": "The date and time that the message was sent"
+								},
+								{
+									"name": "expires",
+									"key": "expires",
+									"value": "0",
+									"description": "Gives the date/time after which the response is considered stale"
+								},
+								{
+									"name": "pragma",
+									"key": "pragma",
+									"value": "no-cache",
+									"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
+								},
+								{
+									"name": "transfer-encoding",
+									"key": "transfer-encoding",
+									"value": "chunked",
+									"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
+								},
+								{
+									"name": "x-content-type-options",
+									"key": "x-content-type-options",
+									"value": "nosniff",
+									"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
+								},
+								{
+									"name": "x-frame-options",
+									"key": "x-frame-options",
+									"value": "DENY",
+									"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
+								},
+								{
+									"name": "x-xss-protection",
+									"key": "x-xss-protection",
+									"value": "1; mode=block",
+									"description": "Cross-site scripting (XSS) filter"
+								}
+							],
+							"cookie": [],
+							"responseTime": 7337,
+							"body": "{\"message\":\"ok\",\"data\":{\"stats\":{\"device\":0,\"app\":0,\"script\":0,\"testcase\":0,\"task\":0,\"report\":0},\"runningTask\":[],\"recentFinishedTask\":[]},\"code\":0,\"url\":null}"
+						}
+					]
+				},
+				{
+					"name": "一键部署任务",
+					"request": {
+						"url": "{{base_url}}/dashboard/project/quickDeploy",
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-TOKEN",
+								"value": "{{X-TOKEN}}",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"projectId\": \"\",\r\n  \"appId\": \"\",\r\n  \"scipts\": [],\r\n  \"devices\": []\r\n}"
+						},
+						"description": ""
+					},
+					"response": []
 				}
 			]
 		},
@@ -3312,7 +3690,7 @@
 			},
 			"response": [
 				{
-					"id": "9040b860-65d2-4b87-ae4b-593e992c21be",
+					"id": "f420b31c-0d2f-41db-9d2d-25ec8629e4aa",
 					"name": "response example",
 					"originalRequest": {
 						"url": "{{base_url}}/auth/login",

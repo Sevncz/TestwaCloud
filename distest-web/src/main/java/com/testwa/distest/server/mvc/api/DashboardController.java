@@ -1,12 +1,11 @@
 package com.testwa.distest.server.mvc.api;
 
 import com.testwa.distest.server.mvc.beans.Result;
+import com.testwa.distest.server.mvc.model.ExecutionTask;
 import com.testwa.distest.server.mvc.model.Project;
 import com.testwa.distest.server.mvc.model.User;
 import com.testwa.distest.server.mvc.model.UserDeviceHis;
-import com.testwa.distest.server.mvc.service.ProjectService;
-import com.testwa.distest.server.mvc.service.UserDeviceHisService;
-import com.testwa.distest.server.mvc.service.UserService;
+import com.testwa.distest.server.mvc.service.*;
 import com.testwa.distest.server.mvc.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -24,6 +23,10 @@ public class DashboardController extends BaseController {
     private ProjectService projectService;
     @Autowired
     private UserDeviceHisService userDeviceHisService;
+    @Autowired
+    private TaskService taskService;
+    @Autowired
+    private DashboardService dashboardService;
 
     @ResponseBody
     @GetMapping(value = "/platform")
@@ -47,16 +50,18 @@ public class DashboardController extends BaseController {
         User user = userService.findByUsername(getCurrentUsername());
         // stats
         ProjectStats projectStats = projectService.getProjectStats(projectId, user);
-        // todo: task info 1. execution task running 2. execution task just finished
-
-        return ok(new DashboardProjectVO(projectStats));
+        // task info 1. execution task running 2. execution task just finished
+        List<ExecutionTask> runningTask = taskService.getRunningTask(projectId, user);
+        List<ExecutionTask> recentFinishedTask = taskService.getRecentFinishedRunningTask(projectId, user);
+        return ok(new DashboardProjectVO(projectStats, runningTask, recentFinishedTask));
     }
 
     @ResponseBody
     @PostMapping(value = "/project/quickDeploy")
-    public Result projectDashboard(@RequestBody QuickDeployVO quickDeployVO) {
-        // todo: 1. create case 2. create task 3. run task
-
-        return ok();
+    public Result projectDashboard(@RequestBody QuickDeployVO quickDeployVO) throws Exception{
+        User user = userService.findByUsername(getCurrentUsername());
+        // 1. create case 2. create task 3. run task
+        String executionTaskId = dashboardService.quickDeploy(user, quickDeployVO);
+        return ok(executionTaskId);
     }
 }

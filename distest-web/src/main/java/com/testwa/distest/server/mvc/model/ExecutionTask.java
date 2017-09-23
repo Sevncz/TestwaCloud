@@ -5,9 +5,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by wen on 12/08/2017.
@@ -49,6 +47,9 @@ public class ExecutionTask {
         CANCEL(3),  // 手动取消
         ERROR(4);  // 异常
 
+        public static List<Integer> notFinishedCode = new ArrayList<>(Arrays.asList(NOT_EXECUTE.getCode(),START.code));
+        public static List<Integer> finishedCode = new ArrayList<>(Arrays.asList(STOP.getCode(), CANCEL.getCode(), ERROR.getCode()));
+
         private int code ;
 
         StatusEnum(int code){
@@ -68,7 +69,6 @@ public class ExecutionTask {
         public int getCode() {
             return code;
         }
-
     }
 
 

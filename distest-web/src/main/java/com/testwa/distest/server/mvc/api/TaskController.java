@@ -211,7 +211,8 @@ public class TaskController extends BaseController{
     @RequestMapping(value = "/run", method = RequestMethod.POST)
     public Result run(@RequestBody TaskInfo taskinfo){
         try {
-            taskService.run(taskinfo.taskId, taskinfo.deviceIds);
+            User user = userService.findByUsername(getCurrentUsername());
+            taskService.run(taskinfo.getProjectId(), user, taskinfo.taskId, taskinfo.deviceIds);
         } catch (Exception e) {
             log.error("session not found ", e);
             return fail(ResultCode.SERVER_ERROR, "设备已断开");
@@ -233,7 +234,8 @@ public class TaskController extends BaseController{
     @RequestMapping(value = "/kill", method = RequestMethod.POST)
     public Result kill(@RequestBody TaskInfo taskinfo){
         try {
-            taskService.run(taskinfo.taskId, taskinfo.deviceIds);
+            // todo : 杀掉也调run?
+//            taskService.run(taskinfo.getProjectId(), user, taskinfo.taskId, taskinfo.deviceIds);
         } catch (Exception e) {
             log.error("session not found ", e);
             return fail(ResultCode.SERVER_ERROR, "设备已断开");

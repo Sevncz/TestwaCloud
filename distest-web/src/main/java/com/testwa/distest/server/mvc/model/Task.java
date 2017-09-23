@@ -5,6 +5,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.List;
 
@@ -17,6 +18,7 @@ public class Task {
     @Id
     private String id;
 
+    private Integer type = TypeEnum.Normal.getCode();
     private String appId;
 
     private String name;
