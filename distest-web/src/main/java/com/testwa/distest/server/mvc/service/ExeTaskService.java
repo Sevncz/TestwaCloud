@@ -25,7 +25,6 @@ public class ExeTaskService extends BaseService{
     public Page<ExecutionTask> findPage(PageRequest pageRequest, User user, String projectId) {
         List<Criteria> andCriteria = new ArrayList<>();
         andCriteria.add(Criteria.where("projectId").is(projectId));
-        andCriteria.add(Criteria.where("disable").is(false));
 
         Query query = buildQueryByCriteria(andCriteria, null);
         return executionTaskRepository.find(query, pageRequest);
