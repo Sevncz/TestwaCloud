@@ -2,7 +2,7 @@
 	"variables": [],
 	"info": {
 		"name": "distest",
-		"_postman_id": "e5357b6b-9c40-0479-417e-fc5f62fa0731",
+		"_postman_id": "03754983-189e-4a85-770d-bc018d2833e8",
 		"description": "",
 		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
 	},
@@ -267,7 +267,7 @@
 					},
 					"response": [
 						{
-							"id": "87af7741-454c-4c40-8bef-9f8cd3d40b62",
+							"id": "baef8bd6-ddbe-4960-99b7-0e8a15085e00",
 							"name": "200",
 							"originalRequest": {
 								"url": {
@@ -301,7 +301,8 @@
 								"body": {
 									"mode": "raw",
 									"raw": ""
-								}
+								},
+								"description": ""
 							},
 							"status": "OK",
 							"code": 200,
@@ -648,7 +649,7 @@
 					},
 					"response": [
 						{
-							"id": "0056ace8-702e-4272-87ba-f6d89c6558e9",
+							"id": "a5381ef1-d70a-420b-b395-4e672608c59d",
 							"name": "200",
 							"originalRequest": {
 								"url": "{{base_url}}/api/script/save",
@@ -974,7 +975,7 @@
 					},
 					"response": [
 						{
-							"id": "43bb7932-2335-47cc-b067-53c7b27f90c2",
+							"id": "0f86d737-08aa-4c97-9665-8a2f0ad26688",
 							"name": "200",
 							"originalRequest": {
 								"url": "{{base_url}}/api/case/save",
@@ -1088,7 +1089,7 @@
 					},
 					"response": [
 						{
-							"id": "db5480a7-1ba5-441a-90ac-5d89375be227",
+							"id": "9db7b09f-fdeb-4503-a4f0-51e578df8eb5",
 							"name": "200",
 							"originalRequest": {
 								"url": "{{base_url}}/api/case/modify",
@@ -1257,12 +1258,15 @@
 								"description": ""
 							}
 						],
-						"body": {},
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
 						"description": "如果传projectId，则返回该项目（必须是该用户可见的项目）下所有的应用；\n如果不传projectId，则返回该用户可见项目的所有应用。\nappName 支持模糊查询"
 					},
 					"response": [
 						{
-							"id": "ada95ebf-3a2b-4ae8-abf5-c6945be7ca17",
+							"id": "1836b7ed-7a09-464e-810b-1e30fd04df2c",
 							"name": "200response",
 							"originalRequest": {
 								"url": {
@@ -1426,7 +1430,10 @@
 								"description": ""
 							}
 						],
-						"body": {},
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
 						"description": "查询条件和分页一样\n如果传projectId，则返回该项目（必须是该用户可见的项目）下所有的应用；\n如果不传projectId，则返回该用户可见项目的所有应用。\nappName 支持模糊查询"
 					},
 					"response": []
@@ -1443,12 +1450,15 @@
 								"description": ""
 							}
 						],
-						"body": {},
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
 						"description": ""
 					},
 					"response": [
 						{
-							"id": "1d6975e8-b813-4f9e-bc85-76e2acec045c",
+							"id": "b6a3f416-1ddc-48f2-a051-835e169bf44c",
 							"name": "200",
 							"originalRequest": {
 								"url": "{{base_url}}/api/case/detail/598ea04e1525ae6a7856ea20",
@@ -1563,7 +1573,7 @@
 					},
 					"response": [
 						{
-							"id": "56d9f069-f890-4094-bf4a-15c34e49a600",
+							"id": "e63fc295-e296-4d8f-8e7f-d8e8c917de15",
 							"name": "新建反馈",
 							"originalRequest": {
 								"url": "{{base_url}}/api/task/save",
@@ -1583,7 +1593,8 @@
 								"body": {
 									"mode": "raw",
 									"raw": "{\r\n  \"appId\": \"599b9bc60850711e2c4fc230\",\r\n  \"caseIds\": [\r\n    \"599b9ce90850711e2c4fc23a\"\r\n  ],\r\n  \"projectId\": \"599b9c570850711e2c4fc234\"\r\n}"
-								}
+								},
+								"description": ""
 							},
 							"status": "OK",
 							"code": 200,
@@ -1676,7 +1687,7 @@
 					},
 					"response": [
 						{
-							"id": "836460aa-50ab-4199-9dab-e06758e09cf1",
+							"id": "d365c16e-ba9b-4548-b293-a2d4613f4dcf",
 							"name": "执行并保存一个任务反馈",
 							"originalRequest": {
 								"url": "{{base_url}}/api/task/saveAndRun",
@@ -1698,7 +1709,8 @@
 								"body": {
 									"mode": "raw",
 									"raw": "{\r\n  \"appId\": \"599b9bc60850711e2c4fc230\",\r\n  \"caseIds\": [\r\n    \"599b9ce90850711e2c4fc23a\"\r\n  ],\r\n  \"deviceIds\": [\r\n    \"string\"\r\n  ],\r\n  \"projectId\": \"599b9c570850711e2c4fc234\",\r\n  \"taskId\": \"string\"\r\n}"
-								}
+								},
+								"description": ""
 							},
 							"status": "OK",
 							"code": 200,
@@ -1791,7 +1803,7 @@
 					},
 					"response": [
 						{
-							"id": "a37673bb-3899-455b-8e39-1792a1874eb8",
+							"id": "62d4d32e-5865-4b8b-804e-9cc4cf560504",
 							"name": "执行一个任务反馈",
 							"originalRequest": {
 								"url": "{{base_url}}/api/task/run",
@@ -1813,7 +1825,8 @@
 								"body": {
 									"mode": "raw",
 									"raw": "{\r\n  \"appId\": \"599b9bc60850711e2c4fc230\",\r\n  \"caseIds\": [\r\n    \"599b9ce90850711e2c4fc23a\"\r\n  ],\r\n  \"deviceIds\": [\r\n    \"string\"\r\n  ],\r\n  \"projectId\": \"599b9c570850711e2c4fc234\",\r\n  \"taskId\": \"string\"\r\n}"
-								}
+								},
+								"description": ""
 							},
 							"status": "OK",
 							"code": 200,
@@ -1936,7 +1949,10 @@
 								"description": ""
 							}
 						],
-						"body": {},
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
 						"description": ""
 					},
 					"response": []
@@ -1995,6 +2011,46 @@
 					"name": "任务详情",
 					"request": {
 						"url": "{{base_url}}/api/task/detail/59a3ce236ddfff2808ed8102",
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-TOKEN",
+								"value": "{{X-TOKEN}}",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "执行任务报告页面",
+					"request": {
+						"url": {
+							"raw": "{{base_url}}/api/task/execut/statis?exeId=59a16da99d0437ab3a9448e6",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"task",
+								"execut",
+								"statis"
+							],
+							"query": [
+								{
+									"key": "exeId",
+									"value": "59a16da99d0437ab3a9448e6",
+									"equals": true,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
 						"method": "GET",
 						"header": [
 							{
@@ -2071,7 +2127,7 @@
 					},
 					"response": [
 						{
-							"id": "d02d98b3-89e6-4816-a172-4bfadb232947",
+							"id": "17caaf81-9274-493a-b57c-767f833fcdbe",
 							"name": "我自己的设备反馈",
 							"originalRequest": {
 								"url": {
@@ -2124,7 +2180,8 @@
 								"body": {
 									"mode": "raw",
 									"raw": "{\r\n  \"unknownFields\": {599b9c570850711e2c4fc234}\r\n}"
-								}
+								},
+								"description": ""
 							},
 							"status": "OK",
 							"code": 200,
@@ -2241,12 +2298,15 @@
 								"description": ""
 							}
 						],
-						"body": {},
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
 						"description": ""
 					},
 					"response": [
 						{
-							"id": "25bd5849-9917-46e0-9711-c115c46ee663",
+							"id": "41426c70-19ae-4a28-8cfb-f7f5c6c628d7",
 							"name": "分享给我的设备反馈",
 							"originalRequest": {
 								"url": {
@@ -2296,7 +2356,11 @@
 										"description": ""
 									}
 								],
-								"body": {}
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"description": ""
 							},
 							"status": "OK",
 							"code": 200,
@@ -2413,12 +2477,15 @@
 								"description": ""
 							}
 						],
-						"body": {},
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
 						"description": ""
 					},
 					"response": [
 						{
-							"id": "d928aa30-115a-4cef-93f6-42ebcf7e0214",
+							"id": "1b52ad33-47d1-4772-a2ed-699b5d1e1b49",
 							"name": "所有可用设备反馈",
 							"originalRequest": {
 								"url": {
@@ -2468,7 +2535,11 @@
 										"description": ""
 									}
 								],
-								"body": {}
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"description": ""
 							},
 							"status": "OK",
 							"code": 200,
@@ -2567,12 +2638,15 @@
 								"description": ""
 							}
 						],
-						"body": {},
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
 						"description": ""
 					},
 					"response": [
 						{
-							"id": "9204dfed-021b-42d6-a1aa-b9812b2e2c18",
+							"id": "06438897-0de3-473c-bd20-7131d095b453",
 							"name": "所有可用设备反馈",
 							"originalRequest": {
 								"url": {
@@ -2622,7 +2696,11 @@
 										"description": ""
 									}
 								],
-								"body": {}
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"description": ""
 							},
 							"status": "OK",
 							"code": 200,
@@ -2689,7 +2767,7 @@
 							"body": "{\"message\":\"ok\",\"data\":{\"pages\":[],\"total\":0},\"code\":0,\"url\":null}"
 						},
 						{
-							"id": "e3db8f6f-52ed-4c9e-a348-be61bc81c4e4",
+							"id": "9c02bf75-0d7d-4726-a241-bf29a255b426",
 							"name": "200",
 							"originalRequest": {
 								"url": {
@@ -2720,7 +2798,11 @@
 										"description": ""
 									}
 								],
-								"body": {}
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"description": ""
 							},
 							"status": "OK",
 							"code": 200,
@@ -2800,12 +2882,15 @@
 								"description": ""
 							}
 						],
-						"body": {},
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
 						"description": ""
 					},
 					"response": [
 						{
-							"id": "0cd03422-16af-4efc-9b3b-68ec252e6637",
+							"id": "9a69df8b-1658-4da3-8373-960ac35f8f1e",
 							"name": "所有可用设备反馈",
 							"originalRequest": {
 								"url": {
@@ -2855,7 +2940,11 @@
 										"description": ""
 									}
 								],
-								"body": {}
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"description": ""
 							},
 							"status": "OK",
 							"code": 200,
@@ -2922,7 +3011,7 @@
 							"body": "{\"message\":\"ok\",\"data\":{\"pages\":[],\"total\":0},\"code\":0,\"url\":null}"
 						},
 						{
-							"id": "871a2f53-fd8e-4b82-9160-20707417a042",
+							"id": "ebbb504d-442d-4fb3-82e1-28c464cd1aa6",
 							"name": "200",
 							"originalRequest": {
 								"url": "{{base_url}}/device/user/list",
@@ -2934,7 +3023,11 @@
 										"description": ""
 									}
 								],
-								"body": {}
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"description": ""
 							},
 							"status": "OK",
 							"code": 200,
@@ -3027,7 +3120,7 @@
 					},
 					"response": [
 						{
-							"id": "15fbe145-0755-476f-8302-03cea772d74a",
+							"id": "c382dce8-8f5a-49a6-8d73-9ab78cf065e4",
 							"name": "所有可用设备反馈",
 							"originalRequest": {
 								"url": {
@@ -3077,7 +3170,11 @@
 										"description": ""
 									}
 								],
-								"body": {}
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"description": ""
 							},
 							"status": "OK",
 							"code": 200,
@@ -3144,7 +3241,7 @@
 							"body": "{\"message\":\"ok\",\"data\":{\"pages\":[],\"total\":0},\"code\":0,\"url\":null}"
 						},
 						{
-							"id": "8bb3ae47-4731-41c9-a2d2-05b2cb7a7e49",
+							"id": "5bfe7e41-c34b-436f-99d9-bbdd072d1e78",
 							"name": "200",
 							"originalRequest": {
 								"url": {
@@ -3175,7 +3272,11 @@
 										"description": ""
 									}
 								],
-								"body": {}
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"description": ""
 							},
 							"status": "OK",
 							"code": 200,
@@ -3269,7 +3370,7 @@
 					},
 					"response": [
 						{
-							"id": "656d17ea-1df0-4624-b519-9c4a6b258df7",
+							"id": "feb283db-6400-4c8e-b0d2-89c75cbe8d6c",
 							"name": "我自己的设备反馈",
 							"originalRequest": {
 								"url": {
@@ -3322,7 +3423,8 @@
 								"body": {
 									"mode": "raw",
 									"raw": "{\r\n  \"unknownFields\": {599b9c570850711e2c4fc234}\r\n}"
-								}
+								},
+								"description": ""
 							},
 							"status": "OK",
 							"code": 200,
@@ -3389,7 +3491,7 @@
 							"body": "{\"message\":\"ok\",\"data\":{\"pages\":[],\"total\":0},\"code\":0,\"url\":null}"
 						},
 						{
-							"id": "e3f1b277-4b54-4823-a1f6-4bfa05d31454",
+							"id": "0998dfcb-ef9b-458e-aefc-67b9cb1a028a",
 							"name": "200平台控制台",
 							"originalRequest": {
 								"url": "{{base_url}}/dashboard/platform",
@@ -3404,7 +3506,8 @@
 								"body": {
 									"mode": "raw",
 									"raw": "{\r\n  \"unknownFields\": {599b9c570850711e2c4fc234}\r\n}"
-								}
+								},
+								"description": ""
 							},
 							"status": "OK",
 							"code": 200,
@@ -3510,7 +3613,7 @@
 					},
 					"response": [
 						{
-							"id": "3bf11a4d-5d93-409e-a97a-196a51f02806",
+							"id": "9eb68ee1-905c-439c-a38b-7d9a2c44586e",
 							"name": "200",
 							"originalRequest": {
 								"url": {
@@ -3543,7 +3646,8 @@
 								"body": {
 									"mode": "raw",
 									"raw": "{\r\n  \"unknownFields\": {599b9c570850711e2c4fc234}\r\n}"
-								}
+								},
+								"description": ""
 							},
 							"status": "OK",
 							"code": 200,
@@ -3690,7 +3794,7 @@
 			},
 			"response": [
 				{
-					"id": "f420b31c-0d2f-41db-9d2d-25ec8629e4aa",
+					"id": "2e1f76e0-c03a-44ca-a522-d7de04d5fd5b",
 					"name": "response example",
 					"originalRequest": {
 						"url": "{{base_url}}/auth/login",
@@ -3887,7 +3991,10 @@
 						"description": ""
 					}
 				],
-				"body": {},
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
 				"description": ""
 			},
 			"response": []
