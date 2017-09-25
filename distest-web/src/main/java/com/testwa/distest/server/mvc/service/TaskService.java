@@ -293,14 +293,12 @@ public class TaskService extends BaseService{
         return run(projectId, user, task.getId(), devices).getId();
     }
 
-    public void executionTaskStatis(String exeId) throws NoSuchExecutionTaskException {
+    public ProcedureStatis executionTaskStatis(String exeId) throws NoSuchExecutionTaskException {
 
         ExecutionTask et = this.getExeTaskById(exeId);
         if(et == null){
             throw new NoSuchExecutionTaskException("没有该执行任务");
         }
-        ProcedureStatis ps = procedureStatisRepository.findByExeId(exeId);
-        ps.getCpurateInfo();
-
+        return procedureStatisRepository.findByExeId(exeId);
     }
 }

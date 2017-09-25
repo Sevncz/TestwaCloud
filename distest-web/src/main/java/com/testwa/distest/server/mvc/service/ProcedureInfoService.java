@@ -75,4 +75,8 @@ public class ProcedureInfoService extends BaseService {
     public List<ProcedureInfo> findBySessionId(String sessionId) {
         return procedureInfoRepository.findBySessionId(sessionId);
     }
+
+    public List<ProcedureInfo> findByExeId(String exeId) {
+        return procedureInfoRepository.findByExecutionTaskIdOrderByTimestampAsc(exeId);
+    }
 }
