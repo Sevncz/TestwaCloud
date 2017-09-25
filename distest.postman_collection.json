@@ -2,7 +2,7 @@
 	"variables": [],
 	"info": {
 		"name": "distest",
-		"_postman_id": "03754983-189e-4a85-770d-bc018d2833e8",
+		"_postman_id": "5ddd26e1-0ba4-c9a0-013a-7897040df24e",
 		"description": "",
 		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
 	},
@@ -267,7 +267,7 @@
 					},
 					"response": [
 						{
-							"id": "baef8bd6-ddbe-4960-99b7-0e8a15085e00",
+							"id": "52b4dcdb-5a62-410d-831c-e2b83bc13208",
 							"name": "200",
 							"originalRequest": {
 								"url": {
@@ -649,7 +649,7 @@
 					},
 					"response": [
 						{
-							"id": "a5381ef1-d70a-420b-b395-4e672608c59d",
+							"id": "6d753f2c-a941-4997-9d32-b14dd51ce532",
 							"name": "200",
 							"originalRequest": {
 								"url": "{{base_url}}/api/script/save",
@@ -975,7 +975,7 @@
 					},
 					"response": [
 						{
-							"id": "0f86d737-08aa-4c97-9665-8a2f0ad26688",
+							"id": "e76564cd-9793-46f1-a8e2-f7995a734eac",
 							"name": "200",
 							"originalRequest": {
 								"url": "{{base_url}}/api/case/save",
@@ -1089,7 +1089,7 @@
 					},
 					"response": [
 						{
-							"id": "9db7b09f-fdeb-4503-a4f0-51e578df8eb5",
+							"id": "4b99f233-711c-4364-aa99-006f9ead0c80",
 							"name": "200",
 							"originalRequest": {
 								"url": "{{base_url}}/api/case/modify",
@@ -1266,7 +1266,7 @@
 					},
 					"response": [
 						{
-							"id": "1836b7ed-7a09-464e-810b-1e30fd04df2c",
+							"id": "d62a6363-c492-46bf-b92f-b135ab8e6f7a",
 							"name": "200response",
 							"originalRequest": {
 								"url": {
@@ -1458,7 +1458,7 @@
 					},
 					"response": [
 						{
-							"id": "b6a3f416-1ddc-48f2-a051-835e169bf44c",
+							"id": "34cf9d8f-5867-4f38-aaa1-fef7adc8ef3a",
 							"name": "200",
 							"originalRequest": {
 								"url": "{{base_url}}/api/case/detail/598ea04e1525ae6a7856ea20",
@@ -1573,7 +1573,7 @@
 					},
 					"response": [
 						{
-							"id": "e63fc295-e296-4d8f-8e7f-d8e8c917de15",
+							"id": "9fc2b629-013d-4a6d-91f9-56d6af6d1ea6",
 							"name": "新建反馈",
 							"originalRequest": {
 								"url": "{{base_url}}/api/task/save",
@@ -1687,7 +1687,7 @@
 					},
 					"response": [
 						{
-							"id": "d365c16e-ba9b-4548-b293-a2d4613f4dcf",
+							"id": "649e57f6-2e6e-4053-a12f-f5db2422cf82",
 							"name": "执行并保存一个任务反馈",
 							"originalRequest": {
 								"url": "{{base_url}}/api/task/saveAndRun",
@@ -1803,7 +1803,7 @@
 					},
 					"response": [
 						{
-							"id": "62d4d32e-5865-4b8b-804e-9cc4cf560504",
+							"id": "0bfd0bd2-7f55-4251-ace4-573d7d785ffe",
 							"name": "执行一个任务反馈",
 							"originalRequest": {
 								"url": "{{base_url}}/api/task/run",
@@ -2026,43 +2026,6 @@
 						"description": ""
 					},
 					"response": []
-				},
-				{
-					"name": "执行任务报告页面",
-					"request": {
-						"url": {
-							"raw": "{{base_url}}/api/task/execut/statis?exeId=59a16da99d0437ab3a9448e6",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"task",
-								"execut",
-								"statis"
-							],
-							"query": [
-								{
-									"key": "exeId",
-									"value": "59a16da99d0437ab3a9448e6",
-									"equals": true,
-									"description": ""
-								}
-							],
-							"variable": []
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {},
-						"description": ""
-					},
-					"response": []
 				}
 			]
 		},
@@ -2127,7 +2090,7 @@
 					},
 					"response": [
 						{
-							"id": "17caaf81-9274-493a-b57c-767f833fcdbe",
+							"id": "db56c72a-f794-4d53-a096-c57b4e0c5031",
 							"name": "我自己的设备反馈",
 							"originalRequest": {
 								"url": {
@@ -2306,7 +2269,7 @@
 					},
 					"response": [
 						{
-							"id": "41426c70-19ae-4a28-8cfb-f7f5c6c628d7",
+							"id": "200d5dac-cf59-4af5-89b8-fea5d8f733ac",
 							"name": "分享给我的设备反馈",
 							"originalRequest": {
 								"url": {
@@ -2485,7 +2448,7 @@
 					},
 					"response": [
 						{
-							"id": "1b52ad33-47d1-4772-a2ed-699b5d1e1b49",
+							"id": "9585fc12-41ea-4034-a025-9c94666134d8",
 							"name": "所有可用设备反馈",
 							"originalRequest": {
 								"url": {
@@ -2646,7 +2609,7 @@
 					},
 					"response": [
 						{
-							"id": "06438897-0de3-473c-bd20-7131d095b453",
+							"id": "487d5a6e-d595-45cc-bc6e-2f90af638413",
 							"name": "所有可用设备反馈",
 							"originalRequest": {
 								"url": {
@@ -2767,7 +2730,7 @@
 							"body": "{\"message\":\"ok\",\"data\":{\"pages\":[],\"total\":0},\"code\":0,\"url\":null}"
 						},
 						{
-							"id": "9c02bf75-0d7d-4726-a241-bf29a255b426",
+							"id": "4c35cfca-8d62-434a-ad7c-c7691b14e7f2",
 							"name": "200",
 							"originalRequest": {
 								"url": {
@@ -2890,7 +2853,7 @@
 					},
 					"response": [
 						{
-							"id": "9a69df8b-1658-4da3-8373-960ac35f8f1e",
+							"id": "d65cddfc-117a-4598-97dd-6642d7cd9dc3",
 							"name": "所有可用设备反馈",
 							"originalRequest": {
 								"url": {
@@ -3011,7 +2974,7 @@
 							"body": "{\"message\":\"ok\",\"data\":{\"pages\":[],\"total\":0},\"code\":0,\"url\":null}"
 						},
 						{
-							"id": "ebbb504d-442d-4fb3-82e1-28c464cd1aa6",
+							"id": "467e838a-3416-447b-9b24-23ef30bb716b",
 							"name": "200",
 							"originalRequest": {
 								"url": "{{base_url}}/device/user/list",
@@ -3120,7 +3083,7 @@
 					},
 					"response": [
 						{
-							"id": "c382dce8-8f5a-49a6-8d73-9ab78cf065e4",
+							"id": "dd0a2540-b1f9-4105-83d4-a418095297a9",
 							"name": "所有可用设备反馈",
 							"originalRequest": {
 								"url": {
@@ -3241,7 +3204,7 @@
 							"body": "{\"message\":\"ok\",\"data\":{\"pages\":[],\"total\":0},\"code\":0,\"url\":null}"
 						},
 						{
-							"id": "5bfe7e41-c34b-436f-99d9-bbdd072d1e78",
+							"id": "7300ac08-f725-49c4-9808-94d0fc00110a",
 							"name": "200",
 							"originalRequest": {
 								"url": {
@@ -3370,7 +3333,7 @@
 					},
 					"response": [
 						{
-							"id": "feb283db-6400-4c8e-b0d2-89c75cbe8d6c",
+							"id": "23a4b5af-d086-49d1-8b32-08b4f06ba457",
 							"name": "我自己的设备反馈",
 							"originalRequest": {
 								"url": {
@@ -3491,7 +3454,7 @@
 							"body": "{\"message\":\"ok\",\"data\":{\"pages\":[],\"total\":0},\"code\":0,\"url\":null}"
 						},
 						{
-							"id": "0998dfcb-ef9b-458e-aefc-67b9cb1a028a",
+							"id": "c346a9f8-6484-404e-b32e-1c4960ea2b0c",
 							"name": "200平台控制台",
 							"originalRequest": {
 								"url": "{{base_url}}/dashboard/platform",
@@ -3613,7 +3576,7 @@
 					},
 					"response": [
 						{
-							"id": "9eb68ee1-905c-439c-a38b-7d9a2c44586e",
+							"id": "a725b579-c6c4-4f3a-922e-df0fa8149edd",
 							"name": "200",
 							"originalRequest": {
 								"url": {
@@ -3743,6 +3706,111 @@
 			]
 		},
 		{
+			"name": "报告相关",
+			"description": "",
+			"item": [
+				{
+					"name": "执行任务报告页面",
+					"request": {
+						"url": {
+							"raw": "{{base_url}}/api/exeTask/statis?exeId=59a16da99d0437ab3a9448e6",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"exeTask",
+								"statis"
+							],
+							"query": [
+								{
+									"key": "exeId",
+									"value": "59a16da99d0437ab3a9448e6",
+									"equals": true,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-TOKEN",
+								"value": "{{X-TOKEN}}",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "报告列表分页",
+					"request": {
+						"url": {
+							"raw": "{{base_url}}/api/task/page?page=1&size=20&sortField=id&sortOrder=desc&projectId=599aa61ba8426e1d9cf8709d",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"task",
+								"page"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"equals": true,
+									"description": ""
+								},
+								{
+									"key": "size",
+									"value": "20",
+									"equals": true,
+									"description": ""
+								},
+								{
+									"key": "sortField",
+									"value": "id",
+									"equals": true,
+									"description": ""
+								},
+								{
+									"key": "sortOrder",
+									"value": "desc",
+									"equals": true,
+									"description": ""
+								},
+								{
+									"key": "projectId",
+									"value": "599aa61ba8426e1d9cf8709d",
+									"equals": true,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-TOKEN",
+								"value": "{{X-TOKEN}}",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "登录",
 			"event": [
 				{
@@ -3794,7 +3862,7 @@
 			},
 			"response": [
 				{
-					"id": "2e1f76e0-c03a-44ca-a522-d7de04d5fd5b",
+					"id": "394d831a-8a59-46f9-ad72-10fe5f10948f",
 					"name": "response example",
 					"originalRequest": {
 						"url": "{{base_url}}/auth/login",
