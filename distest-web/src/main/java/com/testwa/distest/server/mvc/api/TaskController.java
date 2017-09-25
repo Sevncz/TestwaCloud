@@ -295,6 +295,8 @@ public class TaskController extends BaseController{
         ExecutionTask et = taskService.getExeTaskById(exeId);
         Map<String, Object> result = new HashMap<>();
         result.put("appStaty", et.getApp());
+
+
         ProcedureStatis ps = taskService.executionTaskStatis(exeId);
         List<Map> statusScript = ps.getStatusScriptInfo();
 
@@ -309,7 +311,7 @@ public class TaskController extends BaseController{
             devRawLine.put(device.getId(), new ArrayList());
         });
 
-        // 设备脚本执行情况
+        // 设备脚本执行情况，app信息可以从app基本情况获得
         /*
          {
          "model": "Task 4",
@@ -339,6 +341,12 @@ public class TaskController extends BaseController{
         result.put("scriptStaty", scriptStaty);
 
         // cpu 平均消耗
+        /*
+        {
+          "name": "Xiao Mi",
+          "value": 89.4
+        }
+         */
         List<Map> cpuAvgRate = ps.getCpurateInfo();
         List<Map> cpuStaty = new ArrayList<>();
         cpuAvgRate.forEach( s -> {
@@ -353,6 +361,12 @@ public class TaskController extends BaseController{
         result.put("cpuStaty", cpuStaty);
 
         // 内存 平均消耗
+        /*
+        {
+          "name": "Xiao Mi",
+          "value": 89.4
+        }
+         */
         List<Map> memAvgRate = ps.getMemoryInfo();
         List<Map> ramStaty = new ArrayList<>();
         memAvgRate.forEach( s -> {
@@ -367,6 +381,33 @@ public class TaskController extends BaseController{
         result.put("ramStaty", ramStaty);
 
         // 内存和cpu时刻消耗
+        /*
+        {
+          "name": "Xiao Mi",
+          "series": [
+            {
+              "value": 69,
+              "name": "2016-09-18T05:24:05.254Z"
+            },
+            {
+              "value": 45,
+              "name": "2016-09-18T10:21:55.123Z"
+            },
+            {
+              "value": 39,
+              "name": "2016-09-18T17:55:43.226Z"
+            },
+            {
+              "value": 54,
+              "name": "2016-09-18T20:13:42.627Z"
+            },
+            {
+              "value": 49,
+              "name": "2016-09-18T22:28:50.058Z"
+            }
+          ]
+        }
+         */
         List<ProcedureInfo> detailInfo = procedureInfoService.findByExeId(exeId);
 
         List<Map> cpuline = new ArrayList<>();
