@@ -6,8 +6,8 @@ import com.testwa.distest.server.mvc.model.ExecutionTask;
 import com.testwa.distest.server.mvc.model.ProcedureInfo;
 import com.testwa.distest.server.mvc.model.ProcedureStatis;
 import com.testwa.distest.server.mvc.model.Script;
+import com.testwa.distest.server.mvc.service.ExeTaskService;
 import com.testwa.distest.server.mvc.service.ProcedureInfoService;
-import com.testwa.distest.server.mvc.service.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ public class GameOverListener implements ApplicationListener<GameOverEvent> {
     @Autowired
     private ProcedureInfoService procedureInfoService;
     @Autowired
-    private TaskService taskService;
+    private ExeTaskService exeTaskService;
 
     @Async
     @Override
@@ -42,7 +42,7 @@ public class GameOverListener implements ApplicationListener<GameOverEvent> {
         log.info("start...");
         String exeId = e.getExeId();
         // 根据前端需求开始统计报告
-        ExecutionTask et = taskService.getExeTaskById(exeId);
+        ExecutionTask et = exeTaskService.getExeTaskById(exeId);
         // 脚本数量
         Map<String, List<Script>> taskScripts = et.getScripts();
         int scriptNum = 0;

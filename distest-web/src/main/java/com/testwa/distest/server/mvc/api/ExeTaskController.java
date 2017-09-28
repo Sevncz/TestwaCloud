@@ -6,7 +6,10 @@ import com.testwa.distest.server.mvc.beans.PageResult;
 import com.testwa.distest.server.mvc.beans.Result;
 import com.testwa.distest.server.mvc.beans.ResultCode;
 import com.testwa.distest.server.mvc.model.*;
-import com.testwa.distest.server.mvc.service.*;
+import com.testwa.distest.server.mvc.service.ExeTaskService;
+import com.testwa.distest.server.mvc.service.ProcedureInfoService;
+import com.testwa.distest.server.mvc.service.UserService;
+import com.testwa.distest.server.mvc.vo.ExeTaskProgressVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -33,10 +36,6 @@ public class ExeTaskController extends BaseController{
     @Autowired
     private UserService userService;
     @Autowired
-    private ProjectService projectService;
-    @Autowired
-    private TaskService taskService;
-    @Autowired
     private ExeTaskService exeTaskService;
     @Autowired
     private ProcedureInfoService procedureInfoService;
@@ -58,6 +57,18 @@ public class ExeTaskController extends BaseController{
         return ok(pr);
     }
 
+    @ApiOperation(value="查看一个执行任务的进度")
+    @ResponseBody
+    @RequestMapping(value = "/progress", method = RequestMethod.GET)
+    public Result progress(@RequestParam(value = "exeId") String exeId) throws NoSuchExecutionTaskException {
+        if(StringUtils.isBlank(exeId)){
+            log.error("exeId: {}", exeId);
+            return fail(ResultCode.PARAM_ERROR, "参数错误");
+        }
+        List<ExeTaskProgressVO> result = exeTaskService.getProgress(exeId);
+        return ok(result);
+    }
+
     @ApiOperation(value="执行任务统计")
     @ResponseBody
     @RequestMapping(value = "/statis", method = RequestMethod.GET)
@@ -68,12 +79,12 @@ public class ExeTaskController extends BaseController{
         }
 
         // app 基本情况
-        ExecutionTask et = taskService.getExeTaskById(exeId);
+        ExecutionTask et = exeTaskService.getExeTaskById(exeId);
         Map<String, Object> result = new HashMap<>();
         result.put("appStaty", et.getApp());
 
 
-        ProcedureStatis ps = taskService.executionTaskStatis(exeId);
+        ProcedureStatis ps = exeTaskService.executionTaskStatis(exeId);
         List<Map> statusScript = ps.getStatusScriptInfo();
 
         Map<String, TDevice> devInfo = new HashMap<>();
@@ -227,4 +238,19 @@ public class ExeTaskController extends BaseController{
         return ok(result);
     }
 
+    @ApiOperation(value="获得执行任务用例脚本树")
+    @ResponseBody
+    @RequestMapping(value = "/taskTree", method = RequestMethod.GET)
+    public Result page(@RequestParam String exeId) {
+        ExecutionTask executionTask = exeTaskService.getExeTaskById(exeId);
+        return ok(executionTask);
+    }
+
+    @ApiOperation(value="获得执行任务脚本步骤列表")
+    @ResponseBody
+    @RequestMapping(value = "/scriptStep", method = RequestMethod.GET)
+    public Result page(@RequestParam String deviceId, @RequestParam String exeId, @RequestParam String caseId, @RequestParam String scriptId) {
+        List<ProcedureInfo> procedureInfos = exeTaskService.getSteps(deviceId, exeId, caseId, scriptId);
+        return ok(procedureInfos);
+    }
 }

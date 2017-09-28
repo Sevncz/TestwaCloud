@@ -267,7 +267,7 @@
 					},
 					"response": [
 						{
-							"id": "09f86a56-3833-473d-a6c8-65d346daa731",
+							"id": "b32d0a95-40b1-4671-b10a-71588bde3034",
 							"name": "200",
 							"originalRequest": {
 								"url": {
@@ -649,7 +649,7 @@
 					},
 					"response": [
 						{
-							"id": "b418ebd6-6fd2-40ef-92d8-a4c0a6117659",
+							"id": "60a22f62-1e48-4ea2-b8b8-c13b93cc69e3",
 							"name": "200",
 							"originalRequest": {
 								"url": "{{base_url}}/api/script/save",
@@ -975,7 +975,7 @@
 					},
 					"response": [
 						{
-							"id": "d03b27d8-c12b-4202-8e04-a59d9de7724e",
+							"id": "f4883738-e47c-47e5-887b-f62f54416be5",
 							"name": "200",
 							"originalRequest": {
 								"url": "{{base_url}}/api/case/save",
@@ -1089,7 +1089,7 @@
 					},
 					"response": [
 						{
-							"id": "47d8bc6d-094e-4472-9331-e2455aeb72c6",
+							"id": "b9920af5-a51e-491a-accb-0601acf1a5df",
 							"name": "200",
 							"originalRequest": {
 								"url": "{{base_url}}/api/case/modify",
@@ -1266,7 +1266,7 @@
 					},
 					"response": [
 						{
-							"id": "4563750e-d35b-442b-acb9-8c76f09ac263",
+							"id": "04544abb-d07d-4223-b97a-12c5a08a1a92",
 							"name": "200response",
 							"originalRequest": {
 								"url": {
@@ -1458,7 +1458,7 @@
 					},
 					"response": [
 						{
-							"id": "dfc6c090-62b9-4b22-a63b-93c2524ef14d",
+							"id": "64d8b67e-ccfb-48b8-9b67-0935cafccf51",
 							"name": "200",
 							"originalRequest": {
 								"url": "{{base_url}}/api/case/detail/598ea04e1525ae6a7856ea20",
@@ -1573,7 +1573,7 @@
 					},
 					"response": [
 						{
-							"id": "276151e9-4c22-4061-ab36-0992ce7e00b3",
+							"id": "2429ec6d-08c4-48d0-8440-ce219ae798a4",
 							"name": "新建反馈",
 							"originalRequest": {
 								"url": "{{base_url}}/api/task/save",
@@ -1687,7 +1687,7 @@
 					},
 					"response": [
 						{
-							"id": "8ddddeae-200d-4d33-a06b-3886016486c0",
+							"id": "6db9892c-daf8-4fce-ada2-227d54f3138a",
 							"name": "执行并保存一个任务反馈",
 							"originalRequest": {
 								"url": "{{base_url}}/api/task/saveAndRun",
@@ -1803,7 +1803,7 @@
 					},
 					"response": [
 						{
-							"id": "f8c3fc2b-73c5-4cb4-bd5d-efd0169d6d2f",
+							"id": "9a383e6b-c0c5-4568-ba72-c2dadc5e4b31",
 							"name": "执行一个任务反馈",
 							"originalRequest": {
 								"url": "{{base_url}}/api/task/run",
@@ -2090,7 +2090,7 @@
 					},
 					"response": [
 						{
-							"id": "09451dd1-829b-429a-8015-0ac92688b1c6",
+							"id": "21c65878-64be-46f1-bee3-7d9f6ece52c7",
 							"name": "我自己的设备反馈",
 							"originalRequest": {
 								"url": {
@@ -2269,7 +2269,7 @@
 					},
 					"response": [
 						{
-							"id": "b5d6fea8-016d-4de4-9faf-7cdc95c0947f",
+							"id": "b24a0d81-3296-4a24-8385-4ebbeb832d59",
 							"name": "分享给我的设备反馈",
 							"originalRequest": {
 								"url": {
@@ -2448,7 +2448,7 @@
 					},
 					"response": [
 						{
-							"id": "89281051-1593-4a38-8e9f-18fef9463c67",
+							"id": "be36c077-5ce9-4cbb-a857-d7015037c264",
 							"name": "所有可用设备反馈",
 							"originalRequest": {
 								"url": {
@@ -2609,7 +2609,7 @@
 					},
 					"response": [
 						{
-							"id": "0782a04e-d9cd-4c20-9e50-c6e9d7cd8b21",
+							"id": "5ca407ba-8660-42dc-b94c-b500f35443a7",
 							"name": "所有可用设备反馈",
 							"originalRequest": {
 								"url": {
@@ -2730,7 +2730,7 @@
 							"body": "{\"message\":\"ok\",\"data\":{\"pages\":[],\"total\":0},\"code\":0,\"url\":null}"
 						},
 						{
-							"id": "059ebebe-47cc-4367-869d-52a089b04ee6",
+							"id": "84116317-467d-4c72-b85f-263731a4dbf7",
 							"name": "200",
 							"originalRequest": {
 								"url": {
@@ -2853,7 +2853,7 @@
 					},
 					"response": [
 						{
-							"id": "1df5c89e-0be6-4dbe-9e63-870c82ec21a2",
+							"id": "0ff6df8a-b942-4794-a3c4-9792f050445b",
 							"name": "所有可用设备反馈",
 							"originalRequest": {
 								"url": {
@@ -2974,7 +2974,7 @@
 							"body": "{\"message\":\"ok\",\"data\":{\"pages\":[],\"total\":0},\"code\":0,\"url\":null}"
 						},
 						{
-							"id": "caef412a-1de8-41ec-ad34-b25043a21d1e",
+							"id": "2276cda5-2e00-4c5a-b638-c0892c72ffd7",
 							"name": "200",
 							"originalRequest": {
 								"url": "{{base_url}}/device/user/list",
@@ -3083,7 +3083,7 @@
 					},
 					"response": [
 						{
-							"id": "27e6dbed-32b3-4dab-878c-abb76446b99f",
+							"id": "ff941c4a-fd05-406d-b3d6-8267f003db84",
 							"name": "所有可用设备反馈",
 							"originalRequest": {
 								"url": {
@@ -3204,7 +3204,7 @@
 							"body": "{\"message\":\"ok\",\"data\":{\"pages\":[],\"total\":0},\"code\":0,\"url\":null}"
 						},
 						{
-							"id": "dee58d86-6aaf-467c-aeee-a244a4133588",
+							"id": "66eb9882-7386-4f0d-91bc-f14715dce360",
 							"name": "200",
 							"originalRequest": {
 								"url": {
@@ -3333,7 +3333,7 @@
 					},
 					"response": [
 						{
-							"id": "0570a3ab-4759-4008-b4e2-17cb43e9d0f9",
+							"id": "3808a015-ac31-44d8-a204-6db53f6f38ae",
 							"name": "我自己的设备反馈",
 							"originalRequest": {
 								"url": {
@@ -3454,7 +3454,7 @@
 							"body": "{\"message\":\"ok\",\"data\":{\"pages\":[],\"total\":0},\"code\":0,\"url\":null}"
 						},
 						{
-							"id": "56c886e0-3d1d-4808-95de-4c4a8fae4865",
+							"id": "858e159b-45e9-481a-a320-852e5bf72cdf",
 							"name": "200平台控制台",
 							"originalRequest": {
 								"url": "{{base_url}}/dashboard/platform",
@@ -3576,7 +3576,7 @@
 					},
 					"response": [
 						{
-							"id": "a9fec992-5400-4ab8-8c46-2dbdf49c2ec8",
+							"id": "20f639ec-f5a1-44b2-bc1e-ce039e80b55d",
 							"name": "200",
 							"originalRequest": {
 								"url": {
@@ -3746,6 +3746,195 @@
 					"response": []
 				},
 				{
+					"name": "报告案例脚本树",
+					"request": {
+						"url": {
+							"raw": "{{base_url}}/api/exeTask/taskTree?exeId=59a16da99d0437ab3a9448e6",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"exeTask",
+								"taskTree"
+							],
+							"query": [
+								{
+									"key": "exeId",
+									"value": "59a16da99d0437ab3a9448e6",
+									"equals": true,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-TOKEN",
+								"value": "{{X-TOKEN}}",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": [
+						{
+							"id": "93962ca7-159d-4762-81d6-7e39e43de059",
+							"name": "200",
+							"originalRequest": {
+								"url": {
+									"raw": "{{base_url}}/api/exeTask/taskTree?exeId=59c2231e88174924c897dab7",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"exeTask",
+										"taskTree"
+									],
+									"query": [
+										{
+											"key": "exeId",
+											"value": "59c2231e88174924c897dab7",
+											"equals": true,
+											"description": ""
+										}
+									],
+									"variable": []
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-TOKEN",
+										"value": "{{X-TOKEN}}",
+										"description": ""
+									}
+								],
+								"body": {}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"_postman_previewtype": "text",
+							"header": [
+								{
+									"name": "cache-control",
+									"key": "cache-control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate",
+									"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
+								},
+								{
+									"name": "content-type",
+									"key": "content-type",
+									"value": "application/json;charset=UTF-8",
+									"description": "The mime type of this content"
+								},
+								{
+									"name": "date",
+									"key": "date",
+									"value": "Thu, 28 Sep 2017 06:22:05 GMT",
+									"description": "The date and time that the message was sent"
+								},
+								{
+									"name": "expires",
+									"key": "expires",
+									"value": "0",
+									"description": "Gives the date/time after which the response is considered stale"
+								},
+								{
+									"name": "pragma",
+									"key": "pragma",
+									"value": "no-cache",
+									"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
+								},
+								{
+									"name": "transfer-encoding",
+									"key": "transfer-encoding",
+									"value": "chunked",
+									"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
+								},
+								{
+									"name": "x-content-type-options",
+									"key": "x-content-type-options",
+									"value": "nosniff",
+									"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
+								},
+								{
+									"name": "x-frame-options",
+									"key": "x-frame-options",
+									"value": "DENY",
+									"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
+								},
+								{
+									"name": "x-xss-protection",
+									"key": "x-xss-protection",
+									"value": "1; mode=block",
+									"description": "Cross-site scripting (XSS) filter"
+								}
+							],
+							"cookie": [],
+							"responseTime": 206,
+							"body": "{\"message\":\"ok\",\"data\":{\"id\":\"59c2231e88174924c897dab7\",\"taskId\":\"59c21f5c8817492ab0c2d2a1\",\"taskName\":null,\"app\":null,\"devices\":[{\"id\":\"e301970f7d93\",\"type\":\"Android\",\"status\":\"ON\",\"cpuabi\":\"arm64-v8a\",\"sdk\":\"23\",\"width\":\"720.0\",\"height\":\"1280.0\",\"osName\":\"ANDROID23(6.0)\",\"density\":\"320\",\"model\":\"Redmi 4X\",\"brand\":\"Xiaomi\",\"version\":\"6.0.1\",\"host\":\"c3-miui-ota-bd55.bj\",\"sessionId\":null,\"agent\":null,\"disable\":false}],\"projectId\":\"598d51691525ae14ecffbdf2\",\"testcases\":[{\"id\":\"598ea04e1525ae6a7856ea20\",\"type\":0,\"description\":null,\"scripts\":[\"598a939ba6be50270014d02d\",\"598d518a1525ae14ecffbdf5\"],\"userId\":\"5981cbf0fd2be02b34e6a9ea\",\"userName\":\"admin\",\"tag\":null,\"createDate\":1502519374639,\"name\":\"testtset\",\"projectId\":\"598d51691525ae14ecffbdf2\",\"projectName\":\"xxxx1\",\"disable\":false,\"modifyDate\":null}],\"scripts\":{\"598ea04e1525ae6a7856ea20\":[{\"id\":\"598a939ba6be50270014d02d\",\"path\":\"\\\\Users\\\\wen\\\\dev\\\\testWa\\\\center\\\\script\\\\7da0addad26349869fe6ba28dba1ec44\\\\contact.py\",\"name\":\"contact.py\",\"aliasName\":\"contact.py\",\"size\":\"2697\",\"createDate\":1502253979486,\"userId\":\"5981cbf0fd2be02b34e6a9ea\",\"username\":\"admin\",\"disable\":true,\"type\":\"python\",\"md5\":\"C08D2DEF083DD5E7675411124C12AF2F\",\"projectId\":\"1\",\"modifyDate\":null,\"modifyUserId\":null,\"modifyUserName\":null,\"tag\":null,\"description\":null},{\"id\":\"598d518a1525ae14ecffbdf5\",\"path\":\"\\\\Users\\\\wen\\\\dev\\\\testWa\\\\center\\\\script\\\\118e5c9b181f4e5aab13f7b5c8f76b57\\\\contact.py\",\"name\":\"contact.py\",\"aliasName\":\"contact.py\",\"size\":\"2697\",\"createDate\":1502433674948,\"userId\":\"5981cbf0fd2be02b34e6a9ea\",\"username\":\"admin\",\"disable\":true,\"type\":\"python\",\"md5\":\"C08D2DEF083DD5E7675411124C12AF2F\",\"projectId\":\"598d51691525ae14ecffbdf2\",\"modifyDate\":null,\"modifyUserId\":null,\"modifyUserName\":null,\"tag\":null,\"description\":null}]},\"status\":1,\"creator\":\"5981cbf0fd2be02b34e6a9ea\",\"createTime\":null,\"modifyDate\":null,\"endTime\":null},\"code\":0,\"url\":null}"
+						}
+					]
+				},
+				{
+					"name": "报告对应脚本步骤",
+					"request": {
+						"url": {
+							"raw": "{{base_url}}/api/exeTask/taskTree?deviceId&exeId=59a16da99d0437ab3a9448e6&caseId&scriptId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"exeTask",
+								"taskTree"
+							],
+							"query": [
+								{
+									"key": "deviceId",
+									"value": "",
+									"equals": false,
+									"description": ""
+								},
+								{
+									"key": "exeId",
+									"value": "59a16da99d0437ab3a9448e6",
+									"equals": true,
+									"description": ""
+								},
+								{
+									"key": "caseId",
+									"value": "",
+									"equals": false,
+									"description": ""
+								},
+								{
+									"key": "scriptId",
+									"value": "",
+									"equals": false,
+									"description": ""
+								}
+							],
+							"variable": []
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-TOKEN",
+								"value": "{{X-TOKEN}}",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
 					"name": "报告列表分页",
 					"request": {
 						"url": {
@@ -3862,7 +4051,7 @@
 			},
 			"response": [
 				{
-					"id": "a78e466e-be4f-495f-8881-79db95295ead",
+					"id": "bec7ce95-e7cd-4107-bcc1-4dbba527c4e9",
 					"name": "response example",
 					"originalRequest": {
 						"url": "{{base_url}}/auth/login",

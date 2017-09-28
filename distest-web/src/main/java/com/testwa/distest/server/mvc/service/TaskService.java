@@ -78,11 +78,6 @@ public class TaskService extends BaseService{
         return taskRepository.findOne(taskId);
     }
 
-    public ExecutionTask getExeTaskById(String exeId) {
-        return executionTaskRepository.findOne(exeId);
-    }
-
-
     public void deleteById(String taskId){
         taskRepository.delete(taskId);
     }
@@ -229,43 +224,6 @@ public class TaskService extends BaseService{
         return taskRepository.countByProjectId(projectId);
     }
 
-    public List<ExeTaskProgressVO> getProgress(String exeId) throws NoSuchExecutionTaskException {
-
-        ExecutionTask et = this.getExeTaskById(exeId);
-        if(et == null){
-            throw new NoSuchExecutionTaskException("没有该执行任务");
-        }
-        List<TDevice> tds = et.getDevices();
-        Map<String, List<Script>> scripts = et.getScripts();
-        int testcaseNum = scripts.keySet().size();
-        int scriptNum = 0;
-        for(List l : scripts.values()){
-            scriptNum = scriptNum + l.size();
-        }
-        List<ExeTaskProgressVO> result = new ArrayList<>();
-        int finalScriptNum = scriptNum;
-        tds.forEach(d -> {
-            ExeTaskProgressVO vo = new ExeTaskProgressVO();
-            Long size = remoteClientService.getExeInfoSize(d.getId());
-            vo.setProgress(getProgressNum(size, (float)finalScriptNum));
-            String content = remoteClientService.getExeInfoProgress(d.getId());
-            if(StringUtils.isNotBlank(content)){
-                Map<String, String> jsonContent = JSON.parseObject(content, Map.class);
-                vo.setDeviceId(d.getId());
-                vo.setScriptId(jsonContent.get("srciptId"));
-                vo.setTestcaseId(jsonContent.get("testcaseId"));
-                result.add(vo);
-            }
-        });
-        return result;
-    }
-
-    private String getProgressNum(Long exedScriptNum, float allScriptNum){
-        float num= exedScriptNum/allScriptNum;
-        DecimalFormat df = new DecimalFormat("0.00");//格式化小数
-        return df.format(num);
-    }
-
     public List<ExecutionTask> getRunningTask(String projectId, User user) {
         return executionTaskRepository.findByProjectIdAndCreatorAndStatusIn(projectId, user.getId(), ExecutionTask.StatusEnum.notFinishedCode,
                 new PageRequest(0, 20, Sort.Direction.DESC, "createTime")).getContent();
@@ -293,12 +251,4 @@ public class TaskService extends BaseService{
         return run(projectId, user, task.getId(), devices).getId();
     }
 
-    public ProcedureStatis executionTaskStatis(String exeId) throws NoSuchExecutionTaskException {
-
-        ExecutionTask et = this.getExeTaskById(exeId);
-        if(et == null){
-            throw new NoSuchExecutionTaskException("没有该执行任务");
-        }
-        return procedureStatisRepository.findByExeId(exeId);
-    }
 }

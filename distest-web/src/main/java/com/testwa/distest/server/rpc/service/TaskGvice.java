@@ -1,10 +1,9 @@
 package com.testwa.distest.server.rpc.service;
 
-import com.testwa.core.utils.TimeUtil;
 import com.testwa.distest.server.LogInterceptor;
 import com.testwa.distest.server.mvc.event.GameOverEvent;
 import com.testwa.distest.server.mvc.model.ExecutionTask;
-import com.testwa.distest.server.mvc.model.Task;
+import com.testwa.distest.server.mvc.service.ExeTaskService;
 import com.testwa.distest.server.mvc.service.TaskService;
 import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
 import com.testwa.distest.server.rpc.GRpcService;
@@ -21,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by wen on 09/09/2017.
@@ -32,6 +30,8 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
 
     @Autowired
     private TaskService taskService;
+    @Autowired
+    private ExeTaskService exeTaskService;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
@@ -51,7 +51,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
         String exeId = request.getExeId();
         Long timestamp = request.getTimestamp();
 
-        ExecutionTask exeTask = taskService.getExeTaskById(exeId);
+        ExecutionTask exeTask = exeTaskService.getExeTaskById(exeId);
         if(exeTask != null && exeTask.getCreator().equals(userId)){
             if(exeTask.getStatus() != ExecutionTask.StatusEnum.CANCEL.getCode()){
                 exeTask.setStatus(ExecutionTask.StatusEnum.STOP.getCode());
