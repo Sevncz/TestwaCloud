@@ -144,7 +144,7 @@ public class DeviceController extends BaseController{
     }
 
     @RequestMapping(value = "/receive/screen", method = RequestMethod.POST, produces = "application/x-protobuf")
-    public Result appiumlog(@RequestBody com.testwa.distest.client.rpc.proto.Agent.ScreenCaptureFeedback message) {
+    public Result screencapture(@RequestBody com.testwa.distest.client.rpc.proto.Agent.ScreenCaptureFeedback message) {
         String[] messageName = message.getName().split("\\\\|/");
         Path screenPath = Paths.get(env.getProperty("screeshot.path"), messageName);
         Path screenDir = screenPath.getParent();
