@@ -194,7 +194,6 @@ public class TaskService extends BaseService{
         et.setDevices(tds);
         et.setStatus(ExecutionTask.StatusEnum.START.getCode());
 
-        params.setExeId(et.getId());
         // 执行...
         for(String deviceId : deviceIds){
 
@@ -214,7 +213,9 @@ public class TaskService extends BaseService{
                 throw new Exception("session not found");
             }
         }
-        return executionTaskRepository.save(et);
+        et = executionTaskRepository.save(et);
+        params.setExeId(et.getId());
+        return et;
     }
 
     public void saveExetask(ExecutionTask exeTask) {
