@@ -143,6 +143,16 @@ public class DeviceController extends BaseController{
         return ok();
     }
 
+    @RequestMapping(value = "/receive/screen", method = RequestMethod.POST, produces = "application/x-protobuf")
+    public Result screencapture(@RequestBody com.testwa.distest.client.rpc.proto.Agent.ScreenCaptureFeedback message) {
+        String[] messageName = message.getName().split("\\\\|/");
+        Path screenPath = Paths.get(env.getProperty("screeshot.path"), messageName);
+        Path screenDir = screenPath.getParent();
+        saveMessageFile(message.getImg().toByteArray(), screenPath, screenDir);
+
+        return ok();
+    }
+
 
     /**
      * 我自己的设备

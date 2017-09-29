@@ -67,6 +67,7 @@ public class Executor {
                 new AppiumServiceBuilder()
                         .usingDriverExecutable(new File(nodePath))
                         .withAppiumJS(new File(appiumPath))
+                        .withIPAddress("127.0.0.1")
                         .withArgument(GeneralServerFlag.LOG_LEVEL, "info").withLogFile(new File(appiumlogPath))
                         .withArgument(AndroidServerFlag.SUPPRESS_ADB_KILL_SERVER)
                         .withArgument(AndroidServerFlag.BOOTSTRAP_PORT_NUMBER, Integer.toString(bootstrapPort))
