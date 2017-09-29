@@ -175,11 +175,11 @@ public class ProcedureInfo {
 
     public void toEntity(ProcedureInfoRequest reqeust) {
         this.action = reqeust.getActionBytes().toStringUtf8();
-//        this.cpurate = reqeust.getCpurate();
+        this.cpurate = reqeust.getCpurate();
         this.description = reqeust.getDescription();
         this.deviceId = reqeust.getDeviceId();
         this.logcatFile = reqeust.getLogcatFile();
-//        this.memory = reqeust.getMemory();
+        this.memory = reqeust.getMemory();
         this.params = reqeust.getParams();
         this.runtime = reqeust.getRuntime();
         this.screenshotPath = reqeust.getScreenshotPath();
