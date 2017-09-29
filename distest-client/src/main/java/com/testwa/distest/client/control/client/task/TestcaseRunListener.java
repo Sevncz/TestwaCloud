@@ -75,6 +75,7 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
                     // 测试结束，通知服务器结束
                     TaskOverRequest taskOverRequest = TaskOverRequest.newBuilder()
                             .setExeId(cmd.getExeId())
+                            .setToken(UserInfo.token)
                             .setTimestamp(TimeUtil.getTimestampLong())
                             .build();
 
