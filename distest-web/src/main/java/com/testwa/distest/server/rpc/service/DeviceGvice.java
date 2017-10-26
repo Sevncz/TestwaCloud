@@ -5,22 +5,19 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.googlecode.protobuf.format.JsonFormat;
 import com.testwa.core.utils.DeviceType;
 import com.testwa.distest.server.LogInterceptor;
-import com.testwa.distest.server.security.JwtTokenUtil;
+import com.testwa.distest.server.mvc.entity.DeviceAndroid;
+import com.testwa.distest.server.web.auth.jwt.JwtTokenUtil;
+import com.testwa.distest.server.web.device.cache.DeviceCacheMgr;
 import com.testwa.distest.server.websocket.WSFuncEnum;
 import com.testwa.distest.server.rpc.GRpcService;
-import com.testwa.distest.server.mvc.model.TDevice;
-import com.testwa.distest.server.mvc.model.UserDeviceHis;
 import com.testwa.distest.server.mvc.service.DeviceService;
 import com.testwa.distest.server.mvc.service.UserDeviceHisService;
 import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.device.*;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.util.List;
 import java.util.Set;
@@ -38,7 +35,7 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     @Autowired
     private RemoteClientService remoteClientService;
     @Autowired
-    private DeviceService deviceService;
+    private DeviceCacheMgr deviceCacheMgr;
     @Autowired
     private UserDeviceHisService userDeviceHisService;
     @Autowired
@@ -48,56 +45,56 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     public void all(DevicesRequest request, StreamObserver<CommonReply> responseObserver) {
         String token = request.getUserId();
         List<Device> l = request.getDeviceList();
-        String userId = jwtTokenUtil.getUserIdFromToken(token);
+        Long userId = jwtTokenUtil.getUserIdFromToken(token);
         for(Device device : l){
             handleDevice(device, userId);
         }
     }
 
-    private void handleDevice(Device device, String userId) {
+    private void handleDevice(Device device, Long userId) {
         // 看数据库有没有设备,没有则保存
-        TDevice tDevice = deviceService.getDeviceById(device.getDeviceId());
-        if(tDevice == null){
-            tDevice = new TDevice();
-//                tDevice.toEntity(device);
-//                tDevice.setType(DeviceType.ANDROID.getName());
+        DeviceAndroid deviceAndroid = deviceCacheMgr.getDeviceAndroid(device.getDeviceId());
+        if(deviceAndroid == null){
+            deviceAndroid = new DeviceAndroid();
             log.info("Save a new device to db, deviceId: {}.", device.getDeviceId());
         }
-        tDevice.toEntity(device);
-        tDevice.setType(DeviceType.ANDROID.getName());
+        deviceAndroid.setBrand(device.getBrand());
+        deviceAndroid.setCpuabi(device.getCpuabi());
+        deviceAndroid.setDensity(device.getDensity());
+        deviceAndroid.setDevId(device.getDeviceId());
+        deviceAndroid.setHeight(device.getHeight());
+        deviceAndroid.setHost(device.getHost());
+        deviceAndroid.setModel(device.getModel());
+        deviceAndroid.setOsName(device.getOsName());
+        deviceAndroid.setSdk(device.getSdk());
+        deviceAndroid.setWidth(device.getWidth());
 
-        UserDeviceHis udh = userDeviceHisService.findByUserIdAndDeviceId(userId, device.getDeviceId());
-        if(udh == null){
-            udh = new UserDeviceHis(userId, tDevice);
-            userDeviceHisService.save(udh);
-        }
+//        UserDeviceHis udh = userDeviceHisService.findByUserIdAndDeviceId(userId, device.getDeviceId());
+//        if(udh == null){
+//            udh = new UserDeviceHis(userId, tDevice);
+//            userDeviceHisService.save(udh);
+//        }
 
         // 修改设备状态
-        tDevice.setStatus(device.getStatus().name().toUpperCase());
-        deviceService.save(tDevice);
-        udh.setD_status(device.getStatus().name().toUpperCase());
-        userDeviceHisService.save(udh);
+//        tDevice.setStatus(device.getStatus().name().toUpperCase());
+//        deviceService.save(tDevice);
+//        udh.setD_status(device.getStatus().name().toUpperCase());
+//        userDeviceHisService.save(udh);
 
         if("ON".equals(device.getStatus().name().toUpperCase())){
-
-            remoteClientService.saveDevice(userId, device.getDeviceId());
-
+            deviceCacheMgr.saveDeviceAndroid(deviceAndroid);
         }
-
         if("OFF".equals(device.getStatus().name().toUpperCase())){
-            JsonFormat jf = new JsonFormat();
-            String fbJson = jf.printToString(device);
-            log.info("OFFLINE, device info is {}", fbJson);
-            remoteClientService.delDevice(device.getDeviceId());
+            deviceCacheMgr.delDeviceAndroid(deviceAndroid.getDevId());
         }
     }
 
     @Override
     public void disconnect(NoUsedDeviceRequest request, StreamObserver<CommonReply> responseObserver) {
         log.info("device disconnect, {}", request.getDeviceId());
-        remoteClientService.delDevice(request.getDeviceId());
+        deviceCacheMgr.delDeviceAndroid(request.getDeviceId());
         // 修改设备状态为OFF 数据库不需要 off 状态标识
-//        TDevice tDevice = deviceService.getDeviceById(request.getDeviceId());
+//        DeviceAndroid tDevice = deviceService.getDeviceById(request.getDeviceId());
 //        tDevice.setStatus("OFF");
 //        deviceService.save(tDevice);
     }

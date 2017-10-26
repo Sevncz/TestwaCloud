@@ -7,7 +7,6 @@ import com.corundumstudio.socketio.annotation.OnEvent;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.rpc.proto.Agent;
-import com.testwa.distest.server.mvc.model.Report;
 import com.testwa.distest.server.mvc.service.ReportService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

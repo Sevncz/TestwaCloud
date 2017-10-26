@@ -2,12 +2,13 @@ package com.testwa.distest.server.mvc.event;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
-import com.testwa.distest.server.mvc.model.ExecutionTask;
+import com.testwa.distest.server.mvc.entity.ExecutionTask;
+import com.testwa.distest.server.mvc.entity.Script;
 import com.testwa.distest.server.mvc.model.ProcedureInfo;
 import com.testwa.distest.server.mvc.model.ProcedureStatis;
-import com.testwa.distest.server.mvc.model.Script;
 import com.testwa.distest.server.mvc.service.ProcedureInfoService;
-import com.testwa.distest.server.mvc.service.TaskService;
+import com.testwa.distest.server.service.task.service.ExecutionTaskService;
+import com.testwa.distest.server.service.task.service.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,15 +35,15 @@ public class GameOverListener implements ApplicationListener<GameOverEvent> {
     @Autowired
     private ProcedureInfoService procedureInfoService;
     @Autowired
-    private TaskService taskService;
+    private ExecutionTaskService executionTaskService;
 
     @Async
     @Override
     public void onApplicationEvent(GameOverEvent e) {
         log.info("start...");
-        String exeId = e.getExeId();
+        Long exeId = Long.parseLong(e.getExeId());
         // 根据前端需求开始统计报告
-        ExecutionTask et = taskService.getExeTaskById(exeId);
+        ExecutionTask et = executionTaskService.findOne(exeId);
         // 脚本数量
         Map<String, List<Script>> taskScripts = et.getScripts();
         int scriptNum = 0;

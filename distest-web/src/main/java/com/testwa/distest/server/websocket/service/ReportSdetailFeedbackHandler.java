@@ -7,15 +7,10 @@ import com.corundumstudio.socketio.annotation.OnEvent;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.rpc.proto.Agent;
-import com.testwa.distest.server.mvc.model.ReportSdetail;
-import com.testwa.distest.server.mvc.service.ReportSdetailService;
-import com.testwa.distest.server.mvc.service.ReportService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Date;
 
 /**
  * Created by wen on 2016/9/24.
@@ -29,11 +24,6 @@ public class ReportSdetailFeedbackHandler {
     private final SocketIOServer server;
 
     @Autowired
-    private ReportService reportService;
-    @Autowired
-    private ReportSdetailService reportSdetailService;
-
-    @Autowired
     public ReportSdetailFeedbackHandler(SocketIOServer server) {
         this.server = server;
     }
@@ -45,17 +35,17 @@ public class ReportSdetailFeedbackHandler {
          */
         try {
             Agent.ReportSdetailFeedback rs = Agent.ReportSdetailFeedback.parseFrom(data);
-            ReportSdetail sdetail = reportSdetailService.findTestcaseSdetailByDetailIdScriptId(rs.getReportDetailId(), rs.getScriptId());
-            log.info("receive message for sdetail message, sdetailId: {}.", sdetail.getId());
-            if(Agent.ReportSdetailType.start.name().equals(rs.getType().name())){
-                sdetail.setStartTime(new Date());
-                sdetail.setMachineName(rs.getMatchineName());
-                reportSdetailService.save(sdetail);
-            }
-            if(Agent.ReportSdetailType.end.name().equals(rs.getType().name())){
-                sdetail.setEndTime(new Date());
-                reportSdetailService.save(sdetail);
-            }
+//            ReportSdetail sdetail = reportSdetailService.findTestcaseSdetailByDetailIdScriptId(rs.getReportDetailId(), rs.getScriptId());
+//            log.info("receive message for sdetail message, sdetailId: {}.", sdetail.getId());
+//            if(Agent.ReportSdetailType.start.name().equals(rs.getType().name())){
+//                sdetail.setStartTime(new Date());
+//                sdetail.setMachineName(rs.getMatchineName());
+//                reportSdetailService.save(sdetail);
+//            }
+//            if(Agent.ReportSdetailType.end.name().equals(rs.getType().name())){
+//                sdetail.setEndTime(new Date());
+//                reportSdetailService.save(sdetail);
+//            }
 
         } catch (InvalidProtocolBufferException e) {
             e.printStackTrace();

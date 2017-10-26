@@ -5,8 +5,8 @@ package com.testwa.distest.server.mvc.service.cache;
  */
 class CacheKeys {
 
-    static final String device_user = "device.user.%s";
-    static final String user_client_login = "user.client.login.%s";
+    static final String device_user = "device.auth.%s";
+    static final String user_client_login = "auth.client.login.%s";
     static final String device_client = "device.client.%s";
     static final String main_info = "main.info.%s";
     static final String subscribe_device_func = "subscribe.device.func.%s.%s";
@@ -16,7 +16,7 @@ class CacheKeys {
     static final String device_share = "device.share.%s.%s";
 
     // web cache
-    // user project history %s = userId
+    // auth project history %s = userId
     static final String user_project_history = "history.project.%s";
 
 

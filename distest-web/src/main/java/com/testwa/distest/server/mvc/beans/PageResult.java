@@ -1,7 +1,6 @@
 package com.testwa.distest.server.mvc.beans;
 
 import com.google.common.collect.Lists;
-import com.testwa.distest.server.mvc.vo.DeviceOwnerTableVO;
 
 import java.util.List;
 

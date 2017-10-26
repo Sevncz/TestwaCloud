@@ -1,8 +1,5 @@
 package com.testwa.distest.server.mvc.vo;
 
-import com.testwa.distest.server.mvc.model.Report;
-import com.testwa.distest.server.mvc.model.ReportDetail;
-
 import java.util.ArrayList;
 import java.util.List;
 

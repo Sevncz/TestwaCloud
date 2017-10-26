@@ -4,21 +4,18 @@ import com.alibaba.fastjson.JSON;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.core.utils.TimeUtil;
-import com.testwa.distest.server.exception.NoSuchAppException;
-import com.testwa.distest.server.exception.NoSuchExecutionTaskException;
-import com.testwa.distest.server.exception.NoSuchTaskException;
-import com.testwa.distest.server.exception.NoSuchTestcaseException;
+import com.testwa.distest.common.exception.*;
 import com.testwa.core.model.RemoteRunCommand;
 import com.testwa.core.model.RemoteTestcaseContent;
 import com.testwa.distest.server.mvc.beans.PageResult;
-import com.testwa.distest.server.mvc.beans.Result;
-import com.testwa.distest.server.mvc.beans.ResultCode;
+import com.testwa.distest.common.constant.Result;
+import com.testwa.distest.common.constant.ResultCode;
 import com.testwa.distest.server.mvc.model.*;
 import com.testwa.distest.server.mvc.service.*;
 import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
-import com.testwa.distest.server.mvc.vo.DeleteVO;
 import com.testwa.distest.server.mvc.vo.ExeTaskProgressVO;
-import com.testwa.distest.server.mvc.vo.TaskVO;
+import com.testwa.distest.server.service.app.service.AppService;
+import com.testwa.distest.server.service.project.service.ProjectService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.Data;
@@ -29,9 +26,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
+import com.testwa.distest.server.mvc.entity.User;
 
 import javax.validation.Valid;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -123,21 +120,21 @@ public class TaskController extends BaseController{
                        @RequestParam(value = "sortField") String sortField,
                        @RequestParam(value = "sortOrder") String sortOrder,
                        @RequestParam(required = false) String projectId,
-                       @RequestParam(required = false) String appId){
+                       @RequestParam(required = false) String appId) throws AccountException {
 
         PageRequest pageRequest = buildPageRequest(page, size, sortField, sortOrder);
         User user = userService.findByUsername(getCurrentUsername());
         List<String> projectIds = new ArrayList<>();
         if(StringUtils.isBlank(projectId)){
-            List<Project> projectsOfUser = projectService.findByUser(user);
-            projectsOfUser.forEach(item -> projectIds.add(item.getId()));
+//            List<Project> projectsOfUser = projectService.findByUser(auth);
+//            projectsOfUser.forEach(item -> projectIds.add(item.getId()));
         }else{
-            List<ProjectMember> pms = projectService.getMembersByProjectAndUserId(projectId, user.getId());
-            if(pms == null || pms.size() == 0){
-                log.error("ProjectMember is null, user {} not in project {}", user.getId(), projectId);
-                return fail(ResultCode.INVALID_PARAM, "用户不属于该项目");
-            }
-            projectIds.add(projectId);
+//            List<ProjectMember> pms = projectService.getMembersByProjectAndUserId(projectId, auth.getId());
+//            if(pms == null || pms.size() == 0){
+//                log.error("ProjectMember is null, auth {} not in project {}", auth.getId(), projectId);
+//                return fail(ResultCode.INVALID_PARAM, "用户不属于该项目");
+//            }
+//            projectIds.add(projectId);
         }
         Page<Task> tasks = taskService.findPage(pageRequest, appId, projectIds);
         Iterator<Task> tasksIter = tasks.iterator();
@@ -153,7 +150,7 @@ public class TaskController extends BaseController{
     @ApiOperation(value="执行并保存一个任务")
     @ResponseBody
     @RequestMapping(value = "/saveAndRun", method = RequestMethod.POST)
-    public Result saveAndRun(@RequestBody TaskInfo taskInfo){
+    public Result saveAndRun(@RequestBody TaskInfo taskInfo) throws AccountException {
         String appId = taskInfo.appId;
         String projectId = taskInfo.projectId;
         List<String> caseIds = taskInfo.caseIds;
@@ -171,7 +168,7 @@ public class TaskController extends BaseController{
         User user = userService.findByUsername(getCurrentUsername());
 
         // 执行完成之后再生成报告
-//        Report report = new Report(task, app, deviceIds, user);
+//        Report report = new Report(task, app, deviceIds, auth);
 //        reportService.save(report);
 
         List<RemoteTestcaseContent> cases = new ArrayList<>();
@@ -215,7 +212,7 @@ public class TaskController extends BaseController{
     public Result run(@RequestBody TaskInfo taskinfo){
         try {
             User user = userService.findByUsername(getCurrentUsername());
-            taskService.run(taskinfo.getProjectId(), user, taskinfo.taskId, taskinfo.deviceIds);
+//            taskService.run(taskinfo.getProjectId(), auth, taskinfo.taskId, taskinfo.deviceIds);
         } catch (Exception e) {
             log.error("session not found ", e);
             return fail(ResultCode.SERVER_ERROR, "设备已断开");
@@ -238,7 +235,7 @@ public class TaskController extends BaseController{
     public Result kill(@RequestBody TaskInfo taskinfo){
         try {
             // todo : 杀掉也调run?
-//            taskService.run(taskinfo.getProjectId(), user, taskinfo.taskId, taskinfo.deviceIds);
+//            taskService.run(taskinfo.getProjectId(), auth, taskinfo.taskId, taskinfo.deviceIds);
         } catch (Exception e) {
             log.error("session not found ", e);
             return fail(ResultCode.SERVER_ERROR, "设备已断开");
@@ -314,7 +311,7 @@ public class TaskController extends BaseController{
         // 设备脚本执行情况，app信息可以从app基本情况获得
         /*
          {
-         "model": "Task 4",
+         "dto": "Task 4",
          "brand": "lantern",
          "state": 128 ,
          "successNum": 23,
@@ -333,7 +330,7 @@ public class TaskController extends BaseController{
             subInfo.put("failedNum", s.get("fail"));
             subInfo.put("total", ps.getScriptNum());
             TDevice d = devInfo.get(deviceId);
-            subInfo.put("model", d.getModel());
+            subInfo.put("dto", d.getModel());
             subInfo.put("brand", d.getBrand());
             scriptStaty.add(subInfo);
         });
@@ -353,7 +350,7 @@ public class TaskController extends BaseController{
             String deviceId = (String) s.get("_id");
             TDevice d = devInfo.get(deviceId);
             Map<String, Object> subInfo = new HashMap<>();
-            subInfo.put("model", d.getModel());
+            subInfo.put("dto", d.getModel());
             subInfo.put("brand", d.getBrand());
             subInfo.put("value", s.get("value"));
             cpuStaty.add(subInfo);
@@ -373,7 +370,7 @@ public class TaskController extends BaseController{
             String deviceId = (String) s.get("_id");
             TDevice d = devInfo.get(deviceId);
             Map<String, Object> subInfo = new HashMap<>();
-            subInfo.put("model", d.getModel());
+            subInfo.put("dto", d.getModel());
             subInfo.put("brand", d.getBrand());
             subInfo.put("value", s.get("value"));
             ramStaty.add(subInfo);
@@ -427,7 +424,7 @@ public class TaskController extends BaseController{
 
             TDevice tDevice = devInfo.get(d);
             Map<String, Object> subInfo = new HashMap<>();
-            subInfo.put("model", tDevice.getModel());
+            subInfo.put("dto", tDevice.getModel());
             subInfo.put("brand", tDevice.getBrand());
             subInfo.put("series", l);
             cpuline.add(subInfo);
@@ -437,7 +434,7 @@ public class TaskController extends BaseController{
 
             TDevice tDevice = devInfo.get(d);
             Map<String, Object> subInfo = new HashMap<>();
-            subInfo.put("model", tDevice.getModel());
+            subInfo.put("dto", tDevice.getModel());
             subInfo.put("brand", tDevice.getBrand());
             subInfo.put("series", l);
             rawline.add(subInfo);

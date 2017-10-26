@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.testwa.distest.server.mvc.mapper.ProjectMapper" >
+    <resultMap id="BaseResultMap" type="com.testwa.distest.server.mvc.entity.Project" >
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="projectName" property="projectName" jdbcType="VARCHAR" />
+        <result column="description" property="description" jdbcType="VARCHAR" />
+        <result column="createTime" property="createTime" jdbcType="DATE" javaType="java.util.Date"/>
+        <result column="updateTime" property="updateTime" jdbcType="DATE" javaType="java.util.Date"/>
+        <result column="createBy" property="createBy" jdbcType="BIGINT" />
+        <result column="updateBy" property="updateBy" jdbcType="BIGINT" />
+
+    </resultMap>
+
+    <sql id="Base_Column_List" >
+        id, projectName, description, creatTime, updateTime, createBy, updateBy
+    </sql>
+
+    <select id="findBy" parameterType="com.testwa.distest.server.mvc.entity.Project" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM project
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            <if test="projectName != null">and projectName = #{projectName}</if>
+        </trim>
+    </select>
+
+    <select id="findAllByUser" parameterType="java.util.Map" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM project
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            id in (select pm.projectId from project_member pm where pm.memberId = #{userId})
+            <if test="projectName != null">and projectName = #{projectName}</if>
+        </trim>
+    </select>
+
+    <select id="countBy" parameterType="com.testwa.distest.server.mvc.entity.Project" resultMap="INTEGER" >
+        SELECT count(1) c
+        FROM project
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            <if test="projectName != null">and projectName = #{projectName}</if>
+            <if test="createBy != null">and createBy = #{createBy}</if>
+        </trim>
+    </select>
+
+</mapper>

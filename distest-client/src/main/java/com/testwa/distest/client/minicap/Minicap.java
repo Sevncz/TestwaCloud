@@ -285,7 +285,7 @@ public class Minicap {
                 .whithArgs(args)
                 .build();
         service.start();
-        log.info("minicap service start, forward port {}", forward.getPort());
+        log.info("minicap vo start, forward port {}", forward.getPort());
         minicapInitialThread = new Thread(new StartInitial("127.0.0.1", forward.getPort()));
         minicapInitialThread.start();
     }

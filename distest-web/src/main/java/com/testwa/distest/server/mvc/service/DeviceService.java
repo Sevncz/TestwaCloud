@@ -1,9 +1,6 @@
 package com.testwa.distest.server.mvc.service;
 
-import com.testwa.distest.server.mvc.model.TDevice;
-import com.testwa.distest.server.mvc.repository.DeviceRepository;
 import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
-import com.testwa.distest.server.mvc.vo.Filter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -23,12 +23,12 @@ public class AndroidDeviceConfiguration {
     }
 
     /*
-     * This method gets the device model name
+     * This method gets the device dto name
      */
     public String getDeviceModel(String deviceID) {
         AndroidDevice device = AndroidHelper.getInstance().getAndroidDevice(deviceID);
         String brand = device.runAdbCommand("shell getprop ro.product.brand");
-        String deviceModelName = device.runAdbCommand("shell getprop ro.product.model").replaceAll("\\W", "");
+        String deviceModelName = device.runAdbCommand("shell getprop ro.product.dto").replaceAll("\\W", "");
         String deviceModel = deviceModelName.concat("_" + brand);
         return deviceModel.trim();
 

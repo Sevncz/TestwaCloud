@@ -1,0 +1,22 @@
+package com.testwa.distest.server.service.script.form;
+
+import com.testwa.distest.common.form.RequestFormBase;
+import io.swagger.annotations.ApiModel;
+import lombok.Data;
+
+import javax.validation.constraints.NotNull;
+
+/**
+ * Created by wen on 21/10/2017.
+ */
+@ApiModel(value = "ScriptNewForm",
+        description = "创建"
+)
+@Data
+public class ScriptNewForm extends RequestFormBase{
+    @NotNull
+    private Long projectId;
+    @NotNull
+    private String tag;
+    private String description;
+}

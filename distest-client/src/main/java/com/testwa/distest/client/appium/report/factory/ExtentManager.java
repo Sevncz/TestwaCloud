@@ -7,9 +7,9 @@ public class ExtentManager {
 
     public synchronized static ExtentReports getInstance() {
         if (instance == null) {
-            System.out.println(System.getProperty("user.dir"));
+            System.out.println(System.getProperty("auth.dir"));
             instance =
-                new ExtentReports(System.getProperty("user.dir") + "/target/ExtentReport.html");
+                new ExtentReports(System.getProperty("auth.dir") + "/target/ExtentReport.html");
             try {
                 if (System.getenv("ExtentX").equalsIgnoreCase("true")) {
                     instance.x();

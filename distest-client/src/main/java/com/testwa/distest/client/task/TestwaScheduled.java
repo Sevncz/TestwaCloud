@@ -81,7 +81,7 @@ public class TestwaScheduled {
                         device.setCpuabi(ad.runAdbCommand("shell getprop ro.product.cpu.abi"));
                         device.setSdk(ad.runAdbCommand("shell getprop ro.build.version.sdk"));
                         device.setHost(ad.runAdbCommand("shell getprop ro.build.host"));
-                        device.setModel(ad.runAdbCommand("shell getprop ro.product.model"));
+                        device.setModel(ad.runAdbCommand("shell getprop ro.product.dto"));
                         device.setBrand(ad.runAdbCommand("shell getprop ro.product.brand"));
                         device.setVersion(ad.runAdbCommand("shell getprop ro.build.version.release"));
 

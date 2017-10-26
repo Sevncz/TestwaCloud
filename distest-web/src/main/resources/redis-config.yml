@@ -1,0 +1,14 @@
+redis:
+  evictorDelayCheckSeconds: 300
+  evictorCheckPeriodSeconds: 30
+  evictorFailedTimesToBeTickOut: 6
+  retryTimes: 2
+  client:
+     - name: TestwaRedis1
+       host: 127.0.0.1
+       port: 6379
+       password:
+     - name: TestwaRedis2
+       host: 127.0.0.1
+       port: 6379
+       password:

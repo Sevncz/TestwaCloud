@@ -71,4 +71,6 @@ public class BaseService {
 
         repository.updateMulti(query, update);
     }
+
+
 }

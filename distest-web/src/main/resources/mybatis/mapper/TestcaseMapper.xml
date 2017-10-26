@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.testwa.distest.server.mvc.mapper.TestcaseMapper" >
+    <resultMap id="BaseResultMap" type="com.testwa.distest.server.mvc.entity.Testcase" >
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="scriptName" property="scriptName" jdbcType="VARCHAR" />
+        <result column="aliasName" property="aliasName" jdbcType="VARCHAR" />
+        <result column="size" property="size" jdbcType="VARCHAR" />
+        <result column="tag" property="tag" jdbcType="VARCHAR" />
+        <result column="description" property="description" jdbcType="VARCHAR" />
+        <result column="ln" property="ln" jdbcType="TINYINT" typeHandler="com.testwa.distest.common.mybatis.EnumValueHandler"/>
+        <result column="version" property="version" jdbcType="VARCHAR" />
+        <result column="path" property="path" jdbcType="VARCHAR" />
+        <result column="md5" property="md5" jdbcType="VARCHAR" />
+        <result column="updateTime" property="updateTime" jdbcType="DATE" javaType="java.util.Date"/>
+        <result column="createTime" property="createTime" jdbcType="DATE" javaType="java.util.Date"/>
+        <result column="updateBy" property="updateBy" jdbcType="BIGINT"/>
+        <result column="createBy" property="createBy" jdbcType="BIGINT"/>
+        <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
+    </resultMap>
+
+    <sql id="Base_Column_List" >
+        id, scriptName, aliasName, size, tag, description, ln, type, version, path, md5, userId, updateTime, createTime, updateBy, createBy, enabled
+    </sql>
+
+    <select id="findBy" parameterType="com.testwa.distest.server.mvc.entity.Script" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM testcase
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            enabled = 1
+            <if test="createBy != null">and createBy = #{createBy}</if>
+            <if test="projectId != null">and projectId = #{projectId}</if>
+            <if test="scriptName != null">and scriptName = #{scriptName}</if>
+        </trim>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+    </select>
+
+    <select id="findByFromProject" parameterType="java.util.Map" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM testcase
+        WHERE enabled = 1
+        AND projectId in
+        <foreach item="item" index="index" collection="params.projects" open="(" separator="," close=")">#{item.id} </foreach>
+        <if test="params.appName != null">and appName = #{params.appName}</if>
+        <if test="params.userId != null">and userId = #{params.userId}</if>
+        <if test="params.projectId != null">and projectId = #{params.projectId}</if>
+    </select>
+    <select id="findAllOrder" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM testcase
+        WHERE enabled = 1
+        AND id IN
+        <foreach item="item" index="index" collection="testcaseId" open="(" separator="," close=")">#{item} </foreach>
+        ORDER BY ${order}
+    </select>
+
+    <select id="countBy" resultType="long">
+        SELECT count(1) c FROM testcase
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            enabled = 1
+            <if test="createBy != null">and createBy = #{createBy}</if>
+            <if test="projectId != null">and projectId = #{projectId}</if>
+            <if test="scriptName != null">and scriptName = #{scriptName}</if>
+        </trim>
+    </select>
+
+</mapper>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.testwa.distest.common.mapper.BaseMapper">
+
+    <select id="count" resultType="long">
+        SELECT count(1) c FROM ${__tableName__}
+    </select>
+
+    <select id="findOne" parameterType="java.util.Map" resultType="com.testwa.distest.common.bo.Entity">
+        SELECT * FROM ${__tableName__} t WHERE t.id = #{key}
+    </select>
+
+    <select id="findList" parameterType="java.util.Map" resultType="com.testwa.distest.common.bo.Entity">
+        SELECT * FROM ${__tableName__} t
+        <if test="keys != null">
+            <trim prefix="WHERE" prefixOverrides="AND |OR ">
+                id in
+                <foreach item="id" index="index" collection="keys" open="(" separator="," close=")">#{id} </foreach>
+            </trim>
+        </if>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+    </select>
+
+    <delete id="delete" parameterType="java.util.Map">
+        DELETE FROM
+        ${__tableName__}
+        WHERE
+        id = #{id}
+    </delete>
+
+    <delete id="deleteAll" parameterType="java.util.Map">
+        DELETE FROM
+        ${__tableName__}
+        WHERE
+        id in
+        <foreach item="id" index="index" collection="keys" open="(" separator="," close=")">#{id} </foreach>
+    </delete>
+    
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO
+        ${__tableName__}
+        <foreach item="field" index="index" collection="fields" open="(" separator="," close=")">${field} </foreach>
+        VALUES
+        <foreach item="value" index="index" collection="values" open="(" separator="," close=")">#{value} </foreach>
+    </insert>
+    <update id="update" parameterType="java.util.Map">
+        UPDATE
+        ${__tableName__}
+        <trim prefix="SET" suffixOverrides=",">
+            <foreach index="key" item="value" collection="update.entrySet()" separator=",">
+                ${key}=#{value}
+            </foreach>
+        </trim>
+        WHERE
+        id = #{id}
+    </update>
+
+</mapper>

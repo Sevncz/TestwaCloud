@@ -1,5 +1,6 @@
 package com.testwa.distest.server.monitor;
 
+import com.testwa.distest.common.context.ThreadContext;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
@@ -23,26 +24,24 @@ import java.util.Arrays;
 class WebRequestTimeLogAspect {
     private static final Logger logger = LoggerFactory.getLogger(WebRequestTimeLogAspect.class);
 
-    ThreadLocal<Long> startTime = new ThreadLocal<Long>();
-
-    @Pointcut("execution(public * com.testwa.*.web..*.*(..))")
+    @Pointcut("execution(public * com.testwa.*.server..*.*(..))")
     public void webLog(){}
 
     @Before("webLog()")
     public void doBefore(JoinPoint joinPoint){
-        startTime.set(System.currentTimeMillis());
+        ThreadContext.putRequestBeforeTime(System.currentTimeMillis());
     }
 
     @AfterReturning("webLog()")
     public void  doAfterReturning(JoinPoint joinPoint){
         // 处理完请求，返回内容
-        Long statTime = startTime.get();
+        Long startTime = ThreadContext.getRequestBeforeTime();
         Long endTime = System.currentTimeMillis();
-        if(endTime - statTime > 100){
+        if(endTime - startTime > 100){
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             if(attributes != null){
                 HttpServletRequest request = attributes.getRequest();
-                logger.info("TIME : {} ", endTime - statTime);
+                logger.info("TIME : {} ", endTime - startTime);
                 logger.info("URL : {}", request.getRequestURL().toString());
                 logger.info("HTTP_METHOD : {}", request.getMethod());
                 logger.info("IP : {}", request.getRemoteAddr());

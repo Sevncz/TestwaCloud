@@ -1,8 +1,7 @@
 package com.testwa.distest.server.mvc.service;
 
-import com.testwa.distest.server.exception.NoSuchProjectException;
-import com.testwa.distest.server.exception.NoSuchScriptException;
-import com.testwa.distest.server.mvc.model.User;
+import com.testwa.distest.common.exception.NoSuchProjectException;
+import com.testwa.distest.common.exception.NoSuchScriptException;
 import com.testwa.distest.server.mvc.vo.QuickDeployVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

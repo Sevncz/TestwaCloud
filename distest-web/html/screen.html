@@ -44,7 +44,7 @@ var BLANK_IMG =
 var canvas = document.getElementById('phone-screen')
   , g = canvas.getContext('2d')
 
-var socket = io('http://localhost:9092?func=screen&deviceId=ZX1G427G93&type=browser');
+var socket = io('http://cloud.testwa.com:9092?func=screen&deviceId=ZX1G427G93&type=browser&token=eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjcEKwjAQRP9lzyk0Ndvu-isikk1WjGiVNkVF_HdXD-JxhjdvnjAvAmuI-VxGcBCXXHRMatVNxYpl1mlXsmXkQZn6hDGFfVrRPsQ-y0oNSpPGqgZ5bAmJO_LYsYM5Xa6m2jzNWw-XqdTH7-u1daD363fDnkNL3kGJ9V9ixBjl9DHXaVEHx1pMMHhRFMoNZ-mbIKwNB9QG-44Uh6yCBK83AAAA__8.pg-QWMRYNLNWVjOG5lznkR8GOS40VtOhCy4NvyjhJNI');
 socket.on('connect', function(){
     util.serverConnected = true
 });

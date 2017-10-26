@@ -1,12 +1,6 @@
 package com.testwa.distest.server.mvc.service.cache;
 
 import com.alibaba.fastjson.JSON;
-import com.testwa.distest.server.mvc.model.ProjectMember;
-import com.testwa.distest.server.mvc.model.TDevice;
-import com.testwa.distest.server.mvc.model.UserDeviceHis;
-import com.testwa.distest.server.mvc.model.UserShareScope;
-import com.testwa.distest.server.mvc.repository.DeviceRepository;
-import com.testwa.distest.server.mvc.repository.ProjectMemberRepository;
 import com.testwa.distest.server.mvc.repository.UserDeviceHisRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -35,7 +29,7 @@ public class RemoteClientService {
     private ProjectMemberRepository projectMemberRepository;
 
     public void saveDevice(String userId, String deviceId) {
-        // user -- device
+        // auth -- device
         redisTemplate.opsForValue().set(String.format(CacheKeys.device_user, deviceId), userId);
         // device -- share scopes
         log.debug("device add share scopes");
@@ -59,7 +53,7 @@ public class RemoteClientService {
             projectMembers.forEach(projectMember -> redisTemplate.opsForValue().set(String.format(CacheKeys.device_share, projectMember.getProjectId(), tDevice.getId()), tDevice));
         } else {
             if (userDeviceHis.getScope() == UserShareScope.User.getValue()) {
-                // for user list
+                // for auth list
                 userDeviceHis.getShareUsers().forEach(user -> redisTemplate.opsForValue().set(String.format(CacheKeys.device_share, user, tDevice.getId()), tDevice));
             }
             // for owner
@@ -70,7 +64,7 @@ public class RemoteClientService {
     public List<String> getAllDevice() {
         Set<String> keys = redisTemplate.keys(String.format(CacheKeys.device_user, "*"));
         List<String> r = new ArrayList<>();
-        keys.forEach(item -> r.add(item.substring("device.user.".length())));
+        keys.forEach(item -> r.add(item.substring("device.auth.".length())));
         return r;
     }
 

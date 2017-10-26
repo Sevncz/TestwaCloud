@@ -3,10 +3,8 @@ package com.testwa.distest.server.schedule;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.testwa.core.WebsocketEvent;
+import com.testwa.distest.redis.RedisCacheManager;
 import com.testwa.distest.server.mvc.model.ProcedureInfo;
-import com.testwa.distest.server.mvc.model.ReportSdetail;
-import com.testwa.distest.server.mvc.service.ReportDetailService;
-import com.testwa.distest.server.mvc.service.ReportSdetailService;
 import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -15,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +28,7 @@ public class TestwaScheduledRunner {
     private static final Logger log = LoggerFactory.getLogger(TestwaScheduledRunner.class);
     private ObjectMapper mapper = new ObjectMapper();
     @Autowired
-    private StringRedisTemplate stringRedisTemplate;
+    private RedisCacheManager redisCacheManager;
 
     @Autowired
     private MongoTemplate mongoTemplate;
@@ -39,11 +36,6 @@ public class TestwaScheduledRunner {
     @Autowired
     private Environment env;
 
-    @Autowired
-    private ReportDetailService reportDetailService;
-
-    @Autowired
-    private ReportSdetailService reportSdetailService;
     @Autowired
     private RemoteClientService remoteClientService;
 
@@ -57,7 +49,7 @@ public class TestwaScheduledRunner {
 
     @Scheduled(cron = "0/10 * * * * ?")
     public void storeRunningLog() throws Exception {
-        Long logSize = stringRedisTemplate.opsForList().size(WebsocketEvent.FB_RUNNGING_LOG);
+        Long logSize = redisCacheManager.llen(WebsocketEvent.FB_RUNNGING_LOG);
         if(logSize == 0){
             return;
         }
@@ -65,8 +57,7 @@ public class TestwaScheduledRunner {
         List<ProcedureInfo> logers = new ArrayList<>();
         for(int i=0;i < logSize; i++){
             try {
-                String loger_s = stringRedisTemplate.opsForList().rightPop(WebsocketEvent.FB_RUNNGING_LOG);
-                ProcedureInfo procedure = mapper.readValue(loger_s, ProcedureInfo.class);
+                ProcedureInfo procedure = (ProcedureInfo) redisCacheManager.rpop(WebsocketEvent.FB_RUNNGING_LOG, ProcedureInfo.class);
                 String screenPath = procedure.getScreenshotPath();
                 // 转换文件分隔符
                 String configScreenPath = env.getProperty("screeshot.path");

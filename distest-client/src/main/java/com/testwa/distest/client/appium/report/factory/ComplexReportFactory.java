@@ -17,7 +17,7 @@ public class ComplexReportFactory {
     public static ExtentReports reporter;
     public static Map<Long, String> threadToExtentTestMap = new HashMap<Long, String>();
     public static Map<String, ExtentTest> nameToTestMap = new HashMap<String, ExtentTest>();
-    private static String filenameOfReport = System.getProperty("user.dir") + "/index.html";
+    private static String filenameOfReport = System.getProperty("auth.dir") + "/index.html";
     public static Properties prop = new Properties();
     public static InputStream input = null;
 

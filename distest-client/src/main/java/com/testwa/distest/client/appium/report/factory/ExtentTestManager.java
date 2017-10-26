@@ -55,13 +55,13 @@ public class ExtentTestManager { // new
         imgSrc = "<div class='col l4 m6 s12'><div class='card-panel'><h4 class='md-display-4'>"
             + headerName + "</h4><img src=" + imgSrc
             + " style=\"width:100%;height:100%;\"></div></div>";
-        extent.loadConfig(new File(System.getProperty("user.dir") + "/extent.xml"));
+        extent.loadConfig(new File(System.getProperty("auth.dir") + "/extent.xml"));
         extent.setTestRunnerOutput(imgSrc);
         //extent.setTestRunnerOutput(s);
     }
 
     public synchronized static void loadConfig() {
-        extent.loadConfig(new File(System.getProperty("user.dir") + "/extent.xml"));
+        extent.loadConfig(new File(System.getProperty("auth.dir") + "/extent.xml"));
     }
 
     public synchronized static void logger(String message) {

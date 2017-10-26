@@ -48,7 +48,7 @@ public class TimeUtil {
      * Return a readable formatted version of the given epoch time.
      *
      * @param epochTime the epoch time in milliseconds
-     * @return a user readable string
+     * @return a auth readable string
      */
     public static synchronized String formatTimeStamp(long epochTime) {
         return TIME_FORMAT.format(new Date(epochTime));

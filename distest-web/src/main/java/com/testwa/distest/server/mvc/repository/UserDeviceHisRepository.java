@@ -1,7 +1,5 @@
 package com.testwa.distest.server.mvc.repository;
 
-import com.testwa.distest.server.mvc.model.UserDeviceHis;
-
 import java.io.Serializable;
 import java.util.List;
 

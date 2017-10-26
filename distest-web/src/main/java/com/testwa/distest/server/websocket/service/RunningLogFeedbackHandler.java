@@ -8,6 +8,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.googlecode.protobuf.format.JsonFormat;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.rpc.proto.Agent;
+import com.testwa.distest.redis.RedisCacheManager;
 import com.testwa.distest.server.mvc.model.ProcedureInfo;
 import io.rpc.testwa.task.ProcedureInfoRequest;
 import org.codehaus.jackson.JsonGenerationException;
@@ -16,7 +17,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -30,7 +30,7 @@ public class RunningLogFeedbackHandler {
     private ObjectMapper mapper = new ObjectMapper();
 
     @Autowired
-    private StringRedisTemplate stringRedisTemplate;
+    private RedisCacheManager redisCacheMgr;
 
     @Autowired
     public RunningLogFeedbackHandler(SocketIOServer server) {
@@ -47,7 +47,7 @@ public class RunningLogFeedbackHandler {
             procedureInfo.toEntity(request);
             String json = mapper.writeValueAsString(procedureInfo);
             log.info("json -----> {}", json);
-            stringRedisTemplate.opsForList().leftPush(WebsocketEvent.FB_RUNNGING_LOG, json);
+            redisCacheMgr.lpush(WebsocketEvent.FB_RUNNGING_LOG, json);
         } catch (InvalidProtocolBufferException e) {
             log.error("InvalidProtocolBufferException", e);
         } catch (JsonGenerationException e) {
@@ -65,7 +65,7 @@ public class RunningLogFeedbackHandler {
             Agent.RunningLogFeedbackEnd end = Agent.RunningLogFeedbackEnd.parseFrom(data);
             JsonFormat jf = new JsonFormat();
             String fbJson = jf.printToString(end);
-            stringRedisTemplate.opsForList().leftPush(WebsocketEvent.FB_SCRIPT_END, fbJson);
+            redisCacheMgr.lpush(WebsocketEvent.FB_SCRIPT_END, fbJson);
         } catch (InvalidProtocolBufferException e) {
             log.error("InvalidProtocolBufferException", e);
         }

@@ -1,10 +1,5 @@
 package com.testwa.distest.server.mvc.service;
 
-import com.testwa.distest.server.mvc.model.TDevice;
-import com.testwa.distest.server.mvc.model.User;
-import com.testwa.distest.server.mvc.model.UserDeviceHis;
-import com.testwa.distest.server.mvc.beans.QueryFilters;
-import com.testwa.distest.server.mvc.model.UserShareScope;
 import com.testwa.distest.server.mvc.repository.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by wen on 16/9/1.

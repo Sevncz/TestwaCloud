@@ -1,6 +1,5 @@
 package com.testwa.distest.server.mvc.vo;
 
-import com.testwa.distest.server.mvc.model.UserDeviceHis;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

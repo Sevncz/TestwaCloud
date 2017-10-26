@@ -63,7 +63,7 @@ public class DeviceChangeListener implements AndroidDebugBridge.IDeviceChangeLis
         testwaDevice.setCpuabi(ad.runAdbCommand("shell getprop ro.product.cpu.abi"));
         testwaDevice.setSdk(ad.runAdbCommand("shell getprop ro.build.version.sdk"));
         testwaDevice.setHost(ad.runAdbCommand("shell getprop ro.build.host"));
-        testwaDevice.setModel(ad.runAdbCommand("shell getprop ro.product.model"));
+        testwaDevice.setModel(ad.runAdbCommand("shell getprop ro.product.dto"));
         testwaDevice.setBrand(ad.runAdbCommand("shell getprop ro.product.brand"));
         testwaDevice.setVersion(ad.runAdbCommand("shell getprop ro.build.version.release"));
         if("ONLINE".equals(ad.getDevice().getState().name().toUpperCase())){

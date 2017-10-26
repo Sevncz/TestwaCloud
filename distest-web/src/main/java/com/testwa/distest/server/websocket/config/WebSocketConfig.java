@@ -1,7 +1,7 @@
 package com.testwa.distest.server.websocket.config;
 
 import com.corundumstudio.socketio.SocketIOServer;
-import com.testwa.distest.server.security.JwtTokenUtil;
+import com.testwa.distest.server.web.auth.jwt.JwtTokenUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

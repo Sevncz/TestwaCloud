@@ -5,7 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-@MapperScan("com.testwa.distest.admin.mapper")
+@MapperScan("com.testwa.distest.admin.security")
 public class Application {
 
 	public static void main(String[] args) {

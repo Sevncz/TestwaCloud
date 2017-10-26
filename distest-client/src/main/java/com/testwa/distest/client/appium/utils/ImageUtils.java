@@ -38,7 +38,7 @@ public class ImageUtils {
 
 
     public void createJSonForHtml() throws IOException {
-        File dir = new File(System.getProperty("user.dir") + "/target/screenshot/");
+        File dir = new File(System.getProperty("auth.dir") + "/target/screenshot/");
         System.out.println("Getting all files in " + dir.getCanonicalPath()
             + " including those in subdirectories");
         List<File> files =
@@ -98,7 +98,7 @@ public class ImageUtils {
     }
 
     public static void createGif() throws IOException {
-        File[] files = new File(System.getProperty("user.dir") + "/target/screenshot/").listFiles();
+        File[] files = new File(System.getProperty("auth.dir") + "/target/screenshot/").listFiles();
         showFiles(files);
     }
 

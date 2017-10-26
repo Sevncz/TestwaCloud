@@ -1,0 +1,27 @@
+package com.testwa.distest.server.service.task.form;
+
+import com.testwa.distest.common.form.RequestFormBase;
+import io.swagger.annotations.ApiModel;
+import lombok.Data;
+import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.validation.constraints.NotNull;
+import java.util.List;
+
+/**
+ * Created by wen on 24/10/2017.
+ */
+@ApiModel(value = "TaskStartForm",
+        description = "部署一个已存在的task"
+)
+@Data
+public class TaskStartForm extends RequestFormBase {
+
+    @NotNull(message = "taskId.empty")
+    @NotEmpty(message = "taskId.empty")
+    private Long taskId;
+    @NotNull(message = "deviceIds.empty")
+    @NotEmpty(message = "deviceIds.empty")
+    private List<String> deviceIds;
+
+}

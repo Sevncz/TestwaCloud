@@ -1,14 +1,14 @@
 package com.testwa.distest.server.rpc.service;
 
-import com.testwa.core.utils.TimeUtil;
+import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.LogInterceptor;
+import com.testwa.distest.server.mvc.entity.ExecutionTask;
 import com.testwa.distest.server.mvc.event.GameOverEvent;
-import com.testwa.distest.server.mvc.model.ExecutionTask;
-import com.testwa.distest.server.mvc.model.Task;
-import com.testwa.distest.server.mvc.service.TaskService;
 import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
 import com.testwa.distest.server.rpc.GRpcService;
-import com.testwa.distest.server.security.JwtTokenUtil;
+import com.testwa.distest.server.service.task.service.ExecutionTaskService;
+import com.testwa.distest.server.service.task.service.TaskService;
+import com.testwa.distest.server.web.auth.jwt.JwtTokenUtil;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.task.CommonReply;
 import io.rpc.testwa.task.CurrentExeInfoRequest;
@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import java.util.Date;
-import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by wen on 09/09/2017.
@@ -31,7 +31,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     private static final Logger log = LoggerFactory.getLogger(TaskGvice.class);
 
     @Autowired
-    private TaskService taskService;
+    private ExecutionTaskService executionTaskService;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
@@ -43,22 +43,22 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     public void gameover(TaskOverRequest request, StreamObserver<CommonReply> responseObserver) {
         String token = request.getToken();
 
-        String userId = jwtTokenUtil.getUserIdFromToken(token);
-        if(StringUtils.isBlank(userId)){
+        Long userId = jwtTokenUtil.getUserIdFromToken(token);
+        if(userId == null){
             log.error("task's token error, userId is null, token ==== {}", token);
             return;
         }
-        String exeId = request.getExeId();
+        Long exeId = Long.parseLong(request.getExeId());
         Long timestamp = request.getTimestamp();
 
-        ExecutionTask exeTask = taskService.getExeTaskById(exeId);
-        if(exeTask != null && exeTask.getCreator().equals(userId)){
-            if(exeTask.getStatus() != ExecutionTask.StatusEnum.CANCEL.getCode()){
-                exeTask.setStatus(ExecutionTask.StatusEnum.STOP.getCode());
+        ExecutionTask exeTask = executionTaskService.findOne(exeId);
+        if(exeTask != null && Objects.equals(exeTask.getCreateBy(), userId)){
+            if(exeTask.getStatus().getValue() != DB.TaskStatus.CANCEL.getValue()){
+                exeTask.setStatus(DB.TaskStatus.STOP);
             }
             exeTask.setEndTime(new Date(timestamp));
-            taskService.saveExetask(exeTask);
-            context.publishEvent(new GameOverEvent(this, exeId));
+            executionTaskService.save(exeTask);
+            context.publishEvent(new GameOverEvent(this, request.getExeId()));
         }else{
             log.error("exeTask info not format. {}", request.toString());
         }

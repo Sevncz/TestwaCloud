@@ -1,9 +1,6 @@
 package com.testwa.distest.server.mvc.repository;
 
-import com.testwa.core.Command;
-import com.testwa.distest.server.mvc.model.ExecutionTask;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.io.Serializable;

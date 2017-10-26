@@ -1,7 +1,6 @@
 package com.testwa.distest.server.web;
 
 import com.alibaba.fastjson.JSON;
-import com.testwa.distest.server.mvc.api.AccountController;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
