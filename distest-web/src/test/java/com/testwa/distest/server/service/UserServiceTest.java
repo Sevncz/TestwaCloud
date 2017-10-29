@@ -1,11 +1,11 @@
 package com.testwa.distest.server.service;
 
 import com.testwa.distest.WebServerApplication;
-import com.testwa.distest.common.enums.DB;
+import com.testwa.core.common.enums.DB;
 import com.testwa.distest.common.exception.AccountAlreadyExistException;
 import com.testwa.distest.common.exception.AccountException;
 import com.testwa.distest.server.mvc.beans.PageResult;
-import com.testwa.distest.server.mvc.entity.User;
+import com.testwa.core.entity.User;
 import com.testwa.distest.server.mvc.service.UserService;
 import org.junit.Assert;
 import org.junit.Test;

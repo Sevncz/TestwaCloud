@@ -1,8 +1,8 @@
 package com.testwa.distest.server.web.download;
 
 import com.testwa.distest.common.controller.BaseController;
-import com.testwa.distest.server.mvc.entity.App;
-import com.testwa.distest.server.mvc.entity.Script;
+import com.testwa.core.entity.App;
+import com.testwa.core.entity.Script;
 import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.script.service.ScriptService;
 import io.swagger.annotations.Api;

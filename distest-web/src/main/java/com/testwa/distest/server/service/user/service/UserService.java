@@ -10,7 +10,7 @@ import com.github.pagehelper.PageInfo;
 import com.testwa.distest.common.exception.AccountAlreadyExistException;
 import com.testwa.distest.common.exception.AccountException;
 import com.testwa.distest.server.mvc.beans.PageResult;
-import com.testwa.distest.server.mvc.entity.User;
+import com.testwa.core.entity.User;
 import com.testwa.distest.server.service.user.dao.IUserDAO;
 import com.testwa.distest.server.service.user.form.RegisterForm;
 import org.slf4j.Logger;

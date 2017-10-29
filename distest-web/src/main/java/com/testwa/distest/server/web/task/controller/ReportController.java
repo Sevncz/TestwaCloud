@@ -1,14 +1,11 @@
 package com.testwa.distest.server.web.task.controller;
 
+import com.testwa.core.entity.Task;
 import com.testwa.distest.common.constant.Result;
 import com.testwa.distest.common.constant.WebConstants;
-import com.testwa.distest.common.exception.NoSuchExecutionTaskException;
 import com.testwa.distest.common.exception.ObjectNotExistsException;
-import com.testwa.distest.server.mvc.entity.ExecutionTask;
 import com.testwa.distest.server.mvc.model.ProcedureStatis;
-import com.testwa.distest.server.service.task.service.ExecutionTaskService;
 import com.testwa.distest.server.service.task.service.TaskService;
-import com.testwa.distest.server.web.task.deploy.DeployMgr;
 import com.testwa.distest.server.web.task.validator.ExecutionTaskValidatoer;
 import com.testwa.distest.server.web.task.validator.TaskValidatoer;
 import io.swagger.annotations.Api;
@@ -30,7 +27,7 @@ import java.util.Map;
 public class ReportController {
 
     @Autowired
-    private ExecutionTaskService executionTaskService;
+    private TaskService executionTaskService;
     @Autowired
     private TaskValidatoer taskValidatoer;
     @Autowired
@@ -42,7 +39,7 @@ public class ReportController {
     public Result statis(@RequestParam(value = "exeId", required = true) Long exeId) throws ObjectNotExistsException {
 
         // app 基本情况
-        ExecutionTask et = executionTaskValidatoer.validateExecutionTaskExist(exeId);
+        Task et = executionTaskValidatoer.validateExecutionTaskExist(exeId);
         Map<String, Object> result = new HashMap<>();
         result.put("appStaty", et.getApp());
 
@@ -64,7 +61,7 @@ public class ReportController {
         // 设备脚本执行情况，app信息可以从app基本情况获得
         /*
          {
-         "dto": "Task 4",
+         "dto": "TaskScene 4",
          "brand": "lantern",
          "state": 128 ,
          "successNum": 23,

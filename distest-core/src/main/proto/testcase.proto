@@ -31,27 +31,27 @@ message ProcedureInfoRequest {
     string description = 11;
     string action = 12;
     string params = 13;
-    string scriptId = 14;
-    int64 timestamp = 15;
-    string logcatFile = 16;
-    string userId = 17;
-    string executionTaskId = 18;
-    string testcaseId = 19;
+    int64 timestamp = 14;
+    string logcatFile = 15;
+    int64 scriptId = 16;
+    int64 userId = 17;
+    int64 taskId = 18;
+    int64 testcaseId = 19;
 }
 
 
 message TaskOverRequest {
-    string exeId = 1;
+    int64 exeId = 1;
     int64 timestamp = 2;
     string token = 3;
 }
 
 message CurrentExeInfoRequest {
-    string exeId = 1;
+    int64 exeId = 1;
     string deviceId = 2;
     string token = 3;
-    string scriptId = 4;
-    string testcaseId = 5;
+    int64 scriptId = 4;
+    int64 testcaseId = 5;
 }
 
 

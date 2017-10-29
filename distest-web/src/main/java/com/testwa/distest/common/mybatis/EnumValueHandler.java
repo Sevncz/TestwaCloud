@@ -1,5 +1,6 @@
 package com.testwa.distest.common.mybatis;
 
+import com.testwa.core.common.enums.ValueEnum;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 

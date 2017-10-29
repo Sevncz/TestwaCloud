@@ -1,6 +1,6 @@
 package com.testwa.distest.client.control.client.task;
 
-import com.testwa.core.model.RemoteRunCommand;
+import com.testwa.core.entity.transfer.RemoteRunCommand;
 import com.testwa.core.utils.TimeUtil;
 import com.testwa.distest.client.control.client.task.pool.ExecutorPool;
 import com.testwa.distest.client.model.UserInfo;
@@ -37,7 +37,7 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
         log.info("run cmd ...");
         RemoteRunCommand cmd = testcaseRunEvent.getCmd();
 
-        switch (cmd.getCmd()){
+        switch (cmd.getCmd().getValue()){
             case 0:
                 // 停止
                 Executor executor1 = excutors.get(cmd.getDeviceId());
@@ -87,8 +87,8 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
                 // 检查
                 Executor executor4 = excutors.get(cmd.getDeviceId());
                 if(executor4 != null){
-                    String currScriptId = executor4.getCurrScript();
-                    String currTestcaseId = executor4.getCurrTestCaseId();
+                    Long currScriptId = executor4.getCurrScript();
+                    Long currTestcaseId = executor4.getCurrTestCaseId();
                     CurrentExeInfoRequest request = CurrentExeInfoRequest.newBuilder()
                             .setDeviceId(cmd.getDeviceId())
                             .setExeId(cmd.getExeId())

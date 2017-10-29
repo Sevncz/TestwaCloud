@@ -24,7 +24,7 @@ public class EvictionTimer {
      * server
      * environments.
      *
-     * @param task                      Task to be scheduled
+     * @param task                      TaskScene to be scheduled
      * @param evictorDelayCheckSeconds  Delay in milliseconds before task is executed
      * @param evictorCheckPeriodSeconds Time in milliseconds between executions
      */
@@ -40,7 +40,7 @@ public class EvictionTimer {
     /**
      * Remove the specified eviction task from the timer.
      *
-     * @param task Task to be scheduled
+     * @param task TaskScene to be scheduled
      */
     public static synchronized void cancel(TimerTask task) {
         if (task == null) {

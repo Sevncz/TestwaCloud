@@ -4,12 +4,11 @@ import com.testwa.distest.common.constant.Result;
 import com.testwa.distest.common.constant.WebConstants;
 import com.testwa.distest.common.controller.BaseController;
 import com.testwa.distest.common.exception.AccountException;
-import com.testwa.distest.server.mvc.entity.User;
+import com.testwa.core.entity.User;
 import com.testwa.distest.server.mvc.service.DashboardService;
-import com.testwa.distest.server.mvc.service.UserDeviceHisService;
 import com.testwa.distest.server.mvc.vo.QuickDeployVO;
 import com.testwa.distest.server.service.project.service.ProjectService;
-import com.testwa.distest.server.service.task.service.TaskService;
+import com.testwa.distest.server.service.task.service.TaskSceneService;
 import com.testwa.distest.server.service.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,10 +24,10 @@ public class DashboardController extends BaseController {
     private UserService userService;
     @Autowired
     private ProjectService projectService;
+//    @Autowired
+//    private UserDeviceHisService userDeviceHisService;
     @Autowired
-    private UserDeviceHisService userDeviceHisService;
-    @Autowired
-    private TaskService taskService;
+    private TaskSceneService taskService;
     @Autowired
     private DashboardService dashboardService;
 
@@ -56,8 +55,8 @@ public class DashboardController extends BaseController {
         // stats
 //        ProjectStats projectStats = projectService.getProjectStats(projectId, auth);
         // task info 1. execution task running 2. execution task just finished
-//        List<ExecutionTask> runningTask = taskService.getRunningTask(projectId, auth);
-//        List<ExecutionTask> recentFinishedTask = taskService.getRecentFinishedRunningTask(projectId, auth);
+//        List<Task> runningTask = taskService.getRunningTask(projectId, auth);
+//        List<Task> recentFinishedTask = taskService.getRecentFinishedRunningTask(projectId, auth);
 //        return ok(new DashboardProjectVO(projectStats, runningTask, recentFinishedTask));
         return ok();
     }

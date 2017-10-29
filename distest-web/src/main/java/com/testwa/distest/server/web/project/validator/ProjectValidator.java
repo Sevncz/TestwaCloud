@@ -1,7 +1,7 @@
 package com.testwa.distest.server.web.project.validator;
 
 import com.testwa.distest.common.exception.NoSuchProjectException;
-import com.testwa.distest.server.mvc.entity.Project;
+import com.testwa.core.entity.Project;
 import com.testwa.distest.server.service.project.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

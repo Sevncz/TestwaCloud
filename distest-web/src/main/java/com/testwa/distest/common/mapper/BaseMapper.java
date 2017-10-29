@@ -1,6 +1,6 @@
 package com.testwa.distest.common.mapper;
 
-import com.testwa.distest.common.bo.Entity;
+import com.testwa.core.common.bo.Entity;
 import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;

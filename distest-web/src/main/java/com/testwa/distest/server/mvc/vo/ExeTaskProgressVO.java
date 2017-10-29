@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 public class ExeTaskProgressVO {
     private String deviceId;
-    private String scriptId;
-    private String testcaseId;
+    private Long scriptId;
+    private Long testcaseId;
     private String progress;
 }

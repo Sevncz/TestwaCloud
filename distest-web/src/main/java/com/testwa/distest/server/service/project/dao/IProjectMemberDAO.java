@@ -1,9 +1,9 @@
 package com.testwa.distest.server.service.project.dao;
 
 import com.testwa.distest.common.dao.IBaseDAO;
-import com.testwa.distest.server.mvc.entity.Project;
-import com.testwa.distest.server.mvc.entity.ProjectMember;
-import com.testwa.distest.server.mvc.entity.User;
+import com.testwa.core.entity.Project;
+import com.testwa.core.entity.ProjectMember;
+import com.testwa.core.entity.User;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

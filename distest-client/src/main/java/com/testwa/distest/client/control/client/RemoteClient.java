@@ -1,12 +1,9 @@
 package com.testwa.distest.client.control.client;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.cosysoft.device.android.AndroidDevice;
 import com.google.protobuf.ByteString;
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.testwa.core.Command;
-import com.testwa.core.WebsocketEvent;
+import com.testwa.core.common.enums.Command;
 import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.distest.client.minicap.Banner;
 import com.testwa.distest.client.minicap.Minicap;
@@ -14,12 +11,9 @@ import com.testwa.distest.client.minicap.MinicapListener;
 import com.testwa.distest.client.minitouch.Minitouch;
 import com.testwa.distest.client.minitouch.MinitouchListener;
 import com.testwa.distest.client.util.Constant;
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import io.rpc.testwa.device.ScreenCaptureRequest;
 import io.socket.client.IO;
 import io.socket.client.Socket;
-import net.bramp.ffmpeg.FFmpeg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

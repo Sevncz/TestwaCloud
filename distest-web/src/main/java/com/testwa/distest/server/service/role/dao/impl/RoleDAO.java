@@ -1,7 +1,7 @@
 package com.testwa.distest.server.service.role.dao.impl;
 
 import com.testwa.distest.common.dao.impl.BaseDAO;
-import com.testwa.distest.server.mvc.entity.Role;
+import com.testwa.core.entity.Role;
 import com.testwa.distest.server.mvc.mapper.RoleMapper;
 import com.testwa.distest.server.service.role.dao.IRoleDAO;
 import org.springframework.stereotype.Repository;

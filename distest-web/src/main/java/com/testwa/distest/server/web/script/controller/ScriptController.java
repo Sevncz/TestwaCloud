@@ -7,7 +7,7 @@ import com.testwa.distest.common.exception.*;
 import com.testwa.distest.common.form.DeleteAllForm;
 import com.testwa.distest.common.validator.FileUploadValidator;
 import com.testwa.distest.server.mvc.beans.PageResult;
-import com.testwa.distest.server.mvc.entity.Script;
+import com.testwa.core.entity.Script;
 import com.testwa.distest.server.service.script.form.ScriptContentForm;
 import com.testwa.distest.server.service.script.form.ScriptListForm;
 import com.testwa.distest.server.service.script.form.ScriptUpdateForm;

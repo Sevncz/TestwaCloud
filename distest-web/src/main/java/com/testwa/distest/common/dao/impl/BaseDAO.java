@@ -2,9 +2,9 @@ package com.testwa.distest.common.dao.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.testwa.distest.common.annotation.TableName;
-import com.testwa.distest.common.bo.Entity;
-import com.testwa.distest.common.enums.DB;
+import com.testwa.core.common.annotation.TableName;
+import com.testwa.core.common.bo.Entity;
+import com.testwa.core.common.enums.DB;
 import com.testwa.distest.common.mapper.BaseMapper;
 import com.testwa.distest.common.dao.IBaseDAO;
 import com.testwa.distest.common.util.ClassUtils;

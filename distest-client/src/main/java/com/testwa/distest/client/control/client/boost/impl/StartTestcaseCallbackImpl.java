@@ -1,7 +1,7 @@
 package com.testwa.distest.client.control.client.boost.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.testwa.core.model.RemoteRunCommand;
+import com.testwa.core.entity.transfer.RemoteRunCommand;
 import com.testwa.distest.client.control.client.boost.MessageCallback;
 import com.testwa.distest.client.control.client.boost.MessageException;
 import com.testwa.distest.client.control.client.task.TestcaseRunEvent;

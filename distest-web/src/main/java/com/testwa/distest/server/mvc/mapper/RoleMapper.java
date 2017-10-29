@@ -1,8 +1,8 @@
 package com.testwa.distest.server.mvc.mapper;
 
 import com.testwa.distest.common.mapper.BaseMapper;
-import com.testwa.distest.server.mvc.entity.Role;
-import com.testwa.distest.server.mvc.entity.User;
+import com.testwa.core.entity.Role;
+import com.testwa.core.entity.User;
 
 import java.util.List;
 

@@ -1,9 +1,8 @@
 package com.testwa.distest.server.service.task.dao.impl;
 
+import com.testwa.core.entity.Task;
 import com.testwa.distest.common.dao.impl.BaseDAO;
-import com.testwa.distest.server.mvc.entity.Script;
-import com.testwa.distest.server.mvc.entity.Task;
-import com.testwa.distest.server.mvc.mapper.ScriptMapper;
+import com.testwa.distest.server.mvc.mapper.ExecutionTaskMapper;
 import com.testwa.distest.server.mvc.mapper.TaskMapper;
 import com.testwa.distest.server.service.task.dao.ITaskDAO;
 import org.springframework.stereotype.Repository;
@@ -18,8 +17,8 @@ public class TaskDAO extends BaseDAO<Task, Long> implements ITaskDAO {
     @Resource
     private TaskMapper mapper;
 
-    public List<Task> findBy(Task app) {
-        return mapper.findBy(app);
+    public List<Task> findBy(Task entity) {
+        return mapper.findBy(entity);
     }
 
     @Override

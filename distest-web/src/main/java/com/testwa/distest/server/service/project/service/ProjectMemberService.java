@@ -1,11 +1,11 @@
 package com.testwa.distest.server.service.project.service;
 
 import com.testwa.distest.common.constant.ResultCode;
-import com.testwa.distest.common.enums.DB;
+import com.testwa.core.common.enums.DB;
 import com.testwa.distest.common.exception.*;
-import com.testwa.distest.server.mvc.entity.Project;
-import com.testwa.distest.server.mvc.entity.ProjectMember;
-import com.testwa.distest.server.mvc.entity.User;
+import com.testwa.core.entity.Project;
+import com.testwa.core.entity.ProjectMember;
+import com.testwa.core.entity.User;
 import com.testwa.distest.server.service.project.dao.IProjectMemberDAO;
 import com.testwa.distest.server.service.project.form.MembersModifyForm;
 import com.testwa.distest.server.service.user.service.UserService;

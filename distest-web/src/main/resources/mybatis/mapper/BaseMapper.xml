@@ -7,11 +7,11 @@
         SELECT count(1) c FROM ${__tableName__}
     </select>
 
-    <select id="findOne" parameterType="java.util.Map" resultType="com.testwa.distest.common.bo.Entity">
+    <select id="findOne" parameterType="java.util.Map" resultType="com.testwa.core.common.bo.Entity">
         SELECT * FROM ${__tableName__} t WHERE t.id = #{key}
     </select>
 
-    <select id="findList" parameterType="java.util.Map" resultType="com.testwa.distest.common.bo.Entity">
+    <select id="findList" parameterType="java.util.Map" resultType="com.testwa.core.common.bo.Entity">
         SELECT * FROM ${__tableName__} t
         <if test="keys != null">
             <trim prefix="WHERE" prefixOverrides="AND |OR ">

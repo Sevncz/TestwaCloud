@@ -1,7 +1,6 @@
 package com.testwa.distest.server.web.task.vo;
 
-import com.testwa.distest.common.enums.DB;
-import com.testwa.distest.server.mvc.entity.Testcase;
+import com.testwa.core.common.enums.DB;
 import com.testwa.distest.server.web.app.vo.AppVO;
 import com.testwa.distest.server.web.testcase.vo.TestcaseVO;
 import lombok.Data;
@@ -19,7 +18,7 @@ public class TaskVO {
     private String taskName;
     private Long projectId;
     private String description;
-    private DB.ExecutorMode exeMode;
+    private DB.RunMode exeMode;
 
     private Date createTime;
     private Date updateTime;

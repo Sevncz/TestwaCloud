@@ -1,7 +1,7 @@
 package com.testwa.distest.server.web.task.dto;
 
-import com.testwa.distest.server.mvc.entity.App;
-import com.testwa.distest.server.mvc.entity.Testcase;
+import com.testwa.core.entity.App;
+import com.testwa.core.entity.Testcase;
 import lombok.Data;
 
 import java.util.List;

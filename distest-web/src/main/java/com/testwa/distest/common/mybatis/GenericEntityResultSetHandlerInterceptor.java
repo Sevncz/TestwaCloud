@@ -1,6 +1,6 @@
 package com.testwa.distest.common.mybatis;
 
-import com.testwa.distest.common.bo.Entity;
+import com.testwa.core.common.bo.Entity;
 import com.testwa.distest.common.util.ReflectUtil;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;

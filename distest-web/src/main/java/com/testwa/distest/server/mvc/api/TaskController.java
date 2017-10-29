@@ -5,8 +5,8 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.core.utils.TimeUtil;
 import com.testwa.distest.common.exception.*;
-import com.testwa.core.model.RemoteRunCommand;
-import com.testwa.core.model.RemoteTestcaseContent;
+import com.testwa.core.entity.transfer.RemoteRunCommand;
+import com.testwa.core.entity.transfer.RemoteTestcaseContent;
 import com.testwa.distest.server.mvc.beans.PageResult;
 import com.testwa.distest.common.constant.Result;
 import com.testwa.distest.common.constant.ResultCode;
@@ -26,7 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
-import com.testwa.distest.server.mvc.entity.User;
+import com.testwa.core.entity.User;
 
 import javax.validation.Valid;
 import java.util.*;
@@ -311,7 +311,7 @@ public class TaskController extends BaseController{
         // 设备脚本执行情况，app信息可以从app基本情况获得
         /*
          {
-         "dto": "Task 4",
+         "dto": "TaskScene 4",
          "brand": "lantern",
          "state": 128 ,
          "successNum": 23,

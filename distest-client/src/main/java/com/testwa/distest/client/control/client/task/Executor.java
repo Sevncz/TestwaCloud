@@ -2,7 +2,7 @@ package com.testwa.distest.client.control.client.task;
 
 import com.github.cosysoft.device.android.AndroidApp;
 import com.github.cosysoft.device.android.impl.DefaultAndroidApp;
-import com.testwa.core.model.RemoteTestcaseContent;
+import com.testwa.core.entity.transfer.RemoteTestcaseContent;
 import com.testwa.core.service.PythonScriptDriverService;
 import com.testwa.core.service.PythonServiceBuilder;
 import com.testwa.core.utils.Identities;
@@ -43,18 +43,18 @@ public class Executor {
     private PythonScriptDriverService pyService;
 
     private BlockingQueue<RemoteTestcaseContent> testcases;
-    private BlockingQueue<String> scripts;
+    private BlockingQueue<Long> scripts;
 
-    private String appId;
+    private Long appId;
     private String appPath;
     private String deviceId;
     private List<RemoteTestcaseContent> testcaseList;
-    private String taskId;
+    private Long taskId;
     private String install;
 
     private boolean isStop = false;
-    private String currScript;
-    private String currTestCaseId;
+    private Long currScript;
+    private Long currTestCaseId;
 
 
     public Executor(String nodePath, String appiumPath, String agentWebUrl, String clientWebUrl) throws IOException {
@@ -78,9 +78,7 @@ public class Executor {
     }
 
     public void runScripts(){
-        assert StringUtils.isNotBlank(appId);
         assert StringUtils.isNotBlank(deviceId);
-        assert StringUtils.isNotBlank(taskId);
         assert StringUtils.isNotBlank(install);
         assert testcaseList.size() > 0;
 
@@ -92,7 +90,7 @@ public class Executor {
 
 
             RemoteTestcaseContent content = this.testcases.poll();
-            List<String> scIds = content.getScriptIds();
+            List<Long> scIds = content.getScriptIds();
             this.scripts = new ArrayBlockingQueue<>(scIds.size());
             this.scripts.addAll(scIds);
             this.currTestCaseId = content.getTestcaseId();
@@ -150,8 +148,8 @@ public class Executor {
     }
 
     private Boolean runOneScript(String appPath, String basePackage, String mainActivity) throws Exception {
-        String runscriptId = this.scripts.poll();
-        if(StringUtils.isBlank(runscriptId)){
+        Long runscriptId = this.scripts.poll();
+        if(runscriptId == null){
             return false;
         }
 
@@ -202,9 +200,9 @@ public class Executor {
 
                 if(tempString.contains("udid")){
                     bw.write(replaceQuotationContent(tempString, this.deviceId, null));
-                    bw.write(replaceQuotationContent(tempString, this.currScript, "'testSuit'"));
-                    bw.write(replaceQuotationContent(tempString, this.currTestCaseId, "'testcaseId'"));
-                    bw.write(replaceQuotationContent(tempString, this.taskId, "'executionTaskId'"));
+                    bw.write(replaceQuotationContent(tempString, this.currScript+"", "'testSuit'"));
+                    bw.write(replaceQuotationContent(tempString, this.currTestCaseId+"", "'testcaseId'"));
+                    bw.write(replaceQuotationContent(tempString, this.taskId+"", "'executionTaskId'"));
                     continue;
                 }
 
@@ -329,7 +327,7 @@ public class Executor {
         this.scripts.clear();
     }
 
-    public void setAppId(String appId){
+    public void setAppId(Long appId){
         this.appId = appId;
         String appUrl = String.format(Constant.APP_URL, agentWebUrl, appId);
         this.appPath = Http.download(appUrl, Constant.localAppPath);
@@ -343,7 +341,7 @@ public class Executor {
         this.deviceId = deviceId;
     }
 
-    public void setTaskId(String taskId) {
+    public void setTaskId(Long taskId) {
         this.taskId = taskId;
     }
 
@@ -357,10 +355,10 @@ public class Executor {
         this.testcases.addAll(testcaseList);
     }
 
-    public String getCurrScript(){
+    public Long getCurrScript(){
         return currScript;
     }
-    public String getCurrTestCaseId(){
+    public Long getCurrTestCaseId(){
         return currTestCaseId;
     }
 

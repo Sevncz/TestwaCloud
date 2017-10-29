@@ -2,7 +2,7 @@ package com.testwa.distest.server.service.project.service;
 
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.redis.RedisCacheManager;
-import com.testwa.distest.server.mvc.entity.Project;
+import com.testwa.core.entity.Project;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

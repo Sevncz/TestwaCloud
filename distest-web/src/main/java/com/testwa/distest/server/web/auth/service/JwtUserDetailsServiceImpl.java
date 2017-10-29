@@ -1,6 +1,6 @@
 package com.testwa.distest.server.web.auth.service;
 
-import com.testwa.distest.server.mvc.entity.User;
+import com.testwa.core.entity.User;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.auth.dto.JwtUserFactory;
 import org.springframework.beans.factory.annotation.Autowired;

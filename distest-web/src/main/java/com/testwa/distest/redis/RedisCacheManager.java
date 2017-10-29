@@ -11,7 +11,7 @@ import java.util.Set;
 import com.testwa.distest.redis.eviction.EvictionTimer;
 import com.testwa.distest.redis.eviction.Evictor;
 import com.testwa.distest.redis.exception.RedisOperationException;
-import com.testwa.distest.server.mvc.entity.Project;
+import com.testwa.core.entity.Project;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -844,4 +844,5 @@ public class RedisCacheManager {
         this.evictorFailedTimesToBeTickOut = evictorFailedTimesToBeTickOut;
         return this;
     }
+
 }

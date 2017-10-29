@@ -1,6 +1,6 @@
 package com.testwa.distest.server.web.project.vo;
 
-import com.testwa.distest.common.enums.DB;
+import com.testwa.core.common.enums.DB;
 import lombok.Data;
 
 import java.util.Date;

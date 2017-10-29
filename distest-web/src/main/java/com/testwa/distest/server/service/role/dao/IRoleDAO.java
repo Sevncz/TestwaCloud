@@ -1,7 +1,7 @@
 package com.testwa.distest.server.service.role.dao;
 
 import com.testwa.distest.common.dao.IBaseDAO;
-import com.testwa.distest.server.mvc.entity.Role;
+import com.testwa.core.entity.Role;
 
 import java.util.List;
 

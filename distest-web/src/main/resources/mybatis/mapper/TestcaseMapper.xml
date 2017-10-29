@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.testwa.distest.server.mvc.mapper.TestcaseMapper" >
-    <resultMap id="BaseResultMap" type="com.testwa.distest.server.mvc.entity.Testcase" >
+    <resultMap id="BaseResultMap" type="com.testwa.core.entity.Testcase" >
         <id column="id" property="id" jdbcType="BIGINT" />
         <result column="scriptName" property="scriptName" jdbcType="VARCHAR" />
         <result column="aliasName" property="aliasName" jdbcType="VARCHAR" />
@@ -20,10 +20,10 @@
     </resultMap>
 
     <sql id="Base_Column_List" >
-        id, scriptName, aliasName, size, tag, description, ln, type, version, path, md5, userId, updateTime, createTime, updateBy, createBy, enabled
+        id, scriptName, aliasName, size, tag, description, ln, type, version, path, md5, createBy, updateTime, createTime, updateBy, createBy, enabled
     </sql>
 
-    <select id="findBy" parameterType="com.testwa.distest.server.mvc.entity.Script" resultMap="BaseResultMap" >
+    <select id="findBy" parameterType="com.testwa.core.entity.Testcase" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />
         FROM testcase
@@ -33,9 +33,6 @@
             <if test="projectId != null">and projectId = #{projectId}</if>
             <if test="scriptName != null">and scriptName = #{scriptName}</if>
         </trim>
-        <if test="orderBy != null">
-            order by ${orderBy}
-        </if>
     </select>
 
     <select id="findByFromProject" parameterType="java.util.Map" resultMap="BaseResultMap" >
@@ -45,8 +42,8 @@
         WHERE enabled = 1
         AND projectId in
         <foreach item="item" index="index" collection="params.projects" open="(" separator="," close=")">#{item.id} </foreach>
-        <if test="params.appName != null">and appName = #{params.appName}</if>
-        <if test="params.userId != null">and userId = #{params.userId}</if>
+        <if test="params.caseName != null">and caseName = #{params.caseName}</if>
+        <if test="params.createBy != null">and createBy = #{params.createBy}</if>
         <if test="params.projectId != null">and projectId = #{params.projectId}</if>
     </select>
     <select id="findAllOrder" resultMap="BaseResultMap" >
@@ -65,7 +62,7 @@
             enabled = 1
             <if test="createBy != null">and createBy = #{createBy}</if>
             <if test="projectId != null">and projectId = #{projectId}</if>
-            <if test="scriptName != null">and scriptName = #{scriptName}</if>
+            <if test="caseName != null">and caseName = #{caseName}</if>
         </trim>
     </select>
 

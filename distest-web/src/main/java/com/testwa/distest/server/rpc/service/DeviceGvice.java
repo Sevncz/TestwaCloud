@@ -2,17 +2,14 @@ package com.testwa.distest.server.rpc.service;
 
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
-import com.googlecode.protobuf.format.JsonFormat;
-import com.testwa.core.utils.DeviceType;
 import com.testwa.distest.server.LogInterceptor;
-import com.testwa.distest.server.mvc.entity.DeviceAndroid;
+import com.testwa.core.entity.DeviceAndroid;
+import com.testwa.core.entity.DeviceBase;
+import com.testwa.distest.server.service.cache.mgr.SubscribeMgr;
 import com.testwa.distest.server.web.auth.jwt.JwtTokenUtil;
 import com.testwa.distest.server.web.device.cache.DeviceCacheMgr;
 import com.testwa.distest.server.websocket.WSFuncEnum;
 import com.testwa.distest.server.rpc.GRpcService;
-import com.testwa.distest.server.mvc.service.DeviceService;
-import com.testwa.distest.server.mvc.service.UserDeviceHisService;
-import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.device.*;
 import org.slf4j.Logger;
@@ -33,11 +30,9 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     @Autowired
     private SocketIOServer server;
     @Autowired
-    private RemoteClientService remoteClientService;
-    @Autowired
     private DeviceCacheMgr deviceCacheMgr;
     @Autowired
-    private UserDeviceHisService userDeviceHisService;
+    private SubscribeMgr subscribeMgr;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
@@ -52,16 +47,19 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     }
 
     private void handleDevice(Device device, Long userId) {
-        // 看数据库有没有设备,没有则保存
-        DeviceAndroid deviceAndroid = deviceCacheMgr.getDeviceAndroid(device.getDeviceId());
-        if(deviceAndroid == null){
+        // 看redis里有没有设备,没有则保存
+        DeviceBase deviceBase = deviceCacheMgr.getDeviceContent(device.getDeviceId());
+        DeviceAndroid deviceAndroid = null;
+        if(deviceBase == null){
             deviceAndroid = new DeviceAndroid();
             log.info("Save a new device to db, deviceId: {}.", device.getDeviceId());
+        }else{
+            deviceAndroid = (DeviceAndroid) deviceBase;
         }
         deviceAndroid.setBrand(device.getBrand());
         deviceAndroid.setCpuabi(device.getCpuabi());
         deviceAndroid.setDensity(device.getDensity());
-        deviceAndroid.setDevId(device.getDeviceId());
+        deviceAndroid.setDeviceId(device.getDeviceId());
         deviceAndroid.setHeight(device.getHeight());
         deviceAndroid.setHost(device.getHost());
         deviceAndroid.setModel(device.getModel());
@@ -82,17 +80,17 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
 //        userDeviceHisService.save(udh);
 
         if("ON".equals(device.getStatus().name().toUpperCase())){
-            deviceCacheMgr.saveDeviceAndroid(deviceAndroid);
+            deviceCacheMgr.saveDeviceContent(deviceAndroid);
         }
         if("OFF".equals(device.getStatus().name().toUpperCase())){
-            deviceCacheMgr.delDeviceAndroid(deviceAndroid.getDevId());
+            deviceCacheMgr.delDeviceContent(deviceAndroid.getDeviceId());
         }
     }
 
     @Override
     public void disconnect(NoUsedDeviceRequest request, StreamObserver<CommonReply> responseObserver) {
         log.info("device disconnect, {}", request.getDeviceId());
-        deviceCacheMgr.delDeviceAndroid(request.getDeviceId());
+        deviceCacheMgr.delDeviceContent(request.getDeviceId());
         // 修改设备状态为OFF 数据库不需要 off 状态标识
 //        DeviceAndroid tDevice = deviceService.getDeviceById(request.getDeviceId());
 //        tDevice.setStatus("OFF");
@@ -102,16 +100,16 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     @Override
     public void offline(NoUsedDeviceRequest request, StreamObserver<CommonReply> responseObserver) {
         log.info("device offline, {}", request.getDeviceId());
-        remoteClientService.delDevice(request.getDeviceId());
+        deviceCacheMgr.delDeviceContent(request.getDeviceId());
     }
 
     @Override
     public void logcat(LogcatRequest request, StreamObserver<CommonReply> responseObserver) {
         String serial = request.getSerial();
-        Set<Object> sessions = remoteClientService.getSubscribes(serial, WSFuncEnum.LOGCAT.getValue());
+        Set<String> sessions = subscribeMgr.getSubscribes(serial, WSFuncEnum.LOGCAT.getValue());
         byte[] data = request.getContent().toByteArray();
-        for(Object sessionId : sessions){
-            SocketIOClient client = server.getClient(UUID.fromString((String)sessionId));
+        for(String sessionId : sessions){
+            SocketIOClient client = server.getClient(UUID.fromString(sessionId));
             if(client != null){
                 client.sendEvent("logcat", new String(data));
             }
@@ -127,9 +125,9 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     @Override
     public void screen(ScreenCaptureRequest request, StreamObserver<CommonReply> responseObserver) {
         String serial = request.getSerial();
-        Set<Object> sessions = remoteClientService.getSubscribes(serial, WSFuncEnum.SCREEN.getValue());
-        for(Object sessionId : sessions){
-            SocketIOClient client = server.getClient(UUID.fromString((String)sessionId));
+        Set<String> sessions = subscribeMgr.getSubscribes(serial, WSFuncEnum.SCREEN.getValue());
+        for(String sessionId : sessions){
+            SocketIOClient client = server.getClient(UUID.fromString(sessionId));
             if(client != null){
                 byte[] data = request.getImg().toByteArray();
                 client.sendEvent("minicap", data);

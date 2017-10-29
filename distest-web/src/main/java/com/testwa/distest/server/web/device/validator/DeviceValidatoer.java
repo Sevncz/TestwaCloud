@@ -1,7 +1,7 @@
 package com.testwa.distest.server.web.device.validator;
 
 import com.testwa.distest.common.exception.ObjectNotExistsException;
-import com.testwa.distest.server.mvc.entity.DeviceBase;
+import com.testwa.core.entity.DeviceBase;
 import com.testwa.distest.server.web.device.cache.DeviceCacheMgr;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,7 +22,7 @@ public class DeviceValidatoer {
         List<DeviceBase> deviceList = new ArrayList<>();
         for(String d : deviceIds){
 
-            DeviceBase deviceBase = deviceCacheMgr.getDevice(d);
+            DeviceBase deviceBase = deviceCacheMgr.getDeviceContent(d);
             if(deviceBase != null){
                 throw new ObjectNotExistsException("设备不在线");
             }

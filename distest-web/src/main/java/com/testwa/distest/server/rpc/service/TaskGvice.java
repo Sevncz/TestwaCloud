@@ -1,12 +1,11 @@
 package com.testwa.distest.server.rpc.service;
 
-import com.testwa.distest.common.enums.DB;
+import com.testwa.core.common.enums.DB;
+import com.testwa.core.entity.Task;
 import com.testwa.distest.server.LogInterceptor;
-import com.testwa.distest.server.mvc.entity.ExecutionTask;
 import com.testwa.distest.server.mvc.event.GameOverEvent;
 import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
 import com.testwa.distest.server.rpc.GRpcService;
-import com.testwa.distest.server.service.task.service.ExecutionTaskService;
 import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.web.auth.jwt.JwtTokenUtil;
 import io.grpc.stub.StreamObserver;
@@ -14,7 +13,6 @@ import io.rpc.testwa.task.CommonReply;
 import io.rpc.testwa.task.CurrentExeInfoRequest;
 import io.rpc.testwa.task.TaskOverRequest;
 import io.rpc.testwa.task.TaskServiceGrpc;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +29,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     private static final Logger log = LoggerFactory.getLogger(TaskGvice.class);
 
     @Autowired
-    private ExecutionTaskService executionTaskService;
+    private TaskService executionTaskService;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
@@ -51,7 +49,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
         Long exeId = Long.parseLong(request.getExeId());
         Long timestamp = request.getTimestamp();
 
-        ExecutionTask exeTask = executionTaskService.findOne(exeId);
+        Task exeTask = executionTaskService.findOne(exeId);
         if(exeTask != null && Objects.equals(exeTask.getCreateBy(), userId)){
             if(exeTask.getStatus().getValue() != DB.TaskStatus.CANCEL.getValue()){
                 exeTask.setStatus(DB.TaskStatus.STOP);

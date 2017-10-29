@@ -1,8 +1,7 @@
 package com.testwa.distest.server.service.task.dao;
 
 import com.testwa.distest.common.dao.IBaseDAO;
-import com.testwa.distest.server.mvc.entity.Script;
-import com.testwa.distest.server.mvc.entity.Task;
+import com.testwa.core.entity.Task;
 
 import java.util.List;
 import java.util.Map;

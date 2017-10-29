@@ -1,20 +1,16 @@
 package com.testwa.distest.server.web.task.controller;
 
-import com.alibaba.fastjson.JSON;
-import com.testwa.core.WebsocketEvent;
-import com.testwa.core.model.RemoteRunCommand;
+import com.testwa.core.common.enums.DB;
+import com.testwa.core.entity.transfer.RemoteRunCommand;
 import com.testwa.distest.common.constant.Result;
 import com.testwa.distest.common.constant.WebConstants;
 import com.testwa.distest.common.controller.BaseController;
-import com.testwa.distest.common.exception.NoSuchExecutionTaskException;
 import com.testwa.distest.common.exception.NoSuchProjectException;
 import com.testwa.distest.common.exception.ObjectNotExistsException;
-import com.testwa.distest.server.mvc.entity.ExecutionTask;
 import com.testwa.distest.server.mvc.vo.ExeTaskProgressVO;
 import com.testwa.distest.server.service.task.form.TaskStartForm;
 import com.testwa.distest.server.service.task.form.TaskStopForm;
 import com.testwa.distest.server.service.task.form.TaskNewDeployForm;
-import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.web.app.validator.AppValidator;
 import com.testwa.distest.server.web.device.validator.DeviceValidatoer;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
@@ -27,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Created by wen on 24/10/2017.
@@ -102,7 +97,7 @@ public class DeployController extends BaseController{
         params.setAppId(1l);
         params.setDeviceId("");
         params.setInstall("");
-        params.setCmd(RemoteRunCommand.CommandEnum.START);  // 启动
+        params.setCmd(DB.CommandEnum.START);  // 启动
 //        String agentSession = remoteClientService.getMainSessionByDeviceId(deviceId);
 //        server.getClient(UUID.fromString(agentSession))
 //                .sendEvent(WebsocketEvent.ON_TESTCASE_RUN, JSON.toJSONString(params));

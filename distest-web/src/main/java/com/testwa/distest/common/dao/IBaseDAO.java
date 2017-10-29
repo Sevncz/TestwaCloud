@@ -1,7 +1,7 @@
 package com.testwa.distest.common.dao;
 
 import com.github.pagehelper.PageInfo;
-import com.testwa.distest.common.bo.Entity;
+import com.testwa.core.common.bo.Entity;
 
 import java.io.Serializable;
 import java.util.Collection;

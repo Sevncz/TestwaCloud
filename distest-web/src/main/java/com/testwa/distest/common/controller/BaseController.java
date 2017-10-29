@@ -3,17 +3,11 @@ package com.testwa.distest.common.controller;
 import com.testwa.distest.common.constant.Result;
 import com.testwa.distest.common.constant.ResultCode;
 import com.testwa.distest.server.mvc.beans.PageResult;
-import com.testwa.distest.server.mvc.entity.Testcase;
-import com.testwa.distest.server.web.app.vo.AppVO;
-import com.testwa.distest.server.web.testcase.vo.TestcaseVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 

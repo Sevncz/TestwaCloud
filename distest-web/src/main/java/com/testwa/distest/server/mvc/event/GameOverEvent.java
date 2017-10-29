@@ -1,6 +1,5 @@
 package com.testwa.distest.server.mvc.event;
 
-import com.testwa.core.model.RemoteRunCommand;
 import lombok.Data;
 import org.springframework.context.ApplicationEvent;
 

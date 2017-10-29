@@ -2,17 +2,17 @@ package com.testwa.distest.server.web.device.controller;
 
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
-import com.testwa.core.Command;
+import com.testwa.core.common.enums.Command;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.common.constant.Result;
 import com.testwa.distest.common.constant.ResultCode;
+import com.testwa.distest.common.constant.WebConstants;
 import com.testwa.distest.common.controller.BaseController;
 import com.testwa.distest.common.exception.AccountException;
 import com.testwa.distest.common.exception.NotInProjectException;
-import com.testwa.distest.server.mvc.entity.User;
+import com.testwa.core.entity.User;
 import com.testwa.distest.server.mvc.service.AgentService;
 import com.testwa.distest.server.mvc.service.DeviceService;
-import com.testwa.distest.server.mvc.service.UserDeviceHisService;
 import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
 import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.service.user.service.UserService;
@@ -47,7 +47,7 @@ import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
  */
 @Api("设备相关api")
 @RestController
-@RequestMapping(path = "device")
+@RequestMapping(path = WebConstants.API_PREFIX + "/device")
 public class DeviceController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(DeviceController.class);
 

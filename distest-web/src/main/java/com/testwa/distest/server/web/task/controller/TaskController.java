@@ -1,16 +1,16 @@
 package com.testwa.distest.server.web.task.controller;
 
+import com.testwa.core.entity.TaskScene;
 import com.testwa.distest.common.constant.Result;
 import com.testwa.distest.common.constant.WebConstants;
 import com.testwa.distest.common.controller.BaseController;
 import com.testwa.distest.common.exception.ObjectNotExistsException;
 import com.testwa.distest.common.form.DeleteAllForm;
 import com.testwa.distest.server.mvc.beans.PageResult;
-import com.testwa.distest.server.mvc.entity.Task;
 import com.testwa.distest.server.service.task.form.TaskListForm;
 import com.testwa.distest.server.service.task.form.TaskNewForm;
 import com.testwa.distest.server.service.task.form.TaskUpdateForm;
-import com.testwa.distest.server.service.task.service.TaskService;
+import com.testwa.distest.server.service.task.service.TaskSceneService;
 import com.testwa.distest.server.web.task.validator.TaskValidatoer;
 import com.testwa.distest.server.web.task.vo.TaskVO;
 import com.testwa.distest.server.web.testcase.validator.TestcaseValidatoer;
@@ -33,7 +33,7 @@ public class TaskController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(TaskController.class);
 
     @Autowired
-    private TaskService taskService;
+    private TaskSceneService taskService;
     @Autowired
     private TaskValidatoer taskValidatoer;
     @Autowired
@@ -71,7 +71,7 @@ public class TaskController extends BaseController {
     @ResponseBody
     @RequestMapping(value = "/page", method = RequestMethod.GET)
     public Result page(TaskListForm pageForm) {
-        PageResult<Task> taskPR = taskService.findByPage(pageForm);
+        PageResult<TaskScene> taskPR = taskService.findByPage(pageForm);
         PageResult<TaskVO> pr = buildVOPageResult(taskPR, TaskVO.class);
         return ok(pr);
     }

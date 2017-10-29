@@ -1,7 +1,7 @@
 package com.testwa.distest.server.service.project.dao.impl;
 
 import com.testwa.distest.common.dao.impl.BaseDAO;
-import com.testwa.distest.server.mvc.entity.Project;
+import com.testwa.core.entity.Project;
 import com.testwa.distest.server.mvc.mapper.ProjectMapper;
 import com.testwa.distest.server.service.project.dao.IProjectDAO;
 import org.springframework.stereotype.Repository;

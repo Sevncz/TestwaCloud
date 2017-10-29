@@ -1,11 +1,12 @@
 package com.testwa.distest.server.web.testcase.controller;
 
 import com.testwa.distest.common.constant.Result;
+import com.testwa.distest.common.constant.WebConstants;
 import com.testwa.distest.common.controller.BaseController;
 import com.testwa.distest.common.exception.*;
 import com.testwa.distest.common.form.DeleteAllForm;
 import com.testwa.distest.server.mvc.beans.PageResult;
-import com.testwa.distest.server.mvc.entity.Testcase;
+import com.testwa.core.entity.Testcase;
 import com.testwa.distest.server.service.testcase.form.TestcaseNewForm;
 import com.testwa.distest.server.service.testcase.form.TestcaseListForm;
 import com.testwa.distest.server.service.testcase.form.TestcaseUpdateForm;
@@ -28,7 +29,7 @@ import java.util.List;
  */
 @Api("测试案例相关api")
 @RestController
-@RequestMapping(path = "/api/case", produces = {"application/json"})
+@RequestMapping(path = WebConstants.API_PREFIX + "/case")
 public class TestcaseController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(TestcaseController.class);
 
@@ -45,8 +46,8 @@ public class TestcaseController extends BaseController {
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     public Result save(@Valid TestcaseNewForm form) throws NoSuchProjectException, NoSuchScriptException, AccountException {
         log.info(form.toString());
-        scriptValidator.validateScripts(form.getScriptIds());
-        projectValidator.validateProject(form.getProjectId());
+        scriptValidator.validateScriptsExist(form.getScriptIds());
+        projectValidator.validateProjectExist(form.getProjectId());
         testcaseService.save(form);
         return ok();
     }
@@ -55,7 +56,7 @@ public class TestcaseController extends BaseController {
     @PostMapping(value = "/modify")
     public Result modify(@Valid TestcaseUpdateForm form) throws NoSuchProjectException, NoSuchScriptException, NoSuchTestcaseException{
         log.info(form.toString());
-        scriptValidator.validateScripts(form.getScriptIds());
+        scriptValidator.validateScriptsExist(form.getScriptIds());
         testcaseService.modifyCase(form);
         return ok();
     }

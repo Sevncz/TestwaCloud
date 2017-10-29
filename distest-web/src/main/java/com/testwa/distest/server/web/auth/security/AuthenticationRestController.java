@@ -6,7 +6,7 @@ import com.testwa.distest.common.exception.AccountAlreadyExistException;
 import com.testwa.distest.common.exception.AccountException;
 import com.testwa.distest.common.constant.Result;
 import com.testwa.distest.common.constant.ResultCode;
-import com.testwa.distest.server.mvc.entity.User;
+import com.testwa.core.entity.User;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.auth.jwt.JwtAuthenticationRequest;
 import com.testwa.distest.server.web.auth.jwt.JwtTokenUtil;

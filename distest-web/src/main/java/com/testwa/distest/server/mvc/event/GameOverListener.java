@@ -2,12 +2,11 @@ package com.testwa.distest.server.mvc.event;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
-import com.testwa.distest.server.mvc.entity.ExecutionTask;
-import com.testwa.distest.server.mvc.entity.Script;
+import com.testwa.core.entity.Task;
+import com.testwa.core.entity.Script;
 import com.testwa.distest.server.mvc.model.ProcedureInfo;
 import com.testwa.distest.server.mvc.model.ProcedureStatis;
 import com.testwa.distest.server.mvc.service.ProcedureInfoService;
-import com.testwa.distest.server.service.task.service.ExecutionTaskService;
 import com.testwa.distest.server.service.task.service.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +34,7 @@ public class GameOverListener implements ApplicationListener<GameOverEvent> {
     @Autowired
     private ProcedureInfoService procedureInfoService;
     @Autowired
-    private ExecutionTaskService executionTaskService;
+    private TaskService executionTaskService;
 
     @Async
     @Override
@@ -43,7 +42,7 @@ public class GameOverListener implements ApplicationListener<GameOverEvent> {
         log.info("start...");
         Long exeId = Long.parseLong(e.getExeId());
         // 根据前端需求开始统计报告
-        ExecutionTask et = executionTaskService.findOne(exeId);
+        Task et = executionTaskService.findOne(exeId);
         // 脚本数量
         Map<String, List<Script>> taskScripts = et.getScripts();
         int scriptNum = 0;

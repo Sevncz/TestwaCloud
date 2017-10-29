@@ -2,7 +2,7 @@ package com.testwa.distest.server.web.auth.validator;
 
 import com.testwa.distest.common.exception.AccountException;
 import com.testwa.distest.common.util.WebUtil;
-import com.testwa.distest.server.mvc.entity.User;
+import com.testwa.core.entity.User;
 import com.testwa.distest.server.service.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
