@@ -1,6 +1,5 @@
 package com.testwa.distest.server.service.task.form;
 
-import com.testwa.distest.common.form.RequestFormBase;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -11,11 +10,11 @@ import java.util.List;
 /**
  * Created by wen on 24/10/2017.
  */
-@ApiModel(value = "TaskNewDeployForm",
-        description = "新建并开始"
+@ApiModel(value = "TaskStartByTestcaseForm",
+        description = "新建场景并启动测试"
 )
 @Data
-public class TaskNewDeployForm extends TaskNewForm {
+public class TaskStartByTestcaseForm extends TaskSceneNewForm {
 
     @NotNull(message = "deviceIds.empty")
     @NotEmpty(message = "deviceIds.empty")

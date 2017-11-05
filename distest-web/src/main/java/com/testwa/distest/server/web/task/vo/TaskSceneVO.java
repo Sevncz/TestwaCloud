@@ -12,7 +12,7 @@ import java.util.List;
  * Created by wen on 21/08/2017.
  */
 @Data
-public class TaskVO {
+public class TaskSceneVO {
 
     private Long id;
     private String taskName;

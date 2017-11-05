@@ -11,11 +11,11 @@ import java.util.List;
 /**
  * Created by wen on 25/10/2017.
  */
-@ApiModel(value = "TaskQuickStartForm",
-        description = "快速启动"
+@ApiModel(value = "TaskStartByScriptForm",
+        description = "选择脚本并启动测试"
 )
 @Data
-public class TaskQuickStartForm extends RequestFormBase {
+public class TaskStartByScriptForm extends RequestFormBase {
 
     @NotNull
     @NotEmpty

@@ -21,6 +21,6 @@ public class WebConstants {
     /**
      * 快速部署模式
      */
-    public static final String QUICK_MOD = "quick deploy";
+    public static final String QUICK_MOD = "quick execute";
 
 }

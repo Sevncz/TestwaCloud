@@ -23,21 +23,20 @@ public class TaskService {
     @Autowired
     private ITaskDAO taskDAO;
 
-
-    public long save(Task exeTask) {
-        return taskDAO.insert(exeTask);
+    public long save(Task entity) {
+        return taskDAO.insert(entity);
     }
 
-    public Task findOne(Long exeId) {
-        return taskDAO.findOne(exeId);
+    public Task findOne(Long entityId) {
+        return taskDAO.findOne(entityId);
     }
 
     public List<Task> findAll(List<Long> entityIds) {
         return taskDAO.findAll(entityIds);
     }
 
-    public void update(Task task) {
-        taskDAO.update(task);
+    public void update(Task entity) {
+        taskDAO.update(entity);
     }
 
     public List<Task> getRunningTask(Long projectId, Long userId) {

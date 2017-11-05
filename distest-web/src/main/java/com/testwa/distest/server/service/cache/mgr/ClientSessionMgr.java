@@ -13,16 +13,21 @@ public class ClientSessionMgr {
     @Autowired
     private RedisCacheManager redisCacheMgr;
 
+    private String getKey(Long userId) {
+        return String.format(user_client_login, userId);
+    }
+
     public void login(Long userId, String sessionId){
-        redisCacheMgr.put(String.format(user_client_login, userId), sessionId);
+        redisCacheMgr.put(getKey(userId), sessionId);
     }
 
     public void logout(Long userId){
-        redisCacheMgr.remove(String.format(user_client_login, userId));
+        redisCacheMgr.remove(getKey(userId));
     }
 
-    public void getClientSessionId(Long userId){
-        redisCacheMgr.get(String.format(user_client_login, userId));
+    public void getClientSession(Long userId){
+        redisCacheMgr.get(getKey(userId));
     }
+
 
 }

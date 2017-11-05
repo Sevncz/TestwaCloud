@@ -1,4 +1,4 @@
-package com.testwa.distest.server.web.device.cache;
+package com.testwa.distest.server.service.cache.mgr;
 
 import com.testwa.distest.redis.RedisCacheManager;
 import com.testwa.core.entity.DeviceAndroid;

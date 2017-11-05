@@ -1,8 +1,8 @@
 package com.testwa.distest.server.web.task.validator;
 
-import com.testwa.core.entity.TaskScene;
 import com.testwa.distest.common.exception.ObjectNotExistsException;
-import com.testwa.distest.server.service.task.service.TaskSceneService;
+import com.testwa.core.entity.Task;
+import com.testwa.distest.server.service.task.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,20 +15,20 @@ import java.util.List;
 public class TaskValidatoer {
 
     @Autowired
-    private TaskSceneService taskService;
+    private TaskService executionTaskService;
 
 
-    public TaskScene validateTaskExist(Long entityId) throws ObjectNotExistsException {
-        TaskScene task = taskService.findOne(entityId);
-        if(task == null){
+    public Task validateTaskExist(Long entityId) throws ObjectNotExistsException {
+        Task exetask = executionTaskService.findOne(entityId);
+        if(exetask == null){
             throw new ObjectNotExistsException("任务不存在");
         }
-        return task;
+        return exetask;
     }
 
 
-    public List<TaskScene> validateTasksExist(List<Long> entityIds) throws ObjectNotExistsException {
-        List<TaskScene> entityList = taskService.findAll(entityIds);
+    public List<Task> validateTasksExist(List<Long> entityIds) throws ObjectNotExistsException {
+        List<Task> entityList = executionTaskService.findAll(entityIds);
         if(entityList == null || entityList.size() != entityIds.size()){
             throw new ObjectNotExistsException("任务不存在");
         }

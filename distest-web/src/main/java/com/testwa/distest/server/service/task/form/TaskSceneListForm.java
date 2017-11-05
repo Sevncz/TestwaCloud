@@ -7,11 +7,11 @@ import lombok.Data;
 /**
  * Created by wen on 21/10/2017.
  */
-@ApiModel(value = "TaskListForm",
+@ApiModel(value = "TaskSceneListForm",
         description = "查询"
 )
 @Data
-public class TaskListForm extends RequestListBase {
+public class TaskSceneListForm extends RequestListBase {
     private Long projectId;
     private String taskName;
     private Long appId;

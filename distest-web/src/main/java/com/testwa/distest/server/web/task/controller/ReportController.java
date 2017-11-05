@@ -6,8 +6,8 @@ import com.testwa.distest.common.constant.WebConstants;
 import com.testwa.distest.common.exception.ObjectNotExistsException;
 import com.testwa.distest.server.mvc.model.ProcedureStatis;
 import com.testwa.distest.server.service.task.service.TaskService;
-import com.testwa.distest.server.web.task.validator.ExecutionTaskValidatoer;
 import com.testwa.distest.server.web.task.validator.TaskValidatoer;
+import com.testwa.distest.server.web.task.validator.TaskSceneValidatoer;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +29,9 @@ public class ReportController {
     @Autowired
     private TaskService executionTaskService;
     @Autowired
-    private TaskValidatoer taskValidatoer;
+    private TaskSceneValidatoer taskValidatoer;
     @Autowired
-    private ExecutionTaskValidatoer executionTaskValidatoer;
+    private TaskValidatoer executionTaskValidatoer;
 
     @ApiOperation(value="任务执行统计")
     @ResponseBody

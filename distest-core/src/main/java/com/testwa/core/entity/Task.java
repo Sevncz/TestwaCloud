@@ -1,10 +1,13 @@
 package com.testwa.core.entity;
 
+import com.alibaba.fastjson.JSON;
 import com.testwa.core.common.annotation.TableName;
 import com.testwa.core.common.bo.BaseEntity;
 import com.testwa.core.common.enums.DB;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -20,9 +23,27 @@ public class Task extends BaseEntity {
     private Long taskSceneId;
     private Long projectId;
     private App app;
+    private String testcaseJson; // json
+    private String scriptJson; // json
+
     private Long createBy;
     private Date createTime;
     private Date endTime;
     private String errorMsg;
+
+
+    public List<Testcase> getTestcaseList(){
+        if(StringUtils.isEmpty(this.testcaseJson)){
+            return new ArrayList<>();
+        }
+        return JSON.parseArray(this.testcaseJson, Testcase.class);
+    }
+
+    public List<Script> getScriptList(){
+        if(StringUtils.isEmpty(this.scriptJson)){
+            return new ArrayList<>();
+        }
+        return JSON.parseArray(this.scriptJson, Script.class);
+    }
 
 }

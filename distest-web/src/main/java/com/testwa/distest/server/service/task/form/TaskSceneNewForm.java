@@ -11,11 +11,11 @@ import java.util.List;
 /**
  * Created by wen on 24/10/2017.
  */
-@ApiModel(value = "TaskNewForm",
+@ApiModel(value = "TaskSceneNewForm",
         description = "创建"
 )
 @Data
-public class TaskNewForm extends RequestFormBase {
+public class TaskSceneNewForm extends RequestFormBase {
 
     @NotNull(message = "taskName.empty")
     @NotEmpty(message = "taskName.empty")

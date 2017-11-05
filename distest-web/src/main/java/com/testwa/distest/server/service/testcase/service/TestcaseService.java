@@ -141,11 +141,11 @@ public class TestcaseService {
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
 
         Testcase testcase = new Testcase();
-        testcase.setDescription("quick deploy");
+        testcase.setDescription("quick execute");
         testcase.setProjectId(projectId);
-        testcase.setCaseName("quick deploy");
+        testcase.setCaseName("quick execute");
         testcase.setCreateBy(user.getId());
-        testcase.setTag("quick deploy");
+        testcase.setTag("quick execute");
         return testcaseDAO.insert(testcase);
     }
 

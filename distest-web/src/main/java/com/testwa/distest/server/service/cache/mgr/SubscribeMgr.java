@@ -14,20 +14,24 @@ public class SubscribeMgr {
     @Autowired
     private RedisCacheManager redisCacheMgr;
 
+    private String getKey(String deviceId, String func) {
+        return String.format(subscribe_device_func, deviceId, func);
+    }
+
     public void subscribeDeviceEvent(String deviceId, String func, String sessionId) {
-        redisCacheMgr.hput(String.format(subscribe_device_func, deviceId, func), sessionId, "000000");
+        redisCacheMgr.hput(getKey(deviceId, func), sessionId, "000000");
     }
 
     public Set<String> getSubscribes(String deviceId, String func) {
-        return redisCacheMgr.hKeys(String.format(subscribe_device_func, deviceId, func));
+        return redisCacheMgr.hKeys(getKey(deviceId, func));
     }
 
     public void delSubscribes(String deviceId, String func) {
-        redisCacheMgr.remove(String.format(subscribe_device_func, deviceId, func));
+        redisCacheMgr.remove(getKey(deviceId, func));
     }
 
     public void delSubscribe(String deviceId, String func, String sessionId) {
-        redisCacheMgr.hdel(String.format(subscribe_device_func, deviceId, func), sessionId);
+        redisCacheMgr.hdel(getKey(deviceId, func), sessionId);
     }
 
 }

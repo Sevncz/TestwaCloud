@@ -14,21 +14,23 @@ public class DeviceSessionMgr {
     @Autowired
     private RedisCacheManager redisCacheMgr;
 
+    private String getKey(String deviceId) {
+        return String.format(device_client_login, deviceId);
+    }
+
     public void login(String deviceId, String sessionId){
-
-        redisCacheMgr.put(String.format(device_client_login, deviceId), sessionId);
-
+        redisCacheMgr.put(getKey(deviceId), sessionId);
     }
 
     public void logout(String deviceId){
 
-        redisCacheMgr.remove(String.format(device_client_login, deviceId));
+        redisCacheMgr.remove(getKey(deviceId));
 
     }
 
-    public String getClientSessionId(String deviceId){
+    public String getDeviceSession(String deviceId){
 
-        return (String) redisCacheMgr.get(String.format(device_client_login, deviceId));
+        return (String) redisCacheMgr.get(getKey(deviceId));
 
     }
 

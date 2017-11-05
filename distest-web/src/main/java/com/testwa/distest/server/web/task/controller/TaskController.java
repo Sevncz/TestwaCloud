@@ -1,86 +1,110 @@
 package com.testwa.distest.server.web.task.controller;
 
-import com.testwa.core.entity.TaskScene;
+import com.testwa.core.common.enums.DB;
+import com.testwa.core.entity.transfer.RemoteRunCommand;
 import com.testwa.distest.common.constant.Result;
 import com.testwa.distest.common.constant.WebConstants;
 import com.testwa.distest.common.controller.BaseController;
+import com.testwa.distest.common.exception.NoSuchProjectException;
 import com.testwa.distest.common.exception.ObjectNotExistsException;
-import com.testwa.distest.common.form.DeleteAllForm;
-import com.testwa.distest.server.mvc.beans.PageResult;
-import com.testwa.distest.server.service.task.form.TaskListForm;
-import com.testwa.distest.server.service.task.form.TaskNewForm;
-import com.testwa.distest.server.service.task.form.TaskUpdateForm;
-import com.testwa.distest.server.service.task.service.TaskSceneService;
+import com.testwa.distest.server.service.task.form.TaskStartForm;
+import com.testwa.distest.server.service.task.form.TaskStopForm;
+import com.testwa.distest.server.service.task.form.TaskStartByTestcaseForm;
+import com.testwa.distest.server.web.app.validator.AppValidator;
+import com.testwa.distest.server.web.device.validator.DeviceValidatoer;
+import com.testwa.distest.server.web.project.validator.ProjectValidator;
+import com.testwa.distest.server.web.task.execute.ExecuteMgr;
 import com.testwa.distest.server.web.task.validator.TaskValidatoer;
-import com.testwa.distest.server.web.task.vo.TaskVO;
-import com.testwa.distest.server.web.testcase.validator.TestcaseValidatoer;
+import com.testwa.distest.server.web.task.validator.TaskSceneValidatoer;
+import com.testwa.distest.server.web.task.vo.TaskProgressVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
+import java.util.List;
 
 /**
  * Created by wen on 24/10/2017.
  */
-@Api("任务管理相关api")
+@Api("任务部署相关api")
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/task")
-public class TaskController extends BaseController {
-    private static final Logger log = LoggerFactory.getLogger(TaskController.class);
+public class TaskController extends BaseController{
 
     @Autowired
-    private TaskSceneService taskService;
+    private ExecuteMgr executeMgr;
     @Autowired
-    private TaskValidatoer taskValidatoer;
+    private TaskSceneValidatoer taskValidatoer;
     @Autowired
-    private TestcaseValidatoer testcaseValidatoer;
+    private ProjectValidator projectValidator;
+    @Autowired
+    private AppValidator appValidator;
+    @Autowired
+    private DeviceValidatoer deviceValidatoer;
+    @Autowired
+    private TaskValidatoer executionTaskValidatoer;
 
-    @ApiOperation(value="创建任务")
+
+    @ApiOperation(value="执行并保存一个任务")
     @ResponseBody
-    @PostMapping(value = "/save")
-    public Result save(@Valid TaskNewForm form){
-        log.info(form.toString());
-        taskService.save(form);
+    @RequestMapping(value = "/save/run", method = RequestMethod.POST)
+    public Result saveAndRun(@RequestBody TaskStartByTestcaseForm form) throws ObjectNotExistsException {
+        projectValidator.validateProjectExist(form.getProjectId());
+        appValidator.validateProject(form.getAppId());
+        deviceValidatoer.validateOnline(form.getDeviceIds());
+
+        executeMgr.start(form);
+
         return ok();
     }
 
-    @ApiOperation(value="修改任务")
+    @ApiOperation(value="执行一个任务")
     @ResponseBody
-    @PostMapping(value = "/modify")
-    public Result modify(@Valid TaskUpdateForm form) throws ObjectNotExistsException {
-        log.info(form.toString());
-        taskValidatoer.validateTaskExist(form.getTaskId());
-        testcaseValidatoer.validateTestcasesExist(form.getCaseIds());
-        taskService.update(form);
+    @RequestMapping(value = "/run", method = RequestMethod.POST)
+    public Result run(@RequestBody TaskStartForm form) throws ObjectNotExistsException {
+
+        taskValidatoer.validateTaskSceneExist(form.getTaskSceneId());
+        deviceValidatoer.validateOnline(form.getDeviceIds());
+
+        executeMgr.start(form);
         return ok();
     }
 
-    @ApiOperation(value="删除任务")
+
+    @ApiOperation(value="停止一个设备任务")
     @ResponseBody
-    @RequestMapping(value = "/delete", method = RequestMethod.POST, produces = {"application/json"})
-    public Result delete(@Valid @RequestBody DeleteAllForm form) {
-        taskService.delete(form.getEntityIds());
+    @RequestMapping(value = "/kill", method = RequestMethod.POST)
+    public Result kill(@RequestBody TaskStopForm form) throws ObjectNotExistsException {
+        taskValidatoer.validateTaskSceneExist(form.getTaskSceneId());
+        deviceValidatoer.validateOnline(form.getDeviceIds());
+        executeMgr.stop(form);
         return ok();
     }
 
-    @ApiOperation(value="任务分页列表")
+    @ApiOperation(value="查看一个任务的进度")
     @ResponseBody
-    @RequestMapping(value = "/page", method = RequestMethod.GET)
-    public Result page(TaskListForm pageForm) {
-        PageResult<TaskScene> taskPR = taskService.findByPage(pageForm);
-        PageResult<TaskVO> pr = buildVOPageResult(taskPR, TaskVO.class);
-        return ok(pr);
+    @RequestMapping(value = "/progress/${taskId}", method = RequestMethod.GET)
+    public Result progress(@PathVariable(value = "taskId") Long taskId) throws ObjectNotExistsException {
+        executionTaskValidatoer.validateTaskExist(taskId);
+        List<TaskProgressVO> result = executeMgr.getProgress(taskId);
+        return ok(result);
     }
 
+
     @ResponseBody
-    @GetMapping(value = "/detail/{taskId}")
-    public Result detail(@PathVariable String taskId){
-        TaskVO taskVO = taskService.getTaskVO(taskId);
-        return ok(taskVO);
+    @RequestMapping(value = "/test", method = RequestMethod.GET)
+    public Result test(@RequestParam(value = "deviceId")String deviceId){
+        RemoteRunCommand params = new RemoteRunCommand();
+        params.setExeId(1l);
+        params.setAppId(1l);
+        params.setDeviceId("");
+        params.setInstall("");
+        params.setCmd(DB.CommandEnum.START);  // 启动
+//        String agentSession = remoteClientService.getMainSessionByDeviceId(deviceId);
+//        server.getClient(UUID.fromString(agentSession))
+//                .sendEvent(WebsocketEvent.ON_TESTCASE_RUN, JSON.toJSONString(params));
+        return ok();
     }
 
 

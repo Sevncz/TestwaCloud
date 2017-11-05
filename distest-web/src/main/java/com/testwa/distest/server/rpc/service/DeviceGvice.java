@@ -7,7 +7,7 @@ import com.testwa.core.entity.DeviceAndroid;
 import com.testwa.core.entity.DeviceBase;
 import com.testwa.distest.server.service.cache.mgr.SubscribeMgr;
 import com.testwa.distest.server.web.auth.jwt.JwtTokenUtil;
-import com.testwa.distest.server.web.device.cache.DeviceCacheMgr;
+import com.testwa.distest.server.service.cache.mgr.DeviceCacheMgr;
 import com.testwa.distest.server.websocket.WSFuncEnum;
 import com.testwa.distest.server.rpc.GRpcService;
 import io.grpc.stub.StreamObserver;

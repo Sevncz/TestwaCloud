@@ -13,12 +13,12 @@ import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.service.task.dao.ITaskSceneDAO;
 import com.testwa.distest.server.service.task.dao.ITaskTestcaseDAO;
-import com.testwa.distest.server.service.task.form.TaskListForm;
-import com.testwa.distest.server.service.task.form.TaskNewForm;
-import com.testwa.distest.server.service.task.form.TaskUpdateForm;
+import com.testwa.distest.server.service.task.form.TaskSceneListForm;
+import com.testwa.distest.server.service.task.form.TaskSceneNewForm;
+import com.testwa.distest.server.service.task.form.TaskSceneUpdateForm;
 import com.testwa.distest.server.service.testcase.service.TestcaseService;
 import com.testwa.distest.server.service.user.service.UserService;
-import com.testwa.distest.server.web.task.vo.TaskVO;
+import com.testwa.distest.server.web.task.vo.TaskSceneVO;
 import com.testwa.distest.server.web.testcase.vo.TestcaseVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,12 +55,12 @@ public class TaskSceneService {
         return taskSceneDAO.insert(task);
     }
 
-    public TaskScene findOne(Long taskId) {
-        return taskSceneDAO.findOne(taskId);
+    public TaskScene findOne(Long entityId) {
+        return taskSceneDAO.findOne(entityId);
     }
 
-    public void delete(Long taskId){
-        taskSceneDAO.delete(taskId);
+    public void delete(Long entityId){
+        taskSceneDAO.delete(entityId);
     }
 
     /**
@@ -68,7 +68,7 @@ public class TaskSceneService {
      * @param queryForm
      * @return
      */
-    public List<TaskScene> find(TaskListForm queryForm) {
+    public List<TaskScene> find(TaskSceneListForm queryForm) {
         Map<String, Object> params = buildQueryParams(queryForm);
         return taskSceneDAO.findByFromProject(params);
     }
@@ -78,7 +78,7 @@ public class TaskSceneService {
      * @param pageForm
      * @return
      */
-    public PageResult<TaskScene> findByPage(TaskListForm pageForm) {
+    public PageResult<TaskScene> findByPage(TaskSceneListForm pageForm) {
         Map<String, Object> params = buildQueryParams(pageForm);
         //分页处理
         PageHelper.startPage(pageForm.getPageNo(), pageForm.getPageSize());
@@ -89,7 +89,7 @@ public class TaskSceneService {
         return pr;
     }
 
-    private Map<String, Object> buildQueryParams(TaskListForm queryForm) {
+    private Map<String, Object> buildQueryParams(TaskSceneListForm queryForm) {
         List<Project> projects = projectService.findAllOfUserProject(getCurrentUsername());
         Map<String, Object> params = new HashMap<>();
         params.put("projectId", queryForm.getProjectId());
@@ -99,16 +99,16 @@ public class TaskSceneService {
     }
 
 
-    public TaskVO getTaskVO(String taskId) {
-        TaskScene task = taskSceneDAO.findOne(taskId);
-        TaskVO taskVO = new TaskVO();
-        BeanUtils.copyProperties(task, taskVO);
+    public TaskSceneVO getTaskSceneVO(String taskSceneId) {
+        TaskScene ts = taskSceneDAO.findOne(taskSceneId);
+        TaskSceneVO taskVO = new TaskSceneVO();
+        BeanUtils.copyProperties(ts, taskVO);
 
         //get app
-        taskVO.setApp(appService.getAppVO(task.getAppId()));
+        taskVO.setApp(appService.getAppVO(ts.getAppId()));
 
         List<TestcaseVO> testcaseVOs = new ArrayList<>();
-        task.getTestcases().forEach(testcase -> {
+        ts.getTestcases().forEach(testcase -> {
             TestcaseVO testcaseVO = new TestcaseVO();
             BeanUtils.copyProperties(testcase, testcaseVO );
             testcaseVOs.add(testcaseVO);
@@ -118,39 +118,39 @@ public class TaskSceneService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
-    public void update(TaskUpdateForm updateForm) throws NoSuchTaskException, NoSuchTestcaseException,NoSuchAppException {
-        TaskScene task = findOne(updateForm.getTaskId());
-        if (task == null) {
+    public void update(TaskSceneUpdateForm updateForm) throws NoSuchTaskException, NoSuchTestcaseException,NoSuchAppException {
+        TaskScene ts = findOne(updateForm.getTaskSceneId());
+        if (ts == null) {
             throw new NoSuchTaskException("无此任务！");
         }
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
 
         List<Long> caseIds = updateForm.getCaseIds();
         appService.checkApp(updateForm.getAppId());
-        task.setAppId(updateForm.getAppId());
-//        task.setTestcaseIds(caseIds);
-        task.setDescription(updateForm.getDescription());
-        task.setUpdateBy(user.getId());
-        task.setTaskName(updateForm.getTaskName());
-        taskSceneDAO.update(task);
+        ts.setAppId(updateForm.getAppId());
+//        ts.setTestcaseIds(caseIds);
+        ts.setDescription(updateForm.getDescription());
+        ts.setUpdateBy(user.getId());
+        ts.setTaskName(updateForm.getTaskName());
+        taskSceneDAO.update(ts);
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
-    public Long save(TaskNewForm form) {
+    public Long save(TaskSceneNewForm form) {
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
 
         List<Long> caseIds = form.getCaseIds();
 
-        TaskScene task = new TaskScene();
-        task.setAppId(form.getAppId());
-        task.setTaskName(form.getTaskName());
-        task.setProjectId(form.getProjectId());
-        task.setDescription(form.getDescription());
-        task.setCreateTime(new Date());
-        task.setCreateBy(user.getId());
-        task.setExeMode(DB.RunMode.COMMONTEST);
+        TaskScene ts = new TaskScene();
+        ts.setAppId(form.getAppId());
+        ts.setTaskName(form.getTaskName());
+        ts.setProjectId(form.getProjectId());
+        ts.setDescription(form.getDescription());
+        ts.setCreateTime(new Date());
+        ts.setCreateBy(user.getId());
+        ts.setExeMode(DB.RunMode.COMMONTEST);
 
-        long taskId = save(task);
+        long taskId = save(ts);
 
         insertAllTaskTestcase(caseIds, taskId);
         return taskId;
