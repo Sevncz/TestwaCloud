@@ -28,8 +28,8 @@ public class TaskCacheMgr {
      * @param testcaseId
      * @param scriptId
      */
-    public void saveExeInfo(String taskId, String deviceId, String testcaseId, String scriptId){
-        Map<String, String> content = new HashMap<>();
+    public void saveExeInfo(Long taskId, String deviceId, Long testcaseId, Long scriptId){
+        Map<String, Object> content = new HashMap<>();
         content.put("taskId", taskId);
         content.put("testcaseId", testcaseId);
         content.put("scriptId", scriptId);

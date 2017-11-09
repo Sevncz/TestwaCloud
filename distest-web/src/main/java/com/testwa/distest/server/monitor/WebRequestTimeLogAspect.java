@@ -29,13 +29,16 @@ class WebRequestTimeLogAspect {
 
     @Before("webLog()")
     public void doBefore(JoinPoint joinPoint){
+        ThreadContext.init();
         ThreadContext.putRequestBeforeTime(System.currentTimeMillis());
+        logger.info("befor: {}， {}", ThreadContext.getRequestBeforeTime(), joinPoint.getTarget());
     }
 
     @AfterReturning("webLog()")
     public void  doAfterReturning(JoinPoint joinPoint){
         // 处理完请求，返回内容
         Long startTime = ThreadContext.getRequestBeforeTime();
+        logger.info("after: {}， {}", ThreadContext.getRequestBeforeTime(), joinPoint.getTarget());
         Long endTime = System.currentTimeMillis();
         if(endTime - startTime > 100){
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();

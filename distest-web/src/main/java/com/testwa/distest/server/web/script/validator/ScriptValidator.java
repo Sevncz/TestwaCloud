@@ -1,7 +1,7 @@
 package com.testwa.distest.server.web.script.validator;
 
 import com.testwa.distest.common.exception.NoSuchScriptException;
-import com.testwa.core.entity.Script;
+import com.testwa.distest.server.entity.Script;
 import com.testwa.distest.server.service.script.service.ScriptService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

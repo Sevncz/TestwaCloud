@@ -1,8 +1,8 @@
 package com.testwa.distest.server.service.task.dao.impl;
 
-import com.testwa.core.entity.TaskScene;
+import com.testwa.distest.server.entity.TaskScene;
 import com.testwa.distest.common.dao.impl.BaseDAO;
-import com.testwa.distest.server.mvc.mapper.TaskMapper;
+import com.testwa.distest.server.mvc.mapper.TaskSceneMapper;
 import com.testwa.distest.server.service.task.dao.ITaskSceneDAO;
 import org.springframework.stereotype.Repository;
 
@@ -14,7 +14,7 @@ import java.util.Map;
 public class TaskSceneDAO extends BaseDAO<TaskScene, Long> implements ITaskSceneDAO {
 
     @Resource
-    private TaskMapper mapper;
+    private TaskSceneMapper mapper;
 
     public List<TaskScene> findBy(TaskScene app) {
         return mapper.findBy(app);

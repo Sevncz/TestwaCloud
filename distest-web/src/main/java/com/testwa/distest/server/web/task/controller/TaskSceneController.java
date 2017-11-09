@@ -1,6 +1,6 @@
 package com.testwa.distest.server.web.task.controller;
 
-import com.testwa.core.entity.TaskScene;
+import com.testwa.distest.server.entity.TaskScene;
 import com.testwa.distest.common.constant.Result;
 import com.testwa.distest.common.constant.WebConstants;
 import com.testwa.distest.common.controller.BaseController;

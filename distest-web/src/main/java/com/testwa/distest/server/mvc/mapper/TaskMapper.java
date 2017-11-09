@@ -1,8 +1,7 @@
 package com.testwa.distest.server.mvc.mapper;
 
-import com.testwa.core.entity.Task;
+import com.testwa.distest.server.entity.Task;
 import com.testwa.distest.common.mapper.BaseMapper;
-import com.testwa.core.entity.TaskScene;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

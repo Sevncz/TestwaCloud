@@ -93,10 +93,10 @@ public class IndexController {
                 .setTimestamp(TimeUtil.getTimestampLong())
                 .setLogcatFile(logcatFileName)
                 .setDescription("")
-                .setUserId(UserInfo.token)
-                .setExecutionTaskId((String)payload.getOrDefault("executionTaskId", "") )
-                .setTestcaseId((String)payload.getOrDefault("testcaseId", "") )
-                .setScriptId((String)payload.getOrDefault("testSuit", "") )
+                .setToken(UserInfo.token)
+                .setTaskId((Long) payload.getOrDefault("executionTaskId", "") )
+                .setTestcaseId((Long) payload.getOrDefault("testcaseId", "") )
+                .setScriptId((Long) payload.getOrDefault("testSuit", "") )
                 .build();
         MainSocket.getSocket().emit(WebsocketEvent.FB_RUNNGING_LOG, fb.toByteArray());
         return "ok";

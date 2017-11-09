@@ -37,9 +37,9 @@ public class IndexController extends BaseController {
     Result test() {
 
         // 根据前端需求开始统计报告
-        String exeId = "59a16da99d0437ab3a9448e6";
+        Long taskId = 1l;
 
-        context.publishEvent(new GameOverEvent(this, exeId));
+        context.publishEvent(new GameOverEvent(this, taskId));
 
         return ok();
     }

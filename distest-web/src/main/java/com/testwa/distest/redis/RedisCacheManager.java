@@ -11,7 +11,6 @@ import java.util.Set;
 import com.testwa.distest.redis.eviction.EvictionTimer;
 import com.testwa.distest.redis.eviction.Evictor;
 import com.testwa.distest.redis.exception.RedisOperationException;
-import com.testwa.core.entity.Project;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

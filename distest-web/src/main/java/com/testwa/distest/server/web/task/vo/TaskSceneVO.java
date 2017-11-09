@@ -1,6 +1,6 @@
 package com.testwa.distest.server.web.task.vo;
 
-import com.testwa.core.common.enums.DB;
+import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.web.app.vo.AppVO;
 import com.testwa.distest.server.web.testcase.vo.TestcaseVO;
 import lombok.Data;

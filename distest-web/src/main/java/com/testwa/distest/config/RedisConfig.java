@@ -17,17 +17,17 @@ import java.util.List;
 public class RedisConfig {
 
     @Autowired
-    private RedisProperties properties;
+    private RedisProperties redisProperties;
 
     @Bean(name = "redisCacheDspMgr")
     public RedisCacheManager redisCacheDspMgr(){
         RedisCacheManager mgr = new RedisCacheManager();
-        mgr.setEvictorCheckPeriodSeconds(properties.getEvictorCheckPeriodSeconds());
-        mgr.setEvictorDelayCheckSeconds(properties.getEvictorDelayCheckSeconds());
-        mgr.setEvictorFailedTimesToBeTickOut(properties.getEvictorFailedTimesToBeTickOut());
-        mgr.setRetryTimes(properties.getRetryTimes());
+        mgr.setEvictorCheckPeriodSeconds(redisProperties.getEvictorCheckPeriodSeconds());
+        mgr.setEvictorDelayCheckSeconds(redisProperties.getEvictorDelayCheckSeconds());
+        mgr.setEvictorFailedTimesToBeTickOut(redisProperties.getEvictorFailedTimesToBeTickOut());
+        mgr.setRetryTimes(redisProperties.getRetryTimes());
         List<RedisClient> clientList = new ArrayList<>();
-        properties.getClient().forEach(p -> {
+        redisProperties.getClient().forEach(p -> {
             RedisHAClientConfig c = new RedisHAClientConfig();
             c.setCacheName(p.getName());
             c.setRedisAuthKey(p.getPassword());

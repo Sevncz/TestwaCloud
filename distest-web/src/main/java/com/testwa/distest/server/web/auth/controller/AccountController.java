@@ -12,7 +12,7 @@ import com.testwa.distest.common.exception.AccountAlreadyExistException;
 import com.testwa.distest.common.exception.AccountException;
 import com.testwa.distest.common.exception.ParamsFormatException;
 import com.testwa.distest.common.exception.ParamsIsNullException;
-import com.testwa.core.entity.User;
+import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.user.form.RegisterForm;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.auth.login.RedisLoginMgr;

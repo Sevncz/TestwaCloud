@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.testwa.distest.server.mvc.mapper.AppMapper" >
-    <resultMap id="BaseResultMap" type="com.testwa.core.entity.App" >
+    <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.App" >
         <id column="id" property="id" jdbcType="BIGINT" />
         <result column="appName" property="appName" jdbcType="VARCHAR" />
         <result column="aliasName" property="aliasName" jdbcType="VARCHAR" />
@@ -27,7 +27,7 @@
         id, appName, aliasName, packageName, activity, sdkVersion, targetSdkVersion, type, version, path, projectId, md5, size, description, updateTime, createTime, updateBy, createBy, enabled
     </sql>
 
-    <select id="findBy" parameterType="com.testwa.core.entity.App" resultMap="BaseResultMap" >
+    <select id="findBy" parameterType="com.testwa.distest.server.entity.App" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />
         FROM app

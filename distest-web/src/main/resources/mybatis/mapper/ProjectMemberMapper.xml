@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.testwa.distest.server.mvc.mapper.ProjectMemberMapper" >
-    <resultMap id="BaseResultMap" type="com.testwa.core.entity.ProjectMember" >
+    <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.ProjectMember" >
         <id column="id" property="id" jdbcType="BIGINT" />
         <result column="projectId" property="projectId" jdbcType="BIGINT" />
         <result column="memberId" property="memberId" jdbcType="BIGINT" />
@@ -10,7 +10,7 @@
         <result column="createTime" property="createTime" jdbcType="DATE" javaType="java.util.Date"/>
 
     </resultMap>
-    <resultMap id="MemberResultMap" type="com.testwa.core.entity.User" >
+    <resultMap id="MemberResultMap" type="com.testwa.distest.server.entity.User" >
         <id column="id" property="id" jdbcType="BIGINT" />
         <result column="username" property="username" jdbcType="VARCHAR" />
         <result column="password" property="password" jdbcType="VARCHAR" />
@@ -39,7 +39,7 @@
         id, username, password, phone, email, sex, nickname, address, country, header, lastPasswordResetTime, lastLoginTime, loginTime, registerTime, loginIp, lastLoginIp, enabled, roleId
     </sql>
 
-    <select id="findBy" parameterType="com.testwa.core.entity.ProjectMember" resultMap="BaseResultMap" >
+    <select id="findBy" parameterType="com.testwa.distest.server.entity.ProjectMember" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />
         FROM project
@@ -77,7 +77,7 @@
             #{item}
         </foreach>
     </delete>
-    <delete id="deleteMemberFromProject" parameterType="com.testwa.core.entity.ProjectMember">
+    <delete id="deleteMemberFromProject" parameterType="com.testwa.distest.server.entity.ProjectMember">
         DELETE FROM project_member
         where projectId = #{projectId}
         AND memberId = #{memberId}

@@ -2,8 +2,8 @@ package com.testwa.distest.server.mvc.event;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
-import com.testwa.core.entity.Task;
-import com.testwa.core.entity.Script;
+import com.testwa.distest.server.entity.Task;
+import com.testwa.distest.server.entity.Script;
 import com.testwa.distest.server.mvc.model.ProcedureInfo;
 import com.testwa.distest.server.mvc.model.ProcedureStatis;
 import com.testwa.distest.server.mvc.service.ProcedureInfoService;
@@ -40,15 +40,12 @@ public class GameOverListener implements ApplicationListener<GameOverEvent> {
     @Override
     public void onApplicationEvent(GameOverEvent e) {
         log.info("start...");
-        Long exeId = Long.parseLong(e.getExeId());
+        Long exeId = e.getTaskId();
         // 根据前端需求开始统计报告
-        Task et = executionTaskService.findOne(exeId);
+        Task task = executionTaskService.findOne(exeId);
         // 脚本数量
-        Map<String, List<Script>> taskScripts = et.getScripts();
-        int scriptNum = 0;
-        for(List l : taskScripts.values()){
-            scriptNum = scriptNum + l.size();
-        }
+        List<Script> taskScripts = task.getScriptList();
+        int scriptNum = taskScripts.size();
 
         // 统计cpu平均占用率
         List<Map> cpus = statisCpuRate(exeId);
@@ -100,7 +97,7 @@ public class GameOverListener implements ApplicationListener<GameOverEvent> {
         procedureInfoService.saveProcedureStatis(ps);
     }
 
-    private List<Map> statisScript(String exeId) {
+    private List<Map> statisScript(Long exeId) {
         Aggregation agg = Aggregation.newAggregation(
                 Aggregation.match(Criteria.where("executionTaskId").is(exeId)),
                 Aggregation.group("sessionId").sum("status").as("count")
@@ -108,7 +105,7 @@ public class GameOverListener implements ApplicationListener<GameOverEvent> {
         return getResult(agg);
     }
 
-    private List<Map> statisStatus(String exeId) {
+    private List<Map> statisStatus(Long exeId) {
         Aggregation agg = Aggregation.newAggregation(
                 Aggregation.match(Criteria.where("executionTaskId").is(exeId)),
                 Aggregation.group("deviceId", "status").count().as("count")
@@ -116,7 +113,7 @@ public class GameOverListener implements ApplicationListener<GameOverEvent> {
         return getResult(agg);
     }
 
-    private List<Map> statisMemory(String exeId) {
+    private List<Map> statisMemory(Long exeId) {
         Aggregation agg = Aggregation.newAggregation(
                 Aggregation.match(Criteria.where("executionTaskId").is(exeId)),
                 Aggregation.group("deviceId").avg("memory").as("value")
@@ -124,7 +121,7 @@ public class GameOverListener implements ApplicationListener<GameOverEvent> {
         return getResult(agg);
     }
 
-    private List<Map> statisCpuRate(String exeId) {
+    private List<Map> statisCpuRate(Long exeId) {
         Aggregation agg = Aggregation.newAggregation(
                 Aggregation.match(Criteria.where("executionTaskId").is(exeId)),
                 Aggregation.group("deviceId").avg("cpurate").as("value")

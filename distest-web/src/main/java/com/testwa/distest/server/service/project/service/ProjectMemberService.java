@@ -1,11 +1,10 @@
 package com.testwa.distest.server.service.project.service;
 
-import com.testwa.distest.common.constant.ResultCode;
-import com.testwa.core.common.enums.DB;
+import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.exception.*;
-import com.testwa.core.entity.Project;
-import com.testwa.core.entity.ProjectMember;
-import com.testwa.core.entity.User;
+import com.testwa.distest.server.entity.Project;
+import com.testwa.distest.server.entity.ProjectMember;
+import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.project.dao.IProjectMemberDAO;
 import com.testwa.distest.server.service.project.form.MembersModifyForm;
 import com.testwa.distest.server.service.user.service.UserService;
@@ -14,14 +13,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 
@@ -94,7 +90,7 @@ public class ProjectMemberService {
         members.forEach(m -> {
             ProjectMember p = new ProjectMember();
             p.setMemberId(m.getId());
-            p.setInviterId(owner.getId());
+            p.setInviteBy(owner.getId());
             p.setProjectId(project.getId());
             p.setCreateTime(new Date());
             p.setProjectRole(DB.ProjectRole.MEMBER);

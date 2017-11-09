@@ -6,7 +6,7 @@ import com.testwa.distest.common.controller.BaseController;
 import com.testwa.distest.common.exception.*;
 import com.testwa.distest.common.form.DeleteAllForm;
 import com.testwa.distest.server.mvc.beans.PageResult;
-import com.testwa.core.entity.Testcase;
+import com.testwa.distest.server.entity.Testcase;
 import com.testwa.distest.server.service.testcase.form.TestcaseNewForm;
 import com.testwa.distest.server.service.testcase.form.TestcaseListForm;
 import com.testwa.distest.server.service.testcase.form.TestcaseUpdateForm;

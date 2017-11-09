@@ -1,8 +1,8 @@
 package com.testwa.distest.server.mvc.mapper;
 
 import com.testwa.distest.common.mapper.BaseMapper;
-import com.testwa.core.entity.ProjectMember;
-import com.testwa.core.entity.User;
+import com.testwa.distest.server.entity.ProjectMember;
+import com.testwa.distest.server.entity.User;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

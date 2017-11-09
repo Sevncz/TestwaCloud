@@ -1,10 +1,8 @@
 package com.testwa.distest.server.service.cache.mgr;
 
 import com.testwa.distest.redis.RedisCacheManager;
-import com.testwa.core.entity.DeviceAndroid;
-import com.testwa.core.entity.DeviceBase;
-import com.testwa.core.entity.DeviceIOS;
-import com.testwa.distest.server.web.device.constant.DeviceConstant;
+import com.testwa.distest.server.entity.DeviceBase;
+import com.testwa.distest.server.service.cache.constant.DeviceConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

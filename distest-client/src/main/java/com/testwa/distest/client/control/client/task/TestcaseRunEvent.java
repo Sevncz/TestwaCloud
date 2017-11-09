@@ -1,6 +1,6 @@
 package com.testwa.distest.client.control.client.task;
 
-import com.testwa.core.entity.transfer.RemoteRunCommand;
+import com.testwa.core.cmd.RemoteRunCommand;
 import lombok.Data;
 import org.springframework.context.ApplicationEvent;
 

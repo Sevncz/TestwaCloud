@@ -5,10 +5,10 @@ import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.core.common.enums.Command;
-import com.testwa.core.entity.transfer.MiniCmd;
-import com.testwa.core.entity.transfer.RemoteRunCommand;
+import com.testwa.core.cmd.MiniCmd;
+import com.testwa.core.cmd.RemoteRunCommand;
+import com.testwa.distest.common.exception.ObjectNotExistsException;
 import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
-import com.testwa.distest.server.websocket.handler.WebConnectionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,23 +31,32 @@ public class PushCmdService {
         this.server = server;
     }
 
-    private SocketIOClient getSocketIOClient(String deviceId) {
-        String sessionId = deviceSessionMgr.getClientSessionId(deviceId);
-        return server.getClient(UUID.fromString(sessionId));
+    private SocketIOClient getSocketIOClient(String deviceId) throws ObjectNotExistsException {
+        String sessionId = deviceSessionMgr.getDeviceSession(deviceId);
+        SocketIOClient client = server.getClient(UUID.fromString(sessionId));
+        if(client == null){
+            log.error("device session client not found");
+            throw new ObjectNotExistsException("device session client not found");
+        }
+        return client;
     }
 
     @Async
-    public void startTestcase(RemoteRunCommand cmd, String deviceId){
+    public void startTestcase(RemoteRunCommand cmd, String deviceId) throws ObjectNotExistsException {
         log.info(cmd.toString());
         SocketIOClient client = getSocketIOClient(deviceId);
         client.sendEvent(WebsocketEvent.ON_TESTCASE_RUN, JSON.toJSONString(cmd));
     }
 
     @Async
-    public void pushMinCmdStart(MiniCmd cmd, String deviceId){
+    public void pushMinCmdStart(MiniCmd cmd, String deviceId) throws ObjectNotExistsException {
         log.info(cmd.toString());
         SocketIOClient client = getSocketIOClient(deviceId);
         client.sendEvent(Command.Schem.START.getSchemString(), JSON.toJSONString(cmd));
     }
 
+    public void pushTouchData(String deviceId, String data) throws ObjectNotExistsException {
+        SocketIOClient client = getSocketIOClient(deviceId);
+        client.sendEvent(Command.Schem.TOUCH.getSchemString(), data);
+    }
 }

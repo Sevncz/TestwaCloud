@@ -5,8 +5,9 @@ import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.annotation.OnConnect;
 import com.corundumstudio.socketio.annotation.OnDisconnect;
 import com.testwa.core.common.enums.Command;
-import com.testwa.core.entity.DeviceBase;
-import com.testwa.core.entity.transfer.MiniCmd;
+import com.testwa.distest.server.entity.DeviceBase;
+import com.testwa.core.cmd.MiniCmd;
+import com.testwa.distest.common.exception.ObjectNotExistsException;
 import com.testwa.distest.server.service.cache.mgr.ClientSessionMgr;
 import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
 import com.testwa.distest.server.service.cache.mgr.SubscribeMgr;
@@ -46,7 +47,7 @@ public class WebConnectionHandler {
     private JwtTokenUtil jwtTokenUtil;
 
     @OnConnect
-    public void onConnect(SocketIOClient client) {
+    public void onConnect(SocketIOClient client) throws ObjectNotExistsException {
 
         String type = client.getHandshakeData().getSingleUrlParam("type");
         if("device".equals(type)){
@@ -127,13 +128,13 @@ public class WebConnectionHandler {
     }
 
 
-    private void requestStartMinitouch(String deviceId){
+    private void requestStartMinitouch(String deviceId) throws ObjectNotExistsException {
         MiniCmd cmd = new MiniCmd();
         cmd.setType("minitouch");
         pushCmdService.pushMinCmdStart(cmd, deviceId);
     }
 
-    private void requestStartMinicap(String deviceId){
+    private void requestStartMinicap(String deviceId) throws ObjectNotExistsException {
         Map<String, Object> config = new HashMap<>();
 //        config.put("rotate", 0.0f);
         config.put("scale", 0.25f);

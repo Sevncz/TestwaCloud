@@ -1,12 +1,12 @@
 package com.testwa.distest.server.service;
 
 import com.testwa.distest.WebServerApplication;
-import com.testwa.core.common.enums.DB;
+import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.exception.AccountAlreadyExistException;
 import com.testwa.distest.common.exception.AccountException;
 import com.testwa.distest.server.mvc.beans.PageResult;
-import com.testwa.core.entity.User;
-import com.testwa.distest.server.mvc.service.UserService;
+import com.testwa.distest.server.entity.User;
+import com.testwa.distest.server.service.user.service.UserService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,7 +34,7 @@ public class UserServiceTest {
         user.setUsername("xiaoming1");
         user.setPassword("xiaoming1");
         user.setEmail("xiaoming1@testwa.com");
-        userService.insert(user);
+        userService.save(user);
         long countAfter =userService.count();
         Assert.assertEquals(++countBefore,countAfter);
     }
@@ -53,32 +53,20 @@ public class UserServiceTest {
 
     @Test
     public void testFindBy(){
-        try {
-            User u = userService.findByUsername("admin");
-            System.out.println(u.toString());
-        } catch (AccountException e) {
-            e.printStackTrace();
-        }
-        try {
-            User u1 = userService.findByEmail("xiaoming@testwa.com");
-            System.out.println(u1.toString());
-        } catch (AccountException e) {
-            e.printStackTrace();
-        }
+        User u = userService.findByUsername("admin");
+        System.out.println(u.toString());
+        User u1 = userService.findByEmail("xiaoming@testwa.com");
+        System.out.println(u1.toString());
     }
 
     @Test
     public void testUpdate(){
-        try {
-            User user = userService.findByEmail("xiaoming@testwa.com");
-            user.setPhone("18600753024");
-            user.setNickname("wen");
-            user.setSex(DB.Sex.MALE);
-            int val = userService.update(user);
-            Assert.assertEquals(val, 1);
-        } catch (AccountException e) {
-            e.printStackTrace();
-        }
+        User user = userService.findByEmail("xiaoming@testwa.com");
+        user.setPhone("18600753024");
+        user.setNickname("wen");
+        user.setSex(DB.Sex.MALE);
+        int val = userService.update(user);
+        Assert.assertEquals(val, 1);
     }
 
     @Test

@@ -1,15 +1,13 @@
 package com.testwa.distest.server.web.app.controller;
 
 import com.testwa.distest.common.constant.Result;
-import com.testwa.distest.common.constant.ResultCode;
 import com.testwa.distest.common.constant.WebConstants;
 import com.testwa.distest.common.controller.BaseController;
 import com.testwa.distest.common.exception.*;
 import com.testwa.distest.common.form.DeleteAllForm;
 import com.testwa.distest.common.validator.FileUploadValidator;
 import com.testwa.distest.server.mvc.beans.PageResult;
-import com.testwa.core.entity.App;
-import com.testwa.core.entity.Project;
+import com.testwa.distest.server.entity.App;
 import com.testwa.distest.server.service.app.form.AppListForm;
 import com.testwa.distest.server.service.app.form.AppNewForm;
 import com.testwa.distest.server.service.app.form.AppUpdateForm;
@@ -17,19 +15,16 @@ import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.web.app.validator.AppValidator;
 import com.testwa.distest.server.web.app.vo.AppVO;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
-import com.testwa.distest.server.web.project.vo.ProjectVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -51,10 +46,9 @@ public class AppController extends BaseController {
     @Autowired
     private FileUploadValidator fileUploadValidator;
 
-
     @ApiOperation(value="上传应用", notes="一次性提交app的信息")
     @ResponseBody
-    @PostMapping(value = "/upload")
+    @PostMapping(value = "/save")
     public Result uploadFile(@Valid AppNewForm form, @RequestParam("appfile") MultipartFile file) throws AccountException, NoSuchAppException, NoSuchProjectException, ParamsIsNullException, ParamsFormatException, IOException {
         log.info(form.toString());
         //
@@ -68,17 +62,6 @@ public class AppController extends BaseController {
 
         return ok(vo);
     }
-
-    @ApiOperation(value="更新应用信息", notes="在upload之后调用，用于补充app的信息")
-    @ResponseBody
-    @PostMapping(value = "/save")
-    public Result appendInfo(@Valid AppUpdateForm form) throws AccountException, NoSuchAppException, NoSuchProjectException {
-
-        projectValidator.validateProject(form.getProjectId());
-        appService.update(form);
-        return ok();
-    }
-
 
     @ApiOperation(value="上传应用", notes="")
     @ResponseBody
@@ -94,6 +77,16 @@ public class AppController extends BaseController {
         App app = appService.upload(uploadfile);
         AppVO vo = buildVO(app, AppVO.class);
         return ok(vo);
+    }
+
+    @ApiOperation(value="更新应用信息", notes="在upload之后调用，用于补充app的信息")
+    @ResponseBody
+    @PostMapping(value = "/append")
+    public Result appendInfo(@Valid AppUpdateForm form) throws AccountException, NoSuchAppException, NoSuchProjectException {
+
+        projectValidator.validateProjectExist(form.getProjectId());
+        appService.update(form);
+        return ok();
     }
 
     @ApiOperation(value="删除应用", notes="")

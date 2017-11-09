@@ -1,13 +1,10 @@
 package com.testwa.distest.server.mvc.mapper;
 
 import com.testwa.distest.common.mapper.BaseMapper;
-import com.testwa.core.entity.Script;
-import com.testwa.core.entity.Testcase;
+import com.testwa.distest.server.entity.Testcase;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.security.access.method.P;
 
 import java.util.List;
-import java.util.Map;
 
 public interface TestcaseMapper extends BaseMapper<Testcase, Long> {
 

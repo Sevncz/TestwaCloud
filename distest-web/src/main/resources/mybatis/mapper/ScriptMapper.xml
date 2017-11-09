@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.testwa.distest.server.mvc.mapper.ScriptMapper" >
-    <resultMap id="BaseResultMap" type="com.testwa.core.entity.Script" >
+    <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.Script" >
         <id column="id" property="id" jdbcType="BIGINT" />
         <result column="scriptName" property="scriptName" jdbcType="VARCHAR" />
         <result column="aliasName" property="aliasName" jdbcType="VARCHAR" />
@@ -23,7 +23,7 @@
         id, scriptName, aliasName, size, tag, description, ln, type, version, path, md5, userId, updateTime, createTime, updateBy, createBy, enabled
     </sql>
 
-    <select id="findBy" parameterType="com.testwa.core.entity.Script" resultMap="BaseResultMap" >
+    <select id="findBy" parameterType="com.testwa.distest.server.entity.Script" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />
         FROM script

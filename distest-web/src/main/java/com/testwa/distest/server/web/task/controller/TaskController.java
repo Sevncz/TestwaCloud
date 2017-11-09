@@ -1,11 +1,10 @@
 package com.testwa.distest.server.web.task.controller;
 
-import com.testwa.core.common.enums.DB;
-import com.testwa.core.entity.transfer.RemoteRunCommand;
+import com.testwa.distest.common.enums.DB;
+import com.testwa.core.cmd.RemoteRunCommand;
 import com.testwa.distest.common.constant.Result;
 import com.testwa.distest.common.constant.WebConstants;
 import com.testwa.distest.common.controller.BaseController;
-import com.testwa.distest.common.exception.NoSuchProjectException;
 import com.testwa.distest.common.exception.ObjectNotExistsException;
 import com.testwa.distest.server.service.task.form.TaskStartForm;
 import com.testwa.distest.server.service.task.form.TaskStopForm;
@@ -84,7 +83,7 @@ public class TaskController extends BaseController{
 
     @ApiOperation(value="查看一个任务的进度")
     @ResponseBody
-    @RequestMapping(value = "/progress/${taskId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/progress/{taskId}", method = RequestMethod.GET)
     public Result progress(@PathVariable(value = "taskId") Long taskId) throws ObjectNotExistsException {
         executionTaskValidatoer.validateTaskExist(taskId);
         List<TaskProgressVO> result = executeMgr.getProgress(taskId);
@@ -100,7 +99,7 @@ public class TaskController extends BaseController{
         params.setAppId(1l);
         params.setDeviceId("");
         params.setInstall("");
-        params.setCmd(DB.CommandEnum.START);  // 启动
+        params.setCmd(DB.CommandEnum.START.getValue());  // 启动
 //        String agentSession = remoteClientService.getMainSessionByDeviceId(deviceId);
 //        server.getClient(UUID.fromString(agentSession))
 //                .sendEvent(WebsocketEvent.ON_TESTCASE_RUN, JSON.toJSONString(params));

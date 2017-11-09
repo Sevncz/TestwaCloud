@@ -2,7 +2,7 @@ package com.testwa.distest.client.control.client.task;
 
 import com.github.cosysoft.device.android.AndroidApp;
 import com.github.cosysoft.device.android.impl.DefaultAndroidApp;
-import com.testwa.core.entity.transfer.RemoteTestcaseContent;
+import com.testwa.core.cmd.RemoteTestcaseContent;
 import com.testwa.core.service.PythonScriptDriverService;
 import com.testwa.core.service.PythonServiceBuilder;
 import com.testwa.core.utils.Identities;

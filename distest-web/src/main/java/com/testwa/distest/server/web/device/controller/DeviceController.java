@@ -1,44 +1,28 @@
 package com.testwa.distest.server.web.device.controller;
 
-import com.corundumstudio.socketio.SocketIOClient;
-import com.corundumstudio.socketio.SocketIOServer;
-import com.testwa.core.common.enums.Command;
-import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.common.constant.Result;
 import com.testwa.distest.common.constant.ResultCode;
 import com.testwa.distest.common.constant.WebConstants;
 import com.testwa.distest.common.controller.BaseController;
 import com.testwa.distest.common.exception.AccountException;
 import com.testwa.distest.common.exception.NotInProjectException;
-import com.testwa.core.entity.User;
-import com.testwa.distest.server.mvc.service.AgentService;
-import com.testwa.distest.server.mvc.service.DeviceService;
-import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
+import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.service.user.service.UserService;
-import io.rpc.testwa.device.LogcatEndRequest;
-import io.rpc.testwa.device.LogcatStartRequest;
-import io.rpc.testwa.device.ScreenCaptureEndRequest;
 import io.swagger.annotations.Api;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 
@@ -52,26 +36,11 @@ public class DeviceController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(DeviceController.class);
 
     @Autowired
-    private DeviceService deviceService;
-
-    private final SocketIOServer server;
-    @Autowired
-    private AgentService testwaAgentService;
-    @Autowired
-    private UserDeviceHisService userDeviceHisService;
-    @Autowired
-    private RemoteClientService remoteClientService;
-    @Autowired
     private ProjectService projectService;
     @Autowired
     private UserService userService;
     @Autowired
     private Environment env;
-
-    @Autowired
-    public DeviceController(SocketIOServer server) {
-        this.server = server;
-    }
 
     /**
      * 项目内可用在线设备列表
@@ -91,20 +60,20 @@ public class DeviceController extends BaseController {
 
     /**
      * 项目内可用在线设备列表 带过滤
-     * @param deviceProjectListVO
+     * @param
      * @return
      * @throws NotInProjectException
      */
-    @ResponseBody
-    @RequestMapping(value = "/project/list", method = RequestMethod.POST)
-    public Result listProjectFilter(@RequestBody @Valid DeviceProjectListVO deviceProjectListVO) throws NotInProjectException, AccountException {
-        String projectId = deviceProjectListVO.getProjectId();
-        User user = userService.findByUsername(getCurrentUsername());
-//        checkUserInProject(projectService, auth, projectId);
-//        List<DeviceAndroid> deviceList = deviceService.getDeviceByUserAndProject(auth.getId(),projectId, deviceProjectListVO.getFilter());
-//        return ok(deviceList);
-        return ok();
-    }
+//    @ResponseBody
+//    @RequestMapping(value = "/project/list", method = RequestMethod.POST)
+//    public Result listProjectFilter(@RequestBody @Valid DeviceProjectListVO deviceProjectListVO) throws NotInProjectException, AccountException {
+//        String projectId = deviceProjectListVO.getProjectId();
+//        User user = userService.findByUsername(getCurrentUsername());
+////        checkUserInProject(projectService, auth, projectId);
+////        List<DeviceAndroid> deviceList = deviceService.getDeviceByUserAndProject(auth.getId(),projectId, deviceProjectListVO.getFilter());
+////        return ok(deviceList);
+//        return ok();
+//    }
 
     @ResponseBody
     @RequestMapping(value = "/user/list", method = RequestMethod.GET)
@@ -250,37 +219,37 @@ public class DeviceController extends BaseController {
     }
 
 
-    private List<DeviceOwnerTableVO> buildDeviceOwnerTableVO(Page<UserDeviceHis> userDevicePage) {
-        List<DeviceOwnerTableVO> lists = new ArrayList<>();
-        for (UserDeviceHis his : userDevicePage) {
-            TDevice device = deviceService.getDeviceById(his.getDeviceId());
-            DeviceOwnerTableVO vo = new DeviceOwnerTableVO(device);
-            String sessionId = remoteClientService.getMainSessionByDeviceId(his.getDeviceId());
-            if (StringUtils.isNotBlank(sessionId)) {
-                // 状态已经保存在数据库了，这里就不用修改了，只需要拿到agent的信息
-//                    d.setStatus("ON");
-                vo.setSessionId(sessionId);
-                String agentId = remoteClientService.getMainInfoBySession(sessionId);
-                if (StringUtils.isNotBlank(agentId)) {
-                    Agent agent = testwaAgentService.getTestwaAgentById(agentId);
-                    vo.setAgent(agent);
-                }
-            } else {
-                log.debug("DeviceAndroid offline, {}", his.getDeviceId());
-                vo.setStatus("OFF");
-            }
-            lists.add(vo);
-        }
-        return lists;
-    }
+//    private List<DeviceOwnerTableVO> buildDeviceOwnerTableVO(Page<UserDeviceHis> userDevicePage) {
+//        List<DeviceOwnerTableVO> lists = new ArrayList<>();
+//        for (UserDeviceHis his : userDevicePage) {
+//            TDevice device = deviceService.getDeviceById(his.getDeviceId());
+//            DeviceOwnerTableVO vo = new DeviceOwnerTableVO(device);
+//            String sessionId = remoteClientService.getMainSessionByDeviceId(his.getDeviceId());
+//            if (StringUtils.isNotBlank(sessionId)) {
+//                // 状态已经保存在数据库了，这里就不用修改了，只需要拿到agent的信息
+////                    d.setStatus("ON");
+//                vo.setSessionId(sessionId);
+//                String agentId = remoteClientService.getMainInfoBySession(sessionId);
+//                if (StringUtils.isNotBlank(agentId)) {
+//                    Agent agent = testwaAgentService.getTestwaAgentById(agentId);
+//                    vo.setAgent(agent);
+//                }
+//            } else {
+//                log.debug("DeviceAndroid offline, {}", his.getDeviceId());
+//                vo.setStatus("OFF");
+//            }
+//            lists.add(vo);
+//        }
+//        return lists;
+//    }
 
 
-    @ResponseBody
-    @RequestMapping(value = "/list", method= RequestMethod.GET)
-    public Result list(@RequestParam(required=false) String deviceId){
-        List<TDevice> devices = deviceService.find(deviceId);
-        return ok();
-    }
+//    @ResponseBody
+//    @RequestMapping(value = "/list", method= RequestMethod.GET)
+//    public Result list(@RequestParam(required=false) String deviceId){
+//        List<TDevice> devices = deviceService.find(deviceId);
+//        return ok();
+//    }
 
 
     @ResponseBody
@@ -323,68 +292,68 @@ public class DeviceController extends BaseController {
     }
 
 
-    @ResponseBody
-    @RequestMapping(value = "/show/screen/start/{deviceId}", method= RequestMethod.GET)
-    public Result showScreenStart(@PathVariable String deviceId){
-        String sessionId = remoteClientService.getMainSessionByDeviceId(deviceId);
-        if(StringUtils.isBlank(sessionId)){
-            return fail(ResultCode.PARAM_ERROR, "sessionId not found");
-        }
-        SocketIOClient client = server.getClient(UUID.fromString(sessionId));
-        client.sendEvent(Command.Schem.OPEN.getSchemString(), deviceId);
-        return ok();
-    }
-
-
-    @ResponseBody
-    @RequestMapping(value = "/show/screen/stop/{deviceId}", method= RequestMethod.GET)
-    public Result showScreenStop(@PathVariable String deviceId){
-        String sessionId = remoteClientService.getMainSessionByDeviceId(deviceId);
-        if(StringUtils.isBlank(sessionId)){
-            return fail(ResultCode.PARAM_ERROR, "sessionId not found");
-        }
-        SocketIOClient client = server.getClient(UUID.fromString(sessionId));
-        ScreenCaptureEndRequest request = ScreenCaptureEndRequest.newBuilder()
-                .setSerial(deviceId)
-                .build();
-        client.sendEvent(WebsocketEvent.ON_SCREEN_SHOW_STOP, request.toByteArray());
-        return ok();
-    }
-
-
-    @ResponseBody
-    @RequestMapping(value = "/show/logcat/start/{deviceId}", method= RequestMethod.GET)
-    public Result showLogcatStart(@PathVariable String deviceId){
-        String sessionId = remoteClientService.getMainSessionByDeviceId(deviceId);
-        if(StringUtils.isBlank(sessionId)){
-            return fail(ResultCode.PARAM_ERROR, "sessionId not found");
-        }
-        SocketIOClient client = server.getClient(UUID.fromString(sessionId));
-        LogcatStartRequest request = LogcatStartRequest.newBuilder()
-                .setSerial(deviceId)
-                .setFilter("")
-                .setLevel("E")
-                .setTag("")
-                .build();
-        client.sendEvent(WebsocketEvent.ON_LOGCAT_SHOW_START, request.toByteArray());
-        return ok();
-    }
-
-
-    @ResponseBody
-    @RequestMapping(value = "/show/logcat/stop/{deviceId}", method= RequestMethod.GET)
-    public Result showLogcatStop(@PathVariable String deviceId){
-        String sessionId = remoteClientService.getMainSessionByDeviceId(deviceId);
-        if(StringUtils.isBlank(sessionId)){
-            return fail(ResultCode.PARAM_ERROR, "sessionId not found");
-        }
-        SocketIOClient client = server.getClient(UUID.fromString(sessionId));
-        LogcatEndRequest request = LogcatEndRequest.newBuilder()
-                .setSerial(deviceId)
-                .build();
-        client.sendEvent(WebsocketEvent.ON_LOGCAT_SHOW_STOP, request.toByteArray());
-        return ok();
-    }
+//    @ResponseBody
+//    @RequestMapping(value = "/show/screen/start/{deviceId}", method= RequestMethod.GET)
+//    public Result showScreenStart(@PathVariable String deviceId){
+//        String sessionId = remoteClientService.getMainSessionByDeviceId(deviceId);
+//        if(StringUtils.isBlank(sessionId)){
+//            return fail(ResultCode.PARAM_ERROR, "sessionId not found");
+//        }
+//        SocketIOClient client = server.getClient(UUID.fromString(sessionId));
+//        client.sendEvent(Command.Schem.OPEN.getSchemString(), deviceId);
+//        return ok();
+//    }
+//
+//
+//    @ResponseBody
+//    @RequestMapping(value = "/show/screen/stop/{deviceId}", method= RequestMethod.GET)
+//    public Result showScreenStop(@PathVariable String deviceId){
+//        String sessionId = remoteClientService.getMainSessionByDeviceId(deviceId);
+//        if(StringUtils.isBlank(sessionId)){
+//            return fail(ResultCode.PARAM_ERROR, "sessionId not found");
+//        }
+//        SocketIOClient client = server.getClient(UUID.fromString(sessionId));
+//        ScreenCaptureEndRequest request = ScreenCaptureEndRequest.newBuilder()
+//                .setSerial(deviceId)
+//                .build();
+//        client.sendEvent(WebsocketEvent.ON_SCREEN_SHOW_STOP, request.toByteArray());
+//        return ok();
+//    }
+//
+//
+//    @ResponseBody
+//    @RequestMapping(value = "/show/logcat/start/{deviceId}", method= RequestMethod.GET)
+//    public Result showLogcatStart(@PathVariable String deviceId){
+//        String sessionId = remoteClientService.getMainSessionByDeviceId(deviceId);
+//        if(StringUtils.isBlank(sessionId)){
+//            return fail(ResultCode.PARAM_ERROR, "sessionId not found");
+//        }
+//        SocketIOClient client = server.getClient(UUID.fromString(sessionId));
+//        LogcatStartRequest request = LogcatStartRequest.newBuilder()
+//                .setSerial(deviceId)
+//                .setFilter("")
+//                .setLevel("E")
+//                .setTag("")
+//                .build();
+//        client.sendEvent(WebsocketEvent.ON_LOGCAT_SHOW_START, request.toByteArray());
+//        return ok();
+//    }
+//
+//
+//    @ResponseBody
+//    @RequestMapping(value = "/show/logcat/stop/{deviceId}", method= RequestMethod.GET)
+//    public Result showLogcatStop(@PathVariable String deviceId){
+//        String sessionId = remoteClientService.getMainSessionByDeviceId(deviceId);
+//        if(StringUtils.isBlank(sessionId)){
+//            return fail(ResultCode.PARAM_ERROR, "sessionId not found");
+//        }
+//        SocketIOClient client = server.getClient(UUID.fromString(sessionId));
+//        LogcatEndRequest request = LogcatEndRequest.newBuilder()
+//                .setSerial(deviceId)
+//                .build();
+//        client.sendEvent(WebsocketEvent.ON_LOGCAT_SHOW_STOP, request.toByteArray());
+//        return ok();
+//    }
 
 
 }

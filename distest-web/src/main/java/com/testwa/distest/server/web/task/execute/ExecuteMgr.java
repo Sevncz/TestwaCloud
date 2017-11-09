@@ -1,10 +1,11 @@
 package com.testwa.distest.server.web.task.execute;
 
 import com.alibaba.fastjson.JSON;
-import com.testwa.core.common.enums.DB;
-import com.testwa.core.entity.transfer.RemoteRunCommand;
-import com.testwa.core.entity.transfer.RemoteTestcaseContent;
-import com.testwa.core.entity.*;
+import com.testwa.distest.common.enums.DB;
+import com.testwa.core.cmd.RemoteRunCommand;
+import com.testwa.core.cmd.RemoteTestcaseContent;
+import com.testwa.distest.server.entity.*;
+import com.testwa.distest.common.exception.ObjectNotExistsException;
 import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.cache.mgr.ClientSessionMgr;
 import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
@@ -64,7 +65,7 @@ public class ExecuteMgr {
      * @param form
      */
     @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
-    public void start(TaskStartByTestcaseForm form) {
+    public void start(TaskStartByTestcaseForm form) throws ObjectNotExistsException {
         log.info(form.toString());
         Long taskSceneId = taskSceneService.save(form);
         TaskStartForm startForm = new TaskStartForm();
@@ -73,8 +74,15 @@ public class ExecuteMgr {
         start(startForm, form.getCaseIds(), form.getAppId());
     }
 
+    private List<Long> getScriptIds(List<Script> scripts) {
+        List<Long> scriptIds = new ArrayList<>();
+        scripts.forEach( s -> {
+            scriptIds.add(s.getId());
+        });
+        return scriptIds;
+    }
 
-    private void start(TaskStartForm form, List<Long> caseIds, Long appId) {
+    private void start(TaskStartForm form, List<Long> caseIds, Long appId) throws ObjectNotExistsException {
         log.info(form.toString());
 
         List<RemoteTestcaseContent> cases = new ArrayList<>();
@@ -83,7 +91,7 @@ public class ExecuteMgr {
             RemoteTestcaseContent content = new RemoteTestcaseContent();
             content.setTestcaseId(caseId);
             Testcase c = testcaseService.findOne(caseId);
-            content.setScriptIds(c.getScripts());
+            content.setScriptIds(getScriptIds(c.getScripts()));
             cases.add(content);
 
         }
@@ -93,14 +101,14 @@ public class ExecuteMgr {
             DeviceBase d = deviceCacheMgr.getDeviceContent(key);
             RemoteRunCommand cmd = new RemoteRunCommand();
             cmd.setAppId(appId);
-            cmd.setCmd(DB.CommandEnum.START);
+            cmd.setCmd(DB.CommandEnum.START.getValue());
             cmd.setDeviceId(key);
             cmd.setTestcaseList(cases);
             pushCmdService.startTestcase(cmd, d.getDeviceId());
         }
     }
 
-    public void start(TaskStartForm form) {
+    public void start(TaskStartForm form) throws ObjectNotExistsException {
         log.info(form.toString());
         TaskScene ts = taskSceneService.findOne(form.getTaskSceneId());
 

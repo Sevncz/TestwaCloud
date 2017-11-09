@@ -1,11 +1,11 @@
 package com.testwa.distest.server.rpc.service;
 
-import com.testwa.core.common.enums.DB;
-import com.testwa.core.entity.Task;
+import com.testwa.distest.common.enums.DB;
+import com.testwa.distest.server.entity.Task;
 import com.testwa.distest.server.LogInterceptor;
 import com.testwa.distest.server.mvc.event.GameOverEvent;
-import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
 import com.testwa.distest.server.rpc.GRpcService;
+import com.testwa.distest.server.service.cache.mgr.TaskCacheMgr;
 import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.web.auth.jwt.JwtTokenUtil;
 import io.grpc.stub.StreamObserver;
@@ -33,7 +33,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
-    private RemoteClientService remoteClientService;
+    private TaskCacheMgr taskCacheMgr;
     @Autowired
     ApplicationContext context;
 
@@ -46,13 +46,13 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
             log.error("task's token error, userId is null, token ==== {}", token);
             return;
         }
-        Long exeId = Long.parseLong(request.getExeId());
+        Long exeId = request.getExeId();
         Long timestamp = request.getTimestamp();
 
         Task exeTask = executionTaskService.findOne(exeId);
         if(exeTask != null && Objects.equals(exeTask.getCreateBy(), userId)){
             if(exeTask.getStatus().getValue() != DB.TaskStatus.CANCEL.getValue()){
-                exeTask.setStatus(DB.TaskStatus.STOP);
+                exeTask.setStatus(DB.TaskStatus.COMPLETE);
             }
             exeTask.setEndTime(new Date(timestamp));
             executionTaskService.save(exeTask);
@@ -65,12 +65,12 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     @Override
     public void currExeInfo(CurrentExeInfoRequest request, StreamObserver<CommonReply> responseObserver){
 
-        String exeId = request.getExeId();
+        Long exeId = request.getExeId();
         String deviceId = request.getDeviceId();
-        String scriptId = request.getScriptId();
-        String testcaseId = request.getTestcaseId();
+        Long scriptId = request.getScriptId();
+        Long testcaseId = request.getTestcaseId();
 
-        remoteClientService.saveExeInfo(exeId, deviceId, testcaseId, scriptId);
+        taskCacheMgr.saveExeInfo(exeId, deviceId, testcaseId, scriptId);
 
     }
 

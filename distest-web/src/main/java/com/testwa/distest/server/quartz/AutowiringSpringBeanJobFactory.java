@@ -8,7 +8,7 @@ import org.springframework.scheduling.quartz.SpringBeanJobFactory;
 import org.springframework.stereotype.Service;
 
 @Service
-public final class AutowiringSpringBeanJobFactory extends SpringBeanJobFactory implements ApplicationContextAware {
+public class AutowiringSpringBeanJobFactory extends SpringBeanJobFactory implements ApplicationContextAware {
 
     private transient AutowireCapableBeanFactory beanFactory;
 

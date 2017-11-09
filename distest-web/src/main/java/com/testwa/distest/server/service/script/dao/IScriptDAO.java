@@ -1,8 +1,7 @@
 package com.testwa.distest.server.service.script.dao;
 
 import com.testwa.distest.common.dao.IBaseDAO;
-import com.testwa.core.entity.App;
-import com.testwa.core.entity.Script;
+import com.testwa.distest.server.entity.Script;
 
 import java.util.List;
 import java.util.Map;

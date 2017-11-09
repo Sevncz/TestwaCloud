@@ -1,5 +1,6 @@
 package com.testwa.distest.server.websocket.handler;
 
+import com.alibaba.fastjson.JSON;
 import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
@@ -25,17 +26,9 @@ import java.io.IOException;
 public class RunningLogFeedbackHandler {
     private static final Logger log = LoggerFactory.getLogger(RunningLogFeedbackHandler.class);
 
-    private final SocketIOServer server;
-
-    private ObjectMapper mapper = new ObjectMapper();
-
     @Autowired
     private RedisCacheManager redisCacheMgr;
 
-    @Autowired
-    public RunningLogFeedbackHandler(SocketIOServer server) {
-        this.server = server;
-    }
 
     @OnEvent(value = WebsocketEvent.FB_RUNNGING_LOG)
     public void onEvent(SocketIOClient client, byte[] data, AckRequest ackRequest) {
@@ -45,17 +38,11 @@ public class RunningLogFeedbackHandler {
             log.info("action -----> {}", request.getActionBytes().toStringUtf8());
             ProcedureInfo procedureInfo = new ProcedureInfo();
             procedureInfo.toEntity(request);
-            String json = mapper.writeValueAsString(procedureInfo);
+            String json = JSON.toJSONString(procedureInfo);
             log.info("json -----> {}", json);
             redisCacheMgr.lpush(WebsocketEvent.FB_RUNNGING_LOG, json);
         } catch (InvalidProtocolBufferException e) {
             log.error("InvalidProtocolBufferException", e);
-        } catch (JsonGenerationException e) {
-            e.printStackTrace();
-        } catch (JsonMappingException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 

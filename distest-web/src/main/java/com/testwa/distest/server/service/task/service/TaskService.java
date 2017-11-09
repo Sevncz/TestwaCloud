@@ -1,9 +1,7 @@
 package com.testwa.distest.server.service.task.service;
 
-import com.testwa.core.common.enums.DB;
-import com.testwa.core.utils.TimeUtil;
-import com.testwa.distest.common.exception.NoSuchExecutionTaskException;
-import com.testwa.core.entity.*;
+import com.testwa.distest.common.enums.DB;
+import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.mvc.model.ProcedureStatis;
 import com.testwa.distest.server.service.task.dao.ITaskDAO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,4 +53,7 @@ public class TaskService {
         return taskDAO.findBy(query);
     }
 
+    public ProcedureStatis statis(Long taskId) {
+        return null;
+    }
 }

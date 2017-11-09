@@ -1,7 +1,7 @@
 package com.testwa.distest.server.service.user.dao;
 
 import com.testwa.distest.common.dao.IBaseDAO;
-import com.testwa.core.entity.User;
+import com.testwa.distest.server.entity.User;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 package com.testwa.distest.server.service.task.dao.impl;
 
 import com.testwa.distest.common.dao.impl.BaseDAO;
-import com.testwa.core.entity.TaskTestcase;
+import com.testwa.distest.server.entity.TaskTestcase;
 import com.testwa.distest.server.mvc.mapper.TaskTestcaseMapper;
 import com.testwa.distest.server.service.task.dao.ITaskTestcaseDAO;
 import org.springframework.stereotype.Repository;

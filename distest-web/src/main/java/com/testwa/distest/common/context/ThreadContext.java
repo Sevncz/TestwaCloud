@@ -96,7 +96,7 @@ public class ThreadContext {
      * 初始化线程上下文
      */
     public final static void init() {
-        CTX_HOLDER.set(new HashMap<String, Object>());
+        CTX_HOLDER.set(new HashMap<>());
     }
 
     /**
@@ -159,7 +159,7 @@ public class ThreadContext {
     /**
      * 获得请求进入时间
      */
-    public static long getRequestBeforeTime() {
+    public static Long getRequestBeforeTime() {
         return getContext(REQUEST_BEFORE_TIME);
     }
 

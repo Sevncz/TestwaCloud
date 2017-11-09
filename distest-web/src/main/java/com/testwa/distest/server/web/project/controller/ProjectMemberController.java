@@ -4,13 +4,10 @@ import com.testwa.distest.common.constant.Result;
 import com.testwa.distest.common.constant.WebConstants;
 import com.testwa.distest.common.controller.BaseController;
 import com.testwa.distest.common.exception.*;
-import com.testwa.core.entity.Project;
-import com.testwa.core.entity.ProjectMember;
-import com.testwa.core.entity.User;
+import com.testwa.distest.server.entity.ProjectMember;
+import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.project.form.MembersModifyForm;
 import com.testwa.distest.server.service.project.service.ProjectMemberService;
-import com.testwa.distest.server.service.project.service.ProjectService;
-import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.auth.validator.UserValidator;
 import com.testwa.distest.server.web.auth.vo.UserVO;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
@@ -26,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.security.auth.login.AccountNotFoundException;
 import javax.validation.Valid;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -54,7 +50,7 @@ public class ProjectMemberController extends BaseController {
     public Result addMembers(@RequestBody @Valid MembersModifyForm form) throws AccountException, NoSuchProjectException, AccountAlreadyExistException, AuthorizedException, ParamsException, AccountNotFoundException {
         projectValidator.validateProjectExist(form.getProjectId());
         if(form.getUsernames() != null && form.getUsernames().size() > 0){
-            userValidator.validateUsernames(form.getUsernames());
+            userValidator.validateUsernamesExist(form.getUsernames());
         }
         projectMemberService.addMembers(form);
         return ok();

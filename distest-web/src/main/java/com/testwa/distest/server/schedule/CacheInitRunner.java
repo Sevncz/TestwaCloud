@@ -1,6 +1,5 @@
 package com.testwa.distest.server.schedule;
 
-import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,16 +14,16 @@ import org.springframework.stereotype.Component;
 public class CacheInitRunner implements CommandLineRunner {
     private static final Logger log = LoggerFactory.getLogger(TestwaScheduledRunner.class);
 
-    @Autowired
-    private RemoteClientService remoteClientService;
+//    @Autowired
+//    private RemoteClientService remoteClientService;
 
 
     @Override
     public void run(String... strings) throws Exception {
-        remoteClientService.delDeviceForClient();
-        remoteClientService.delShareDevice();
-        remoteClientService.delMainInfo();
-        remoteClientService.delOnstartScreenDevice();
+//        remoteClientService.delDeviceForClient();
+//        remoteClientService.delShareDevice();
+//        remoteClientService.delMainInfo();
+//        remoteClientService.delOnstartScreenDevice();
         log.info("clean cache key");
     }
 }

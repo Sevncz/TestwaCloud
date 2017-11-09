@@ -1,12 +1,10 @@
 package com.testwa.distest.server.schedule;
 
-import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.redis.RedisCacheManager;
 import com.testwa.distest.server.mvc.model.ProcedureInfo;
-import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
-import org.apache.commons.lang3.StringUtils;
+import com.testwa.distest.server.service.cache.mgr.DeviceCacheMgr;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +35,7 @@ public class TestwaScheduledRunner {
     private Environment env;
 
     @Autowired
-    private RemoteClientService remoteClientService;
+    private DeviceCacheMgr deviceCacheMgr;
 
     private final SocketIOServer server;
 
@@ -50,7 +48,7 @@ public class TestwaScheduledRunner {
     @Scheduled(cron = "0/10 * * * * ?")
     public void storeRunningLog() throws Exception {
         Long logSize = redisCacheManager.llen(WebsocketEvent.FB_RUNNGING_LOG);
-        if(logSize == 0){
+        if(logSize == null || logSize == 0){
             return;
         }
 
@@ -80,20 +78,7 @@ public class TestwaScheduledRunner {
 
     @Scheduled(cron = "0/10 * * * * ?")
     public void checkDeviceOnline() throws Exception {
-        List<String> devices = remoteClientService.getAllDevice();
-        devices.forEach(d -> {
-            String mainSessionId = remoteClientService.getMainSessionByDeviceId(d);
-            if(StringUtils.isBlank(mainSessionId)){
-
-                remoteClientService.delDevice(d);
-                return;
-            }
-            SocketIOClient client = server.getClient(UUID.fromString(mainSessionId));
-            if( client == null ){
-                remoteClientService.delDevice(d);
-                return;
-            }
-        });
+        // TODO
     }
 
     @Scheduled(cron = "0 1 * * * ?")

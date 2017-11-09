@@ -1,10 +1,16 @@
 package com.testwa.distest.server.web.task.controller;
 
-import com.testwa.core.entity.Task;
+import com.testwa.distest.server.entity.DeviceAndroid;
+import com.testwa.distest.server.entity.DeviceBase;
+import com.testwa.distest.server.entity.Task;
+import com.testwa.core.utils.TimeUtil;
 import com.testwa.distest.common.constant.Result;
 import com.testwa.distest.common.constant.WebConstants;
+import com.testwa.distest.common.controller.BaseController;
 import com.testwa.distest.common.exception.ObjectNotExistsException;
+import com.testwa.distest.server.mvc.model.ProcedureInfo;
 import com.testwa.distest.server.mvc.model.ProcedureStatis;
+import com.testwa.distest.server.mvc.service.ProcedureInfoService;
 import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.web.task.validator.TaskValidatoer;
 import com.testwa.distest.server.web.task.validator.TaskSceneValidatoer;
@@ -24,38 +30,40 @@ import java.util.Map;
 @Api("任务报告相关api")
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/report")
-public class ReportController {
+public class ReportController extends BaseController{
 
     @Autowired
-    private TaskService executionTaskService;
+    private TaskService taskService;
     @Autowired
     private TaskSceneValidatoer taskValidatoer;
     @Autowired
     private TaskValidatoer executionTaskValidatoer;
+    @Autowired
+    private ProcedureInfoService procedureInfoService;
 
     @ApiOperation(value="任务执行统计")
     @ResponseBody
     @RequestMapping(value = "/execut/statis", method = RequestMethod.GET)
-    public Result statis(@RequestParam(value = "exeId", required = true) Long exeId) throws ObjectNotExistsException {
+    public Result statis(@RequestParam(value = "taskId", required = true) Long taskId) throws ObjectNotExistsException {
 
         // app 基本情况
-        Task et = executionTaskValidatoer.validateExecutionTaskExist(exeId);
+        Task et = executionTaskValidatoer.validateTaskExist(taskId);
         Map<String, Object> result = new HashMap<>();
         result.put("appStaty", et.getApp());
 
 
-        ProcedureStatis ps = executionTaskService.executionTaskStatis(exeId);
+        ProcedureStatis ps = taskService.statis(taskId);
         List<Map> statusScript = ps.getStatusScriptInfo();
 
-        Map<String, TDevice> devInfo = new HashMap<>();
+        Map<String, DeviceBase> devInfo = new HashMap<>();
         Map<String, List> devCpuLine = new HashMap<>();
         Map<String, List> devRawLine = new HashMap<>();
         // 设备基本情况
         et.getDevices().forEach( device -> {
 
-            devInfo.put(device.getId(), device);
-            devCpuLine.put(device.getId(), new ArrayList());
-            devRawLine.put(device.getId(), new ArrayList());
+            devInfo.put(device.getDeviceId(), device);
+            devCpuLine.put(device.getDeviceId(), new ArrayList());
+            devRawLine.put(device.getDeviceId(), new ArrayList());
         });
 
         // 设备脚本执行情况，app信息可以从app基本情况获得
@@ -79,7 +87,7 @@ public class ReportController {
             subInfo.put("successNum", s.get("success"));
             subInfo.put("failedNum", s.get("fail"));
             subInfo.put("total", ps.getScriptNum());
-            TDevice d = devInfo.get(deviceId);
+            DeviceAndroid d = (DeviceAndroid) devInfo.get(deviceId);
             subInfo.put("dto", d.getModel());
             subInfo.put("brand", d.getBrand());
             scriptStaty.add(subInfo);
@@ -98,7 +106,7 @@ public class ReportController {
         List<Map> cpuStaty = new ArrayList<>();
         cpuAvgRate.forEach( s -> {
             String deviceId = (String) s.get("_id");
-            TDevice d = devInfo.get(deviceId);
+            DeviceAndroid d = (DeviceAndroid) devInfo.get(deviceId);
             Map<String, Object> subInfo = new HashMap<>();
             subInfo.put("dto", d.getModel());
             subInfo.put("brand", d.getBrand());
@@ -118,7 +126,7 @@ public class ReportController {
         List<Map> ramStaty = new ArrayList<>();
         memAvgRate.forEach( s -> {
             String deviceId = (String) s.get("_id");
-            TDevice d = devInfo.get(deviceId);
+            DeviceAndroid d = (DeviceAndroid) devInfo.get(deviceId);
             Map<String, Object> subInfo = new HashMap<>();
             subInfo.put("dto", d.getModel());
             subInfo.put("brand", d.getBrand());
@@ -155,7 +163,7 @@ public class ReportController {
           ]
         }
          */
-        List<ProcedureInfo> detailInfo = procedureInfoService.findByExeId(exeId);
+        List<ProcedureInfo> detailInfo = procedureInfoService.findByExeId(taskId);
 
         List<Map> cpuline = new ArrayList<>();
         List<Map> rawline = new ArrayList<>();
@@ -172,7 +180,7 @@ public class ReportController {
 
         devCpuLine.forEach( (d, l) -> {
 
-            TDevice tDevice = devInfo.get(d);
+            DeviceAndroid tDevice = (DeviceAndroid) devInfo.get(d);
             Map<String, Object> subInfo = new HashMap<>();
             subInfo.put("dto", tDevice.getModel());
             subInfo.put("brand", tDevice.getBrand());
@@ -182,7 +190,7 @@ public class ReportController {
 
         devRawLine.forEach( (d, l) -> {
 
-            TDevice tDevice = devInfo.get(d);
+            DeviceAndroid tDevice = (DeviceAndroid) devInfo.get(d);
             Map<String, Object> subInfo = new HashMap<>();
             subInfo.put("dto", tDevice.getModel());
             subInfo.put("brand", tDevice.getBrand());

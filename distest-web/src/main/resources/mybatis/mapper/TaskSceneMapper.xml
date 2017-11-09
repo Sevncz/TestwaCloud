@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.testwa.distest.server.mvc.mapper.TaskMapper" >
-    <resultMap id="BaseResultMap" type="com.testwa.core.entity.TaskScene" >
+<mapper namespace="com.testwa.distest.server.mvc.mapper.TaskSceneMapper" >
+    <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.TaskScene" >
         <id column="id" property="id" jdbcType="BIGINT" />
         <result column="taskName" property="taskName" jdbcType="VARCHAR" />
         <result column="projectId" property="projectId" jdbcType="BIGINT"/>
@@ -18,7 +18,7 @@
         id, taskName, projectId, appId, description, exeMode,updateTime,createTime,updateBy,createBy
     </sql>
 
-    <select id="findBy" parameterType="com.testwa.core.entity.TaskScene" resultMap="BaseResultMap" >
+    <select id="findBy" parameterType="com.testwa.distest.server.entity.TaskScene" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />
         FROM task_scene

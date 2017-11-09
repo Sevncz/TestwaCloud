@@ -6,7 +6,10 @@ import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.annotation.OnEvent;
 import com.testwa.core.common.enums.Command;
-import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
+import com.testwa.distest.common.exception.ObjectNotExistsException;
+import com.testwa.distest.server.service.cache.mgr.DeviceCacheMgr;
+import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
+import com.testwa.distest.server.websocket.service.PushCmdService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +34,9 @@ public class CommandHandler {
     private final static String touch = "touch";
 
     @Autowired
-    private RemoteClientService remoteClientService;
+    private DeviceSessionMgr deviceSessionMgr;
+    @Autowired
+    private PushCmdService pushCmdService;
 
     @Autowired
     public CommandHandler(SocketIOServer server) {
@@ -70,18 +75,12 @@ public class CommandHandler {
     }
 
     @OnEvent(value = touch)
-    public void onTouch(SocketIOClient client, String data, AckRequest ackRequest) {
+    public void onTouch(SocketIOClient client, String data, AckRequest ackRequest) throws ObjectNotExistsException {
 
         String func = client.getHandshakeData().getSingleUrlParam("func");
         String deviceId = client.getHandshakeData().getSingleUrlParam("deviceId");
-        String sessionId = remoteClientService.getDeviceForClient(deviceId);
 
-        SocketIOClient deviceClient = server.getClient(UUID.fromString(sessionId));
-        if(deviceClient != null){
-            deviceClient.sendEvent(Command.Schem.TOUCH.getSchemString(), data);
-        }else{
-            log.error("device client is not found. {}", sessionId);
-        }
+        pushCmdService.pushTouchData(deviceId, data);
 
     }
 

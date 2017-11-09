@@ -2,13 +2,13 @@ package com.testwa.distest.server.service.task.service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.testwa.core.common.enums.DB;
+import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.exception.NoSuchAppException;
 import com.testwa.distest.common.exception.NoSuchTaskException;
 import com.testwa.distest.common.exception.NoSuchTestcaseException;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.mvc.beans.PageResult;
-import com.testwa.core.entity.*;
+import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.service.task.dao.ITaskSceneDAO;

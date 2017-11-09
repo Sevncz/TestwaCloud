@@ -1,6 +1,6 @@
 package com.testwa.distest.server.web.task.validator;
 
-import com.testwa.core.entity.TaskScene;
+import com.testwa.distest.server.entity.TaskScene;
 import com.testwa.distest.common.exception.ObjectNotExistsException;
 import com.testwa.distest.server.service.task.service.TaskSceneService;
 import org.springframework.beans.factory.annotation.Autowired;

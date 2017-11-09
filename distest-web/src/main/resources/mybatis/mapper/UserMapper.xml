@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.testwa.distest.server.mvc.mapper.UserMapper" >
-    <resultMap id="BaseResultMap" type="com.testwa.core.entity.User" >
+    <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.User" >
         <id column="id" property="id" jdbcType="BIGINT" />
         <result column="username" property="username" jdbcType="VARCHAR" />
         <result column="password" property="password" jdbcType="VARCHAR" />
@@ -22,7 +22,7 @@
         <result column="roleId" property="roleId" jdbcType="BIGINT" />
         <association property="roles" resultMap="roleResult" />
     </resultMap>
-    <resultMap id="roleResult" type="com.testwa.core.entity.Role">
+    <resultMap id="roleResult" type="com.testwa.distest.server.entity.Role">
         <result column="roleName"  property="roleName"/>
     </resultMap>
 
@@ -30,7 +30,7 @@
         id, username, password, phone, email, sex, nickname, address, country, header, lastPasswordResetTime, lastLoginTime, loginTime, registerTime, loginIp, lastLoginIp, enabled, roleId
     </sql>
 
-    <select id="findBy" parameterType="com.testwa.core.entity.User" resultMap="BaseResultMap" >
+    <select id="findBy" parameterType="com.testwa.distest.server.entity.User" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />
         FROM user

@@ -10,6 +10,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
@@ -30,6 +31,7 @@ import java.util.concurrent.Executor;
 @EnableScheduling
 @EnableCaching
 @EnableAsync
+@EnableAspectJAutoProxy(proxyTargetClass = true)
 public class WebServerApplication extends AsyncConfigurerSupport {
 
     @Value("${spring.data.mongodb.uri}")
