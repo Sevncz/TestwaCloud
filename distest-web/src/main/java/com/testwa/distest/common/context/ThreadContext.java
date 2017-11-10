@@ -163,6 +163,10 @@ public class ThreadContext {
         return getContext(REQUEST_BEFORE_TIME);
     }
 
+    public static void removeRequestBeforeTime() {
+        remove(REQUEST_BEFORE_TIME);
+    }
+
     private final static String SHARD_KEY = "shardKey";
 
     /**
@@ -183,4 +187,5 @@ public class ThreadContext {
      * 请求进入时间
      */
     private final static String REQUEST_BEFORE_TIME = "requestBeforeTime";
+
 }

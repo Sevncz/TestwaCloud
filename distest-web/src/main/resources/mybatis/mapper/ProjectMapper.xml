@@ -13,7 +13,7 @@
     </resultMap>
 
     <sql id="Base_Column_List" >
-        id, projectName, description, creatTime, updateTime, createBy, updateBy
+        id, projectName, description, createTime, updateTime, createBy, updateBy
     </sql>
 
     <select id="findBy" parameterType="com.testwa.distest.server.entity.Project" resultMap="BaseResultMap" >
@@ -35,7 +35,7 @@
         </trim>
     </select>
 
-    <select id="countBy" parameterType="com.testwa.distest.server.entity.Project" resultMap="INTEGER" >
+    <select id="countBy" parameterType="com.testwa.distest.server.entity.Project" resultType="long" >
         SELECT count(1) c
         FROM project
         <trim prefix="WHERE" prefixOverrides="AND |OR ">

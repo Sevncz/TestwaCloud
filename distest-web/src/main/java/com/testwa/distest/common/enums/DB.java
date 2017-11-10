@@ -251,16 +251,21 @@ public final class DB {
 
     public enum ShareScopeEnum implements ValueEnum {
 
-        Self(0), User(1), Project(2), All(100);
+        Self(0, "Self"), User(1, "User"), Project(2, "Project"), All(100, "All");
 
         private int value;
+        private String desc;
 
-        ShareScopeEnum(int value) {
+        ShareScopeEnum(int value, String desc) {
             this.value = value;
+            this.desc = desc;
         }
 
         public int getValue() {
             return value;
+        }
+        public String getDesc() {
+            return desc;
         }
 
         public void setValue(int value) {

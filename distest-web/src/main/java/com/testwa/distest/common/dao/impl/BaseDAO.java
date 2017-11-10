@@ -4,10 +4,14 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.testwa.core.common.annotation.TableName;
 import com.testwa.core.common.bo.Entity;
+import com.testwa.core.common.enums.ValueEnum;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.mapper.BaseMapper;
 import com.testwa.distest.common.dao.IBaseDAO;
 import com.testwa.distest.common.util.ClassUtils;
+import com.testwa.distest.server.web.task.execute.ExecuteMgr;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
@@ -20,6 +24,7 @@ import java.util.*;
 
 @Repository
 public class BaseDAO<T extends Entity,ID extends Serializable> implements IBaseDAO<T, ID> {
+    private static final Logger log = LoggerFactory.getLogger(BaseDAO.class);
 
     @Resource
     private BaseMapper baseMapper;
@@ -84,7 +89,21 @@ public class BaseDAO<T extends Entity,ID extends Serializable> implements IBaseD
                 f.setAccessible(true);
                 if(f.get(entity) != null){
                     fieldList.add(f.getName());
-                    valueList.add(f.get(entity));
+                    if(f.getType().isEnum()){
+                        if(ValueEnum.class.isAssignableFrom(f.getType())){
+                            ValueEnum ve = resolveValueEnum(f.get(entity).toString(), (Class<ValueEnum>)f.getType());
+                            if(ve != null){
+                                valueList.add(ve.getValue());
+                            }else{
+                                log.error("this value not in enum");
+                            }
+                        }else{
+
+                            log.error("this enum not match ValueEnum");
+                        }
+                    }else{
+                        valueList.add(f.get(entity));
+                    }
                 }
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
@@ -92,7 +111,19 @@ public class BaseDAO<T extends Entity,ID extends Serializable> implements IBaseD
         });
         map.put("fields", fieldList);
         map.put("values", valueList);
-        return baseMapper.insert(map);
+        long num_of_record_inserted = baseMapper.insert(map);
+        return (long) map.get("id");
+    }
+
+    private ValueEnum resolveValueEnum(String value, Class<ValueEnum> type) {
+
+        for (ValueEnum constant : type.getEnumConstants()){
+            if (constant.toString().equalsIgnoreCase(value)) {
+                return constant;
+            }
+        }
+
+        return null;
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.testwa.distest.server.service.project.dao;
 
 import com.testwa.distest.common.dao.IBaseDAO;
 import com.testwa.distest.server.entity.Project;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -12,6 +13,7 @@ public interface IProjectDAO extends IBaseDAO<Project, Long> {
     List<Project> findBy(Project entity);
 
     List<Project> findAllByUser(Long userId);
+    List<Project> findAllByUser(Long userId, String projectName);
 
-    Integer count(Project query);
+    long count(Project query);
 }

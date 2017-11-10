@@ -14,6 +14,7 @@ import com.testwa.distest.server.service.project.form.ProjectListForm;
 import com.testwa.distest.server.service.project.form.ProjectUpdateForm;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.project.vo.ProjectStats;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,18 +44,33 @@ public class ProjectService {
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public Long insert(Project entity) {
+        entity.setCreateTime(new Date());
         Long projectId =  projectDAO.insert(entity);
         projectMemberService.saveProjectOwner(projectId, entity.getCreateBy());
         return projectId;
     }
 
+    /**
+     * 返回删除的项目数量
+     * @param projectId
+     * @return
+     */
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public int delete(Long projectId) {
+        projectMemberService.delAllMembers(projectId);
         return projectDAO.delete(projectId);
     }
 
+    /**
+     * 返回删除的项目数量
+     * @param projectIds
+     * @return
+     */
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public int deleteAll(List<Long> projectIds) {
+        projectIds.forEach( id -> {
+            projectMemberService.delAllMembers(id);
+        });
         return projectDAO.delete(projectIds);
     }
 
@@ -73,7 +89,7 @@ public class ProjectService {
     }
 
 
-    public Integer getProjectCountByUser(Long userId) {
+    public long getProjectCountByOwner(Long userId) {
         Project query = new Project();
         query.setCreateBy(userId);
         return projectDAO.count(query);
@@ -108,7 +124,6 @@ public class ProjectService {
         Project project = new Project();
         project.setProjectName(form.getProjectName());
         project.setDescription(form.getDescription());
-        project.setCreateTime(new Date());
         project.setCreateBy(currentUser.getId());
         Long projectId = insert(project);
         project.setId(projectId);
@@ -154,10 +169,20 @@ public class ProjectService {
         query.setProjectName(pageForm.getProjectName());
         //分页处理
         PageHelper.startPage(pageForm.getPageNo(), pageForm.getPageSize());
+        if(StringUtils.isBlank(pageForm.getOrderBy()) ){
+            pageForm.getPage().setOrderBy("id");
+        }
+        if(StringUtils.isBlank(pageForm.getOrder()) ){
+            pageForm.getPage().setOrder("desc");
+        }
         PageHelper.orderBy(pageForm.getOrderBy() + " " + pageForm.getOrder());
         List<Project> projectList = projectDAO.findBy(query);
         PageInfo<Project> info = new PageInfo(projectList);
         PageResult<Project> pr = new PageResult<>(info.getList(), info.getTotal());
         return pr;
+    }
+
+    public long count() {
+        return projectDAO.count();
     }
 }

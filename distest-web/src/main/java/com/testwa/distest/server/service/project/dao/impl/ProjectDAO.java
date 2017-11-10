@@ -21,11 +21,16 @@ public class ProjectDAO extends BaseDAO<Project, Long> implements IProjectDAO {
 
     @Override
     public List<Project> findAllByUser(Long userId) {
-        return projectMapper.findAllByUser(userId);
+        return projectMapper.findAllByUser(userId, null);
     }
 
     @Override
-    public Integer count(Project query) {
+    public List<Project> findAllByUser(Long userId, String projectName) {
+        return projectMapper.findAllByUser(userId, projectName);
+    }
+
+    @Override
+    public long count(Project query) {
         return projectMapper.countBy(query);
     }
 

@@ -80,19 +80,21 @@
     <delete id="deleteMemberFromProject" parameterType="com.testwa.distest.server.entity.ProjectMember">
         DELETE FROM project_member
         where projectId = #{projectId}
-        AND memberId = #{memberId}
+        <if test="memberId != null">
+            AND memberId = #{memberId}
+        </if>
     </delete>
 
-    <select id="findMembersFromProject" parameterType="java.util.Map" resultType="java.util.Map">
+    <select id="findMembersFromProject" parameterType="java.util.Map" resultMap="MemberResultMap">
         SELECT
-        <include refid="MemberResultMap" />
+        <include refid="Member_Column_List" />
         FROM project_member pm LEFT JOIN user u on pm.memberId = u.id
         WHERE pm.projectId = #{params.projectId}
         <if test="user.username != null">
-            and u.username LIKE CONCAT('%', #{user.username}, '%')
+            AND u.username LIKE CONCAT('%', #{user.username}, '%')
         </if>
         <if test="user.email != null">
-            and u.email LIKE CONCAT('%', #{user.email}, '%')
+            AND u.email LIKE CONCAT('%', #{user.email}, '%')
         </if>
         <if test="user.phone != null">
             and u.phone LIKE CONCAT('%', #{user.phone}, '%')

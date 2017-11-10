@@ -59,6 +59,7 @@ public class UserService {
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRegisterTime(new Date());
+        user.setEnabled(true);
         return userDAO.insert(user);
     }
 

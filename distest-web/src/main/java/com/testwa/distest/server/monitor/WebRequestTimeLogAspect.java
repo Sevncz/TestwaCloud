@@ -38,8 +38,8 @@ class WebRequestTimeLogAspect {
     public void  doAfterReturning(JoinPoint joinPoint){
         // 处理完请求，返回内容
         Long startTime = ThreadContext.getRequestBeforeTime();
-        logger.info("after: {}， {}", ThreadContext.getRequestBeforeTime(), joinPoint.getTarget());
         Long endTime = System.currentTimeMillis();
+        logger.info("after: {}， {}", endTime, joinPoint.getTarget());
         if(endTime - startTime > 100){
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             if(attributes != null){

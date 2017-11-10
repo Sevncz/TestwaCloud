@@ -39,12 +39,16 @@
         <foreach item="id" index="index" collection="keys" open="(" separator="," close=")">#{id} </foreach>
     </delete>
     
-    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+    <insert id="insert" useGeneratedKeys="true"  keyProperty="id" >
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+            select LAST_INSERT_ID() as id
+        </selectKey>
         INSERT INTO
         ${__tableName__}
         <foreach item="field" index="index" collection="fields" open="(" separator="," close=")">${field} </foreach>
         VALUES
         <foreach item="value" index="index" collection="values" open="(" separator="," close=")">#{value} </foreach>
+
     </insert>
     <update id="update" parameterType="java.util.Map">
         UPDATE

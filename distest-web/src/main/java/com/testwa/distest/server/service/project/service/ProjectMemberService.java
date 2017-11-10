@@ -165,4 +165,8 @@ public class ProjectMemberService {
         }
         return result.get(0);
     }
+
+    public int delAllMembers(Long projectId) {
+        return projectMemberDAO.delete(projectId, null);
+    }
 }

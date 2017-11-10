@@ -2,6 +2,7 @@ package com.testwa.distest.server.mvc.mapper;
 
 import com.testwa.distest.common.mapper.BaseMapper;
 import com.testwa.distest.server.entity.Project;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -9,7 +10,7 @@ public interface ProjectMapper extends BaseMapper<Project, Long> {
 
 	List<Project> findBy(Project project);
 
-	List<Project> findAllByUser(Long userId);
+	List<Project> findAllByUser(@Param("userId") Long userId, @Param("projectName") String projectName);
 
-    Integer countBy(Project query);
+    long countBy(Project query);
 }
