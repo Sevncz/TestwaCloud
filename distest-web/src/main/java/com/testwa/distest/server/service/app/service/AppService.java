@@ -8,6 +8,7 @@ import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.exception.AccountException;
 import com.testwa.distest.common.exception.NoSuchAppException;
 import com.testwa.distest.common.exception.NoSuchProjectException;
+import com.testwa.distest.config.DisFileProperties;
 import com.testwa.distest.server.mvc.beans.PageResult;
 import com.testwa.distest.server.entity.App;
 import com.testwa.distest.server.entity.Project;
@@ -21,6 +22,7 @@ import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.app.vo.AppVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -50,19 +52,19 @@ public class AppService {
     @Autowired
     private UserService userService;
     @Autowired
-    private Environment env;
+    private DisFileProperties disFileProperties;
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void delete(Long appId){
         appDAO.delete(appId);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void delete(List<Long> appIds){
         appDAO.delete(appIds);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void update(App app) {
         appDAO.update(app);
     }
@@ -71,19 +73,12 @@ public class AppService {
         return appDAO.findOne(appId);
     }
 
-    public void checkApp(Long appId) throws NoSuchAppException{
-        App app = findOne(appId);
-        if ( null == app) {
-            throw new NoSuchAppException("无此应用！");
-        }
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
-    public App upload(MultipartFile uploadfile, AppNewForm form) throws IOException, AccountException {
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public App upload(MultipartFile uploadfile, AppNewForm form) throws IOException {
 
         String filename = uploadfile.getOriginalFilename();
         String aliasName = PinYinTool.getPingYin(filename);
-        Path dir = Paths.get(env.getProperty("app.save.path"), Identities.uuid2());
+        Path dir = Paths.get(disFileProperties.getApp(), Identities.uuid2());
         Files.createDirectories(dir);
         Path filepath = Paths.get(dir.toString(), aliasName);
         Files.write(filepath, uploadfile.getBytes(), StandardOpenOption.CREATE);
@@ -94,7 +89,7 @@ public class AppService {
         return saveFile(filename, aliasName, filepath.toString(), size, type, form);
 
     }
-    private App saveFile(String filename, String aliasName, String filepath, String size, String type, AppNewForm form) throws IOException, AccountException {
+    private App saveFile(String filename, String aliasName, String filepath, String size, String type, AppNewForm form) throws IOException {
         App app = new App();
 
         switch (type.toLowerCase()){
@@ -140,7 +135,7 @@ public class AppService {
         return app;
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public App upload(MultipartFile uploadfile) throws IOException, AccountException {
         return upload(uploadfile, null);
     }
@@ -185,7 +180,7 @@ public class AppService {
     }
 
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void update(AppUpdateForm form) throws NoSuchAppException, NoSuchProjectException, AccountException {
 
         User currentUser = userService.findByUsername(getCurrentUsername());

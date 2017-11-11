@@ -147,7 +147,7 @@ public class ProjectController extends BaseController {
     @ResponseBody
     @GetMapping(value = "/my/views")
     public Result myViews() throws Exception {
-        List<Project> projects = viewMgr.getRecentViewProject();
+        List<Project> projects = viewMgr.getRecentViewProject(WebUtil.getCurrentUsername());
         List<ProjectVO> vos = buildVOs(projects, ProjectVO.class);
         return ok(vos);
 

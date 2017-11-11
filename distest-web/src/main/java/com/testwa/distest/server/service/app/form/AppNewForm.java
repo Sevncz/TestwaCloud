@@ -16,8 +16,6 @@ import javax.validation.constraints.NotNull;
 public class AppNewForm extends RequestFormBase{
 
     @NotNull
-    private Long appId;
-    @NotNull
     private Long projectId;
     private String version;
     private String description;

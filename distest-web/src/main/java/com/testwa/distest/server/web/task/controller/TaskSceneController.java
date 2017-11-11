@@ -11,6 +11,8 @@ import com.testwa.distest.server.service.task.form.TaskSceneListForm;
 import com.testwa.distest.server.service.task.form.TaskSceneNewForm;
 import com.testwa.distest.server.service.task.form.TaskSceneUpdateForm;
 import com.testwa.distest.server.service.task.service.TaskSceneService;
+import com.testwa.distest.server.web.app.validator.AppValidator;
+import com.testwa.distest.server.web.project.validator.ProjectValidator;
 import com.testwa.distest.server.web.task.validator.TaskSceneValidatoer;
 import com.testwa.distest.server.web.task.vo.TaskSceneVO;
 import com.testwa.distest.server.web.testcase.validator.TestcaseValidatoer;
@@ -38,6 +40,10 @@ public class TaskSceneController extends BaseController {
     private TaskSceneValidatoer taskSceneValidatoer;
     @Autowired
     private TestcaseValidatoer testcaseValidatoer;
+    @Autowired
+    private AppValidator appValidator;
+    @Autowired
+    private ProjectValidator projectValidator;
 
     @ApiOperation(value="创建任务场景")
     @ResponseBody
@@ -53,8 +59,10 @@ public class TaskSceneController extends BaseController {
     @PostMapping(value = "/modify")
     public Result modify(@Valid TaskSceneUpdateForm form) throws ObjectNotExistsException {
         log.info(form.toString());
-        taskSceneValidatoer.validateTaskSceneExist(form.getTaskSceneId());
+        projectValidator.validateProjectExist(form.getAppId());
+        appValidator.validateAppExist(form.getAppId());
         testcaseValidatoer.validateTestcasesExist(form.getCaseIds());
+        taskSceneValidatoer.validateTaskSceneExist(form.getTaskSceneId());
         taskSceneService.update(form);
         return ok();
     }

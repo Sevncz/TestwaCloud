@@ -2,10 +2,12 @@ package com.testwa.distest.server.service;
 
 import com.testwa.distest.WebServerApplication;
 import com.testwa.distest.common.form.RequestListBase;
+import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.entity.Project;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.mvc.beans.PageResult;
 import com.testwa.distest.server.service.project.form.ProjectListForm;
+import com.testwa.distest.server.service.project.form.ProjectUpdateForm;
 import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.service.user.service.UserService;
 import org.apache.commons.lang3.RandomUtils;
@@ -14,6 +16,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
@@ -56,10 +59,13 @@ public class ProjectServiceTest {
         PageResult<Project> projects = projectService.findByPage(form);
     }
     @Test
+    @WithMockUser(username = "xiaoming", authorities = { "ADMIN", "USER" })
     public void testFindAllOfUserProject(){
         List<Project> projects = projectService.findAllOfUserProject("xiaoming");
     }
+
     @Test
+    @WithMockUser(username = "xiaoming", authorities = { "ADMIN", "USER" })
     public void testDeleteOne(){
         List<Project> projects = projectService.findAll();
         if(projects.size() > 0){
@@ -68,6 +74,7 @@ public class ProjectServiceTest {
     }
 
     @Test
+    @WithMockUser(username = "xiaoming", authorities = { "ADMIN", "USER" })
     public void testDeleteAll(){
         List<Project> projects = projectService.findAll();
         List<Long> ids = new ArrayList<>();
@@ -78,11 +85,37 @@ public class ProjectServiceTest {
     }
 
     @Test
-    public void getProjectCountByUser(){
+    public void testGetProjectCountByUser(){
         User user = userService.findByUsername("xiaoming");
         long count = projectService.getProjectCountByOwner(user.getId());
         List<Project> projects = projectService.findAllOfUserProject(user.getUsername());
         Assert.assertEquals(count, projects.size());
+    }
+
+    @Test
+    @WithMockUser(username = "xiaoming", authorities = { "ADMIN", "USER" })
+    public void testGetRecentViewProject(){
+        try {
+            projectService.getRecentViewProject("xiaoming");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    @WithMockUser(username = "xiaoming", authorities = { "ADMIN", "USER" })
+    public void testUpdate(){
+        try {
+            ProjectUpdateForm form = new ProjectUpdateForm();
+            List<Project> projects = projectService.findAll();
+            if(projects.size() > 0){
+                form.setProjectId(projects.get(0).getId());
+                form.setProjectName("hhhhha");
+                projectService.update(form);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

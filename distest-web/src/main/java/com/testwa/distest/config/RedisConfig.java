@@ -13,27 +13,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
-@EnableConfigurationProperties(RedisProperties.class)
+@EnableConfigurationProperties(DisRedisProperties.class)
 public class RedisConfig {
 
     @Autowired
-    private RedisProperties redisProperties;
+    private DisRedisProperties disRedisProperties;
 
     @Bean(name = "redisCacheDspMgr")
     public RedisCacheManager redisCacheDspMgr(){
         RedisCacheManager mgr = new RedisCacheManager();
-        mgr.setEvictorCheckPeriodSeconds(redisProperties.getEvictorCheckPeriodSeconds());
-        mgr.setEvictorDelayCheckSeconds(redisProperties.getEvictorDelayCheckSeconds());
-        mgr.setEvictorFailedTimesToBeTickOut(redisProperties.getEvictorFailedTimesToBeTickOut());
-        mgr.setRetryTimes(redisProperties.getRetryTimes());
+        mgr.setEvictorCheckPeriodSeconds(disRedisProperties.getEvictorCheckPeriodSeconds());
+        mgr.setEvictorDelayCheckSeconds(disRedisProperties.getEvictorDelayCheckSeconds());
+        mgr.setEvictorFailedTimesToBeTickOut(disRedisProperties.getEvictorFailedTimesToBeTickOut());
+        mgr.setRetryTimes(disRedisProperties.getRetryTimes());
         List<RedisClient> clientList = new ArrayList<>();
-        redisProperties.getClient().forEach(p -> {
-            RedisHAClientConfig c = new RedisHAClientConfig();
-            c.setCacheName(p.getName());
-            c.setRedisAuthKey(p.getPassword());
-            c.setRedisServerHost(p.getHost());
-            c.setRedisServerPort(p.getPort());
-            clientList.add(new RedisClient(c));
+        disRedisProperties.getGroup().forEach(g -> {
+            g.getClient().forEach(p -> {
+                RedisHAClientConfig c = new RedisHAClientConfig();
+                c.setCacheName(p.getName());
+                c.setRedisAuthKey(p.getPassword());
+                c.setRedisServerHost(p.getHost());
+                c.setRedisServerPort(p.getPort());
+                clientList.add(new RedisClient(c));
+            });
         });
         mgr.setClientList(clientList);
         return mgr;

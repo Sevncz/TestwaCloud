@@ -24,7 +24,7 @@ import java.util.Arrays;
 class WebRequestTimeLogAspect {
     private static final Logger logger = LoggerFactory.getLogger(WebRequestTimeLogAspect.class);
 
-    @Pointcut("execution(public * com.testwa.*.server..*.*(..))")
+    @Pointcut("execution(public * com.testwa.*.server.web..*Controller.*(..))")
     public void webLog(){}
 
     @Before("webLog()")
@@ -40,7 +40,7 @@ class WebRequestTimeLogAspect {
         Long startTime = ThreadContext.getRequestBeforeTime();
         Long endTime = System.currentTimeMillis();
         logger.info("after: {}， {}", endTime, joinPoint.getTarget());
-        if(endTime - startTime > 100){
+        if(endTime - startTime > 300){
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             if(attributes != null){
                 HttpServletRequest request = attributes.getRequest();

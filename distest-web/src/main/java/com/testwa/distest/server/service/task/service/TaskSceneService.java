@@ -118,15 +118,10 @@ public class TaskSceneService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
-    public void update(TaskSceneUpdateForm updateForm) throws NoSuchTaskException, NoSuchTestcaseException,NoSuchAppException {
+    public void update(TaskSceneUpdateForm updateForm) throws NoSuchTaskException, NoSuchTestcaseException {
         TaskScene ts = findOne(updateForm.getTaskSceneId());
-        if (ts == null) {
-            throw new NoSuchTaskException("无此任务！");
-        }
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
-
         List<Long> caseIds = updateForm.getCaseIds();
-        appService.checkApp(updateForm.getAppId());
         ts.setAppId(updateForm.getAppId());
 //        ts.setTestcaseIds(caseIds);
         ts.setDescription(updateForm.getDescription());

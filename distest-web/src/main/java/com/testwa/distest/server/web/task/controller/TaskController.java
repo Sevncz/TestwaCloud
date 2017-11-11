@@ -50,7 +50,7 @@ public class TaskController extends BaseController{
     @RequestMapping(value = "/save/run", method = RequestMethod.POST)
     public Result saveAndRun(@RequestBody TaskStartByTestcaseForm form) throws ObjectNotExistsException {
         projectValidator.validateProjectExist(form.getProjectId());
-        appValidator.validateProject(form.getAppId());
+        appValidator.validateAppExist(form.getAppId());
         deviceValidatoer.validateOnline(form.getDeviceIds());
 
         executeMgr.start(form);

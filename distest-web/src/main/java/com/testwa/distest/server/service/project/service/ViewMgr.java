@@ -38,13 +38,15 @@ public class ViewMgr {
 
     }
 
-    public List<Project> getRecentViewProject() throws Exception {
-        String key = String.format(user_project_history, WebUtil.getCurrentUsername());
+    public List<Project> getRecentViewProject(String username) throws Exception {
+        String key = String.format(user_project_history, username);
         List<Object> objs = redisCacheMgr.lrange(key, 0, -1, Project.class);
         List<Project> projects = new ArrayList<>();
-        objs.forEach(o -> {
-            projects.add((Project) o);
-        });
+        if(objs != null ){
+            objs.forEach(o -> {
+                projects.add((Project) o);
+            });
+        }
         return projects;
     }
 }

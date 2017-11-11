@@ -17,17 +17,17 @@ public class AppValidator {
     @Autowired
     private AppService appService;
 
-    public void validateProject(List<Long> entityIds) throws NoSuchProjectException {
+    public void validateAppsExist(List<Long> entityIds) throws NoSuchProjectException {
         List<App> entityList = appService.findAll(entityIds);
         if(entityList == null || entityList.size() != entityIds.size()){
-            throw new NoSuchProjectException("项目不存在");
+            throw new NoSuchProjectException("App不存在");
         }
     }
 
-    public void validateProject(Long projectId) throws NoSuchProjectException {
-        App entity = appService.findOne(projectId);
+    public void validateAppExist(Long entityId) throws NoSuchProjectException {
+        App entity = appService.findOne(entityId);
         if(entity == null){
-            throw new NoSuchProjectException("项目不存在");
+            throw new NoSuchProjectException("App不存在");
         }
     }
 

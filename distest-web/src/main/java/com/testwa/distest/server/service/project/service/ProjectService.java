@@ -95,8 +95,8 @@ public class ProjectService {
         return projectDAO.count(query);
     }
 
-    public List<Project> getRecentViewProject() throws Exception {
-        return viewMgr.getRecentViewProject();
+    public List<Project> getRecentViewProject(String username) throws Exception {
+        return viewMgr.getRecentViewProject(username);
     }
 
     public ProjectStats getProjectStats(String projectId, User user) {

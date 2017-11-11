@@ -16,15 +16,20 @@ import java.util.List;
 @Data
 @Configuration
 //@PropertySource("classpath:redis-config.yml")
-@ConfigurationProperties(prefix = "redis")
-public class RedisProperties {
+@ConfigurationProperties(prefix = "dis-redis")
+public class DisRedisProperties {
 
     private int evictorDelayCheckSeconds;
     private int evictorCheckPeriodSeconds;
     private int evictorFailedTimesToBeTickOut;
     private int retryTimes;
 
-    private List<ClientConfig> client = new ArrayList<>();
+    private List<GroupConfig> group = new ArrayList();
+
+    @Data
+    public static class GroupConfig{
+        private List<ClientConfig> client = new ArrayList<>();
+    }
 
     @Data
     public static class ClientConfig{
@@ -34,5 +39,4 @@ public class RedisProperties {
         private String password;
         private int timeout;
     }
-
 }
