@@ -2,9 +2,14 @@ package com.testwa.distest.server.service;
 
 
 import com.testwa.distest.WebServerApplication;
+import com.testwa.distest.common.exception.AccountException;
+import com.testwa.distest.common.exception.NoSuchAppException;
+import com.testwa.distest.common.exception.NoSuchProjectException;
+import com.testwa.distest.server.entity.App;
 import com.testwa.distest.server.entity.Project;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.app.form.AppNewForm;
+import com.testwa.distest.server.service.app.form.AppUpdateForm;
 import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.project.service.ProjectService;
 import org.apache.commons.lang3.RandomUtils;
@@ -48,14 +53,25 @@ public class AppServiceTest {
         form.setVersion("1.0");
         appService.upload(file, form);
     }
+
     @Test
+    @WithMockUser(username = "xiaoming", authorities = { "ADMIN", "USER" })
     public void testUpdate(){
+        AppUpdateForm form = new AppUpdateForm();
+        form.setAppId(1l);
+        form.setDescription("xxx测试一下");
+        form.setVersion("V0.2");
+        appService.update(form);
     }
+
     @Test
     public void testDelete(){
+        appService.delete(1l);
     }
+
     @Test
-    public void testFind(){
+    public void testFindOne(){
+        App app = appService.findOne(1l);
     }
 
 }

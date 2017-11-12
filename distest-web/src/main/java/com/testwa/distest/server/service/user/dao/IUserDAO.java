@@ -11,6 +11,8 @@ import java.util.List;
 public interface IUserDAO extends IBaseDAO<User, Long> {
     List<User> findBy(User user);
 
+    User findOne(Long key);
+
     List<User> findByUsernames(List<String> usernames);
 
     List<User> findByEmails(List<String> emails);

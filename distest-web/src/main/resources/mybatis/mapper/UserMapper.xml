@@ -30,6 +30,13 @@
         id, username, password, phone, email, sex, nickname, address, country, header, lastPasswordResetTime, lastLoginTime, loginTime, registerTime, loginIp, lastLoginIp, enabled, roleId
     </sql>
 
+    <select id="findOne" parameterType="com.testwa.distest.server.entity.User" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM user
+        WHERE id = #{key}
+    </select>
+
     <select id="findBy" parameterType="com.testwa.distest.server.entity.User" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />

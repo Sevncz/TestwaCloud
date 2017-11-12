@@ -12,5 +12,7 @@ import java.util.Map;
 public interface IAppDAO extends IBaseDAO<App, Long> {
     List<App> findBy(App entity);
 
+    App findOne(Long key);
+
     List<App> findByFromProject(Map<String, Object> params);
 }

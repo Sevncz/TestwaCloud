@@ -69,6 +69,19 @@ public class AppService {
         appDAO.update(app);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public void update(AppUpdateForm form) {
+
+        User currentUser = userService.findByUsername(getCurrentUsername());
+        App app = findOne(form.getAppId());
+        app.setProjectId(form.getProjectId());
+        app.setVersion(form.getVersion());
+        app.setCreateBy(currentUser.getId());
+        app.setDescription(form.getDescription());
+        update(app);
+
+    }
+
     public App findOne(Long appId){
         return appDAO.findOne(appId);
     }
@@ -94,7 +107,7 @@ public class AppService {
 
         switch (type.toLowerCase()){
             case "apk":
-                app.setType(DB.PhoneOS.ANDROID);
+                app.setOsType(DB.PhoneOS.ANDROID);
                 TestwaAndroidApp androidApp = new TestwaAndroidApp(new File(filepath));
                 app.setActivity(androidApp.getMainActivity());
                 app.setPackageName(androidApp.getBasePackage());
@@ -102,17 +115,17 @@ public class AppService {
                 app.setTargetSdkVersion(androidApp.getTargetSdkVersion());
                 break;
             case "zip":
-                app.setType(DB.PhoneOS.IOS);
+                app.setOsType(DB.PhoneOS.IOS);
                 String unzipPath = filepath.substring(0, filepath.lastIndexOf(".") - 4);
                 filename = filename.substring(0, filename.lastIndexOf("."));
                 ZipUtil.unZipFiles(filepath, unzipPath);
                 aliasName = Paths.get(unzipPath.substring(unzipPath.lastIndexOf(File.separator) + 1), filename).toString();
                 break;
             case "ipa":
-                app.setType(DB.PhoneOS.IOS);
+                app.setOsType(DB.PhoneOS.IOS);
                 break;
             default:
-                app.setType(DB.PhoneOS.UNKNOWN);
+                app.setOsType(DB.PhoneOS.UNKNOWN);
                 break;
 
         }
@@ -179,19 +192,6 @@ public class AppService {
         return apps;
     }
 
-
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public void update(AppUpdateForm form) throws NoSuchAppException, NoSuchProjectException, AccountException {
-
-        User currentUser = userService.findByUsername(getCurrentUsername());
-        App app = findOne(form.getAppId());
-        app.setProjectId(form.getProjectId());
-        app.setVersion(form.getVersion());
-        app.setCreateBy(currentUser.getId());
-        app.setDescription(form.getDescription());
-        update(app);
-
-    }
 
     public PageResult<App> findPage(AppListForm queryForm) throws AccountException {
         //分页处理

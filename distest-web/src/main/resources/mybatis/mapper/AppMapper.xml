@@ -9,7 +9,7 @@
         <result column="activity" property="activity" jdbcType="VARCHAR" />
         <result column="sdkVersion" property="sdkVersion" jdbcType="VARCHAR" />
         <result column="targetSdkVersion" property="targetSdkVersion" jdbcType="VARCHAR" />
-        <result column="type" property="type" jdbcType="TINYINT" typeHandler="com.testwa.distest.common.mybatis.EnumValueHandler"/>
+        <result column="osType" property="osType" jdbcType="TINYINT" typeHandler="com.testwa.distest.common.mybatis.EnumValueHandler"/>
         <result column="version" property="version" jdbcType="VARCHAR" />
         <result column="path" property="path" jdbcType="VARCHAR" />
         <result column="projectId" property="projectId" jdbcType="BIGINT" />
@@ -24,7 +24,7 @@
     </resultMap>
 
     <sql id="Base_Column_List" >
-        id, appName, aliasName, packageName, activity, sdkVersion, targetSdkVersion, type, version, path, projectId, md5, size, description, updateTime, createTime, updateBy, createBy, enabled
+        id, appName, aliasName, packageName, activity, sdkVersion, targetSdkVersion, osType, version, path, projectId, md5, size, description, updateTime, createTime, updateBy, createBy, enabled
     </sql>
 
     <select id="findBy" parameterType="com.testwa.distest.server.entity.App" resultMap="BaseResultMap" >
@@ -37,6 +37,13 @@
             <if test="createBy != null">and createBy = #{createBy}</if>
             <if test="projectId != null">and projectId = #{projectId}</if>
         </trim>
+    </select>
+
+    <select id="findOne" parameterType="com.testwa.distest.server.entity.App" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM app
+        WHERE id = #{key}
     </select>
 
     <select id="findByFromProject" parameterType="java.util.Map" resultMap="BaseResultMap" >

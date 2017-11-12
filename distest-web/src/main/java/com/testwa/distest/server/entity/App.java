@@ -22,7 +22,7 @@ public class App extends BaseEntity {
     private String sdkVersion;
     private String targetSdkVersion;
     private String version; // app version
-    private DB.PhoneOS type;
+    private DB.PhoneOS osType;
     private String path;
     private Long projectId;
     // 上传创建者
