@@ -13,4 +13,9 @@ public interface TaskSceneMapper extends BaseMapper<TaskScene, Long> {
 
     List<TaskScene> findByFromProject(@Param("params") Map<String, Object> params);
 
+    TaskScene findOne(Long key);
+
+    List<TaskScene> findList(@Param("keys") List<Long> keys, @Param("orderBy") String orderBy);
+
+    TaskScene fetchOne(Long taskSceneId);
 }

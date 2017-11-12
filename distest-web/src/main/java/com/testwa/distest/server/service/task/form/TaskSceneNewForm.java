@@ -17,9 +17,9 @@ import java.util.List;
 @Data
 public class TaskSceneNewForm extends RequestFormBase {
 
-    @NotNull(message = "taskName.empty")
-    @NotEmpty(message = "taskName.empty")
-    private String taskName;
+    @NotNull(message = "sceneName.empty")
+    @NotEmpty(message = "sceneName.empty")
+    private String sceneName;
     @NotNull(message = "projectId.empty")
     @NotEmpty(message = "projectId.empty")
     private Long projectId;

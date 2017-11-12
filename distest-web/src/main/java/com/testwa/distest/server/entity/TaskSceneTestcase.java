@@ -8,11 +8,11 @@ import lombok.Data;
  * Created by wen on 21/10/2017.
  */
 @Data
-@TableName("task_testcase")
-public class TaskTestcase extends BaseEntity{
+@TableName("taskscene_testcase")
+public class TaskSceneTestcase extends BaseEntity{
 
     private Long testcaseId;
-    private Long taskId;
+    private Long taskSceneId;
     private int seq;
 
 }

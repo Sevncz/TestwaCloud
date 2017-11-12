@@ -79,14 +79,14 @@ public class TaskSceneController extends BaseController {
     @ResponseBody
     @RequestMapping(value = "/page", method = RequestMethod.GET)
     public Result page(TaskSceneListForm pageForm) {
-        PageResult<TaskScene> taskPR = taskSceneService.findByPage(pageForm);
+        PageResult<TaskScene> taskPR = taskSceneService.findPageForCurrentUser(pageForm);
         PageResult<TaskSceneVO> pr = buildVOPageResult(taskPR, TaskSceneVO.class);
         return ok(pr);
     }
 
     @ResponseBody
     @GetMapping(value = "/detail/{taskSceneId}")
-    public Result detail(@PathVariable String taskSceneId){
+    public Result detail(@PathVariable Long taskSceneId){
         TaskSceneVO taskSceneVO = taskSceneService.getTaskSceneVO(taskSceneId);
         return ok(taskSceneVO);
     }

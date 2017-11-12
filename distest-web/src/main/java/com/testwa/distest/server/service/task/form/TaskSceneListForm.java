@@ -13,6 +13,6 @@ import lombok.Data;
 @Data
 public class TaskSceneListForm extends RequestListBase {
     private Long projectId;
-    private String taskName;
+    private String sceneName;
     private Long appId;
 }

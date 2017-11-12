@@ -14,10 +14,10 @@ import java.util.List;
  */
 @Data
 @ToString
-@TableName("task_scene")
+@TableName("taskscene")
 public class TaskScene extends BaseEntity {
 
-    private String taskName;
+    private String sceneName;
     private Long projectId;
     private Long appId;
     private String description;

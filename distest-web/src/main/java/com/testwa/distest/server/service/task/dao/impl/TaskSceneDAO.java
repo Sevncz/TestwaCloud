@@ -21,8 +21,23 @@ public class TaskSceneDAO extends BaseDAO<TaskScene, Long> implements ITaskScene
     }
 
     @Override
+    public TaskScene findOne(Long key) {
+        return mapper.findOne(key);
+    }
+
+    @Override
+    public List<TaskScene> findAll(List<Long> keys) {
+        return mapper.findList(keys, null);
+    }
+
+    @Override
     public List<TaskScene> findByFromProject(Map<String, Object> params) {
         return mapper.findByFromProject(params);
+    }
+
+    @Override
+    public TaskScene fetchOne(Long taskSceneId) {
+        return mapper.fetchOne(taskSceneId);
     }
 
 }

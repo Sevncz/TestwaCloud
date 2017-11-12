@@ -30,6 +30,7 @@
             <if test="caseName != null">and caseName = #{caseName}</if>
         </trim>
     </select>
+
     <select id="findOne" parameterType="com.testwa.distest.server.entity.Testcase" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />

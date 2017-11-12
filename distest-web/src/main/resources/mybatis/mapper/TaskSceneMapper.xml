@@ -3,7 +3,7 @@
 <mapper namespace="com.testwa.distest.server.mvc.mapper.TaskSceneMapper" >
     <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.TaskScene" >
         <id column="id" property="id" jdbcType="BIGINT" />
-        <result column="taskName" property="taskName" jdbcType="VARCHAR" />
+        <result column="sceneName" property="sceneName" jdbcType="VARCHAR" />
         <result column="projectId" property="projectId" jdbcType="BIGINT"/>
         <result column="appId" property="appId" jdbcType="BIGINT"/>
         <result column="description" property="description" jdbcType="VARCHAR" />
@@ -15,45 +15,71 @@
     </resultMap>
 
     <sql id="Base_Column_List" >
-        id, taskName, projectId, appId, description, exeMode,updateTime,createTime,updateBy,createBy
+        id, sceneName, projectId, appId, description, exeMode,updateTime,createTime,updateBy,createBy
     </sql>
 
     <select id="findBy" parameterType="com.testwa.distest.server.entity.TaskScene" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />
-        FROM task_scene
+        FROM taskscene
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             <if test="createBy != null">and createBy = #{createBy}</if>
             <if test="projectId != null">and projectId = #{projectId}</if>
-            <if test="taskName != null">and taskName = #{taskName}</if>
+            <if test="sceneName != null">and sceneName = #{sceneName}</if>
         </trim>
+    </select>
+    <select id="findOne" parameterType="com.testwa.distest.server.entity.TaskScene" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM taskscene
+        WHERE id = #{key}
+    </select>
+    <select id="fetchOne" parameterType="com.testwa.distest.server.entity.TaskScene" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM taskscene
+        WHERE id = #{key}
+    </select>
+    <select id="findList" parameterType="com.testwa.distest.server.entity.TaskScene" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM taskscene
+        <if test="keys != null">
+            <trim prefix="WHERE" prefixOverrides="AND |OR ">
+                id in
+                <foreach item="id" index="index" collection="keys" open="(" separator="," close=")">#{id} </foreach>
+            </trim>
+        </if>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
     </select>
 
     <select id="findByFromProject" parameterType="java.util.Map" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />
-        FROM task_scene
+        FROM taskscene
         WHERE projectId in
         <foreach item="item" index="index" collection="params.projects" open="(" separator="," close=")">#{item.id} </foreach>
-        <if test="params.taskName != null">and taskName = #{params.taskName}</if>
+        <if test="params.sceneName != null">and sceneName = #{params.sceneName}</if>
         <if test="params.createBy != null">and createBy = #{params.createBy}</if>
         <if test="params.projectId != null">and projectId = #{params.projectId}</if>
     </select>
     <select id="findAllOrder" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />
-        FROM task_scene
+        FROM taskscene
         WHERE id IN
         <foreach item="item" index="index" collection="testcaseId" open="(" separator="," close=")">#{item} </foreach>
         ORDER BY ${order}
     </select>
 
     <select id="countBy" resultType="long">
-        SELECT count(1) c FROM task_scene
+        SELECT count(1) c FROM taskscene
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             <if test="createBy != null">and createBy = #{createBy}</if>
             <if test="projectId != null">and projectId = #{projectId}</if>
-            <if test="taskName != null">and taskName = #{taskName}</if>
+            <if test="sceneName != null">and sceneName = #{sceneName}</if>
         </trim>
     </select>
 

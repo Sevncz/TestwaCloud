@@ -12,5 +12,11 @@ import java.util.Map;
 public interface ITaskSceneDAO extends IBaseDAO<TaskScene, Long> {
     List<TaskScene> findBy(TaskScene entity);
 
+    TaskScene findOne(Long key);
+
+    List<TaskScene> findAll(List<Long> keys);
+
     List<TaskScene> findByFromProject(Map<String, Object> params);
+
+    TaskScene fetchOne(Long taskSceneId);
 }

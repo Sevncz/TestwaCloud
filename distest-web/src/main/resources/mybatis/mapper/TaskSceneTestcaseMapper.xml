@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.testwa.distest.server.mvc.mapper.TaskTestcaseMapper" >
-    <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.TaskTestcase" >
+<mapper namespace="com.testwa.distest.server.mvc.mapper.TaskSceneTestcaseMapper" >
+    <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.TaskSceneTestcase" >
         <id column="id" property="id" jdbcType="BIGINT" />
-        <result column="taskId" property="taskId" jdbcType="BIGINT"/>
+        <result column="taskSceneId" property="taskSceneId" jdbcType="BIGINT"/>
         <result column="testcaseId" property="testcaseId" jdbcType="BIGINT"/>
         <result column="seq" property="seq" jdbcType="INTEGER"/>
     </resultMap>
 
     <sql id="Base_Column_List" >
-        id, taskId, testcaseId, seq
+        id, taskSceneId, testcaseId, seq
     </sql>
 
-    <select id="findBy" parameterType="com.testwa.distest.server.entity.TaskTestcase" resultMap="BaseResultMap" >
+    <select id="findBy" parameterType="com.testwa.distest.server.entity.TaskSceneTestcase" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />
-        FROM task_testcase
+        FROM taskscene_testcase
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
-            <if test="taskId != null">and taskId = #{taskId}</if>
+            <if test="taskSceneId != null">and taskSceneId = #{taskSceneId}</if>
             <if test="testcaseId != null">and testcaseId = #{testcaseId}</if>
         </trim>
     </select>
@@ -32,18 +32,24 @@
     </select>
 
     <select id="countBy" resultType="long">
-        SELECT count(1) c FROM task_testcase
+        SELECT count(1) c FROM taskscene_testcase
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
-            <if test="taskId != null">and taskId = #{taskId}</if>
+            <if test="taskSceneId != null">and taskSceneId = #{taskSceneId}</if>
             <if test="testcaseId != null">and testcaseId = #{testcaseId}</if>
         </trim>
     </select>
 
     <insert id="insertAll" parameterType="java.util.List">
-        INSERT INTO task_testcase (taskId, testcaseId, seq)
-        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
-            (#{item.taskId}, #{item.testcaseId}, #{item.seq})
+        INSERT INTO taskscene_testcase (taskSceneId, testcaseId, seq) VALUES
+        <foreach item="item" index="index" collection="list" separator=",">
+            (#{item.taskSceneId}, #{item.testcaseId}, #{item.seq})
         </foreach>
     </insert>
+
+    <delete id="deleteByTaskSceneId" parameterType="java.lang.Long">
+        DELETE FROM
+        taskscene_testcase
+        WHERE taskSceneId = #{taskSceneId}
+    </delete>
 
 </mapper>
