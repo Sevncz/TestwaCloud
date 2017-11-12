@@ -3,6 +3,7 @@ package com.testwa.distest.server.service.testcase.service;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.Joiner;
+import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.exception.AccountException;
 import com.testwa.distest.common.exception.NoSuchProjectException;
 import com.testwa.distest.common.exception.NoSuchScriptException;
@@ -10,9 +11,11 @@ import com.testwa.distest.common.exception.NoSuchTestcaseException;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.mvc.beans.PageResult;
 import com.testwa.distest.server.entity.*;
+import com.testwa.distest.server.service.app.form.AppListForm;
 import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.service.script.service.ScriptService;
 import com.testwa.distest.server.service.testcase.dao.ITestcaseDAO;
+import com.testwa.distest.server.service.testcase.dao.ITestcaseScriptDAO;
 import com.testwa.distest.server.service.testcase.form.TestcaseNewForm;
 import com.testwa.distest.server.service.testcase.form.TestcaseListForm;
 import com.testwa.distest.server.service.testcase.form.TestcaseUpdateForm;
@@ -25,9 +28,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+
+import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 
 /**
  * Created by wen on 21/10/2017.
@@ -38,31 +41,84 @@ public class TestcaseService {
     @Autowired
     private ITestcaseDAO testcaseDAO;
     @Autowired
+    private ITestcaseScriptDAO testcaseScriptDAO;
+    @Autowired
     private ScriptService scriptService;
     @Autowired
     private ProjectService projectService;
     @Autowired
     private UserService userService;
 
-    public long save(TestcaseNewForm form) throws AccountException, NoSuchProjectException, NoSuchScriptException {
+    /**
+     * 保存回归测试测试案例
+     * @param form
+     * @return
+     */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public long saveRegressionTestcase(TestcaseNewForm form) {
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
-
-
         Testcase testcase = new Testcase();
         testcase.setDescription(form.getDescription());
         testcase.setProjectId(form.getProjectId());
         testcase.setCreateBy(user.getId());
         testcase.setTag(form.getTag());
         testcase.setCreateTime(new Date());
+        testcase.setEnabled(true);
+        testcase.setExeMode(DB.RunMode.REGRESSIONTEST);
         long testcaseId = testcaseDAO.insert(testcase);
+        saveTestcaseScript(form.getScriptIds(), testcaseId);
         return testcaseId;
     }
 
+    /**
+     * 保存兼容测试测试案例
+     * @param projectId
+     * @param scripts
+     * @return
+     */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public Long saveCompatibilityTestcase(Long projectId, List<Long> scripts){
+        User user = userService.findByUsername(WebUtil.getCurrentUsername());
+        Testcase testcase = new Testcase();
+        testcase.setDescription("compatibility test");
+        testcase.setProjectId(projectId);
+        testcase.setCaseName("compatibility test");
+        testcase.setCreateBy(user.getId());
+        testcase.setTag("兼容");
+        testcase.setExeMode(DB.RunMode.COMPATIBILITYTEST);
+        return testcaseDAO.insert(testcase);
+    }
+
+    private void saveTestcaseScript(List<Long> scriptIds, long testcaseId) {
+        List<Object> seq = new ArrayList<>();
+        scriptIds.forEach(scriptId -> {
+            TestcaseScript testcaseScript = new TestcaseScript();
+            testcaseScript.setScriptId(scriptId);
+            testcaseScript.setSeq(seq.size());
+            testcaseScript.setTestcaseId(testcaseId);
+            testcaseScriptDAO.insert(testcaseScript);
+            seq.add(1);
+        });
+    }
+
+    /**
+     * 删除案例及案例脚本的中间表
+     * @param testcaseId
+     */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void delete(Long testcaseId) {
+        // 删除相关的testcasescript
+        testcaseScriptDAO.deleteByTestcaseId(testcaseId);
         testcaseDAO.delete(testcaseId);
     }
+
+    /**
+     * 删除多个案例记录
+     * @param testcaseIds
+     */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void delete(List<Long> testcaseIds) {
-        testcaseDAO.delete(testcaseIds);
+        testcaseIds.forEach(this::delete);
     }
 
     public Testcase findOne(String testcaseId) {
@@ -86,26 +142,21 @@ public class TestcaseService {
         return testcaseVO;
     }
 
-    public void modifyCase(TestcaseUpdateForm form) throws NoSuchTestcaseException, NoSuchScriptException, NoSuchProjectException {
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public void update(TestcaseUpdateForm form) {
         Testcase testcase = testcaseDAO.findOne(form.getTestcaseId());
-        if (testcase == null) {
-            throw new NoSuchTestcaseException("无此案例！");
+        if(testcase == null){
+            return;
         }
-
         List<Long> scriptIds = form.getScriptIds();
-
-//        testcase.setScripts(scriptIds);
         testcase.setTag(form.getTag());
         testcase.setDescription(form.getDescription());
         testcase.setCaseName(form.getName());
         testcaseDAO.update(testcase);
-    }
 
-    protected void checkTestcases(List<Long> caseIds) throws NoSuchTestcaseException {
-        List<Testcase> cases = findAllOrder(caseIds);
-        if (cases.size() != caseIds.size()) {
-            throw new NoSuchTestcaseException("没有此案例!");
-        }
+        testcaseScriptDAO.deleteByTestcaseId(form.getTestcaseId());
+        saveTestcaseScript(scriptIds, form.getTestcaseId());
+
     }
 
     /**
@@ -113,20 +164,13 @@ public class TestcaseService {
      * @param cases
      * @return
      */
-    public List<Testcase> findAllOrder(List<Long> cases) {
-        // 修复返回列表不按照顺序的bug 使用逐个获取策略
+    public List<Testcase> findByCaseOrder(List<Long> cases) {
         StringBuffer orderSb = new StringBuffer();
-        orderSb.append("field(");
+        orderSb.append("field(id,");
         String order = Joiner.on(",").join(cases);
         orderSb.append(order).append(")");
         List<Testcase> caseList = testcaseDAO.findAllOrder(cases, orderSb.toString());
         return caseList;
-    }
-
-    public List<Testcase> findByProject(Long projectId) {
-        Testcase query = new Testcase();
-        query.setProjectId(projectId);
-        return testcaseDAO.findBy(query);
     }
 
     public long countByProject(Long projectId) {
@@ -135,19 +179,6 @@ public class TestcaseService {
         return testcaseDAO.countBy(query);
     }
 
-    public Long createCaseQuick(Long projectId, List<Long> scripts) throws NoSuchScriptException, NoSuchProjectException, AccountException {
-//        scriptService.validateScripts(scripts);
-        Project project = projectService.findOne(projectId);
-        User user = userService.findByUsername(WebUtil.getCurrentUsername());
-
-        Testcase testcase = new Testcase();
-        testcase.setDescription("quick execute");
-        testcase.setProjectId(projectId);
-        testcase.setCaseName("quick execute");
-        testcase.setCreateBy(user.getId());
-        testcase.setTag("quick execute");
-        return testcaseDAO.insert(testcase);
-    }
 
     public PageResult<Testcase> findPage(TestcaseListForm pageForm) {
         //分页处理
@@ -158,7 +189,6 @@ public class TestcaseService {
         PageResult<Testcase> pr = new PageResult<>(info.getList(), info.getTotal());
         return pr;
     }
-
 
     public List<Testcase> find(TestcaseListForm queryForm) {
         Testcase testcase = new Testcase();
@@ -175,4 +205,32 @@ public class TestcaseService {
     public Testcase findOne(Long entityId) {
         return testcaseDAO.findOne(entityId);
     }
+
+    public PageResult<Testcase> findPageForCurrentUser(TestcaseListForm pageForm) {
+        Map<String, Object> params = buildProjectParamsForCurrentUser(pageForm);
+        //分页处理
+        PageHelper.startPage(pageForm.getPageNo(), pageForm.getPageSize());
+        PageHelper.orderBy(pageForm.getOrderBy() + " " + pageForm.getOrder());
+
+        List<Testcase> testcaseList = testcaseDAO.findByFromProject(params);
+        PageInfo<Testcase> info = new PageInfo(testcaseList);
+        PageResult<Testcase> pr = new PageResult<>(info.getList(), info.getTotal());
+        return pr;
+    }
+
+    public List<Testcase> findForCurrentUser(TestcaseListForm queryForm) {
+        Map<String, Object> params = buildProjectParamsForCurrentUser(queryForm);
+        List<Testcase> testcaseList = testcaseDAO.findByFromProject(params);
+        return testcaseList;
+    }
+
+    private Map<String, Object> buildProjectParamsForCurrentUser(TestcaseListForm queryForm){
+        List<Project> projects = projectService.findAllOfUserProject(getCurrentUsername());
+        Map<String, Object> params = new HashMap<>();
+        params.put("projectId", queryForm.getProjectId());
+        params.put("caseName", queryForm.getTestcaseName());
+        params.put("projects", projects);
+        return params;
+    }
+
 }

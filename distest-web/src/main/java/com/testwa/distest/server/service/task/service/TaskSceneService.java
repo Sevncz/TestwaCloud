@@ -3,7 +3,6 @@ package com.testwa.distest.server.service.task.service;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.testwa.distest.common.enums.DB;
-import com.testwa.distest.common.exception.NoSuchAppException;
 import com.testwa.distest.common.exception.NoSuchTaskException;
 import com.testwa.distest.common.exception.NoSuchTestcaseException;
 import com.testwa.distest.common.util.WebUtil;
@@ -143,7 +142,7 @@ public class TaskSceneService {
         ts.setDescription(form.getDescription());
         ts.setCreateTime(new Date());
         ts.setCreateBy(user.getId());
-        ts.setExeMode(DB.RunMode.COMMONTEST);
+        ts.setExeMode(DB.RunMode.REGRESSIONTEST);
 
         long taskId = save(ts);
 

@@ -107,7 +107,7 @@ public class DeviceController extends BaseController {
             }
             Files.copy(new ByteArrayInputStream(message), logPath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            log.error("save logfile error", e);
+            log.error("saveRegressionTestcase logfile error", e);
         }
     }
 
@@ -266,7 +266,7 @@ public class DeviceController extends BaseController {
 //        if(UserShareScope.contains(scope)){
 //            udh.setScope(UserShareScope.valueOf(scope).getValue());
 //        }
-//        userDeviceHisService.save(udh);
+//        userDeviceHisService.saveRegressionTestcase(udh);
 
         return ok();
     }
@@ -286,7 +286,7 @@ public class DeviceController extends BaseController {
 //        }
 //        Set<String> userIds = udh.getShareUsers();
 //        userIds.add(userId);
-//        userDeviceHisService.save(udh);
+//        userDeviceHisService.saveRegressionTestcase(udh);
 
         return ok();
     }

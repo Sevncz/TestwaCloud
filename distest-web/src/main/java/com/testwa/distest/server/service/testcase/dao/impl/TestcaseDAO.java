@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class TestcaseDAO extends BaseDAO<Testcase, Long> implements ITestcaseDAO {
@@ -28,6 +29,21 @@ public class TestcaseDAO extends BaseDAO<Testcase, Long> implements ITestcaseDAO
     @Override
     public List<Testcase> findAllOrder(List<Long> cases, String order) {
         return mapper.findAllOrder(cases, order);
+    }
+
+    @Override
+    public Testcase findOne(Long key) {
+        return mapper.findOne(key);
+    }
+
+    @Override
+    public List<Testcase> findAll(List<Long> keys) {
+        return mapper.findList(keys, null);
+    }
+
+    @Override
+    public List<Testcase> findByFromProject(Map<String, Object> params) {
+        return mapper.findByFromProject(params);
     }
 
 

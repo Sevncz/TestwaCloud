@@ -9,4 +9,5 @@ public interface TestcaseScriptMapper extends BaseMapper<TestcaseScript, Long> {
 
 	List<TestcaseScript> findByTestcaseId(TestcaseScript app);
 
+    int deleteByTestcaseId(Long testcaseId);
 }

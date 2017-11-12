@@ -6,6 +6,7 @@ import com.testwa.distest.common.constraint.validation.PageOrderValidator;
 import com.testwa.distest.common.context.ThreadContext;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.Valid;
 import java.io.Serializable;
@@ -47,11 +48,11 @@ public abstract class RequestListBase implements Serializable {
     }
 
     public String getOrderBy() {
-        return page.orderBy;
+        return StringUtils.isBlank(page.orderBy)?"id":page.orderBy;
     }
 
     public String getOrder() {
-        return page.order;
+        return StringUtils.isBlank(page.order)?"desc":page.order;
     }
 
     /**

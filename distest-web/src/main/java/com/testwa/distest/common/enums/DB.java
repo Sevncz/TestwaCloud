@@ -200,8 +200,8 @@ public final class DB {
     }
 
     public enum RunMode implements ValueEnum {
-        COMMONTEST(1, "回归测试"),
-        JRTEST(2, "兼容测试");
+        REGRESSIONTEST(1, "回归测试"),
+        COMPATIBILITYTEST(2, "兼容测试");
         private int value;
         private String desc;
         RunMode(int value, String desc){
@@ -215,11 +215,11 @@ public final class DB {
             return desc;
         }
         public static RunMode valueOf(int value) {
-            RunMode tt = COMMONTEST;
+            RunMode tt = REGRESSIONTEST;
             switch (value) {
-                case 1: tt = COMMONTEST;break;
-                case 2: tt = JRTEST;break;
-                default: tt = COMMONTEST;
+                case 1: tt = REGRESSIONTEST;break;
+                case 2: tt = COMPATIBILITYTEST;break;
+                default: tt = REGRESSIONTEST;
             }
             return tt;
         }

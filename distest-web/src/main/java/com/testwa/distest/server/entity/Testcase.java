@@ -4,6 +4,7 @@ import com.testwa.core.common.annotation.TableName;
 import com.testwa.core.common.bo.BaseEntity;
 import com.testwa.distest.common.enums.DB;
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.Date;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.List;
  * Created by wen on 16/9/1.
  */
 @Data
+@ToString
 @TableName("testcase")
 public class Testcase extends BaseEntity {
     private String tag;

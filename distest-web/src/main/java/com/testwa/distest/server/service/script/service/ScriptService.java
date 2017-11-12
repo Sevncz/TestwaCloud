@@ -83,7 +83,7 @@ public class ScriptService {
 
         String filename = uploadfile.getOriginalFilename();
         String aliasName = PinYinTool.getPingYin(filename);
-        Path dir = Paths.get(env.getProperty("script.save.path"), Identities.uuid2());
+        Path dir = Paths.get(env.getProperty("script.saveRegressionTestcase.path"), Identities.uuid2());
         if (!Files.exists(dir)) {
             Files.createDirectories(dir);
         }
@@ -109,7 +109,7 @@ public class ScriptService {
 
         String filename = uploadfile.getOriginalFilename();
         String aliasName = PinYinTool.getPingYin(filename);
-        Path dir = Paths.get(env.getProperty("script.save.path"), Identities.uuid2());
+        Path dir = Paths.get(env.getProperty("script.saveRegressionTestcase.path"), Identities.uuid2());
         if (!Files.exists(dir)) {
             Files.createDirectories(dir);
         }

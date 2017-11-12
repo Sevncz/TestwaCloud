@@ -48,7 +48,7 @@ public class TestcaseController extends BaseController {
         log.info(form.toString());
         scriptValidator.validateScriptsExist(form.getScriptIds());
         projectValidator.validateProjectExist(form.getProjectId());
-        testcaseService.save(form);
+        testcaseService.saveRegressionTestcase(form);
         return ok();
     }
 
@@ -57,7 +57,7 @@ public class TestcaseController extends BaseController {
     public Result modify(@Valid TestcaseUpdateForm form) throws NoSuchProjectException, NoSuchScriptException, NoSuchTestcaseException{
         log.info(form.toString());
         scriptValidator.validateScriptsExist(form.getScriptIds());
-        testcaseService.modifyCase(form);
+        testcaseService.update(form);
         return ok();
     }
 
