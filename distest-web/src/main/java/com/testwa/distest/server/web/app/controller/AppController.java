@@ -100,8 +100,8 @@ public class AppController extends BaseController {
     @ApiOperation(value="用户所有可见的app分页列表", notes="")
     @ResponseBody
     @RequestMapping(value = "/page", method= RequestMethod.GET)
-    public Result page(@Valid AppListForm queryForm) throws AccountException {
-        PageResult<App> appPR = appService.findPage(queryForm);
+    public Result page(@Valid AppListForm queryForm) throws ParamsIsNullException {
+        PageResult<App> appPR = appService.findPageForCurrentUser(queryForm);
         PageResult<AppVO> pr = buildVOPageResult(appPR, AppVO.class);
         return ok(pr);
 
@@ -111,7 +111,7 @@ public class AppController extends BaseController {
     @ResponseBody
     @RequestMapping(value = "/list", method= RequestMethod.GET, produces={"application/json"})
     public Result list(AppListForm queryForm) throws AccountException {
-        List<App> apps = appService.find(queryForm);
+        List<App> apps = appService.findForCurrentUser(queryForm);
         List<AppVO> vos = buildVOs(apps, AppVO.class);
         return ok(vos);
     }

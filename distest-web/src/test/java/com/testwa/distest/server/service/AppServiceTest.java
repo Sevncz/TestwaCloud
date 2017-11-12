@@ -2,18 +2,15 @@ package com.testwa.distest.server.service;
 
 
 import com.testwa.distest.WebServerApplication;
-import com.testwa.distest.common.exception.AccountException;
-import com.testwa.distest.common.exception.NoSuchAppException;
-import com.testwa.distest.common.exception.NoSuchProjectException;
+import com.testwa.distest.common.exception.ParamsIsNullException;
+import com.testwa.distest.common.form.RequestListBase;
 import com.testwa.distest.server.entity.App;
-import com.testwa.distest.server.entity.Project;
-import com.testwa.distest.server.entity.User;
+import com.testwa.distest.server.service.app.form.AppListForm;
 import com.testwa.distest.server.service.app.form.AppNewForm;
 import com.testwa.distest.server.service.app.form.AppUpdateForm;
 import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.project.service.ProjectService;
-import org.apache.commons.lang3.RandomUtils;
-import org.junit.Assert;
+import com.testwa.distest.server.web.app.vo.AppVO;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +18,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = WebServerApplication.class)
@@ -36,7 +32,6 @@ public class AppServiceTest {
     private AppService appService;
     @Autowired
     private ProjectService projectService;
-
 
     @Test
     public void testInsert(){
@@ -58,7 +53,7 @@ public class AppServiceTest {
     @WithMockUser(username = "xiaoming", authorities = { "ADMIN", "USER" })
     public void testUpdate(){
         AppUpdateForm form = new AppUpdateForm();
-        form.setAppId(1l);
+        form.setAppId(5l);
         form.setDescription("xxx测试一下");
         form.setVersion("V0.2");
         appService.update(form);
@@ -68,10 +63,62 @@ public class AppServiceTest {
     public void testDelete(){
         appService.delete(1l);
     }
+    @Test
+    public void testDeleteApp(){
+        appService.deleteApp(3l);
+    }
 
     @Test
     public void testFindOne(){
         App app = appService.findOne(1l);
+    }
+
+    @Test
+    public void testFindAll(){
+        List<Long> ids = Arrays.asList(1l, 2l, 3l);
+        appService.findAll(ids);
+    }
+    @Test
+    public void testFindPage(){
+        AppListForm form = new AppListForm();
+        form.setAppName("ContactManager.apk");
+        RequestListBase.Page page = form.getPage();
+        page.setPageNo(1);
+        page.setPageSize(10);
+        form.setPage(page);
+        appService.findPage(form);
+    }
+
+    @Test
+    public void testFindByProjectId(){
+        appService.findByProjectId(4l);
+    }
+
+    @Test
+    @WithMockUser(username = "xiaoming", authorities = { "ADMIN", "USER" })
+    public void testFindPageForCurrentUser() throws ParamsIsNullException {
+        AppListForm form = new AppListForm();
+        form.setAppName("ContactManager.apk");
+        RequestListBase.Page page = form.getPage();
+        page.setPageNo(3);
+        page.setPageSize(10);
+        form.setPage(page);
+        appService.findPageForCurrentUser(form);
+    }
+
+    @Test
+    @WithMockUser(username = "xiaoming", authorities = { "ADMIN", "USER" })
+    public void testFindForCurrentUser(){
+        AppListForm form = new AppListForm();
+        form.setAppName("ContactManager.apk");
+        appService.findForCurrentUser(form);
+    }
+
+    @Test
+    @WithMockUser(username = "xiaoming", authorities = { "ADMIN", "USER" })
+    public void testGetAppVO(){
+        AppVO vo = appService.getAppVO(4l);
+        System.out.println(vo.toString());
     }
 
 }

@@ -14,5 +14,5 @@ import lombok.Data;
 public class ScriptListForm extends RequestListBase {
     private Long projectId;
     private String scriptName;
-    private String ln;
+    private Integer ln;
 }

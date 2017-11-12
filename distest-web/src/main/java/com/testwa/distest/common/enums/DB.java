@@ -181,7 +181,10 @@ public final class DB {
         public String getDesc() {
             return desc;
         }
-        public static ScriptLN valueOf(int value) {
+        public static ScriptLN valueOf(Integer value) {
+            if(value == null){
+                return null;
+            }
             ScriptLN ln = UNKNOWN;
             switch (value) {
                 case 1: ln = JAVA;break;

@@ -7,13 +7,21 @@ import com.testwa.core.utils.Identities;
 import com.testwa.core.utils.PinYinTool;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.exception.AccountException;
+import com.testwa.distest.server.entity.Project;
 import com.testwa.distest.server.mvc.beans.PageResult;
 import com.testwa.distest.server.entity.Script;
 import com.testwa.distest.server.entity.User;
+import com.testwa.distest.server.service.app.form.AppListForm;
+import com.testwa.distest.server.service.app.service.AppService;
+import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.service.script.dao.IScriptDAO;
 import com.testwa.distest.server.service.script.form.ScriptListForm;
+import com.testwa.distest.server.service.script.form.ScriptNewForm;
 import com.testwa.distest.server.service.script.form.ScriptUpdateForm;
 import com.testwa.distest.server.service.user.service.UserService;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -28,7 +36,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,11 +50,14 @@ import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 @Service
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 public class ScriptService {
+    private static final Logger log = LoggerFactory.getLogger(ScriptService.class);
 
     @Autowired
     private IScriptDAO scriptDAO;
     @Autowired
     private UserService userService;
+    @Autowired
+    private ProjectService projectService;
     @Autowired
     private Environment env;
 
@@ -52,15 +65,20 @@ public class ScriptService {
         return scriptDAO.findOne(scriptId);
     }
 
-
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void uploadMulti(List<MultipartFile> uploadfiles) throws IOException {
         for(MultipartFile f : uploadfiles){
             upload(f);
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    /**
+     * 只上传脚本文件
+     * @param uploadfile
+     * @return
+     * @throws IOException
+     */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public Script upload(MultipartFile uploadfile) throws IOException {
 
         String filename = uploadfile.getOriginalFilename();
@@ -75,11 +93,37 @@ public class ScriptService {
         String type = filename.substring(filename.lastIndexOf(".") + 1);
 
         String size = uploadfile.getSize() + "";
-        Script script = saveScript(filename, aliasName, filepath.toString(), size, type);
+        Script script = saveScript(filename, aliasName, filepath.toString(), size, type, null);
         return script;
     }
 
-    private Script saveScript(String filename, String aliasName, String filepath, String size, String type) throws IOException {
+    /**
+     * 上传文件+记录更新
+     * @param uploadfile
+     * @param form
+     * @return
+     * @throws IOException
+     */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public Script upload(MultipartFile uploadfile, ScriptNewForm form) throws IOException {
+
+        String filename = uploadfile.getOriginalFilename();
+        String aliasName = PinYinTool.getPingYin(filename);
+        Path dir = Paths.get(env.getProperty("script.save.path"), Identities.uuid2());
+        if (!Files.exists(dir)) {
+            Files.createDirectories(dir);
+        }
+        Path filepath = Paths.get(dir.toString(), aliasName);
+        Files.copy(uploadfile.getInputStream(), filepath, StandardCopyOption.REPLACE_EXISTING);
+
+        String type = filename.substring(filename.lastIndexOf(".") + 1);
+
+        String size = uploadfile.getSize() + "";
+        Script script = saveScript(filename, aliasName, filepath.toString(), size, type, form);
+        return script;
+    }
+
+    private Script saveScript(String filename, String aliasName, String filepath, String size, String type, ScriptNewForm form) throws IOException {
         Script script = new Script();
 
         switch (type.toLowerCase()){
@@ -100,17 +144,25 @@ public class ScriptService {
                 break;
         }
 
+        User currentUser = userService.findByUsername(getCurrentUsername());
+        script.setCreateBy(currentUser.getId());
         script.setCreateTime(new Date());
         script.setScriptName(filename);
         script.setPath(filepath);
         script.setAliasName(aliasName);
         script.setSize(size);
         script.setMd5(IOUtil.fileMD5(filepath));
+        if(form != null){
+            script.setProjectId(form.getProjectId());
+            script.setTag(form.getTag());
+            script.setDescription(form.getDescription());
+            script.setEnabled(true);
+        }
         scriptDAO.insert(script);
         return script;
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void update(ScriptUpdateForm form) {
 
         Script script = findOne(form.getScriptId());
@@ -123,9 +175,40 @@ public class ScriptService {
         scriptDAO.update(script);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void delete(List<Long> entityIds) {
         scriptDAO.delete(entityIds);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public void delete(Long entityId) {
+        scriptDAO.delete(entityId);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public void deleteScript(Long entityId) {
+
+        Script script = findOne(entityId);
+        if (script == null){
+            return;
+        }
+
+        String filePath = script.getPath();
+        try {
+            // 删除app文件
+            Files.deleteIfExists(Paths.get(filePath));
+            // 删除app文件的文件夹
+            Files.deleteIfExists(Paths.get(filePath).getParent());
+        } catch (IOException e) {
+            log.error("delete app file error", e);
+        }
+        // 删除记录
+        delete(entityId);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public void deleteScript(List<Long> entityIds) {
+        entityIds.forEach(this::deleteScript);
     }
 
     public PageResult<Script> findPage(ScriptListForm queryForm) {
@@ -147,7 +230,35 @@ public class ScriptService {
         return scriptList;
     }
 
-    public void modifyContent(Long scriptId, String content) throws AccountException, IOException {
+    public PageResult<Script> findPageForCurrentUser(ScriptListForm queryForm) {
+
+        Map<String, Object> params = buildProjectParamsForCurrentUser(queryForm);
+        PageHelper.startPage(queryForm.getPageNo(), queryForm.getPageSize());
+        PageHelper.orderBy(queryForm.getOrderBy() + " " + queryForm.getOrder());
+        List<Script> scriptList = scriptDAO.findByFromProject(params);
+        PageInfo<Script> info = new PageInfo(scriptList);
+        PageResult<Script> pr = new PageResult<>(info.getList(), info.getTotal());
+        return pr;
+    }
+
+    public List<Script> findForCurrentUser(ScriptListForm queryForm) {
+        Map<String, Object> params = buildProjectParamsForCurrentUser(queryForm);
+        List<Script> scriptList = scriptDAO.findByFromProject(params);
+        return scriptList;
+    }
+
+    private Map<String, Object> buildProjectParamsForCurrentUser(ScriptListForm queryForm){
+        List<Project> projects = projectService.findAllOfUserProject(getCurrentUsername());
+        Map<String, Object> params = new HashMap<>();
+        params.put("projectId", queryForm.getProjectId());
+        params.put("scriptName", queryForm.getScriptName());
+        params.put("projects", projects);
+        params.put("ln", queryForm.getLn());
+        return params;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public void modifyContent(Long scriptId, String content) throws IOException {
         Script script = findOne(scriptId);
         String path = script.getPath();
 

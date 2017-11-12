@@ -14,4 +14,6 @@ public interface AppMapper extends BaseMapper<App, Long> {
     App findOne(Long key);
 
     List<App> findByFromProject(@Param("params") Map<String, Object> params);
+
+    List<App> findList(@Param("keys") List<Long> keys, @Param("orderBy") String orderBy);
 }

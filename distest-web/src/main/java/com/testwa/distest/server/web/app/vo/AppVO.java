@@ -22,7 +22,7 @@ public class AppVO {
     private String sdkVersion;
     private String targetSdkVersion;
     private String version; // app version
-    private DB.PhoneOS type;
+    private DB.PhoneOS osType;
     private String path;
     private Long projectId;
     private String md5;

@@ -137,8 +137,18 @@ public class BaseDAO<T extends Entity,ID extends Serializable> implements IBaseD
             try {
                 f.setAccessible(true);
                 if(f.get(entity) != null){
-                    if(f.getType().isEnum() && f.getType().equals(DB.Sex.class)){
-                        subMap.put(f.getName(), ((DB.Sex) f.get(entity)).getValue());
+                    if(f.getType().isEnum()){
+                        if(ValueEnum.class.isAssignableFrom(f.getType())){
+                            ValueEnum ve = resolveValueEnum(f.get(entity).toString(), (Class<ValueEnum>)f.getType());
+                            if(ve != null){
+                                subMap.put(f.getName(), ve.getValue());
+                            }else{
+                                log.error("this value not in enum");
+                            }
+                        }else{
+
+                            log.error("this enum not match ValueEnum");
+                        }
                     }else{
                         subMap.put(f.getName(), f.get(entity));
                     }

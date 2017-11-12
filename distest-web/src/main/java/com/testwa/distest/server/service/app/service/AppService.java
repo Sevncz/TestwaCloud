@@ -6,8 +6,7 @@ import com.testwa.core.utils.*;
 import com.testwa.distest.common.android.TestwaAndroidApp;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.exception.AccountException;
-import com.testwa.distest.common.exception.NoSuchAppException;
-import com.testwa.distest.common.exception.NoSuchProjectException;
+import com.testwa.distest.common.exception.ParamsIsNullException;
 import com.testwa.distest.config.DisFileProperties;
 import com.testwa.distest.server.mvc.beans.PageResult;
 import com.testwa.distest.server.entity.App;
@@ -19,11 +18,12 @@ import com.testwa.distest.server.service.app.form.AppNewForm;
 import com.testwa.distest.server.service.app.form.AppUpdateForm;
 import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.service.user.service.UserService;
+import com.testwa.distest.server.web.app.controller.AppController;
 import com.testwa.distest.server.web.app.vo.AppVO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,6 +44,7 @@ import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 @Service
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 public class AppService {
+    private static final Logger log = LoggerFactory.getLogger(AppService.class);
 
     @Autowired
     private IAppDAO appDAO;
@@ -54,14 +55,56 @@ public class AppService {
     @Autowired
     private DisFileProperties disFileProperties;
 
+    /**
+     * 只删除记录
+     * @param appId
+     */
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void delete(Long appId){
         appDAO.delete(appId);
     }
 
+    /**
+     * 删除app及其文件
+     * @param appId
+     */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public void deleteApp(Long appId){
+        App app = findOne(appId);
+        if (app == null){
+            return;
+        }
+
+        String filePath = app.getPath();
+        try {
+            // 删除app文件
+            Files.deleteIfExists(Paths.get(filePath));
+            // 删除app文件的文件夹
+            Files.deleteIfExists(Paths.get(filePath).getParent());
+        } catch (IOException e) {
+            log.error("delete app file error", e);
+        }
+        // 删除记录
+        delete(appId);
+
+    }
+
+    /**
+     * 删除多条记录
+     * @param appIds
+     */
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void delete(List<Long> appIds){
         appDAO.delete(appIds);
+    }
+
+    /**
+     * 删除多个app及其文件
+     * @param appIds
+     */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public void deleteApp(List<Long> appIds){
+        appIds.forEach(this::deleteApp);
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
@@ -141,6 +184,7 @@ public class AppService {
             app.setProjectId(form.getProjectId());
             app.setDescription(form.getDescription());
             app.setVersion(form.getVersion());
+            app.setEnabled(true);
         }
         User currentUser = userService.findByUsername(getCurrentUsername());
         app.setCreateBy(currentUser.getId());
@@ -153,16 +197,28 @@ public class AppService {
         return upload(uploadfile, null);
     }
 
-    public PageResult<App> findByPage(App app, int page, int rows){
+    public PageResult<App> findPage(App app, int page, int rows){
         //分页处理
         PageHelper.startPage(page, rows);
-        List<App> userList = appDAO.findBy(app);
-        PageInfo info = new PageInfo(userList);
+        List<App> appList = appDAO.findBy(app);
+        PageInfo info = new PageInfo(appList);
+        PageResult<App> pr = new PageResult<>(info.getList(), info.getTotal());
+        return pr;
+    }
+    public PageResult<App> findPage(AppListForm queryForm){
+        //分页处理
+        PageHelper.startPage(queryForm.getPageNo(), queryForm.getPageSize());
+        PageHelper.orderBy(queryForm.getOrderBy() + " " + queryForm.getOrder());
+        App query = new App();
+        query.setProjectId(queryForm.getProjectId());
+        query.setAppName(queryForm.getAppName());
+        List<App> appList = appDAO.findBy(query);
+        PageInfo info = new PageInfo(appList);
         PageResult<App> pr = new PageResult<>(info.getList(), info.getTotal());
         return pr;
     }
 
-//    public List<App> find(List<String> projectIds, String appName) {
+//    public List<App> findForCurrentUser(List<String> projectIds, String appName) {
 //        List<Criteria> andCriteria = new ArrayList<>();
 //        if(StringUtils.isNotEmpty(appName)){
 //            andCriteria.add(Criteria.where("name").regex(appName));
@@ -172,7 +228,7 @@ public class AppService {
 //
 //        Query query = buildQueryByCriteria(andCriteria, null);
 //
-//        return appDAO.find(query);
+//        return appDAO.findForCurrentUser(query);
 //
 //    }
 
@@ -192,34 +248,47 @@ public class AppService {
         return apps;
     }
 
+    public List<App> findAll(List<Long> entityIds) {
+        return appDAO.findAll(entityIds);
+    }
 
-    public PageResult<App> findPage(AppListForm queryForm) throws AccountException {
+    /**
+     * 获得用户自己可见的app分页列表
+     * @param queryForm
+     * @return
+     */
+    public PageResult<App> findPageForCurrentUser(AppListForm queryForm) throws ParamsIsNullException {
+        if(queryForm.getProjectId() == null){
+            throw new ParamsIsNullException("项目Id不能为空");
+        }
         //分页处理
+        Map<String, Object> params = buildProjectParamsForCurrentUser(queryForm);
         PageHelper.startPage(queryForm.getPageNo(), queryForm.getPageSize());
         PageHelper.orderBy(queryForm.getOrderBy() + " " + queryForm.getOrder());
-        List<App> appList = find(queryForm);
+        List<App> appList = appDAO.findByFromProject(params);
         PageInfo<App> info = new PageInfo(appList);
         PageResult<App> pr = new PageResult<>(info.getList(), info.getTotal());
         return pr;
     }
 
-    public List<App> find(AppListForm queryForm) throws AccountException {
-        Map<String, Object> params = buildQueryParams(queryForm);
+    /**
+     * 获得用户自己可见的app列表
+     * @param queryForm
+     * @return
+     */
+    public List<App> findForCurrentUser(AppListForm queryForm){
+        Map<String, Object> params = buildProjectParamsForCurrentUser(queryForm);
         List<App> appList = appDAO.findByFromProject(params);
         return appList;
     }
 
-    private Map<String, Object> buildQueryParams(AppListForm queryForm) throws AccountException {
+    private Map<String, Object> buildProjectParamsForCurrentUser(AppListForm queryForm){
         List<Project> projects = projectService.findAllOfUserProject(getCurrentUsername());
         Map<String, Object> params = new HashMap<>();
         params.put("projectId", queryForm.getProjectId());
         params.put("appName", queryForm.getAppName());
         params.put("projects", projects);
         return params;
-    }
-
-    public List<App> findAll(List<Long> entityIds) {
-        return appDAO.findAll(entityIds);
     }
 
 }

@@ -160,7 +160,10 @@ public class ProjectService {
 
     public List<Project> findAllOfUserProject(String username) {
         User user = userService.findByUsername(username);
-        return projectDAO.findAllByUser(user.getId());
+        if(user != null){
+            return projectDAO.findAllByUser(user.getId());
+        }
+        return new ArrayList<>();
     }
 
 

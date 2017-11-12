@@ -13,6 +13,7 @@ public interface IAppDAO extends IBaseDAO<App, Long> {
     List<App> findBy(App entity);
 
     App findOne(Long key);
+    List<App> findAll(List<Long> keys);
 
     List<App> findByFromProject(Map<String, Object> params);
 }

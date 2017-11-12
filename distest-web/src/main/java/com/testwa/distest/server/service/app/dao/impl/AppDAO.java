@@ -26,6 +26,11 @@ public class AppDAO extends BaseDAO<App, Long> implements IAppDAO {
     }
 
     @Override
+    public List<App> findAll(List<Long> keys) {
+        return mapper.findList(keys, null);
+    }
+
+    @Override
     public List<App> findByFromProject(Map<String, Object> params) {
         return mapper.findByFromProject(params);
     }

@@ -45,6 +45,20 @@
         FROM app
         WHERE id = #{key}
     </select>
+    <select id="findList" parameterType="com.testwa.distest.server.entity.App" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM app
+        <if test="keys != null">
+            <trim prefix="WHERE" prefixOverrides="AND |OR ">
+                id in
+                <foreach item="id" index="index" collection="keys" open="(" separator="," close=")">#{id} </foreach>
+            </trim>
+        </if>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+    </select>
 
     <select id="findByFromProject" parameterType="java.util.Map" resultMap="BaseResultMap" >
         SELECT
