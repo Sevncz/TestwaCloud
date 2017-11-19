@@ -20,6 +20,7 @@ import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.app.controller.AppController;
 import com.testwa.distest.server.web.app.vo.AppVO;
+import lombok.extern.log4j.Log4j2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -41,11 +42,10 @@ import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 /**
  * Created by wen on 16/9/1.
  */
+@Log4j2
 @Service
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 public class AppService {
-    private static final Logger log = LoggerFactory.getLogger(AppService.class);
-
     @Autowired
     private IAppDAO appDAO;
     @Autowired

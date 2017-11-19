@@ -1,4 +1,4 @@
-package com.testwa.distest.server.mvc.mapper;
+package com.testwa.distest.server.mapper;
 
 import com.testwa.distest.server.entity.Task;
 import com.testwa.distest.common.mapper.BaseMapper;

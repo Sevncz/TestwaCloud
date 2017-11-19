@@ -17,8 +17,6 @@ import com.testwa.distest.server.web.auth.jwt.JwtTokenUtil;
 import com.testwa.distest.server.websocket.service.PushCmdService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -32,8 +30,6 @@ import java.util.Set;
 @Log4j2
 @Component
 public class WebConnectionHandler {
-
-    private static final Logger log = LoggerFactory.getLogger(WebConnectionHandler.class);
 
     @Autowired
     private ClientSessionMgr clientSessionMgr;

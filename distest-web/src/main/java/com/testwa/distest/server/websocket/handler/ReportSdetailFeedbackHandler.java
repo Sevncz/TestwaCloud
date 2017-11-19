@@ -8,8 +8,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.rpc.proto.Agent;
 import lombok.extern.log4j.Log4j2;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -19,14 +17,6 @@ import org.springframework.stereotype.Component;
 @Log4j2
 @Component
 public class ReportSdetailFeedbackHandler {
-    private static final Logger log = LoggerFactory.getLogger(ReportSdetailFeedbackHandler.class);
-
-    private final SocketIOServer server;
-
-    @Autowired
-    public ReportSdetailFeedbackHandler(SocketIOServer server) {
-        this.server = server;
-    }
 
     @OnEvent(value = WebsocketEvent.FB_REPORT_SDETAIL)
     public void onSdetail(SocketIOClient client, byte[] data, AckRequest ackRequest) {

@@ -9,8 +9,6 @@ import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Task;
 import com.testwa.distest.server.service.task.service.TaskService;
 import lombok.extern.log4j.Log4j2;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +17,6 @@ import java.util.Date;
 @Log4j2
 @Component
 public class TaskErrorFeedbackHandler {
-    private static final Logger log = LoggerFactory.getLogger(TaskErrorFeedbackHandler.class);
 
     @Autowired
     private TaskService taskService;

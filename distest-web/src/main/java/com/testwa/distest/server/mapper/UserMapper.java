@@ -1,4 +1,4 @@
-package com.testwa.distest.server.mvc.mapper;
+package com.testwa.distest.server.mapper;
 
 import java.util.List;
 
