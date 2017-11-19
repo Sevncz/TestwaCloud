@@ -5,9 +5,9 @@ Configuration:
         #测试：-Dlog.level.console=warn -Dlog.level.distest=trace
         #生产：-Dlog.level.console=warn -Dlog.level.distest=info
         - name: log.level.console
-          value: debug
+          value: info
         - name: log.level.distest
-          value: debug
+          value: info
         - name: log.path
           value: /data/logs/distest
         - name: project.name
@@ -44,9 +44,23 @@ Configuration:
         - ref: ROLLING_FILE
     Logger:
       - name: com.ibatis
+        additivity: false
         level: ${sys:log.level.distest}
+        AppenderRef:
+          - ref: CONSOLE
+          - ref: ROLLING_FILE
       - name: org.springframework
+        additivity: false
         level: ${sys:log.level.distest}
+        AppenderRef:
+          - ref: CONSOLE
+          - ref: ROLLING_FILE
+      - name: org.springframework.web
+        additivity: false
+        level: ${sys:log.level.distest}
+        AppenderRef:
+          - ref: CONSOLE
+          - ref: ROLLING_FILE
       - name: com.testwa.distest
         additivity: false
         level: ${sys:log.level.distest}
