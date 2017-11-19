@@ -49,7 +49,7 @@ public class AppController extends BaseController {
     @ApiOperation(value="上传应用", notes="一次性提交app的信息")
     @ResponseBody
     @PostMapping(value = "/save")
-    public Result uploadFile(@Valid AppNewForm form, @RequestParam("appfile") MultipartFile file) throws AccountException, NoSuchAppException, NoSuchProjectException, ParamsIsNullException, ParamsFormatException, IOException {
+    public Result uploadFile(@Valid @RequestBody AppNewForm form, @RequestParam("appfile") MultipartFile file) throws AccountException, NoSuchAppException, NoSuchProjectException, ParamsIsNullException, ParamsFormatException, IOException {
         log.info(form.toString());
         //
         // 校验
@@ -82,7 +82,7 @@ public class AppController extends BaseController {
     @ApiOperation(value="更新应用信息", notes="在upload之后调用，用于补充app的信息")
     @ResponseBody
     @PostMapping(value = "/append")
-    public Result appendInfo(@Valid AppUpdateForm form) throws AccountException, NoSuchAppException, NoSuchProjectException {
+    public Result appendInfo(@Valid @RequestBody AppUpdateForm form) throws AccountException, NoSuchAppException, NoSuchProjectException {
 
         projectValidator.validateProjectExist(form.getProjectId());
         appService.update(form);
@@ -100,7 +100,7 @@ public class AppController extends BaseController {
     @ApiOperation(value="用户所有可见的app分页列表", notes="")
     @ResponseBody
     @RequestMapping(value = "/page", method= RequestMethod.GET)
-    public Result page(@Valid AppListForm queryForm) throws ParamsIsNullException {
+    public Result page(@Valid @RequestBody AppListForm queryForm) throws ParamsIsNullException {
         PageResult<App> appPR = appService.findPageForCurrentUser(queryForm);
         PageResult<AppVO> pr = buildVOPageResult(appPR, AppVO.class);
         return ok(pr);
@@ -110,7 +110,7 @@ public class AppController extends BaseController {
     @ApiOperation(value="用户所有可见的app列表", notes="")
     @ResponseBody
     @RequestMapping(value = "/list", method= RequestMethod.GET, produces={"application/json"})
-    public Result list(AppListForm queryForm) throws AccountException {
+    public Result list(@RequestBody AppListForm queryForm) throws AccountException {
         List<App> apps = appService.findForCurrentUser(queryForm);
         List<AppVO> vos = buildVOs(apps, AppVO.class);
         return ok(vos);

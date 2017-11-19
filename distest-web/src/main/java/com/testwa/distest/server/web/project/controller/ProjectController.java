@@ -58,7 +58,7 @@ public class ProjectController extends BaseController {
     @ApiOperation(value="创建项目")
     @ResponseBody
     @RequestMapping(value = "/save", method= RequestMethod.POST)
-    public Result save(@Valid ProjectNewForm form) throws AccountException, AccountNotFoundException, AuthorizedException, AccountAlreadyExistException, NoSuchProjectException, ParamsException {
+    public Result save(@RequestBody @Valid ProjectNewForm form) throws AccountException, AccountNotFoundException, AuthorizedException, AccountAlreadyExistException, NoSuchProjectException, ParamsException {
 
         if(form.getMembers() != null){
             userValidator.validateUsernamesExist(form.getMembers());
@@ -70,7 +70,7 @@ public class ProjectController extends BaseController {
     @ApiOperation(value="更新项目")
     @ResponseBody
     @RequestMapping(value = "/update", method= RequestMethod.POST)
-    public Result save(@Valid ProjectUpdateForm form) throws AccountException, AccountNotFoundException, AuthorizedException, AccountAlreadyExistException, NoSuchProjectException, ParamsException {
+    public Result update(@RequestBody @Valid ProjectUpdateForm form) throws AccountException, AccountNotFoundException, AuthorizedException, AccountAlreadyExistException, NoSuchProjectException, ParamsException {
         projectValidator.validateProjectExist(form.getProjectId());
 
         if(form.getMembers() != null){
@@ -102,7 +102,7 @@ public class ProjectController extends BaseController {
     @ApiOperation(value="获取我的项目和我参加的项目列表，分页", notes = "http://localhost:8080/testwa/api/project/page?page=1&size=20&sortField=id&sortOrder=desc&projectName=")
     @ResponseBody
     @RequestMapping(value = "/page", method=RequestMethod.GET)
-    public Result page(@Valid ProjectListForm form){
+    public Result page(@RequestBody @Valid ProjectListForm form){
         PageResult<Project> projectPR = projectService.findByPage(form);
         PageResult<ProjectVO> pr = buildVOPageResult(projectPR, ProjectVO.class);
         return ok(pr);

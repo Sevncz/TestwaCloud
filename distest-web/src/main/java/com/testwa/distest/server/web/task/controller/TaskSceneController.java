@@ -57,7 +57,7 @@ public class TaskSceneController extends BaseController {
     @ApiOperation(value="修改任务场景")
     @ResponseBody
     @PostMapping(value = "/modify")
-    public Result modify(@Valid TaskSceneUpdateForm form) throws ObjectNotExistsException {
+    public Result modify(@Valid @RequestBody TaskSceneUpdateForm form) throws ObjectNotExistsException {
         log.info(form.toString());
         projectValidator.validateProjectExist(form.getAppId());
         appValidator.validateAppExist(form.getAppId());
@@ -78,7 +78,7 @@ public class TaskSceneController extends BaseController {
     @ApiOperation(value="任务场景分页列表")
     @ResponseBody
     @RequestMapping(value = "/page", method = RequestMethod.GET)
-    public Result page(TaskSceneListForm pageForm) {
+    public Result page(@RequestBody TaskSceneListForm pageForm) {
         PageResult<TaskScene> taskPR = taskSceneService.findPageForCurrentUser(pageForm);
         PageResult<TaskSceneVO> pr = buildVOPageResult(taskPR, TaskSceneVO.class);
         return ok(pr);

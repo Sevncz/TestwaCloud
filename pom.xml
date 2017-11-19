@@ -24,6 +24,7 @@
         <module>distest-web</module>
         <module>distest-data</module>
         <module>distest-device</module>
+        <module>distest-report</module>
     </modules>
 
     <properties>

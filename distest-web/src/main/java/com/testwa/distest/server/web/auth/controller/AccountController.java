@@ -51,7 +51,7 @@ public class AccountController extends BaseController{
 
 
     @RequestMapping(value = "register", method= RequestMethod.POST, produces={"application/json"})
-    public Result register(@Valid final RegisterForm form)
+    public Result register(@Valid @RequestBody final RegisterForm form)
             throws ServletException, ParamsIsNullException, ParamsFormatException, AccountException, AccountAlreadyExistException {
 
         // 校验用户名

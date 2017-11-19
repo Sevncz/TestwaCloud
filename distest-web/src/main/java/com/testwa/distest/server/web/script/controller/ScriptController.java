@@ -46,7 +46,7 @@ public class ScriptController extends BaseController {
     @ApiOperation(value="补充脚本信息", notes="")
     @ResponseBody
     @PostMapping(value = "/save")
-    public Result appendInfo(@Valid ScriptUpdateForm form) throws AccountException, NoSuchScriptException {
+    public Result appendInfo(@RequestBody @Valid ScriptUpdateForm form) throws AccountException, NoSuchScriptException {
         scriptService.update(form);
         return ok();
     }
@@ -87,7 +87,7 @@ public class ScriptController extends BaseController {
     @ApiOperation(value="删除脚本", notes="")
     @ResponseBody
     @PostMapping(value = "/delete")
-    public Result delete(@Valid DeleteAllForm form) {
+    public Result delete(@RequestBody @Valid DeleteAllForm form) {
 
         scriptService.delete(form.getEntityIds());
         return ok();
@@ -97,7 +97,7 @@ public class ScriptController extends BaseController {
     @ApiOperation(value="脚本分页列表", notes="")
     @ResponseBody
     @GetMapping(value = "/page")
-    public Result page(ScriptListForm queryForm) throws NotInProjectException, AccountException {
+    public Result page(@RequestBody ScriptListForm queryForm) throws NotInProjectException, AccountException {
         PageResult<Script> scriptPageResult = scriptService.findPage(queryForm);
         List<ScriptVO> vos = buildVOs(scriptPageResult.getPages(), ScriptVO.class);
         PageResult<ScriptVO> pr = new PageResult<>(vos, scriptPageResult.getTotal());
@@ -127,7 +127,7 @@ public class ScriptController extends BaseController {
     @ApiOperation(value="脚本列表", notes="")
     @ResponseBody
     @GetMapping(value = "/list")
-    public Result list(ScriptListForm queryForm) throws NotInProjectException, AccountException {
+    public Result list(@RequestBody ScriptListForm queryForm) throws NotInProjectException, AccountException {
         List<Script> scriptList = scriptService.find(queryForm);
         List<ScriptVO> vos = buildVOs(scriptList, ScriptVO.class);
         return ok(vos);

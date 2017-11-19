@@ -1,5 +1,6 @@
 package com.testwa.distest.server.web.device.controller;
 
+import com.testwa.distest.client.rpc.proto.Agent;
 import com.testwa.distest.common.constant.Result;
 import com.testwa.distest.common.constant.ResultCode;
 import com.testwa.distest.common.constant.WebConstants;
@@ -111,9 +112,8 @@ public class DeviceController extends BaseController {
         }
     }
 
-
     @RequestMapping(value = "/receive/appiumlog", method = RequestMethod.POST, produces = "application/x-protobuf")
-    public Result appiumlog(@RequestBody com.testwa.distest.client.rpc.proto.Agent.AppiumLogFeedback message) {
+    public Result appiumlog(@RequestBody Agent.AppiumLogFeedback message) {
         String[] messageName = message.getName().split("\\\\|/");
         Path appiumPath = Paths.get(env.getProperty("appium.log.path"), messageName);
         Path appiumDir = appiumPath.getParent();

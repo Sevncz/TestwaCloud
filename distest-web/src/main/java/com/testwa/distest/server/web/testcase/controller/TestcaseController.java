@@ -44,7 +44,7 @@ public class TestcaseController extends BaseController {
 
     @ResponseBody
     @RequestMapping(value = "/save", method = RequestMethod.POST)
-    public Result save(@Valid TestcaseNewForm form) throws NoSuchProjectException, NoSuchScriptException, AccountException {
+    public Result save(@Valid @RequestBody TestcaseNewForm form) throws NoSuchProjectException, NoSuchScriptException, AccountException {
         log.info(form.toString());
         scriptValidator.validateScriptsExist(form.getScriptIds());
         projectValidator.validateProjectExist(form.getProjectId());
@@ -54,7 +54,7 @@ public class TestcaseController extends BaseController {
 
     @ResponseBody
     @PostMapping(value = "/modify")
-    public Result modify(@Valid TestcaseUpdateForm form) throws NoSuchProjectException, NoSuchScriptException, NoSuchTestcaseException{
+    public Result modify(@Valid @RequestBody TestcaseUpdateForm form) throws NoSuchProjectException, NoSuchScriptException, NoSuchTestcaseException{
         log.info(form.toString());
         scriptValidator.validateScriptsExist(form.getScriptIds());
         testcaseService.update(form);
@@ -63,7 +63,7 @@ public class TestcaseController extends BaseController {
 
     @ResponseBody
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
-    public Result delete(@Valid DeleteAllForm form) {
+    public Result delete(@Valid @RequestBody DeleteAllForm form) {
         log.info(form.toString());
         testcaseService.delete(form.getEntityIds());
         return ok();
@@ -71,7 +71,7 @@ public class TestcaseController extends BaseController {
 
     @ResponseBody
     @RequestMapping(value = "/page", method = RequestMethod.GET)
-    public Result page(TestcaseListForm pageForm) throws NotInProjectException, AccountException {
+    public Result page(@RequestBody TestcaseListForm pageForm) throws NotInProjectException, AccountException {
         log.info(pageForm.toString());
         PageResult<Testcase> testcasePR = testcaseService.findPage(pageForm);
         PageResult<TestcaseVO> pr = buildVOPageResult(testcasePR, TestcaseVO.class);
@@ -87,7 +87,7 @@ public class TestcaseController extends BaseController {
 
     @ResponseBody
     @GetMapping(value = "/list")
-    public Result list(TestcaseListForm listForm) throws NotInProjectException, AccountException {
+    public Result list(@RequestBody TestcaseListForm listForm) throws NotInProjectException, AccountException {
         List<Testcase> testcases = testcaseService.find(listForm);
         List<TestcaseVO> vos = buildVOs(testcases, TestcaseVO.class);
         return ok(vos);
