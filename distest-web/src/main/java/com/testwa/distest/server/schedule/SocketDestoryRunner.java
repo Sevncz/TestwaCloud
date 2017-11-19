@@ -1,8 +1,7 @@
 package com.testwa.distest.server.schedule;
 
 import com.corundumstudio.socketio.SocketIOServer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -10,9 +9,9 @@ import org.springframework.stereotype.Component;
 /**
  * Created by wen on 16/8/30.
  */
+@Log4j2
 @Component
 public class SocketDestoryRunner implements DisposableBean {
-    private static final Logger log = LoggerFactory.getLogger(SocketDestoryRunner.class);
 
     private final SocketIOServer server;
 

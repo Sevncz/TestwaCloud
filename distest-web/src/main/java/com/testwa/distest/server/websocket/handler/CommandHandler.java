@@ -10,6 +10,7 @@ import com.testwa.distest.common.exception.ObjectNotExistsException;
 import com.testwa.distest.server.service.cache.mgr.DeviceCacheMgr;
 import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
 import com.testwa.distest.server.websocket.service.PushCmdService;
+import lombok.extern.log4j.Log4j2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +21,9 @@ import java.util.UUID;
 /**
  * Created by wen on 2016/9/24.
  */
-
-
+@Log4j2
 @Component
 public class CommandHandler {
-    private static final Logger log = LoggerFactory.getLogger(CommandHandler.class);
-
-    private final SocketIOServer server;
 
     private final static String minitouch = "minitouch";
     private final static String minicap = "minicap";
@@ -37,11 +34,6 @@ public class CommandHandler {
     private DeviceSessionMgr deviceSessionMgr;
     @Autowired
     private PushCmdService pushCmdService;
-
-    @Autowired
-    public CommandHandler(SocketIOServer server) {
-        this.server = server;
-    }
 
     @OnEvent(value = minitouch)
     public void onMinitouch(SocketIOClient client, String data, AckRequest ackRequest) {

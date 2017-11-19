@@ -17,6 +17,7 @@ import com.testwa.distest.server.service.user.form.RegisterForm;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.auth.login.RedisLoginMgr;
 import io.swagger.annotations.Api;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,11 +38,11 @@ import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 /**
  * Created by wen on 20/10/2017.
  */
+@Log4j2
 @Api("用户账号管理相关api")
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/account")
 public class AccountController extends BaseController{
-    private static final Logger log = LoggerFactory.getLogger(AccountController.class);
 
     @Autowired
     private UserService userService;

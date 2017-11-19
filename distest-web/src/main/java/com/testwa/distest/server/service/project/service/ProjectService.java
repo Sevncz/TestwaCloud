@@ -14,9 +14,9 @@ import com.testwa.distest.server.service.project.form.ProjectListForm;
 import com.testwa.distest.server.service.project.form.ProjectUpdateForm;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.project.vo.ProjectStats;
+import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -28,10 +28,10 @@ import java.util.*;
 /**
  * Created by wen on 16/9/1.
  */
+@Log4j2
 @Service
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 public class ProjectService {
-    private static final Logger log = LoggerFactory.getLogger(ProjectService.class);
 
     @Autowired
     private IProjectDAO projectDAO;

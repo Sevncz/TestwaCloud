@@ -15,6 +15,7 @@ import com.testwa.distest.server.service.cache.mgr.DeviceCacheMgr;
 import com.testwa.distest.server.websocket.WSFuncEnum;
 import com.testwa.distest.server.web.auth.jwt.JwtTokenUtil;
 import com.testwa.distest.server.websocket.service.PushCmdService;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,7 @@ import java.util.Set;
 /**
  * Created by wen on 16/9/5.
  */
+@Log4j2
 @Component
 public class WebConnectionHandler {
 

@@ -9,6 +9,7 @@ import com.testwa.core.cmd.MiniCmd;
 import com.testwa.core.cmd.RemoteRunCommand;
 import com.testwa.distest.common.exception.ObjectNotExistsException;
 import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
+import lombok.extern.log4j.Log4j2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +18,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
+@Log4j2
 @Component
 public class PushCmdService {
-    private static final Logger log = LoggerFactory.getLogger(PushCmdService.class);
 
     @Autowired
     private DeviceSessionMgr deviceSessionMgr;

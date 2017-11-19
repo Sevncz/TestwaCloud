@@ -9,22 +9,22 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.googlecode.protobuf.format.JsonFormat;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.rpc.proto.Agent;
-import com.testwa.distest.redis.RedisCacheManager;
+import com.testwa.core.redis.RedisCacheManager;
 import com.testwa.distest.server.mvc.model.ProcedureInfo;
 import io.rpc.testwa.task.ProcedureInfoRequest;
+import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+@Log4j2
 @Component
 public class RunningLogFeedbackHandler {
-    private static final Logger log = LoggerFactory.getLogger(RunningLogFeedbackHandler.class);
 
     @Autowired
     private RedisCacheManager redisCacheMgr;

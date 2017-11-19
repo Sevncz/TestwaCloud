@@ -9,8 +9,8 @@ import com.testwa.distest.server.service.project.dao.IProjectMemberDAO;
 import com.testwa.distest.server.service.project.form.MembersModifyForm;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.auth.vo.UserVO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,10 +24,10 @@ import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 /**
  * Created by wen on 20/10/2017.
  */
+@Log4j2
 @Service
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 public class ProjectMemberService {
-    private static final Logger log = LoggerFactory.getLogger(ProjectMemberService.class);
 
     @Autowired
     private IProjectMemberDAO projectMemberDAO;
@@ -46,7 +46,6 @@ public class ProjectMemberService {
         addMember(projectId, userId, DB.ProjectRole.MEMBER);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     private void addMember(Long projectId, Long userId, DB.ProjectRole projectRole) {
         ProjectMember pm = new ProjectMember();
         pm.setMemberId(userId);

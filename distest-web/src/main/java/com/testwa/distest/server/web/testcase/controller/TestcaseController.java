@@ -16,6 +16,7 @@ import com.testwa.distest.server.web.script.validator.ScriptValidator;
 import com.testwa.distest.server.web.testcase.validator.TestcaseValidatoer;
 import com.testwa.distest.server.web.testcase.vo.TestcaseVO;
 import io.swagger.annotations.Api;
+import lombok.extern.log4j.Log4j2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +28,11 @@ import java.util.List;
 /**
  * Created by wen on 16/9/2.
  */
+@Log4j2
 @Api("测试案例相关api")
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/case")
 public class TestcaseController extends BaseController {
-    private static final Logger log = LoggerFactory.getLogger(TestcaseController.class);
-
     @Autowired
     private TestcaseService testcaseService;
     @Autowired

@@ -12,6 +12,7 @@ import com.testwa.distest.server.web.auth.jwt.JwtAuthenticationRequest;
 import com.testwa.distest.server.web.auth.jwt.JwtTokenUtil;
 import com.testwa.distest.server.web.auth.dto.JwtUser;
 import com.testwa.distest.server.web.auth.service.JwtAuthenticationResponse;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mobile.device.Device;
@@ -31,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.net.InetAddress;
 import java.util.Date;
 
+@Log4j2
 @RestController
 public class AuthenticationRestController extends BaseController {
 

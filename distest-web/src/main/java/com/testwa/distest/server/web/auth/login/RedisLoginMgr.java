@@ -1,7 +1,8 @@
 package com.testwa.distest.server.web.auth.login;
 
-import com.testwa.distest.redis.RedisCacheManager;
+import com.testwa.core.redis.RedisCacheManager;
 import com.testwa.distest.server.service.user.constant.UserConstant;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Component;
 /**
  * Created by wen on 20/10/2017.
  */
+@Log4j2
 @Component
 public class RedisLoginMgr {
 

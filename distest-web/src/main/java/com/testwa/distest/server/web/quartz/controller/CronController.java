@@ -5,6 +5,7 @@ import com.testwa.distest.common.constant.WebConstants;
 import com.testwa.distest.common.controller.BaseController;
 import com.testwa.distest.server.quartz.model.ScheduleJob;
 import com.testwa.distest.server.quartz.service.SchedulerService;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+@Log4j2
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/cron")
 public class CronController extends BaseController {

@@ -30,7 +30,11 @@
 		</dependency>
 		<dependency>
 			<groupId>com.testwa</groupId>
-			<artifactId>distest-core</artifactId>
+			<artifactId>distest-core-common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.testwa</groupId>
+			<artifactId>distest-core-haredis</artifactId>
 		</dependency>
 
 		<dependency>
@@ -78,6 +82,10 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-log4j2</artifactId>
 		</dependency>
+		<dependency>  <!-- 加上这个才能辨认到log4j2.yml文件 -->
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-yaml</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-mobile</artifactId>
@@ -122,10 +130,10 @@
 			<version>1.7.12</version>
 		</dependency>
 
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-		</dependency>
+		<!--<dependency>-->
+			<!--<groupId>commons-io</groupId>-->
+			<!--<artifactId>commons-io</artifactId>-->
+		<!--</dependency>-->
 
         <dependency>
             <groupId>com.github.cosysoft</groupId>
@@ -252,15 +260,15 @@
 		<!--</dependency>-->
 
 
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-pool2</artifactId>
-		</dependency>
+		<!--<dependency>-->
+			<!--<groupId>org.apache.commons</groupId>-->
+			<!--<artifactId>commons-pool2</artifactId>-->
+		<!--</dependency>-->
 
-		<dependency>
-			<groupId>redis.clients</groupId>
-			<artifactId>jedis</artifactId>
-		</dependency>
+		<!--<dependency>-->
+			<!--<groupId>redis.clients</groupId>-->
+			<!--<artifactId>jedis</artifactId>-->
+		<!--</dependency>-->
 
 	</dependencies>
 

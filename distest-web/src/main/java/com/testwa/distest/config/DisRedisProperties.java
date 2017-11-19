@@ -15,7 +15,6 @@ import java.util.List;
  */
 @Data
 @Configuration
-//@PropertySource("classpath:redis-config.yml")
 @ConfigurationProperties(prefix = "dis-redis")
 public class DisRedisProperties {
 

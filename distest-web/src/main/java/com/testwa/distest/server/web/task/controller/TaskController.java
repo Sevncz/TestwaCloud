@@ -18,6 +18,7 @@ import com.testwa.distest.server.web.task.validator.TaskSceneValidatoer;
 import com.testwa.distest.server.web.task.vo.TaskProgressVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +27,7 @@ import java.util.List;
 /**
  * Created by wen on 24/10/2017.
  */
+@Log4j2
 @Api("任务部署相关api")
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/task")

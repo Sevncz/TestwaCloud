@@ -13,8 +13,7 @@ import com.testwa.distest.server.mvc.beans.PageResult;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.user.dao.IUserDAO;
 import com.testwa.distest.server.service.user.form.RegisterForm;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,10 +22,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
+@Slf4j
 @Service
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 public class UserService {
-    private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
     private IUserDAO userDAO;

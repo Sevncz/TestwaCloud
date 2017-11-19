@@ -17,6 +17,7 @@ import com.testwa.distest.server.web.app.vo.AppVO;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.log4j.Log4j2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,12 +31,11 @@ import java.util.List;
 /**
  * Created by wen on 20/10/2017.
  */
+@Log4j2
 @Api("应用操作相关api")
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/app")
 public class AppController extends BaseController {
-
-    private static final Logger log = LoggerFactory.getLogger(AppController.class);
 
     @Autowired
     private AppService appService;

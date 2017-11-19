@@ -18,6 +18,7 @@ import com.testwa.distest.server.web.task.vo.TaskSceneVO;
 import com.testwa.distest.server.web.testcase.validator.TestcaseValidatoer;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.log4j.Log4j2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +29,11 @@ import javax.validation.Valid;
 /**
  * Created by wen on 24/10/2017.
  */
+@Log4j2
 @Api("任务管理相关api")
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/task/scene")
 public class TaskSceneController extends BaseController {
-    private static final Logger log = LoggerFactory.getLogger(TaskSceneController.class);
-
     @Autowired
     private TaskSceneService taskSceneService;
     @Autowired

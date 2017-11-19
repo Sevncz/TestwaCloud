@@ -17,6 +17,8 @@ import com.testwa.distest.server.service.testcase.service.TestcaseService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.task.vo.TaskSceneVO;
 import com.testwa.distest.server.web.testcase.vo.TestcaseVO;
+import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,10 +32,10 @@ import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 /**
  * Created by wen on 24/10/2017.
  */
+@Log4j2
 @Service
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 public class TaskSceneService {
-
 
     @Autowired
     private ITaskSceneDAO taskSceneDAO;

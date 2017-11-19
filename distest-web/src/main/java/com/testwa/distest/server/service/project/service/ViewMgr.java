@@ -1,8 +1,9 @@
 package com.testwa.distest.server.service.project.service;
 
 import com.testwa.distest.common.util.WebUtil;
-import com.testwa.distest.redis.RedisCacheManager;
+import com.testwa.core.redis.RedisCacheManager;
 import com.testwa.distest.server.entity.Project;
+import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,7 +16,7 @@ import java.util.List;
 /**
  * Created by wen on 24/06/2017.
  */
-@Slf4j
+@Log4j2
 @Service
 public class ViewMgr {
 

@@ -10,6 +10,7 @@ import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.service.user.service.UserService;
 import io.swagger.annotations.Api;
+import lombok.extern.log4j.Log4j2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,12 +30,11 @@ import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 /**
  * Created by wen on 7/30/16.
  */
+@Log4j2
 @Api("设备相关api")
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/device")
 public class DeviceController extends BaseController {
-    private static final Logger log = LoggerFactory.getLogger(DeviceController.class);
-
     @Autowired
     private ProjectService projectService;
     @Autowired

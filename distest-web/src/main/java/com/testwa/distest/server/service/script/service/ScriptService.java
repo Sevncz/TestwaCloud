@@ -6,22 +6,17 @@ import com.testwa.core.utils.IOUtil;
 import com.testwa.core.utils.Identities;
 import com.testwa.core.utils.PinYinTool;
 import com.testwa.distest.common.enums.DB;
-import com.testwa.distest.common.exception.AccountException;
 import com.testwa.distest.server.entity.Project;
 import com.testwa.distest.server.mvc.beans.PageResult;
 import com.testwa.distest.server.entity.Script;
 import com.testwa.distest.server.entity.User;
-import com.testwa.distest.server.service.app.form.AppListForm;
-import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.service.script.dao.IScriptDAO;
 import com.testwa.distest.server.service.script.form.ScriptListForm;
 import com.testwa.distest.server.service.script.form.ScriptNewForm;
 import com.testwa.distest.server.service.script.form.ScriptUpdateForm;
 import com.testwa.distest.server.service.user.service.UserService;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -47,10 +42,10 @@ import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 /**
  * Created by wen on 21/10/2017.
  */
+@Log4j2
 @Service
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 public class ScriptService {
-    private static final Logger log = LoggerFactory.getLogger(ScriptService.class);
 
     @Autowired
     private IScriptDAO scriptDAO;

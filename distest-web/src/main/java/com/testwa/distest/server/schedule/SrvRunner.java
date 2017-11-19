@@ -2,10 +2,12 @@ package com.testwa.distest.server.schedule;
 
 import com.corundumstudio.socketio.SocketIOServer;
 import io.netty.util.concurrent.Future;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+@Log4j2
 @Component
 public class SrvRunner implements CommandLineRunner {
 

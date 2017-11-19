@@ -7,6 +7,7 @@ import com.corundumstudio.socketio.annotation.OnEvent;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.rpc.proto.Agent;
+import lombok.extern.log4j.Log4j2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +16,7 @@ import org.springframework.stereotype.Component;
 /**
  * Created by wen on 2016/9/24.
  */
-
-
+@Log4j2
 @Component
 public class ReportSdetailFeedbackHandler {
     private static final Logger log = LoggerFactory.getLogger(ReportSdetailFeedbackHandler.class);

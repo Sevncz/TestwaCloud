@@ -2,12 +2,11 @@ package com.testwa.distest.server.schedule;
 
 import com.corundumstudio.socketio.SocketIOServer;
 import com.testwa.core.WebsocketEvent;
-import com.testwa.distest.redis.RedisCacheManager;
+import com.testwa.core.redis.RedisCacheManager;
 import com.testwa.distest.server.mvc.model.ProcedureInfo;
 import com.testwa.distest.server.service.cache.mgr.DeviceCacheMgr;
+import lombok.extern.log4j.Log4j2;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -21,9 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Log4j2
 @Component
 public class TestwaScheduledRunner {
-    private static final Logger log = LoggerFactory.getLogger(TestwaScheduledRunner.class);
     private ObjectMapper mapper = new ObjectMapper();
     @Autowired
     private RedisCacheManager redisCacheManager;

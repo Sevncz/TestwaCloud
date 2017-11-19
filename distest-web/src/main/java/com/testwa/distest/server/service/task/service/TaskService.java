@@ -4,6 +4,8 @@ import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.mvc.model.ProcedureStatis;
 import com.testwa.distest.server.service.task.dao.ITaskDAO;
+import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -14,6 +16,7 @@ import java.util.*;
 /**
  * Created by wen on 24/10/2017.
  */
+@Log4j2
 @Service
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 public class TaskService {

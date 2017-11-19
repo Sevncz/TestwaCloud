@@ -16,6 +16,7 @@ import com.testwa.distest.server.web.script.validator.ScriptValidator;
 import com.testwa.distest.server.web.script.vo.ScriptVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.log4j.Log4j2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -30,12 +31,11 @@ import java.util.*;
 /**
  * Created by wen on 16/9/2.
  */
+@Log4j2
 @Api("脚本相关api")
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/script")
 public class ScriptController extends BaseController {
-    private static final Logger log = LoggerFactory.getLogger(ScriptController.class);
-
     @Autowired
     private ScriptService scriptService;
     @Autowired
