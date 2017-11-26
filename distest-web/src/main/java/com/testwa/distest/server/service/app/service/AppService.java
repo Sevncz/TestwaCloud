@@ -2,13 +2,11 @@ package com.testwa.distest.server.service.app.service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.utils.*;
 import com.testwa.distest.common.android.TestwaAndroidApp;
 import com.testwa.distest.common.enums.DB;
-import com.testwa.distest.common.exception.AccountException;
-import com.testwa.distest.common.exception.ParamsIsNullException;
 import com.testwa.distest.config.DisFileProperties;
-import com.testwa.distest.server.mvc.beans.PageResult;
 import com.testwa.distest.server.entity.App;
 import com.testwa.distest.server.entity.Project;
 import com.testwa.distest.server.entity.User;
@@ -38,6 +36,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.*;
 
 import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
+
 
 /**
  * Created by wen on 16/9/1.
@@ -193,7 +192,7 @@ public class AppService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public App upload(MultipartFile uploadfile) throws IOException, AccountException {
+    public App upload(MultipartFile uploadfile) throws IOException{
         return upload(uploadfile, null);
     }
 
@@ -257,10 +256,7 @@ public class AppService {
      * @param queryForm
      * @return
      */
-    public PageResult<App> findPageForCurrentUser(AppListForm queryForm) throws ParamsIsNullException {
-        if(queryForm.getProjectId() == null){
-            throw new ParamsIsNullException("项目Id不能为空");
-        }
+    public PageResult<App> findPageForCurrentUser(AppListForm queryForm){
         //分页处理
         Map<String, Object> params = buildProjectParamsForCurrentUser(queryForm);
         PageHelper.startPage(queryForm.getPageNo(), queryForm.getPageSize());

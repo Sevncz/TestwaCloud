@@ -1,7 +1,7 @@
 package com.testwa.distest.server.web.app.controller;
 
-import com.testwa.distest.common.constant.WebConstants;
-import com.testwa.distest.common.controller.BaseController;
+import com.testwa.core.base.constant.WebConstants;
+import com.testwa.core.base.controller.BaseController;
 import io.swagger.annotations.Api;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.RequestMapping;

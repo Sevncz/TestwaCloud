@@ -1,9 +1,10 @@
 package com.testwa.distest.server.service.user.dao.impl;
 
-import com.testwa.distest.common.dao.impl.BaseDAO;
+import com.testwa.core.base.dao.impl.BaseDAO;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.mapper.UserMapper;
 import com.testwa.distest.server.service.user.dao.IUserDAO;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;

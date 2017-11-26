@@ -9,7 +9,7 @@
         <result column="activity" property="activity" jdbcType="VARCHAR" />
         <result column="sdkVersion" property="sdkVersion" jdbcType="VARCHAR" />
         <result column="targetSdkVersion" property="targetSdkVersion" jdbcType="VARCHAR" />
-        <result column="osType" property="osType" jdbcType="TINYINT" typeHandler="com.testwa.distest.common.mybatis.EnumValueHandler"/>
+        <result column="osType" property="osType" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
         <result column="version" property="version" jdbcType="VARCHAR" />
         <result column="path" property="path" jdbcType="VARCHAR" />
         <result column="projectId" property="projectId" jdbcType="BIGINT" />

@@ -1,7 +1,7 @@
 package com.testwa.distest.common.enums;
 
 
-import com.testwa.core.common.enums.ValueEnum;
+import com.testwa.core.base.enums.ValueEnum;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;

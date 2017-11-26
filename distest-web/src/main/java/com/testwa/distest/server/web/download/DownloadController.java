@@ -1,6 +1,6 @@
 package com.testwa.distest.server.web.download;
 
-import com.testwa.distest.common.controller.BaseController;
+import com.testwa.core.base.controller.BaseController;
 import com.testwa.distest.server.entity.App;
 import com.testwa.distest.server.entity.Script;
 import com.testwa.distest.server.service.app.service.AppService;
@@ -30,7 +30,7 @@ import java.nio.file.Paths;
 @Api("下载相关api")
 @RestController
 @RequestMapping(path = "download")
-public class DownloadController extends BaseController{
+public class DownloadController extends BaseController {
 
     @Autowired
     private AppService appService;

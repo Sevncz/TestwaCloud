@@ -1,11 +1,11 @@
 package com.testwa.distest.server.web.task.controller;
 
+import com.testwa.core.base.controller.BaseController;
+import com.testwa.core.base.exception.ObjectNotExistsException;
+import com.testwa.core.base.vo.Result;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.core.cmd.RemoteRunCommand;
-import com.testwa.distest.common.constant.Result;
-import com.testwa.distest.common.constant.WebConstants;
-import com.testwa.distest.common.controller.BaseController;
-import com.testwa.distest.common.exception.ObjectNotExistsException;
+import com.testwa.core.base.constant.WebConstants;
 import com.testwa.distest.server.service.task.form.TaskStartForm;
 import com.testwa.distest.server.service.task.form.TaskStopForm;
 import com.testwa.distest.server.service.task.form.TaskStartByTestcaseForm;
@@ -31,7 +31,7 @@ import java.util.List;
 @Api("任务部署相关api")
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/task")
-public class TaskController extends BaseController{
+public class TaskController extends BaseController {
 
     @Autowired
     private ExecuteMgr executeMgr;

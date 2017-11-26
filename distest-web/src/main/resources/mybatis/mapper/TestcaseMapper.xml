@@ -6,7 +6,7 @@
         <result column="tag" property="tag" jdbcType="VARCHAR" />
         <result column="caseName" property="caseName" jdbcType="VARCHAR" />
         <result column="projectId" property="projectId" jdbcType="BIGINT" />
-        <result column="exeMode" property="exeMode" jdbcType="TINYINT" typeHandler="com.testwa.distest.common.mybatis.EnumValueHandler"/>
+        <result column="exeMode" property="exeMode" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
         <result column="description" property="description" jdbcType="VARCHAR" />
         <result column="updateTime" property="updateTime" jdbcType="DATE" javaType="java.util.Date"/>
         <result column="createTime" property="createTime" jdbcType="DATE" javaType="java.util.Date"/>

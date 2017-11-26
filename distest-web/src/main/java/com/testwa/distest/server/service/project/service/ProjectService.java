@@ -2,9 +2,9 @@ package com.testwa.distest.server.service.project.service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.testwa.distest.common.exception.*;
+import com.testwa.core.base.exception.*;
 import com.testwa.distest.common.util.WebUtil;
-import com.testwa.distest.server.mvc.beans.PageResult;
+import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.server.entity.Project;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.project.dao.IProjectDAO;
@@ -117,7 +117,7 @@ public class ProjectService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public Project save(ProjectNewForm form) throws AccountNotFoundException, AccountException, AuthorizedException, AccountAlreadyExistException, NoSuchProjectException, ParamsException {
+    public Project save(ProjectNewForm form) throws AccountNotFoundException, AuthorizedException, ParamsException {
 
         User currentUser = userService.findByUsername(WebUtil.getCurrentUsername());
 
@@ -136,7 +136,7 @@ public class ProjectService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public Project update(ProjectUpdateForm form) throws AccountNotFoundException, AccountException, NoSuchProjectException, AuthorizedException, ParamsException, AccountAlreadyExistException {
+    public Project update(ProjectUpdateForm form) throws AuthorizedException, ParamsException {
 
         User currentUser = userService.findByUsername(WebUtil.getCurrentUsername());
         Project project = projectDAO.findOne(form.getProjectId());

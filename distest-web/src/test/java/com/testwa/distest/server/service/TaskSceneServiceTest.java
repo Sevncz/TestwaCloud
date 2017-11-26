@@ -2,7 +2,7 @@ package com.testwa.distest.server.service;
 
 
 import com.testwa.distest.WebServerApplication;
-import com.testwa.distest.common.form.RequestListBase;
+import com.testwa.core.base.form.RequestListBase;
 import com.testwa.distest.server.service.task.form.TaskSceneListForm;
 import com.testwa.distest.server.service.task.form.TaskSceneNewForm;
 import com.testwa.distest.server.service.task.form.TaskSceneUpdateForm;

@@ -6,7 +6,7 @@
         <result column="projectId" property="projectId" jdbcType="BIGINT" />
         <result column="memberId" property="memberId" jdbcType="BIGINT" />
         <result column="inviteBy" property="inviteBy" jdbcType="BIGINT" />
-        <result column="projectRole" property="projectRole"  jdbcType="TINYINT" typeHandler="com.testwa.distest.common.mybatis.EnumValueHandler"/>
+        <result column="projectRole" property="projectRole"  jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
         <result column="createTime" property="createTime" jdbcType="DATE" javaType="java.util.Date"/>
 
     </resultMap>
@@ -16,7 +16,7 @@
         <result column="password" property="password" jdbcType="VARCHAR" />
         <result column="phone" property="phone" jdbcType="VARCHAR" />
         <result column="email" property="email" jdbcType="VARCHAR" />
-        <result column="sex" property="sex" jdbcType="TINYINT" typeHandler="com.testwa.distest.common.mybatis.EnumValueHandler"/>
+        <result column="sex" property="sex" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
         <result column="nickname" property="nickname" jdbcType="VARCHAR" />
         <result column="address" property="address" jdbcType="VARCHAR" />
         <result column="country" property="country" jdbcType="VARCHAR" />

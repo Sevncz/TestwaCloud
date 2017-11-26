@@ -1,7 +1,7 @@
 package com.testwa.distest.server.service.project.service;
 
 import com.testwa.distest.common.enums.DB;
-import com.testwa.distest.common.exception.*;
+import com.testwa.core.base.exception.*;
 import com.testwa.distest.server.entity.Project;
 import com.testwa.distest.server.entity.ProjectMember;
 import com.testwa.distest.server.entity.User;
@@ -62,7 +62,7 @@ public class ProjectMemberService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
-    public void addMembers(MembersModifyForm form) throws NoSuchProjectException, AccountAlreadyExistException, AccountException, AuthorizedException, ParamsException {
+    public void addMembers(MembersModifyForm form) throws AuthorizedException, ParamsException {
 
         Project project = projectService.findOne(form.getProjectId());
 
@@ -99,7 +99,7 @@ public class ProjectMemberService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
-    public void delMembers(MembersModifyForm form) throws NoSuchProjectException {
+    public void delMembers(MembersModifyForm form) {
 
         Project project = projectService.findOne(form.getProjectId());
         List<User> members = userService.findByUsernames(form.getUsernames());
@@ -111,7 +111,7 @@ public class ProjectMemberService {
         projectMemberDAO.deleteMembersFromProject(project.getId(), memberIds);
     }
 
-    public List<User> findAllMembers(Long projectId) throws NoSuchProjectException {
+    public List<User> findAllMembers(Long projectId){
 
         Project project = projectService.findOne(projectId);
         return projectMemberDAO.findMembersFromProject(project.getId());

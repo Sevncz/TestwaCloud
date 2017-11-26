@@ -49,9 +49,50 @@ Configuration:
         AppenderRef:
           - ref: CONSOLE
           - ref: ROLLING_FILE
-      - name: org.springframework
+      - name: com.ibatis.common.jdbc.SimpleDataSource
         additivity: false
-        level: ${sys:log.level.distest}
+        level: debug
+        AppenderRef:
+          - ref: CONSOLE
+          - ref: ROLLING_FILE
+      - name: com.ibatis.common.jdbc.ScriptRunner
+        additivity: false
+        level: debug
+        AppenderRef:
+          - ref: CONSOLE
+          - ref: ROLLING_FILE
+      - name: com.ibatis.sqlmap.engine.impl.SqlMapClientDelegate
+        additivity: false
+        level: debug
+        AppenderRef:
+          - ref: CONSOLE
+          - ref: ROLLING_FILE
+      - name: java.sql.Connection
+        additivity: true
+        level: debug
+        AppenderRef:
+          - ref: CONSOLE
+          - ref: ROLLING_FILE
+      - name: java.sql.Statement
+        additivity: true
+        level: debug
+        AppenderRef:
+          - ref: CONSOLE
+          - ref: ROLLING_FILE
+      - name: java.sql.PreparedStatement
+        additivity: true
+        level: debug
+        AppenderRef:
+          - ref: CONSOLE
+          - ref: ROLLING_FILE
+      - name: java.sql.ResultSet
+        additivity: true
+        level: debug
+        AppenderRef:
+          - ref: CONSOLE
+          - ref: ROLLING_FILE
+      - name: org.springframework
+        level: error
         AppenderRef:
           - ref: CONSOLE
           - ref: ROLLING_FILE
@@ -62,6 +103,12 @@ Configuration:
           - ref: CONSOLE
           - ref: ROLLING_FILE
       - name: com.testwa.distest
+        additivity: false
+        level: ${sys:log.level.distest}
+        AppenderRef:
+          - ref: CONSOLE
+          - ref: ROLLING_FILE
+      - name: com.testwa.core
         additivity: false
         level: ${sys:log.level.distest}
         AppenderRef:

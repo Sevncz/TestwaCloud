@@ -1,6 +1,6 @@
 package com.testwa.distest.server.service.project.dao.impl;
 
-import com.testwa.distest.common.dao.impl.BaseDAO;
+import com.testwa.core.base.dao.impl.BaseDAO;
 import com.testwa.distest.server.entity.ProjectMember;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.mapper.ProjectMemberMapper;

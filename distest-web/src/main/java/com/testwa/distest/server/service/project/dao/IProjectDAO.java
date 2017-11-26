@@ -1,6 +1,6 @@
 package com.testwa.distest.server.service.project.dao;
 
-import com.testwa.distest.common.dao.IBaseDAO;
+import com.testwa.core.base.dao.IBaseDAO;
 import com.testwa.distest.server.entity.Project;
 import org.apache.ibatis.annotations.Param;
 

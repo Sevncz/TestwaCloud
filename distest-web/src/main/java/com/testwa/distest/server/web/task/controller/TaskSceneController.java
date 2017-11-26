@@ -1,12 +1,12 @@
 package com.testwa.distest.server.web.task.controller;
 
+import com.testwa.core.base.controller.BaseController;
+import com.testwa.core.base.exception.ObjectNotExistsException;
+import com.testwa.core.base.vo.Result;
 import com.testwa.distest.server.entity.TaskScene;
-import com.testwa.distest.common.constant.Result;
-import com.testwa.distest.common.constant.WebConstants;
-import com.testwa.distest.common.controller.BaseController;
-import com.testwa.distest.common.exception.ObjectNotExistsException;
-import com.testwa.distest.common.form.DeleteAllForm;
-import com.testwa.distest.server.mvc.beans.PageResult;
+import com.testwa.core.base.constant.WebConstants;
+import com.testwa.core.base.form.DeleteAllForm;
+import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.server.service.task.form.TaskSceneListForm;
 import com.testwa.distest.server.service.task.form.TaskSceneNewForm;
 import com.testwa.distest.server.service.task.form.TaskSceneUpdateForm;

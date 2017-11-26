@@ -1,6 +1,6 @@
 package com.testwa.distest.server.web.auth.validator;
 
-import com.testwa.distest.common.exception.AccountException;
+import com.testwa.core.base.exception.AccountException;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.user.service.UserService;

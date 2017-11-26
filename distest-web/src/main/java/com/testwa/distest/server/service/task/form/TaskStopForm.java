@@ -1,6 +1,6 @@
 package com.testwa.distest.server.service.task.form;
 
-import com.testwa.distest.common.form.RequestFormBase;
+import com.testwa.core.base.form.RequestFormBase;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotEmpty;

@@ -1,12 +1,11 @@
 package com.testwa.distest.server.web.device.controller;
 
+import com.testwa.core.base.constant.ResultCode;
+import com.testwa.core.base.constant.WebConstants;
+import com.testwa.core.base.controller.BaseController;
+import com.testwa.core.base.exception.AccountException;
+import com.testwa.core.base.vo.Result;
 import com.testwa.distest.client.rpc.proto.Agent;
-import com.testwa.distest.common.constant.Result;
-import com.testwa.distest.common.constant.ResultCode;
-import com.testwa.distest.common.constant.WebConstants;
-import com.testwa.distest.common.controller.BaseController;
-import com.testwa.distest.common.exception.AccountException;
-import com.testwa.distest.common.exception.NotInProjectException;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.service.user.service.UserService;
@@ -47,11 +46,10 @@ public class DeviceController extends BaseController {
      * 项目内可用在线设备列表
      * @param projectId
      * @return
-     * @throws NotInProjectException
      */
     @ResponseBody
     @RequestMapping(value = "/project/list", method = RequestMethod.GET)
-    public Result listProject(@RequestParam String projectId) throws NotInProjectException, AccountException {
+    public Result listProject(@RequestParam String projectId){
         User user = userService.findByUsername(getCurrentUsername());
 //        checkUserInProject(projectService, auth, projectId);
 //        List<DeviceAndroid> deviceList = deviceService.getDeviceByUserAndProject(auth.getId(),projectId);
@@ -63,7 +61,6 @@ public class DeviceController extends BaseController {
      * 项目内可用在线设备列表 带过滤
      * @param
      * @return
-     * @throws NotInProjectException
      */
 //    @ResponseBody
 //    @RequestMapping(value = "/project/list", method = RequestMethod.POST)
@@ -78,7 +75,7 @@ public class DeviceController extends BaseController {
 
     @ResponseBody
     @RequestMapping(value = "/user/list", method = RequestMethod.GET)
-    public Result listUser() throws NotInProjectException, AccountException {
+    public Result listUser() {
         User user = userService.findByUsername(getCurrentUsername());
 //        List<UserDeviceHis> devices = userDeviceHisService.getUserDevice(auth);
 //        return ok(devices);

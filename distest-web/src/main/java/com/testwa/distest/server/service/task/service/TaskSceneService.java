@@ -4,7 +4,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.util.WebUtil;
-import com.testwa.distest.server.mvc.beans.PageResult;
+import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.project.service.ProjectService;

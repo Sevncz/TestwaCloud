@@ -1,8 +1,8 @@
 package com.testwa.distest.server.entity;
 
 import com.alibaba.fastjson.JSON;
-import com.testwa.core.common.annotation.TableName;
-import com.testwa.core.common.bo.BaseEntity;
+import com.testwa.core.base.annotation.TableName;
+import com.testwa.core.base.bo.BaseEntity;
 import com.testwa.distest.common.enums.DB;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;

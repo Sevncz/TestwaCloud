@@ -2,9 +2,11 @@ package com.testwa.distest.server.mapper;
 
 import java.util.List;
 
-import com.testwa.distest.common.mapper.BaseMapper;
+import com.testwa.core.base.mapper.BaseMapper;
 import com.testwa.distest.server.entity.User;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface UserMapper extends BaseMapper<User, Long> {
 
 	List<User> findBy(User user);

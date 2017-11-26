@@ -1,6 +1,6 @@
 package com.testwa.distest.server.service.app.dao.impl;
 
-import com.testwa.distest.common.dao.impl.BaseDAO;
+import com.testwa.core.base.dao.impl.BaseDAO;
 import com.testwa.distest.server.entity.App;
 import com.testwa.distest.server.mapper.AppMapper;
 import com.testwa.distest.server.service.app.dao.IAppDAO;

@@ -1,12 +1,12 @@
 package com.testwa.distest.server.web.app.controller;
 
-import com.testwa.distest.common.constant.Result;
-import com.testwa.distest.common.constant.WebConstants;
-import com.testwa.distest.common.controller.BaseController;
-import com.testwa.distest.common.exception.*;
-import com.testwa.distest.common.form.DeleteAllForm;
+import com.testwa.core.base.vo.Result;
+import com.testwa.core.base.constant.WebConstants;
+import com.testwa.core.base.controller.BaseController;
+import com.testwa.core.base.exception.*;
+import com.testwa.core.base.form.DeleteAllForm;
+import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.common.validator.FileUploadValidator;
-import com.testwa.distest.server.mvc.beans.PageResult;
 import com.testwa.distest.server.entity.App;
 import com.testwa.distest.server.service.app.form.AppListForm;
 import com.testwa.distest.server.service.app.form.AppNewForm;
@@ -18,8 +18,6 @@ import com.testwa.distest.server.web.project.validator.ProjectValidator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.log4j.Log4j2;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,7 +47,7 @@ public class AppController extends BaseController {
     @ApiOperation(value="上传应用", notes="一次性提交app的信息")
     @ResponseBody
     @PostMapping(value = "/save")
-    public Result uploadFile(@Valid @RequestBody AppNewForm form, @RequestParam("appfile") MultipartFile file) throws AccountException, NoSuchAppException, NoSuchProjectException, ParamsIsNullException, ParamsFormatException, IOException {
+    public Result uploadFile(@Valid @RequestBody AppNewForm form, @RequestParam("appfile") MultipartFile file) throws ParamsIsNullException, ParamsFormatException, IOException {
         log.info(form.toString());
         //
         // 校验
@@ -82,7 +80,7 @@ public class AppController extends BaseController {
     @ApiOperation(value="更新应用信息", notes="在upload之后调用，用于补充app的信息")
     @ResponseBody
     @PostMapping(value = "/append")
-    public Result appendInfo(@Valid @RequestBody AppUpdateForm form) throws AccountException, NoSuchAppException, NoSuchProjectException {
+    public Result appendInfo(@Valid @RequestBody AppUpdateForm form) throws ObjectNotExistsException {
 
         projectValidator.validateProjectExist(form.getProjectId());
         appService.update(form);

@@ -1,6 +1,6 @@
 package com.testwa.distest.server.web.app.validator;
 
-import com.testwa.distest.common.exception.NoSuchProjectException;
+import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.distest.server.entity.App;
 import com.testwa.distest.server.service.app.service.AppService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,17 +17,17 @@ public class AppValidator {
     @Autowired
     private AppService appService;
 
-    public void validateAppsExist(List<Long> entityIds) throws NoSuchProjectException {
+    public void validateAppsExist(List<Long> entityIds) throws ObjectNotExistsException {
         List<App> entityList = appService.findAll(entityIds);
         if(entityList == null || entityList.size() != entityIds.size()){
-            throw new NoSuchProjectException("App不存在");
+            throw new ObjectNotExistsException("App不存在");
         }
     }
 
-    public void validateAppExist(Long entityId) throws NoSuchProjectException {
+    public void validateAppExist(Long entityId) throws ObjectNotExistsException {
         App entity = appService.findOne(entityId);
         if(entity == null){
-            throw new NoSuchProjectException("App不存在");
+            throw new ObjectNotExistsException("App不存在");
         }
     }
 

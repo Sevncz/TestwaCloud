@@ -13,6 +13,6 @@
         <typeAlias alias="LinkedList" type="java.util.LinkedList" />
     </typeAliases>
     <plugins>
-        <plugin interceptor="com.testwa.distest.common.mybatis.GenericEntityResultSetHandlerInterceptor"/>
+        <plugin interceptor="com.testwa.core.base.mybatis.GenericEntityResultSetHandlerInterceptor"/>
     </plugins>
 </configuration>

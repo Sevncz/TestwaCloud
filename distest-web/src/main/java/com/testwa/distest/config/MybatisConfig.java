@@ -22,9 +22,8 @@ import javax.sql.DataSource;
 @Configuration
 @EnableTransactionManagement
 @AutoConfigureAfter({DataConfig.class})
-@MapperScan(basePackages = {"com.testwa.distest.server.mapper", "com.testwa.distest.common.mapper"})
+@MapperScan(basePackages = {"com.testwa.distest.server.mapper", "com.testwa.core.base.mapper"})
 public class MybatisConfig implements EnvironmentAware {
-
 
     @Autowired
     DataSource dataSource;

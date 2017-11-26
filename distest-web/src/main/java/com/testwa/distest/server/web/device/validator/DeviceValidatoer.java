@@ -1,6 +1,6 @@
 package com.testwa.distest.server.web.device.validator;
 
-import com.testwa.distest.common.exception.ObjectNotExistsException;
+import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.distest.server.entity.DeviceBase;
 import com.testwa.distest.server.service.cache.mgr.DeviceCacheMgr;
 import org.springframework.beans.factory.annotation.Autowired;

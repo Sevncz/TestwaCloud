@@ -1,6 +1,6 @@
 package com.testwa.distest.server.web.testcase.validator;
 
-import com.testwa.distest.common.exception.ObjectNotExistsException;
+import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.distest.server.entity.Testcase;
 import com.testwa.distest.server.service.testcase.service.TestcaseService;
 import org.springframework.beans.factory.annotation.Autowired;

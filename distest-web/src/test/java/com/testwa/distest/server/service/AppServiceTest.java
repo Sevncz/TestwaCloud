@@ -1,9 +1,9 @@
 package com.testwa.distest.server.service;
 
 
+import com.testwa.core.base.exception.ParamsIsNullException;
 import com.testwa.distest.WebServerApplication;
-import com.testwa.distest.common.exception.ParamsIsNullException;
-import com.testwa.distest.common.form.RequestListBase;
+import com.testwa.core.base.form.RequestListBase;
 import com.testwa.distest.server.entity.App;
 import com.testwa.distest.server.service.app.form.AppListForm;
 import com.testwa.distest.server.service.app.form.AppNewForm;
@@ -11,6 +11,7 @@ import com.testwa.distest.server.service.app.form.AppUpdateForm;
 import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.web.app.vo.AppVO;
+import lombok.extern.log4j.Log4j2;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+@Log4j2
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = WebServerApplication.class)
 public class AppServiceTest {
@@ -75,8 +77,9 @@ public class AppServiceTest {
 
     @Test
     public void testFindAll(){
-        List<Long> ids = Arrays.asList(1l, 2l, 3l);
-        appService.findAll(ids);
+        List<Long> ids = Arrays.asList(4l,5l);
+        List<App> apps = appService.findAll(ids);
+        log.info(apps.size());
     }
     @Test
     public void testFindPage(){

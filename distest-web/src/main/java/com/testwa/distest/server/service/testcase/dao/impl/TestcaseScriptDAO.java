@@ -1,6 +1,6 @@
 package com.testwa.distest.server.service.testcase.dao.impl;
 
-import com.testwa.distest.common.dao.impl.BaseDAO;
+import com.testwa.core.base.dao.impl.BaseDAO;
 import com.testwa.distest.server.entity.TestcaseScript;
 import com.testwa.distest.server.mapper.TestcaseScriptMapper;
 import com.testwa.distest.server.service.testcase.dao.ITestcaseScriptDAO;

@@ -1,7 +1,7 @@
 package com.testwa.distest.server.service;
 
 import com.testwa.distest.WebServerApplication;
-import com.testwa.distest.common.form.RequestListBase;
+import com.testwa.core.base.form.RequestListBase;
 import com.testwa.distest.server.entity.Testcase;
 import com.testwa.distest.server.service.testcase.form.TestcaseListForm;
 import com.testwa.distest.server.service.testcase.form.TestcaseNewForm;

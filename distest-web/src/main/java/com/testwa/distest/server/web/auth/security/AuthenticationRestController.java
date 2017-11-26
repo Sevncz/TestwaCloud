@@ -1,11 +1,9 @@
 package com.testwa.distest.server.web.auth.security;
 
 import com.google.common.net.InetAddresses;
-import com.testwa.distest.common.controller.BaseController;
-import com.testwa.distest.common.exception.AccountAlreadyExistException;
-import com.testwa.distest.common.exception.AccountException;
-import com.testwa.distest.common.constant.Result;
-import com.testwa.distest.common.constant.ResultCode;
+import com.testwa.core.base.constant.ResultCode;
+import com.testwa.core.base.controller.BaseController;
+import com.testwa.core.base.vo.Result;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.auth.jwt.JwtAuthenticationRequest;
@@ -56,7 +54,7 @@ public class AuthenticationRestController extends BaseController {
     @RequestMapping(value = "${jwt.route.authentication.path}", method = RequestMethod.POST)
     public Result createAuthenticationToken(HttpServletRequest httpServletRequest,
                                             @RequestBody JwtAuthenticationRequest authenticationRequest,
-                                            Device device) throws AuthenticationException, AccountException, AccountAlreadyExistException {
+                                            Device device) throws AuthenticationException{
 
         final Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(

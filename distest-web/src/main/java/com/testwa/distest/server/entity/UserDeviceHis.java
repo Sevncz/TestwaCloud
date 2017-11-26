@@ -1,6 +1,6 @@
 package com.testwa.distest.server.entity;
 
-import com.testwa.core.common.bo.BaseEntity;
+import com.testwa.core.base.bo.BaseEntity;
 import com.testwa.distest.common.enums.DB;
 import lombok.Data;
 

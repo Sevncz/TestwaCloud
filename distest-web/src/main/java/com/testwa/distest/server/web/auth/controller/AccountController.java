@@ -3,15 +3,14 @@ package com.testwa.distest.server.web.auth.controller;
 import cn.apiclub.captcha.Captcha;
 import cn.apiclub.captcha.backgrounds.GradiatedBackgroundProducer;
 import cn.apiclub.captcha.gimpy.FishEyeGimpyRenderer;
+import com.testwa.core.base.controller.BaseController;
+import com.testwa.core.base.exception.AccountAlreadyExistException;
+import com.testwa.core.base.exception.AccountException;
+import com.testwa.core.base.exception.ParamsFormatException;
 import com.testwa.core.utils.Identities;
 import com.testwa.core.utils.Validator;
-import com.testwa.distest.common.constant.Result;
-import com.testwa.distest.common.constant.WebConstants;
-import com.testwa.distest.common.controller.BaseController;
-import com.testwa.distest.common.exception.AccountAlreadyExistException;
-import com.testwa.distest.common.exception.AccountException;
-import com.testwa.distest.common.exception.ParamsFormatException;
-import com.testwa.distest.common.exception.ParamsIsNullException;
+import com.testwa.core.base.vo.Result;
+import com.testwa.core.base.constant.WebConstants;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.user.form.RegisterForm;
 import com.testwa.distest.server.service.user.service.UserService;
@@ -42,7 +41,7 @@ import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 @Api("用户账号管理相关api")
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/account")
-public class AccountController extends BaseController{
+public class AccountController extends BaseController {
 
     @Autowired
     private UserService userService;
@@ -52,7 +51,7 @@ public class AccountController extends BaseController{
 
     @RequestMapping(value = "register", method= RequestMethod.POST, produces={"application/json"})
     public Result register(@Valid @RequestBody final RegisterForm form)
-            throws ServletException, ParamsIsNullException, ParamsFormatException, AccountException, AccountAlreadyExistException {
+            throws ServletException, ParamsFormatException, AccountException, AccountAlreadyExistException {
 
         // 校验用户名
         if(!Validator.isUsername(form.username)){
@@ -103,7 +102,7 @@ public class AccountController extends BaseController{
 
 
     @RequestMapping(value = "verify/username/{username}", method= RequestMethod.GET)
-    public Result checkUsername(@PathVariable String username) throws AccountException, AccountAlreadyExistException, ParamsFormatException {
+    public Result checkUsername(@PathVariable String username) throws AccountAlreadyExistException, ParamsFormatException {
         // 校验用户名
         if(!Validator.isUsername(username)){
             throw new ParamsFormatException("用户名格式不正确");
@@ -116,7 +115,7 @@ public class AccountController extends BaseController{
     }
 
     @RequestMapping(value = "verify/email/{email}", method= RequestMethod.GET)
-    public Result checkEmail(@PathVariable String email) throws AccountException, ParamsFormatException, AccountAlreadyExistException {
+    public Result checkEmail(@PathVariable String email) throws ParamsFormatException, AccountAlreadyExistException {
         // 校验邮箱
         if(!Validator.isEmail(email)){
             throw new ParamsFormatException("邮箱格式不正确");

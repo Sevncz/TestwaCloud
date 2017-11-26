@@ -1,7 +1,7 @@
 package com.testwa.distest.common.validator;
 
-import com.testwa.distest.common.exception.ParamsFormatException;
-import com.testwa.distest.common.exception.ParamsIsNullException;
+import com.testwa.core.base.exception.ParamsFormatException;
+import com.testwa.core.base.exception.ParamsIsNullException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

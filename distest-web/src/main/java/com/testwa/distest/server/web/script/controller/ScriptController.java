@@ -1,12 +1,14 @@
 package com.testwa.distest.server.web.script.controller;
 
-import com.testwa.distest.common.constant.Result;
-import com.testwa.distest.common.constant.WebConstants;
-import com.testwa.distest.common.controller.BaseController;
-import com.testwa.distest.common.exception.*;
-import com.testwa.distest.common.form.DeleteAllForm;
+import com.testwa.core.base.constant.WebConstants;
+import com.testwa.core.base.controller.BaseController;
+import com.testwa.core.base.exception.ObjectNotExistsException;
+import com.testwa.core.base.exception.ParamsFormatException;
+import com.testwa.core.base.exception.ParamsIsNullException;
+import com.testwa.core.base.form.DeleteAllForm;
+import com.testwa.core.base.vo.Result;
 import com.testwa.distest.common.validator.FileUploadValidator;
-import com.testwa.distest.server.mvc.beans.PageResult;
+import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.server.entity.Script;
 import com.testwa.distest.server.service.script.form.ScriptContentForm;
 import com.testwa.distest.server.service.script.form.ScriptListForm;
@@ -46,7 +48,7 @@ public class ScriptController extends BaseController {
     @ApiOperation(value="补充脚本信息", notes="")
     @ResponseBody
     @PostMapping(value = "/save")
-    public Result appendInfo(@RequestBody @Valid ScriptUpdateForm form) throws AccountException, NoSuchScriptException {
+    public Result appendInfo(@RequestBody @Valid ScriptUpdateForm form){
         scriptService.update(form);
         return ok();
     }
@@ -55,7 +57,7 @@ public class ScriptController extends BaseController {
     @ApiOperation(value="上传脚本", notes="")
     @ResponseBody
     @PostMapping(value = "/upload")
-    public Result upload(@RequestParam("file") MultipartFile uploadfile) throws IOException, ParamsIsNullException, ParamsFormatException {
+    public Result upload(@RequestParam("file") MultipartFile uploadfile) throws ParamsIsNullException, ParamsFormatException, IOException {
         //
         // 校验
         //
@@ -97,7 +99,7 @@ public class ScriptController extends BaseController {
     @ApiOperation(value="脚本分页列表", notes="")
     @ResponseBody
     @GetMapping(value = "/page")
-    public Result page(@RequestBody ScriptListForm queryForm) throws NotInProjectException, AccountException {
+    public Result page(@RequestBody ScriptListForm queryForm) {
         PageResult<Script> scriptPageResult = scriptService.findPage(queryForm);
         List<ScriptVO> vos = buildVOs(scriptPageResult.getPages(), ScriptVO.class);
         PageResult<ScriptVO> pr = new PageResult<>(vos, scriptPageResult.getTotal());
@@ -108,7 +110,7 @@ public class ScriptController extends BaseController {
     @ApiOperation(value="获得脚本内容", notes="")
     @ResponseBody
     @GetMapping(value = "/read/{scriptId}")
-    public Result read(@PathVariable Long scriptId) throws NoSuchScriptException, IOException {
+    public Result read(@PathVariable Long scriptId) throws IOException, ObjectNotExistsException {
         validator.validateScriptExist(scriptId);
         String content = scriptService.getContent(scriptId);
         return ok(content);
@@ -118,7 +120,7 @@ public class ScriptController extends BaseController {
     @ApiOperation(value="修改脚本内容", notes="")
     @ResponseBody
     @PostMapping(value = {"/write/{scriptId}"})
-    public Result write(@PathVariable Long scriptId, @RequestBody ScriptContentForm form) throws AccountException, IOException, NoSuchScriptException {
+    public Result write(@PathVariable Long scriptId, @RequestBody ScriptContentForm form) throws IOException, ObjectNotExistsException {
         validator.validateScriptExist(scriptId);
         scriptService.modifyContent(scriptId, form.getContent());
         return ok();
@@ -127,7 +129,7 @@ public class ScriptController extends BaseController {
     @ApiOperation(value="脚本列表", notes="")
     @ResponseBody
     @GetMapping(value = "/list")
-    public Result list(@RequestBody ScriptListForm queryForm) throws NotInProjectException, AccountException {
+    public Result list(@RequestBody ScriptListForm queryForm) {
         List<Script> scriptList = scriptService.find(queryForm);
         List<ScriptVO> vos = buildVOs(scriptList, ScriptVO.class);
         return ok(vos);

@@ -1,6 +1,6 @@
 package com.testwa.distest.server.web.project.validator;
 
-import com.testwa.distest.common.exception.NoSuchProjectException;
+import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.distest.server.entity.Project;
 import com.testwa.distest.server.service.project.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,17 +18,17 @@ public class ProjectValidator {
     private ProjectService projectService;
 
 
-    public void validateProjectExist(List<Long> projectIds) throws NoSuchProjectException {
+    public void validateProjectExist(List<Long> projectIds) throws ObjectNotExistsException {
         List<Project> projectList = projectService.findAll(projectIds);
         if(projectList == null || projectList.size() != projectIds.size()){
-            throw new NoSuchProjectException("项目不存在");
+            throw new ObjectNotExistsException("项目不存在");
         }
     }
 
-    public Project validateProjectExist(Long projectId) throws NoSuchProjectException {
+    public Project validateProjectExist(Long projectId) throws ObjectNotExistsException {
         Project project = projectService.findOne(projectId);
         if(project == null){
-            throw new NoSuchProjectException("项目不存在");
+            throw new ObjectNotExistsException("项目不存在");
         }
         return project;
     }

@@ -1,8 +1,8 @@
 package com.testwa.distest.server.web.auth.jwt;
 
 import com.alibaba.fastjson.JSON;
-import com.testwa.distest.common.constant.Result;
-import com.testwa.distest.common.constant.ResultCode;
+import com.testwa.core.base.constant.ResultCode;
+import com.testwa.core.base.vo.Result;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.log4j.Log4j2;

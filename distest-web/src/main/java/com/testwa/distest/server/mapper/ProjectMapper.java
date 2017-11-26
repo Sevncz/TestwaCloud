@@ -1,11 +1,13 @@
 package com.testwa.distest.server.mapper;
 
-import com.testwa.distest.common.mapper.BaseMapper;
+import com.testwa.core.base.mapper.BaseMapper;
 import com.testwa.distest.server.entity.Project;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public interface ProjectMapper extends BaseMapper<Project, Long> {
 
 	List<Project> findBy(Project project);

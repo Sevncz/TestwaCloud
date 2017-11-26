@@ -1,13 +1,13 @@
 package com.testwa.distest.server.web.task.controller;
 
+import com.testwa.core.base.controller.BaseController;
+import com.testwa.core.base.exception.ObjectNotExistsException;
+import com.testwa.core.base.vo.Result;
 import com.testwa.distest.server.entity.DeviceAndroid;
 import com.testwa.distest.server.entity.DeviceBase;
 import com.testwa.distest.server.entity.Task;
 import com.testwa.core.utils.TimeUtil;
-import com.testwa.distest.common.constant.Result;
-import com.testwa.distest.common.constant.WebConstants;
-import com.testwa.distest.common.controller.BaseController;
-import com.testwa.distest.common.exception.ObjectNotExistsException;
+import com.testwa.core.base.constant.WebConstants;
 import com.testwa.distest.server.mvc.model.ProcedureInfo;
 import com.testwa.distest.server.mvc.model.ProcedureStatis;
 import com.testwa.distest.server.mvc.service.ProcedureInfoService;
@@ -32,7 +32,7 @@ import java.util.Map;
 @Api("任务报告相关api")
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/report")
-public class ReportController extends BaseController{
+public class ReportController extends BaseController {
 
     @Autowired
     private TaskService taskService;

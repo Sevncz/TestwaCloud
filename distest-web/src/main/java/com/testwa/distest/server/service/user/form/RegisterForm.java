@@ -1,6 +1,6 @@
 package com.testwa.distest.server.service.user.form;
 
-import com.testwa.distest.common.form.RequestFormBase;
+import com.testwa.core.base.form.RequestFormBase;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotEmpty;
 

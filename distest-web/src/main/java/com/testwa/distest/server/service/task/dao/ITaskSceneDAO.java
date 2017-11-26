@@ -1,7 +1,7 @@
 package com.testwa.distest.server.service.task.dao;
 
 import com.testwa.distest.server.entity.TaskScene;
-import com.testwa.distest.common.dao.IBaseDAO;
+import com.testwa.core.base.dao.IBaseDAO;
 
 import java.util.List;
 import java.util.Map;

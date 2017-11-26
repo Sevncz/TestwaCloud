@@ -1,6 +1,6 @@
 package com.testwa.distest.server.service.role.dao;
 
-import com.testwa.distest.common.dao.IBaseDAO;
+import com.testwa.core.base.dao.IBaseDAO;
 import com.testwa.distest.server.entity.Role;
 
 import java.util.List;

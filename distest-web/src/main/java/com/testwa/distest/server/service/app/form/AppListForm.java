@@ -1,6 +1,6 @@
 package com.testwa.distest.server.service.app.form;
 
-import com.testwa.distest.common.form.RequestListBase;
+import com.testwa.core.base.form.RequestListBase;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 

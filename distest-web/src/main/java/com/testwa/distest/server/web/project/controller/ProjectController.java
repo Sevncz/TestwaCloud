@@ -1,14 +1,17 @@
 package com.testwa.distest.server.web.project.controller;
 
-import com.testwa.distest.common.constant.Result;
-import com.testwa.distest.common.constant.WebConstants;
-import com.testwa.distest.common.controller.BaseController;
-import com.testwa.distest.common.exception.*;
-import com.testwa.distest.common.form.DeleteAllForm;
-import com.testwa.distest.common.form.DeleteOneForm;
+import com.testwa.core.base.constant.WebConstants;
+import com.testwa.core.base.controller.BaseController;
+import com.testwa.core.base.exception.AccountException;
+import com.testwa.core.base.exception.AuthorizedException;
+import com.testwa.core.base.exception.ObjectNotExistsException;
+import com.testwa.core.base.exception.ParamsException;
+import com.testwa.core.base.form.DeleteAllForm;
+import com.testwa.core.base.form.DeleteOneForm;
+import com.testwa.core.base.vo.Result;
+import com.testwa.core.base.vo.SelectVO;
 import com.testwa.distest.common.util.WebUtil;
-import com.testwa.distest.common.vo.SelectVO;
-import com.testwa.distest.server.mvc.beans.PageResult;
+import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.entity.Project;
 import com.testwa.distest.server.service.project.form.ProjectListForm;
@@ -58,7 +61,7 @@ public class ProjectController extends BaseController {
     @ApiOperation(value="创建项目")
     @ResponseBody
     @RequestMapping(value = "/save", method= RequestMethod.POST)
-    public Result save(@RequestBody @Valid ProjectNewForm form) throws AccountException, AccountNotFoundException, AuthorizedException, AccountAlreadyExistException, NoSuchProjectException, ParamsException {
+    public Result save(@RequestBody @Valid ProjectNewForm form) throws AccountNotFoundException, AuthorizedException, ParamsException {
 
         if(form.getMembers() != null){
             userValidator.validateUsernamesExist(form.getMembers());
@@ -70,7 +73,7 @@ public class ProjectController extends BaseController {
     @ApiOperation(value="更新项目")
     @ResponseBody
     @RequestMapping(value = "/update", method= RequestMethod.POST)
-    public Result update(@RequestBody @Valid ProjectUpdateForm form) throws AccountException, AccountNotFoundException, AuthorizedException, AccountAlreadyExistException, NoSuchProjectException, ParamsException {
+    public Result update(@RequestBody @Valid ProjectUpdateForm form) throws ObjectNotExistsException, AccountNotFoundException, AuthorizedException, ParamsException {
         projectValidator.validateProjectExist(form.getProjectId());
 
         if(form.getMembers() != null){

@@ -1,9 +1,9 @@
 package com.testwa.distest.server.web.project.controller;
 
-import com.testwa.distest.common.constant.Result;
-import com.testwa.distest.common.constant.WebConstants;
-import com.testwa.distest.common.controller.BaseController;
-import com.testwa.distest.common.exception.*;
+import com.testwa.core.base.constant.WebConstants;
+import com.testwa.core.base.controller.BaseController;
+import com.testwa.core.base.exception.*;
+import com.testwa.core.base.vo.Result;
 import com.testwa.distest.server.entity.ProjectMember;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.project.form.MembersModifyForm;
@@ -47,7 +47,7 @@ public class ProjectMemberController extends BaseController {
     @ApiOperation(value="添加项目成员", notes = "")
     @ResponseBody
     @RequestMapping(value = "/add/all", method= RequestMethod.POST)
-    public Result addMembers(@RequestBody @Valid MembersModifyForm form) throws AccountException, NoSuchProjectException, AccountAlreadyExistException, AuthorizedException, ParamsException, AccountNotFoundException {
+    public Result addMembers(@RequestBody @Valid MembersModifyForm form) throws AccountNotFoundException, ObjectNotExistsException, AuthorizedException, ParamsException {
         projectValidator.validateProjectExist(form.getProjectId());
         if(form.getUsernames() != null && form.getUsernames().size() > 0){
             userValidator.validateUsernamesExist(form.getUsernames());
@@ -59,7 +59,7 @@ public class ProjectMemberController extends BaseController {
     @ApiOperation(value="删除项目成员", notes = "")
     @ResponseBody
     @RequestMapping(value = "/delete/all", method= RequestMethod.POST)
-    public Result deleteMembers(@RequestBody @Valid MembersModifyForm form) throws NoSuchProjectException {
+    public Result deleteMembers(@RequestBody @Valid MembersModifyForm form) throws ObjectNotExistsException {
 
         projectValidator.validateProjectExist(form.getProjectId());
         projectMemberService.delMembers(form);
@@ -69,7 +69,7 @@ public class ProjectMemberController extends BaseController {
     @ApiOperation(value="获得项目的成员列表", notes = "")
     @ResponseBody
     @RequestMapping(value = "/{projectId}", method= RequestMethod.GET)
-    public Result members(@PathVariable Long projectId) throws NoSuchProjectException {
+    public Result members(@PathVariable Long projectId) {
         List<User> users = projectMemberService.findAllMembers(projectId);
         List<UserVO> vo = buildVOs(users, UserVO.class);
         return ok(vo);
@@ -82,7 +82,7 @@ public class ProjectMemberController extends BaseController {
     public Result queryMember(@RequestParam(value = "projectId")Long projectId,
                               @RequestParam(value = "memberName")String memberName,
                               @RequestParam(value = "email")String email,
-                              @RequestParam(value = "phone")String phone) throws NoSuchProjectException {
+                              @RequestParam(value = "phone")String phone) throws ObjectNotExistsException {
         projectValidator.validateProjectExist(projectId);
         Map<String, List<UserVO>> result = projectMemberService.findMembers(projectId, memberName, email, phone);
         return ok(result);
@@ -92,7 +92,7 @@ public class ProjectMemberController extends BaseController {
     @ApiOperation(value="获得当前用户在某个项目中的角色", notes = "")
     @ResponseBody
     @RequestMapping(value = "/role", method= RequestMethod.GET)
-    public Result projectRole(@RequestParam(value = "projectId")Long projectId) throws NoSuchProjectException, AccountException, DBException, AuthorizedException {
+    public Result projectRole(@RequestParam(value = "projectId")Long projectId) throws AccountException, DBException, AuthorizedException {
         ProjectMember pm = projectMemberService.getProjectRole(projectId);
         if (null == pm){
             throw new AuthorizedException("该用户不属于此项目");

@@ -4,6 +4,7 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.annotation.SpringAnnotationScanner;
 import com.mongodb.MongoClientURI;
 import com.testwa.distest.server.mvc.repository.Impl.CommonMongoRepositoryImpl;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;

@@ -7,7 +7,7 @@ import com.testwa.core.utils.Identities;
 import com.testwa.core.utils.PinYinTool;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Project;
-import com.testwa.distest.server.mvc.beans.PageResult;
+import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.server.entity.Script;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.project.service.ProjectService;

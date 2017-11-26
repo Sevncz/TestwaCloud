@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.testwa.distest.common.mapper.BaseMapper">
+<mapper namespace="com.testwa.core.base.mapper.BaseMapper">
 
     <select id="count" resultType="long">
         SELECT count(1) c FROM ${__tableName__}
     </select>
 
-    <select id="findOne" parameterType="java.util.Map" resultType="com.testwa.core.common.bo.Entity">
+    <select id="findOne" parameterType="java.util.Map" resultType="com.testwa.core.base.bo.Entity">
         SELECT * FROM ${__tableName__} t WHERE t.id = #{key}
     </select>
 
-    <select id="findList" parameterType="java.util.Map" resultType="com.testwa.core.common.bo.Entity">
+    <select id="findList" parameterType="java.util.Map" resultType="com.testwa.core.base.bo.Entity">
         SELECT * FROM ${__tableName__} t
         <if test="keys != null">
             <trim prefix="WHERE" prefixOverrides="AND |OR ">

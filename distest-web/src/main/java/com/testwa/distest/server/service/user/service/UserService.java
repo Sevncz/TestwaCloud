@@ -7,9 +7,9 @@ package com.testwa.distest.server.service.user.service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.testwa.distest.common.exception.AccountAlreadyExistException;
-import com.testwa.distest.common.exception.AccountException;
-import com.testwa.distest.server.mvc.beans.PageResult;
+import com.testwa.core.base.exception.AccountAlreadyExistException;
+import com.testwa.core.base.exception.AccountException;
+import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.user.dao.IUserDAO;
 import com.testwa.distest.server.service.user.form.RegisterForm;
@@ -33,7 +33,7 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public long save(RegisterForm form) throws AccountException, AccountAlreadyExistException {
         User newUser = new User();
         newUser.setEmail(form.email);
@@ -42,7 +42,7 @@ public class UserService {
         return save(newUser);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public long save(User user) throws AccountAlreadyExistException, AccountException {
         String username = user.getUsername();
         String email = user.getEmail();
@@ -66,17 +66,17 @@ public class UserService {
      * 更新对象
      * @param user
      */
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public int update(User user) {
         return userDAO.update(user);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public int delete(Integer id) {
         return userDAO.delete(id);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public int deleteAll(List<Long> idList) {
         return userDAO.delete(idList);
     }
