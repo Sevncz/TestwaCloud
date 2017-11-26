@@ -11,5 +11,24 @@
 
     <artifactId>distest-device</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.testwa</groupId>
+            <artifactId>distest-core-base</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.testwa</groupId>
+            <artifactId>distest-core-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.testwa</groupId>
+            <artifactId>distest-core-haredis</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>
