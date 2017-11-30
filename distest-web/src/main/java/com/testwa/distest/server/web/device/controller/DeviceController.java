@@ -4,26 +4,36 @@ import com.testwa.core.base.constant.ResultCode;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.AccountException;
+import com.testwa.core.base.exception.AuthorizedException;
+import com.testwa.core.base.exception.ObjectNotExistsException;
+import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.base.vo.Result;
 import com.testwa.distest.client.rpc.proto.Agent;
+import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.User;
-import com.testwa.distest.server.service.project.service.ProjectService;
+import com.testwa.distest.server.service.device.form.DeviceListForm;
+import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.user.service.UserService;
+import com.testwa.distest.server.web.auth.validator.UserValidator;
+import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
+import com.testwa.distest.server.web.project.validator.ProjectValidator;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.log4j.Log4j2;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 
@@ -36,50 +46,57 @@ import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 @RequestMapping(path = WebConstants.API_PREFIX + "/device")
 public class DeviceController extends BaseController {
     @Autowired
-    private ProjectService projectService;
+    private ProjectValidator projectValidator;
     @Autowired
     private UserService userService;
+    @Autowired
+    private DeviceService deviceService;
+    @Autowired
+    private DeviceAuthMgr deviceAuthMgr;
     @Autowired
     private Environment env;
 
     /**
      * 项目内可用在线设备列表
-     * @param projectId
+     * @param form
      * @return
      */
+    @ApiOperation(value="查看用户所在某个项目下的在线设备分页列表", notes = "")
     @ResponseBody
-    @RequestMapping(value = "/project/list", method = RequestMethod.GET)
-    public Result listProject(@RequestParam String projectId){
+    @RequestMapping(value = "/project/enable/page", method = RequestMethod.GET)
+    public Result porjectEnablePage(@RequestBody @Valid DeviceListForm form) throws ObjectNotExistsException, AuthorizedException {
+        projectValidator.validateProjectExist(form.getProjectId());
         User user = userService.findByUsername(getCurrentUsername());
-//        checkUserInProject(projectService, auth, projectId);
-//        List<DeviceAndroid> deviceList = deviceService.getDeviceByUserAndProject(auth.getId(),projectId);
-//        return ok(deviceList);
-        return ok();
+        projectValidator.validateUserIsProjectMember(form.getProjectId(), user.getId());
+        Set<String> deviceIds = deviceAuthMgr.getAllDeviceIdsByProject(form.getProjectId());
+        PageResult<Device> devicePR = deviceService.findByDeviceIdsPage(deviceIds, form);
+        return ok(devicePR);
     }
 
     /**
-     * 项目内可用在线设备列表 带过滤
-     * @param
+     * 项目内可用在线设备列表
+     * @param form
      * @return
      */
-//    @ResponseBody
-//    @RequestMapping(value = "/project/list", method = RequestMethod.POST)
-//    public Result listProjectFilter(@RequestBody @Valid DeviceProjectListVO deviceProjectListVO) throws NotInProjectException, AccountException {
-//        String projectId = deviceProjectListVO.getProjectId();
-//        User user = userService.findByUsername(getCurrentUsername());
-////        checkUserInProject(projectService, auth, projectId);
-////        List<DeviceAndroid> deviceList = deviceService.getDeviceByUserAndProject(auth.getId(),projectId, deviceProjectListVO.getFilter());
-////        return ok(deviceList);
-//        return ok();
-//    }
-
+    @ApiOperation(value="查看用户所在某个项目下的在线设备列表", notes = "")
     @ResponseBody
-    @RequestMapping(value = "/user/list", method = RequestMethod.GET)
-    public Result listUser() {
+    @RequestMapping(value = "/project/enable/list", method = RequestMethod.POST)
+    public Result porjectEnableList(@RequestBody @Valid DeviceListForm form) throws AccountException, ObjectNotExistsException, AuthorizedException {
+        projectValidator.validateProjectExist(form.getProjectId());
         User user = userService.findByUsername(getCurrentUsername());
-//        List<UserDeviceHis> devices = userDeviceHisService.getUserDevice(auth);
-//        return ok(devices);
-        return ok();
+        projectValidator.validateUserIsProjectMember(form.getProjectId(), user.getId());
+        Set<String> deviceIds = deviceAuthMgr.getAllDeviceIdsByProject(form.getProjectId());
+        List<Device> deviceList = deviceService.findByDeviceIds(deviceIds, form);
+        return ok(deviceList);
+    }
+
+    @ApiOperation(value="查看登录用户自己的设备，获得包括设备权限和用户信息", notes = "")
+    @ResponseBody
+    @RequestMapping(value = "/my/list", method = RequestMethod.GET)
+    public Result myList() {
+        User user = userService.findByUsername(getCurrentUsername());
+        List<Device> deviceList = deviceService.fetchList(user.getId());
+        return ok(deviceList);
     }
 
     @RequestMapping(value = "/screen", method = RequestMethod.GET)
@@ -122,20 +139,11 @@ public class DeviceController extends BaseController {
 
     /**
      * 我自己的设备
-     * @param page
-     * @param size
-     * @param sortField
-     * @param sortOrder
-     * @param deviceId
      * @return
      */
     @ResponseBody
     @RequestMapping(value = "/owner/page", method= RequestMethod.GET)
-    public Result page(@RequestParam(value = "page")Integer page,
-                       @RequestParam(value = "size")Integer size ,
-                       @RequestParam(value = "sortField")String sortField,
-                       @RequestParam(value = "sortOrder")String sortOrder,
-                       @RequestParam(required=false) String deviceId){
+    public Result page(@RequestBody DeviceListForm form){
         try{
 //            PageRequest pageRequest = buildPageRequest(page, size, sortField, sortOrder);
 

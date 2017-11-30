@@ -1,8 +1,8 @@
-package com.testwa.distest.server.entity;
+package com.testwa.distest.device.entity;
 
 import com.testwa.core.base.annotation.TableName;
 import com.testwa.core.base.bo.BaseEntity;
-import com.testwa.distest.common.enums.DB;
+import com.testwa.distest.device.enums.DB;
 import lombok.Data;
 
 import java.util.Date;
@@ -21,7 +21,6 @@ public class DeviceBase extends BaseEntity {
     private Date createTime = new Date();
     /**更新时间**/
     private Date updateTime = new Date();
-    private Agent agent;
 
     protected DeviceBase(DB.PhoneOS phoneOS) {
         this.phoneOS = phoneOS;

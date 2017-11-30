@@ -47,4 +47,16 @@ public class UserValidator {
         }
     }
 
+    public void validateUserIdExist(Long userId) throws AccountNotFoundException {
+        User user = userService.findOne(userId);
+        if(user == null){
+            throw new AccountNotFoundException();
+        }
+    }
+    public void validateUserIdsExist(List<Long> userIds) throws AccountNotFoundException {
+        List<User> users = userService.findByUserIds(userIds);
+        if(users == null || userIds.size() != users.size()){
+            throw new AccountNotFoundException();
+        }
+    }
 }

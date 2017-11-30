@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.testwa.distest.server.mapper.DeviceMapper" >
+    <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.Device" >
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="deviceId" property="deviceId" jdbcType="VARCHAR" />
+        <result column="phoneOS" property="phoneOS" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
+        <result column="onlineStatus" property="onlineStatus" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
+        <result column="updateTime" property="updateTime" jdbcType="DATE" javaType="java.util.Date"/>
+        <result column="createTime" property="createTime" jdbcType="DATE" javaType="java.util.Date"/>
+        <result column="model" property="model" jdbcType="VARCHAR" />
+        <result column="brand" property="brand" jdbcType="VARCHAR" />
+        <result column="lastToken" property="lastToken" jdbcType="VARCHAR" />
+        <result column="lastUserId" property="lastUserId" jdbcType="BIGINT" />
+        <collection property="deviceAuths" ofType="com.testwa.distest.server.entity.DeviceAuth">
+            <id column="deviceAuth_id" property="id"/>
+            <result column="deviceId" property="deviceId"/>
+            <result column="userId" property="userId"/>
+            <association property="user" javaType="com.testwa.distest.server.entity.User">
+                <id column="user_id" property="id"/>
+                <result column="username" property="username"/>
+                <result column="email" property="email"/>
+            </association>
+        </collection>
+        <discriminator javaType="string" column="phoneOS">
+            <case value="1" resultType="com.testwa.distest.server.entity.DeviceIOS">
+            </case>
+            <case value="2" resultType="com.testwa.distest.server.entity.DeviceAndroid">
+                <result column="cpuabi" property="cpuabi" jdbcType="VARCHAR" />
+                <result column="sdk" property="sdk" jdbcType="VARCHAR" />
+                <result column="width" property="width" jdbcType="VARCHAR" />
+                <result column="height" property="height" jdbcType="VARCHAR" />
+                <result column="osName" property="osName" jdbcType="VARCHAR" />
+                <result column="density" property="density" jdbcType="VARCHAR" />
+                <result column="osVersion" property="osVersion" jdbcType="VARCHAR" />
+                <result column="host" property="host" jdbcType="VARCHAR" />
+            </case>
+        </discriminator>
+    </resultMap>
+
+    <insert id="insertAndroid" useGeneratedKeys="true"  keyProperty="id" parameterType="com.testwa.distest.server.entity.DeviceAndroid">
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+            select LAST_INSERT_ID() as id
+        </selectKey>
+        INSERT INTO device
+        (deviceId,phoneOS,onlineStatus,createTime,model,brand,cpuabi,sdk,width,height,osName,density,osVersion,host)
+        VALUES
+        (#{deviceId},#{phoneOS, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},#{onlineStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},#{createTime},#{model},#{brand},#{cpuabi},#{sdk},#{width},#{height},#{osName},#{density},#{osVersion},#{host})
+
+    </insert>
+    <update id="updateAndroid" parameterType="com.testwa.distest.server.entity.DeviceAndroid">
+        update device
+        <trim prefix="SET" suffixOverrides=",">
+            onlineStatus=#{onlineStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},
+            updateTime=#{updateTime},
+            model=#{model},
+            brand=#{brand},
+            cpuabi=#{cpuabi},
+            sdk=#{sdk},
+            width=#{width},
+            height=#{height},
+            osName=#{osName},
+            density=#{density},
+            osVersion=#{osVersion},
+            host=#{host}
+        </trim>
+        WHERE
+        deviceId = #{deviceId}
+    </update>
+    <update id="updateStatus" >
+        update device
+        <trim prefix="SET" suffixOverrides=",">
+            onlineStatus=#{status, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},
+        </trim>
+        WHERE
+        deviceId = #{deviceId}
+    </update>
+
+    <select id="findBy" parameterType="java.util.HashMap" resultMap="BaseResultMap" >
+        SELECT * FROM device
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            <if test="deviceId != null">and deviceId = #{deviceId}</if>
+            <if test="deviceIdList != null">
+                and deviceId in <foreach item="devId" index="index" collection="deviceIdList" open="(" separator="," close=")">#{devId} </foreach>
+            </if>
+            <if test="phoneOS != null">and phoneOS = #{phoneOS}</if>
+            <if test="onlineStatus != null">and onlineStatus = #{onlineStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
+            <if test="model != null">and model = #{model}</if>
+            <if test="brand != null">and brand = #{brand}</if>
+            <if test="lastUserId != null">and lastUserId = #{lastUserId}</if>
+        </trim>
+    </select>
+
+    <select id="fetchList" parameterType="java.util.HashMap" resultMap="BaseResultMap" >
+        SELECT device.*,device_auth.id as deviceAuth_id,device_auth.deviceId,device_auth.userId,user.id as user_id,user.username as username, user.email as email
+        FROM device LEFT JOIN device_auth ON device.deviceId = device_auth.deviceId and device.lastUserId = device_auth.createBy LEFT JOIN user ON device_auth.userId = user.id
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            device.lastUserId = #{createBy}
+            <if test="deviceId != null">and deviceId = #{deviceId}</if>
+            <if test="deviceIdList != null">
+                and deviceId in <foreach item="devId" index="index" collection="deviceIdList" open="(" separator="," close=")">#{devId} </foreach>
+            </if>
+            <if test="phoneOS != null">and phoneOS = #{phoneOS}</if>
+            <if test="onlineStatus != null">and onlineStatus = #{onlineStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
+            <if test="model != null">and model = #{model}</if>
+            <if test="brand != null">and brand = #{brand}</if>
+            <if test="lastUserId != null">and lastUserId = #{lastUserId}</if>
+        </trim>
+    </select>
+
+
+</mapper>

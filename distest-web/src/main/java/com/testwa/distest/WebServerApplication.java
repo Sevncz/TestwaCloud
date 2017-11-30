@@ -27,7 +27,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import java.net.UnknownHostException;
 import java.util.concurrent.Executor;
 
-@EnableDiscoveryClient
+//@EnableDiscoveryClient
 @SpringBootApplication
 @EnableMongoRepositories(repositoryBaseClass = CommonMongoRepositoryImpl.class, basePackages = {"com.testwa.distest.server.mvc.repository"})
 @EnableScheduling

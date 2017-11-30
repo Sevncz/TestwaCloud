@@ -46,7 +46,7 @@ public class ProjectServiceTest {
 
     @Test
     public void testFind(){
-        Project project = projectService.findOne(1l);
+        Project project = projectService.findOne(4l);
         System.out.println(project.toString());
     }
     @Test

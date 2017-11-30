@@ -1,12 +1,16 @@
 package com.testwa.distest.server.web.project.validator;
 
+import com.testwa.core.base.exception.AuthorizedException;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.distest.server.entity.Project;
+import com.testwa.distest.server.entity.User;
+import com.testwa.distest.server.service.project.service.ProjectMemberService;
 import com.testwa.distest.server.service.project.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by wen on 23/10/2017.
@@ -16,6 +20,8 @@ public class ProjectValidator {
 
     @Autowired
     private ProjectService projectService;
+    @Autowired
+    private ProjectMemberService projectMemberService;
 
 
     public void validateProjectExist(List<Long> projectIds) throws ObjectNotExistsException {
@@ -31,6 +37,15 @@ public class ProjectValidator {
             throw new ObjectNotExistsException("项目不存在");
         }
         return project;
+    }
+
+    public void validateUserIsProjectMember(Long projectId, Long userId) throws AuthorizedException {
+        User query = new User();
+        query.setId(userId);
+        List<Map> members = projectMemberService.findMembers(projectId, query);
+        if(members == null || members.size() == 0){
+            throw new AuthorizedException("该用户不在项目中");
+        }
     }
 
 }

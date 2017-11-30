@@ -31,9 +31,9 @@ public class UserServiceTest {
     public void testInsert() throws AccountException, AccountAlreadyExistException {
         long countBefore =userService.count();
         User user = new User();
-        user.setUsername("xiaoming1");
-        user.setPassword("xiaoming1");
-        user.setEmail("xiaoming1@testwa.com");
+        user.setUsername("xiaoming2");
+        user.setPassword("xiaoming2");
+        user.setEmail("xiaoming2@testwa.com");
         userService.save(user);
         long countAfter =userService.count();
         Assert.assertEquals(++countBefore,countAfter);

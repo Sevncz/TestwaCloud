@@ -4,7 +4,7 @@ import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.base.vo.Result;
 import com.testwa.distest.server.entity.DeviceAndroid;
-import com.testwa.distest.server.entity.DeviceBase;
+import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.Task;
 import com.testwa.core.utils.TimeUtil;
 import com.testwa.core.base.constant.WebConstants;
@@ -57,7 +57,7 @@ public class ReportController extends BaseController {
         ProcedureStatis ps = taskService.statis(taskId);
         List<Map> statusScript = ps.getStatusScriptInfo();
 
-        Map<String, DeviceBase> devInfo = new HashMap<>();
+        Map<String, Device> devInfo = new HashMap<>();
         Map<String, List> devCpuLine = new HashMap<>();
         Map<String, List> devRawLine = new HashMap<>();
         // 设备基本情况

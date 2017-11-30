@@ -10,6 +10,7 @@ import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.cache.mgr.ClientSessionMgr;
 import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
 import com.testwa.distest.server.service.cache.mgr.TaskCacheMgr;
+import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.task.form.TaskStartByTestcaseForm;
 import com.testwa.distest.server.service.task.form.TaskStartForm;
 import com.testwa.distest.server.service.task.form.TaskStopForm;
@@ -17,7 +18,7 @@ import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.service.task.service.TaskSceneService;
 import com.testwa.distest.server.service.testcase.service.TestcaseService;
 import com.testwa.distest.server.service.user.service.UserService;
-import com.testwa.distest.server.service.cache.mgr.DeviceCacheMgr;
+import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
 import com.testwa.distest.server.web.task.vo.TaskProgressVO;
 import com.testwa.distest.server.websocket.service.PushCmdService;
 import org.apache.commons.lang3.StringUtils;
@@ -49,7 +50,7 @@ public class ExecuteMgr {
     @Autowired
     private TaskService taskService;
     @Autowired
-    private DeviceCacheMgr deviceCacheMgr;
+    private DeviceAuthMgr deviceAuthMgr;
     @Autowired
     private TaskCacheMgr taskCacheMgr;
     @Autowired
@@ -58,6 +59,8 @@ public class ExecuteMgr {
     private DeviceSessionMgr deviceSessionMgr;
     @Autowired
     private PushCmdService pushCmdService;
+    @Autowired
+    private DeviceService deviceService;
 
 
     /**
@@ -98,7 +101,7 @@ public class ExecuteMgr {
 
         for (String key : form.getDeviceIds()) {
 
-            DeviceBase d = deviceCacheMgr.getDeviceContent(key);
+            Device d = deviceService.findByDeviceId(key);
             RemoteRunCommand cmd = new RemoteRunCommand();
             cmd.setAppId(appId);
             cmd.setCmd(DB.CommandEnum.START.getValue());

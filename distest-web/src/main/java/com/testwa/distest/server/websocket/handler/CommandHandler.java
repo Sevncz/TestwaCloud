@@ -3,20 +3,14 @@ package com.testwa.distest.server.websocket.handler;
 import com.alibaba.fastjson.JSONObject;
 import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;
-import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.annotation.OnEvent;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.common.enums.Command;
-import com.testwa.distest.server.service.cache.mgr.DeviceCacheMgr;
 import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
 import com.testwa.distest.server.websocket.service.PushCmdService;
 import lombok.extern.log4j.Log4j2;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.UUID;
 
 /**
  * Created by wen on 2016/9/24.

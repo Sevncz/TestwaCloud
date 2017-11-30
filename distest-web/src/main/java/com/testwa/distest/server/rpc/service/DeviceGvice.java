@@ -4,10 +4,11 @@ import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.testwa.distest.server.LogInterceptor;
 import com.testwa.distest.server.entity.DeviceAndroid;
-import com.testwa.distest.server.entity.DeviceBase;
+import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.service.cache.mgr.SubscribeMgr;
+import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.web.auth.jwt.JwtTokenUtil;
-import com.testwa.distest.server.service.cache.mgr.DeviceCacheMgr;
+import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
 import com.testwa.distest.server.websocket.WSFuncEnum;
 import com.testwa.distest.server.rpc.GRpcService;
 import io.grpc.stub.StreamObserver;
@@ -30,7 +31,9 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     @Autowired
     private SocketIOServer server;
     @Autowired
-    private DeviceCacheMgr deviceCacheMgr;
+    private DeviceAuthMgr deviceAuthMgr;
+    @Autowired
+    private DeviceService deviceService;
     @Autowired
     private SubscribeMgr subscribeMgr;
     @Autowired
@@ -39,16 +42,17 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     @Override
     public void all(DevicesRequest request, StreamObserver<CommonReply> responseObserver) {
         String token = request.getUserId();
-        List<Device> l = request.getDeviceList();
+        List<io.rpc.testwa.device.Device> l = request.getDeviceList();
         Long userId = jwtTokenUtil.getUserIdFromToken(token);
-        for(Device device : l){
+//        Set<String> onlineDeviceIdList = deviceCacheMgr.getAllOnlineDeviceId();
+        for(io.rpc.testwa.device.Device device : l){
             handleDevice(device, userId);
         }
     }
 
-    private void handleDevice(Device device, Long userId) {
+    private void handleDevice(io.rpc.testwa.device.Device device, Long userId) {
         // 看redis里有没有设备,没有则保存
-        DeviceBase deviceBase = deviceCacheMgr.getDeviceContent(device.getDeviceId());
+        Device deviceBase = deviceService.findByDeviceId(device.getDeviceId());
         DeviceAndroid deviceAndroid = null;
         if(deviceBase == null){
             deviceAndroid = new DeviceAndroid();
@@ -80,17 +84,18 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
 //        userDeviceHisService.save(udh);
 
         if("ON".equals(device.getStatus().name().toUpperCase())){
-            deviceCacheMgr.saveDeviceContent(deviceAndroid);
+            deviceAuthMgr.online(device.getDeviceId());
         }
         if("OFF".equals(device.getStatus().name().toUpperCase())){
-            deviceCacheMgr.delDeviceContent(deviceAndroid.getDeviceId());
+            deviceAuthMgr.offline(deviceAndroid.getDeviceId());
         }
     }
 
     @Override
     public void disconnect(NoUsedDeviceRequest request, StreamObserver<CommonReply> responseObserver) {
         log.info("device disconnect, {}", request.getDeviceId());
-        deviceCacheMgr.delDeviceContent(request.getDeviceId());
+        deviceAuthMgr.offline(request.getDeviceId());
+
         // 修改设备状态为OFF 数据库不需要 off 状态标识
 //        DeviceAndroid tDevice = deviceService.getDeviceById(request.getDeviceId());
 //        tDevice.setStatus("OFF");
@@ -100,7 +105,7 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     @Override
     public void offline(NoUsedDeviceRequest request, StreamObserver<CommonReply> responseObserver) {
         log.info("device offline, {}", request.getDeviceId());
-        deviceCacheMgr.delDeviceContent(request.getDeviceId());
+        deviceAuthMgr.offline(request.getDeviceId());
     }
 
     @Override

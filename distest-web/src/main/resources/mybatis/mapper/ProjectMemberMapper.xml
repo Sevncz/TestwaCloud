@@ -106,6 +106,9 @@
         SELECT u.id as id, u.username as username, u.email as email, u.phone as phone, CASE WHEN pm.id > 0 THEN 'in' ELSE 'out' END as flag
         FROM project_member pm RIGHT JOIN user u on pm.memberId = u.id
         WHERE pm.projectId = #{params.projectId}
+        <if test="user.id != null">
+          and u.id = user.id
+        </if>
         <if test="user.username != null">
           and u.username LIKE CONCAT('%', #{user.username}, '%')
         </if>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.testwa.distest.server.mapper.DeviceAuthMapper" >
+    <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.DeviceAuth" >
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="deviceId" property="deviceId" jdbcType="VARCHAR" />
+        <result column="userId" property="userId" jdbcType="BIGINT" />
+        <result column="createBy" property="createBy" jdbcType="BIGINT" />
+        <result column="createTime" property="createTime" jdbcType="DATE" javaType="java.util.Date"/>
+    </resultMap>
+
+    <select id="findBy" parameterType="java.util.HashMap" resultMap="BaseResultMap" >
+        SELECT * FROM device_auth
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            <if test="deviceId != null">and deviceId = #{deviceId}</if>
+            <if test="createBy != null">and createBy = #{createBy}</if>
+            <if test="userId != null">and userId = #{userId}</if>
+        </trim>
+    </select>
+
+    <delete id="removeSomeFromDevice" >
+        DELETE FROM device_auth
+        WHERE deviceId = #{deviceId} AND createBy = #{createBy} AND userId in <foreach item="userId" index="index" collection="userIds" open="(" separator="," close=")">#{userId} </foreach>
+    </delete>
+
+</mapper>

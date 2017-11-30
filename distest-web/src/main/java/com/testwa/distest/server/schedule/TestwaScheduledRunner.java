@@ -4,7 +4,7 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.core.redis.RedisCacheManager;
 import com.testwa.distest.server.mvc.model.ProcedureInfo;
-import com.testwa.distest.server.service.cache.mgr.DeviceCacheMgr;
+import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
 import lombok.extern.log4j.Log4j2;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,6 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Log4j2
 @Component
@@ -34,7 +33,7 @@ public class TestwaScheduledRunner {
     private Environment env;
 
     @Autowired
-    private DeviceCacheMgr deviceCacheMgr;
+    private DeviceAuthMgr deviceAuthMgr;
 
     private final SocketIOServer server;
 
@@ -76,8 +75,8 @@ public class TestwaScheduledRunner {
     }
 
     @Scheduled(cron = "0/10 * * * * ?")
-    public void checkDeviceOnline() throws Exception {
-        // TODO
+    public void checkDeviceOnline(){
+        deviceAuthMgr.mergeOnline();
     }
 
     @Scheduled(cron = "0 1 * * * ?")

@@ -842,6 +842,44 @@ public class RedisClient implements RedisOperation {
         }
     }
 
+    public Boolean sIsMember(String key, String member) throws Exception {
+        Jedis jedis = null;
+        try {
+            jedis = this.jedisPool.getResource();
+            Boolean out = jedis.sismember(key, member);
+            return out;
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            if (jedis != null) {
+                jedis.close();
+            }
+            throw e;
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+    }
+
+    public Long sInterStore(String dstkey, String... keys) {
+        Jedis jedis = null;
+        try {
+            jedis = this.jedisPool.getResource();
+            Long out = jedis.sinterstore(dstkey, keys);
+            return out;
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            if (jedis != null) {
+                jedis.close();
+            }
+            throw e;
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+    }
+
     public boolean lpush(String key, Object value) throws Exception {
         Jedis jedis = null;
         try {
@@ -1245,5 +1283,4 @@ public class RedisClient implements RedisOperation {
     public int getTimeout() {
         return timeout;
     }
-
 }

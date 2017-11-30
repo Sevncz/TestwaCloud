@@ -6,12 +6,11 @@ import com.corundumstudio.socketio.annotation.OnConnect;
 import com.corundumstudio.socketio.annotation.OnDisconnect;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.common.enums.Command;
-import com.testwa.distest.server.entity.DeviceBase;
 import com.testwa.core.cmd.MiniCmd;
 import com.testwa.distest.server.service.cache.mgr.ClientSessionMgr;
 import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
 import com.testwa.distest.server.service.cache.mgr.SubscribeMgr;
-import com.testwa.distest.server.service.cache.mgr.DeviceCacheMgr;
+import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
 import com.testwa.distest.server.websocket.WSFuncEnum;
 import com.testwa.distest.server.web.auth.jwt.JwtTokenUtil;
 import com.testwa.distest.server.websocket.service.PushCmdService;
@@ -38,7 +37,7 @@ public class WebConnectionHandler {
     @Autowired
     private PushCmdService pushCmdService;
     @Autowired
-    private DeviceCacheMgr deviceCacheMgr;
+    private DeviceAuthMgr deviceAuthMgr;
     @Autowired
     private SubscribeMgr subscribeMgr;
     @Autowired
@@ -81,8 +80,7 @@ public class WebConnectionHandler {
                         requestStartMinicap(deviceId);
                     }
                 }
-                DeviceBase td = deviceCacheMgr.getDeviceContent(deviceId);
-                client.sendEvent("devices", JSON.toJSONString(td));
+                client.sendEvent("devices", deviceId);
             }else{
                 client.sendEvent("error", "参数不能为空");
             }

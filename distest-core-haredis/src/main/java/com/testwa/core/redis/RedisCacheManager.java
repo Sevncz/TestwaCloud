@@ -489,7 +489,7 @@ public class RedisCacheManager {
         }
     }
 
-    public boolean sAdd(final String key, final String member) throws Exception {
+    public boolean sAdd(final String key, final String member) {
         List<RedisClient> clients = this.getAliveClients(key);
         if (isAtLeastOneAvailable(clients)) {
             this.execute(new BaseRedisCallBack<Object>() {
@@ -505,7 +505,7 @@ public class RedisCacheManager {
         return false;
     }
 
-    public boolean sRem(final String key, final String member) throws Exception {
+    public boolean sRem(final String key, final String member) {
         List<RedisClient> clients = this.getAliveClients(key);
         if (isAtLeastOneAvailable(clients)) {
             this.execute(new BaseRedisCallBack<Object>() {
@@ -522,7 +522,7 @@ public class RedisCacheManager {
         return false;
     }
 
-    public Set<String> sMembers(final String key) throws Exception {
+    public Set<String> sMembers(final String key) {
         List<RedisClient> clients = this.getAliveClients(key);
         if (isAtLeastOneAvailable(clients)) {
             return this.execute(new BaseRedisCallBack<Set<String>>() {
@@ -536,6 +536,38 @@ public class RedisCacheManager {
             }, clients, key, true);
         }
         return Collections.emptySet();
+    }
+
+    public Boolean sIsMember(String key, String member) {
+        List<RedisClient> clients = this.getAliveClients(key);
+        if (isAtLeastOneAvailable(clients)) {
+            return this.execute(new BaseRedisCallBack<Boolean>() {
+                public Boolean doOperation(RedisClient client) throws Exception {
+                    return client.sIsMember(key, member);
+                }
+
+                public String getOptionType() {
+                    return "SISMEMBER";
+                }
+            }, clients, key, true);
+        }
+        return false;
+    }
+
+    public Long sInterStore(String dstkey, String... keys) {
+        List<RedisClient> clients = this.getAliveClients(keys);
+        if (isAtLeastOneAvailable(clients)) {
+            return this.execute(new BaseRedisCallBack<Long>() {
+                public Long doOperation(RedisClient client) throws Exception {
+                    return client.sInterStore(dstkey, keys);
+                }
+
+                public String getOptionType() {
+                    return "SINTERSTORE";
+                }
+            }, clients, keys, true);
+        }
+        return 0l;
     }
 
     public Map<String, Object> hGetAll(final String key) {
@@ -635,7 +667,7 @@ public class RedisCacheManager {
     }
 
 
-    public List<Object> lrange(final String key, final int start, final int end, final Class<?> cls) throws Exception {
+    public List<Object> lrange(final String key, final int start, final int end, final Class<?> cls) {
         List<RedisClient> clients = this.getAliveClients(key);
         if (isAtLeastOneAvailable(clients)) {
             return this.execute(new BaseRedisCallBack<List<Object>>() {
@@ -679,7 +711,7 @@ public class RedisCacheManager {
                 }
 
                 public String getOptionType() {
-                    return "lrem";
+                    return "llen";
                 }
             }, clients, key, true);
         }
@@ -838,5 +870,4 @@ public class RedisCacheManager {
         this.evictorFailedTimesToBeTickOut = evictorFailedTimesToBeTickOut;
         return this;
     }
-
 }
