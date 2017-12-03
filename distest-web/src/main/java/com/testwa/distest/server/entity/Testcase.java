@@ -1,5 +1,6 @@
 package com.testwa.distest.server.entity;
 
+import com.testwa.core.base.annotation.Column;
 import com.testwa.core.base.annotation.TableName;
 import com.testwa.core.base.bo.BaseEntity;
 import com.testwa.distest.common.enums.DB;
@@ -28,5 +29,6 @@ public class Testcase extends BaseEntity {
     private Long updateBy;
     private Boolean enabled;
 
+    @Column(value="scripts", ignore=true)
     private List<Script> scripts;
 }

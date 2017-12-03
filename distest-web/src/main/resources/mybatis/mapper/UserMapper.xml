@@ -19,15 +19,10 @@
         <result column="loginIp" property="loginIp" jdbcType="INTEGER" />
         <result column="lastLoginIp" property="lastLoginIp" jdbcType="INTEGER" />
         <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
-        <result column="roleId" property="roleId" jdbcType="BIGINT" />
-        <association property="roles" resultMap="roleResult" />
-    </resultMap>
-    <resultMap id="roleResult" type="com.testwa.distest.server.entity.Role">
-        <result column="roleName"  property="roleName"/>
     </resultMap>
 
     <sql id="Base_Column_List" >
-        id, username, password, phone, email, sex, nickname, address, country, header, lastPasswordResetTime, lastLoginTime, loginTime, registerTime, loginIp, lastLoginIp, enabled, roleId
+        id, username, password, phone, email, sex, nickname, address, country, header, lastPasswordResetTime, lastLoginTime, loginTime, registerTime, loginIp, lastLoginIp, enabled
     </sql>
 
     <select id="findOne" parameterType="com.testwa.distest.server.entity.User" resultMap="BaseResultMap" >

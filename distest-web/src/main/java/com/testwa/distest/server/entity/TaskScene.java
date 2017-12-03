@@ -1,5 +1,6 @@
 package com.testwa.distest.server.entity;
 
+import com.testwa.core.base.annotation.Column;
 import com.testwa.core.base.annotation.TableName;
 import com.testwa.core.base.bo.BaseEntity;
 import com.testwa.distest.common.enums.DB;
@@ -28,6 +29,7 @@ public class TaskScene extends BaseEntity {
     private Long createBy;
     private Long updateBy;
 
+    @Column(value="testcases", ignore=true)
     private List<Testcase> testcases;
 
 }

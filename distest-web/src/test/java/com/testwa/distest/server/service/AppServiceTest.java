@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.FileInputStream;
@@ -28,6 +29,7 @@ import java.util.List;
 @Log4j2
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = WebServerApplication.class)
+@TestPropertySource(locations="classpath:application-test.properties")
 public class AppServiceTest {
 
     @Autowired

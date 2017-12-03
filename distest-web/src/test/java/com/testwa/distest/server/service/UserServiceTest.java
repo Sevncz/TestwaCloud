@@ -10,11 +10,14 @@ import com.testwa.distest.server.service.user.service.UserService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -22,6 +25,7 @@ import java.util.List;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = WebServerApplication.class)
+@TestPropertySource(locations="classpath:application-test.properties")
 public class UserServiceTest {
 
     @Autowired
@@ -31,9 +35,10 @@ public class UserServiceTest {
     public void testInsert() throws AccountException, AccountAlreadyExistException {
         long countBefore =userService.count();
         User user = new User();
-        user.setUsername("xiaoming2");
-        user.setPassword("xiaoming2");
-        user.setEmail("xiaoming2@testwa.com");
+        user.setUsername("test");
+        user.setPassword("test");
+        user.setEmail("test@testwa.com");
+        user.setSex(DB.Sex.MALE);
         userService.save(user);
         long countAfter =userService.count();
         Assert.assertEquals(++countBefore,countAfter);
@@ -61,11 +66,13 @@ public class UserServiceTest {
 
     @Test
     public void testUpdate(){
-        User user = userService.findByEmail("xiaoming@testwa.com");
-        user.setPhone("18600753024");
-        user.setNickname("wen");
-        user.setSex(DB.Sex.MALE);
-        int val = userService.update(user);
+        User update = userService.findByEmail("admin@testwa.com");
+        update.setPhone("18600753024");
+        update.setNickname("wen");
+        update.setSex(DB.Sex.MALE);
+        update.setLastLoginIp(123456);
+        update.setLastLoginTime(new Date());
+        int val = userService.update(update);
         Assert.assertEquals(val, 1);
     }
 
