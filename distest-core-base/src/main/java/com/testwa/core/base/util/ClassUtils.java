@@ -169,7 +169,7 @@ public class ClassUtils {
      * 获取一个类的field
      *
      * @param field
-     * @param class1
+     * @param clazz
      *
      * @return 下午3:01:19 created by Darwin(Tianxin)
      */

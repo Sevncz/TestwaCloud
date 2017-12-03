@@ -2,6 +2,7 @@ package com.testwa.core.base.dao.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.testwa.core.base.annotation.Column;
 import com.testwa.core.base.annotation.TableName;
 import com.testwa.core.base.bo.Entity;
 import com.testwa.core.base.dao.IBaseDAO;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.io.Serializable;
@@ -99,7 +101,10 @@ public class BaseDAO<T extends Entity,ID extends Serializable> implements IBaseD
                             log.error("this enum not match ValueEnum");
                         }
                     }else{
-                        valueList.add(f.get(entity));
+                        Column column = f.getAnnotation(Column.class);
+                        if(column == null || !column.ignore()){
+                            valueList.add(f.get(entity));
+                        }
                     }
                 }
             } catch (IllegalAccessException e) {
@@ -134,20 +139,25 @@ public class BaseDAO<T extends Entity,ID extends Serializable> implements IBaseD
             try {
                 f.setAccessible(true);
                 if(f.get(entity) != null){
-                    if(f.getType().isEnum()){
-                        if(ValueEnum.class.isAssignableFrom(f.getType())){
-                            ValueEnum ve = resolveValueEnum(f.get(entity).toString(), (Class<ValueEnum>)f.getType());
-                            if(ve != null){
-                                subMap.put(f.getName(), ve.getValue());
+                    if(!"id".equals(f.getName())) {
+                        if(f.getType().isEnum()){
+                            if(ValueEnum.class.isAssignableFrom(f.getType())){
+                                ValueEnum ve = resolveValueEnum(f.get(entity).toString(), (Class<ValueEnum>)f.getType());
+                                if(ve != null){
+                                    subMap.put(f.getName(), ve.getValue());
+                                }else{
+                                    log.error("this value not in enum");
+                                }
                             }else{
-                                log.error("this value not in enum");
+
+                                log.error("this enum not match ValueEnum");
                             }
                         }else{
-
-                            log.error("this enum not match ValueEnum");
+                            Column column = f.getAnnotation(Column.class);
+                            if(column == null || !column.ignore()){
+                                subMap.put(f.getName(), f.get(entity));
+                            }
                         }
-                    }else{
-                        subMap.put(f.getName(), f.get(entity));
                     }
                 }
             } catch (IllegalAccessException e) {
