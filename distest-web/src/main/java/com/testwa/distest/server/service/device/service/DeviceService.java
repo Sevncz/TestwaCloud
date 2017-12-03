@@ -108,9 +108,10 @@ public class DeviceService {
         return pr;
     }
 
-    public List<Device> fetchList(Long createBy) {
+    public List<Device> fetchList(Long createBy, Collection deviceIds) {
         Map<String, Object> queryMap = new HashMap<>();
         queryMap.put("createBy", createBy);
+        queryMap.put("deviceIdList", deviceIds);
         return deviceDAO.fetchList(queryMap);
     }
 }

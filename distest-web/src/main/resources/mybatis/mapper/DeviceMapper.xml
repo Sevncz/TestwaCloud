@@ -95,16 +95,15 @@
         SELECT device.*,device_auth.id as deviceAuth_id,device_auth.deviceId,device_auth.userId,user.id as user_id,user.username as username, user.email as email
         FROM device LEFT JOIN device_auth ON device.deviceId = device_auth.deviceId and device.lastUserId = device_auth.createBy LEFT JOIN user ON device_auth.userId = user.id
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
-            device.lastUserId = #{createBy}
-            <if test="deviceId != null">and deviceId = #{deviceId}</if>
+            <if test="deviceId != null">and device.deviceId = #{deviceId}</if>
             <if test="deviceIdList != null">
-                and deviceId in <foreach item="devId" index="index" collection="deviceIdList" open="(" separator="," close=")">#{devId} </foreach>
+                and device.deviceId in <foreach item="devId" index="index" collection="deviceIdList" open="(" separator="," close=")">#{devId} </foreach>
             </if>
-            <if test="phoneOS != null">and phoneOS = #{phoneOS}</if>
-            <if test="onlineStatus != null">and onlineStatus = #{onlineStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
-            <if test="model != null">and model = #{model}</if>
-            <if test="brand != null">and brand = #{brand}</if>
-            <if test="lastUserId != null">and lastUserId = #{lastUserId}</if>
+            <if test="phoneOS != null">and device.phoneOS = #{phoneOS}</if>
+            <if test="onlineStatus != null">and device.onlineStatus = #{onlineStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
+            <if test="model != null">and device.model = #{model}</if>
+            <if test="brand != null">and device.brand = #{brand}</if>
+            <if test="createBy != null">and device.lastUserId = #{createBy}</if>
         </trim>
     </select>
 

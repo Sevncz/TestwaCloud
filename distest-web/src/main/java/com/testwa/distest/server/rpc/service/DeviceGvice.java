@@ -2,6 +2,7 @@ package com.testwa.distest.server.rpc.service;
 
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
+import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.LogInterceptor;
 import com.testwa.distest.server.entity.DeviceAndroid;
 import com.testwa.distest.server.entity.Device;
@@ -44,22 +45,13 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
         String token = request.getUserId();
         List<io.rpc.testwa.device.Device> l = request.getDeviceList();
         Long userId = jwtTokenUtil.getUserIdFromToken(token);
-//        Set<String> onlineDeviceIdList = deviceCacheMgr.getAllOnlineDeviceId();
         for(io.rpc.testwa.device.Device device : l){
             handleDevice(device, userId);
         }
     }
 
     private void handleDevice(io.rpc.testwa.device.Device device, Long userId) {
-        // 看redis里有没有设备,没有则保存
-        Device deviceBase = deviceService.findByDeviceId(device.getDeviceId());
-        DeviceAndroid deviceAndroid = null;
-        if(deviceBase == null){
-            deviceAndroid = new DeviceAndroid();
-            log.info("Save a new device to db, deviceId: {}.", device.getDeviceId());
-        }else{
-            deviceAndroid = (DeviceAndroid) deviceBase;
-        }
+        DeviceAndroid deviceAndroid = new DeviceAndroid();
         deviceAndroid.setBrand(device.getBrand());
         deviceAndroid.setCpuabi(device.getCpuabi());
         deviceAndroid.setDensity(device.getDensity());
@@ -70,19 +62,11 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
         deviceAndroid.setOsName(device.getOsName());
         deviceAndroid.setSdk(device.getSdk());
         deviceAndroid.setWidth(device.getWidth());
-
-//        UserDeviceHis udh = userDeviceHisService.findByUserIdAndDeviceId(userId, device.getDeviceId());
-//        if(udh == null){
-//            udh = new UserDeviceHis(userId, tDevice);
-//            userDeviceHisService.save(udh);
-//        }
-
-        // 修改设备状态
-//        tDevice.setStatus(device.getStatus().name().toUpperCase());
-//        deviceService.save(tDevice);
-//        udh.setD_status(device.getStatus().name().toUpperCase());
-//        userDeviceHisService.save(udh);
-
+        deviceAndroid.setLastUserId(userId);
+        Device deviceBase = deviceService.findByDeviceId(device.getDeviceId());
+        if(deviceBase == null){
+            deviceService.insertAndroid(deviceAndroid);
+        }
         if("ON".equals(device.getStatus().name().toUpperCase())){
             deviceAuthMgr.online(device.getDeviceId());
         }
@@ -95,11 +79,6 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     public void disconnect(NoUsedDeviceRequest request, StreamObserver<CommonReply> responseObserver) {
         log.info("device disconnect, {}", request.getDeviceId());
         deviceAuthMgr.offline(request.getDeviceId());
-
-        // 修改设备状态为OFF 数据库不需要 off 状态标识
-//        DeviceAndroid tDevice = deviceService.getDeviceById(request.getDeviceId());
-//        tDevice.setStatus("OFF");
-//        deviceService.save(tDevice);
     }
 
     @Override

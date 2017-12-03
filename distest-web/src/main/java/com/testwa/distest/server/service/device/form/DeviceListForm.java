@@ -12,7 +12,7 @@ import lombok.Data;
 )
 @Data
 public class DeviceListForm extends RequestListBase {
-    private Long projectId;
+//    private Long projectId;
     private String deviceId;
     private String brand;
     private String model;

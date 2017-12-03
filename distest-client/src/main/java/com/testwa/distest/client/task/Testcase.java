@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
  */
 public class Testcase {
     private static Logger LOG = LoggerFactory.getLogger(Testcase.class);
-    public static final String feedback_report_sdetail = WebsocketEvent.FB_REPORT_SDETAIL;
+    public static final String feedback_report_sdetail = WebsocketEvent.FB_SCRIPT_STOP;
 
     private String appId;
     private String serial;

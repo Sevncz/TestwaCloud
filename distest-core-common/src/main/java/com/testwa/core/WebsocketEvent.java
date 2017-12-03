@@ -21,7 +21,8 @@ public class WebsocketEvent {
 
     public static final String FB_RUNNGING_LOG = "feedback.runninglog";
     public static final String FB_APPIUM_ERROR = "feedback.appium.error";
-    public static final String FB_REPORT_SDETAIL = "feedback.report.sdetail";
+    // 脚本停止运行事件
+    public static final String FB_SCRIPT_STOP = "FB.script.stop";
 //    public static final String FB_DEVICE = "feedback.device";
     public static final String FB_RUNNING_SCREEN = "feedback.running.screen";
     public static final String FB_SCRIPT_END = "feedback.script.end";

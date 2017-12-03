@@ -11,11 +11,14 @@ import com.testwa.core.base.vo.Result;
 import com.testwa.distest.client.rpc.proto.Agent;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.User;
+import com.testwa.distest.server.service.device.form.DeviceAuthNewForm;
 import com.testwa.distest.server.service.device.form.DeviceListForm;
+import com.testwa.distest.server.service.device.service.DeviceAuthService;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.auth.validator.UserValidator;
 import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
+import com.testwa.distest.server.web.device.validator.DeviceValidatoer;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -52,51 +55,72 @@ public class DeviceController extends BaseController {
     @Autowired
     private DeviceService deviceService;
     @Autowired
+    private DeviceAuthService deviceAuthService;
+    @Autowired
     private DeviceAuthMgr deviceAuthMgr;
+    @Autowired
+    private DeviceValidatoer deviceValidatoer;
     @Autowired
     private Environment env;
 
     /**
-     * 项目内可用在线设备列表
+     * 可见在线设备分页列表
      * @param form
      * @return
      */
-    @ApiOperation(value="查看用户所在某个项目下的在线设备分页列表", notes = "")
+    @ApiOperation(value="查看用户可见的在线设备分页列表", notes = "设备目前所有人均可见")
     @ResponseBody
-    @RequestMapping(value = "/project/enable/page", method = RequestMethod.GET)
+    @GetMapping(value = "/project/enable/page")
     public Result porjectEnablePage(@RequestBody @Valid DeviceListForm form) throws ObjectNotExistsException, AuthorizedException {
-        projectValidator.validateProjectExist(form.getProjectId());
-        User user = userService.findByUsername(getCurrentUsername());
-        projectValidator.validateUserIsProjectMember(form.getProjectId(), user.getId());
-        Set<String> deviceIds = deviceAuthMgr.getAllDeviceIdsByProject(form.getProjectId());
+//        projectValidator.validateProjectExist(form.getProjectId());
+//        User user = userService.findByUsername(getCurrentUsername());
+//        projectValidator.validateUserIsProjectMember(form.getProjectId(), user.getId());
+        Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
         PageResult<Device> devicePR = deviceService.findByDeviceIdsPage(deviceIds, form);
         return ok(devicePR);
     }
 
     /**
-     * 项目内可用在线设备列表
+     * 可见在线设备列表
      * @param form
      * @return
      */
-    @ApiOperation(value="查看用户所在某个项目下的在线设备列表", notes = "")
+    @ApiOperation(value="查看用户可见的在线设备列表", notes = "设备目前所有人均可见")
     @ResponseBody
-    @RequestMapping(value = "/project/enable/list", method = RequestMethod.POST)
+    @PostMapping(value = "/project/enable/list")
     public Result porjectEnableList(@RequestBody @Valid DeviceListForm form) throws AccountException, ObjectNotExistsException, AuthorizedException {
-        projectValidator.validateProjectExist(form.getProjectId());
-        User user = userService.findByUsername(getCurrentUsername());
-        projectValidator.validateUserIsProjectMember(form.getProjectId(), user.getId());
-        Set<String> deviceIds = deviceAuthMgr.getAllDeviceIdsByProject(form.getProjectId());
+//        projectValidator.validateProjectExist(form.getProjectId());
+//        User user = userService.findByUsername(getCurrentUsername());
+//        projectValidator.validateUserIsProjectMember(form.getProjectId(), user.getId());
+        Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
         List<Device> deviceList = deviceService.findByDeviceIds(deviceIds, form);
         return ok(deviceList);
     }
 
-    @ApiOperation(value="查看登录用户自己的设备，获得包括设备权限和用户信息", notes = "")
+    @ApiOperation(value="查看登录用户自己的在线设备，获得包括设备权限和用户信息", notes = "")
     @ResponseBody
-    @RequestMapping(value = "/my/list", method = RequestMethod.GET)
+    @GetMapping(value = "/my/list")
     public Result myList() {
+        Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
         User user = userService.findByUsername(getCurrentUsername());
-        List<Device> deviceList = deviceService.fetchList(user.getId());
+        List<Device> deviceList = deviceService.fetchList(user.getId(), deviceIds);
         return ok(deviceList);
+    }
+
+    @ApiOperation(value="把自己的设备分享给其他人", notes = "暂时所有设备都可见，可不使用")
+    @ResponseBody
+    @PostMapping(value = "/share/to/other")
+    public Result shareToOther(@RequestBody DeviceAuthNewForm form) throws ObjectNotExistsException {
+        //  校验设备是否在线
+        deviceValidatoer.validateOnline(form.getDeviceId());
+        User currentUser = userService.findByUsername(getCurrentUsername());
+        //  校验设备是否是用户自己的设备
+        deviceValidatoer.validateDeviceBelongUser(form.getDeviceId(), currentUser.getId());
+        //  保存到数据库
+        deviceAuthService.insert(form, currentUser.getId());
+        //  保存到缓存
+        deviceAuthMgr.allowUsersToUse(form.getDeviceId(), form.getUserIds());
+        return ok();
     }
 
     @RequestMapping(value = "/screen", method = RequestMethod.GET)
@@ -132,166 +156,6 @@ public class DeviceController extends BaseController {
         Path appiumPath = Paths.get(env.getProperty("appium.log.path"), messageName);
         Path appiumDir = appiumPath.getParent();
         saveMessageFile(message.getLog().toByteArray(), appiumPath, appiumDir);
-
-        return ok();
-    }
-
-
-    /**
-     * 我自己的设备
-     * @return
-     */
-    @ResponseBody
-    @RequestMapping(value = "/owner/page", method= RequestMethod.GET)
-    public Result page(@RequestBody DeviceListForm form){
-        try{
-//            PageRequest pageRequest = buildPageRequest(page, size, sortField, sortOrder);
-
-            User currentUser = userService.findByUsername(getCurrentUsername());
-//            Page<UserDeviceHis> userDevicePage = userDeviceHisService.findOwnerUserPage(pageRequest, currentUser.getId(), deviceId);
-//            List<DeviceOwnerTableVO> userDeviceOVList = buildDeviceOwnerTableVO(userDevicePage);
-
-//            PageResult<DeviceOwnerTableVO> pr = new PageResult<>(userDeviceOVList, userDevicePage.getTotalElements());
-//            return ok(pr);
-
-            return ok();
-        }catch (Exception e){
-            log.error("Get devices table error", e);
-            return fail(ResultCode.SERVER_ERROR, e.getMessage());
-        }
-
-    }
-
-    /**
-     * 分享给我的设备
-     * @param page
-     * @param size
-     * @param sortField
-     * @param sortOrder
-     * @param deviceId
-     * @return
-     */
-    @ResponseBody
-    @RequestMapping(value = "/shared/page", method= RequestMethod.GET)
-    public Result sharedPage(@RequestParam(value = "page")Integer page,
-                                  @RequestParam(value = "size")Integer size ,
-                                  @RequestParam(value = "sortField")String sortField,
-                                  @RequestParam(value = "sortOrder")String sortOrder,
-                                  @RequestParam(required=false) String deviceId){
-        try{
-            User currentUser = userService.findByUsername(getCurrentUsername());
-//            PageRequest pageRequest = buildPageRequest(page, size, sortField, sortOrder);
-//            Page<UserDeviceHis> userDevicePage =  userDeviceHisService.findSharedUserPage(pageRequest, currentUser.getId(), deviceId);
-//            PageResult<DeviceOwnerTableVO> pr = new PageResult<>(buildDeviceOwnerTableVO(userDevicePage), userDevicePage.getTotalElements());
-//            return ok(pr);
-            return ok();
-        }catch (Exception e){
-            log.error("Get devices table error", e);
-            return fail(ResultCode.SERVER_ERROR, e.getMessage());
-        }
-
-    }
-
-    /**
-     * 所有可用设备
-     * @param page
-     * @param size
-     * @param sortField
-     * @param sortOrder
-     * @param deviceId
-     * @return
-     */
-    @ResponseBody
-    @RequestMapping(value = "/available/page", method= RequestMethod.GET)
-    public Result availabletablePage(@RequestParam(value = "page")Integer page,
-                                     @RequestParam(value = "size")Integer size ,
-                                     @RequestParam(value = "sortField")String sortField,
-                                     @RequestParam(value = "sortOrder")String sortOrder,
-                                     @RequestParam(required=false) String deviceId){
-        try{
-            User currentUser = userService.findByUsername(getCurrentUsername());
-//            PageRequest pageRequest = buildPageRequest(page, size, sortField, sortOrder);
-//            Page<UserDeviceHis> userDevicePage =  userDeviceHisService.findAvailablePage(pageRequest, currentUser.getId(), deviceId);
-//            PageResult<DeviceOwnerTableVO> pr = new PageResult<>(buildDeviceOwnerTableVO(userDevicePage), userDevicePage.getTotalElements());
-//            return ok(pr);
-
-            return ok();
-        }catch (Exception e){
-            log.error("Get devices table error", e);
-            return fail(ResultCode.SERVER_ERROR, e.getMessage());
-        }
-
-    }
-
-
-//    private List<DeviceOwnerTableVO> buildDeviceOwnerTableVO(Page<UserDeviceHis> userDevicePage) {
-//        List<DeviceOwnerTableVO> lists = new ArrayList<>();
-//        for (UserDeviceHis his : userDevicePage) {
-//            TDevice device = deviceService.getDeviceById(his.getDeviceId());
-//            DeviceOwnerTableVO vo = new DeviceOwnerTableVO(device);
-//            String sessionId = remoteClientService.getMainSessionByDeviceId(his.getDeviceId());
-//            if (StringUtils.isNotBlank(sessionId)) {
-//                // 状态已经保存在数据库了，这里就不用修改了，只需要拿到agent的信息
-////                    d.setStatus("ON");
-//                vo.setSessionId(sessionId);
-//                String agentId = remoteClientService.getMainInfoBySession(sessionId);
-//                if (StringUtils.isNotBlank(agentId)) {
-//                    Agent agent = testwaAgentService.getTestwaAgentById(agentId);
-//                    vo.setAgent(agent);
-//                }
-//            } else {
-//                log.debug("DeviceAndroid offline, {}", his.getDeviceId());
-//                vo.setStatus("OFF");
-//            }
-//            lists.add(vo);
-//        }
-//        return lists;
-//    }
-
-
-//    @ResponseBody
-//    @RequestMapping(value = "/list", method= RequestMethod.GET)
-//    public Result list(@RequestParam(required=false) String deviceId){
-//        List<TDevice> devices = deviceService.find(deviceId);
-//        return ok();
-//    }
-
-
-    @ResponseBody
-    @RequestMapping(value = "/share/to/scope", method= RequestMethod.POST, produces={"application/json"})
-    public Result shareScope(@RequestParam() String deviceId,
-                            @RequestParam() String scope) throws AccountException {
-        User currentUser = userService.findByUsername(getCurrentUsername());
-        Long currentUserId = currentUser.getId();
-//        UserDeviceHis udh = userDeviceHisService.findByUserIdAndDeviceId(deviceId, currentUserId);
-//        if(udh == null){
-//            DeviceAndroid device = deviceService.getDeviceById(deviceId);
-//            udh = new UserDeviceHis(currentUserId, device);
-//        }
-//        if(UserShareScope.contains(scope)){
-//            udh.setScope(UserShareScope.valueOf(scope).getValue());
-//        }
-//        userDeviceHisService.saveRegressionTestcase(udh);
-
-        return ok();
-    }
-
-
-    @ResponseBody
-    @RequestMapping(value = "/share/to/user", method= RequestMethod.POST, produces={"application/json"})
-    public Result shareTo(@RequestBody Map<String, Object> params) throws AccountException {
-        String deviceId = (String) params.getOrDefault("deviceId", "");
-        String userId = (String) params.getOrDefault("userId", "");
-        User currentUser = userService.findByUsername(getCurrentUsername());
-        Long currentUserId = currentUser.getId();
-//        UserDeviceHis udh = userDeviceHisService.findByUserIdAndDeviceId(deviceId, userId);
-//        if(udh == null){
-//            DeviceAndroid device = deviceService.getDeviceById(deviceId);
-//            udh = new UserDeviceHis(currentUserId, device);
-//        }
-//        Set<String> userIds = udh.getShareUsers();
-//        userIds.add(userId);
-//        userDeviceHisService.saveRegressionTestcase(udh);
 
         return ok();
     }

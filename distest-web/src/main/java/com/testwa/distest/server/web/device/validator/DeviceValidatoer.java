@@ -52,4 +52,11 @@ public class DeviceValidatoer {
         }
         return entity;
     }
+
+    public void validateDeviceBelongUser(String deviceId, Long userId) throws ObjectNotExistsException {
+        Device entity = deviceService.findOne(deviceId);
+        if(!entity.getLastUserId().equals(userId)){
+            throw new ObjectNotExistsException("该设备不属于用户");
+        }
+    }
 }

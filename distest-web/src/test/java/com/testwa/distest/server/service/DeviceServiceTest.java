@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Log4j2
@@ -77,7 +78,7 @@ public class DeviceServiceTest {
 
     @Test
     public void testFetchList(){
-        List<Device> deviceList = deviceService.fetchList(3l);
+        List<Device> deviceList = deviceService.fetchList(3l, Arrays.asList("123456", "223456", "323456"));
         for(Device d : deviceList){
             log.info(d.getDeviceAuths());
             log.info(d.toString());

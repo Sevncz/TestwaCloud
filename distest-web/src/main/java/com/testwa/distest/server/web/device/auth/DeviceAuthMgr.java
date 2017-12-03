@@ -37,6 +37,13 @@ public class DeviceAuthMgr {
         redisCacheMgr.sAdd(key, deviceId);
         redisCacheMgr.sAdd(ALLOW_USER_TO_USE_VALUE, String.valueOf(userId));
     }
+    public void allowUsersToUse(String deviceId, List<Long> userIds){
+        for (Long userId: userIds) {
+            String key = MessageFormat.format(ALLOW_USER_TO_USE, userId);
+            redisCacheMgr.sAdd(key, deviceId);
+            redisCacheMgr.sAdd(ALLOW_USER_TO_USE_VALUE, String.valueOf(userId));
+        }
+    }
     public void disableUserToUse(String deviceId, Long userId){
         String key = MessageFormat.format(ALLOW_USER_TO_USE, userId);
         redisCacheMgr.sRem(key, deviceId);
@@ -52,20 +59,20 @@ public class DeviceAuthMgr {
      * @param deviceId
      * @param proejctId
      */
-    public void allowProjectToUse(String deviceId, Long proejctId){
-        String key = MessageFormat.format(ALLOW_PROJECT_TO_USE, proejctId);
-        redisCacheMgr.sAdd(key, deviceId);
-        redisCacheMgr.sAdd(ALLOW_PROJECT_TO_USE_VALUE, String.valueOf(proejctId));
-    }
-    public void disableProjectToUse(String deviceId, Long proejctId){
-        String key = MessageFormat.format(ALLOW_PROJECT_TO_USE, proejctId);
-        redisCacheMgr.sRem(key, deviceId);
-
-    }
-    public Set<String> getAllDeviceIdsByProject(Long proejctId){
-        String key = MessageFormat.format(ALLOW_PROJECT_TO_USE, proejctId);
-        return getOnlyOnlineDeviceId(key);
-    }
+//    public void allowProjectToUse(String deviceId, Long proejctId){
+//        String key = MessageFormat.format(ALLOW_PROJECT_TO_USE, proejctId);
+//        redisCacheMgr.sAdd(key, deviceId);
+//        redisCacheMgr.sAdd(ALLOW_PROJECT_TO_USE_VALUE, String.valueOf(proejctId));
+//    }
+//    public void disableProjectToUse(String deviceId, Long proejctId){
+//        String key = MessageFormat.format(ALLOW_PROJECT_TO_USE, proejctId);
+//        redisCacheMgr.sRem(key, deviceId);
+//
+//    }
+//    public Set<String> getAllDeviceIdsByProject(Long proejctId){
+//        String key = MessageFormat.format(ALLOW_PROJECT_TO_USE, proejctId);
+//        return getOnlyOnlineDeviceId(key);
+//    }
 
     /**
      * 分享范围的设备和在线设备的交集

@@ -2,13 +2,11 @@ package com.testwa.distest.server.websocket.handler;
 
 import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;
-import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.annotation.OnEvent;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.rpc.proto.Agent;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -16,9 +14,9 @@ import org.springframework.stereotype.Component;
  */
 @Log4j2
 @Component
-public class ReportSdetailFeedbackHandler {
+public class ScriptStopFeedbackHandler {
 
-    @OnEvent(value = WebsocketEvent.FB_REPORT_SDETAIL)
+    @OnEvent(value = WebsocketEvent.FB_SCRIPT_STOP)
     public void onSdetail(SocketIOClient client, byte[] data, AckRequest ackRequest) {
         /**
          * 纪录一个脚本执行的起止时间
