@@ -112,7 +112,7 @@ public class TestwaEnvCheck implements CommandLineRunner {
 
             }
         };
-        httpService.postJson(String.format("%s/auth/login", agentWebUrl), new User(username, password), cb);
+        httpService.postJson(String.format("%s/api/auth/login", agentWebUrl), new User(username, password), cb);
 //        User userData = new User(username, password)
 //        Http.post(String.format("%s/account/purelogin", agentWebUrl), 60000, )
         return true;

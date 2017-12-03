@@ -1,8 +1,9 @@
-package com.testwa.distest.server.web.auth.jwt;
+package com.testwa.distest.config.security;
 
 import java.io.Serializable;
 
-public class  JwtAuthenticationRequest implements Serializable {
+
+public class JwtAuthenticationRequest implements Serializable {
 
     private static final long serialVersionUID = -8445943548965154778L;
 
@@ -13,8 +14,8 @@ public class  JwtAuthenticationRequest implements Serializable {
         super();
     }
 
-    public JwtAuthenticationRequest(String username, String password) {
-        this.setUsername(username);
+    public JwtAuthenticationRequest(String account, String password) {
+        this.setUsername(account);
         this.setPassword(password);
     }
 
@@ -30,7 +31,7 @@ public class  JwtAuthenticationRequest implements Serializable {
         return this.password;
     }
 
-    public void setPassword(String password) {
+    private void setPassword(String password) {
         this.password = password;
     }
 }

@@ -1,4 +1,4 @@
-package com.testwa.distest.server.web.auth.login;
+package com.testwa.distest.server.web.auth.mgr;
 
 import com.testwa.core.redis.RedisCacheManager;
 import com.testwa.distest.server.service.user.constant.UserConstant;

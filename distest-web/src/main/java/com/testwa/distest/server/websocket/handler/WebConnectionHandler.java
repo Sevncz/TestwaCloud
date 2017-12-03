@@ -7,12 +7,14 @@ import com.corundumstudio.socketio.annotation.OnDisconnect;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.common.enums.Command;
 import com.testwa.core.cmd.MiniCmd;
+import com.testwa.distest.config.security.JwtTokenUtil;
+import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.cache.mgr.ClientSessionMgr;
 import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
 import com.testwa.distest.server.service.cache.mgr.SubscribeMgr;
+import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
 import com.testwa.distest.server.websocket.WSFuncEnum;
-import com.testwa.distest.server.web.auth.jwt.JwtTokenUtil;
 import com.testwa.distest.server.websocket.service.PushCmdService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -42,6 +44,8 @@ public class WebConnectionHandler {
     private SubscribeMgr subscribeMgr;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
+    @Autowired
+    private UserService userService;
 
     @OnConnect
     public void onConnect(SocketIOClient client) throws ObjectNotExistsException {
@@ -61,8 +65,9 @@ public class WebConnectionHandler {
             try {
                 String token = client.getHandshakeData().getSingleUrlParam("token");
                 if(StringUtils.isNotBlank(token)){
-                    Long userId = jwtTokenUtil.getUserIdFromToken(token);
-                    clientSessionMgr.login(userId, client.getSessionId().toString());
+                    String username = jwtTokenUtil.getUsernameFromToken(token);
+                    User user = userService.findByUsername(username);
+                    clientSessionMgr.login(user.getId(), client.getSessionId().toString());
                 }
             } catch (Exception e) {
                 log.error("parser token error", e);
@@ -102,8 +107,9 @@ public class WebConnectionHandler {
             try {
                 String token = client.getHandshakeData().getSingleUrlParam("token");
                 if(StringUtils.isNotBlank(token)){
-                    Long userId = jwtTokenUtil.getUserIdFromToken(token);
-                    clientSessionMgr.logout(userId);
+                    String username = jwtTokenUtil.getUsernameFromToken(token);
+                    User user = userService.findByUsername(username);
+                    clientSessionMgr.logout(user.getId());
                 }
             } catch (Exception e) {
                 log.error("parser token error", e);

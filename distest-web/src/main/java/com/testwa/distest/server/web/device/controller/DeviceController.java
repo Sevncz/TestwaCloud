@@ -70,7 +70,7 @@ public class DeviceController extends BaseController {
      */
     @ApiOperation(value="查看用户可见的在线设备分页列表", notes = "设备目前所有人均可见")
     @ResponseBody
-    @GetMapping(value = "/project/enable/page")
+    @GetMapping(value = "/enable/page")
     public Result porjectEnablePage(@RequestBody @Valid DeviceListForm form) throws ObjectNotExistsException, AuthorizedException {
 //        projectValidator.validateProjectExist(form.getProjectId());
 //        User user = userService.findByUsername(getCurrentUsername());
@@ -87,7 +87,7 @@ public class DeviceController extends BaseController {
      */
     @ApiOperation(value="查看用户可见的在线设备列表", notes = "设备目前所有人均可见")
     @ResponseBody
-    @PostMapping(value = "/project/enable/list")
+    @PostMapping(value = "/enable/list")
     public Result porjectEnableList(@RequestBody @Valid DeviceListForm form) throws AccountException, ObjectNotExistsException, AuthorizedException {
 //        projectValidator.validateProjectExist(form.getProjectId());
 //        User user = userService.findByUsername(getCurrentUsername());

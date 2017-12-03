@@ -1,10 +1,15 @@
-package com.testwa.distest.server.web.auth.service;
+package com.testwa.distest.config.security;
 
-public class JwtAuthenticationResponse {
+import java.io.Serializable;
+
+public class JwtAuthenticationResponse implements Serializable {
+
+    private static final long serialVersionUID = 1250166508152483573L;
 
     private final String accessToken;
     private final String refreshToken;
     private final long expiresIn;
+
 
     public JwtAuthenticationResponse(String accessToken, String refreshToken, long expiresIn) {
         this.accessToken = accessToken;

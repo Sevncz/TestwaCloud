@@ -1,24 +1,22 @@
-package com.testwa.distest.server.web.auth.jwt;
+package com.testwa.distest.config.security;
 
 import com.alibaba.fastjson.JSON;
 import com.testwa.core.utils.TimeUtil;
-import com.testwa.distest.server.web.auth.dto.JwtUser;
-import com.testwa.distest.server.web.auth.dto.Scopes;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.CompressionCodecs;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mobile.device.Device;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import java.io.Serializable;
 import java.util.*;
 
-@Log4j2
 @Component
-public class JwtTokenUtil {
+public class JwtTokenUtil implements Serializable {
+
+    private static final long serialVersionUID = -3301605591108950415L;
 
     private static final String CLAIM_KEY_USERNAME = "sub";
     private static final String CLAIM_KEY_USER_ID = "user_id";
@@ -27,11 +25,6 @@ public class JwtTokenUtil {
     private static final String CLAIM_KEY_AUDIENCE = "audience";
     private static final String CLAIM_KEY_CREATED = "created";
     private static final String CLAIM_KEY_EXPIRED = "exp";
-
-    private static final String AUDIENCE_UNKNOWN = "unknown";
-    private static final String AUDIENCE_WEB = "web";
-    private static final String AUDIENCE_MOBILE = "mobile";
-    private static final String AUDIENCE_TABLET = "tablet";
 
     @Value("${jwt.secret}")
     private String secret;
@@ -135,22 +128,6 @@ public class JwtTokenUtil {
         return (lastPasswordReset != null && created.before(lastPasswordReset));
     }
 
-    private String generateAudience(Device device) {
-        String audience = AUDIENCE_UNKNOWN;
-        if (device.isNormal()) {
-            audience = AUDIENCE_WEB;
-        } else if (device.isTablet()) {
-            audience = AUDIENCE_TABLET;
-        } else if (device.isMobile()) {
-            audience = AUDIENCE_MOBILE;
-        }
-        return audience;
-    }
-
-    private Boolean ignoreTokenExpiration(String token) {
-        String audience = getAudienceFromToken(token);
-        return (AUDIENCE_TABLET.equals(audience) || AUDIENCE_MOBILE.equals(audience));
-    }
 
     public String generateRefreshToken(UserDetails userDetails) {
         JwtUser user = (JwtUser) userDetails;
@@ -164,10 +141,9 @@ public class JwtTokenUtil {
         return generateToken(subject, claims, refresh_token_expiration);
     }
 
-    public String generateAccessToken(UserDetails userDetails, Device device) {
+    public String generateAccessToken(UserDetails userDetails) {
         JwtUser user = (JwtUser) userDetails;
         Map<String, Object> claims = generateClaims(user);
-        claims.put(CLAIM_KEY_AUDIENCE, generateAudience(device));
         claims.put(CLAIM_KEY_AUTHORITIES, JSON.toJSON(userDetails.getAuthorities()));
         return generateAccessToken(userDetails.getUsername(), claims);
     }
@@ -178,7 +154,7 @@ public class JwtTokenUtil {
 
     private Map<String, Object> generateClaims(JwtUser user) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put(CLAIM_KEY_USER_ID, user.getUserId());
+        claims.put(CLAIM_KEY_USER_ID, user.getId());
         claims.put(CLAIM_KEY_ACCOUNT_ENABLED, user.isEnabled());
         final Date createdDate = TimeUtil.now();
         claims.put(CLAIM_KEY_CREATED, createdDate);
@@ -205,7 +181,7 @@ public class JwtTokenUtil {
     public Boolean canTokenBeRefreshed(String token, Date lastPasswordReset) {
         final Date created = getCreatedDateFromToken(token);
         return !isCreatedBeforeLastPasswordReset(created, lastPasswordReset)
-                && (!isTokenExpired(token) || ignoreTokenExpiration(token));
+                && !isTokenExpired(token);
     }
 
     public String refreshToken(String token) {
@@ -230,4 +206,5 @@ public class JwtTokenUtil {
                         && !isTokenExpired(token)
                         && !isCreatedBeforeLastPasswordReset(created, user.getLastPasswordResetDate()));
     }
+
 }

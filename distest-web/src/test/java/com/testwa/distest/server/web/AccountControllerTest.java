@@ -1,7 +1,7 @@
 package com.testwa.distest.server.web;
 
 import com.alibaba.fastjson.JSON;
-import com.testwa.distest.server.web.auth.controller.AccountController;
+import com.testwa.distest.server.web.auth.controller.AuthController;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +37,7 @@ public class AccountControllerTest {
     private WebApplicationContext context;
 
     @InjectMocks
-    AccountController accountController;
+    AuthController accountController;
 
     @Before
     public void setUp() throws Exception {

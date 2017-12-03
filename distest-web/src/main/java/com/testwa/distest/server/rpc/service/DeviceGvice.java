@@ -3,12 +3,14 @@ package com.testwa.distest.server.rpc.service;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.testwa.distest.common.enums.DB;
+import com.testwa.distest.config.security.JwtTokenUtil;
 import com.testwa.distest.server.LogInterceptor;
 import com.testwa.distest.server.entity.DeviceAndroid;
 import com.testwa.distest.server.entity.Device;
+import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.cache.mgr.SubscribeMgr;
 import com.testwa.distest.server.service.device.service.DeviceService;
-import com.testwa.distest.server.web.auth.jwt.JwtTokenUtil;
+import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
 import com.testwa.distest.server.websocket.WSFuncEnum;
 import com.testwa.distest.server.rpc.GRpcService;
@@ -36,6 +38,8 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     @Autowired
     private DeviceService deviceService;
     @Autowired
+    private UserService userService;
+    @Autowired
     private SubscribeMgr subscribeMgr;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
@@ -44,9 +48,10 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     public void all(DevicesRequest request, StreamObserver<CommonReply> responseObserver) {
         String token = request.getUserId();
         List<io.rpc.testwa.device.Device> l = request.getDeviceList();
-        Long userId = jwtTokenUtil.getUserIdFromToken(token);
+        String username = jwtTokenUtil.getUsernameFromToken(token);
+        User user = userService.findByUsername(username);
         for(io.rpc.testwa.device.Device device : l){
-            handleDevice(device, userId);
+            handleDevice(device, user.getId());
         }
     }
 

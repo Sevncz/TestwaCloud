@@ -199,7 +199,7 @@ message DoAddAccountMenuResponse {
 
 message DoRemoveAccountRequest {
     required string type = 1;
-    optional string account = 2;
+    optional string username = 2;
 }
 
 message DoRemoveAccountResponse {

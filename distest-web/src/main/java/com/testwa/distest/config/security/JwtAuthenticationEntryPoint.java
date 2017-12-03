@@ -1,11 +1,10 @@
-package com.testwa.distest.server.web.auth.jwt;
+package com.testwa.distest.config.security;
 
 import com.alibaba.fastjson.JSON;
 import com.testwa.core.base.constant.ResultCode;
 import com.testwa.core.base.vo.Result;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
-import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.AuthenticationException;
@@ -15,11 +14,12 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.Serializable;
 
-@Log4j2
 @Component
-public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint, Serializable {
 
+    private static final long serialVersionUID = -8970718410437077606L;
     @Value("${jwt.header}")
     private String tokenHeader;
     @Value("${jwt.secret}")
@@ -29,7 +29,9 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request,
                          HttpServletResponse response,
                          AuthenticationException authException) throws IOException {
-
+        // This is invoked when user tries to access a secured REST resource without supplying any credentials
+        // We should just send a 401 Unauthorized response because there is no 'login page' to redirect to
+//        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json");
         String token = request.getHeader(tokenHeader);
@@ -53,6 +55,5 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         r.setMessage("非法的token");
         response.getWriter().println(JSON.toJSON(r));
         response.getWriter().flush();
-
     }
 }

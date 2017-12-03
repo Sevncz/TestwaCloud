@@ -1,4 +1,4 @@
-package com.testwa.distest.server.web.auth.dto;
+package com.testwa.distest.config.security;
 
 public enum Scopes {
     REFRESH_TOKEN;
