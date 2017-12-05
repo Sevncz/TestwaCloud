@@ -60,7 +60,7 @@ public class ProjectController extends BaseController {
 
     @ApiOperation(value="创建项目")
     @ResponseBody
-    @RequestMapping(value = "/save", method= RequestMethod.POST)
+    @PostMapping(value = "/save")
     public Result save(@RequestBody @Valid ProjectNewForm form) throws AccountNotFoundException, AuthorizedException, ParamsException {
 
         if(form.getMembers() != null){
@@ -72,7 +72,7 @@ public class ProjectController extends BaseController {
     }
     @ApiOperation(value="更新项目")
     @ResponseBody
-    @RequestMapping(value = "/update", method= RequestMethod.POST)
+    @PostMapping(value = "/update")
     public Result update(@RequestBody @Valid ProjectUpdateForm form) throws ObjectNotExistsException, AccountNotFoundException, AuthorizedException, ParamsException {
         projectValidator.validateProjectExist(form.getProjectId());
 
@@ -87,7 +87,7 @@ public class ProjectController extends BaseController {
 
     @ApiOperation(value="删除多个项目", notes="")
     @ResponseBody
-    @RequestMapping(value = "/delete/all", method= RequestMethod.POST)
+    @PostMapping(value = "/delete/all")
     public Result delete(@RequestBody @Valid DeleteAllForm form){
         projectService.deleteAll(form.getEntityIds());
         return ok();
@@ -96,7 +96,7 @@ public class ProjectController extends BaseController {
 
     @ApiOperation(value="删除一个项目", notes="")
     @ResponseBody
-    @RequestMapping(value = "/delete/one", method= RequestMethod.POST)
+    @PostMapping(value = "/delete/one")
     public Result delete(@RequestBody @Valid DeleteOneForm form){
         projectService.delete(form.getEntityId());
         return ok();
@@ -104,8 +104,8 @@ public class ProjectController extends BaseController {
 
     @ApiOperation(value="获取我的项目和我参加的项目列表，分页", notes = "http://localhost:8080/testwa/api/project/page?page=1&size=20&sortField=id&sortOrder=desc&projectName=")
     @ResponseBody
-    @RequestMapping(value = "/page", method=RequestMethod.GET)
-    public Result page(@RequestBody @Valid ProjectListForm form){
+    @GetMapping(value = "/page")
+    public Result page(@Valid ProjectListForm form){
         PageResult<Project> projectPR = projectService.findByPage(form);
         PageResult<ProjectVO> pr = buildVOPageResult(projectPR, ProjectVO.class);
         return ok(pr);
@@ -113,7 +113,7 @@ public class ProjectController extends BaseController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/list", method= RequestMethod.GET)
+    @GetMapping(value = "/list")
     public Result list() throws AccountException {
         List<Project> projectsOfUser = projectService.findAllOfUserProject(WebUtil.getCurrentUsername());
         List<SelectVO> vos = new ArrayList<>();
@@ -127,7 +127,7 @@ public class ProjectController extends BaseController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/detail/{projectId}", method= RequestMethod.GET)
+    @GetMapping(value = "/detail/{projectId}")
     public Result detail(@PathVariable Long projectId) throws Exception {
         Project project = projectValidator.validateProjectExist(projectId);
 

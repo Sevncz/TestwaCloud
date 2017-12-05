@@ -46,7 +46,7 @@ public class ProjectMemberController extends BaseController {
 
     @ApiOperation(value="添加项目成员", notes = "")
     @ResponseBody
-    @RequestMapping(value = "/add/all", method= RequestMethod.POST)
+    @PostMapping(value = "/add/all")
     public Result addMembers(@RequestBody @Valid MembersModifyForm form) throws AccountNotFoundException, ObjectNotExistsException, AuthorizedException, ParamsException {
         projectValidator.validateProjectExist(form.getProjectId());
         if(form.getUsernames() != null && form.getUsernames().size() > 0){
@@ -58,7 +58,7 @@ public class ProjectMemberController extends BaseController {
 
     @ApiOperation(value="删除项目成员", notes = "")
     @ResponseBody
-    @RequestMapping(value = "/delete/all", method= RequestMethod.POST)
+    @PostMapping(value = "/delete/all")
     public Result deleteMembers(@RequestBody @Valid MembersModifyForm form) throws ObjectNotExistsException {
 
         projectValidator.validateProjectExist(form.getProjectId());
@@ -68,7 +68,7 @@ public class ProjectMemberController extends BaseController {
 
     @ApiOperation(value="获得项目的成员列表", notes = "")
     @ResponseBody
-    @RequestMapping(value = "/{projectId}", method= RequestMethod.GET)
+    @GetMapping(value = "/{projectId}")
     public Result members(@PathVariable Long projectId) {
         List<User> users = projectMemberService.findAllMembers(projectId);
         List<UserVO> vo = buildVOs(users, UserVO.class);
@@ -78,7 +78,7 @@ public class ProjectMemberController extends BaseController {
 
     @ApiOperation(value="查询用户，区分是否在项目中", notes = "")
     @ResponseBody
-    @RequestMapping(value = "/query", method= RequestMethod.GET)
+    @GetMapping(value = "/query")
     public Result queryMember(@RequestParam(value = "projectId")Long projectId,
                               @RequestParam(value = "memberName")String memberName,
                               @RequestParam(value = "email")String email,
@@ -91,7 +91,7 @@ public class ProjectMemberController extends BaseController {
 
     @ApiOperation(value="获得当前用户在某个项目中的角色", notes = "")
     @ResponseBody
-    @RequestMapping(value = "/role", method= RequestMethod.GET)
+    @GetMapping(value = "/role")
     public Result projectRole(@RequestParam(value = "projectId")Long projectId) throws AccountException, DBException, AuthorizedException {
         ProjectMember pm = projectMemberService.getProjectRole(projectId);
         if (null == pm){

@@ -59,7 +59,7 @@ public class AuthController extends BaseController {
 
     @ApiOperation(value = "登录")
     @ApiImplicitParam(name = "authenticationRequest", value = "JWT登录验证类", required = true, dataType = "JwtAuthenticationRequest")
-    @RequestMapping(value = "login", method = RequestMethod.POST)
+    @PostMapping(value = "login")
     public Result createAuthenticationToken(@RequestBody JwtAuthenticationRequest authenticationRequest, HttpServletRequest request) throws AuthorizedException {
         String ip;
         if (request.getHeader("x-forwarded-for") == null) {
@@ -73,7 +73,7 @@ public class AuthController extends BaseController {
 
     @ApiOperation(value = "刷新Token")
     @ApiImplicitParam(name = "request", value = "请求信息（带有tokenHeader）", required = true, dataType = "HttpServletRequest")
-    @RequestMapping(value = "/refresh", method = RequestMethod.GET)
+    @GetMapping(value = "/refresh")
     public Result refreshAndGetAuthenticationToken(HttpServletRequest request) throws AuthorizedException {
         String token = request.getHeader(tokenHeader);
         JwtAuthenticationResponse response = authMgr.refresh(token);
@@ -82,7 +82,7 @@ public class AuthController extends BaseController {
 
     @ApiOperation(value = "注册")
     @ApiImplicitParam(name = "form", value = "注册form", required = true, dataType = "RegisterForm")
-    @RequestMapping(value = "/register", method= RequestMethod.POST, produces={"application/json"})
+    @PostMapping(value = "/register")
     public Result register(@Valid @RequestBody final RegisterForm form)
             throws ServletException, ParamsFormatException, AccountException, AccountAlreadyExistException {
 
@@ -103,8 +103,7 @@ public class AuthController extends BaseController {
     private static int captchaH = 60;
 
     @RequestMapping(value = "/captcha", method = RequestMethod.GET, produces = MediaType.IMAGE_PNG_VALUE)
-    public @ResponseBody
-    byte[] getCaptcha(@ApiIgnore HttpServletResponse response){
+    public @ResponseBody byte[] getCaptcha(@ApiIgnore HttpServletResponse response){
         //生成验证码
         String uuid = Identities.uuid();
         Captcha captcha = new Captcha.Builder(captchaW, captchaH)
@@ -126,7 +125,7 @@ public class AuthController extends BaseController {
     }
 
 
-    @RequestMapping(value = "/logout", method= RequestMethod.POST, produces={"application/json"})
+    @PostMapping(value = "/logout")
     public Result logout(HttpServletRequest request,
                          HttpServletResponse response){
         redisLoginMgr.logout(getCurrentUsername());

@@ -34,6 +34,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -71,11 +72,14 @@ public class DeviceController extends BaseController {
     @ApiOperation(value="查看用户可见的在线设备分页列表", notes = "设备目前所有人均可见")
     @ResponseBody
     @GetMapping(value = "/enable/page")
-    public Result porjectEnablePage(@RequestBody @Valid DeviceListForm form) throws ObjectNotExistsException, AuthorizedException {
+    public Result porjectEnablePage(@Valid DeviceListForm form) throws ObjectNotExistsException, AuthorizedException {
 //        projectValidator.validateProjectExist(form.getProjectId());
 //        User user = userService.findByUsername(getCurrentUsername());
 //        projectValidator.validateUserIsProjectMember(form.getProjectId(), user.getId());
         Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
+        if(deviceIds.size() == 0 ){
+            return ok(new PageResult<>(Arrays.asList(), 0));
+        }
         PageResult<Device> devicePR = deviceService.findByDeviceIdsPage(deviceIds, form);
         return ok(devicePR);
     }
@@ -87,12 +91,15 @@ public class DeviceController extends BaseController {
      */
     @ApiOperation(value="查看用户可见的在线设备列表", notes = "设备目前所有人均可见")
     @ResponseBody
-    @PostMapping(value = "/enable/list")
-    public Result porjectEnableList(@RequestBody @Valid DeviceListForm form) throws AccountException, ObjectNotExistsException, AuthorizedException {
+    @GetMapping(value = "/enable/list")
+    public Result porjectEnableList(@Valid DeviceListForm form) throws AccountException, ObjectNotExistsException, AuthorizedException {
 //        projectValidator.validateProjectExist(form.getProjectId());
 //        User user = userService.findByUsername(getCurrentUsername());
 //        projectValidator.validateUserIsProjectMember(form.getProjectId(), user.getId());
         Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
+        if(deviceIds.size() == 0 ){
+            return ok(new PageResult<>(Arrays.asList(), 0));
+        }
         List<Device> deviceList = deviceService.findByDeviceIds(deviceIds, form);
         return ok(deviceList);
     }
@@ -102,6 +109,9 @@ public class DeviceController extends BaseController {
     @GetMapping(value = "/my/list")
     public Result myList() {
         Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
+        if(deviceIds.size() == 0 ){
+            return ok(new PageResult<>(Arrays.asList(), 0));
+        }
         User user = userService.findByUsername(getCurrentUsername());
         List<Device> deviceList = deviceService.fetchList(user.getId(), deviceIds);
         return ok(deviceList);

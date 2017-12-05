@@ -71,6 +71,8 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
         Device deviceBase = deviceService.findByDeviceId(device.getDeviceId());
         if(deviceBase == null){
             deviceService.insertAndroid(deviceAndroid);
+        }else{
+            deviceService.updateAndroid(deviceAndroid);
         }
         if("ON".equals(device.getStatus().name().toUpperCase())){
             deviceAuthMgr.online(device.getDeviceId());

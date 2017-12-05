@@ -10,11 +10,10 @@
         <result column="createTime" property="createTime" jdbcType="DATE" javaType="java.util.Date"/>
         <result column="model" property="model" jdbcType="VARCHAR" />
         <result column="brand" property="brand" jdbcType="VARCHAR" />
-        <result column="lastToken" property="lastToken" jdbcType="VARCHAR" />
+        <result column="lastUserToken" property="lastUserToken" jdbcType="VARCHAR" />
         <result column="lastUserId" property="lastUserId" jdbcType="BIGINT" />
         <collection property="deviceAuths" ofType="com.testwa.distest.server.entity.DeviceAuth">
             <id column="deviceAuth_id" property="id"/>
-            <result column="deviceId" property="deviceId"/>
             <result column="userId" property="userId"/>
             <association property="user" javaType="com.testwa.distest.server.entity.User">
                 <id column="user_id" property="id"/>
@@ -62,7 +61,9 @@
             osName=#{osName},
             density=#{density},
             osVersion=#{osVersion},
-            host=#{host}
+            host=#{host},
+            lastUserId=#{lastUserId},
+            lastUserToken=#{lastUserToken}
         </trim>
         WHERE
         deviceId = #{deviceId}
@@ -92,7 +93,7 @@
     </select>
 
     <select id="fetchList" parameterType="java.util.HashMap" resultMap="BaseResultMap" >
-        SELECT device.*,device_auth.id as deviceAuth_id,device_auth.deviceId,device_auth.userId,user.id as user_id,user.username as username, user.email as email
+        SELECT device.*,device_auth.id as deviceAuth_id,device_auth.userId,user.id as user_id,user.username as username, user.email as email
         FROM device LEFT JOIN device_auth ON device.deviceId = device_auth.deviceId and device.lastUserId = device_auth.createBy LEFT JOIN user ON device_auth.userId = user.id
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             <if test="deviceId != null">and device.deviceId = #{deviceId}</if>

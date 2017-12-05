@@ -42,7 +42,7 @@ public class TestcaseController extends BaseController {
     private ScriptValidator scriptValidator;
 
     @ResponseBody
-    @RequestMapping(value = "/save", method = RequestMethod.POST)
+    @PostMapping(value = "/save")
     public Result save(@Valid @RequestBody TestcaseNewForm form) throws ObjectNotExistsException, AccountException {
         log.info(form.toString());
         scriptValidator.validateScriptsExist(form.getScriptIds());
@@ -61,7 +61,7 @@ public class TestcaseController extends BaseController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/delete", method = RequestMethod.POST)
+    @PostMapping(value = "/delete")
     public Result delete(@Valid @RequestBody DeleteAllForm form) {
         log.info(form.toString());
         testcaseService.delete(form.getEntityIds());
@@ -69,8 +69,8 @@ public class TestcaseController extends BaseController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/page", method = RequestMethod.GET)
-    public Result page(@RequestBody TestcaseListForm pageForm) throws ObjectNotExistsException, AccountException {
+    @GetMapping(value = "/page")
+    public Result page(@Valid TestcaseListForm pageForm) throws ObjectNotExistsException, AccountException {
         log.info(pageForm.toString());
         PageResult<Testcase> testcasePR = testcaseService.findPage(pageForm);
         PageResult<TestcaseVO> pr = buildVOPageResult(testcasePR, TestcaseVO.class);
@@ -86,7 +86,7 @@ public class TestcaseController extends BaseController {
 
     @ResponseBody
     @GetMapping(value = "/list")
-    public Result list(@RequestBody TestcaseListForm listForm) throws ObjectNotExistsException, AccountException {
+    public Result list(@Valid TestcaseListForm listForm) throws ObjectNotExistsException, AccountException {
         List<Testcase> testcases = testcaseService.find(listForm);
         List<TestcaseVO> vos = buildVOs(testcases, TestcaseVO.class);
         return ok(vos);

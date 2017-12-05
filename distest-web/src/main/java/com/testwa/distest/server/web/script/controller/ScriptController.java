@@ -99,7 +99,7 @@ public class ScriptController extends BaseController {
     @ApiOperation(value="脚本分页列表", notes="")
     @ResponseBody
     @GetMapping(value = "/page")
-    public Result page(@RequestBody ScriptListForm queryForm) {
+    public Result page(@Valid ScriptListForm queryForm) {
         PageResult<Script> scriptPageResult = scriptService.findPage(queryForm);
         List<ScriptVO> vos = buildVOs(scriptPageResult.getPages(), ScriptVO.class);
         PageResult<ScriptVO> pr = new PageResult<>(vos, scriptPageResult.getTotal());
@@ -129,7 +129,7 @@ public class ScriptController extends BaseController {
     @ApiOperation(value="脚本列表", notes="")
     @ResponseBody
     @GetMapping(value = "/list")
-    public Result list(@RequestBody ScriptListForm queryForm) {
+    public Result list(@Valid ScriptListForm queryForm) {
         List<Script> scriptList = scriptService.find(queryForm);
         List<ScriptVO> vos = buildVOs(scriptList, ScriptVO.class);
         return ok(vos);

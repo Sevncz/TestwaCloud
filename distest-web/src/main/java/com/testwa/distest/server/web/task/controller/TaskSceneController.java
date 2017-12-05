@@ -69,7 +69,7 @@ public class TaskSceneController extends BaseController {
 
     @ApiOperation(value="删除任务场景")
     @ResponseBody
-    @RequestMapping(value = "/delete", method = RequestMethod.POST, produces = {"application/json"})
+    @PostMapping(value = "/delete")
     public Result delete(@Valid @RequestBody DeleteAllForm form) {
         taskSceneService.delete(form.getEntityIds());
         return ok();
@@ -77,8 +77,8 @@ public class TaskSceneController extends BaseController {
 
     @ApiOperation(value="任务场景分页列表")
     @ResponseBody
-    @RequestMapping(value = "/page", method = RequestMethod.GET)
-    public Result page(@RequestBody TaskSceneListForm pageForm) {
+    @GetMapping(value = "/page")
+    public Result page(@Valid TaskSceneListForm pageForm) {
         PageResult<TaskScene> taskPR = taskSceneService.findPageForCurrentUser(pageForm);
         PageResult<TaskSceneVO> pr = buildVOPageResult(taskPR, TaskSceneVO.class);
         return ok(pr);

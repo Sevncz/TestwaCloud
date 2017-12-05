@@ -49,6 +49,9 @@
         <!--过滤掉spring和mybatis的一些无用的DEBUG信息 -->
         <logger name="org.springframework" level="INFO"></logger>
         <logger name="org.mybatis" level="INFO"></logger>
+        <logger name="com.testwa.distest.server.mapper" level="DEBUG" additivity="false">
+            <appender-ref ref="RollingFileInfo" />
+        </logger>
         <root level="all">
             <appender-ref ref="Console" />
             <appender-ref ref="RollingFileInfo" />

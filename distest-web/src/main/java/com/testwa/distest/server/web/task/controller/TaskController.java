@@ -49,7 +49,7 @@ public class TaskController extends BaseController {
 
     @ApiOperation(value="执行并保存一个任务")
     @ResponseBody
-    @RequestMapping(value = "/save/run", method = RequestMethod.POST)
+    @PostMapping(value = "/save/run")
     public Result saveAndRun(@RequestBody TaskStartByTestcaseForm form) throws ObjectNotExistsException {
         projectValidator.validateProjectExist(form.getProjectId());
         appValidator.validateAppExist(form.getAppId());
@@ -62,7 +62,7 @@ public class TaskController extends BaseController {
 
     @ApiOperation(value="执行一个任务")
     @ResponseBody
-    @RequestMapping(value = "/run", method = RequestMethod.POST)
+    @PostMapping(value = "/run")
     public Result run(@RequestBody TaskStartForm form) throws ObjectNotExistsException {
 
         taskValidatoer.validateTaskSceneExist(form.getTaskSceneId());
@@ -75,7 +75,7 @@ public class TaskController extends BaseController {
 
     @ApiOperation(value="停止一个设备任务")
     @ResponseBody
-    @RequestMapping(value = "/kill", method = RequestMethod.POST)
+    @PostMapping(value = "/kill")
     public Result kill(@RequestBody TaskStopForm form) throws ObjectNotExistsException {
         taskValidatoer.validateTaskSceneExist(form.getTaskSceneId());
         deviceValidatoer.validateOnline(form.getDeviceIds());
@@ -85,7 +85,7 @@ public class TaskController extends BaseController {
 
     @ApiOperation(value="查看一个任务的进度")
     @ResponseBody
-    @RequestMapping(value = "/progress/{taskId}", method = RequestMethod.GET)
+    @GetMapping(value = "/progress/{taskId}")
     public Result progress(@PathVariable(value = "taskId") Long taskId) throws ObjectNotExistsException {
         executionTaskValidatoer.validateTaskExist(taskId);
         List<TaskProgressVO> result = executeMgr.getProgress(taskId);

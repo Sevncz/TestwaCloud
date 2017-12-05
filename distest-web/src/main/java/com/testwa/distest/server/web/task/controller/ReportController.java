@@ -45,7 +45,7 @@ public class ReportController extends BaseController {
 
     @ApiOperation(value="任务执行统计")
     @ResponseBody
-    @RequestMapping(value = "/execut/statis", method = RequestMethod.GET)
+    @GetMapping(value = "/execut/statis")
     public Result statis(@RequestParam(value = "taskId", required = true) Long taskId) throws ObjectNotExistsException {
 
         // app 基本情况
