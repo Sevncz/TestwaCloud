@@ -6,8 +6,8 @@
         <result column="deviceId" property="deviceId" jdbcType="VARCHAR" />
         <result column="phoneOS" property="phoneOS" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
         <result column="onlineStatus" property="onlineStatus" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
-        <result column="updateTime" property="updateTime" jdbcType="DATE" javaType="java.util.Date"/>
-        <result column="createTime" property="createTime" jdbcType="DATE" javaType="java.util.Date"/>
+        <result column="createTime" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+        <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="model" property="model" jdbcType="VARCHAR" />
         <result column="brand" property="brand" jdbcType="VARCHAR" />
         <result column="lastUserToken" property="lastUserToken" jdbcType="VARCHAR" />

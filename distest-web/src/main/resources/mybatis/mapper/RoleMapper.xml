@@ -4,8 +4,8 @@
     <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.Role" >
         <id column="id" property="id" jdbcType="BIGINT" />
         <result column="roleName" property="roleName" jdbcType="VARCHAR" />
-        <result column="createTime" property="createTime" jdbcType="DATE" javaType="java.util.Date"/>
-        <result column="updateTime" property="updateTime" jdbcType="DATE" javaType="java.util.Date"/>
+        <result column="createTime" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+        <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="createBy" property="createBy" jdbcType="BIGINT" />
         <result column="updateBy" property="updateBy" jdbcType="BIGINT" />
 

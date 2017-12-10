@@ -46,9 +46,9 @@ public class TaskCacheMgr {
      */
     public String getExeInfoProgress(String deviceId) throws Exception {
 
-        List<Object> recentOne = redisCacheMgr.lrange(getKey(deviceId), 0, 1, String.class);
+        List<String> recentOne = (List<String>) redisCacheMgr.lrange(getKey(deviceId), 0, 1, String.class);
         if(recentOne != null && recentOne.size() == 1){
-            return (String) recentOne.get(0);
+            return recentOne.get(0);
         }
         return null;
     }

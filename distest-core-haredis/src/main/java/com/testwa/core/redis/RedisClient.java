@@ -1024,12 +1024,12 @@ public class RedisClient implements RedisOperation {
         return result;
     }
 
-    public long lrem(String key, int count, Object value) {
+    public long lrem(String key, int count, String value) {
         Jedis jedis = null;
         try {
             jedis = this.jedisPool.getResource();
             // long begin = System.currentTimeMillis();
-            long ret = jedis.lrem(SafeEncoder.encode(key), count, jsonSerialize(value));
+            long ret = jedis.lrem(key, count, value);
             // long end = System.currentTimeMillis();
             // LOG.info("getValueFromCache spends: " + (end - begin) + " millionseconds.");
             return ret;
@@ -1114,6 +1114,138 @@ public class RedisClient implements RedisOperation {
             }
         }
 
+        return data;
+    }
+    public Long zadd(String key, double score, String member) {
+        Long data = null;
+        Jedis jedis = null;
+        try {
+            jedis = this.jedisPool.getResource();
+            // long begin = System.currentTimeMillis();
+            data = jedis.zadd(key, score, member);
+            // long end = System.currentTimeMillis();
+            // LOG.info("getValueFromCache spends: " + (end - begin) + " millionseconds.");
+        } catch (Exception e) {
+            // do jedis.quit() and jedis.disconnect()
+            if (jedis != null) {
+                jedis.close();
+            }
+            throw e;
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+        return data;
+    }
+    public Long zcard(String key) {
+        Long data = null;
+        Jedis jedis = null;
+        try {
+            jedis = this.jedisPool.getResource();
+            // long begin = System.currentTimeMillis();
+            data = jedis.zcard(key);
+            // long end = System.currentTimeMillis();
+            // LOG.info("getValueFromCache spends: " + (end - begin) + " millionseconds.");
+        } catch (Exception e) {
+            // do jedis.quit() and jedis.disconnect()
+            if (jedis != null) {
+                jedis.close();
+            }
+            throw e;
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+        return data;
+    }
+    public Long zrem(String key, String... members) {
+        Long data = null;
+        Jedis jedis = null;
+        try {
+            jedis = this.jedisPool.getResource();
+            // long begin = System.currentTimeMillis();
+            data = jedis.zrem(key, members);
+            // long end = System.currentTimeMillis();
+            // LOG.info("getValueFromCache spends: " + (end - begin) + " millionseconds.");
+        } catch (Exception e) {
+            // do jedis.quit() and jedis.disconnect()
+            if (jedis != null) {
+                jedis.close();
+            }
+            throw e;
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+        return data;
+    }
+    public Long zcard(String key, double min, double max) {
+        Long data = null;
+        Jedis jedis = null;
+        try {
+            jedis = this.jedisPool.getResource();
+            // long begin = System.currentTimeMillis();
+            data = jedis.zcount(key, min, max);
+            // long end = System.currentTimeMillis();
+            // LOG.info("getValueFromCache spends: " + (end - begin) + " millionseconds.");
+        } catch (Exception e) {
+            // do jedis.quit() and jedis.disconnect()
+            if (jedis != null) {
+                jedis.close();
+            }
+            throw e;
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+        return data;
+    }
+    public Set<String> zrevrange(String key, long start, long end) {
+        Set<String> data = null;
+        Jedis jedis = null;
+        try {
+            jedis = this.jedisPool.getResource();
+            // long begin = System.currentTimeMillis();
+            data = jedis.zrevrange(key, start, end);
+            // long end = System.currentTimeMillis();
+            // LOG.info("getValueFromCache spends: " + (end - begin) + " millionseconds.");
+        } catch (Exception e) {
+            // do jedis.quit() and jedis.disconnect()
+            if (jedis != null) {
+                jedis.close();
+            }
+            throw e;
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+        return data;
+    }
+    public Set<String> zrange(String key, long start, long end) {
+        Set<String> data = null;
+        Jedis jedis = null;
+        try {
+            jedis = this.jedisPool.getResource();
+            // long begin = System.currentTimeMillis();
+            data = jedis.zrange(key, start, end);
+            // long end = System.currentTimeMillis();
+            // LOG.info("getValueFromCache spends: " + (end - begin) + " millionseconds.");
+        } catch (Exception e) {
+            // do jedis.quit() and jedis.disconnect()
+            if (jedis != null) {
+                jedis.close();
+            }
+            throw e;
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
         return data;
     }
 
@@ -1283,4 +1415,5 @@ public class RedisClient implements RedisOperation {
     public int getTimeout() {
         return timeout;
     }
+
 }

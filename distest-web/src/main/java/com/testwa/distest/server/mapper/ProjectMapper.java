@@ -15,4 +15,8 @@ public interface ProjectMapper extends BaseMapper<Project, Long> {
 	List<Project> findAllByUser(@Param("userId") Long userId, @Param("projectName") String projectName);
 
     long countBy(Project query);
+
+    Project fetchOne(Long projectId);
+
+    List<Project> findAllOrder(@Param("projectIds") List<Long> projectIds, @Param("order") String order);
 }

@@ -34,4 +34,14 @@ public class ProjectDAO extends BaseDAO<Project, Long> implements IProjectDAO {
         return projectMapper.countBy(query);
     }
 
+    @Override
+    public Project fetchOne(Long projectId) {
+        return projectMapper.fetchOne(projectId);
+    }
+
+    @Override
+    public List<Project> findAllOrder(List<Long> projectIds, String order) {
+        return projectMapper.findAllOrder(projectIds, order);
+    }
+
 }

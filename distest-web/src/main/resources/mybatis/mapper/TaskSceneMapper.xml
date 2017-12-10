@@ -8,8 +8,8 @@
         <result column="appId" property="appId" jdbcType="BIGINT"/>
         <result column="description" property="description" jdbcType="VARCHAR" />
         <result column="exeMode" property="exeMode" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
-        <result column="updateTime" property="updateTime" jdbcType="DATE" javaType="java.util.Date"/>
-        <result column="createTime" property="createTime" jdbcType="DATE" javaType="java.util.Date"/>
+        <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+        <result column="createTime" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="updateBy" property="updateBy" jdbcType="BIGINT"/>
         <result column="createBy" property="createBy" jdbcType="BIGINT"/>
     </resultMap>

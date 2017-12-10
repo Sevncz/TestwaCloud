@@ -2,7 +2,6 @@ package com.testwa.distest.server.service;
 
 import com.testwa.distest.WebServerApplication;
 import com.testwa.core.base.form.RequestListBase;
-import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.entity.Project;
 import com.testwa.distest.server.entity.User;
 import com.testwa.core.base.vo.PageResult;
@@ -63,7 +62,7 @@ public class ProjectServiceTest {
     @Test
     @WithMockUser(username = "xiaoming", authorities = { "ADMIN", "USER" })
     public void testFindAllOfUserProject(){
-        List<Project> projects = projectService.findAllOfUserProject("xiaoming");
+        List<Project> projects = projectService.findAllByUserList("xiaoming");
     }
 
     @Test
@@ -90,7 +89,7 @@ public class ProjectServiceTest {
     public void testGetProjectCountByUser(){
         User user = userService.findByUsername("xiaoming");
         long count = projectService.getProjectCountByOwner(user.getId());
-        List<Project> projects = projectService.findAllOfUserProject(user.getUsername());
+        List<Project> projects = projectService.findAllByUserList(user.getUsername());
         Assert.assertEquals(count, projects.size());
     }
 

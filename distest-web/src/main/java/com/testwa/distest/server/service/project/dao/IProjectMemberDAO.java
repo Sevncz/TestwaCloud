@@ -15,6 +15,7 @@ public interface IProjectMemberDAO extends IBaseDAO<ProjectMember, Long> {
     void mergeInsert(List<ProjectMember> projectMembers);
 
     List<ProjectMember> findByProjectIdAndMembers(Long projectId, List<Long> memberIds);
+    ProjectMember findByProjectIdAndMember(Long projectId, Long memberId);
 
     int deleteMembersFromProject(Long id, List<Long> memberIds);
 

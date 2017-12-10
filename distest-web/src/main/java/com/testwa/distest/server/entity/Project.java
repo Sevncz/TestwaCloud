@@ -1,5 +1,6 @@
 package com.testwa.distest.server.entity;
 
+import com.testwa.core.base.annotation.Column;
 import com.testwa.core.base.annotation.TableName;
 import com.testwa.core.base.bo.BaseEntity;
 import lombok.Data;
@@ -20,5 +21,8 @@ public class Project extends BaseEntity {
     private Date updateTime;
     private Long createBy;
     private Long updateBy;
+
+    @Column(value = "createUser", ignore = true)
+    private User createUser;
 
 }

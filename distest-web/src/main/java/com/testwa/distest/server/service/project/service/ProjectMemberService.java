@@ -10,13 +10,13 @@ import com.testwa.distest.server.service.project.form.MembersModifyForm;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.auth.vo.UserVO;
 import lombok.extern.log4j.Log4j2;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigInteger;
 import java.util.*;
 
 import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
@@ -36,12 +36,12 @@ public class ProjectMemberService {
     @Autowired
     private UserService userService;
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void saveProjectOwner(Long projectId, Long userId) {
         addMember(projectId, userId, DB.ProjectRole.OWNER);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void saveProjectMember(Long projectId, Long userId) {
         addMember(projectId, userId, DB.ProjectRole.MEMBER);
     }
@@ -55,29 +55,20 @@ public class ProjectMemberService {
         projectMemberDAO.insert(pm);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void delete(Long projectId, Long memberId) {
         projectMemberDAO.delete(projectId, memberId);
 
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void addMembers(MembersModifyForm form) throws AuthorizedException, ParamsException {
-
         Project project = projectService.findOne(form.getProjectId());
-
-//        if (form.getUsernames().contains(getCurrentUsername())) {
-//            log.error("can not add self, {}", form.toString());
-//            throw new AccountAlreadyExistException("你已经在项目中");
-//        }
-
         User owner = userService.findByUsername(getCurrentUsername());
-
         if (!project.getCreateBy().equals(owner.getId())) {
             log.error("login auth not owner of the project, projectId: {}, currentUsername: {}", form.getProjectId(), getCurrentUsername());
             throw new AuthorizedException("您不是项目所有者，无法添加项目成员");
         }
-
         // 检查是否有用户不在系统
         List<User> members = userService.findByUsernames(form.getUsernames());
         if(!(members != null && members.size() == form.getUsernames().size())){
@@ -98,17 +89,19 @@ public class ProjectMemberService {
         projectMemberDAO.mergeInsert(pms);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void delMembers(MembersModifyForm form) {
 
         Project project = projectService.findOne(form.getProjectId());
         List<User> members = userService.findByUsernames(form.getUsernames());
-        List<Long> memberIds = new ArrayList<>();
-        members.forEach(m -> {
-            memberIds.add(m.getId());
-        });
+        if(members != null){
+            List<Long> memberIds = new ArrayList<>();
+            members.forEach(m -> {
+                memberIds.add(m.getId());
+            });
 
-        projectMemberDAO.deleteMembersFromProject(project.getId(), memberIds);
+            projectMemberDAO.deleteMembersFromProject(project.getId(), memberIds);
+        }
     }
 
     public List<User> findAllMembers(Long projectId){
@@ -124,17 +117,26 @@ public class ProjectMemberService {
     }
 
 
-    public Map<String, List<UserVO>> findMembers(Long projectId, String memberName, String email, String phone) {
+    public Map<String, List<UserVO>> queryMembersAndFlagIsInProject(Long projectId, String memberName, String email, String phone) {
         User userquery = new User();
-        userquery.setUsername(memberName);
-        userquery.setEmail(email);
-        userquery.setPhone(phone);
+        if(StringUtils.isNotEmpty(memberName)){
+            userquery.setUsername(memberName);
+        }
+        if(StringUtils.isNotEmpty(email)){
+            userquery.setUsername(email);
+        }
+        if(StringUtils.isNotEmpty(phone)){
+            userquery.setUsername(phone);
+        }
         List<Map> allUsers = findMembers(projectId, userquery);
         List<UserVO> in = new ArrayList<>();
         List<UserVO> out = new ArrayList<>();
         allUsers.forEach(u -> {
             UserVO vo = new UserVO();
-            BeanUtils.copyProperties(u, vo);
+            vo.setId(((BigInteger) u.get("id")).longValue());
+            vo.setUsername((String) u.get("username"));
+            vo.setEmail((String) u.get("email"));
+            vo.setPhone((String) u.get("phone"));
             if("in".equals(u.get("flag"))){
                 in.add(vo);
             }
@@ -146,6 +148,14 @@ public class ProjectMemberService {
         result.put("inPro", in);
         result.put("out", out);
         return result;
+    }
+
+    public ProjectMember findByProjectIdAndMemberId(Long projectId, Long memberId){
+        return projectMemberDAO.findByProjectIdAndMember(projectId, memberId);
+    }
+
+    public List<ProjectMember> findByProjectIdAndMemberId(Long projectId, List<Long> memberId){
+        return projectMemberDAO.findByProjectIdAndMembers(projectId, memberId);
     }
 
 

@@ -7,6 +7,7 @@ import com.testwa.core.base.vo.Result;
 import com.testwa.distest.server.entity.ProjectMember;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.project.form.MembersModifyForm;
+import com.testwa.distest.server.service.project.form.MembersQueryForm;
 import com.testwa.distest.server.service.project.service.ProjectMemberService;
 import com.testwa.distest.server.web.auth.validator.UserValidator;
 import com.testwa.distest.server.web.auth.vo.UserVO;
@@ -15,8 +16,6 @@ import com.testwa.distest.server.web.project.vo.ProjectMemberVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.log4j.Log4j2;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -58,8 +57,8 @@ public class ProjectMemberController extends BaseController {
 
     @ApiOperation(value="删除项目成员", notes = "")
     @ResponseBody
-    @PostMapping(value = "/delete/all")
-    public Result deleteMembers(@RequestBody @Valid MembersModifyForm form) throws ObjectNotExistsException {
+    @PostMapping(value = "/remove/all")
+    public Result removeMembers(@RequestBody @Valid MembersModifyForm form) throws ObjectNotExistsException {
 
         projectValidator.validateProjectExist(form.getProjectId());
         projectMemberService.delMembers(form);
@@ -79,12 +78,9 @@ public class ProjectMemberController extends BaseController {
     @ApiOperation(value="查询用户，区分是否在项目中", notes = "")
     @ResponseBody
     @GetMapping(value = "/query")
-    public Result queryMember(@RequestParam(value = "projectId")Long projectId,
-                              @RequestParam(value = "memberName")String memberName,
-                              @RequestParam(value = "email")String email,
-                              @RequestParam(value = "phone")String phone) throws ObjectNotExistsException {
-        projectValidator.validateProjectExist(projectId);
-        Map<String, List<UserVO>> result = projectMemberService.findMembers(projectId, memberName, email, phone);
+    public Result queryMember(MembersQueryForm form) throws ObjectNotExistsException {
+        projectValidator.validateProjectExist(form.getProjectId());
+        Map<String, List<UserVO>> result = projectMemberService.queryMembersAndFlagIsInProject(form.getProjectId(), form.getUsername(), form.getEmail(), form.getPhone());
         return ok(result);
     }
 

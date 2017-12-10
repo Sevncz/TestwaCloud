@@ -3,6 +3,7 @@ package com.testwa.distest.server.web.project.validator;
 import com.testwa.core.base.exception.AuthorizedException;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.distest.server.entity.Project;
+import com.testwa.distest.server.entity.ProjectMember;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.project.service.ProjectMemberService;
 import com.testwa.distest.server.service.project.service.ProjectService;
@@ -40,10 +41,8 @@ public class ProjectValidator {
     }
 
     public void validateUserIsProjectMember(Long projectId, Long userId) throws AuthorizedException {
-        User query = new User();
-        query.setId(userId);
-        List<Map> members = projectMemberService.findMembers(projectId, query);
-        if(members == null || members.size() == 0){
+        ProjectMember member = projectMemberService.findByProjectIdAndMemberId(projectId, userId);
+        if(member == null){
             throw new AuthorizedException("该用户不在项目中");
         }
     }

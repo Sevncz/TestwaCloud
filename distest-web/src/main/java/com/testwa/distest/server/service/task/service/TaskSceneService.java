@@ -18,7 +18,6 @@ import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.task.vo.TaskSceneVO;
 import com.testwa.distest.server.web.testcase.vo.TestcaseVO;
 import lombok.extern.log4j.Log4j2;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -179,7 +178,7 @@ public class TaskSceneService {
     }
 
     private Map<String, Object> buildQueryParams(TaskSceneListForm queryForm) {
-        List<Project> projects = projectService.findAllOfUserProject(getCurrentUsername());
+        List<Project> projects = projectService.findAllByUserList(getCurrentUsername());
         Map<String, Object> params = new HashMap<>();
         params.put("projectId", queryForm.getProjectId());
         params.put("sceneName", queryForm.getSceneName());

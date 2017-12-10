@@ -14,15 +14,16 @@ public interface ProjectMemberMapper extends BaseMapper<ProjectMember, Long> {
 
     int mergeInsert(List<ProjectMember> projectMembers);
 
-    List<ProjectMember> findByProjectIdAndMembers(@Param("params") Map<String, Object> params);
+    List<ProjectMember> findByProjectIdAndMembers(@Param("projectId") Long projectId, @Param("memberIds") List<Long> memberIds);
+    ProjectMember findByProjectIdAndMember(@Param("projectId") Long projectId, @Param("memberId") Long memberId);
 
-    int deleteMembersFromProject(Map<String, Object> params);
+    int deleteMembersFromProject(@Param("params") Map<String, Object> params);
 
-    int deleteMemberFormProject(ProjectMember query);
+    int deleteMemberFromProject(ProjectMember query);
 
     List<User> findMembersFromProject(@Param("params") Map<String, Object> params);
 
-    List<Map> findUsersProject(@Param("params") Map<String, Object> params);
+    List<Map> findUsersProject(@Param("projectId") Long projectId, @Param("user") User user);
 
     List<ProjectMember> findBy(ProjectMember query);
 }

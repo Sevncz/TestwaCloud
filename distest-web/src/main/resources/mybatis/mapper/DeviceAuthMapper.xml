@@ -6,7 +6,7 @@
         <result column="deviceId" property="deviceId" jdbcType="VARCHAR" />
         <result column="userId" property="userId" jdbcType="BIGINT" />
         <result column="createBy" property="createBy" jdbcType="BIGINT" />
-        <result column="createTime" property="createTime" jdbcType="DATE" javaType="java.util.Date"/>
+        <result column="createTime" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
     </resultMap>
 
     <select id="findBy" parameterType="java.util.HashMap" resultMap="BaseResultMap" >

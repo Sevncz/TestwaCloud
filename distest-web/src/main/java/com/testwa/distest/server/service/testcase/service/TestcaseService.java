@@ -4,11 +4,9 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.Joiner;
 import com.testwa.distest.common.enums.DB;
-import com.testwa.core.base.exception.*;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.server.entity.*;
-import com.testwa.distest.server.service.app.form.AppListForm;
 import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.service.script.service.ScriptService;
 import com.testwa.distest.server.service.testcase.dao.ITestcaseDAO;
@@ -20,7 +18,6 @@ import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.script.vo.ScriptVO;
 import com.testwa.distest.server.web.testcase.vo.TestcaseVO;
 import lombok.extern.log4j.Log4j2;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -225,7 +222,7 @@ public class TestcaseService {
     }
 
     private Map<String, Object> buildProjectParamsForCurrentUser(TestcaseListForm queryForm){
-        List<Project> projects = projectService.findAllOfUserProject(getCurrentUsername());
+        List<Project> projects = projectService.findAllByUserList(getCurrentUsername());
         Map<String, Object> params = new HashMap<>();
         params.put("projectId", queryForm.getProjectId());
         params.put("caseName", queryForm.getTestcaseName());

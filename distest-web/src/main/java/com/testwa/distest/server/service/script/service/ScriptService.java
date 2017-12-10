@@ -243,7 +243,7 @@ public class ScriptService {
     }
 
     private Map<String, Object> buildProjectParamsForCurrentUser(ScriptListForm queryForm){
-        List<Project> projects = projectService.findAllOfUserProject(getCurrentUsername());
+        List<Project> projects = projectService.findAllByUserList(getCurrentUsername());
         Map<String, Object> params = new HashMap<>();
         params.put("projectId", queryForm.getProjectId());
         params.put("scriptName", queryForm.getScriptName());

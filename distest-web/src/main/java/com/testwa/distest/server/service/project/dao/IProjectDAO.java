@@ -16,4 +16,8 @@ public interface IProjectDAO extends IBaseDAO<Project, Long> {
     List<Project> findAllByUser(Long userId, String projectName);
 
     long count(Project query);
+
+    Project fetchOne(Long projectId);
+
+    List<Project> findAllOrder(List<Long> projectIds, String order);
 }

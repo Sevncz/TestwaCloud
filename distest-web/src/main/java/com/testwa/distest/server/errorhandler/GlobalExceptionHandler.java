@@ -4,6 +4,7 @@ import com.testwa.core.base.constant.ResultCode;
 import com.testwa.core.base.exception.*;
 import com.testwa.core.base.vo.Result;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -17,6 +18,16 @@ class GlobalExceptionHandler {
      * Internal server error message.
      */
     private static final String ERR_INTERNAL_SERVER_ERROR = "Internal server error";
+
+    @ExceptionHandler(value = BadCredentialsException.class)
+    @ResponseBody
+    public Result handleBadCredentialsExceptions(HttpServletRequest req, Exception e) throws Exception {
+        Result<String> r = new Result<>();
+        r.setCode(ResultCode.NO_AUTH.getValue());
+        r.setMessage("用户名密码错误");
+        r.setUrl(req.getRequestURL().toString());
+        return r;
+    }
 
     @ExceptionHandler(value = AuthorizedException.class)
     @ResponseBody

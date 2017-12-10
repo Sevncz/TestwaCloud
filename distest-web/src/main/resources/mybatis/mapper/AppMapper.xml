@@ -16,8 +16,8 @@
         <result column="md5" property="md5" jdbcType="VARCHAR" />
         <result column="size" property="size" jdbcType="VARCHAR" />
         <result column="description" property="description" jdbcType="VARCHAR" />
-        <result column="updateTime" property="updateTime" jdbcType="DATE" javaType="java.util.Date"/>
-        <result column="createTime" property="createTime" jdbcType="DATE" javaType="java.util.Date"/>
+        <result column="createTime" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+        <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="createBy" property="createBy" jdbcType="BIGINT" />
         <result column="updateBy" property="updateBy" jdbcType="BIGINT" />
         <result column="enabled" property="enabled" jdbcType="BOOLEAN" />

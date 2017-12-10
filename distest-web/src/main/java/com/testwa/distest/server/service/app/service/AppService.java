@@ -16,11 +16,9 @@ import com.testwa.distest.server.service.app.form.AppNewForm;
 import com.testwa.distest.server.service.app.form.AppUpdateForm;
 import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.service.user.service.UserService;
-import com.testwa.distest.server.web.app.controller.AppController;
 import com.testwa.distest.server.web.app.vo.AppVO;
 import lombok.extern.log4j.Log4j2;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -120,8 +118,23 @@ public class AppService {
         app.setVersion(form.getVersion());
         app.setCreateBy(currentUser.getId());
         app.setDescription(form.getDescription());
+        app.setUpdateTime(new Date());
+        app.setUpdateBy(currentUser.getId());
         update(app);
 
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public void appendInfo(AppUpdateForm form) {
+        User currentUser = userService.findByUsername(getCurrentUsername());
+        App app = findOne(form.getAppId());
+        app.setProjectId(form.getProjectId());
+        app.setVersion(form.getVersion());
+        app.setDescription(form.getDescription());
+        app.setUpdateTime(new Date());
+        app.setUpdateBy(currentUser.getId());
+        app.setEnabled(true);
+        update(app);
     }
 
     public App findOne(Long appId){
@@ -187,7 +200,8 @@ public class AppService {
         }
         User currentUser = userService.findByUsername(getCurrentUsername());
         app.setCreateBy(currentUser.getId());
-        appDAO.insert(app);
+        long appId = appDAO.insert(app);
+        app.setId(appId);
         return app;
     }
 
@@ -279,12 +293,17 @@ public class AppService {
     }
 
     private Map<String, Object> buildProjectParamsForCurrentUser(AppListForm queryForm){
-        List<Project> projects = projectService.findAllOfUserProject(getCurrentUsername());
+        List<Project> projects = projectService.findAllByUserList(getCurrentUsername());
         Map<String, Object> params = new HashMap<>();
-        params.put("projectId", queryForm.getProjectId());
-        params.put("appName", queryForm.getAppName());
-        params.put("projects", projects);
+        if(StringUtils.isNotEmpty(queryForm.getAppName())){
+            params.put("appName", queryForm.getAppName());
+        }
+        if(queryForm.getProjectId() != null){
+            params.put("projectId", queryForm.getProjectId());
+        }
+        if(projects != null & projects.size() > 0){
+            params.put("projects", projects);
+        }
         return params;
     }
-
 }

@@ -12,10 +12,10 @@
         <result column="address" property="address" jdbcType="VARCHAR" />
         <result column="country" property="country" jdbcType="VARCHAR" />
         <result column="header" property="header" jdbcType="VARCHAR" />
-        <result column="lastPasswordResetTime" property="lastPasswordResetTime" jdbcType="DATE" javaType="java.util.Date"/>
-        <result column="lastLoginTime" property="lastLoginTime" jdbcType="DATE" javaType="java.util.Date"/>
-        <result column="loginTime" property="loginTime" jdbcType="DATE" javaType="java.util.Date"/>
-        <result column="registerTime" property="registerTime" jdbcType="DATE" javaType="java.util.Date"/>
+        <result column="lastPasswordResetTime" property="lastPasswordResetTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+        <result column="lastLoginTime" property="lastLoginTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+        <result column="loginTime" property="loginTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+        <result column="registerTime" property="registerTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="loginIp" property="loginIp" jdbcType="INTEGER" />
         <result column="lastLoginIp" property="lastLoginIp" jdbcType="INTEGER" />
         <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
@@ -41,7 +41,7 @@
         <include refid="Base_Column_List" />
         FROM user
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
-            enabled = 1
+            and enabled = 1
             <if test="username != null">and username = #{username}</if>
             <if test="email != null">and email = #{email}</if>
             <if test="phone != null">and phone = #{phone}</if>
@@ -52,8 +52,8 @@
         <include refid="Base_Column_List" />
         FROM user
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
-            enabled = 1
-            username in
+            and enabled = 1
+            and username in
             <foreach item="name" index="index" collection="list" open="(" separator="," close=")">#{name} </foreach>
         </trim>
     </select>
@@ -62,8 +62,8 @@
         <include refid="Base_Column_List" />
         FROM user
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
-            enabled = 1
-            email in
+            and enabled = 1
+            and email in
             <foreach item="email" index="index" collection="list" open="(" separator="," close=")">#{email} </foreach>
         </trim>
     </select>

@@ -629,7 +629,7 @@ public class RedisCacheManager {
                 public String getOptionType() {
                     return "lpop";
                 }
-            }, clients, key, true);
+            }, clients, key, false);
         }
         return false;
     }
@@ -645,7 +645,7 @@ public class RedisCacheManager {
                 public String getOptionType() {
                     return "rpop";
                 }
-            }, clients, key, true);
+            }, clients, key, false);
         }
         return null;
     }
@@ -667,11 +667,11 @@ public class RedisCacheManager {
     }
 
 
-    public List<Object> lrange(final String key, final int start, final int end, final Class<?> cls) {
+    public List<?> lrange(final String key, final int start, final int end, final Class<?> cls) {
         List<RedisClient> clients = this.getAliveClients(key);
         if (isAtLeastOneAvailable(clients)) {
-            return this.execute(new BaseRedisCallBack<List<Object>>() {
-                public List<Object> doOperation(RedisClient client) throws Exception {
+            return this.execute(new BaseRedisCallBack<List<?>>() {
+                public List<?> doOperation(RedisClient client) throws Exception {
                     return client.lrange(key, start, end, cls);
                 }
 
@@ -684,7 +684,7 @@ public class RedisCacheManager {
     }
 
 
-    public Long lrem(final String key, final int count, final Object value) {
+    public Long lrem(final String key, final int count, final String value) {
         List<RedisClient> clients = this.getAliveClients(key);
         if (isAtLeastOneAvailable(clients)) {
             return this.execute(new BaseRedisCallBack<Long>() {
@@ -695,7 +695,7 @@ public class RedisCacheManager {
                 public String getOptionType() {
                     return "lrem";
                 }
-            }, clients, key, true);
+            }, clients, key, false);
         }
         return 0l;
 
@@ -729,7 +729,7 @@ public class RedisCacheManager {
                 public String getOptionType() {
                     return "incr";
                 }
-            }, clients, key, true);
+            }, clients, key, false);
         }
         return 0L;
     }
@@ -745,10 +745,28 @@ public class RedisCacheManager {
                 public String getOptionType() {
                     return "INCRBY";
                 }
-            }, clients, key, true);
+            }, clients, key, false);
         }
         return 0L;
     }
+
+
+    public Long zadd(final String key, final double score, final String member) {
+        List<RedisClient> clients = this.getAliveClients(key);
+        if (isAtLeastOneAvailable(clients)) {
+            return this.execute(new BaseRedisCallBack<Long>() {
+                public Long doOperation(RedisClient client) throws Exception {
+                    return client.zadd(key, score, member);
+                }
+
+                public String getOptionType() {
+                    return "ZADD";
+                }
+            }, clients, key, false);
+        }
+        return 0l;
+    }
+
 
 
     /**

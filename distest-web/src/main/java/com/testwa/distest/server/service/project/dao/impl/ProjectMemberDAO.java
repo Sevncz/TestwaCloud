@@ -25,10 +25,12 @@ public class ProjectMemberDAO extends BaseDAO<ProjectMember, Long> implements IP
 
     @Override
     public List<ProjectMember> findByProjectIdAndMembers(Long projectId, List<Long> memberIds) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("projectId", projectId);
-        params.put("members", memberIds);
-        return mapper.findByProjectIdAndMembers(params);
+        return mapper.findByProjectIdAndMembers(projectId, memberIds);
+    }
+
+    @Override
+    public ProjectMember findByProjectIdAndMember(Long projectId, Long memberId) {
+        return mapper.findByProjectIdAndMember(projectId, memberId);
     }
 
     @Override
@@ -44,7 +46,7 @@ public class ProjectMemberDAO extends BaseDAO<ProjectMember, Long> implements IP
         ProjectMember query = new ProjectMember();
         query.setProjectId(projectId);
         query.setMemberId(memberId);
-        return mapper.deleteMemberFormProject(query);
+        return mapper.deleteMemberFromProject(query);
     }
 
     @Override
@@ -64,10 +66,7 @@ public class ProjectMemberDAO extends BaseDAO<ProjectMember, Long> implements IP
 
     @Override
     public List<Map> findUsersProject(Long projectId, User userquery) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("projectId", projectId);
-        params.put("user", userquery);
-        return mapper.findUsersProject(params);
+        return mapper.findUsersProject(projectId, userquery);
     }
 
     @Override

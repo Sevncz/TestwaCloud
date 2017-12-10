@@ -2,10 +2,12 @@ package com.testwa.distest.server.service.project.service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.base.Joiner;
 import com.testwa.core.base.exception.*;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.server.entity.Project;
+import com.testwa.distest.server.entity.Testcase;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.project.dao.IProjectDAO;
 import com.testwa.distest.server.service.project.form.MembersModifyForm;
@@ -15,14 +17,12 @@ import com.testwa.distest.server.service.project.form.ProjectUpdateForm;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.project.vo.ProjectStats;
 import lombok.extern.log4j.Log4j2;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.security.auth.login.AccountNotFoundException;
 import java.util.*;
 
 /**
@@ -42,6 +42,11 @@ public class ProjectService {
     @Autowired
     private ProjectMemberService projectMemberService;
 
+    /**
+     * 保存project，同时保存projectMember for owner
+     * @param entity
+     * @return
+     */
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public Long insert(Project entity) {
         entity.setCreateTime(new Date());
@@ -83,9 +88,26 @@ public class ProjectService {
         return projectDAO.findOne(projectId);
     }
 
+    /**
+     * fetch user for project
+     * @param projectId
+     * @return
+     */
+    public Project fetchOne(Long projectId) {
+        return projectDAO.fetchOne(projectId);
+    }
+
 
     public List<Project> findAll(List<Long> projectIds) {
         return projectDAO.findAll(projectIds);
+    }
+    public List<Project> findByProjectOrder(List<Long> projectIds) {
+        StringBuffer orderSb = new StringBuffer();
+        orderSb.append("field(id,");
+        String order = Joiner.on(",").join(projectIds);
+        orderSb.append(order).append(")");
+        List<Project> projectList = projectDAO.findAllOrder(projectIds, orderSb.toString());
+        return projectList;
     }
 
 
@@ -95,7 +117,7 @@ public class ProjectService {
         return projectDAO.count(query);
     }
 
-    public List<Project> getRecentViewProject(String username) throws Exception {
+    public List<Long> getRecentViewProject(String username) throws Exception {
         return viewMgr.getRecentViewProject(username);
     }
 
@@ -117,7 +139,7 @@ public class ProjectService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public Project save(ProjectNewForm form) throws AccountNotFoundException, AuthorizedException, ParamsException {
+    public Project save(ProjectNewForm form) throws AuthorizedException, ParamsException {
 
         User currentUser = userService.findByUsername(WebUtil.getCurrentUsername());
 
@@ -127,6 +149,7 @@ public class ProjectService {
         project.setCreateBy(currentUser.getId());
         Long projectId = insert(project);
         project.setId(projectId);
+        project.setCreateUser(currentUser);
         // 保存成员
         MembersModifyForm membersModifyForm = new MembersModifyForm();
         membersModifyForm.setProjectId(projectId);
@@ -146,24 +169,60 @@ public class ProjectService {
         project.setUpdateBy(currentUser.getId());
         projectDAO.update(project);
 
-        List<User> members = projectMemberService.findAllMembers(project.getId());
-        // TODO 1. 计算members和users的差
+        project.setCreateUser(currentUser);
 
-        // TODO 2. 删除members中存在而users不存在的
+        List<User> members = projectMemberService.findAllMembers(project.getId());
+        List<String> needDelMember = new ArrayList<>();
+        List<String> noNeedAddMember = new ArrayList<>();
+
+        members.forEach(m -> {
+            if(!form.getMembers().contains(m.getUsername())){
+                needDelMember.add(m.getUsername());
+            }else{
+                noNeedAddMember.add(m.getUsername());
+            }
+        });
+        if(needDelMember.size() > 0){
+            MembersModifyForm delform = new MembersModifyForm();
+            delform.setProjectId(project.getId());
+            delform.setUsernames(needDelMember);
+            projectMemberService.delMembers(delform);
+        }
 
         MembersModifyForm membersModifyForm = new MembersModifyForm();
         membersModifyForm.setProjectId(form.getProjectId());
-        membersModifyForm.setUsernames(form.getMembers());
-        projectMemberService.addMembers(membersModifyForm);
+        List<String> updateMemebers = form.getMembers();
+        updateMemebers.removeAll(noNeedAddMember);
+        membersModifyForm.setUsernames(updateMemebers);
+        if(updateMemebers.size() > 0){
+            projectMemberService.addMembers(membersModifyForm);
+        }
         return project;
     }
 
-    public List<Project> findAllOfUserProject(String username) {
+    public List<Project> findAllByUserList(String username) {
         User user = userService.findByUsername(username);
         if(user != null){
             return projectDAO.findAllByUser(user.getId());
         }
         return new ArrayList<>();
+    }
+
+    public PageResult<Project> findAllByUserPage(ProjectListForm pageForm, String username) {
+        User user = userService.findByUsername(username);
+        //分页处理
+        PageHelper.startPage(pageForm.getPageNo(), pageForm.getPageSize());
+        if(StringUtils.isBlank(pageForm.getOrderBy()) ){
+            pageForm.getPage().setOrderBy("id");
+        }
+        if(StringUtils.isBlank(pageForm.getOrder()) ){
+            pageForm.getPage().setOrder("desc");
+        }
+        PageHelper.orderBy(pageForm.getOrderBy() + " " + pageForm.getOrder());
+        List<Project> projectList = projectDAO.findAllByUser(user.getId(), pageForm.getProjectName());
+        PageInfo<Project> info = new PageInfo(projectList);
+        PageResult<Project> pr = new PageResult<>(info.getList(), info.getTotal());
+        return pr;
     }
 
 

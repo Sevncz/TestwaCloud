@@ -6,9 +6,9 @@
         <result column="projectId" property="projectId" jdbcType="BIGINT"/>
         <result column="appId" property="appId" jdbcType="BIGINT"/>
         <result column="taskSceneId" property="taskSceneId" jdbcType="BIGINT"/>
-        <result column="createTime" property="createTime" jdbcType="DATE" javaType="java.util.Date"/>
+        <result column="createTime" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="createBy" property="createBy" jdbcType="BIGINT"/>
-        <result column="endTime" property="endTime" jdbcType="DATE" javaType="java.util.Date"/>
+        <result column="endTime" property="endTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="errorMsg" property="errorMsg" jdbcType="VARCHAR" javaType="String"/>
     </resultMap>
 

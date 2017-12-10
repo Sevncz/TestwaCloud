@@ -4,12 +4,10 @@ import com.testwa.distest.common.util.WebUtil;
 import com.testwa.core.redis.RedisCacheManager;
 import com.testwa.distest.server.entity.Project;
 import lombok.extern.log4j.Log4j2;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -26,28 +24,18 @@ public class ViewMgr {
     private Integer userHistorySize;
     static final String user_project_history = "history.project.%s";
 
-    public void setRecentViewProject(Project project) throws Exception {
+    public void setRecentViewProject(Long projectId) throws Exception {
         String key = String.format(user_project_history, WebUtil.getCurrentUsername());
-        List<Object> projects = redisCacheMgr.lrange(key, 0, -1, Project.class);
-        if(projects.contains(project)){
-            redisCacheMgr.lrem(key, 0, project);
-        }
+        redisCacheMgr.lrem(key, 0, projectId+"");
         // 保存记录
-        redisCacheMgr.lpush(key, project);
+        redisCacheMgr.lpush(key, projectId);
         // 裁剪
-        redisCacheMgr.ltrim(key, 0, userHistorySize);
+        redisCacheMgr.ltrim(key, 0, userHistorySize-1);
 
     }
 
-    public List<Project> getRecentViewProject(String username) throws Exception {
+    public List<Long> getRecentViewProject(String username) throws Exception {
         String key = String.format(user_project_history, username);
-        List<Object> objs = redisCacheMgr.lrange(key, 0, -1, Project.class);
-        List<Project> projects = new ArrayList<>();
-        if(objs != null ){
-            objs.forEach(o -> {
-                projects.add((Project) o);
-            });
-        }
-        return projects;
+        return  (List<Long>) redisCacheMgr.lrange(key, 0, -1, Long.class);
     }
 }
