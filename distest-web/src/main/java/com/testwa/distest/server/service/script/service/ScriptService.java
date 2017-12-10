@@ -6,6 +6,7 @@ import com.testwa.core.utils.IOUtil;
 import com.testwa.core.utils.Identities;
 import com.testwa.core.utils.PinYinTool;
 import com.testwa.distest.common.enums.DB;
+import com.testwa.distest.config.DisFileProperties;
 import com.testwa.distest.server.entity.Project;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.server.entity.Script;
@@ -17,6 +18,7 @@ import com.testwa.distest.server.service.script.form.ScriptNewForm;
 import com.testwa.distest.server.service.script.form.ScriptUpdateForm;
 import com.testwa.distest.server.service.user.service.UserService;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -54,6 +56,8 @@ public class ScriptService {
     @Autowired
     private ProjectService projectService;
     @Autowired
+    private DisFileProperties disFileProperties;
+    @Autowired
     private Environment env;
 
     public Script findOne(Long scriptId){
@@ -78,7 +82,7 @@ public class ScriptService {
 
         String filename = uploadfile.getOriginalFilename();
         String aliasName = PinYinTool.getPingYin(filename);
-        Path dir = Paths.get(env.getProperty("script.saveRegressionTestcase.path"), Identities.uuid2());
+        Path dir = Paths.get(disFileProperties.getScript(), Identities.uuid2());
         if (!Files.exists(dir)) {
             Files.createDirectories(dir);
         }
@@ -104,7 +108,7 @@ public class ScriptService {
 
         String filename = uploadfile.getOriginalFilename();
         String aliasName = PinYinTool.getPingYin(filename);
-        Path dir = Paths.get(env.getProperty("script.saveRegressionTestcase.path"), Identities.uuid2());
+        Path dir = Paths.get(disFileProperties.getScript(), Identities.uuid2());
         if (!Files.exists(dir)) {
             Files.createDirectories(dir);
         }
@@ -153,7 +157,8 @@ public class ScriptService {
             script.setDescription(form.getDescription());
             script.setEnabled(true);
         }
-        scriptDAO.insert(script);
+        Long scriptId = scriptDAO.insert(script);
+        script.setId(scriptId);
         return script;
     }
 
@@ -161,12 +166,26 @@ public class ScriptService {
     public void update(ScriptUpdateForm form) {
 
         Script script = findOne(form.getScriptId());
-        User user = userService.findByUsername(getCurrentUsername());
+        User currentUser = userService.findByUsername(getCurrentUsername());
         script.setProjectId(form.getProjectId());
         script.setTag(form.getTag());
         script.setDescription(form.getDescription());
-        script.setCreateBy(user.getId());
-        script.setCreateTime(new Date());
+        script.setUpdateTime(new Date());
+        script.setUpdateBy(currentUser.getId());
+        scriptDAO.update(script);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public void appendInfo(ScriptUpdateForm form) {
+
+        Script script = findOne(form.getScriptId());
+        User currentUser = userService.findByUsername(getCurrentUsername());
+        script.setProjectId(form.getProjectId());
+        script.setTag(form.getTag());
+        script.setDescription(form.getDescription());
+        script.setUpdateTime(new Date());
+        script.setUpdateBy(currentUser.getId());
+        script.setEnabled(true);
         scriptDAO.update(script);
     }
 
@@ -245,10 +264,18 @@ public class ScriptService {
     private Map<String, Object> buildProjectParamsForCurrentUser(ScriptListForm queryForm){
         List<Project> projects = projectService.findAllByUserList(getCurrentUsername());
         Map<String, Object> params = new HashMap<>();
-        params.put("projectId", queryForm.getProjectId());
-        params.put("scriptName", queryForm.getScriptName());
-        params.put("projects", projects);
-        params.put("ln", queryForm.getLn());
+        if(StringUtils.isNotEmpty(queryForm.getScriptName())){
+            params.put("scriptName", queryForm.getScriptName());
+        }
+        if(queryForm.getProjectId() != null){
+            params.put("projectId", queryForm.getProjectId());
+        }
+        if(queryForm.getLn() != null){
+            params.put("ln", queryForm.getLn());
+        }
+        if(projects != null & projects.size() > 0){
+            params.put("projects", projects);
+        }
         return params;
     }
 

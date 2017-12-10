@@ -2,18 +2,23 @@ package com.testwa.distest.server.web.script.controller;
 
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
+import com.testwa.core.base.exception.AuthorizedException;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.base.exception.ParamsFormatException;
 import com.testwa.core.base.exception.ParamsIsNullException;
 import com.testwa.core.base.form.DeleteAllForm;
 import com.testwa.core.base.vo.Result;
+import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.common.validator.FileUploadValidator;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.server.entity.Script;
+import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.script.form.ScriptContentForm;
 import com.testwa.distest.server.service.script.form.ScriptListForm;
 import com.testwa.distest.server.service.script.form.ScriptUpdateForm;
 import com.testwa.distest.server.service.script.service.ScriptService;
+import com.testwa.distest.server.service.user.service.UserService;
+import com.testwa.distest.server.web.project.validator.ProjectValidator;
 import com.testwa.distest.server.web.script.validator.ScriptValidator;
 import com.testwa.distest.server.web.script.vo.ScriptVO;
 import io.swagger.annotations.Api;
@@ -41,28 +46,23 @@ public class ScriptController extends BaseController {
     @Autowired
     private ScriptService scriptService;
     @Autowired
+    private UserService userService;
+    @Autowired
     private ScriptValidator validator;
     @Autowired
+    private ProjectValidator projectValidator;
+    @Autowired
     private FileUploadValidator fileUploadValidator;
-
-    @ApiOperation(value="补充脚本信息", notes="")
-    @ResponseBody
-    @PostMapping(value = "/save")
-    public Result appendInfo(@RequestBody @Valid ScriptUpdateForm form){
-        scriptService.update(form);
-        return ok();
-    }
-
 
     @ApiOperation(value="上传脚本", notes="")
     @ResponseBody
     @PostMapping(value = "/upload")
-    public Result upload(@RequestParam("file") MultipartFile uploadfile) throws ParamsIsNullException, ParamsFormatException, IOException {
+    public Result upload(@RequestParam("scriptfile") MultipartFile uploadfile) throws ParamsIsNullException, ParamsFormatException, IOException {
         //
         // 校验
         //
-        long fileSize = 1024 * 1024 * 400;
-        String[] allowExtName = {".apk", ".ipa", ".zip"};
+        long fileSize = 1024 * 100;  // 100k
+        String[] allowExtName = {".java", ".js", ".py", ".rb"};  // 这里必须是有序数组，字母顺序
         fileUploadValidator.validateFile(uploadfile, fileSize, allowExtName);
 
         Script script = scriptService.upload(uploadfile);
@@ -71,7 +71,15 @@ public class ScriptController extends BaseController {
         return ok(vo);
     }
 
-    @ApiOperation(value="上传多个脚本", notes="")
+    /**
+     * 可以上传一组脚本形成案例，暂时还不用
+     * @param uploadfiles
+     * @return
+     * @throws IOException
+     * @throws ParamsIsNullException
+     * @throws ParamsFormatException
+     */
+    @ApiOperation(value="上传多个脚本", notes="暂时还不用")
     @ResponseBody
     @PostMapping(value = "/upload/multi")
     public Result uploadMulti(@RequestParam("file") List<MultipartFile> uploadfiles) throws IOException, ParamsIsNullException, ParamsFormatException {
@@ -79,12 +87,22 @@ public class ScriptController extends BaseController {
         // 校验
         //
         long fileSize = 1024 * 1024 * 400;
-        String[] allowExtName = {".apk", ".ipa", ".zip"};
+        String[] allowExtName = {".java", ".js", ".py", ".rb"};  // 这里必须是有序数组，字母顺序
         fileUploadValidator.validateFiles(uploadfiles, fileSize, allowExtName);
         scriptService.uploadMulti(uploadfiles);
         return ok();
     }
 
+    @ApiOperation(value="补充脚本信息", notes="")
+    @ResponseBody
+    @PostMapping(value = "/append")
+    public Result appendInfo(@RequestBody @Valid ScriptUpdateForm form) throws ObjectNotExistsException, AuthorizedException {
+        projectValidator.validateProjectExist(form.getProjectId());
+        User user = userService.findByUsername(WebUtil.getCurrentUsername());
+        projectValidator.validateUserIsProjectMember(form.getProjectId(), user.getId());
+        scriptService.appendInfo(form);
+        return ok();
+    }
 
     @ApiOperation(value="删除脚本", notes="")
     @ResponseBody
@@ -99,13 +117,29 @@ public class ScriptController extends BaseController {
     @ApiOperation(value="脚本分页列表", notes="")
     @ResponseBody
     @GetMapping(value = "/page")
-    public Result page(@Valid ScriptListForm queryForm) {
-        PageResult<Script> scriptPageResult = scriptService.findPage(queryForm);
+    public Result page(@Valid ScriptListForm queryForm) throws AuthorizedException {
+        if(queryForm.getProjectId() != null){
+            User user = userService.findByUsername(WebUtil.getCurrentUsername());
+            projectValidator.validateUserIsProjectMember(queryForm.getProjectId(), user.getId());
+        }
+        PageResult<Script> scriptPageResult = scriptService.findPageForCurrentUser(queryForm);
         List<ScriptVO> vos = buildVOs(scriptPageResult.getPages(), ScriptVO.class);
         PageResult<ScriptVO> pr = new PageResult<>(vos, scriptPageResult.getTotal());
         return ok(pr);
     }
 
+    @ApiOperation(value="脚本列表", notes="")
+    @ResponseBody
+    @GetMapping(value = "/list")
+    public Result list(@Valid ScriptListForm queryForm) throws AuthorizedException {
+        if(queryForm.getProjectId() != null){
+            User user = userService.findByUsername(WebUtil.getCurrentUsername());
+            projectValidator.validateUserIsProjectMember(queryForm.getProjectId(), user.getId());
+        }
+        List<Script> scriptList = scriptService.findForCurrentUser(queryForm);
+        List<ScriptVO> vos = buildVOs(scriptList, ScriptVO.class);
+        return ok(vos);
+    }
 
     @ApiOperation(value="获得脚本内容", notes="")
     @ResponseBody
@@ -126,13 +160,5 @@ public class ScriptController extends BaseController {
         return ok();
     }
 
-    @ApiOperation(value="脚本列表", notes="")
-    @ResponseBody
-    @GetMapping(value = "/list")
-    public Result list(@Valid ScriptListForm queryForm) {
-        List<Script> scriptList = scriptService.find(queryForm);
-        List<ScriptVO> vos = buildVOs(scriptList, ScriptVO.class);
-        return ok(vos);
-    }
 
 }
