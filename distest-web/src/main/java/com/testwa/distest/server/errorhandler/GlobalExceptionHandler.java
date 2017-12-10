@@ -1,17 +1,17 @@
-package com.testwa.core.base.exception.handler;
+package com.testwa.distest.server.errorhandler;
 
-import com.testwa.core.base.vo.Result;
 import com.testwa.core.base.constant.ResultCode;
 import com.testwa.core.base.exception.*;
+import com.testwa.core.base.vo.Result;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.servlet.http.HttpServletRequest;
 
 @Log4j2
-@ControllerAdvice
+@RestControllerAdvice
 class GlobalExceptionHandler {
     /**
      * Internal server error message.
@@ -52,7 +52,7 @@ class GlobalExceptionHandler {
     @ResponseBody
     public Result handleObjectAlreadyExistExceptions(HttpServletRequest req, Exception e) throws Exception {
         Result<String> r = new Result<>();
-        r.setCode(ResultCode.CONFLICT.getValue());
+        r.setCode(ResultCode.PARAM_ERROR.getValue());
         r.setMessage(e.getMessage());
         r.setUrl(req.getRequestURL().toString());
         return r;

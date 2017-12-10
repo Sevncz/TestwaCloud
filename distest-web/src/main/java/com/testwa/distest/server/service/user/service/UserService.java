@@ -88,7 +88,6 @@ public class UserService {
         List<User> users = userDAO.findBy(query);
         if(users.size() > 1){
             log.error("findForCurrentUser by email return > 1");
-//            throw new AccountException("账户异常");
         }
         if(users.size() == 0){
             return null;
@@ -102,7 +101,6 @@ public class UserService {
         List<User> users = userDAO.findBy(query);
         if(users.size() > 1){
             log.error("findForCurrentUser by username return > 1");
-//            throw new AccountException("账户异常");
         }
         if(users.size() == 0){
             return null;

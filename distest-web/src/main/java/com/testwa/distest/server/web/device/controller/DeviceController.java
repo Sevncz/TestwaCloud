@@ -21,6 +21,7 @@ import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
 import com.testwa.distest.server.web.device.validator.DeviceValidatoer;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +70,8 @@ public class DeviceController extends BaseController {
      * @param form
      * @return
      */
-    @ApiOperation(value="查看用户可见的在线设备分页列表", notes = "设备目前所有人均可见")
+    @ApiOperation(value="查看用户可见的在线设备分页列表")
+    @ApiImplicitParam(name = "form", value = "分页查询列表", required = true, dataType = "DeviceListForm")
     @ResponseBody
     @GetMapping(value = "/enable/page")
     public Result porjectEnablePage(@Valid DeviceListForm form) throws ObjectNotExistsException, AuthorizedException {

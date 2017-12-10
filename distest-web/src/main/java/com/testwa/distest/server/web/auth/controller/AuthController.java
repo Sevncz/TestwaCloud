@@ -19,6 +19,7 @@ import com.testwa.distest.server.service.user.form.RegisterForm;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.auth.mgr.AuthMgr;
 import com.testwa.distest.server.web.auth.mgr.RedisLoginMgr;
+import com.testwa.distest.server.web.auth.validator.UserValidator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -52,6 +53,8 @@ public class AuthController extends BaseController {
     private String tokenHeader;
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserValidator userValidator;
     @Autowired
     private AuthMgr authMgr;
     @Autowired
