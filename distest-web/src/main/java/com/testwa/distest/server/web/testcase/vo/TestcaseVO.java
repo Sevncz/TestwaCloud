@@ -1,6 +1,7 @@
 package com.testwa.distest.server.web.testcase.vo;
 
 import com.testwa.distest.common.enums.DB;
+import com.testwa.distest.server.web.auth.vo.UserVO;
 import com.testwa.distest.server.web.script.vo.ScriptVO;
 import lombok.Data;
 
@@ -21,8 +22,10 @@ public class TestcaseVO {
     private DB.RunMode exeMode;
 
     private Date createTime;
-    private Long createBy;
+    private Date updateTime;
 
-    private List<ScriptVO> scriptVOs;
+    private List<ScriptVO> scriptList;
+    private UserVO createUser;
+    private UserVO updateUser;
 
 }

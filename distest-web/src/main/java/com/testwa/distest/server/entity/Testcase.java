@@ -30,5 +30,9 @@ public class Testcase extends BaseEntity {
     private Boolean enabled;
 
     @Column(value="scripts", ignore=true)
-    private List<Script> scripts;
+    private List<TestcaseDetail> testcaseDetails;
+    @Column(value="createUser", ignore=true)
+    private User createUser;
+    @Column(value="updateUser", ignore=true)
+    private User updateUser;
 }

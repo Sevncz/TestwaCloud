@@ -2,6 +2,7 @@ package com.testwa.distest.server.web.task.controller;
 
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.ObjectNotExistsException;
+import com.testwa.core.base.form.DeleteOneForm;
 import com.testwa.core.base.vo.Result;
 import com.testwa.distest.server.entity.TaskScene;
 import com.testwa.core.base.constant.WebConstants;
@@ -32,7 +33,7 @@ import javax.validation.Valid;
 @Log4j2
 @Api("任务管理相关api")
 @RestController
-@RequestMapping(path = WebConstants.API_PREFIX + "/task/scene")
+@RequestMapping(path = WebConstants.API_PREFIX + "/scene")
 public class TaskSceneController extends BaseController {
     @Autowired
     private TaskSceneService taskSceneService;
@@ -48,8 +49,12 @@ public class TaskSceneController extends BaseController {
     @ApiOperation(value="创建任务场景")
     @ResponseBody
     @PostMapping(value = "/save")
-    public Result save(@Valid TaskSceneNewForm form){
+    public Result save(@Valid @RequestBody TaskSceneNewForm form) throws ObjectNotExistsException {
         log.info(form.toString());
+        projectValidator.validateProjectExist(form.getProjectId());
+        appValidator.validateAppExist(form.getAppId());
+        testcaseValidatoer.validateTestcasesExist(form.getCaseIds());
+
         taskSceneService.save(form);
         return ok();
     }
@@ -59,19 +64,28 @@ public class TaskSceneController extends BaseController {
     @PostMapping(value = "/modify")
     public Result modify(@Valid @RequestBody TaskSceneUpdateForm form) throws ObjectNotExistsException {
         log.info(form.toString());
-        projectValidator.validateProjectExist(form.getAppId());
+        projectValidator.validateProjectExist(form.getProjectId());
         appValidator.validateAppExist(form.getAppId());
         testcaseValidatoer.validateTestcasesExist(form.getCaseIds());
         taskSceneValidatoer.validateTaskSceneExist(form.getTaskSceneId());
+
         taskSceneService.update(form);
         return ok();
     }
 
-    @ApiOperation(value="删除任务场景")
+    @ApiOperation(value="删除多个任务场景")
     @ResponseBody
-    @PostMapping(value = "/delete")
-    public Result delete(@Valid @RequestBody DeleteAllForm form) {
+    @PostMapping(value = "/delete/all")
+    public Result deleteAll(@Valid @RequestBody DeleteAllForm form) {
         taskSceneService.delete(form.getEntityIds());
+        return ok();
+    }
+
+    @ApiOperation(value="删除一个任务场景")
+    @ResponseBody
+    @PostMapping(value = "/delete/one")
+    public Result deleteAll(@Valid @RequestBody DeleteOneForm form) {
+        taskSceneService.delete(form.getEntityId());
         return ok();
     }
 
@@ -84,6 +98,7 @@ public class TaskSceneController extends BaseController {
         return ok(pr);
     }
 
+    @ApiOperation(value="任务场景的详情，包括案例的详情")
     @ResponseBody
     @GetMapping(value = "/detail/{taskSceneId}")
     public Result detail(@PathVariable Long taskSceneId){

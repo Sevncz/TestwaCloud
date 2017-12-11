@@ -22,4 +22,8 @@ public interface TestcaseMapper extends BaseMapper<Testcase, Long> {
 	List<Testcase> findList(@Param("keys") List<Long> keys, @Param("orderBy") String orderBy);
 
     List<Testcase> findByFromProject(@Param("params") Map<String, Object> params);
+
+    Testcase fetchOne(@Param("testcaseId") Long testcaseId);
+
+    List<Testcase> fetchScriptAllBySceneOrder(@Param("sceneId") Long sceneId);
 }

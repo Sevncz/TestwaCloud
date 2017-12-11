@@ -4,12 +4,20 @@ import com.testwa.core.base.constant.ResultCode;
 import com.testwa.core.base.exception.*;
 import com.testwa.core.base.vo.Result;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Log4j2
 @RestControllerAdvice
@@ -18,6 +26,9 @@ class GlobalExceptionHandler {
      * Internal server error message.
      */
     private static final String ERR_INTERNAL_SERVER_ERROR = "Internal server error";
+
+    @Autowired
+    MessageSource messageSource;
 
     @ExceptionHandler(value = BadCredentialsException.class)
     @ResponseBody
@@ -81,6 +92,32 @@ class GlobalExceptionHandler {
     }
 
 
+    @ExceptionHandler(value = HttpMessageNotReadableException.class)
+    @ResponseBody
+    public Result handleHttpMessageNotReadableExceptions(HttpServletRequest req, Exception e) throws Exception {
+        Result<String> r = new Result<>();
+        r.setCode(ResultCode.PARAM_ERROR.getValue());
+        r.setMessage("请求格式错误");
+        r.setUrl(req.getRequestURL().toString());
+        log.error(e.getMessage());
+        return r;
+    }
+
+    @ExceptionHandler(value = MethodArgumentNotValidException.class)
+    @ResponseBody
+    public Result handleMethodArgumentNotValidExceptions(HttpServletRequest req, MethodArgumentNotValidException e) throws Exception {
+        List<String> errors = e.getBindingResult().getFieldErrors().stream()
+                .map(this::buildMessage)
+                .collect(Collectors.toList());
+        Result<String> r = new Result<>();
+        r.setCode(ResultCode.PARAM_ERROR.getValue());
+        r.setMessage(errors.toString());
+        r.setUrl(req.getRequestURL().toString());
+        log.error(e.getMessage());
+        return r;
+    }
+
+
     @ExceptionHandler(value = Exception.class)
     @ResponseBody
     public Result handleOtherExceptions(HttpServletRequest req, Exception e) throws Exception {
@@ -94,6 +131,22 @@ class GlobalExceptionHandler {
 
         log.error(e.getMessage());
         return r;
+    }
+
+    private String buildMessage(FieldError fe) {
+        StringBuilder errorCode = new StringBuilder("");
+        String localizedErrorMsg = "";
+        errorCode.append("error").append(".");
+        errorCode.append(fe.getObjectName()).append(".");
+        errorCode.append(fe.getField()).append(".");
+        errorCode.append(fe.getCode().toLowerCase());
+
+        try {
+            localizedErrorMsg = this.messageSource.getMessage(String.valueOf(errorCode), (Object[]) null, LocaleContextHolder.getLocale());
+        } catch (Exception ex) {
+            localizedErrorMsg = fe.getDefaultMessage();
+        }
+        return localizedErrorMsg;
     }
 
 }

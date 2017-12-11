@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.testwa.distest.server.mapper.TaskSceneTestcaseMapper" >
-    <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.TaskSceneTestcase" >
+    <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.TaskSceneDetail" >
         <id column="id" property="id" jdbcType="BIGINT" />
         <result column="taskSceneId" property="taskSceneId" jdbcType="BIGINT"/>
         <result column="testcaseId" property="testcaseId" jdbcType="BIGINT"/>
@@ -12,10 +12,10 @@
         id, taskSceneId, testcaseId, seq
     </sql>
 
-    <select id="findBy" parameterType="com.testwa.distest.server.entity.TaskSceneTestcase" resultMap="BaseResultMap" >
+    <select id="findBy" parameterType="com.testwa.distest.server.entity.TaskSceneDetail" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />
-        FROM taskscene_testcase
+        FROM taskscene_detail
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             <if test="taskSceneId != null">and taskSceneId = #{taskSceneId}</if>
             <if test="testcaseId != null">and testcaseId = #{testcaseId}</if>
@@ -32,7 +32,7 @@
     </select>
 
     <select id="countBy" resultType="long">
-        SELECT count(1) c FROM taskscene_testcase
+        SELECT count(1) c FROM taskscene_detail
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             <if test="taskSceneId != null">and taskSceneId = #{taskSceneId}</if>
             <if test="testcaseId != null">and testcaseId = #{testcaseId}</if>
@@ -40,7 +40,7 @@
     </select>
 
     <insert id="insertAll" parameterType="java.util.List">
-        INSERT INTO taskscene_testcase (taskSceneId, testcaseId, seq) VALUES
+        INSERT INTO taskscene_detail (taskSceneId, testcaseId, seq) VALUES
         <foreach item="item" index="index" collection="list" separator=",">
             (#{item.taskSceneId}, #{item.testcaseId}, #{item.seq})
         </foreach>
@@ -48,7 +48,7 @@
 
     <delete id="deleteByTaskSceneId" parameterType="java.lang.Long">
         DELETE FROM
-        taskscene_testcase
+        taskscene_detail
         WHERE taskSceneId = #{taskSceneId}
     </delete>
 

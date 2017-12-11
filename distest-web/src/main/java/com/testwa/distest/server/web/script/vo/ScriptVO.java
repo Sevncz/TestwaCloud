@@ -13,14 +13,9 @@ public class ScriptVO {
 
     private Long id;
     private String scriptName;
-    private String aliasName;
     private String size;
-    private String tag;
     private String description;
     private DB.ScriptLN ln;
-    private String md5;
-    private String path;
-    private Long projectId;
     private Date updateTime;
     private Long updateBy;
     private Date createTime;

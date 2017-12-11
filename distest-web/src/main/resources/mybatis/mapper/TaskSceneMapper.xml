@@ -12,6 +12,30 @@
         <result column="createTime" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="updateBy" property="updateBy" jdbcType="BIGINT"/>
         <result column="createBy" property="createBy" jdbcType="BIGINT"/>
+        <association property="createUser" javaType="com.testwa.distest.server.entity.User">
+            <id column="create_id" property="id"/>
+            <result column="create_username" property="username"/>
+            <result column="create_email" property="email"/>
+            <result column="create_phone" property="phone"/>
+        </association>
+        <association property="updateUser" javaType="com.testwa.distest.server.entity.User">
+            <id column="update_id" property="id"/>
+            <result column="update_username" property="username"/>
+            <result column="update_email" property="email"/>
+            <result column="update_phone" property="phone"/>
+        </association>
+        <association property="app" javaType="com.testwa.distest.server.entity.App">
+            <id column="app_id" property="id"/>
+            <result column="appName" property="appName"/>
+            <result column="packageName" property="packageName"/>
+            <result column="activity" property="activity"/>
+            <result column="sdkVersion" property="sdkVersion"/>
+            <result column="targetSdkVersion" property="targetSdkVersion"/>
+            <result column="version" property="version"/>
+            <result column="osType" property="osType" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
+            <result column="size" property="size"/>
+            <result column="createTime" property="createTime"/>
+        </association>
     </resultMap>
 
     <sql id="Base_Column_List" >
@@ -36,9 +60,15 @@
     </select>
     <select id="fetchOne" parameterType="com.testwa.distest.server.entity.TaskScene" resultMap="BaseResultMap" >
         SELECT
-        <include refid="Base_Column_List" />
-        FROM taskscene
-        WHERE id = #{key}
+        t.id, t.sceneName, t.projectId, t.appId, t.description, t.exeMode,t.updateTime,t.createTime,t.updateBy,t.createBy,
+        u.id as create_id, u.username as create_username, u.email as create_email, u.phone as create_phone,
+        u1.id as update_id, u1.username as update_username, u1.email as update_email, u1.phone as update_phone,
+        a.id as app_id, a.appName, a.packageName, a.activity, a.sdkVersion, a.targetSdkVersion, a.version, a.osType, a.size, a.createTime
+        FROM taskscene t
+        LEFT JOIN user u on t.createBy=u.id
+        LEFT JOIN user u1 on t.updateBy=u1.id
+        LEFT JOIN app a on t.appId=a.id
+        WHERE t.id = #{key}
     </select>
     <select id="findList" parameterType="com.testwa.distest.server.entity.TaskScene" resultMap="BaseResultMap" >
         SELECT
@@ -61,7 +91,7 @@
         FROM taskscene
         WHERE projectId in
         <foreach item="item" index="index" collection="params.projects" open="(" separator="," close=")">#{item.id} </foreach>
-        <if test="params.sceneName != null">and sceneName = #{params.sceneName}</if>
+        <if test="params.sceneName != null">and sceneName LIKE CONCAT('%', #{params.sceneName}, '%')</if>
         <if test="params.createBy != null">and createBy = #{params.createBy}</if>
         <if test="params.projectId != null">and projectId = #{params.projectId}</if>
     </select>

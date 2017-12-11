@@ -10,14 +10,16 @@ import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.service.script.service.ScriptService;
 import com.testwa.distest.server.service.testcase.dao.ITestcaseDAO;
-import com.testwa.distest.server.service.testcase.dao.ITestcaseScriptDAO;
+import com.testwa.distest.server.service.testcase.dao.ITestcaseDetailDAO;
 import com.testwa.distest.server.service.testcase.form.TestcaseNewForm;
 import com.testwa.distest.server.service.testcase.form.TestcaseListForm;
 import com.testwa.distest.server.service.testcase.form.TestcaseUpdateForm;
 import com.testwa.distest.server.service.user.service.UserService;
+import com.testwa.distest.server.web.auth.vo.UserVO;
 import com.testwa.distest.server.web.script.vo.ScriptVO;
 import com.testwa.distest.server.web.testcase.vo.TestcaseVO;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,7 +40,7 @@ public class TestcaseService {
     @Autowired
     private ITestcaseDAO testcaseDAO;
     @Autowired
-    private ITestcaseScriptDAO testcaseScriptDAO;
+    private ITestcaseDetailDAO testcaseDetailDAO;
     @Autowired
     private ScriptService scriptService;
     @Autowired
@@ -55,6 +57,7 @@ public class TestcaseService {
     public long saveRegressionTestcase(TestcaseNewForm form) {
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         Testcase testcase = new Testcase();
+        testcase.setCaseName(form.getName());
         testcase.setDescription(form.getDescription());
         testcase.setProjectId(form.getProjectId());
         testcase.setCreateBy(user.getId());
@@ -77,9 +80,9 @@ public class TestcaseService {
     public Long saveCompatibilityTestcase(Long projectId, List<Long> scripts){
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         Testcase testcase = new Testcase();
+        testcase.setCaseName("compatibility test");
         testcase.setDescription("compatibility test");
         testcase.setProjectId(projectId);
-        testcase.setCaseName("compatibility test");
         testcase.setCreateBy(user.getId());
         testcase.setTag("兼容");
         testcase.setExeMode(DB.RunMode.COMPATIBILITYTEST);
@@ -89,11 +92,11 @@ public class TestcaseService {
     private void saveTestcaseScript(List<Long> scriptIds, long testcaseId) {
         List<Object> seq = new ArrayList<>();
         scriptIds.forEach(scriptId -> {
-            TestcaseScript testcaseScript = new TestcaseScript();
+            TestcaseDetail testcaseScript = new TestcaseDetail();
             testcaseScript.setScriptId(scriptId);
             testcaseScript.setSeq(seq.size());
             testcaseScript.setTestcaseId(testcaseId);
-            testcaseScriptDAO.insert(testcaseScript);
+            testcaseDetailDAO.insert(testcaseScript);
             seq.add(1);
         });
     }
@@ -105,7 +108,7 @@ public class TestcaseService {
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void delete(Long testcaseId) {
         // 删除相关的testcasescript
-        testcaseScriptDAO.deleteByTestcaseId(testcaseId);
+        testcaseDetailDAO.deleteByTestcaseId(testcaseId);
         testcaseDAO.delete(testcaseId);
     }
 
@@ -123,35 +126,59 @@ public class TestcaseService {
     }
 
     public TestcaseVO getTestcaseVO(Long caseId) {
-        Testcase testcase = testcaseDAO.findOne(caseId);
+        Testcase testcase = testcaseDAO.fetchOne(caseId);
         TestcaseVO testcaseVO = new TestcaseVO();
-        BeanUtils.copyProperties(testcase, testcaseVO);
-        // get scriptVOs
-        List<Script> scripts = scriptService.findAllByTestcaseId(caseId);
-        List<ScriptVO> scriptVOs = new ArrayList<>();
-        scripts.forEach(script -> {
-            ScriptVO scriptVO = new ScriptVO();
-            BeanUtils.copyProperties(script, scriptVO);
-            scriptVOs.add(scriptVO);
-        });
-        testcaseVO.setScriptVOs(scriptVOs);
+        if(testcase != null){
+            toTestcaseVO(testcase, testcaseVO);
+        }
 
         return testcaseVO;
+    }
+
+    public void toTestcaseVO(Testcase testcase, TestcaseVO testcaseVO) {
+        BeanUtils.copyProperties(testcase, testcaseVO);
+        // get scriptVOs
+        List<TestcaseDetail> details = testcase.getTestcaseDetails();
+        if(details != null && details.size() > 0){
+            Collections.sort(details);
+            List<ScriptVO> scripts = new ArrayList<>();
+            details.forEach( d -> {
+                ScriptVO scriptVO = new ScriptVO();
+                BeanUtils.copyProperties(d.getScript(), scriptVO);
+                scripts.add(scriptVO);
+            });
+            testcaseVO.setScriptList(scripts);
+        }
+
+        // get create user vo
+        UserVO createVO = new UserVO();
+        User createUser = testcase.getCreateUser();
+        if(createUser != null) {
+            BeanUtils.copyProperties(createUser, createVO);
+            testcaseVO.setCreateUser(createVO);
+        }
+        // get update user vo
+        UserVO updateVO = new UserVO();
+        User updateUser = testcase.getUpdateUser();
+        if(updateUser != null){
+            BeanUtils.copyProperties(updateUser, updateVO);
+            testcaseVO.setUpdateUser(updateVO);
+        }
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void update(TestcaseUpdateForm form) {
         Testcase testcase = testcaseDAO.findOne(form.getTestcaseId());
-        if(testcase == null){
-            return;
-        }
+        User user = userService.findByUsername(WebUtil.getCurrentUsername());
         List<Long> scriptIds = form.getScriptIds();
         testcase.setTag(form.getTag());
         testcase.setDescription(form.getDescription());
         testcase.setCaseName(form.getName());
+        testcase.setUpdateBy(user.getId());
+        testcase.setUpdateTime(new Date());
         testcaseDAO.update(testcase);
 
-        testcaseScriptDAO.deleteByTestcaseId(form.getTestcaseId());
+        testcaseDetailDAO.deleteByTestcaseId(form.getTestcaseId());
         saveTestcaseScript(scriptIds, form.getTestcaseId());
 
     }
@@ -189,7 +216,7 @@ public class TestcaseService {
 
     public List<Testcase> find(TestcaseListForm queryForm) {
         Testcase testcase = new Testcase();
-        testcase.setCaseName(queryForm.getTestcaseName());
+        testcase.setCaseName(queryForm.getCaseName());
         testcase.setProjectId(queryForm.getProjectId());
         List<Testcase> testcaseList = testcaseDAO.findBy(testcase);
         return testcaseList;
@@ -224,10 +251,20 @@ public class TestcaseService {
     private Map<String, Object> buildProjectParamsForCurrentUser(TestcaseListForm queryForm){
         List<Project> projects = projectService.findAllByUserList(getCurrentUsername());
         Map<String, Object> params = new HashMap<>();
-        params.put("projectId", queryForm.getProjectId());
-        params.put("caseName", queryForm.getTestcaseName());
-        params.put("projects", projects);
+        if(queryForm.getProjectId() != null){
+            params.put("projectId", queryForm.getProjectId());
+        }
+        if(StringUtils.isNotEmpty(queryForm.getCaseName())){
+            params.put("caseName", queryForm.getCaseName());
+        }
+        if(projects != null){
+            params.put("projects", projects);
+        }
         return params;
     }
 
+    public List<Testcase> fetchScriptAllBySceneOrder(Long sceneId) {
+
+        return testcaseDAO.fetchScriptAllBySceneOrder(sceneId);
+    }
 }

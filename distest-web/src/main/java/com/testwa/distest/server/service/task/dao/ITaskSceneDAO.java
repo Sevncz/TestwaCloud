@@ -18,5 +18,10 @@ public interface ITaskSceneDAO extends IBaseDAO<TaskScene, Long> {
 
     List<TaskScene> findByFromProject(Map<String, Object> params);
 
+    /**
+     * fetch app, createUser and updateUser
+     * @param taskSceneId
+     * @return
+     */
     TaskScene fetchOne(Long taskSceneId);
 }

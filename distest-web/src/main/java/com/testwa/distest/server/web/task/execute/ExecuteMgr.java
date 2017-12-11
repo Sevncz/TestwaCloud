@@ -94,7 +94,7 @@ public class ExecuteMgr {
             RemoteTestcaseContent content = new RemoteTestcaseContent();
             content.setTestcaseId(caseId);
             Testcase c = testcaseService.findOne(caseId);
-            content.setScriptIds(getScriptIds(c.getScripts()));
+//            content.setScriptIds(getScriptIds(c.getScripts()));
             cases.add(content);
 
         }
@@ -120,8 +120,8 @@ public class ExecuteMgr {
         startForm.setTaskSceneId(ts.getId());
 
         List<Long> caseIds = new ArrayList<>();
-        ts.getTestcases().forEach( t -> {
-            caseIds.add(t.getId());
+        ts.getTaskSceneDetails().forEach( t -> {
+            caseIds.add(t.getTestcaseId());
         });
 
         start(startForm, caseIds, ts.getAppId());

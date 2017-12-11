@@ -21,7 +21,7 @@ public class TestcaseValidatoer {
     public List<Testcase> validateTestcasesExist(List<Long> entityIds) throws ObjectNotExistsException {
         List<Testcase> entityList = testcaseService.findAll(entityIds);
         if(entityList == null || entityList.size() != entityIds.size()){
-            throw new ObjectNotExistsException("任务不存在");
+            throw new ObjectNotExistsException("案例不存在");
         }
         return entityList;
     }
@@ -29,7 +29,7 @@ public class TestcaseValidatoer {
     public Testcase validateTestcaseExist(Long entityId) throws ObjectNotExistsException {
         Testcase entity = testcaseService.findOne(entityId);
         if(entity == null){
-            throw new ObjectNotExistsException("任务不存在");
+            throw new ObjectNotExistsException("案例不存在");
         }
         return entity;
     }

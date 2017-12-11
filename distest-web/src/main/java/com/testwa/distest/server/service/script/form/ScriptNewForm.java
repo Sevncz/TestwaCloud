@@ -14,9 +14,8 @@ import javax.validation.constraints.NotNull;
 )
 @Data
 public class ScriptNewForm extends RequestFormBase{
-    @NotNull
+    @NotNull(message = "projectId.empty")
     private Long projectId;
-    @NotNull
     private String tag;
     private String description;
 }

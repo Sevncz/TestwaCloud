@@ -1,5 +1,6 @@
 package com.testwa.distest.server.entity;
 
+import com.testwa.core.base.annotation.Column;
 import com.testwa.core.base.annotation.TableName;
 import com.testwa.core.base.bo.BaseEntity;
 import com.testwa.distest.common.enums.DB;
@@ -35,5 +36,10 @@ public class Script extends BaseEntity {
     private Date createTime;
     private Long createBy;
     private Boolean enabled;
+
+    @Column(value="createUser", ignore=true)
+    private User createUser;
+    @Column(value="updateUser", ignore=true)
+    private User updateUser;
 
 }

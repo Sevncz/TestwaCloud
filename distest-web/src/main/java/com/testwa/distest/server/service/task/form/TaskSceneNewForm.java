@@ -18,16 +18,12 @@ import java.util.List;
 public class TaskSceneNewForm extends RequestFormBase {
 
     @NotNull(message = "sceneName.empty")
-    @NotEmpty(message = "sceneName.empty")
     private String sceneName;
     @NotNull(message = "projectId.empty")
-    @NotEmpty(message = "projectId.empty")
     private Long projectId;
     @NotNull(message = "caseIds.empty")
-    @NotEmpty(message = "caseIds.empty")
     private List<Long> caseIds;
     @NotNull(message = "appId.empty")
-    @NotEmpty(message = "appId.empty")
     private Long appId;
     private String description;
 

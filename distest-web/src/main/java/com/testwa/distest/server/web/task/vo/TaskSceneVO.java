@@ -2,6 +2,7 @@ package com.testwa.distest.server.web.task.vo;
 
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.web.app.vo.AppVO;
+import com.testwa.distest.server.web.auth.vo.UserVO;
 import com.testwa.distest.server.web.testcase.vo.TestcaseVO;
 import lombok.Data;
 
@@ -15,8 +16,9 @@ import java.util.List;
 public class TaskSceneVO {
 
     private Long id;
-    private String taskName;
+    private String sceneName;
     private Long projectId;
+    private Long appId;
     private String description;
     private DB.RunMode exeMode;
 
@@ -27,5 +29,7 @@ public class TaskSceneVO {
 
     private AppVO app;
     private List<TestcaseVO> testcases;
+    private UserVO createUser;
+    private UserVO updateUser;
 
 }

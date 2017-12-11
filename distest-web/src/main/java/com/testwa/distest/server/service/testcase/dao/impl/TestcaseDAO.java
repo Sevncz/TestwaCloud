@@ -46,5 +46,15 @@ public class TestcaseDAO extends BaseDAO<Testcase, Long> implements ITestcaseDAO
         return mapper.findByFromProject(params);
     }
 
+    @Override
+    public Testcase fetchOne(Long testcaseId) {
+        return mapper.fetchOne(testcaseId);
+    }
+
+    @Override
+    public List<Testcase> fetchScriptAllBySceneOrder(Long sceneId) {
+        return  mapper.fetchScriptAllBySceneOrder(sceneId);
+    }
+
 
 }

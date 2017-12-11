@@ -13,6 +13,27 @@
         <result column="updateBy" property="updateBy" jdbcType="BIGINT"/>
         <result column="createBy" property="createBy" jdbcType="BIGINT"/>
         <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
+        <association property="createUser" javaType="com.testwa.distest.server.entity.User">
+            <id column="create_id" property="id"/>
+            <result column="create_username" property="username"/>
+            <result column="create_email" property="email"/>
+            <result column="create_phone" property="phone"/>
+        </association>
+        <association property="updateUser" javaType="com.testwa.distest.server.entity.User">
+            <id column="update_id" property="id"/>
+            <result column="update_username" property="username"/>
+            <result column="update_email" property="email"/>
+            <result column="update_phone" property="phone"/>
+        </association>
+        <collection property="testcaseDetails" ofType="com.testwa.distest.server.entity.TestcaseDetail">
+            <id column="detail_id" property="id"/>
+            <id column="seq" property="seq"/>
+            <association property="script" javaType="com.testwa.distest.server.entity.Script">
+                <id column="script_id" property="id"/>
+                <result column="scriptName" property="scriptName"/>
+                <result column="description" property="description"/>
+            </association>
+        </collection>
     </resultMap>
 
     <sql id="Base_Column_List" >
@@ -37,6 +58,21 @@
         FROM testcase
         WHERE id = #{key}
     </select>
+
+    <select id="fetchOne" parameterType="com.testwa.distest.server.entity.Testcase" resultMap="BaseResultMap" >
+        SELECT
+        t.id, t.caseName, t.tag, t.projectId, t.exeMode, t.description, t.updateTime, t.createTime,
+        u.id as create_id, u.username as create_username, u.email as create_email, u.phone as create_phone,
+        u1.id as update_id, u1.username as update_username, u1.email as update_email, u1.phone as update_phone,
+        d.id as detail_id, d.seq, s.id as script_id, s.scriptName, s.description
+        FROM testcase t
+        LEFT JOIN user u on t.createBy=u.id
+        LEFT JOIN user u1 on t.updateBy=u1.id
+        LEFT JOIN testcase_detail d on t.id=d.testcaseId
+        LEFT JOIN script s on d.scriptId=s.id
+        WHERE t.id = #{testcaseId}
+    </select>
+
     <select id="findList" parameterType="com.testwa.distest.server.entity.Testcase" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />
@@ -59,7 +95,7 @@
         WHERE enabled = 1
         AND projectId in
         <foreach item="item" index="index" collection="params.projects" open="(" separator="," close=")">#{item.id} </foreach>
-        <if test="params.caseName != null">and caseName = #{params.caseName}</if>
+        <if test="params.caseName != null">and caseName LIKE CONCAT('%', #{params.caseName}, '%')</if>
         <if test="params.createBy != null">and createBy = #{params.createBy}</if>
         <if test="params.projectId != null">and projectId = #{params.projectId}</if>
     </select>
@@ -82,6 +118,22 @@
             <if test="projectId != null">and projectId = #{projectId}</if>
             <if test="caseName != null">and caseName = #{caseName}</if>
         </trim>
+    </select>
+
+
+    <select id="fetchScriptAllBySceneOrder" parameterType="com.testwa.distest.server.entity.Testcase" resultMap="BaseResultMap" >
+        SELECT
+        t.id, t.caseName, t.tag, t.projectId, t.exeMode, t.description, t.updateTime, t.createTime,
+        u.id as create_id, u.username as create_username, u.email as create_email, u.phone as create_phone,
+        u1.id as update_id, u1.username as update_username, u1.email as update_email, u1.phone as update_phone,
+        d.id as detail_id, d.seq, s.id as script_id, s.scriptName, s.description
+        FROM testcase t
+        LEFT JOIN user u on t.createBy=u.id
+        LEFT JOIN user u1 on t.updateBy=u1.id
+        LEFT JOIN testcase_detail d on t.id=d.testcaseId
+        LEFT JOIN script s on d.scriptId=s.id
+        LEFT JOIN taskscene_detail scene_d on t.id=scene_d.testcaseId
+        WHERE scene_d.tasksceneId = #{sceneId}
     </select>
 
 </mapper>

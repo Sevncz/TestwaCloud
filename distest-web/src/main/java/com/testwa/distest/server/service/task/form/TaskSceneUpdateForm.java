@@ -17,7 +17,6 @@ public class TaskSceneUpdateForm extends TaskSceneNewForm {
 
 
     @NotNull(message = "taskSceneId.empty")
-    @NotEmpty(message = "taskSceneId.empty")
     private Long taskSceneId;
 
 }

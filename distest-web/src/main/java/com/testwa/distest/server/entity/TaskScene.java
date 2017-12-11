@@ -29,7 +29,13 @@ public class TaskScene extends BaseEntity {
     private Long createBy;
     private Long updateBy;
 
-    @Column(value="testcases", ignore=true)
-    private List<Testcase> testcases;
+    @Column(value="app", ignore=true)
+    private App app;
+    @Column(value="createUser", ignore=true)
+    private User createUser;
+    @Column(value="updateUser", ignore=true)
+    private User updateUser;
+    @Column(value="taskSceneDetails", ignore=true)
+    private List<TaskSceneDetail> taskSceneDetails;
 
 }

@@ -9,15 +9,18 @@ import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.service.task.dao.ITaskSceneDAO;
-import com.testwa.distest.server.service.task.dao.ITaskSceneTestcaseDAO;
+import com.testwa.distest.server.service.task.dao.ITaskSceneDetailDAO;
 import com.testwa.distest.server.service.task.form.TaskSceneListForm;
 import com.testwa.distest.server.service.task.form.TaskSceneNewForm;
 import com.testwa.distest.server.service.task.form.TaskSceneUpdateForm;
 import com.testwa.distest.server.service.testcase.service.TestcaseService;
 import com.testwa.distest.server.service.user.service.UserService;
+import com.testwa.distest.server.web.app.vo.AppVO;
+import com.testwa.distest.server.web.auth.vo.UserVO;
 import com.testwa.distest.server.web.task.vo.TaskSceneVO;
 import com.testwa.distest.server.web.testcase.vo.TestcaseVO;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,7 +42,7 @@ public class TaskSceneService {
     @Autowired
     private ITaskSceneDAO taskSceneDAO;
     @Autowired
-    private ITaskSceneTestcaseDAO taskSceneTestcaseDAO;
+    private ITaskSceneDetailDAO taskSceneDetailDAO;
     @Autowired
     private TestcaseService testcaseService;
     @Autowired
@@ -57,9 +60,6 @@ public class TaskSceneService {
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void update(TaskSceneUpdateForm updateForm){
         TaskScene ts = findOne(updateForm.getTaskSceneId());
-        if(ts == null){
-            return;
-        }
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         List<Long> caseIds = updateForm.getCaseIds();
         ts.setAppId(updateForm.getAppId());
@@ -68,7 +68,7 @@ public class TaskSceneService {
         ts.setSceneName(updateForm.getSceneName());
         taskSceneDAO.update(ts);
 
-        taskSceneTestcaseDAO.deleteByTaskSceneId(updateForm.getTaskSceneId());
+        taskSceneDetailDAO.deleteByTaskSceneId(updateForm.getTaskSceneId());
         insertAllTaskTestcase(caseIds, updateForm.getTaskSceneId());
 
     }
@@ -95,22 +95,22 @@ public class TaskSceneService {
     }
 
     private void insertAllTaskTestcase(List<Long> caseIds, long taskId) {
-        List<TaskSceneTestcase> allTestcase = new ArrayList<>();
+        List<TaskSceneDetail> allTestcase = new ArrayList<>();
         for(int i=0;i<caseIds.size();i++){
 
-            TaskSceneTestcase tt = new TaskSceneTestcase();
+            TaskSceneDetail tt = new TaskSceneDetail();
             tt.setTaskSceneId(taskId);
             tt.setSeq(i);
             tt.setTestcaseId(caseIds.get(i));
             allTestcase.add(tt);
         }
-        taskSceneTestcaseDAO.insertAll(allTestcase);
+        taskSceneDetailDAO.insertAll(allTestcase);
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void delete(Long entityId){
         // 删除案例中间表记录
-        taskSceneTestcaseDAO.deleteByTaskSceneId(entityId);
+        taskSceneDetailDAO.deleteByTaskSceneId(entityId);
         // 删除场景记录
         taskSceneDAO.delete(entityId);
     }
@@ -180,29 +180,53 @@ public class TaskSceneService {
     private Map<String, Object> buildQueryParams(TaskSceneListForm queryForm) {
         List<Project> projects = projectService.findAllByUserList(getCurrentUsername());
         Map<String, Object> params = new HashMap<>();
-        params.put("projectId", queryForm.getProjectId());
-        params.put("sceneName", queryForm.getSceneName());
-        params.put("projects", projects);
+        if(queryForm.getProjectId() != null){
+            params.put("projectId", queryForm.getProjectId());
+        }
+        if(StringUtils.isNotEmpty(queryForm.getSceneName())){
+            params.put("sceneName", queryForm.getSceneName());
+        }
+        if(projects != null){
+            params.put("projects", projects);
+        }
         return params;
     }
 
 
     public TaskSceneVO getTaskSceneVO(Long taskSceneId) {
-        TaskScene ts = taskSceneDAO.fetchOne(taskSceneId);
-        TaskSceneVO taskVO = new TaskSceneVO();
-        BeanUtils.copyProperties(ts, taskVO);
+        TaskSceneVO sceneVO = new TaskSceneVO();
+        TaskScene scene = taskSceneDAO.fetchOne(taskSceneId);
+        if(scene != null){
+            BeanUtils.copyProperties(scene, sceneVO);
 
-        //get app
-        taskVO.setApp(appService.getAppVO(ts.getAppId()));
+            //get user vo
+            if(scene.getCreateUser() != null){
+                UserVO createVO = new UserVO();
+                BeanUtils.copyProperties(scene.getCreateUser(), createVO);
+                sceneVO.setCreateUser(createVO);
+            }
+            if(scene.getUpdateUser() != null){
+                UserVO updateVO = new UserVO();
+                BeanUtils.copyProperties(scene.getUpdateUser(), updateVO);
+                sceneVO.setUpdateUser(updateVO);
+            }
 
-        List<TestcaseVO> testcaseVOs = new ArrayList<>();
-        ts.getTestcases().forEach(testcase -> {
-            TestcaseVO testcaseVO = new TestcaseVO();
-            BeanUtils.copyProperties(testcase, testcaseVO );
-            testcaseVOs.add(testcaseVO);
-        });
-        taskVO.setTestcases(testcaseVOs);
-        return taskVO;
+            //get app vo
+            AppVO appVO = new AppVO();
+            BeanUtils.copyProperties(scene.getApp(), appVO);
+            sceneVO.setApp(appVO);
+
+            //get testcase vo
+            List<TestcaseVO> testcaseVOs = new ArrayList<>();
+            List<Testcase> details = testcaseService.fetchScriptAllBySceneOrder(scene.getId());
+            details.forEach(d -> {
+                TestcaseVO testcaseVO = new TestcaseVO();
+                testcaseService.toTestcaseVO(d, testcaseVO);
+                testcaseVOs.add(testcaseVO);
+            });
+            sceneVO.setTestcases(testcaseVOs);
+        }
+        return sceneVO;
     }
 
 }

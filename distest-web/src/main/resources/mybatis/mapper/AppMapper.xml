@@ -21,6 +21,18 @@
         <result column="createBy" property="createBy" jdbcType="BIGINT" />
         <result column="updateBy" property="updateBy" jdbcType="BIGINT" />
         <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
+        <association property="createUser" javaType="com.testwa.distest.server.entity.User">
+            <id column="create_id" property="id"/>
+            <result column="create_username" property="username"/>
+            <result column="create_email" property="email"/>
+            <result column="create_phone" property="phone"/>
+        </association>
+        <association property="updateUser" javaType="com.testwa.distest.server.entity.User">
+            <id column="update_id" property="id"/>
+            <result column="update_username" property="username"/>
+            <result column="update_email" property="email"/>
+            <result column="update_phone" property="phone"/>
+        </association>
     </resultMap>
 
     <sql id="Base_Column_List" >
@@ -67,7 +79,7 @@
         WHERE enabled = 1
         AND projectId in
         <foreach item="item" index="index" collection="params.projects" open="(" separator="," close=")">#{item.id} </foreach>
-        <if test="params.appName != null">and appName = #{params.appName}</if>
+        <if test="params.appName != null">and appName LIKE CONCAT('%', #{params.appName}, '%')</if>
         <if test="params.createBy != null">and createBy = #{params.createBy}</if>
         <if test="params.projectId != null">and projectId = #{params.projectId}</if>
     </select>

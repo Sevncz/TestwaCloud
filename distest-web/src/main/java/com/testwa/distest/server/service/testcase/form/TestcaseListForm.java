@@ -10,6 +10,6 @@ import lombok.Data;
 public class TestcaseListForm extends RequestListBase {
 
     private Long projectId;
-    private String testcaseName;
+    private String caseName;
 
 }
