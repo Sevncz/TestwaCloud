@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class StartTestcaseCallbackImpl implements MessageCallback {
+    private String token;
 
     @Autowired
     ApplicationContext context;
@@ -23,4 +24,8 @@ public class StartTestcaseCallbackImpl implements MessageCallback {
         context.publishEvent(new TestcaseRunEvent(this, cmd));
     }
 
+    @Override
+    public void setToken(String token) {
+        this.token = token;
+    }
 }

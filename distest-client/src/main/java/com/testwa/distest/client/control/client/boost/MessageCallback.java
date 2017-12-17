@@ -6,4 +6,5 @@ package com.testwa.distest.client.control.client.boost;
 public interface MessageCallback extends Callback<Object, MessageException> {
     @Override
     void done(Object o, MessageException e) throws MessageException;
+
 }

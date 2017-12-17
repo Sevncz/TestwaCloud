@@ -2,6 +2,7 @@ package com.testwa.distest.server.rpc.service;
 
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
+import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.config.security.JwtTokenUtil;
 import com.testwa.distest.server.LogInterceptor;
@@ -14,6 +15,7 @@ import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
 import com.testwa.distest.server.websocket.WSFuncEnum;
 import com.testwa.distest.server.rpc.GRpcService;
+import com.testwa.distest.server.websocket.service.PushCmdService;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.device.*;
 import org.slf4j.Logger;
@@ -43,6 +45,8 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     private SubscribeMgr subscribeMgr;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
+    @Autowired
+    private PushCmdService pushCmdService;
 
     @Override
     public void all(DevicesRequest request, StreamObserver<CommonReply> responseObserver) {
@@ -76,6 +80,12 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
         }
         if("ON".equals(device.getStatus().name().toUpperCase())){
             deviceAuthMgr.online(device.getDeviceId());
+            // 启动设备client
+            try {
+                pushCmdService.pushInitDeviceClient(userId, device.getDeviceId());
+            } catch (ObjectNotExistsException e) {
+                e.printStackTrace();
+            }
         }
         if("OFF".equals(device.getStatus().name().toUpperCase())){
             deviceAuthMgr.offline(deviceAndroid.getDeviceId());

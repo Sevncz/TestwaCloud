@@ -21,6 +21,7 @@ import java.net.URISyntaxException;
  */
 @Component
 public class StartRemoteClientCallbackImpl implements MessageCallback {
+    private String token;
 
     @Autowired
     private Environment env;
@@ -32,7 +33,10 @@ public class StartRemoteClientCallbackImpl implements MessageCallback {
             String url = env.getProperty("agent.socket.url");
             String webHost = env.getProperty("grpc.host");
             Integer webPort = Integer.parseInt(env.getProperty("grpc.port"));
-            String wsUrl = String.format("%s?token=%s&type=device&serial=%s", url, UserInfo.token, serial);
+            // **
+            // 这里的token来不及获取，所以token是null
+            // **
+            String wsUrl = String.format("%s?token=%s&type=device&serial=%s", url, this.token, serial);
 
             AndroidDevice device = AndroidHelper.getInstance().getAndroidDevice(serial);
             if(device != null){
@@ -48,6 +52,11 @@ public class StartRemoteClientCallbackImpl implements MessageCallback {
         }catch (DeviceNotFoundException e1) {
             e1.printStackTrace();
         }
+    }
+
+    @Override
+    public void setToken(String token) {
+        this.token = token;
     }
 
 }

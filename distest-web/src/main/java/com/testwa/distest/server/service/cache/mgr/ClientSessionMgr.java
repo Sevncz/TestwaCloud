@@ -26,8 +26,8 @@ public class ClientSessionMgr {
         redisCacheMgr.remove(getKey(userId));
     }
 
-    public void getClientSession(Long userId){
-        redisCacheMgr.get(getKey(userId));
+    public String getClientSession(Long userId){
+        return (String) redisCacheMgr.get(getKey(userId));
     }
 
 

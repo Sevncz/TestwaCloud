@@ -5,6 +5,7 @@ import com.testwa.core.base.constant.ResultCode;
 import com.testwa.core.base.vo.Result;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.AuthenticationException;
@@ -49,10 +50,17 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint, Se
                 response.getWriter().println(JSON.toJSON(r));
                 response.getWriter().flush();
                 return;
+            } catch (SignatureException e){
+
+                r.setCode(ResultCode.ILLEGAL_TOKEN.getValue());
+                r.setMessage("非法token");
+                response.getWriter().println(JSON.toJSON(r));
+                response.getWriter().flush();
+                return;
             }
         }
         r.setCode(ResultCode.ILLEGAL_TOKEN.getValue());
-        r.setMessage("非法的token");
+        r.setMessage("token不能为空");
         response.getWriter().println(JSON.toJSON(r));
         response.getWriter().flush();
     }

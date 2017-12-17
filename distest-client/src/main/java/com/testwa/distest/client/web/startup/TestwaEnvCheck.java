@@ -80,6 +80,8 @@ public class TestwaEnvCheck implements CommandLineRunner {
 
                             String url = env.getProperty("agent.socket.url");
                             MainSocket.connect(url, token);
+                            startRemoteClientCB.setToken(token);
+                            startTestcaseClientCB.setToken(token);
                             MainSocket.receive(WebsocketEvent.ON_START, startRemoteClientCB);
                             MainSocket.receive(WebsocketEvent.ON_TESTCASE_RUN, startTestcaseClientCB);
 

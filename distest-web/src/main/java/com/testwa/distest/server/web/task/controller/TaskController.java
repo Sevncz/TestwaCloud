@@ -36,7 +36,7 @@ public class TaskController extends BaseController {
     @Autowired
     private ExecuteMgr executeMgr;
     @Autowired
-    private TaskSceneValidatoer taskValidatoer;
+    private TaskSceneValidatoer taskSceneValidatoer;
     @Autowired
     private ProjectValidator projectValidator;
     @Autowired
@@ -65,7 +65,7 @@ public class TaskController extends BaseController {
     @PostMapping(value = "/run")
     public Result run(@RequestBody TaskStartForm form) throws ObjectNotExistsException {
 
-        taskValidatoer.validateTaskSceneExist(form.getTaskSceneId());
+        taskSceneValidatoer.validateTaskSceneExist(form.getTaskSceneId());
         deviceValidatoer.validateOnline(form.getDeviceIds());
 
         executeMgr.start(form);
@@ -77,7 +77,7 @@ public class TaskController extends BaseController {
     @ResponseBody
     @PostMapping(value = "/kill")
     public Result kill(@RequestBody TaskStopForm form) throws ObjectNotExistsException {
-        taskValidatoer.validateTaskSceneExist(form.getTaskSceneId());
+        taskSceneValidatoer.validateTaskSceneExist(form.getTaskSceneId());
         deviceValidatoer.validateOnline(form.getDeviceIds());
         executeMgr.stop(form);
         return ok();
