@@ -24,6 +24,8 @@ public class TaskService {
     @Autowired
     private ITaskDAO taskDAO;
 
+
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public long save(Task entity) {
         return taskDAO.insert(entity);
     }
@@ -36,6 +38,7 @@ public class TaskService {
         return taskDAO.findAll(entityIds);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void update(Task entity) {
         taskDAO.update(entity);
     }

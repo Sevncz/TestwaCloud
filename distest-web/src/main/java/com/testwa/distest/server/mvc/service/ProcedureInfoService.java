@@ -48,8 +48,8 @@ public class ProcedureInfoService extends BaseService {
 
     public ProcedureInfo findLastProcedureInfo(ProcedureInfo stepInfo) {
         Criteria criatira = new Criteria();
-        criatira.andOperator(Criteria.where("executionTaskId").is(stepInfo.getTaskId()),
-                Criteria.where("scriptId").is(stepInfo.getScriptId()),
+        criatira.andOperator(Criteria.where("executionTaskId").is(stepInfo.getExecutionTaskId()),
+                Criteria.where("scriptId").is(stepInfo.getTestSuit()),
                 Criteria.where("timestamp").lt(stepInfo.getTimestamp()));
         Sort sort = new Sort(Sort.Direction.DESC, "timestamp");
         ProcedureInfo last = procedureInfoRepository.findOne(new Query(criatira).with(sort));
@@ -77,6 +77,6 @@ public class ProcedureInfoService extends BaseService {
     }
 
     public List<ProcedureInfo> findByExeId(Long taskId) {
-        return procedureInfoRepository.findByTaskIdOrderByTimestampAsc(taskId);
+        return procedureInfoRepository.findByExecutionTaskIdOrderByTimestampAsc(taskId);
     }
 }

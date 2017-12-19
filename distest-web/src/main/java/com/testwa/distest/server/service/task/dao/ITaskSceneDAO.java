@@ -24,4 +24,11 @@ public interface ITaskSceneDAO extends IBaseDAO<TaskScene, Long> {
      * @return
      */
     TaskScene fetchOne(Long taskSceneId);
+
+    /**
+     * fetch detail
+     * @param taskSceneId
+     * @return
+     */
+    TaskScene fetchOneForDetail(Long taskSceneId);
 }

@@ -20,4 +20,6 @@ public interface TaskSceneMapper extends BaseMapper<TaskScene, Long> {
     List<TaskScene> findList(@Param("keys") List<Long> keys, @Param("orderBy") String orderBy);
 
     TaskScene fetchOne(Long taskSceneId);
+
+    TaskScene fetchOneForDetail(Long taskSceneId);
 }

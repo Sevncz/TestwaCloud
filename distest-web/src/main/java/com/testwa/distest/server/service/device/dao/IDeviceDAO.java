@@ -23,4 +23,6 @@ public interface IDeviceDAO extends IBaseDAO<Device, Long> {
     Device findOne(String deviceId);
 
     List<Device> fetchList(Map<String, Object> queryMap);
+
+    List<DeviceAndroid> findAllDeviceAndroid(List<String> deviceIds);
 }

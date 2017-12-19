@@ -15,4 +15,5 @@ public interface TaskMapper extends BaseMapper<Task, Long> {
 
     List<Task> findByFromProject(@Param("params") Map<String, Object> params);
 
+    Task findOne(Long key);
 }

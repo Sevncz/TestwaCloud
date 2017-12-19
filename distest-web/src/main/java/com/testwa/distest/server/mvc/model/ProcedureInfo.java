@@ -1,5 +1,7 @@
 package com.testwa.distest.server.mvc.model;
 
+import com.alibaba.fastjson.annotation.JSONField;
+import com.testwa.distest.common.serializer.StringValueToLongSerializer;
 import io.rpc.testwa.task.ProcedureInfoRequest;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
@@ -19,54 +21,33 @@ public class ProcedureInfo {
     private String id;
     private Integer status;
     private String value;
-    private Integer runtime;
-    private Integer cpurate;
-    private Integer memory;
+    @JSONField(serializeUsing = StringValueToLongSerializer.class)
+    private Long runtime;
+    @JSONField(serializeUsing = StringValueToLongSerializer.class)
+    private Long cpurate;
+    @JSONField(serializeUsing = StringValueToLongSerializer.class)
+    private Long memory;
+    private String battery;
     @Indexed
     private String sessionId;
     @Indexed
     private String deviceId;
     @Indexed
-    private Long taskId;
+    @JSONField(serializeUsing = StringValueToLongSerializer.class)
+    private Long testSuit;
     @Indexed
+    @JSONField(serializeUsing = StringValueToLongSerializer.class)
     private Long testcaseId;
     @Indexed
-    private Long scriptId;
+    @JSONField(serializeUsing = StringValueToLongSerializer.class)
+    private Long executionTaskId;
     private String screenshotPath;
     private String description;
-    private String params;
-    private String action;
+    private ProcedureCommand command;
     @CreatedDate
     private Date createDate;
-    @Indexed
     private Long timestamp;
 
     private Long userId;
     private String token;
-
-    private String logcatFile;
-    private Boolean disable = false;
-    private Date modifyDate;
-
-    public void toEntity(ProcedureInfoRequest reqeust) {
-        this.action = reqeust.getActionBytes().toStringUtf8();
-//        this.cpurate = reqeust.getCpurate();
-        this.description = reqeust.getDescription();
-        this.deviceId = reqeust.getDeviceId();
-        this.logcatFile = reqeust.getLogcatFile();
-//        this.memory = reqeust.getMemory();
-        this.params = reqeust.getParams();
-        this.runtime = reqeust.getRuntime();
-        this.screenshotPath = reqeust.getScreenshotPath();
-        this.sessionId = reqeust.getSessionId();
-        this.scriptId = reqeust.getScriptId();
-        this.status = reqeust.getStatus();
-        this.timestamp = reqeust.getTimestamp();
-        this.value = reqeust.getValue();
-        this.createDate = new Date();
-        this.token = reqeust.getToken();
-        this.taskId = reqeust.getTaskId();
-        this.testcaseId = reqeust.getTestcaseId();
-    }
-
 }

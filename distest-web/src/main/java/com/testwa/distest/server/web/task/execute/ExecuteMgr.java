@@ -5,12 +5,14 @@ import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.core.cmd.RemoteRunCommand;
 import com.testwa.core.cmd.RemoteTestcaseContent;
+import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.cache.mgr.ClientSessionMgr;
 import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
 import com.testwa.distest.server.service.cache.mgr.TaskCacheMgr;
 import com.testwa.distest.server.service.device.service.DeviceService;
+import com.testwa.distest.server.service.script.service.ScriptService;
 import com.testwa.distest.server.service.task.form.TaskStartByTestcaseForm;
 import com.testwa.distest.server.service.task.form.TaskStartForm;
 import com.testwa.distest.server.service.task.form.TaskStopForm;
@@ -61,6 +63,8 @@ public class ExecuteMgr {
     private PushCmdService pushCmdService;
     @Autowired
     private DeviceService deviceService;
+    @Autowired
+    private ScriptService scriptService;
 
 
     /**
@@ -77,27 +81,44 @@ public class ExecuteMgr {
         start(startForm, form.getCaseIds(), form.getAppId());
     }
 
-    private List<Long> getScriptIds(List<Script> scripts) {
-        List<Long> scriptIds = new ArrayList<>();
-        scripts.forEach( s -> {
-            scriptIds.add(s.getId());
-        });
-        return scriptIds;
-    }
-
     private void start(TaskStartForm form, List<Long> caseIds, Long appId) throws ObjectNotExistsException {
         log.info(form.toString());
+        // 记录task的执行信息
+        App app = appService.findOne(appId);
+        User user = userService.findByUsername(WebUtil.getCurrentUsername());
+        Task task = new Task();
+        task.setTaskSceneId(form.getTaskSceneId());
+        task.setAppJson(JSON.toJSONString(app));
+        List<Long> allscriptId = new ArrayList<>();
+        List<Script> allscript = new ArrayList<>();
+        List<Testcase> alltestcase = new ArrayList<>();
 
         List<RemoteTestcaseContent> cases = new ArrayList<>();
         for(Long caseId : caseIds){
-
             RemoteTestcaseContent content = new RemoteTestcaseContent();
             content.setTestcaseId(caseId);
-            Testcase c = testcaseService.findOne(caseId);
-//            content.setScriptIds(getScriptIds(c.getScripts()));
+            Testcase c = testcaseService.fetchOne(caseId);
+            List<Long> scriptIds = new ArrayList<>();
+            c.getTestcaseDetails().forEach( s -> {
+                scriptIds.add(s.getScriptId());
+            });
+            content.setScriptIds(scriptIds);
             cases.add(content);
 
+            allscriptId.addAll(scriptIds);
+            alltestcase.add(c);
+
         }
+        allscript = scriptService.findAll(allscriptId);
+        task.setScriptJson(JSON.toJSONString(allscript));
+        task.setTestcaseJson(JSON.toJSONString(alltestcase));
+
+        List<DeviceAndroid> alldevice = deviceService.findAllDeviceAndroid(form.getDeviceIds());
+        task.setDevicesJson(JSON.toJSONString(alldevice));
+        task.setStatus(DB.TaskStatus.RUNNING);
+        task.setCreateBy(user.getId());
+        task.setCreateTime(new Date());
+        Long taskId = taskService.save(task);
 
         for (String key : form.getDeviceIds()) {
 
@@ -107,13 +128,14 @@ public class ExecuteMgr {
             cmd.setCmd(DB.CommandEnum.START.getValue());
             cmd.setDeviceId(key);
             cmd.setTestcaseList(cases);
-            pushCmdService.startTestcase(cmd, d.getDeviceId());
+            cmd.setExeId(taskId);
+            pushCmdService.startTestcase(cmd, d.getLastUserId());
         }
     }
 
     public void start(TaskStartForm form) throws ObjectNotExistsException {
         log.info(form.toString());
-        TaskScene ts = taskSceneService.findOne(form.getTaskSceneId());
+        TaskScene ts = taskSceneService.fetchOne(form.getTaskSceneId());
 
         TaskStartForm startForm = new TaskStartForm();
         startForm.setDeviceIds(form.getDeviceIds());

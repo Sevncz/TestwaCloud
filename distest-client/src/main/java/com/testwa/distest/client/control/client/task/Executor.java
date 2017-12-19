@@ -206,10 +206,19 @@ public class Executor {
                     continue;
                 }
 
+                if(tempString.contains("deviceName")){
+                    bw.write(replaceQuotationContent(tempString, this.deviceId, null));
+                    bw.write(replaceQuotationContent(tempString, this.currScript+"", "'testSuit'"));
+                    bw.write(replaceQuotationContent(tempString, this.currTestCaseId+"", "'testcaseId'"));
+                    bw.write(replaceQuotationContent(tempString, this.taskId+"", "'executionTaskId'"));
+                    continue;
+                }
+
                 //修改url
                 //self.driver = webdriver.Remote('http://localhost:4730/wd/hub', desired_caps)
                 if(tempString.contains("webdriver.Remote")){
                     bw.write(replaceQuotationContent(tempString, appiumUrl, null));
+                    bw.write("\t\n");
                     continue;
                 }
                 //修改app路径
@@ -219,24 +228,27 @@ public class Executor {
                         appPath = appPath.replaceAll("\\\\", "/");
                     }
                     bw.write(replaceQuotationContent(tempString, appPath, null));
+                    bw.write("\t\n");
                     continue;
                 }
 
-                if(appPath.endsWith("apk")){
-                    // 需要判断是否是兼容测试
-//                    if(tempString.contains("desired_caps['appPackage']")){
-//                        bw.write(replaceQuotationContent(tempString, basePackage, null));
-//                        continue;
-//                    }
-//
-//                    if(tempString.contains("desired_caps['appActivity']")){
-//                        bw.write(replaceQuotationContent(tempString, mainActivity, null));
-//                        continue;
-//                    }
+                if(appPath.contains("apk")){
+                    if(tempString.contains("desired_caps['appPackage']")){
+                        bw.write(replaceQuotationContent(tempString, basePackage, null));
+                        bw.write("\t\n");
+                        continue;
+                    }
+
+                    if(tempString.contains("desired_caps['appActivity']")){
+                        bw.write(replaceQuotationContent(tempString, mainActivity, null));
+                        bw.write("\t\n");
+                        continue;
+                    }
 
                 }else{
                     if(tempString.contains("desired_caps['platformName']")){
                         bw.write(replaceQuotationContent(tempString, "iOS", null));
+                        bw.write("\t\n");
                         continue;
                     }
                 }
@@ -385,7 +397,6 @@ public class Executor {
                 .setTestcaseId(this.currTestCaseId)
                 .setToken(UserInfo.token)
                 .build();
-//        TaskServiceGrpc.newFutureStub(managedChannel).currExeInfo(request);
         Clients.taskService().currExeInfo(request);
     }
 

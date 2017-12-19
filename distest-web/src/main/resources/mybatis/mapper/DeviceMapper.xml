@@ -108,5 +108,12 @@
         </trim>
     </select>
 
+    <select id="findAllDeviceAndroid" resultMap="BaseResultMap" >
+        SELECT device.*
+        FROM device
+        WHERE deviceId IN
+        <foreach item="item" index="index" collection="deviceIds" open="(" separator="," close=")">#{item} </foreach>
+    </select>
+
 
 </mapper>

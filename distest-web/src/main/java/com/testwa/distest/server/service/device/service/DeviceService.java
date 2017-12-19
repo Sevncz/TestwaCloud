@@ -114,4 +114,8 @@ public class DeviceService {
         queryMap.put("deviceIdList", deviceIds);
         return deviceDAO.fetchList(queryMap);
     }
+
+    public List<DeviceAndroid> findAllDeviceAndroid(List<String> deviceIds) {
+        return deviceDAO.findAllDeviceAndroid(deviceIds);
+    }
 }

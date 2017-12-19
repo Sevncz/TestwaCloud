@@ -21,6 +21,11 @@ public class TaskDAO extends BaseDAO<Task, Long> implements ITaskDAO {
     }
 
     @Override
+    public Task findOne(Long entityId) {
+        return mapper.findOne(entityId);
+    }
+
+    @Override
     public List<Task> findByFromProject(Map<String, Object> params) {
         return mapper.findByFromProject(params);
     }

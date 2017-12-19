@@ -27,6 +27,8 @@
         </association>
         <collection property="testcaseDetails" ofType="com.testwa.distest.server.entity.TestcaseDetail">
             <id column="detail_id" property="id"/>
+            <id column="scriptId" property="scriptId"/>
+            <id column="testcaseId" property="testcaseId"/>
             <id column="seq" property="seq"/>
             <association property="script" javaType="com.testwa.distest.server.entity.Script">
                 <id column="script_id" property="id"/>
@@ -64,7 +66,7 @@
         t.id, t.caseName, t.tag, t.projectId, t.exeMode, t.description, t.updateTime, t.createTime,
         u.id as create_id, u.username as create_username, u.email as create_email, u.phone as create_phone,
         u1.id as update_id, u1.username as update_username, u1.email as update_email, u1.phone as update_phone,
-        d.id as detail_id, d.seq, s.id as script_id, s.scriptName, s.description
+        d.id as detail_id, d.scriptId, d.testcaseId, d.seq, s.id as script_id, s.scriptName, s.description
         FROM testcase t
         LEFT JOIN user u on t.createBy=u.id
         LEFT JOIN user u1 on t.updateBy=u1.id

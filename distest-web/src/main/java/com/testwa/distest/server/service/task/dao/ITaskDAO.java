@@ -11,6 +11,7 @@ import java.util.Map;
  */
 public interface ITaskDAO extends IBaseDAO<Task, Long> {
     List<Task> findBy(Task entity);
+    Task findOne(Long entityId);
 
     List<Task> findByFromProject(Map<String, Object> params);
 }

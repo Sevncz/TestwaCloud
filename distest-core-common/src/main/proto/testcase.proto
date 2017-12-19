@@ -12,6 +12,7 @@ package testcase;
 service TaskService {
     rpc gameover (TaskOverRequest) returns ( CommonReply ) {}
     rpc currExeInfo (CurrentExeInfoRequest) returns ( CommonReply ) {}
+    rpc procedureInfoUpload (ProcedureInfoUploadRequest) returns ( CommonReply ) {}
 }
 
 message CommonReply {
@@ -52,6 +53,10 @@ message CurrentExeInfoRequest {
     string token = 3;
     int64 scriptId = 4;
     int64 testcaseId = 5;
+}
+
+message ProcedureInfoUploadRequest {
+    string infoJson = 1;
 }
 
 

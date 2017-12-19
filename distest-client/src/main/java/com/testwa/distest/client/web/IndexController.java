@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.ByteString;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.core.utils.TimeUtil;
+import com.testwa.distest.client.control.client.Clients;
 import com.testwa.distest.client.control.client.MainSocket;
 import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.service.HttpService;
@@ -12,6 +13,7 @@ import com.testwa.distest.client.task.Testcase;
 import com.testwa.distest.client.task.TestcaseTaskCaches;
 import com.testwa.distest.client.util.Http;
 import io.rpc.testwa.task.ProcedureInfoRequest;
+import io.rpc.testwa.task.ProcedureInfoUploadRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.remote.RemoteLogs;
 import org.slf4j.Logger;
@@ -52,54 +54,91 @@ public class IndexController {
 
         String urlInfo = parseInputStreamFormUrlToJson(request);
         Map<String, Object> payload = JSON.parseObject(urlInfo);
-        logger.info("Receive message, [{}]", payload);
-        String sessionId = "";
-        if(payload.containsKey("sessionId")){
-            sessionId = payload.get("sessionId")  == null ? "": (String)payload.getOrDefault("sessionId", "");
-        }
-
-        String deviceId = (String)payload.getOrDefault("deviceId", "");
-        String logcatFileName = "";
-        String action = "";
-        String params = "";
-        if(payload.containsKey("command")){
-            if(payload.get("command") instanceof String){
-                action = (String) payload.get("command");
-            }
-            if(payload.get("command") instanceof Map){
-                Map cmd = (Map)payload.get("command");
-                if(cmd != null){
-                    action = cmd.get("action") == null ?"" : (String)cmd.getOrDefault("action", "");
-                    params = cmd.get("beans") == null ?"" : (String)cmd.getOrDefault("beans", "");
-                }
-            }
-
-        }
-
-        String screenpath = (String) payload.getOrDefault("screenshotPath", "");
-
-        ProcedureInfoRequest fb = null;
-        fb = ProcedureInfoRequest.newBuilder()
-                .setStatus((Integer) payload.getOrDefault("status", "0"))
-                .setValue(payload.getOrDefault("value", "") + "")
-                .setRuntime((Integer) payload.getOrDefault("runtime", 0))
-                .setCpurate((Integer) payload.getOrDefault("cpurate", 0))
-                .setMemory((Integer) payload.getOrDefault("memory", 0))
-                .setSessionId( sessionId )
-                .setDeviceId( deviceId )
-                .setScreenshotPath( screenpath )
-                .setActionBytes(ByteString.copyFromUtf8(action))
-                .setParams(params)
-                .setTimestamp(TimeUtil.getTimestampLong())
-                .setLogcatFile(logcatFileName)
-                .setDescription("")
-                .setToken(UserInfo.token)
-                .setTaskId((Long) payload.getOrDefault("executionTaskId", "") )
-                .setTestcaseId((Long) payload.getOrDefault("testcaseId", "") )
-                .setScriptId((Long) payload.getOrDefault("testSuit", "") )
-                .build();
-        MainSocket.getSocket().emit(WebsocketEvent.FB_RUNNGING_LOG, fb.toByteArray());
+        payload.put("timestamp", TimeUtil.getTimestampLong());
+        payload.put("createDate", TimeUtil.getTimestamp());
+        urlInfo = JSON.toJSONString(payload);
+        ProcedureInfoUploadRequest procedureInfoUploadRequest = ProcedureInfoUploadRequest.newBuilder()
+                                                                    .setInfoJson(urlInfo)
+                                                                    .build();
+        Clients.taskService().procedureInfoUpload(procedureInfoUploadRequest);
+//        logger.info("Receive message, [{}]", payload);
+//        String sessionId = "";
+//        if(payload.containsKey("sessionId")){
+//            sessionId = payload.get("sessionId")  == null ? "": (String)payload.getOrDefault("sessionId", "");
+//        }
+//
+//        String deviceId = (String)payload.getOrDefault("deviceId", "");
+//        String logcatFileName = "";
+//        String action = "";
+//        String params = "";
+//        if(payload.containsKey("command")){
+//            if(payload.get("command") instanceof String){
+//                action = (String) payload.get("command");
+//            }
+//            if(payload.get("command") instanceof Map){
+//                Map cmd = (Map)payload.get("command");
+//                if(cmd != null){
+//                    action = cmd.get("action") == null ?"" : (String)cmd.getOrDefault("action", "");
+//                    params = cmd.get("beans") == null ?"" : (String)cmd.getOrDefault("beans", "");
+//                }
+//            }
+//
+//        }
+//
+//        String screenpath = (String) payload.getOrDefault("screenshotPath", "");
+//
+//        Integer status = getInteger(payload, "status");
+//        Integer runtime = getInteger(payload, "runtime");
+//        Integer cpurate = getInteger(payload, "cpurate");
+//        Integer memory = getInteger(payload, "memory");
+//        Long taskId = 0l;
+//        if(StringUtils.isNotBlank((String) payload.getOrDefault("executionTaskId", ""))){
+//            taskId = Long.parseLong((String) payload.getOrDefault("executionTaskId", 0));
+//        }
+//        Long testcaseId = 0l;
+//        if(StringUtils.isNotBlank((String) payload.getOrDefault("testcaseId", ""))){
+//            testcaseId = Long.parseLong((String) payload.getOrDefault("testcaseId", 0));
+//        }
+//        Long testSuit = 0l;
+//        if(StringUtils.isNotBlank((String) payload.getOrDefault("testSuit", ""))){
+//            testSuit = Long.parseLong((String) payload.getOrDefault("testSuit", 0));
+//        }
+//
+//        ProcedureInfoRequest fb = null;
+//        fb = ProcedureInfoRequest.newBuilder()
+//                .setStatus( status )
+//                .setValue(payload.getOrDefault("value", "") + "")
+//                .setRuntime(runtime)
+//                .setCpurate( cpurate )
+//                .setMemory( memory )
+//                .setSessionId( sessionId )
+//                .setDeviceId( deviceId )
+//                .setScreenshotPath( screenpath )
+//                .setActionBytes(ByteString.copyFromUtf8(action))
+//                .setParams(params)
+//                .setTimestamp(TimeUtil.getTimestampLong())
+//                .setLogcatFile(logcatFileName)
+//                .setDescription("")
+//                .setToken(UserInfo.token)
+//                .setTaskId( taskId )
+//                .setTestcaseId( testcaseId )
+//                .setScriptId( testSuit )
+//                .build();
+//        MainSocket.getSocket().emit(WebsocketEvent.FB_RUNNGING_LOG, fb.toByteArray());
         return "ok";
+    }
+
+    private Integer getInteger(Map<String, Object> payload, String key) {
+        Integer runtime = 0;
+        if(payload.getOrDefault(key, 0) instanceof String){
+            String runtime_str = (String) payload.getOrDefault(key, 0);
+            if(StringUtils.isNotEmpty(runtime_str)){
+                runtime = Integer.parseInt(runtime_str);
+            }
+        }else if(payload.getOrDefault(key, 0) instanceof Integer){
+            runtime = (Integer) payload.getOrDefault(key, 0);
+        }
+        return runtime;
     }
 
     @RequestMapping({ "/client/{deviceId}/{testcaselogId}/{prot}" })

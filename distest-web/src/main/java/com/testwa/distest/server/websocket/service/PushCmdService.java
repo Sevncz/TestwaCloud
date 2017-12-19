@@ -35,7 +35,7 @@ public class PushCmdService {
         this.server = server;
     }
 
-    private SocketIOClient getSocketIOClient(String deviceId) throws ObjectNotExistsException {
+    private SocketIOClient getDeviceCLientSocketIOClient(String deviceId) throws ObjectNotExistsException {
         String sessionId = deviceSessionMgr.getDeviceSession(deviceId);
         SocketIOClient client = server.getClient(UUID.fromString(sessionId));
         if(client == null){
@@ -44,24 +44,33 @@ public class PushCmdService {
         }
         return client;
     }
+    private SocketIOClient getMainClientSocketIOClient(Long userId) throws ObjectNotExistsException {
+        String sessionId = clientSessionMgr.getClientSession(userId);
+        SocketIOClient client = server.getClient(UUID.fromString(sessionId));
+        if(client == null){
+            log.error("client session not found");
+            throw new ObjectNotExistsException("client session not found");
+        }
+        return client;
+    }
 
     @Async
-    public void startTestcase(RemoteRunCommand cmd, String deviceId) throws ObjectNotExistsException {
+    public void startTestcase(RemoteRunCommand cmd, Long userId) throws ObjectNotExistsException {
         log.info(cmd.toString());
-        SocketIOClient client = getSocketIOClient(deviceId);
+        SocketIOClient client = getMainClientSocketIOClient(userId);
         client.sendEvent(WebsocketEvent.ON_TESTCASE_RUN, JSON.toJSONString(cmd));
     }
 
     @Async
     public void pushMinCmdStart(MiniCmd cmd, String deviceId) throws ObjectNotExistsException {
         log.info(cmd.toString());
-        SocketIOClient client = getSocketIOClient(deviceId);
+        SocketIOClient client = getDeviceCLientSocketIOClient(deviceId);
         client.sendEvent(Command.Schem.START.getSchemString(), JSON.toJSONString(cmd));
     }
 
     @Async
     public void pushTouchData(String deviceId, String data) throws ObjectNotExistsException {
-        SocketIOClient client = getSocketIOClient(deviceId);
+        SocketIOClient client = getDeviceCLientSocketIOClient(deviceId);
         client.sendEvent(Command.Schem.TOUCH.getSchemString(), data);
     }
 
@@ -73,12 +82,8 @@ public class PushCmdService {
      */
     @Async
     public void pushInitDeviceClient(Long userId, String deviceId) throws ObjectNotExistsException {
-        String sessionId = clientSessionMgr.getClientSession(userId);
-        SocketIOClient client = server.getClient(UUID.fromString(sessionId));
-        if(client == null){
-            log.error("client session not found");
-            throw new ObjectNotExistsException("client session not found");
-        }
+        SocketIOClient client = getMainClientSocketIOClient(userId);
         client.sendEvent(WebsocketEvent.ON_START, deviceId);
     }
+
 }

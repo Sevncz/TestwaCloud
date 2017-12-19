@@ -1,5 +1,8 @@
 package com.testwa.distest.server.rpc.service;
 
+import com.alibaba.fastjson.JSON;
+import com.testwa.core.WebsocketEvent;
+import com.testwa.core.redis.RedisCacheManager;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.config.security.JwtTokenUtil;
 import com.testwa.distest.server.entity.Task;
@@ -10,11 +13,9 @@ import com.testwa.distest.server.rpc.GRpcService;
 import com.testwa.distest.server.service.cache.mgr.TaskCacheMgr;
 import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.service.user.service.UserService;
+import com.testwa.distest.server.web.task.execute.ProcedureRedisMgr;
 import io.grpc.stub.StreamObserver;
-import io.rpc.testwa.task.CommonReply;
-import io.rpc.testwa.task.CurrentExeInfoRequest;
-import io.rpc.testwa.task.TaskOverRequest;
-import io.rpc.testwa.task.TaskServiceGrpc;
+import io.rpc.testwa.task.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -41,27 +43,21 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     private TaskCacheMgr taskCacheMgr;
     @Autowired
     ApplicationContext context;
+    @Autowired
+    private ProcedureRedisMgr procedureRedisMgr;
 
     @Override
     public void gameover(TaskOverRequest request, StreamObserver<CommonReply> responseObserver) {
-        String token = request.getToken();
-
-        String username = jwtTokenUtil.getUsernameFromToken(token);
-        if(StringUtils.isEmpty(username)){
-            log.error("task's token error, userId is null, token ==== {}", token);
-            return;
-        }
-        User user = userService.findByUsername(username);
         Long exeId = request.getExeId();
         Long timestamp = request.getTimestamp();
 
         Task exeTask = taskService.findOne(exeId);
-        if(exeTask != null && Objects.equals(exeTask.getCreateBy(), user.getId())){
+        if(exeTask != null){
             if(exeTask.getStatus().getValue() != DB.TaskStatus.CANCEL.getValue()){
                 exeTask.setStatus(DB.TaskStatus.COMPLETE);
             }
             exeTask.setEndTime(new Date(timestamp));
-            taskService.save(exeTask);
+            taskService.update(exeTask);
             context.publishEvent(new GameOverEvent(this, request.getExeId()));
         }else{
             log.error("exeTask info not format. {}", request.toString());
@@ -80,4 +76,9 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
 
     }
 
+    @Override
+    public void procedureInfoUpload(ProcedureInfoUploadRequest request, StreamObserver<CommonReply> responseObserver) {
+        String info = request.getInfoJson();
+        procedureRedisMgr.addProcedureToQueue(info);
+    }
 }

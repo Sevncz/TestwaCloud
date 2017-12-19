@@ -121,10 +121,6 @@ public class TestcaseService {
         testcaseIds.forEach(this::delete);
     }
 
-    public Testcase findOne(String testcaseId) {
-        return testcaseDAO.findOne(testcaseId);
-    }
-
     public TestcaseVO getTestcaseVO(Long caseId) {
         Testcase testcase = testcaseDAO.fetchOne(caseId);
         TestcaseVO testcaseVO = new TestcaseVO();
@@ -228,6 +224,9 @@ public class TestcaseService {
 
     public Testcase findOne(Long entityId) {
         return testcaseDAO.findOne(entityId);
+    }
+    public Testcase fetchOne(Long entityId) {
+        return testcaseDAO.fetchOne(entityId);
     }
 
     public PageResult<Testcase> findPageForCurrentUser(TestcaseListForm pageForm) {

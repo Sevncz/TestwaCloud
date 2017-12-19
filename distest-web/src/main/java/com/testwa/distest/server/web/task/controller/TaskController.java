@@ -1,14 +1,19 @@
 package com.testwa.distest.server.web.task.controller;
 
 import com.testwa.core.base.controller.BaseController;
+import com.testwa.core.base.exception.AuthorizedException;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.base.vo.Result;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.core.cmd.RemoteRunCommand;
 import com.testwa.core.base.constant.WebConstants;
+import com.testwa.distest.common.util.WebUtil;
+import com.testwa.distest.server.entity.TaskScene;
+import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.task.form.TaskStartForm;
 import com.testwa.distest.server.service.task.form.TaskStopForm;
 import com.testwa.distest.server.service.task.form.TaskStartByTestcaseForm;
+import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.app.validator.AppValidator;
 import com.testwa.distest.server.web.device.validator.DeviceValidatoer;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
@@ -28,13 +33,15 @@ import java.util.List;
  * Created by wen on 24/10/2017.
  */
 @Log4j2
-@Api("任务部署相关api")
+@Api("任务执行相关api")
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/task")
 public class TaskController extends BaseController {
 
     @Autowired
     private ExecuteMgr executeMgr;
+    @Autowired
+    private UserService userService;
     @Autowired
     private TaskSceneValidatoer taskSceneValidatoer;
     @Autowired
@@ -47,26 +54,30 @@ public class TaskController extends BaseController {
     private TaskValidatoer executionTaskValidatoer;
 
 
-    @ApiOperation(value="执行并保存一个任务")
+    @ApiOperation(value="保存并执行一个任务场景")
     @ResponseBody
-    @PostMapping(value = "/save/run")
-    public Result saveAndRun(@RequestBody TaskStartByTestcaseForm form) throws ObjectNotExistsException {
+    @PostMapping(value = "/scene/saveandrun")
+    public Result saveAndRun(@RequestBody TaskStartByTestcaseForm form) throws ObjectNotExistsException, AuthorizedException {
         projectValidator.validateProjectExist(form.getProjectId());
         appValidator.validateAppExist(form.getAppId());
         deviceValidatoer.validateOnline(form.getDeviceIds());
+        User user = userService.findByUsername(WebUtil.getCurrentUsername());
+        projectValidator.validateUserIsProjectMember(form.getProjectId(), user.getId());
 
         executeMgr.start(form);
 
         return ok();
     }
 
-    @ApiOperation(value="执行一个任务")
+    @ApiOperation(value="执行一个任务场景")
     @ResponseBody
-    @PostMapping(value = "/run")
-    public Result run(@RequestBody TaskStartForm form) throws ObjectNotExistsException {
+    @PostMapping(value = "/scene/run")
+    public Result run(@RequestBody TaskStartForm form) throws ObjectNotExistsException, AuthorizedException {
 
-        taskSceneValidatoer.validateTaskSceneExist(form.getTaskSceneId());
+        TaskScene scene = taskSceneValidatoer.validateTaskSceneExist(form.getTaskSceneId());
         deviceValidatoer.validateOnline(form.getDeviceIds());
+        User user = userService.findByUsername(WebUtil.getCurrentUsername());
+        projectValidator.validateUserIsProjectMember(scene.getProjectId(), user.getId());
 
         executeMgr.start(form);
         return ok();

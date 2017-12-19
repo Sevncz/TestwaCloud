@@ -21,8 +21,10 @@ public interface DeviceMapper extends BaseMapper<Device, Long> {
 
     void updateStatus(@Param("deviceId") String deviceId, @Param("status") DB.PhoneOnlineStatus status);
 
-    List<Device> findAll(@Param("deviceIds")List<String> deviceIds);
+    List<Device> findAll(@Param("deviceIds") List<String> deviceIds);
     Device findOne(@Param("deviceId")String deviceId);
 
     List<Device> fetchList(Map queryMap);
+
+    List<DeviceAndroid> findAllDeviceAndroid(@Param("deviceIds") List<String> deviceIds);
 }

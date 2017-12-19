@@ -1,4 +1,4 @@
-package com.testwa.distest.server.schedule;
+package com.testwa.distest.server.startup;
 
 import com.corundumstudio.socketio.SocketIOServer;
 import lombok.extern.log4j.Log4j2;

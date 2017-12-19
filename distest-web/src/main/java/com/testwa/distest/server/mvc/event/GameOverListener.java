@@ -34,30 +34,30 @@ public class GameOverListener implements ApplicationListener<GameOverEvent> {
     @Autowired
     private ProcedureInfoService procedureInfoService;
     @Autowired
-    private TaskService executionTaskService;
+    private TaskService taskService;
 
     @Async
     @Override
     public void onApplicationEvent(GameOverEvent e) {
         log.info("start...");
-        Long exeId = e.getTaskId();
+        Long taskId = e.getTaskId();
         // 根据前端需求开始统计报告
-        Task task = executionTaskService.findOne(exeId);
+        Task task = taskService.findOne(taskId);
         // 脚本数量
         List<Script> taskScripts = task.getScriptList();
         int scriptNum = taskScripts.size();
 
         // 统计cpu平均占用率
-        List<Map> cpus = statisCpuRate(exeId);
+        List<Map> cpus = statisCpuRate(taskId);
 
         // 统计内存平均占用量
-        List<Map> mems = statisMemory(exeId);
+        List<Map> mems = statisMemory(taskId);
 
         // 成功和失败步骤数量
-        List<Map> statusProcedure = statisStatus(exeId);
+        List<Map> statusProcedure = statisStatus(taskId);
 
         // 成功和失败session数量
-        List<Map> sessions = statisScript(exeId);
+        List<Map> sessions = statisScript(taskId);
         List<Map> statusScripts = new ArrayList<>();
         Map<String, Integer> d = new HashMap<>();
         for(Map s : sessions){
@@ -82,12 +82,12 @@ public class GameOverListener implements ApplicationListener<GameOverEvent> {
         });
 
 
-        ProcedureStatis old = procedureInfoService.getProcedureStatisByExeId(exeId);
+        ProcedureStatis old = procedureInfoService.getProcedureStatisByExeId(taskId);
         if(old != null){
             procedureInfoService.deleteStatisById(old.getId());
         }
         ProcedureStatis ps = new ProcedureStatis();
-        ps.setExeId(exeId);
+        ps.setExeId(taskId);
         ps.setCpurateInfo(cpus);
         ps.setMemoryInfo(mems);
         ps.setStatusProcedureInfo(statusProcedure);

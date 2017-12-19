@@ -18,19 +18,32 @@ import java.util.List;
 @TableName("task")
 public class Task extends BaseEntity {
 
-    private List<DeviceAndroid> devices;
     private DB.TaskStatus status;
     private Long taskSceneId;
     private Long projectId;
-    private App app;
+    private String appJson; // json
     private String testcaseJson; // json
     private String scriptJson; // json
+    private String devicesJson; // json
 
     private Long createBy;
     private Date createTime;
     private Date endTime;
     private String errorMsg;
 
+
+    public App getApp(){
+        if(StringUtils.isEmpty(this.appJson)){
+            return null;
+        }
+        return JSON.parseObject(this.appJson, App.class);
+    }
+    public List<DeviceAndroid> getDevices(){
+        if(StringUtils.isEmpty(this.devicesJson)){
+            return new ArrayList<>();
+        }
+        return JSON.parseArray(this.devicesJson, DeviceAndroid.class);
+    }
 
     public List<Testcase> getTestcaseList(){
         if(StringUtils.isEmpty(this.testcaseJson)){

@@ -124,6 +124,10 @@ public class TaskSceneService {
         return taskSceneDAO.findOne(entityId);
     }
 
+    public TaskScene fetchOne(Long taskSceneId) {
+        return taskSceneDAO.fetchOneForDetail(taskSceneId);
+    }
+
     public List<TaskScene> findAll(List<Long> entityIds) {
         return taskSceneDAO.findAll(entityIds);
     }

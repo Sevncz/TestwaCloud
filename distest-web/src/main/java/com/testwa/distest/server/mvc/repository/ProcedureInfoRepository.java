@@ -12,9 +12,9 @@ import java.util.List;
 
 public interface ProcedureInfoRepository extends CommonRepository<ProcedureInfo, Serializable> {
 
-    List<ProcedureInfo> findByTaskIdAndScriptIdOrderByTimestampAsc(String infoId, String scriptId);
+//    List<ProcedureInfo> findByExecutionTaskIdTaskIdAndScriptIdOrderByTimestampAsc(String infoId, String scriptId);
 
     List<ProcedureInfo> findBySessionId(String sessionId);
 
-    List<ProcedureInfo> findByTaskIdOrderByTimestampAsc(Long taskId);
+    List<ProcedureInfo> findByExecutionTaskIdOrderByTimestampAsc(Long executionTaskId);
 }

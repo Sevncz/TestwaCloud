@@ -40,4 +40,9 @@ public class TaskSceneDAO extends BaseDAO<TaskScene, Long> implements ITaskScene
         return mapper.fetchOne(taskSceneId);
     }
 
+    @Override
+    public TaskScene fetchOneForDetail(Long taskSceneId) {
+        return mapper.fetchOneForDetail(taskSceneId);
+    }
+
 }

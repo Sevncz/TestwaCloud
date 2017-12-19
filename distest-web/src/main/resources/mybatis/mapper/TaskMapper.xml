@@ -3,18 +3,29 @@
 <mapper namespace="com.testwa.distest.server.mapper.TaskMapper" >
     <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.Task" >
         <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="status" property="status" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
         <result column="projectId" property="projectId" jdbcType="BIGINT"/>
-        <result column="appId" property="appId" jdbcType="BIGINT"/>
         <result column="taskSceneId" property="taskSceneId" jdbcType="BIGINT"/>
         <result column="createTime" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="createBy" property="createBy" jdbcType="BIGINT"/>
         <result column="endTime" property="endTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="errorMsg" property="errorMsg" jdbcType="VARCHAR" javaType="String"/>
+        <result column="devicesJson" property="devicesJson" jdbcType="VARCHAR" javaType="String"/>
+        <result column="appJson" property="appJson" jdbcType="VARCHAR" javaType="String"/>
+        <result column="testcaseJson" property="testcaseJson" jdbcType="VARCHAR" javaType="String"/>
+        <result column="scriptJson" property="scriptJson" jdbcType="VARCHAR" javaType="String"/>
     </resultMap>
 
     <sql id="Base_Column_List" >
-        id, projectId, appId, taskSceneId,createTime,createBy,endTime,errorMsg
+        id,status,projectId, taskSceneId,createTime,createBy,endTime,errorMsg,devicesJson,appJson,testcaseJson,scriptJson
     </sql>
+
+    <select id="findOne" parameterType="com.testwa.distest.server.entity.Task" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM task
+        WHERE id = #{key}
+    </select>
 
     <select id="findBy" parameterType="com.testwa.distest.server.entity.Task" resultMap="BaseResultMap" >
         SELECT
