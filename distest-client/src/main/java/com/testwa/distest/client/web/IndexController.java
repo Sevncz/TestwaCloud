@@ -1,24 +1,14 @@
 package com.testwa.distest.client.web;
 
 import com.alibaba.fastjson.JSON;
-import com.google.common.collect.ImmutableMap;
-import com.google.protobuf.ByteString;
-import com.testwa.core.WebsocketEvent;
 import com.testwa.core.utils.TimeUtil;
-import com.testwa.distest.client.ApplicationContextUtil;
-import com.testwa.distest.client.control.client.Clients;
-import com.testwa.distest.client.control.client.MainSocket;
-import com.testwa.distest.client.control.client.grpc.GClient;
-import com.testwa.distest.client.control.client.grpc.pool.GClientPool;
-import com.testwa.distest.client.model.UserInfo;
+import com.testwa.distest.client.grpc.GrpcClient;
+import com.testwa.distest.client.grpc.Gvice;
 import com.testwa.distest.client.service.HttpService;
-import com.testwa.distest.client.task.Testcase;
-import com.testwa.distest.client.task.TestcaseTaskCaches;
-import com.testwa.distest.client.util.Http;
-import io.rpc.testwa.task.ProcedureInfoRequest;
+import io.grpc.Channel;
+import io.grpc.ManagedChannel;
 import io.rpc.testwa.task.ProcedureInfoUploadRequest;
 import org.apache.commons.lang3.StringUtils;
-import org.openqa.selenium.remote.RemoteLogs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,8 +35,8 @@ public class IndexController {
 
     @Autowired
     private HttpService httpService;
-    @Autowired
-    private GClientPool gClientPool;
+    @GrpcClient("local-grpc-server")
+    private Channel serverChannel;
 
     @RequestMapping("/")
     String index() {
@@ -66,9 +56,7 @@ public class IndexController {
                                                                     .setInfoJson(urlInfo)
                                                                     .build();
 
-        GClient c = gClientPool.getClient();
-        c.taskService().procedureInfoUpload(procedureInfoUploadRequest);
-        gClientPool.release(c);
+        Gvice.taskService(serverChannel).procedureInfoUpload(procedureInfoUploadRequest);
 
 //        logger.info("Receive message, [{}]", payload);
 //        String sessionId = "";

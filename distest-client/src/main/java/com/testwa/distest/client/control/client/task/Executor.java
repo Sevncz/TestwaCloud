@@ -6,11 +6,8 @@ import com.testwa.core.cmd.RemoteTestcaseContent;
 import com.testwa.core.service.PythonScriptDriverService;
 import com.testwa.core.service.PythonServiceBuilder;
 import com.testwa.core.utils.Identities;
-import com.testwa.distest.client.ApplicationContextUtil;
 import com.testwa.distest.client.appium.manager.CustomServerFlag;
-import com.testwa.distest.client.control.client.Clients;
-import com.testwa.distest.client.control.client.grpc.GClient;
-import com.testwa.distest.client.control.client.grpc.pool.GClientPool;
+import com.testwa.distest.client.grpc.Gvice;
 import com.testwa.distest.client.control.port.AppiumPortProvider;
 import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.util.Constant;
@@ -19,6 +16,7 @@ import io.appium.java_client.service.local.AppiumDriverLocalService;
 import io.appium.java_client.service.local.AppiumServiceBuilder;
 import io.appium.java_client.service.local.flags.AndroidServerFlag;
 import io.appium.java_client.service.local.flags.GeneralServerFlag;
+import io.grpc.Channel;
 import io.rpc.testwa.task.CurrentExeInfoRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -58,6 +56,8 @@ public class Executor {
     private boolean isStop = false;
     private Long currScript;
     private Long currTestCaseId;
+
+    private Channel channel;
 
 
     public Executor(String nodePath, String appiumPath, String agentWebUrl, String clientWebUrl) throws IOException {
@@ -400,11 +400,10 @@ public class Executor {
                 .setTestcaseId(this.currTestCaseId)
                 .setToken(UserInfo.token)
                 .build();
-        GClientPool gClientPool = ApplicationContextUtil.getGClientBean();
-
-        GClient c = gClientPool.getClient();
-        c.taskService().currExeInfo(request);
-        gClientPool.release(c);
+        Gvice.taskService(this.channel).currExeInfo(request);
     }
 
+    public void setChannel(Channel channel) {
+        this.channel = channel;
+    }
 }

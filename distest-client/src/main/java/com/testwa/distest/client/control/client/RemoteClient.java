@@ -6,20 +6,19 @@ import com.google.protobuf.ByteString;
 import com.testwa.core.common.enums.Command;
 import com.testwa.distest.client.ApplicationContextUtil;
 import com.testwa.distest.client.android.AndroidHelper;
-import com.testwa.distest.client.control.client.grpc.GClient;
-import com.testwa.distest.client.control.client.grpc.pool.GClientPool;
+import com.testwa.distest.client.grpc.Gvice;
 import com.testwa.distest.client.minicap.Banner;
 import com.testwa.distest.client.minicap.Minicap;
 import com.testwa.distest.client.minicap.MinicapListener;
 import com.testwa.distest.client.minitouch.Minitouch;
 import com.testwa.distest.client.minitouch.MinitouchListener;
 import com.testwa.distest.client.util.Constant;
+import io.grpc.Channel;
 import io.rpc.testwa.device.ScreenCaptureRequest;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.misc.GC;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -42,17 +41,20 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
     private Integer webPort;
     private String serialNumber;
     private Socket ws;
+    private Channel channel;
 
     Minicap minicap = null;
     Minitouch minitouch = null;
 
-    public RemoteClient(String url, String controller, String serialNumber, String webHost, int webPort) throws IOException, URISyntaxException {
+    public RemoteClient(String url, String controller, String serialNumber, String webHost, int webPort, Channel channel) throws IOException, URISyntaxException {
         log.info("Remote Client init");
         this.url = url;
         this.controller = controller;
         this.webHost = webHost;
         this.webPort = webPort;
         this.serialNumber = serialNumber;
+
+        this.channel = channel;
 
         ws = IO.socket(url);
         ws.on(Socket.EVENT_CONNECT, args -> {
@@ -75,8 +77,6 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         }
 
         ws.connect();
-
-
 
     }
 
@@ -151,10 +151,9 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
                     .setName("xxx")
                     .setSerial(this.serialNumber)
                     .build();
-            GClientPool gClientPool = ApplicationContextUtil.getGClientBean();
-            GClient c = gClientPool.getClient();
-            c.deviceService().screen(request);
-            gClientPool.release(c);
+
+            Gvice.deviceService(this.channel).screen(request);
+
         }catch (Exception e){
             log.error(e.getMessage());
         }finally {

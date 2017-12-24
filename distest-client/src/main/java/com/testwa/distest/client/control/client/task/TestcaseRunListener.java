@@ -3,7 +3,9 @@ package com.testwa.distest.client.control.client.task;
 import com.testwa.core.cmd.RemoteRunCommand;
 import com.testwa.core.utils.TimeUtil;
 import com.testwa.distest.client.control.client.task.pool.ExecutorPool;
+import com.testwa.distest.client.grpc.GrpcClient;
 import com.testwa.distest.client.model.UserInfo;
+import io.grpc.Channel;
 import io.grpc.ManagedChannel;
 import io.rpc.testwa.task.CurrentExeInfoRequest;
 import io.rpc.testwa.task.TaskOverRequest;
@@ -28,8 +30,8 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
 
     @Autowired
     public ExecutorPool pool;
-    @Autowired
-    private ManagedChannel managedChannel;
+    @GrpcClient("local-grpc-server")
+    private Channel serverChannel;
 
     @Async
     @Override
@@ -59,6 +61,7 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
                 Executor executor2 = pool.getService();
                 try {
                     excutors.put(cmd.getDeviceId(), executor2);
+                    executor2.setChannel(serverChannel);
                     executor2.setAppId(cmd.getAppId());
                     executor2.setDeviceId(cmd.getDeviceId());
                     executor2.setInstall(cmd.getInstall());
@@ -79,7 +82,7 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
                             .setTimestamp(TimeUtil.getTimestampLong())
                             .build();
 
-                    TaskServiceGrpc.newFutureStub(managedChannel).gameover(taskOverRequest);
+                    TaskServiceGrpc.newFutureStub(serverChannel).gameover(taskOverRequest);
                 }
                 log.info("excutors over!");
 
@@ -97,7 +100,7 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
                             .setTestcaseId(currTestcaseId)
                             .setToken(UserInfo.token)
                             .build();
-                    TaskServiceGrpc.newFutureStub(managedChannel).currExeInfo(request);
+                    TaskServiceGrpc.newFutureStub(serverChannel).currExeInfo(request);
                 }
                 break;
         }

@@ -5,14 +5,11 @@ import com.android.ddmlib.IDevice;
 import com.github.cosysoft.device.android.AndroidDevice;
 import com.github.cosysoft.device.android.impl.DefaultHardwareDevice;
 import com.testwa.distest.client.ApplicationContextUtil;
-import com.testwa.distest.client.control.client.BaseClient;
 import com.testwa.distest.client.control.client.MainSocket;
-import com.testwa.distest.client.control.client.grpc.GClient;
-import com.testwa.distest.client.control.client.grpc.pool.GClientPool;
 import com.testwa.distest.client.model.TestwaDevice;
+import com.testwa.distest.client.service.GrpcClientService;
 import com.testwa.distest.client.task.TestwaScheduled;
 import io.rpc.testwa.device.Device;
-import io.rpc.testwa.device.NoUsedDeviceRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,8 +22,7 @@ import java.util.Map;
  */
 public class DeviceChangeListener implements AndroidDebugBridge.IDeviceChangeListener {
 
-    private static final Logger logger = LoggerFactory
-            .getLogger(DeviceChangeListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(DeviceChangeListener.class);
     private Map<IDevice, AndroidDevice> connectedDevices = new HashMap<>();
 
     public DeviceChangeListener(Map<IDevice, AndroidDevice> connectedDevices) {
@@ -48,7 +44,8 @@ public class DeviceChangeListener implements AndroidDebugBridge.IDeviceChangeLis
         }
         if (!contain) {
             connectedDevices.put(device, ad);
-            BaseClient.startRemoteClient(device);
+            GrpcClientService service = ApplicationContextUtil.getBeanDetail("grpcClientService");
+            service.createRemoteClient(device);
         }
     }
 
@@ -89,14 +86,11 @@ public class DeviceChangeListener implements AndroidDebugBridge.IDeviceChangeLis
     }
 
     private void sendDisconnectGrpc(String deviceId) {
-        NoUsedDeviceRequest disconnectDevice = NoUsedDeviceRequest.newBuilder()
-                .setDeviceId(deviceId)
-                .build();
-        GClientPool gClientPool = ApplicationContextUtil.getGClientBean();
+//        NoUsedDeviceRequest disconnectDevice = NoUsedDeviceRequest.newBuilder()
+//                .setDeviceId(deviceId)
+//                .build();
+//        Gvice.deviceService(c.getChannel()).disconnect(disconnectDevice);
 
-        GClient c = gClientPool.getClient();
-        c.deviceService().disconnect(disconnectDevice);
-        gClientPool.release(c);
     }
 
     @Override

@@ -4,13 +4,14 @@ import com.github.cosysoft.device.android.AndroidDevice;
 import com.github.cosysoft.device.shell.ShellCommandException;
 import com.google.protobuf.ByteString;
 import com.testwa.distest.client.control.client.MainSocket;
-import com.testwa.distest.client.control.client.grpc.GClient;
-import com.testwa.distest.client.control.client.grpc.pool.GClientPool;
+import com.testwa.distest.client.grpc.GrpcClient;
+import com.testwa.distest.client.grpc.Gvice;
 import com.testwa.distest.client.model.TestwaDevice;
 import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.service.HttpService;
 import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.distest.client.util.Constant;
+import io.grpc.Channel;
 import io.rpc.testwa.device.Device;
 import io.rpc.testwa.device.DevicesRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -21,7 +22,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import sun.misc.GC;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -51,8 +51,9 @@ public class TestwaScheduled {
     private HttpService httpService;
     @Autowired
     private Environment env;
-    @Autowired
-    private GClientPool gClientPool;
+    @GrpcClient("local-grpc-server")
+    private Channel serverChannel;
+
 
     @Scheduled(cron = "0/10 * * * * ?")
     public void senderDevice() {
@@ -111,9 +112,8 @@ public class TestwaScheduled {
                             .setUserId(UserInfo.token)
                             .addAllDevice(devicesToReport)
                             .build();
-                    GClient c = gClientPool.getClient();
-                    c.deviceService().all(request);
-                    gClientPool.release(c);
+
+                    Gvice.deviceService(serverChannel).all(request);
                 }
             } catch (ShellCommandException e) {
                 logger.error("Adb get props error", e);

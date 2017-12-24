@@ -1,12 +1,7 @@
 package com.testwa.distest.client.android.util;
 
-import com.google.protobuf.ByteString;
 import com.testwa.core.service.AdbDriverService;
 import com.testwa.core.service.LogcatServiceBuilder;
-import com.testwa.distest.client.ApplicationContextUtil;
-import com.testwa.distest.client.control.client.Clients;
-import com.testwa.distest.client.control.client.grpc.pool.GClientPool;
-import io.rpc.testwa.device.LogcatRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,15 +67,14 @@ public class LogcatUtil {
                     while (readCount < count) {
                         readCount += inputStream.read(buf, readCount, count - readCount);
 
-                        new Thread(() -> {
-                            LogcatRequest request = LogcatRequest.newBuilder()
-                                    .setContent(ByteString.copyFrom(buf))
-                                    .setSerial(deviceId)
-                                    .build();
-                            GClientPool gClientPool = (GClientPool) ApplicationContextUtil.getBean("GClientPool");
-                            gClientPool.getClient().deviceService().logcat(request);
-                            LOG.info("sender ---====--=-=-=-=-=-=-=-=-=-=");
-                        }).start();
+//                        new Thread(() -> {
+//                            LogcatRequest request = LogcatRequest.newBuilder()
+//                                    .setContent(ByteString.copyFrom(buf))
+//                                    .setSerial(deviceId)
+//                                    .build();
+//                            Gvice.deviceService(c.getChannel()).logcat(request);
+//                            LOG.info("sender ---====--=-=-=-=-=-=-=-=-=-=");
+//                        }).start();
                     }
                 } catch (IOException e) {
                     // TODO Auto-generated catch block

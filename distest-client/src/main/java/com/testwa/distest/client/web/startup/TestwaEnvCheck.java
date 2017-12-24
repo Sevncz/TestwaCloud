@@ -2,12 +2,14 @@ package com.testwa.distest.client.web.startup;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
+import com.github.cosysoft.device.android.AndroidDevice;
 import com.testwa.core.WebsocketEvent;
+import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.distest.client.appium.utils.Config;
-import com.testwa.distest.client.control.client.BaseClient;
 import com.testwa.distest.client.control.client.MainSocket;
 import com.testwa.distest.client.control.client.boost.MessageCallback;
 import com.testwa.distest.client.model.UserInfo;
+import com.testwa.distest.client.service.GrpcClientService;
 import com.testwa.distest.client.service.HttpService;
 import com.testwa.distest.client.util.Constant;
 import org.apache.commons.lang3.StringUtils;
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.TreeSet;
 
 /**
  * Created by wen on 16/8/27.
@@ -37,6 +40,8 @@ public class TestwaEnvCheck implements CommandLineRunner {
 
     @Autowired
     private HttpService httpService;
+    @Autowired
+    private GrpcClientService gClientService;
 
     @Autowired
     @Qualifier("startRemoteClientCallbackImpl")
@@ -83,7 +88,12 @@ public class TestwaEnvCheck implements CommandLineRunner {
                             MainSocket.connect(url, token);
                             MainSocket.receive(WebsocketEvent.ON_START, startRemoteClientCB);
                             MainSocket.receive(WebsocketEvent.ON_TESTCASE_RUN, startTestcaseClientCB);
-                            BaseClient.setToken(token);
+
+                            TreeSet<AndroidDevice> androidDevices = AndroidHelper.getInstance().getAllDevices();
+                            for(AndroidDevice ad : androidDevices) {
+                                gClientService.createRemoteClient(ad.getDevice());
+                            }
+
                         } else {
                             log.error("login error {}", resultCode);
                             System.exit(0);
