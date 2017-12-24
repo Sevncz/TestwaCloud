@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.appium.utils.Config;
+import com.testwa.distest.client.control.client.BaseClient;
 import com.testwa.distest.client.control.client.MainSocket;
 import com.testwa.distest.client.control.client.boost.MessageCallback;
 import com.testwa.distest.client.model.UserInfo;
@@ -80,11 +81,9 @@ public class TestwaEnvCheck implements CommandLineRunner {
 
                             String url = env.getProperty("agent.socket.url");
                             MainSocket.connect(url, token);
-                            startRemoteClientCB.setToken(token);
-                            startTestcaseClientCB.setToken(token);
                             MainSocket.receive(WebsocketEvent.ON_START, startRemoteClientCB);
                             MainSocket.receive(WebsocketEvent.ON_TESTCASE_RUN, startTestcaseClientCB);
-
+                            BaseClient.setToken(token);
                         } else {
                             log.error("login error {}", resultCode);
                             System.exit(0);

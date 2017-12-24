@@ -80,12 +80,6 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
         }
         if("ON".equals(device.getStatus().name().toUpperCase())){
             deviceAuthMgr.online(device.getDeviceId());
-            // 启动设备client
-            try {
-                pushCmdService.pushInitDeviceClient(userId, device.getDeviceId());
-            } catch (ObjectNotExistsException e) {
-                e.printStackTrace();
-            }
         }
         if("OFF".equals(device.getStatus().name().toUpperCase())){
             deviceAuthMgr.offline(deviceAndroid.getDeviceId());

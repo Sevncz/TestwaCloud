@@ -7,6 +7,4 @@ public interface Callback<X, T extends Throwable> {
 
     public void done(X x,T t) throws MessageException;
 
-    public void setToken(String token);
-
 }

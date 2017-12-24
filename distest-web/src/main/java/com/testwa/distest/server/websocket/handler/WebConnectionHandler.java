@@ -8,10 +8,12 @@ import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.common.enums.Command;
 import com.testwa.core.cmd.MiniCmd;
 import com.testwa.distest.config.security.JwtTokenUtil;
+import com.testwa.distest.server.entity.DeviceAndroid;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.cache.mgr.ClientSessionMgr;
 import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
 import com.testwa.distest.server.service.cache.mgr.SubscribeMgr;
+import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
 import com.testwa.distest.server.websocket.WSFuncEnum;
@@ -41,6 +43,8 @@ public class WebConnectionHandler {
     @Autowired
     private DeviceAuthMgr deviceAuthMgr;
     @Autowired
+    private DeviceService deviceService;
+    @Autowired
     private SubscribeMgr subscribeMgr;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
@@ -60,6 +64,10 @@ public class WebConnectionHandler {
             client.sendEvent(Command.Schem.WAIT.getSchemString(), JSON.toJSONString(params));
 
             deviceSessionMgr.login(serial, client.getSessionId().toString());
+
+            requestStartMinitouch(serial);
+            requestStartMinicap(serial);
+
         }else if("client".equals(type)){
             // 客户端连接
             try {
@@ -73,19 +81,20 @@ public class WebConnectionHandler {
                 log.error("parser token error", e);
             }
         }else if("browser".equals(type)){
-            // 浏览器连接, 订阅一个设备的输出流
+            // 浏览器连接, 订阅一个设备的图像输出流
             String func = client.getHandshakeData().getSingleUrlParam("func");
             String deviceId = client.getHandshakeData().getSingleUrlParam("deviceId");
             if(StringUtils.isNotBlank(func) && StringUtils.isNotBlank(deviceId) ){
                 if(WSFuncEnum.contains(func)){
                     subscribeMgr.subscribeDeviceEvent(deviceId, func, client.getSessionId().toString());
-                    Set<String> subscribes = subscribeMgr.getSubscribes(deviceId, func);
-                    if(subscribes.size() == 1 && func.equals(WSFuncEnum.SCREEN.getValue())){
-                        requestStartMinitouch(deviceId);
-                        requestStartMinicap(deviceId);
-                    }
+//                    Set<String> subscribes = subscribeMgr.getSubscribes(deviceId, func);
+//                    if(subscribes.size() == 1 && func.equals(WSFuncEnum.SCREEN.getValue())){
+//                        requestStartMinitouch(deviceId);
+//                        requestStartMinicap(deviceId);
+//                    }
                 }
-                client.sendEvent("devices", deviceId);
+                DeviceAndroid deviceAndroid = (DeviceAndroid) deviceService.findByDeviceId(deviceId);
+                client.sendEvent("devices", JSON.toJSON(deviceAndroid));
             }else{
                 client.sendEvent("error", "参数不能为空");
             }

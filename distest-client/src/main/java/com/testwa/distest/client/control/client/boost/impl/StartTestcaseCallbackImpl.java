@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class StartTestcaseCallbackImpl implements MessageCallback {
-    private String token;
 
     @Autowired
     ApplicationContext context;
@@ -22,10 +21,5 @@ public class StartTestcaseCallbackImpl implements MessageCallback {
         String msg = (String) o;
         RemoteRunCommand cmd = JSON.parseObject(msg, RemoteRunCommand.class);
         context.publishEvent(new TestcaseRunEvent(this, cmd));
-    }
-
-    @Override
-    public void setToken(String token) {
-        this.token = token;
     }
 }

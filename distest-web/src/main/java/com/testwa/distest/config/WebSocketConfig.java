@@ -29,9 +29,10 @@ public class WebSocketConfig {
         config.setPort(Integer.parseInt(env.getProperty("wss.server.port")));
         config.setAuthorizationListener(handshakeData -> {
             String token = handshakeData.getSingleUrlParam("token");
-            log.info("websocket token: {}", token);
+            log.info("websocket token: {}, url: {}", token, handshakeData.getUrl());
             String username = jwtTokenUtil.getUsernameFromToken(token);
-            return StringUtils.isNotEmpty(username);
+//            return StringUtils.isNotEmpty(username);
+            return true;
         });
         return new SocketIOServer(config);
     }

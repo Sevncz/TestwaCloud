@@ -39,7 +39,6 @@ public class CommandHandler {
         }
     }
 
-
     @OnEvent(value = minicap)
     public void onMinicap(SocketIOClient client, String data, AckRequest ackRequest) {
         if("open".equals(data)){

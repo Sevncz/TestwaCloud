@@ -72,6 +72,8 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
 
         ws.connect();
 
+
+
     }
 
     @Override
@@ -142,7 +144,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
                 .setName("xxx")
                 .setSerial(this.serialNumber)
                 .build();
-        Clients.deviceService(this.webHost, this.webPort).screen(request);
+        Clients.deviceService().screen(request);
     }
 
     private void clearObsoleteImage() {
