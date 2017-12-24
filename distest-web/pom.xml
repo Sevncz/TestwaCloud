@@ -38,6 +38,10 @@
 		</dependency>
 		<dependency>
 			<groupId>com.testwa</groupId>
+			<artifactId>distest-core-proto</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.testwa</groupId>
 			<artifactId>distest-core-haredis</artifactId>
 		</dependency>
 		<dependency>

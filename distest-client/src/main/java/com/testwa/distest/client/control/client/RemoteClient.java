@@ -4,7 +4,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.cosysoft.device.android.AndroidDevice;
 import com.google.protobuf.ByteString;
 import com.testwa.core.common.enums.Command;
+import com.testwa.distest.client.ApplicationContextUtil;
 import com.testwa.distest.client.android.AndroidHelper;
+import com.testwa.distest.client.control.client.grpc.GClient;
+import com.testwa.distest.client.control.client.grpc.pool.GClientPool;
 import com.testwa.distest.client.minicap.Banner;
 import com.testwa.distest.client.minicap.Minicap;
 import com.testwa.distest.client.minicap.MinicapListener;
@@ -16,6 +19,7 @@ import io.socket.client.IO;
 import io.socket.client.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.misc.GC;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -139,12 +143,22 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
     }
 
     private void sendImage(byte[] data) {
-        ScreenCaptureRequest request = ScreenCaptureRequest.newBuilder()
-                .setImg(ByteString.copyFrom(data))
-                .setName("xxx")
-                .setSerial(this.serialNumber)
-                .build();
-        Clients.deviceService().screen(request);
+        log.info(String.valueOf(data.length));
+        try {
+
+            ScreenCaptureRequest request = ScreenCaptureRequest.newBuilder()
+                    .setImg(ByteString.copyFrom(data))
+                    .setName("xxx")
+                    .setSerial(this.serialNumber)
+                    .build();
+            GClientPool gClientPool = ApplicationContextUtil.getGClientBean();
+            GClient c = gClientPool.getClient();
+            c.deviceService().screen(request);
+            gClientPool.release(c);
+        }catch (Exception e){
+            log.error(e.getMessage());
+        }finally {
+        }
     }
 
     private void clearObsoleteImage() {

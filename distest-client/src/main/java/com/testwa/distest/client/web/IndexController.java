@@ -5,8 +5,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.ByteString;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.core.utils.TimeUtil;
+import com.testwa.distest.client.ApplicationContextUtil;
 import com.testwa.distest.client.control.client.Clients;
 import com.testwa.distest.client.control.client.MainSocket;
+import com.testwa.distest.client.control.client.grpc.GClient;
+import com.testwa.distest.client.control.client.grpc.pool.GClientPool;
 import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.service.HttpService;
 import com.testwa.distest.client.task.Testcase;
@@ -42,6 +45,8 @@ public class IndexController {
 
     @Autowired
     private HttpService httpService;
+    @Autowired
+    private GClientPool gClientPool;
 
     @RequestMapping("/")
     String index() {
@@ -60,7 +65,11 @@ public class IndexController {
         ProcedureInfoUploadRequest procedureInfoUploadRequest = ProcedureInfoUploadRequest.newBuilder()
                                                                     .setInfoJson(urlInfo)
                                                                     .build();
-        Clients.taskService().procedureInfoUpload(procedureInfoUploadRequest);
+
+        GClient c = gClientPool.getClient();
+        c.taskService().procedureInfoUpload(procedureInfoUploadRequest);
+        gClientPool.release(c);
+
 //        logger.info("Receive message, [{}]", payload);
 //        String sessionId = "";
 //        if(payload.containsKey("sessionId")){

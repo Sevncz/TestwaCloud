@@ -3,13 +3,13 @@ package com.testwa.distest.client.task;
 import com.github.cosysoft.device.android.AndroidDevice;
 import com.github.cosysoft.device.shell.ShellCommandException;
 import com.google.protobuf.ByteString;
-import com.testwa.distest.client.control.client.Clients;
 import com.testwa.distest.client.control.client.MainSocket;
+import com.testwa.distest.client.control.client.grpc.GClient;
+import com.testwa.distest.client.control.client.grpc.pool.GClientPool;
 import com.testwa.distest.client.model.TestwaDevice;
 import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.service.HttpService;
 import com.testwa.distest.client.android.AndroidHelper;
-import com.testwa.distest.client.rpc.proto.Agent;
 import com.testwa.distest.client.util.Constant;
 import io.rpc.testwa.device.Device;
 import io.rpc.testwa.device.DevicesRequest;
@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import sun.misc.GC;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -50,6 +51,8 @@ public class TestwaScheduled {
     private HttpService httpService;
     @Autowired
     private Environment env;
+    @Autowired
+    private GClientPool gClientPool;
 
     @Scheduled(cron = "0/10 * * * * ?")
     public void senderDevice() {
@@ -85,7 +88,7 @@ public class TestwaScheduled {
                         device.setBrand(ad.runAdbCommand("shell getprop ro.product.brand"));
                         device.setVersion(ad.runAdbCommand("shell getprop ro.build.version.release"));
 
-                        device.setStatus(Agent.Device.LineStatus.ON.name());
+                        device.setStatus("ON");
                         a_devices.put(ad.getSerialNumber(), device);
                         devicesToReport.add(device.toAgentDevice());
                     }
@@ -103,14 +106,14 @@ public class TestwaScheduled {
                 }
                 if (devicesToReport.size() > 0) {
                     // 有新的设备需要上报
-                    DevicesRequest devices = DevicesRequest.newBuilder()
+                    DevicesRequest request = DevicesRequest.newBuilder()
                             .setCount(devicesToReport.size())
                             .setUserId(UserInfo.token)
                             .addAllDevice(devicesToReport)
                             .build();
-                    String webHost = env.getProperty("grpc.host");
-                    Integer webPort = Integer.parseInt(env.getProperty("grpc.port"));
-                    Clients.deviceService(webHost, webPort).all(devices);
+                    GClient c = gClientPool.getClient();
+                    c.deviceService().all(request);
+                    gClientPool.release(c);
                 }
             } catch (ShellCommandException e) {
                 logger.error("Adb get props error", e);
@@ -145,12 +148,12 @@ public class TestwaScheduled {
 
                 byte[] img = Files.readAllBytes(p);
                 ByteString bys = ByteString.copyFrom(img);
-                Agent.ScreenCaptureFeedback message = Agent.ScreenCaptureFeedback
-                        .newBuilder()
-                        .setImg(bys)
-                        .setName(screenName).build();
+//                Agent.ScreenCaptureFeedback message = Agent.ScreenCaptureFeedback
+//                        .newBuilder()
+//                        .setImg(bys)
+//                        .setName(screenName).build();
                 // 这里异步上传文件
-                httpService.postProto(String.format("%s/device/receive/screen", agentWebUrl), message.toByteArray());
+//                httpService.postProto(String.format("%s/device/receive/screen", agentWebUrl), message.toByteArray());
                 // feedback.runninglog.screen
 //                这里会报错io.netty.handler.codec.CorruptedFrameException: Max frame length of 65536 has been exceeded.
 //                TestwaSocket.getSocket().emit("feedback.runninglog.screen", message.toByteArray());

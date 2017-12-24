@@ -58,7 +58,7 @@
             <appender-ref ref="RollingFileWarn" />
             <appender-ref ref="RollingFileError" />
         </root>
-        <logger name="com.testwa.distest" level="INFO">
+        <logger name="com.testwa.distest" level="DEBUG">
             <appender-ref ref="RollingFileInfo" />
         </logger>
     </loggers>

@@ -21,6 +21,7 @@
         <module>distest-core-common</module>
         <module>distest-core-haredis</module>
         <module>distest-core-base</module>
+        <module>distest-core-proto</module>
         <module>distest-cloud-config</module>
         <module>distest-cloud-eureka</module>
         <module>distest-client</module>
@@ -79,6 +80,11 @@
             <dependency>
                 <groupId>com.testwa</groupId>
                 <artifactId>distest-core-common</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.testwa</groupId>
+                <artifactId>distest-core-proto</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             <dependency>

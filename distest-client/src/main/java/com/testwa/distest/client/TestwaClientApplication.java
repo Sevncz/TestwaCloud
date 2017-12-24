@@ -22,7 +22,7 @@ import java.util.concurrent.Executor;
 /**
  * Created by wen on 16/8/14.
  */
-@SpringBootApplication(exclude = MongoAutoConfiguration.class)
+@SpringBootApplication
 @EnableScheduling
 @EnableAsync
 public class TestwaClientApplication extends AsyncConfigurerSupport {

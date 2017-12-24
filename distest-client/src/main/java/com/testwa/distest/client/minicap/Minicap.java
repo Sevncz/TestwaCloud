@@ -507,7 +507,7 @@ public class Minicap {
                     banner = new Banner();
                     readData();
                 } catch (InterruptedException e) {
-                    System.out.println(e.getMessage());
+                    log.error(e.getMessage());
                     onClose();
                 }
             }
@@ -536,11 +536,11 @@ public class Minicap {
                                 cursor + frameBodyLength);
                         frameBody = Common.mergeArray(frameBody, subByte);
                         if ((frameBody[0] != -1) || frameBody[1] != -40) {
-                            System.out.println("Frame body does not start with JPG header");
+                            log.error("Frame body does not start with JPG header");
                             return;
                         }
                         byte[] finalBytes = Arrays.copyOfRange(frameBody, 0, frameBody.length);
-
+                        log.info("to jpg");
                         onJPG(finalBytes);
 
                         cursor += frameBodyLength;
@@ -550,7 +550,8 @@ public class Minicap {
 
                         long timeused = (System.currentTimeMillis() - t);
                         timeused = timeused == 0 ? 1 : timeused;
-                        String log = String.format("jpg: %d timeused: %dms  fps: %d", finalBytes.length, (int)timeused, 1000 / timeused);
+                        String logMsg = String.format("jpg: %d timeused: %dms  fps: %d", finalBytes.length, (int)timeused, 1000 / timeused);
+                        log.info(logMsg);
                     } else {
                         byte[] subByte = Arrays.copyOfRange(buffer, cursor, length);
                         frameBody = Common.mergeArray(frameBody, subByte);

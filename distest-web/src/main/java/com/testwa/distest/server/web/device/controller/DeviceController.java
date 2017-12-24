@@ -8,7 +8,6 @@ import com.testwa.core.base.exception.AuthorizedException;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.base.vo.Result;
-import com.testwa.distest.client.rpc.proto.Agent;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.device.form.DeviceAuthNewForm;
@@ -140,15 +139,15 @@ public class DeviceController extends BaseController {
         return ok();
     }
 
-    @RequestMapping(value = "/receive/logcat", method = RequestMethod.POST, produces = "application/x-protobuf")
-    public Result logcat(@RequestBody com.testwa.distest.client.rpc.proto.Agent.AppiumLogFeedback message) {
-        String[] messageName = message.getName().split("\\\\|/");
-        Path logcatPath = Paths.get(env.getProperty("logcat.path"), messageName);
-        Path logcatDir = logcatPath.getParent();
-        saveMessageFile(message.getLog().toByteArray(), logcatPath, logcatDir);
-
-        return ok();
-    }
+//    @RequestMapping(value = "/receive/logcat", method = RequestMethod.POST, produces = "application/x-protobuf")
+//    public Result logcat(@RequestBody com.testwa.distest.client.rpc.proto.Agent.AppiumLogFeedback message) {
+//        String[] messageName = message.getName().split("\\\\|/");
+//        Path logcatPath = Paths.get(env.getProperty("logcat.path"), messageName);
+//        Path logcatDir = logcatPath.getParent();
+//        saveMessageFile(message.getLog().toByteArray(), logcatPath, logcatDir);
+//
+//        return ok();
+//    }
 
     private void saveMessageFile(byte[] message, Path logPath, Path logDir) {
         try {
@@ -162,15 +161,15 @@ public class DeviceController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/receive/appiumlog", method = RequestMethod.POST, produces = "application/x-protobuf")
-    public Result appiumlog(@RequestBody Agent.AppiumLogFeedback message) {
-        String[] messageName = message.getName().split("\\\\|/");
-        Path appiumPath = Paths.get(env.getProperty("appium.log.path"), messageName);
-        Path appiumDir = appiumPath.getParent();
-        saveMessageFile(message.getLog().toByteArray(), appiumPath, appiumDir);
-
-        return ok();
-    }
+//    @RequestMapping(value = "/receive/appiumlog", method = RequestMethod.POST, produces = "application/x-protobuf")
+//    public Result appiumlog(@RequestBody Agent.AppiumLogFeedback message) {
+//        String[] messageName = message.getName().split("\\\\|/");
+//        Path appiumPath = Paths.get(env.getProperty("appium.log.path"), messageName);
+//        Path appiumDir = appiumPath.getParent();
+//        saveMessageFile(message.getLog().toByteArray(), appiumPath, appiumDir);
+//
+//        return ok();
+//    }
 
 
 //    @ResponseBody

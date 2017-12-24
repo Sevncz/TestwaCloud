@@ -2,7 +2,6 @@ package com.testwa.distest.server.mvc.model;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.testwa.distest.common.serializer.StringValueToLongSerializer;
-import io.rpc.testwa.task.ProcedureInfoRequest;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;

@@ -9,7 +9,6 @@ import com.testwa.distest.client.appium.manager.AppiumParallelTest;
 import com.testwa.distest.client.control.client.MainSocket;
 import com.testwa.distest.client.service.HttpService;
 import com.testwa.distest.client.android.AndroidHelper;
-import com.testwa.distest.client.rpc.proto.Agent;
 import com.testwa.core.service.PythonScriptDriverService;
 import com.testwa.core.service.PythonServiceBuilder;
 import com.testwa.distest.client.util.*;
@@ -121,11 +120,6 @@ public class Testcase {
                                 LOG.error("python excute error", this.getPyDS().getStdOut());
                                 this.getPyDS().stop();
                             }
-                            Agent.ReportSdetailFeedback rs = Agent.ReportSdetailFeedback.newBuilder()
-                                    .setReportDetailId(this.reportDetailId)
-                                    .setScriptId(this.currScript)
-                                    .setType(Agent.ReportSdetailType.end).build();
-                            MainSocket.getSocket().emit(feedback_report_sdetail, rs.toByteArray());
                         }
                     }
                     boolean status = runOneScript(appPath, basePackage, mainActivity);
@@ -161,16 +155,16 @@ public class Testcase {
     }
 
     private void sendLogsToServer(Path dirPath, String uploadUrl) {
-        try {
-            Files.newDirectoryStream(
-                    dirPath,
-                    entry -> {
-                        return entry.toString().endsWith(".log");
-                    })
-                    .forEach(name -> httpService.postProtoFile(uploadUrl, name, serial, reportDetailId));
-        } catch (IOException e) {
-            LOG.error("Send appium log file error, path: [{}]", dirPath.toString(), e);
-        }
+//        try {
+//            Files.newDirectoryStream(
+//                    dirPath,
+//                    entry -> {
+//                        return entry.toString().endsWith(".log");
+//                    })
+//                    .forEach(name -> httpService.postProtoFile(uploadUrl, name, serial, reportDetailId));
+//        } catch (IOException e) {
+//            LOG.error("Send appium log file error, path: [{}]", dirPath.toString(), e);
+//        }
     }
 
     private Boolean runOneScript(String appPath, String basePackage, String mainActivity) throws Exception {
@@ -198,12 +192,6 @@ public class Testcase {
 
         InetAddress addr = InetAddress.getLocalHost();
         String hostname = addr.getHostName();
-        Agent.ReportSdetailFeedback rs = Agent.ReportSdetailFeedback.newBuilder()
-                .setReportDetailId(this.reportDetailId)
-                .setScriptId(runscriptId)
-                .setMatchineName(hostname)
-                .setType(Agent.ReportSdetailType.start).build();
-        MainSocket.getSocket().emit(feedback_report_sdetail, rs.toByteArray());
 
         return true;
     }

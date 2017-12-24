@@ -3,9 +3,7 @@ package com.testwa.distest.server.websocket.handler;
 import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.annotation.OnEvent;
-import com.google.protobuf.InvalidProtocolBufferException;
 import com.testwa.core.WebsocketEvent;
-import com.testwa.distest.client.rpc.proto.Agent;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 
@@ -21,8 +19,7 @@ public class ScriptStopFeedbackHandler {
         /**
          * 纪录一个脚本执行的起止时间
          */
-        try {
-            Agent.ReportSdetailFeedback rs = Agent.ReportSdetailFeedback.parseFrom(data);
+//            Agent.ReportSdetailFeedback rs = Agent.ReportSdetailFeedback.parseFrom(data);
 //            ReportSdetail sdetail = reportSdetailService.findTestcaseSdetailByDetailIdScriptId(rs.getReportDetailId(), rs.getScriptId());
 //            log.info("receive message for sdetail message, sdetailId: {}.", sdetail.getId());
 //            if(Agent.ReportSdetailType.start.name().equals(rs.getType().name())){
@@ -35,9 +32,6 @@ public class ScriptStopFeedbackHandler {
 //                reportSdetailService.save(sdetail);
 //            }
 
-        } catch (InvalidProtocolBufferException e) {
-            e.printStackTrace();
-        }
 
     }
 

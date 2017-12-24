@@ -1,7 +1,6 @@
 package com.testwa.distest.client.model;
 
 import com.testwa.core.utils.LocalSystem;
-import com.testwa.distest.client.rpc.proto.Agent;
 
 import java.net.InetAddress;
 import java.net.SocketException;
@@ -84,14 +83,4 @@ public class AgentSystem {
         this.osArch = osArch;
     }
 
-    public Agent.SystemInfo toAgentSystemInfo(String agentKey) {
-        return Agent.SystemInfo.newBuilder()
-                .setAgentKey(agentKey)
-                .setHost(this.getHost())
-                .setMac(this.getMac())
-                .setOsArch(this.getOsArch())
-                .setOsName(this.getOsName())
-                .setOsVersion(this.getOsVersion())
-                .build();
-    }
 }

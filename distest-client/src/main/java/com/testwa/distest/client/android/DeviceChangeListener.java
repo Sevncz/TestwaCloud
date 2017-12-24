@@ -4,11 +4,12 @@ import com.android.ddmlib.AndroidDebugBridge;
 import com.android.ddmlib.IDevice;
 import com.github.cosysoft.device.android.AndroidDevice;
 import com.github.cosysoft.device.android.impl.DefaultHardwareDevice;
+import com.testwa.distest.client.ApplicationContextUtil;
 import com.testwa.distest.client.control.client.BaseClient;
-import com.testwa.distest.client.control.client.Clients;
 import com.testwa.distest.client.control.client.MainSocket;
+import com.testwa.distest.client.control.client.grpc.GClient;
+import com.testwa.distest.client.control.client.grpc.pool.GClientPool;
 import com.testwa.distest.client.model.TestwaDevice;
-import com.testwa.distest.client.rpc.proto.Agent;
 import com.testwa.distest.client.task.TestwaScheduled;
 import io.rpc.testwa.device.Device;
 import io.rpc.testwa.device.NoUsedDeviceRequest;
@@ -67,9 +68,9 @@ public class DeviceChangeListener implements AndroidDebugBridge.IDeviceChangeLis
         testwaDevice.setBrand(ad.runAdbCommand("shell getprop ro.product.brand"));
         testwaDevice.setVersion(ad.runAdbCommand("shell getprop ro.build.version.release"));
         if("ONLINE".equals(ad.getDevice().getState().name().toUpperCase())){
-            testwaDevice.setStatus(Agent.Device.LineStatus.ON.name());
+            testwaDevice.setStatus("ON");
         }else{
-            testwaDevice.setStatus(Agent.Device.LineStatus.OFF.name());
+            testwaDevice.setStatus("OFF");
         }
         Device message = testwaDevice.toAgentDevice();
         MainSocket.getSocket().emit("device", message.toByteArray());
@@ -91,15 +92,11 @@ public class DeviceChangeListener implements AndroidDebugBridge.IDeviceChangeLis
         NoUsedDeviceRequest disconnectDevice = NoUsedDeviceRequest.newBuilder()
                 .setDeviceId(deviceId)
                 .build();
-        Clients.deviceService().disconnect(disconnectDevice);
-    }
+        GClientPool gClientPool = ApplicationContextUtil.getGClientBean();
 
-    private void sendDeviceDisconnectMessage(String deviceId) {
-        NoUsedDeviceRequest message = NoUsedDeviceRequest.newBuilder()
-                .setDeviceId(deviceId)
-                .setStatus(NoUsedDeviceRequest.LineStatus.DISCONNECTED)
-                .build();
-        MainSocket.getSocket().emit("deviceDisconnect", message.toByteArray());
+        GClient c = gClientPool.getClient();
+        c.deviceService().disconnect(disconnectDevice);
+        gClientPool.release(c);
     }
 
     @Override

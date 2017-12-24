@@ -6,8 +6,11 @@ import com.testwa.core.cmd.RemoteTestcaseContent;
 import com.testwa.core.service.PythonScriptDriverService;
 import com.testwa.core.service.PythonServiceBuilder;
 import com.testwa.core.utils.Identities;
+import com.testwa.distest.client.ApplicationContextUtil;
 import com.testwa.distest.client.appium.manager.CustomServerFlag;
 import com.testwa.distest.client.control.client.Clients;
+import com.testwa.distest.client.control.client.grpc.GClient;
+import com.testwa.distest.client.control.client.grpc.pool.GClientPool;
 import com.testwa.distest.client.control.port.AppiumPortProvider;
 import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.util.Constant;
@@ -397,7 +400,11 @@ public class Executor {
                 .setTestcaseId(this.currTestCaseId)
                 .setToken(UserInfo.token)
                 .build();
-        Clients.taskService().currExeInfo(request);
+        GClientPool gClientPool = ApplicationContextUtil.getGClientBean();
+
+        GClient c = gClientPool.getClient();
+        c.taskService().currExeInfo(request);
+        gClientPool.release(c);
     }
 
 }
