@@ -147,7 +147,8 @@ public class ProjectService {
         project.setProjectName(form.getProjectName());
         project.setDescription(form.getDescription());
         project.setCreateBy(currentUser.getId());
-        Long projectId = insert(project);
+        // 保存项目的同时保存owner
+        Long projectId = this.insert(project);
         project.setId(projectId);
         project.setCreateUser(currentUser);
         // 保存成员

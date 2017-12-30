@@ -113,9 +113,9 @@
     <select id="findUsersProject" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT distinct u.id as id, u.username as username, u.email as email, u.phone as phone,
         <if test="projectId != null">
-        CASE WHEN pm.projectId = ${projectId} THEN 'in' ELSE 'out' END as flag
+        CASE WHEN pm.projectId is not null THEN 'in' ELSE 'out' END as flag
         </if>
-        FROM user u LEFT JOIN project_member pm on pm.memberId = u.id
+        FROM user u LEFT JOIN (select * from project_member where projectId = ${projectId}) pm on pm.memberId = u.id
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             <if test="user != null">
                 <if test="user.id != null">

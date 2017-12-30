@@ -9,6 +9,7 @@ import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.project.form.MembersModifyForm;
 import com.testwa.distest.server.service.project.form.MembersQueryForm;
 import com.testwa.distest.server.service.project.service.ProjectMemberService;
+import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.auth.validator.UserValidator;
 import com.testwa.distest.server.web.auth.vo.UserVO;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
@@ -26,6 +27,8 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 
+import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
+
 
 /**
  * Created by wen on 20/10/2017.
@@ -39,9 +42,11 @@ public class ProjectMemberController extends BaseController {
     @Autowired
     private ProjectValidator projectValidator;
     @Autowired
+    private UserValidator userValidator;
+    @Autowired
     private ProjectMemberService projectMemberService;
     @Autowired
-    private UserValidator userValidator;
+    private UserService userService;
 
     @ApiOperation(value="添加项目成员", notes = "")
     @ResponseBody
@@ -61,6 +66,7 @@ public class ProjectMemberController extends BaseController {
     public Result removeMembers(@RequestBody @Valid MembersModifyForm form) throws ObjectNotExistsException {
 
         projectValidator.validateProjectExist(form.getProjectId());
+
         projectMemberService.delMembers(form);
         return ok();
     }
@@ -68,7 +74,9 @@ public class ProjectMemberController extends BaseController {
     @ApiOperation(value="获得项目的成员列表", notes = "")
     @ResponseBody
     @GetMapping(value = "/{projectId}")
-    public Result members(@PathVariable Long projectId) {
+    public Result members(@PathVariable Long projectId) throws ObjectNotExistsException {
+        projectValidator.validateProjectExist(projectId);
+
         List<User> users = projectMemberService.findAllMembers(projectId);
         List<UserVO> vo = buildVOs(users, UserVO.class);
         return ok(vo);
@@ -88,8 +96,11 @@ public class ProjectMemberController extends BaseController {
     @ApiOperation(value="获得当前用户在某个项目中的角色", notes = "")
     @ResponseBody
     @GetMapping(value = "/role")
-    public Result projectRole(@RequestParam(value = "projectId")Long projectId) throws AccountException, DBException, AuthorizedException {
-        ProjectMember pm = projectMemberService.getProjectRole(projectId);
+    public Result projectRole(@RequestParam(value = "projectId")Long projectId) throws AccountException, DBException, AuthorizedException, ObjectNotExistsException {
+        projectValidator.validateProjectExist(projectId);
+        User user = userService.findByUsername(getCurrentUsername());
+        projectValidator.validateUserIsProjectMember(projectId, user.getId());
+        ProjectMember pm = projectMemberService.getProjectRole(projectId, user.getId());
         if (null == pm){
             throw new AuthorizedException("该用户不属于此项目");
         }

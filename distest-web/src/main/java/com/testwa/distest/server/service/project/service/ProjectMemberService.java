@@ -63,14 +63,17 @@ public class ProjectMemberService {
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void addMembers(MembersModifyForm form) throws AuthorizedException, ParamsException {
+        if(form.getUsernames() == null || form.getUsernames().size() == 0){
+            return;
+        }
         Project project = projectService.findOne(form.getProjectId());
         User owner = userService.findByUsername(getCurrentUsername());
         if (!project.getCreateBy().equals(owner.getId())) {
             log.error("login auth not owner of the project, projectId: {}, currentUsername: {}", form.getProjectId(), getCurrentUsername());
             throw new AuthorizedException("您不是项目所有者，无法添加项目成员");
         }
-        // 检查是否有用户不在系统
         List<User> members = userService.findByUsernames(form.getUsernames());
+        // 检查是否有用户不在系统
         if(!(members != null && members.size() == form.getUsernames().size())){
             log.error("members size is {}, usernames size is {}", members != null?members.size():0, form.getUsernames().size());
             throw new ParamsException("有成员不存在");
@@ -160,10 +163,9 @@ public class ProjectMemberService {
 
 
 
-    public ProjectMember getProjectRole(Long projectId) throws AccountException, DBException {
-        User user = userService.findByUsername(getCurrentUsername());
+    public ProjectMember getProjectRole(Long projectId, Long userId) throws AccountException, DBException {
         ProjectMember query = new ProjectMember();
-        query.setMemberId(user.getId());
+        query.setMemberId(userId);
         query.setProjectId(projectId);
         List<ProjectMember> result = projectMemberDAO.findBy(query);
         if(result.size() == 0){

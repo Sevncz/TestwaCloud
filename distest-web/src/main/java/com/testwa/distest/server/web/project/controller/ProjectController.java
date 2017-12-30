@@ -60,7 +60,7 @@ public class ProjectController extends BaseController {
     @PostMapping(value = "/save")
     public Result save(@RequestBody @Valid ProjectNewForm form) throws AuthorizedException, ParamsException, ObjectNotExistsException {
 
-        if(form.getMembers() != null){
+        if(form.getMembers() != null && form.getMembers().size() > 0){
             userValidator.validateUsernamesExist(form.getMembers());
         }
 
