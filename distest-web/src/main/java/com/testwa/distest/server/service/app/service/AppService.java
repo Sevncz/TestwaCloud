@@ -168,6 +168,7 @@ public class AppService {
                 app.setPackageName(androidApp.getBasePackage());
                 app.setSdkVersion(androidApp.getSdkVersion());
                 app.setTargetSdkVersion(androidApp.getTargetSdkVersion());
+                app.setVersion(androidApp.getVersionName());
                 break;
             case "zip":
                 app.setOsType(DB.PhoneOS.IOS);
