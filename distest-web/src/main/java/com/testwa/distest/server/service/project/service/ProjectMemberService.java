@@ -126,7 +126,7 @@ public class ProjectMemberService {
             userquery.setUsername(memberName);
         }
         if(StringUtils.isNotEmpty(email)){
-            userquery.setUsername(email);
+            userquery.setEmail(email);
         }
         if(StringUtils.isNotEmpty(phone)){
             userquery.setPhone(phone);
