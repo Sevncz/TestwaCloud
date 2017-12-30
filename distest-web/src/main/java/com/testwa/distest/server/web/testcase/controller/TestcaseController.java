@@ -1,6 +1,7 @@
 package com.testwa.distest.server.web.testcase.controller;
 
 import com.testwa.core.base.exception.AuthorizedException;
+import com.testwa.core.base.exception.ParamsIsNullException;
 import com.testwa.core.base.form.DeleteOneForm;
 import com.testwa.core.base.vo.Result;
 import com.testwa.core.base.constant.WebConstants;
@@ -73,16 +74,22 @@ public class TestcaseController extends BaseController {
 
     @ResponseBody
     @PostMapping(value = "/delete/all")
-    public Result deleteAll(@Valid @RequestBody DeleteAllForm form) {
+    public Result deleteAll(@Valid @RequestBody DeleteAllForm form) throws ParamsIsNullException {
         log.info(form.toString());
+        if(form.getEntityIds() == null && form.getEntityIds().size() == 0){
+            throw new ParamsIsNullException("参数不能为空");
+        }
         testcaseService.delete(form.getEntityIds());
         return ok();
     }
 
     @ResponseBody
     @PostMapping(value = "/delete/one")
-    public Result deleteOne(@Valid @RequestBody DeleteOneForm form) {
+    public Result deleteOne(@Valid @RequestBody DeleteOneForm form) throws ParamsIsNullException {
         log.info(form.toString());
+        if(form.getEntityId() == null){
+            throw new ParamsIsNullException("参数不能为空");
+        }
         testcaseService.delete(form.getEntityId());
         return ok();
     }

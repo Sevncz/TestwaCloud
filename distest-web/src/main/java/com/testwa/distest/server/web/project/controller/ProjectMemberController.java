@@ -63,8 +63,11 @@ public class ProjectMemberController extends BaseController {
     @ApiOperation(value="删除项目成员", notes = "")
     @ResponseBody
     @PostMapping(value = "/remove/all")
-    public Result removeMembers(@RequestBody @Valid MembersModifyForm form) throws ObjectNotExistsException {
+    public Result removeMembers(@RequestBody @Valid MembersModifyForm form) throws ObjectNotExistsException, ParamsIsNullException {
 
+        if(form.getUsernames() == null && form.getUsernames().size() == 0){
+            throw new ParamsIsNullException("参数不能为空");
+        }
         projectValidator.validateProjectExist(form.getProjectId());
 
         projectMemberService.delMembers(form);

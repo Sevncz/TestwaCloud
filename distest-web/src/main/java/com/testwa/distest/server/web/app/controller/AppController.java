@@ -98,14 +98,20 @@ public class AppController extends BaseController {
     @ApiOperation(value="删除多个应用", notes="")
     @ResponseBody
     @PostMapping(value = "/delete/all")
-    public Result deleteAll(@RequestBody DeleteAllForm del){
+    public Result deleteAll(@RequestBody DeleteAllForm del) throws ParamsIsNullException {
+        if(del.getEntityIds() == null && del.getEntityIds().size() == 0){
+            throw new ParamsIsNullException("参数不能为空");
+        }
         appService.deleteApp(del.getEntityIds());
         return ok();
     }
     @ApiOperation(value="删除一个应用", notes="")
     @ResponseBody
     @PostMapping(value = "/delete/one")
-    public Result deleteOne(@RequestBody DeleteOneForm del){
+    public Result deleteOne(@RequestBody DeleteOneForm del) throws ParamsIsNullException {
+        if( del.getEntityId() == null ){
+            throw new ParamsIsNullException("参数不能为空");
+        }
         appService.deleteApp(del.getEntityId());
         return ok();
     }
