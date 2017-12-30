@@ -22,6 +22,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 
+@Repository
 public class BaseDAO<T extends Entity,ID extends Serializable> implements IBaseDAO<T, ID> {
     private static final Logger log = LoggerFactory.getLogger(BaseDAO.class);
 

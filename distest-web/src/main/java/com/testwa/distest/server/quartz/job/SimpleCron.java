@@ -15,7 +15,7 @@ import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 
 
-@Configuration
+//@Configuration
 public class SimpleCron extends AbsTestwaCronImpl{
 
 	private static final Logger logger = LoggerFactory.getLogger(SimpleCron.class);
