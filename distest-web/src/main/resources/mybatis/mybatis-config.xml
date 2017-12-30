@@ -14,5 +14,6 @@
     </typeAliases>
     <plugins>
         <plugin interceptor="com.testwa.core.base.mybatis.GenericEntityResultSetHandlerInterceptor"/>
+        <plugin interceptor="com.testwa.core.base.mybatis.MyBatisShowSQLInterceptor"/>
     </plugins>
 </configuration>
