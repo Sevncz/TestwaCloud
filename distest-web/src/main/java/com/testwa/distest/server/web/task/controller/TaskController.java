@@ -51,7 +51,7 @@ public class TaskController extends BaseController {
     @Autowired
     private DeviceValidatoer deviceValidatoer;
     @Autowired
-    private TaskValidatoer executionTaskValidatoer;
+    private TaskValidatoer taskValidatoer;
 
 
     @ApiOperation(value="保存并执行一个任务场景")
@@ -98,11 +98,10 @@ public class TaskController extends BaseController {
     @ResponseBody
     @GetMapping(value = "/progress/{taskId}")
     public Result progress(@PathVariable(value = "taskId") Long taskId) throws ObjectNotExistsException {
-        executionTaskValidatoer.validateTaskExist(taskId);
+        taskValidatoer.validateTaskExist(taskId);
         List<TaskProgressVO> result = executeMgr.getProgress(taskId);
         return ok(result);
     }
-
 
     @ResponseBody
     @RequestMapping(value = "/test", method = RequestMethod.GET)

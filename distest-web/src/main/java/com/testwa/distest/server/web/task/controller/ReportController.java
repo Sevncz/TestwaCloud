@@ -11,6 +11,7 @@ import com.testwa.core.base.constant.WebConstants;
 import com.testwa.distest.server.mvc.model.ProcedureInfo;
 import com.testwa.distest.server.mvc.model.ProcedureStatis;
 import com.testwa.distest.server.mvc.service.ProcedureInfoService;
+import com.testwa.distest.server.service.task.form.TaskListForm;
 import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.web.task.validator.TaskValidatoer;
 import com.testwa.distest.server.web.task.validator.TaskSceneValidatoer;
@@ -20,6 +21,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -52,6 +54,14 @@ public class ReportController extends BaseController {
         Map<String, Object> result = taskService.statis(task);
 
         return ok(result);
+    }
+
+
+    @ApiOperation(value="任务分页列表", notes="")
+    @ResponseBody
+    @GetMapping(value = "/page")
+    public Result page(@Valid TaskListForm form) {
+        return ok();
     }
 
 }
