@@ -129,7 +129,7 @@ public class ProjectMemberService {
             userquery.setUsername(email);
         }
         if(StringUtils.isNotEmpty(phone)){
-            userquery.setUsername(phone);
+            userquery.setPhone(phone);
         }
         List<Map> allUsers = findMembers(projectId, userquery);
         List<UserVO> in = new ArrayList<>();
