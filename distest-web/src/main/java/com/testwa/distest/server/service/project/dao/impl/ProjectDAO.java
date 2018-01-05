@@ -35,6 +35,10 @@ public class ProjectDAO extends BaseDAO<Project, Long> implements IProjectDAO {
     }
 
     @Override
+    public Project findOne(Long projectId) {
+        return projectMapper.findOne(projectId);
+    }
+    @Override
     public Project fetchOne(Long projectId) {
         return projectMapper.fetchOne(projectId);
     }

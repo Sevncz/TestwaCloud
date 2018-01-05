@@ -10,7 +10,10 @@ import org.springframework.stereotype.Repository;
 public interface UserMapper extends BaseMapper<User, Long> {
 
 	List<User> findBy(User user);
+
 	User findOne(Long key);
+
+    List<User> findList(List<Long> keys);
 
 	List<User> findByUsernameList(List<String> usernameList);
 

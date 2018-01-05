@@ -27,6 +27,11 @@ public class UserDAO extends BaseDAO<User, Long> implements IUserDAO {
     }
 
     @Override
+    public List<User> findAll(List<Long> keys) {
+        return userMapper.findList(keys);
+    }
+
+    @Override
     public List<User> findByUsernames(List<String> usernames) {
         return userMapper.findByUsernameList(usernames);
     }

@@ -13,6 +13,8 @@ public interface IUserDAO extends IBaseDAO<User, Long> {
 
     User findOne(Long key);
 
+    List<User> findAll(List<Long> keys);
+
     List<User> findByUsernames(List<String> usernames);
 
     List<User> findByEmails(List<String> emails);

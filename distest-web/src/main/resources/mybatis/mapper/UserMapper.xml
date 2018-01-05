@@ -35,6 +35,15 @@
         FROM user
         WHERE id = #{key}
     </select>
+    <select id="findList" parameterType="com.testwa.distest.server.entity.User" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM user
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            and id in
+            <foreach item="id" index="index" collection="list" open="(" separator="," close=")">#{id} </foreach>
+        </trim>
+    </select>
 
     <select id="findBy" parameterType="com.testwa.distest.server.entity.User" resultMap="BaseResultMap" >
         SELECT

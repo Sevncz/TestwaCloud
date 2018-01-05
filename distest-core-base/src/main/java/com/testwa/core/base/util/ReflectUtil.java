@@ -1,5 +1,7 @@
 package com.testwa.core.base.util;
 
+import com.testwa.core.base.enums.ValueEnum;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -118,8 +120,10 @@ public class ReflectUtil {
         if (!accessible) {
             field.setAccessible(true);
         }
+
         // 设置值
         field.set(object, value);
+
         // 恢复原访问权限
         if (!accessible) {
             field.setAccessible(false);
@@ -247,5 +251,16 @@ public class ReflectUtil {
             }
         }
         return ReflectUtil.invokeConstructorLimitArgsTypes(class_, args, parameterTypes);
+    }
+
+    public static ValueEnum resolveValueEnum(String value, Class<ValueEnum> type) {
+
+        for (ValueEnum constant : type.getEnumConstants()){
+            if (constant.toString().equalsIgnoreCase(value)) {
+                return constant;
+            }
+        }
+
+        return null;
     }
 }

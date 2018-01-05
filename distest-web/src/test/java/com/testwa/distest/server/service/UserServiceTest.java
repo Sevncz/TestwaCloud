@@ -35,24 +35,26 @@ public class UserServiceTest {
     public void testInsert() throws AccountException, AccountAlreadyExistException {
         long countBefore =userService.count();
         User user = new User();
-        user.setUsername("test");
-        user.setPassword("test");
-        user.setEmail("test@testwa.com");
+        user.setUsername("aaa1");
+        user.setPassword("123456");
+        user.setEmail("aaa1@testwa.com");
         user.setSex(DB.Sex.MALE);
-        userService.save(user);
+        Long id = userService.save(user);
+        System.out.println(id);
         long countAfter =userService.count();
         Assert.assertEquals(++countBefore,countAfter);
     }
 
     @Test
     public void testFindByUserIds() {
-        List<Long> idList = Arrays.asList(new Long[] {1l, 2l});
+        List<Long> idList = Arrays.asList(new Long[] {3l, 5l, 6l});
         List<User> users = userService.findByUserIds(idList);
+        System.out.println(users.toString());
     }
 
     @Test
     public void testFindOne(){
-        User user = userService.findOne(1l);
+        User user = userService.findOne(3l);
         System.out.println(user.toString());
     }
 

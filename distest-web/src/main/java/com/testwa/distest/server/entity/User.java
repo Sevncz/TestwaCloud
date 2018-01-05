@@ -37,4 +37,5 @@ public class User extends BaseEntity {
     private Date updateTime;
     @Column(value = "role", ignore = true)
     private List<Role> roles;
+
 }

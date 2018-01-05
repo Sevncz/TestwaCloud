@@ -9,6 +9,7 @@ import com.testwa.core.base.dao.IBaseDAO;
 import com.testwa.core.base.enums.ValueEnum;
 import com.testwa.core.base.mapper.BaseMapper;
 import com.testwa.core.base.util.ClassUtils;
+import com.testwa.core.base.util.ReflectUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -61,7 +62,7 @@ public class BaseDAO<T extends Entity,ID extends Serializable> implements IBaseD
         Map<String, Object> map = new HashMap<>();
         map.put("__tableName__", tableName);
         map.put("__entityClass__",entityClass);
-        map.put("id", key);
+        map.put("key", key);
         return baseMapper.delete(map);
     }
 
@@ -72,7 +73,7 @@ public class BaseDAO<T extends Entity,ID extends Serializable> implements IBaseD
         map.put("__tableName__", tableName);
         map.put("__entityClass__",entityClass);
         map.put("keys", keys);
-        return baseMapper.deleteAll(map);
+        return baseMapper.delete_all(map);
     }
 
     @Override
@@ -82,29 +83,31 @@ public class BaseDAO<T extends Entity,ID extends Serializable> implements IBaseD
         map.put("__tableName__", tableName);
         map.put("__entityClass__",entityClass);
         Set<Field> fields = ClassUtils.getAllFiled(entityClass);
-        List<String> fieldList = new ArrayList<>();
-        List<Object> valueList = new ArrayList<>();
+//        List<String> fieldList = new ArrayList<>();
+//        List<Object> valueList = new ArrayList<>();
+        Map<String, Object> data = new HashMap<>();
         fields.forEach(f -> {
             try {
                 f.setAccessible(true);
                 if(f.get(entity) != null){
-                    fieldList.add(f.getName());
+//                    fieldList.add(f.getName());
                     if(f.getType().isEnum()){
                         if(ValueEnum.class.isAssignableFrom(f.getType())){
-                            ValueEnum ve = resolveValueEnum(f.get(entity).toString(), (Class<ValueEnum>)f.getType());
+                            ValueEnum ve = ReflectUtil.resolveValueEnum(f.get(entity).toString(), (Class<ValueEnum>)f.getType());
                             if(ve != null){
-                                valueList.add(ve.getValue());
+                                data.put(f.getName(), ve.getValue());
+//                                valueList.add(ve.getValue());
                             }else{
                                 log.error("this value not in enum");
                             }
                         }else{
-
                             log.error("this enum not match ValueEnum");
                         }
                     }else{
                         Column column = f.getAnnotation(Column.class);
                         if(column == null || !column.ignore()){
-                            valueList.add(f.get(entity));
+//                            valueList.add(f.get(entity));
+                            data.put(f.getName(), f.get(entity));
                         }
                     }
                 }
@@ -112,21 +115,11 @@ public class BaseDAO<T extends Entity,ID extends Serializable> implements IBaseD
                 e.printStackTrace();
             }
         });
-        map.put("fields", fieldList);
-        map.put("values", valueList);
+//        map.put("fields", fieldList);
+//        map.put("values", valueList);
+        map.put("data", data);
         long num_of_record_inserted = baseMapper.insert(map);
         return (long) map.get("id");
-    }
-
-    private ValueEnum resolveValueEnum(String value, Class<ValueEnum> type) {
-
-        for (ValueEnum constant : type.getEnumConstants()){
-            if (constant.toString().equalsIgnoreCase(value)) {
-                return constant;
-            }
-        }
-
-        return null;
     }
 
     @Override
@@ -143,7 +136,7 @@ public class BaseDAO<T extends Entity,ID extends Serializable> implements IBaseD
                     if(!"id".equals(f.getName())) {
                         if(f.getType().isEnum()){
                             if(ValueEnum.class.isAssignableFrom(f.getType())){
-                                ValueEnum ve = resolveValueEnum(f.get(entity).toString(), (Class<ValueEnum>)f.getType());
+                                ValueEnum ve = ReflectUtil.resolveValueEnum(f.get(entity).toString(), (Class<ValueEnum>)f.getType());
                                 if(ve != null){
                                     subMap.put(f.getName(), ve.getValue());
                                 }else{
@@ -165,8 +158,8 @@ public class BaseDAO<T extends Entity,ID extends Serializable> implements IBaseD
                 e.printStackTrace();
             }
         });
-        map.put("update", subMap);
-        map.put("id", entity.getId());
+        map.put("data", subMap);
+        map.put("key", entity.getId());
         return baseMapper.update(map);
     }
 
@@ -175,7 +168,7 @@ public class BaseDAO<T extends Entity,ID extends Serializable> implements IBaseD
         Map<String, Object> map = new HashMap<>();
         map.put("__tableName__", tableName);
         map.put("__entityClass__",entityClass);
-        List<T> list =  baseMapper.findList(map);
+        List<T> list =  baseMapper.find_list(map);
         return list;
     }
 
@@ -185,7 +178,7 @@ public class BaseDAO<T extends Entity,ID extends Serializable> implements IBaseD
         map.put("__tableName__", tableName);
         map.put("__entityClass__",entityClass);
         map.put("keys", keys);
-        List<T> list =  baseMapper.findList(map);
+        List<T> list =  baseMapper.find_list(map);
         return list;
     }
 
@@ -195,7 +188,7 @@ public class BaseDAO<T extends Entity,ID extends Serializable> implements IBaseD
         map.put("__tableName__", tableName);
         map.put("__entityClass__",entityClass);
         map.put("key", id);
-        T entity =  (T) baseMapper.findOne(map);
+        T entity =  (T) baseMapper.find_one(map);
         return entity;
     }
 
@@ -205,7 +198,7 @@ public class BaseDAO<T extends Entity,ID extends Serializable> implements IBaseD
         map.put("__tableName__", tableName);
         map.put("__entityClass__",entityClass);
         PageHelper.startPage(pageNum, pageSize);
-        List<T> list =  baseMapper.findList(map);
+        List<T> list =  baseMapper.find_list(map);
         PageInfo<T> pageInfo = new PageInfo<T>(list);
         return pageInfo;
     }
@@ -217,7 +210,7 @@ public class BaseDAO<T extends Entity,ID extends Serializable> implements IBaseD
         map.put("__entityClass__",entityClass);
         PageHelper.startPage(pageNum, pageSize);
         PageHelper.orderBy(orderBy + " " + order );
-        List<T> list =  baseMapper.findList(map);
+        List<T> list =  baseMapper.find_list(map);
         PageInfo<T> pageInfo = new PageInfo<T>(list);
         return pageInfo;
     }
