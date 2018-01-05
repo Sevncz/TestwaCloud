@@ -21,6 +21,12 @@
         id, projectName, description, createTime, updateTime, createBy, updateBy
     </sql>
 
+    <select id="findOne" parameterType="com.testwa.distest.server.entity.Project" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM project
+        WHERE id = #{key}
+    </select>
     <select id="fetchOne" parameterType="com.testwa.distest.server.entity.Project" resultMap="BaseResultMap" >
         SELECT
         project.id, project.projectName, project.description, project.createTime, project.updateTime, project.createBy, project.updateBy, user.id as user_id, user.username, user.email
