@@ -66,7 +66,7 @@ public class DeviceValidatoer {
     public void validateActive(List<String> deviceIds) throws DeviceNotActiveException {
         List<String> devIds = new ArrayList<>();
         deviceIds.forEach(d -> {
-            if(!deviceAuthMgr.isUsing(d)){
+            if(deviceAuthMgr.isUsing(d)){
                 devIds.add(d);
             }
         });

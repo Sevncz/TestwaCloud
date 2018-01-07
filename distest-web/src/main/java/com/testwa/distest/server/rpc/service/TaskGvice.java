@@ -13,6 +13,7 @@ import com.testwa.distest.server.rpc.GRpcService;
 import com.testwa.distest.server.service.cache.mgr.TaskCacheMgr;
 import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.service.user.service.UserService;
+import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
 import com.testwa.distest.server.web.task.execute.ProcedureRedisMgr;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.task.*;
@@ -42,6 +43,8 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     @Autowired
     private TaskCacheMgr taskCacheMgr;
     @Autowired
+    private DeviceAuthMgr deviceAuthMgr;
+    @Autowired
     ApplicationContext context;
     @Autowired
     private ProcedureRedisMgr procedureRedisMgr;
@@ -58,6 +61,9 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
             }
             exeTask.setEndTime(new Date(timestamp));
             taskService.update(exeTask);
+            exeTask.getDevices().forEach(d -> {
+                deviceAuthMgr.releaseDev(d.getDeviceId());
+            });
             context.publishEvent(new GameOverEvent(this, request.getExeId()));
         }else{
             log.error("exeTask info not format. {}", request.toString());

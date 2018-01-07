@@ -6,13 +6,13 @@ import com.github.cosysoft.device.android.AndroidDevice;
 import com.github.cosysoft.device.android.impl.DefaultHardwareDevice;
 import com.testwa.distest.client.ApplicationContextUtil;
 import com.testwa.distest.client.control.client.MainSocket;
+import com.testwa.distest.client.control.event.DeviceConnectedEvent;
 import com.testwa.distest.client.control.event.DeviceDisconnectEvent;
 import com.testwa.distest.client.grpc.Gvice;
 import com.testwa.distest.client.model.TestwaDevice;
 import com.testwa.distest.client.service.GrpcClientService;
 import com.testwa.distest.client.task.TestwaScheduled;
 import io.rpc.testwa.device.Device;
-import io.rpc.testwa.device.NoUsedDeviceRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -48,33 +48,8 @@ public class DeviceChangeListener implements AndroidDebugBridge.IDeviceChangeLis
         }
         if (!contain) {
             connectedDevices.put(device, ad);
-            GrpcClientService service = ApplicationContextUtil.getBeanDetail("grpcClientService");
-            service.createRemoteClient(device);
         }
-    }
-
-    private void sendDeviceMessageToServer(AndroidDevice ad) {
-        TestwaDevice testwaDevice = new TestwaDevice();
-        testwaDevice.setSerial(ad.getSerialNumber());
-        testwaDevice.setBrand(ad.runAdbCommand("shell getprop ro.product.brand"));
-        testwaDevice.setCpuabi(ad.runAdbCommand("shell getprop ro.product.cpu.abi"));
-        testwaDevice.setDensity(ad.getDeviceInfo().getDensity().toString());
-        testwaDevice.setOsName(ad.getDeviceInfo().getOsName());
-        testwaDevice.setWidth(String.valueOf(ad.getScreenSize().getWidth()));
-        testwaDevice.setHeight(String.valueOf(ad.getScreenSize().getHeight()));
-        testwaDevice.setCpuabi(ad.runAdbCommand("shell getprop ro.product.cpu.abi"));
-        testwaDevice.setSdk(ad.runAdbCommand("shell getprop ro.build.version.sdk"));
-        testwaDevice.setHost(ad.runAdbCommand("shell getprop ro.build.host"));
-        testwaDevice.setModel(ad.runAdbCommand("shell getprop ro.product.dto"));
-        testwaDevice.setBrand(ad.runAdbCommand("shell getprop ro.product.brand"));
-        testwaDevice.setVersion(ad.runAdbCommand("shell getprop ro.build.version.release"));
-        if("ONLINE".equals(ad.getDevice().getState().name().toUpperCase())){
-            testwaDevice.setStatus("ON");
-        }else{
-            testwaDevice.setStatus("OFF");
-        }
-        Device message = testwaDevice.toAgentDevice();
-        MainSocket.getSocket().emit("device", message.toByteArray());
+        sendConnectedGrpc(device.getSerialNumber());
     }
 
     @Override
@@ -82,11 +57,15 @@ public class DeviceChangeListener implements AndroidDebugBridge.IDeviceChangeLis
         logger.info("deviceDisconnected {}", device.getSerialNumber());
         AndroidDevice ad = new DefaultHardwareDevice(device);
         connectedDevices.entrySet().removeIf(entry -> entry.getValue().equals(ad));
-//        sendDeviceDisconnectMessage(ad.getDevice().getSerialNumber());
         // 汇报web设备断开
         sendDisconnectGrpc(ad.getDevice().getSerialNumber());
         // 本地清楚缓存设备信息
         TestwaScheduled.a_devices.remove(device.getSerialNumber());
+    }
+
+    @Override
+    public void deviceChanged(IDevice device, int changeMask) {
+        logger.debug(device.getSerialNumber() + " " + changeMask);
     }
 
     private void sendDisconnectGrpc(String deviceId) {
@@ -94,9 +73,10 @@ public class DeviceChangeListener implements AndroidDebugBridge.IDeviceChangeLis
         context.publishEvent(new DeviceDisconnectEvent(this, deviceId));
 
     }
+    private void sendConnectedGrpc(String deviceId) {
+        ApplicationContext context = ApplicationContextUtil.getApplicationContext();
+        context.publishEvent(new DeviceConnectedEvent(this, deviceId));
 
-    @Override
-    public void deviceChanged(IDevice device, int changeMask) {
-        logger.debug(device.getSerialNumber() + " " + changeMask);
     }
+
 }

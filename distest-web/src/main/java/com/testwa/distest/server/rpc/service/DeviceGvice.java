@@ -89,16 +89,46 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     }
 
     @Override
-    public void disconnect(NoUsedDeviceRequest request, StreamObserver<CommonReply> responseObserver) {
+    public void disconnect(DisconnectedRequest request, StreamObserver<CommonReply> responseObserver) {
         log.info("device disconnect, {}", request.getDeviceId());
         deviceAuthMgr.offline(request.getDeviceId());
     }
 
     @Override
-    public void offline(NoUsedDeviceRequest request, StreamObserver<CommonReply> responseObserver) {
+    public void offline(DisconnectedRequest request, StreamObserver<CommonReply> responseObserver) {
         log.info("device offline, {}", request.getDeviceId());
         deviceAuthMgr.offline(request.getDeviceId());
     }
+
+    @Override
+    public void connect(ConnectedRequest request, StreamObserver<CommonReply> responseObserver) {
+        log.info("device connected, {}", request.getDeviceId());
+        String username = jwtTokenUtil.getUsernameFromToken(request.getToken());
+        User user = userService.findByUsername(username);
+        DeviceAndroid deviceAndroid = new DeviceAndroid();
+        deviceAndroid.setBrand(request.getBrand());
+        deviceAndroid.setCpuabi(request.getCpuabi());
+        deviceAndroid.setDensity(request.getDensity());
+        deviceAndroid.setDeviceId(request.getDeviceId());
+        deviceAndroid.setHeight(request.getHeight());
+        deviceAndroid.setHost(request.getHost());
+        deviceAndroid.setModel(request.getModel());
+        deviceAndroid.setOsName(request.getOsName());
+        deviceAndroid.setOsVersion(request.getVersion());
+        deviceAndroid.setSdk(request.getSdk());
+        deviceAndroid.setWidth(request.getWidth());
+        deviceAndroid.setLastUserId(user.getId());
+        deviceAndroid.setLastUserToken(request.getToken());
+        deviceAndroid.setOnlineStatus(DB.PhoneOnlineStatus.ONLINE);
+        Device deviceBase = deviceService.findByDeviceId(request.getDeviceId());
+        if(deviceBase == null){
+            deviceService.insertAndroid(deviceAndroid);
+        }else{
+            deviceService.updateAndroid(deviceAndroid);
+        }
+        deviceAuthMgr.online(request.getDeviceId());
+    }
+
 
     @Override
     public void logcat(LogcatRequest request, StreamObserver<CommonReply> responseObserver) {

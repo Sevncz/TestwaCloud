@@ -73,10 +73,7 @@ public class DeviceController extends BaseController {
     @ApiImplicitParam(name = "form", value = "分页查询列表", required = true, dataType = "DeviceListForm")
     @ResponseBody
     @GetMapping(value = "/enable/page")
-    public Result porjectEnablePage(@Valid DeviceListForm form) throws ObjectNotExistsException, AuthorizedException {
-//        projectValidator.validateProjectExist(form.getProjectId());
-//        User user = userService.findByUsername(getCurrentUsername());
-//        projectValidator.validateUserIsProjectMember(form.getProjectId(), user.getId());
+    public Result enablePage(@Valid DeviceListForm form) throws ObjectNotExistsException, AuthorizedException {
         Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
         if(deviceIds.size() == 0 ){
             return ok(new PageResult<>(Arrays.asList(), 0));
@@ -93,11 +90,8 @@ public class DeviceController extends BaseController {
     @ApiOperation(value="查看用户可见的在线设备列表", notes = "设备目前所有人均可见")
     @ResponseBody
     @GetMapping(value = "/enable/list")
-    public Result porjectEnableList(@Valid DeviceListForm form) throws AccountException, ObjectNotExistsException, AuthorizedException {
-//        projectValidator.validateProjectExist(form.getProjectId());
-//        User user = userService.findByUsername(getCurrentUsername());
-//        projectValidator.validateUserIsProjectMember(form.getProjectId(), user.getId());
-        Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
+    public Result enableList(@Valid DeviceListForm form) throws AccountException, ObjectNotExistsException, AuthorizedException {
+        Set<String> deviceIds = deviceAuthMgr.allEnableDevices();
         if(deviceIds.size() == 0 ){
             return ok(Arrays.asList());
         }

@@ -3,15 +3,22 @@ package com.testwa.distest.client.web.startup;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.github.cosysoft.device.android.AndroidDevice;
+import com.github.cosysoft.device.shell.ShellCommandException;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.distest.client.appium.utils.Config;
 import com.testwa.distest.client.control.client.MainSocket;
 import com.testwa.distest.client.control.client.boost.MessageCallback;
+import com.testwa.distest.client.grpc.Gvice;
+import com.testwa.distest.client.model.TestwaDevice;
 import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.service.GrpcClientService;
 import com.testwa.distest.client.service.HttpService;
 import com.testwa.distest.client.util.Constant;
+import io.rpc.testwa.device.Device;
+import io.rpc.testwa.device.DevicesRequest;
+import lombok.extern.java.Log;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
@@ -26,14 +33,17 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by wen on 16/8/27.
  */
+@Log4j2
 @Component
 public class TestwaEnvCheck implements CommandLineRunner {
-    private static Logger log = LoggerFactory.getLogger(TestwaEnvCheck.class);
 
     @Autowired
     private Environment env;
@@ -42,7 +52,6 @@ public class TestwaEnvCheck implements CommandLineRunner {
     private HttpService httpService;
     @Autowired
     private GrpcClientService gClientService;
-
     @Autowired
     @Qualifier("startRemoteClientCallbackImpl")
     private MessageCallback startRemoteClientCB;
@@ -92,6 +101,7 @@ public class TestwaEnvCheck implements CommandLineRunner {
                             TreeSet<AndroidDevice> androidDevices = AndroidHelper.getInstance().getAllDevices();
                             for(AndroidDevice ad : androidDevices) {
                                 gClientService.createRemoteClient(ad.getDevice());
+                                gClientService.initDevice(ad);
                             }
 
                         } else {

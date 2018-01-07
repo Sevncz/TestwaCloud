@@ -99,6 +99,9 @@ public class DeviceAuthMgr {
     public Boolean isUsing(String deviceId){
         return redisCacheMgr.sIsMember(USING, deviceId);
     }
+    public void releaseDev(String deviceId) {
+        redisCacheMgr.sRem(USING, deviceId);
+    }
 
     /**
      * 保存在线设备Id
@@ -113,6 +116,10 @@ public class DeviceAuthMgr {
 //        deviceService.updateStatus(deviceId, DB.PhoneOnlineStatus.OFFLINE);
     }
     public Set<String> allOnlineDevices() {
+        return redisCacheMgr.sMembers(ONLINE);
+    }
+
+    public Set<String> allEnableDevices() {
         return redisCacheMgr.sMembers(ONLINE);
     }
 
@@ -133,4 +140,5 @@ public class DeviceAuthMgr {
 
         redisCacheMgr.sInterStore(USING, USING, ONLINE);
     }
+
 }

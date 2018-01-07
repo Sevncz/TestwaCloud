@@ -15,8 +15,9 @@ service ControlService {
 
 service DeviceService {
     rpc all (DevicesRequest) returns ( CommonReply ) {}
-    rpc disconnect (NoUsedDeviceRequest) returns ( CommonReply ) {}
-    rpc offline (NoUsedDeviceRequest) returns ( CommonReply ) {}
+    rpc connect (ConnectedRequest) returns ( CommonReply ) {}
+    rpc disconnect (DisconnectedRequest) returns ( CommonReply ) {}
+    rpc offline (DisconnectedRequest) returns ( CommonReply ) {}
     rpc logcat(LogcatRequest) returns ( CommonReply ) {}
     rpc screen(ScreenCaptureRequest) returns ( CommonReply ) {}
 }
@@ -49,7 +50,7 @@ message DevicesRequest {
 }
 
 
-message NoUsedDeviceRequest {
+message DisconnectedRequest {
 
     string deviceId = 1;
     enum LineStatus {
@@ -57,6 +58,23 @@ message NoUsedDeviceRequest {
         DISCONNECTED = 1;
     }
     LineStatus status = 2;
+
+}
+
+message ConnectedRequest {
+
+    string deviceId = 1;
+    string cpuabi = 3; // armeabi-v7a
+    string sdk = 4; // 23
+    string width = 5;
+    string height = 6;
+    string osName = 7; // 设备系统 ANDROID23(6.0)
+    string density = 8; // 密度
+    string model = 9; // 型号  Nexus 6
+    string brand = 10; // 品牌 google
+    string version = 11; // 系统版本 6.0.1
+    string host = 12; // vpba27.mtv.corp.google.com
+    string token = 13;
 
 }
 

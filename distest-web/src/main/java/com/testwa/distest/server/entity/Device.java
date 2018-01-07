@@ -1,5 +1,6 @@
 package com.testwa.distest.server.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.testwa.core.base.annotation.TableName;
 import com.testwa.core.base.bo.BaseEntity;
 import com.testwa.distest.common.enums.DB;
@@ -29,6 +30,7 @@ public class Device extends BaseEntity {
     private String brand; // 品牌 google
 
     private Long lastUserId;
+    @JsonIgnore
     private String lastUserToken;
 
     private List<DeviceAuth> deviceAuths;

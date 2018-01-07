@@ -11,6 +11,7 @@ import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
 import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
 import com.testwa.distest.server.web.task.execute.ProcedureRedisMgr;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -89,9 +90,11 @@ public class TestwaScheduledRunner {
         Set<String> onlineDevices = deviceAuthMgr.allOnlineDevices();
         onlineDevices.forEach( d -> {
             String sessionId = deviceSessionMgr.getDeviceSession(d);
-            SocketIOClient client = server.getClient(UUID.fromString(sessionId));
-            if(client == null){
-                deviceAuthMgr.offline(d);
+            if(StringUtils.isNotEmpty(sessionId)){
+                SocketIOClient client = server.getClient(UUID.fromString(sessionId));
+                if(client == null){
+                    deviceAuthMgr.offline(d);
+                }
             }
         });
         deviceAuthMgr.mergeOnline();

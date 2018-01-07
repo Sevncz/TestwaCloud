@@ -1,6 +1,7 @@
 package com.testwa.distest.server.web.task.execute;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.base.Preconditions;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.utils.TimeUtil;
 import com.testwa.distest.common.enums.DB;
@@ -74,6 +75,11 @@ public class ExecuteMgr {
      */
     @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public void start(TaskStartByTestcaseForm form) throws ObjectNotExistsException {
+        Preconditions.checkNotNull(form.getAppId(), "数据非法");
+        Preconditions.checkNotNull(form.getCaseIds(), "数据非法");
+        Preconditions.checkNotNull(form.getProjectId(), "数据非法");
+        Preconditions.checkNotNull(form.getSceneName(), "数据非法");
+        Preconditions.checkNotNull(form.getDeviceIds(), "数据非法");
         log.info(form.toString());
         Long taskSceneId = taskSceneService.save(form);
         TaskStartForm startForm = new TaskStartForm();
@@ -141,6 +147,8 @@ public class ExecuteMgr {
     }
 
     public void start(TaskStartForm form) throws ObjectNotExistsException {
+        Preconditions.checkNotNull(form.getTaskSceneId(), "数据非法");
+        Preconditions.checkNotNull(form.getDeviceIds(), "数据非法");
         log.info(form.toString());
         TaskScene ts = taskSceneService.fetchOne(form.getTaskSceneId());
 

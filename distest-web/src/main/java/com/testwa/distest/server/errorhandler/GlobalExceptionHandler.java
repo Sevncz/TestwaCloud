@@ -80,6 +80,16 @@ class GlobalExceptionHandler {
         return r;
     }
 
+    @ExceptionHandler(value = DeviceNotActiveException.class)
+    @ResponseBody
+    public Result handleDeviceNotActiveExceptions(HttpServletRequest req, Exception e) throws Exception {
+        Result<String> r = new Result<>();
+        r.setCode(ResultCode.PARAM_ERROR.getValue());
+        r.setMessage(e.getMessage());
+        r.setUrl(req.getRequestURL().toString());
+        return r;
+    }
+
     @ExceptionHandler(value = DBException.class)
     @ResponseBody
     public Result handleDBExceptions(HttpServletRequest req, Exception e) throws Exception {
