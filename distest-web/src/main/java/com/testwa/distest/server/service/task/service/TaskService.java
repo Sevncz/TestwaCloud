@@ -1,5 +1,8 @@
 package com.testwa.distest.server.service.task.service;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.utils.TimeUtil;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.*;
@@ -7,15 +10,21 @@ import com.testwa.distest.server.mvc.model.ProcedureInfo;
 import com.testwa.distest.server.mvc.model.ProcedureStatis;
 import com.testwa.distest.server.mvc.repository.ProcedureInfoRepository;
 import com.testwa.distest.server.mvc.repository.ProcedureStatisRepository;
+import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.service.task.dao.ITaskDAO;
+import com.testwa.distest.server.service.task.form.TaskListForm;
+import com.testwa.distest.server.service.task.form.TaskSceneListForm;
 import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+
+import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 
 /**
  * Created by wen on 24/10/2017.
@@ -27,6 +36,8 @@ public class TaskService {
 
     @Autowired
     private ITaskDAO taskDAO;
+    @Autowired
+    private ProjectService projectService;
     @Autowired
     private ProcedureStatisRepository procedureStatisRepository;
     @Autowired
@@ -223,4 +234,56 @@ public class TaskService {
 
         return result;
     }
+
+    /**
+     * 获得当前登录用户可见的所有任务列表
+     * @param pageForm
+     * @return
+     */
+    public PageResult<Task> findPageForCurrentUser(TaskListForm pageForm) {
+
+        Map<String, Object> params = buildQueryParams(pageForm);
+        //分页处理
+        PageHelper.startPage(pageForm.getPageNo(), pageForm.getPageSize());
+        PageHelper.orderBy(pageForm.getOrderBy() + " " + pageForm.getOrder());
+        List<Task> entityList = taskDAO.findByFromProject(params);
+        PageInfo<Task> info = new PageInfo(entityList);
+        PageResult<Task> pr = new PageResult<>(info.getList(), info.getTotal());
+        return pr;
+    }
+
+    private Map<String, Object> buildQueryParams(TaskListForm queryForm) {
+        List<Project> projects = projectService.findAllByUserList(getCurrentUsername());
+        Map<String, Object> params = new HashMap<>();
+        if(queryForm.getProjectId() != null){
+            params.put("projectId", queryForm.getProjectId());
+        }
+        if(StringUtils.isNotEmpty(queryForm.getTaskName())){
+            params.put("taskName", queryForm.getTaskName());
+        }
+        if(projects != null){
+            params.put("projects", projects);
+        }
+        return params;
+    }
+
+
+    /**
+     * 获得当前登录用户可见的所有任务列表
+     * @param pageForm
+     * @return
+     */
+    public PageResult<Task> findPageForCreateUser(TaskListForm pageForm, Long userId) {
+
+        Map<String, Object> params = buildQueryParams(pageForm);
+        params.put("createBy", userId);
+        //分页处理
+        PageHelper.startPage(pageForm.getPageNo(), pageForm.getPageSize());
+        PageHelper.orderBy(pageForm.getOrderBy() + " " + pageForm.getOrder());
+        List<Task> entityList = taskDAO.findByFromProject(params);
+        PageInfo<Task> info = new PageInfo(entityList);
+        PageResult<Task> pr = new PageResult<>(info.getList(), info.getTotal());
+        return pr;
+    }
+
 }

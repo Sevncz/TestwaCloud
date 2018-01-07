@@ -88,6 +88,8 @@ public class ExecuteMgr {
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         Task task = new Task();
         task.setTaskSceneId(form.getTaskSceneId());
+        task.setProjectId(app.getProjectId());
+        task.setAppId(app.getId());
         task.setAppJson(JSON.toJSONString(app));
         List<Long> allscriptId = new ArrayList<>();
         List<Script> allscript = new ArrayList<>();

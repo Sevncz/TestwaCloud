@@ -1,18 +1,24 @@
 package com.testwa.distest.server.web.task.controller;
 
 import com.testwa.core.base.controller.BaseController;
+import com.testwa.core.base.exception.AuthorizedException;
 import com.testwa.core.base.exception.ObjectNotExistsException;
+import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.base.vo.Result;
+import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.entity.DeviceAndroid;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.Task;
 import com.testwa.core.utils.TimeUtil;
 import com.testwa.core.base.constant.WebConstants;
+import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.mvc.model.ProcedureInfo;
 import com.testwa.distest.server.mvc.model.ProcedureStatis;
 import com.testwa.distest.server.mvc.service.ProcedureInfoService;
 import com.testwa.distest.server.service.task.form.TaskListForm;
 import com.testwa.distest.server.service.task.service.TaskService;
+import com.testwa.distest.server.service.user.service.UserService;
+import com.testwa.distest.server.web.project.validator.ProjectValidator;
 import com.testwa.distest.server.web.task.validator.TaskValidatoer;
 import com.testwa.distest.server.web.task.validator.TaskSceneValidatoer;
 import io.swagger.annotations.Api;
@@ -39,11 +45,15 @@ public class ReportController extends BaseController {
     @Autowired
     private TaskService taskService;
     @Autowired
+    private UserService userService;
+    @Autowired
     private TaskSceneValidatoer taskSceneValidatoer;
     @Autowired
     private TaskValidatoer taskValidatoer;
     @Autowired
     private ProcedureInfoService procedureInfoService;
+    @Autowired
+    private ProjectValidator projectValidator;
 
     @ApiOperation(value="任务统计")
     @ResponseBody
@@ -57,11 +67,29 @@ public class ReportController extends BaseController {
     }
 
 
-    @ApiOperation(value="任务分页列表", notes="")
+    @ApiOperation(value="登录用户可见的任务分页列表", notes="")
     @ResponseBody
     @GetMapping(value = "/page")
-    public Result page(@Valid TaskListForm form) {
-        return ok();
+    public Result page(@Valid TaskListForm pageForm) {
+
+        PageResult<Task> taskPR = taskService.findPageForCurrentUser(pageForm);
+
+        return ok(taskPR);
+    }
+
+    @ApiOperation(value="登录用户执行的任务列表", notes="")
+    @ResponseBody
+    @GetMapping(value = "/my/page")
+    public Result myTaskPage(@Valid TaskListForm pageForm) throws AuthorizedException {
+
+        User user = userService.findByUsername(WebUtil.getCurrentUsername());
+        if(pageForm.getProjectId() != null){
+            projectValidator.validateUserIsProjectMember(pageForm.getProjectId(), user.getId());
+        }
+
+        PageResult<Task> taskPR = taskService.findPageForCreateUser(pageForm, user.getId());
+
+        return ok(taskPR);
     }
 
 }
