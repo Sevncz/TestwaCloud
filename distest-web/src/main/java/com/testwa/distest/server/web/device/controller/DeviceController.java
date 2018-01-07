@@ -99,7 +99,7 @@ public class DeviceController extends BaseController {
 //        projectValidator.validateUserIsProjectMember(form.getProjectId(), user.getId());
         Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
         if(deviceIds.size() == 0 ){
-            return ok(new PageResult<>(Arrays.asList(), 0));
+            return ok(Arrays.asList());
         }
         List<Device> deviceList = deviceService.findByDeviceIds(deviceIds, form);
         return ok(deviceList);
@@ -111,7 +111,7 @@ public class DeviceController extends BaseController {
     public Result myList() {
         Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
         if(deviceIds.size() == 0 ){
-            return ok(new PageResult<>(Arrays.asList(), 0));
+            return ok(Arrays.asList());
         }
         User user = userService.findByUsername(getCurrentUsername());
         List<Device> deviceList = deviceService.fetchList(user.getId(), deviceIds);

@@ -127,8 +127,8 @@ public class Minicap {
             BIN = Constant.MINICAP_NOPIE;
         }
 
-        String minicapBinPath = Paths.get(resourcesPath, Constant.getMinicapBin(), abi, BIN).toAbsolutePath().toString();
-        String minicapSoPath = Paths.get(resourcesPath, Constant.getMinicapSo(), "android-" + sdk, abi, Constant.MINICAP_SO).toAbsolutePath().toString();
+        String minicapBinPath = resourcesPath + File.separator + Constant.getMinicapBin() + File.separator + abi + File.separator + BIN;
+        String minicapSoPath = resourcesPath + File.separator + Constant.getMinicapSo() + File.separator + "android-" + sdk + File.separator + abi  + File.separator + Constant.MINICAP_SO;
 
         // Create a directory for minicap resources
         AndroidHelper.getInstance().executeShellCommand(device, MINICAP_DIR_COMMAND);
