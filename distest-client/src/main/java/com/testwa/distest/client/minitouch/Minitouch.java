@@ -31,6 +31,7 @@ public class Minitouch {
     private List<MinitouchListener> listenerList = new ArrayList<MinitouchListener>();
 
     private IDevice device;
+    private String resourcesPath;
     private Thread minitouchThread, minitouchInitialThread;
     private Socket minitouchSocket;
     private OutputStream minitouchOutputStream;
@@ -38,7 +39,7 @@ public class Minitouch {
     private AdbForward forward;
     private static String BIN = "";
 
-    public static void installMinitouch(IDevice device) throws MinitouchInstallException {
+    public static void installMinitouch(IDevice device, String resourcesPath) throws MinitouchInstallException {
         if (device == null) {
             throw new MinitouchInstallException("device can't be null");
         }
@@ -59,7 +60,7 @@ public class Minitouch {
             BIN = Constant.MINITOUCH_NOPIE;
         }
 
-        File minitouch_bin = Constant.getMinitouchBin(abi, BIN);
+        File minitouch_bin = new File(resourcesPath + File.separator + Constant.getMinitouchBin(abi, BIN));
         if (!minitouch_bin.exists()) {
             throw new MinitouchInstallException("File: " + minitouch_bin.getAbsolutePath() + " not exists!");
         }
@@ -72,18 +73,25 @@ public class Minitouch {
         AndroidHelper.getInstance().executeShellCommand(device, "chmod 777 " + Constant.MINITOUCH_DIR + "/" + BIN);
     }
 
-    public Minitouch(IDevice device) {
+    public Minitouch(IDevice device, String resourcesPath) {
         this.device = device;
-
-        try {
-            installMinitouch(device);
-        } catch (MinitouchInstallException e) {
-            e.printStackTrace();
+        this.resourcesPath = resourcesPath;
+        int install = 0;
+        while(install <= 3){
+            try {
+                installMinitouch(device, resourcesPath);
+                Thread.sleep(1000);
+                break;
+            } catch (MinitouchInstallException e) {
+                install++;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    public Minitouch(String serialNumber) {
-        this(AndroidHelper.getInstance().getAndroidDevice(serialNumber).getDevice());
+    public Minitouch(String serialNumber, String resourcesPath) {
+        this(AndroidHelper.getInstance().getAndroidDevice(serialNumber).getDevice(), resourcesPath);
     }
 
     public void addEventListener(MinitouchListener listener) {

@@ -1,8 +1,12 @@
 package com.testwa.distest.client.util;
 
+import lombok.extern.log4j.Log4j2;
+
 import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
+@Log4j2
 public class Constant {
 
     // CPU架构的种类
@@ -28,17 +32,17 @@ public class Constant {
 	public static final String APP_URL = "%s/download/app/%s";
 	public static final String SCRIPT_URL = "%s/download/script/%s";
 
-	public static final String localAppPath = Paths.get(System.getProperty("java.io.tmpdir"), "testwa_agent", "app").toString();
-	public static final String localScriptPath = Paths.get(System.getProperty("java.io.tmpdir"), "testwa_agent", "script").toString();
-	public static final String localScriptTmpPath = Paths.get(System.getProperty("java.io.tmpdir"), "testwa_agent", "script_tmp").toString();
+	public static final String localAppPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "app").toString();
+	public static final String localScriptPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "script").toString();
+	public static final String localScriptTmpPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "script_tmp").toString();
 
-	public static final String localAppiumLogPath = Paths.get(System.getProperty("java.io.tmpdir"), "testwa_agent", "appium").toString();
-	public static final String localScreenshotPath = Paths.get(System.getProperty("java.io.tmpdir"), "testwa_agent", "screenshot").toString();
-	public static final String localLogcatPath = Paths.get(System.getProperty("java.io.tmpdir"), "testwa_agent", "logcat").toString();
+	public static final String localAppiumLogPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "appium").toString();
+	public static final String localScreenshotPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "screenshot").toString();
+	public static final String localLogcatPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "logcat").toString();
 
 
-    public static File getMinitouchBin(String abi, String bin) {
-        return new File(Constant.class.getResource(File.separator + "minitouch" + File.separator + abi + File.separator + bin).getPath());
+    public static String getMinitouchBin(String abi, String bin) {
+        return File.separator + "minitouch" + File.separator + abi + File.separator + bin;
     }
 
     public static File getTmpFile(String fileName) {
@@ -51,18 +55,16 @@ public class Constant {
         return new File(tmp, fileName);
     }
 
-	public static File getMinicap() {
-		return new File(Constant.class.getResource(File.separator + "minicap").getPath());
+	public static String getMinicap() {
+		return File.separator + "minicap";
 	}
 
 	public static String getMinicapBin() {
-//		return new File(Constant.class.getResource(File.separator + "minicap" + File.separator + "libs").getPath());
-		return Constant.class.getResource(File.separator + "minicap" + File.separator + "libs").getPath();
+		return File.separator + "minicap" + File.separator + "libs";
 	}
 
 	public static String getMinicapSo() {
-//		return new File(Constant.class.getResource(File.separator + "minicap" + File.separator + "shared").getPath());
-		return Constant.class.getResource(File.separator + "minicap" + File.separator + "shared").getPath();
+		return File.separator + "minicap" + File.separator + "shared";
 	}
 
 }

@@ -10,6 +10,7 @@ import com.testwa.core.utils.Common;
 import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.distest.client.android.util.*;
 import com.testwa.distest.client.control.port.ScreenPortProvider;
+import com.testwa.distest.client.minitouch.MinitouchInstallException;
 import com.testwa.distest.client.util.Constant;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -38,6 +39,7 @@ public class Minicap {
     private Banner banner = new Banner();
     private Socket minicapSocket;
     private IDevice device;
+    private String resourcesPath;
     // 物理屏幕宽高
     private Size deviceSize;
     private AdbForward forward;
@@ -56,13 +58,21 @@ public class Minicap {
     // listener
     private List<MinicapListener> listenerList = new ArrayList<MinicapListener>();
 
-    public Minicap(IDevice device) {
+    public Minicap(IDevice device, String resourcesPath) {
         this.device = device;
+        this.resourcesPath = resourcesPath;
 
-        try {
-            installMinicap(device);
-        } catch (MinicapInstallException e) {
-            e.printStackTrace();
+        int install = 0;
+        while(install <= 3){
+            try {
+                installMinicap(device, resourcesPath);
+                Thread.sleep(1000);
+                break;
+            } catch (MinicapInstallException e) {
+                install++;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         // 获取设备屏幕的尺寸
@@ -75,8 +85,8 @@ public class Minicap {
         }
     }
 
-    public Minicap(String serialNumber){
-        this(AndroidHelper.getInstance().getAndroidDevice(serialNumber).getDevice());
+    public Minicap(String serialNumber, String resourcesPath){
+        this(AndroidHelper.getInstance().getAndroidDevice(serialNumber).getDevice(), resourcesPath);
     }
 
     //判断是否支持minicap
@@ -99,7 +109,7 @@ public class Minicap {
     /**
      * 将minicap的二进制和.so文件push到/data/local/tmp文件夹下，启动minicap服务
      */
-    private static void installMinicap(IDevice device) throws MinicapInstallException{
+    private static void installMinicap(IDevice device, String resourcesPath) throws MinicapInstallException{
 
         String abi = device.getProperty(Constant.PROP_ABI);
         String sdk = device.getProperty(Constant.PROP_SDK);
@@ -117,8 +127,8 @@ public class Minicap {
             BIN = Constant.MINICAP_NOPIE;
         }
 
-        String minicapBinPath = Paths.get(Constant.getMinicapBin(), abi, BIN).toAbsolutePath().toString();
-        String minicapSoPath = Paths.get(Constant.getMinicapSo(), "android-" + sdk, abi, Constant.MINICAP_SO).toAbsolutePath().toString();
+        String minicapBinPath = Paths.get(resourcesPath, Constant.getMinicapBin(), abi, BIN).toAbsolutePath().toString();
+        String minicapSoPath = Paths.get(resourcesPath, Constant.getMinicapSo(), "android-" + sdk, abi, Constant.MINICAP_SO).toAbsolutePath().toString();
 
         // Create a directory for minicap resources
         AndroidHelper.getInstance().executeShellCommand(device, MINICAP_DIR_COMMAND);

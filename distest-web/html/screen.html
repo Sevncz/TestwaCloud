@@ -44,7 +44,7 @@ var BLANK_IMG =
 var canvas = document.getElementById('phone-screen')
   , g = canvas.getContext('2d')
 
-var socket = io('http://localhost:9092?func=screen&deviceId=b15d91f&type=browser&token=eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjVsKwjAURPcy3wn0JmlMshUpkscVIlpLmoIg7t0W_PDvwBzmvLFuCQGxPOoMgW3ldqkF4SSQG8fOO9NIhrTy2hORwJqfCyOcJwF-Lb_ZDKS9QI3939-NOab7cdLbxgK3Xo-aUVxssdI6RdJ4rWWKOsloXXHXQWVvR3y-AAAA__8.bA0z8-9B67OuCOriA1a4SvqI8drVg6MaThvMUx7kgf8');
+var socket = io('http://localhost:9092?func=screen&deviceId=b15d91f&type=browser&token=eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjVsKwjAURPcy3wnkpknbdCsiksctRLSWJgFB3LvxQ_DvwBzmvFBawAKf7nmDQCt8XHLCMgnEg33lzmTJDkSDnienBEp87IzldBbg5_6bZ6tngezrv9-NzYfb96QejQWuNffaatgPLq5SaUvSpKCkU87IURud0khTdAHvDwAAAP__.1LHQFe-5g4wkxASFcd-JoM7a-nqwPsTwSQSWEE6thDc');
 socket.on('connect', function(){
     util.serverConnected = true
 });

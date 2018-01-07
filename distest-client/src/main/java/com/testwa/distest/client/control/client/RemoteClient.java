@@ -43,16 +43,20 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
     private Socket ws;
     private Channel channel;
 
+    private String resourcesPath;  // minicap和minitouch存放的路径
+
     Minicap minicap = null;
     Minitouch minitouch = null;
 
-    public RemoteClient(String url, String controller, String serialNumber, String webHost, int webPort, Channel channel) throws IOException, URISyntaxException {
+    public RemoteClient(String url, String controller, String serialNumber, String webHost, int webPort, Channel channel, String resourcesPath) throws IOException, URISyntaxException {
         log.info("Remote Client init");
         this.url = url;
         this.controller = controller;
         this.webHost = webHost;
         this.webPort = webPort;
         this.serialNumber = serialNumber;
+
+        this.resourcesPath = resourcesPath;
 
         this.channel = channel;
 
@@ -278,7 +282,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         if (scale < 0.01) {scale = 0.01f;}
         if (scale > 1.0) {scale = 1.0f;}
         if (rotate == null) { rotate = 0.0f; }
-        Minicap minicap = new Minicap(serialNumber);
+        Minicap minicap = new Minicap(serialNumber, resourcesPath);
         minicap.addEventListener(this);
         minicap.start(scale, rotate.intValue());
         this.minicap = minicap;
@@ -290,7 +294,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
             minitouch.kill();
         }
 
-        Minitouch minitouch = new Minitouch(serialNumber);
+        Minitouch minitouch = new Minitouch(serialNumber, resourcesPath);
         minitouch.addEventListener(this);
         minitouch.start();
         this.minitouch = minitouch;
