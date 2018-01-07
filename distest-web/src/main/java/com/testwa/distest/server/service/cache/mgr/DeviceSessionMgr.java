@@ -21,6 +21,7 @@ public class DeviceSessionMgr {
     }
 
     public void login(String deviceId, String sessionId){
+        log.info("device【" + deviceId + "】login ... ...");
         redisCacheMgr.put(getKey(deviceId), sessionId);
     }
 
