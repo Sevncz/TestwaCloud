@@ -1,0 +1,1 @@
+package com.testwa.distest.server.service.user.form;import com.testwa.core.base.form.RequestFormBase;import lombok.Data;import org.hibernate.validator.constraints.NotEmpty;import javax.validation.constraints.NotNull;@Datapublic class UserQueryForm extends RequestFormBase {    public String username;    public String email;    public String phone;}

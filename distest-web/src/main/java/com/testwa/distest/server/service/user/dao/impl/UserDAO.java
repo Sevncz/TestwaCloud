@@ -4,7 +4,6 @@ import com.testwa.core.base.dao.impl.BaseDAO;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.mapper.UserMapper;
 import com.testwa.distest.server.service.user.dao.IUserDAO;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
@@ -38,5 +37,10 @@ public class UserDAO extends BaseDAO<User, Long> implements IUserDAO {
     @Override
     public List<User> findByEmails(List<String> emails) {
         return userMapper.findByEmailList(emails);
+    }
+
+    @Override
+    public List<User> query(User userPart) {
+        return userMapper.query(userPart);
     }
 }

@@ -13,6 +13,7 @@ import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.user.dao.IUserDAO;
 import com.testwa.distest.server.service.user.form.RegisterForm;
+import com.testwa.distest.server.service.user.form.UserQueryForm;
 import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -135,5 +136,17 @@ public class UserService {
         PageInfo info = new PageInfo(userList);
         PageResult<User> pr = new PageResult<>(info.getList(), info.getTotal());
         return pr;
+    }
+
+
+    /**
+     * 返回匹配的前十
+     * @param form
+     * @return
+     */
+    public List<User> queryUser(UserQueryForm form) {
+        User query = new User();
+        query.setUsername(form.getUsername());
+        return userDAO.query(query);
     }
 }

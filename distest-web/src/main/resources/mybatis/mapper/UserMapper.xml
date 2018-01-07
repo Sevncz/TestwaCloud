@@ -77,4 +77,16 @@
         </trim>
     </select>
 
+    <select id="query" parameterType="com.testwa.distest.server.entity.User" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM user
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            and enabled = 1
+            <if test="username != null">and username LIKE CONCAT('%', #{username}, '%')</if>
+        </trim>
+        order by username
+        limit 10
+    </select>
+
 </mapper>
