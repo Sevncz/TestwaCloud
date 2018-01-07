@@ -2,6 +2,7 @@ package com.testwa.distest.server.web.task.execute;
 
 import com.alibaba.fastjson.JSON;
 import com.testwa.core.base.exception.ObjectNotExistsException;
+import com.testwa.core.utils.TimeUtil;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.core.cmd.RemoteRunCommand;
 import com.testwa.core.cmd.RemoteTestcaseContent;
@@ -91,6 +92,10 @@ public class ExecuteMgr {
         task.setProjectId(app.getProjectId());
         task.setAppId(app.getId());
         task.setAppJson(JSON.toJSONString(app));
+
+        TaskScene scene = taskSceneService.findOne(form.getTaskSceneId());
+        String sceneName = scene.getSceneName();
+        task.setTaskName(String.format("%s_%s", sceneName, TimeUtil.getTimestampForFile()));
         List<Long> allscriptId = new ArrayList<>();
         List<Script> allscript = new ArrayList<>();
         List<Testcase> alltestcase = new ArrayList<>();
