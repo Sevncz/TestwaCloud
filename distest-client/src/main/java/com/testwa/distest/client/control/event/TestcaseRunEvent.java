@@ -1,4 +1,4 @@
-package com.testwa.distest.client.control.client.task;
+package com.testwa.distest.client.control.event;
 
 import com.testwa.core.cmd.RemoteRunCommand;
 import lombok.Data;

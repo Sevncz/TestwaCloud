@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.testwa.core.cmd.RemoteRunCommand;
 import com.testwa.distest.client.control.client.boost.MessageCallback;
 import com.testwa.distest.client.control.client.boost.MessageException;
-import com.testwa.distest.client.control.client.task.TestcaseRunEvent;
+import com.testwa.distest.client.control.event.TestcaseRunEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;

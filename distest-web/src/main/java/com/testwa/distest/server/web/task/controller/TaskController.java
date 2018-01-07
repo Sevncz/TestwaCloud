@@ -2,6 +2,7 @@ package com.testwa.distest.server.web.task.controller;
 
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.AuthorizedException;
+import com.testwa.core.base.exception.DeviceNotActiveException;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.base.vo.Result;
 import com.testwa.distest.common.enums.DB;
@@ -72,10 +73,11 @@ public class TaskController extends BaseController {
     @ApiOperation(value="执行一个任务场景")
     @ResponseBody
     @PostMapping(value = "/scene/run")
-    public Result run(@RequestBody TaskStartForm form) throws ObjectNotExistsException, AuthorizedException {
+    public Result run(@RequestBody TaskStartForm form) throws ObjectNotExistsException, AuthorizedException, DeviceNotActiveException {
 
         TaskScene scene = taskSceneValidatoer.validateTaskSceneExist(form.getTaskSceneId());
         deviceValidatoer.validateOnline(form.getDeviceIds());
+        deviceValidatoer.validateActive(form.getDeviceIds());
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         projectValidator.validateUserIsProjectMember(scene.getProjectId(), user.getId());
 

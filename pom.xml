@@ -27,7 +27,7 @@
         <module>distest-client</module>
         <module>distest-web</module>
         <module>distest-data</module>
-        <module>distest-device</module>
+        <module>distest-dm</module>
         <module>distest-report</module>
         <module>distest-account</module>
         <module>distest-message</module>

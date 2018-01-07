@@ -37,8 +37,6 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
 
     private String url;
     private String controller;
-    private String webHost;
-    private Integer webPort;
     private String serialNumber;
     private Socket ws;
     private Channel channel;
@@ -48,12 +46,10 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
     Minicap minicap = null;
     Minitouch minitouch = null;
 
-    public RemoteClient(String url, String controller, String serialNumber, String webHost, int webPort, Channel channel, String resourcesPath) throws IOException, URISyntaxException {
+    public RemoteClient(String url, String controller, String serialNumber, Channel channel, String resourcesPath) throws IOException, URISyntaxException {
         log.info("Remote Client init");
         this.url = url;
         this.controller = controller;
-        this.webHost = webHost;
-        this.webPort = webPort;
         this.serialNumber = serialNumber;
 
         this.resourcesPath = resourcesPath;

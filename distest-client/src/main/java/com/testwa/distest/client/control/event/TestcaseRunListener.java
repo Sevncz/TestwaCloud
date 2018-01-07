@@ -1,12 +1,13 @@
-package com.testwa.distest.client.control.client.task;
+package com.testwa.distest.client.control.event;
 
 import com.testwa.core.cmd.RemoteRunCommand;
 import com.testwa.core.utils.TimeUtil;
+import com.testwa.distest.client.control.client.task.Executor;
 import com.testwa.distest.client.control.client.task.pool.ExecutorPool;
 import com.testwa.distest.client.grpc.GrpcClient;
+import com.testwa.distest.client.grpc.Gvice;
 import com.testwa.distest.client.model.UserInfo;
 import io.grpc.Channel;
-import io.grpc.ManagedChannel;
 import io.rpc.testwa.task.CurrentExeInfoRequest;
 import io.rpc.testwa.task.TaskOverRequest;
 import io.rpc.testwa.task.TaskServiceGrpc;
@@ -82,7 +83,7 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
                             .setTimestamp(TimeUtil.getTimestampLong())
                             .build();
 
-                    TaskServiceGrpc.newFutureStub(serverChannel).gameover(taskOverRequest);
+                    Gvice.taskService(serverChannel).gameover(taskOverRequest);
                 }
                 log.info("excutors over!");
 

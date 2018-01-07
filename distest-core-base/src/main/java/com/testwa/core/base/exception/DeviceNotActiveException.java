@@ -1,0 +1,1 @@
+package com.testwa.core.base.exception;public class DeviceNotActiveException extends Exception {    public DeviceNotActiveException(){    }    public DeviceNotActiveException(String message){        super(message);    }}

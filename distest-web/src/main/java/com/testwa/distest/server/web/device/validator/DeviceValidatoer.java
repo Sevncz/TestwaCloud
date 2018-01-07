@@ -1,5 +1,7 @@
 package com.testwa.distest.server.web.device.validator;
 
+import com.google.common.base.Joiner;
+import com.testwa.core.base.exception.DeviceNotActiveException;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.Project;
@@ -8,6 +10,7 @@ import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -57,6 +60,18 @@ public class DeviceValidatoer {
         Device entity = deviceService.findOne(deviceId);
         if(!entity.getLastUserId().equals(userId)){
             throw new ObjectNotExistsException("该设备不属于用户");
+        }
+    }
+
+    public void validateActive(List<String> deviceIds) throws DeviceNotActiveException {
+        List<String> devIds = new ArrayList<>();
+        deviceIds.forEach(d -> {
+            if(!deviceAuthMgr.isUsing(d)){
+                devIds.add(d);
+            }
+        });
+        if(devIds.size() > 0){
+            throw new DeviceNotActiveException("设备【" + Joiner.on(",").join(devIds) + "】不可用");
         }
     }
 }
