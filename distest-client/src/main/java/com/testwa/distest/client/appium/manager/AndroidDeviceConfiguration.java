@@ -4,7 +4,7 @@ package com.testwa.distest.client.appium.manager;
 
 
 import com.github.cosysoft.device.android.AndroidDevice;
-import com.testwa.distest.client.android.AndroidHelper;
+import com.github.cosysoft.device.android.impl.AndroidDeviceStore;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ public class AndroidDeviceConfiguration {
     ArrayList<String> deviceSerail = new ArrayList<String>();
 
     public ArrayList<String> getDeviceSerial() throws Exception {
-        TreeSet<AndroidDevice> ads =  AndroidHelper.getInstance().getAllDevices();
+        TreeSet<AndroidDevice> ads =  AndroidDeviceStore.getInstance().getDevices();
         for(AndroidDevice device : ads){
             deviceSerail.add(device.getSerialNumber());
         }
@@ -26,7 +26,7 @@ public class AndroidDeviceConfiguration {
      * This method gets the device dto name
      */
     public String getDeviceModel(String deviceID) {
-        AndroidDevice device = AndroidHelper.getInstance().getAndroidDevice(deviceID);
+        AndroidDevice device = AndroidDeviceStore.getInstance().getDeviceBySerial(deviceID);
         String brand = device.runAdbCommand("shell getprop ro.product.brand");
         String deviceModelName = device.runAdbCommand("shell getprop ro.product.dto").replaceAll("\\W", "");
         String deviceModel = deviceModelName.concat("_" + brand);
@@ -38,7 +38,7 @@ public class AndroidDeviceConfiguration {
      * This method gets the device OS API Level
      */
     public String deviceOS(String deviceID) {
-        AndroidDevice device = AndroidHelper.getInstance().getAndroidDevice(deviceID);
+        AndroidDevice device = AndroidDeviceStore.getInstance().getDeviceBySerial(deviceID);
         return device.runAdbCommand("shell getprop ro.build.version.sdk");
 
     }
@@ -53,7 +53,7 @@ public class AndroidDeviceConfiguration {
         throws InterruptedException, IOException {
 //         adb -s 192.168.56.101:5555 com.android2.calculator3
 //        cmd.runCommand("adb -s " + deviceID + " shell am force-stop " + app_package);
-        AndroidDevice device = AndroidHelper.getInstance().getAndroidDevice(deviceID);
+        AndroidDevice device = AndroidDeviceStore.getInstance().getDeviceBySerial(deviceID);
         device.runAdbCommand(" shell am force-stop " + app_package);
     }
 
@@ -67,7 +67,7 @@ public class AndroidDeviceConfiguration {
         throws InterruptedException, IOException {
         // adb -s 192.168.56.101:5555 com.android2.calculator3
 //        cmd.runCommand("adb -s " + deviceID + " shell pm clear " + app_package);
-        AndroidDevice device = AndroidHelper.getInstance().getAndroidDevice(deviceID);
+        AndroidDevice device = AndroidDeviceStore.getInstance().getDeviceBySerial(deviceID);
         device.runAdbCommand(" shell pm clear " + app_package);
     }
 
@@ -80,7 +80,7 @@ public class AndroidDeviceConfiguration {
 
     public void removeApkFromDevices(String deviceID,String app_package) throws Exception {
 //            cmd.runCommand("adb -s " + deviceID + " uninstall " + app_package);
-        AndroidDevice device = AndroidHelper.getInstance().getAndroidDevice(deviceID);
+        AndroidDevice device = AndroidDeviceStore.getInstance().getDeviceBySerial(deviceID);
         device.runAdbCommand(" uninstall " + app_package);
     }
 }

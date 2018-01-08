@@ -1,6 +1,5 @@
 package com.testwa.distest.client.task;
 
-import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.distest.client.android.util.LogcatUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

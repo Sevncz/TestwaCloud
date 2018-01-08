@@ -3,28 +3,21 @@ package com.testwa.distest.client.web.startup;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.github.cosysoft.device.android.AndroidDevice;
-import com.github.cosysoft.device.shell.ShellCommandException;
+import com.github.cosysoft.device.android.impl.AndroidDeviceStore;
 import com.testwa.core.WebsocketEvent;
-import com.testwa.distest.client.android.AndroidHelper;
+import com.testwa.distest.client.android.DeviceManager;
 import com.testwa.distest.client.appium.utils.Config;
 import com.testwa.distest.client.control.client.MainSocket;
 import com.testwa.distest.client.control.client.boost.MessageCallback;
-import com.testwa.distest.client.grpc.Gvice;
-import com.testwa.distest.client.model.TestwaDevice;
 import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.service.GrpcClientService;
 import com.testwa.distest.client.service.HttpService;
 import com.testwa.distest.client.util.Constant;
-import io.rpc.testwa.device.Device;
-import io.rpc.testwa.device.DevicesRequest;
-import lombok.extern.java.Log;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.util.EntityUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
@@ -33,10 +26,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by wen on 16/8/27.
@@ -68,6 +58,8 @@ public class TestwaEnvCheck implements CommandLineRunner {
         }
         checkTempDirPath();
         Config.setEnv(env);
+        startDeviceManager();
+
     }
 
     private boolean checkAuth(String username, String password) {
@@ -97,9 +89,8 @@ public class TestwaEnvCheck implements CommandLineRunner {
                             MainSocket.connect(url, token);
                             MainSocket.receive(WebsocketEvent.ON_START, startRemoteClientCB);
                             MainSocket.receive(WebsocketEvent.ON_TESTCASE_RUN, startTestcaseClientCB);
-
-                            TreeSet<AndroidDevice> androidDevices = AndroidHelper.getInstance().getAllDevices();
-                            for(AndroidDevice ad : androidDevices) {
+                            TreeSet<AndroidDevice> androidDevices = AndroidDeviceStore.getInstance().getDevices();
+                            for (AndroidDevice ad : androidDevices) {
                                 gClientService.createRemoteClient(ad.getDevice());
                                 gClientService.initDevice(ad);
                             }
@@ -184,6 +175,10 @@ public class TestwaEnvCheck implements CommandLineRunner {
         log.info("Constant.locallogcatPath --> {}", Constant.localLogcatPath);
         log.info("Constant.localScreenshotPath --> {}", Constant.localScreenshotPath);
         log.info("Constant.localScriptPath --> {}", Constant.localScriptPath);
+    }
+
+    private void startDeviceManager() {
+        new Thread(() -> DeviceManager.getInstance().start()).start();
     }
 
 }

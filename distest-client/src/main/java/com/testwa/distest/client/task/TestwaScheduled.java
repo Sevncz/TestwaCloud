@@ -1,19 +1,11 @@
 package com.testwa.distest.client.task;
 
-import com.github.cosysoft.device.android.AndroidDevice;
-import com.github.cosysoft.device.shell.ShellCommandException;
 import com.google.protobuf.ByteString;
-import com.testwa.distest.client.control.client.MainSocket;
 import com.testwa.distest.client.grpc.GrpcClient;
-import com.testwa.distest.client.grpc.Gvice;
 import com.testwa.distest.client.model.TestwaDevice;
-import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.service.HttpService;
-import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.distest.client.util.Constant;
 import io.grpc.Channel;
-import io.rpc.testwa.device.Device;
-import io.rpc.testwa.device.DevicesRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

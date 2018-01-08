@@ -1,7 +1,9 @@
 package com.testwa.distest.client.minitouch;
 
+import com.android.ddmlib.AdbCommandRejectedException;
 import com.android.ddmlib.IDevice;
 import com.android.ddmlib.IShellOutputReceiver;
+import com.android.ddmlib.TimeoutException;
 import com.testwa.core.service.AdbDriverService;
 import com.testwa.core.service.MinicapServiceBuilder;
 import com.testwa.core.service.MinitouchServiceBuilder;
@@ -32,12 +34,14 @@ public class Minitouch {
 
     private IDevice device;
     private String resourcesPath;
-    private Thread minitouchThread, minitouchInitialThread;
+    private Thread minitouchInitialThread;
     private Socket minitouchSocket;
     private OutputStream minitouchOutputStream;
     private AdbDriverService service;
     private AdbForward forward;
     private static String BIN = "";
+
+    private boolean isRunnging = true;
 
     public static void installMinitouch(IDevice device, String resourcesPath) throws MinitouchInstallException {
         if (device == null) {
@@ -54,9 +58,9 @@ public class Minitouch {
         sdk = sdk.trim();
         abi = abi.trim();
         Integer sdkvalue = Integer.parseInt(sdk);
-        if(sdkvalue >= 16){
+        if (sdkvalue >= 16) {
             BIN = Constant.MINITOUCH_BIN;
-        }else{
+        } else {
             BIN = Constant.MINITOUCH_NOPIE;
         }
 
@@ -77,7 +81,7 @@ public class Minitouch {
         this.device = device;
         this.resourcesPath = resourcesPath;
         int install = 0;
-        while(install <= 3){
+        while (install <= 3) {
             try {
                 installMinitouch(device, resourcesPath);
                 Thread.sleep(1000);
@@ -117,7 +121,12 @@ public class Minitouch {
         }
         try {
             device.removeForward(forward.getPort(), forward.getLocalabstract(), IDevice.DeviceUnixSocketNamespace.ABSTRACT);
-        } catch (Exception e) {
+        } catch (AdbCommandRejectedException e) {
+            log.error("removeForward: AdbCommandRejectedException, {}", e.getMessage());
+        } catch (IOException e) {
+            log.error("removeForward: IOException, {}", e.getMessage());
+        } catch (TimeoutException e) {
+            log.error("removeForward: TimeoutException, {}", e.getMessage());
         }
     }
 
@@ -136,9 +145,7 @@ public class Minitouch {
 
     public void kill() {
         onClose();
-        if (minitouchThread != null) {
-            minitouchThread.stop();
-        }
+        this.isRunnging = false;
         // 关闭socket
         if (minitouchSocket != null && minitouchSocket.isConnected()) {
             try {
@@ -146,6 +153,14 @@ public class Minitouch {
             } catch (IOException e) {
             }
             minitouchSocket = null;
+        }
+
+        if (minitouchInitialThread != null) {
+            try {
+                minitouchInitialThread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -206,11 +221,11 @@ public class Minitouch {
         }
 
         public void run() {
-            log.info("StartInitial schedule start, host{}, port{}", this.host, this.port);
+            log.info("StartInitial schedule start, host: {}, port: {}", this.host, this.port);
             int tryTime = 20;
             byte[] bytes = null;
             // 连接minicap启动的服务
-            while (true) {
+            while (isRunnging) {
                 Socket socket = null;
                 bytes = new byte[256];
                 try {
@@ -231,7 +246,7 @@ public class Minitouch {
                         break;
                     }
                 } catch (Exception ex) {
-                    log.error("minitouch connect error", ex);
+                    log.error("minitouch connect error, {}, {}", this.host, this.port, ex);
                     if (socket != null) {
                         try {
                             socket.close();
@@ -239,12 +254,12 @@ public class Minitouch {
                             e.printStackTrace();
                         }
                     }
-                    continue;
-                }
-                tryTime--;
-                if (tryTime == 0) {
-                    onStartup(false);
-                    break;
+                }finally {
+                    tryTime--;
+                    if (tryTime == 0) {
+                        onStartup(false);
+                        break;
+                    }
                 }
             }
         }

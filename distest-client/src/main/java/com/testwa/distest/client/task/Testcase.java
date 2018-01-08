@@ -2,13 +2,12 @@ package com.testwa.distest.client.task;
 
 import com.github.cosysoft.device.android.AndroidApp;
 import com.github.cosysoft.device.android.AndroidDevice;
+import com.github.cosysoft.device.android.impl.AndroidDeviceStore;
 import com.github.cosysoft.device.android.impl.DefaultAndroidApp;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.appium.manager.AppiumCache;
 import com.testwa.distest.client.appium.manager.AppiumParallelTest;
-import com.testwa.distest.client.control.client.MainSocket;
 import com.testwa.distest.client.service.HttpService;
-import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.core.service.PythonScriptDriverService;
 import com.testwa.core.service.PythonServiceBuilder;
 import com.testwa.distest.client.util.*;
@@ -60,7 +59,7 @@ public class Testcase {
         this.scriptIds = scriptIds;
         this.reportDetailId = reportDetailId;
         this.install = install;
-        this.androidDevice = AndroidHelper.getInstance().getAndroidDevice(serial);
+        this.androidDevice = AndroidDeviceStore.getInstance().getDeviceBySerial(serial);
         this.task = new ArrayBlockingQueue<>(scriptIds.size());
         this.task.addAll(scriptIds);
 

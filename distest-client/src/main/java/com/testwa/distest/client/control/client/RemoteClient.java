@@ -2,10 +2,9 @@ package com.testwa.distest.client.control.client;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.cosysoft.device.android.AndroidDevice;
+import com.github.cosysoft.device.android.impl.AndroidDeviceStore;
 import com.google.protobuf.ByteString;
 import com.testwa.core.common.enums.Command;
-import com.testwa.distest.client.ApplicationContextUtil;
-import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.distest.client.grpc.Gvice;
 import com.testwa.distest.client.minicap.Banner;
 import com.testwa.distest.client.minicap.Minicap;
@@ -258,7 +257,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         String name = command.getString("name", null);
         String path = command.getString("path", null);
 
-        AndroidDevice device = AndroidHelper.getInstance().getAndroidDevice(serialNumber);
+        AndroidDevice device = AndroidDeviceStore.getInstance().getDeviceBySerial(serialNumber);
         try {
             device.getDevice().pushFile(Constant.getTmpFile(name).getAbsolutePath(), path + "/" + name);
         } catch (Exception e) {
@@ -296,7 +295,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         this.minitouch = minitouch;
     }
 
-    private void stop(){
+    public void stop(){
         if (minitouch != null) {
             minitouch.kill();
         }

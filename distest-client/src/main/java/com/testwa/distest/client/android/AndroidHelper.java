@@ -3,15 +3,13 @@ package com.testwa.distest.client.android;
 import com.android.ddmlib.*;
 import com.github.cosysoft.device.android.AndroidApp;
 import com.github.cosysoft.device.android.AndroidDevice;
+import com.github.cosysoft.device.android.impl.AndroidDeviceStore;
 import com.github.cosysoft.device.android.impl.DefaultAndroidApp;
-import com.github.cosysoft.device.image.ImageUtils;
 import com.github.cosysoft.device.shell.AndroidSdk;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +38,7 @@ public class AndroidHelper {
         return ah;
     }
 
-    public TreeSet<AndroidDevice> getAllDevices(){
+    public TreeSet<AndroidDevice> getAllDevices() {
         return adbs.getDevices();
     }
 
@@ -53,29 +51,29 @@ public class AndroidHelper {
         return null;
     }
 
-    public AndroidDevice getAndroidDevice(String serial){
+    public AndroidDevice getAndroidDevice(String serial) {
         return adbs.getDeviceBySerial(serial);
     }
 
 
-    public void installApp(String appPath, String deviceId){
-        if(StringUtils.isBlank(appPath) || StringUtils.isBlank(deviceId) ){
+    public void installApp(String appPath, String deviceId) {
+        if (StringUtils.isBlank(appPath) || StringUtils.isBlank(deviceId)) {
             return;
         }
         AndroidDevice device = adbs.getDeviceBySerial(deviceId);
-        if(device != null){
+        if (device != null) {
             AndroidApp app = new DefaultAndroidApp(new File(appPath));
             device.install(app);
         }
     }
 
 
-    public void unInstallApp(String appPath, String deviceId){
-        if(StringUtils.isBlank(appPath) || StringUtils.isBlank(deviceId) ){
+    public void unInstallApp(String appPath, String deviceId) {
+        if (StringUtils.isBlank(appPath) || StringUtils.isBlank(deviceId)) {
             return;
         }
         AndroidDevice device = adbs.getDeviceBySerial(deviceId);
-        if(device != null) {
+        if (device != null) {
             AndroidApp app = new DefaultAndroidApp(new File(appPath));
             if (device.isInstalled(app)) {
                 device.uninstall(app);
@@ -83,12 +81,12 @@ public class AndroidHelper {
         }
     }
 
-    public Client[] getAllClient(String deviceId){
-        if(StringUtils.isBlank(deviceId) ){
+    public Client[] getAllClient(String deviceId) {
+        if (StringUtils.isBlank(deviceId)) {
             return null;
         }
         AndroidDevice device = adbs.getDeviceBySerial(deviceId);
-        if(device != null) {
+        if (device != null) {
             return device.getAllClient();
         }
 
@@ -106,8 +104,10 @@ public class AndroidHelper {
         }
         return output.getOutput();
     }
+
     /**
      * TODO: 添加自定义adb命令，原因是安卓手表的传输速度太慢，导致adb push超时错误
+     *
      * @param device
      * @param command
      * @return
@@ -139,7 +139,7 @@ public class AndroidHelper {
                     String line;
                     try {
                         List<AdbForward> list = new ArrayList<AdbForward>();
-                        while((line = br.readLine()) != null) {
+                        while ((line = br.readLine()) != null) {
                             //64b2b4d9 tcp:555 localabstract:shit
                             AdbForward forward = new AdbForward(line);
                             if (forward.isForward()) {

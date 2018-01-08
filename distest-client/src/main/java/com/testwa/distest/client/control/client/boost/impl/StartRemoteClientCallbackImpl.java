@@ -1,8 +1,8 @@
 package com.testwa.distest.client.control.client.boost.impl;
 
 import com.github.cosysoft.device.android.AndroidDevice;
+import com.github.cosysoft.device.android.impl.AndroidDeviceStore;
 import com.github.cosysoft.device.exception.DeviceNotFoundException;
-import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.distest.client.control.client.boost.MessageCallback;
 import com.testwa.distest.client.control.client.boost.MessageException;
 import com.testwa.distest.client.service.GrpcClientService;
@@ -23,9 +23,9 @@ public class StartRemoteClientCallbackImpl implements MessageCallback {
 
     @Override
     public void done(Object o, MessageException e) throws MessageException {
-        String serial = (String)o;
+        String deviceID = (String)o;
         try {
-            AndroidDevice device = AndroidHelper.getInstance().getAndroidDevice(serial);
+            AndroidDevice device = AndroidDeviceStore.getInstance().getDeviceBySerial(deviceID);
             if(device != null){
                 grpcClientService.createRemoteClient(device.getDevice());
             }
