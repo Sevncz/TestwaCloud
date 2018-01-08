@@ -2,17 +2,13 @@ package com.testwa.distest.client.minitouch;
 
 import com.android.ddmlib.AdbCommandRejectedException;
 import com.android.ddmlib.IDevice;
-import com.android.ddmlib.IShellOutputReceiver;
 import com.android.ddmlib.TimeoutException;
 import com.github.cosysoft.device.android.AndroidDevice;
 import com.testwa.core.service.AdbDriverService;
-import com.testwa.core.service.MinicapServiceBuilder;
 import com.testwa.core.service.MinitouchServiceBuilder;
-import com.testwa.core.utils.Common;
 import com.testwa.distest.client.android.AdbForward;
 import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.distest.client.control.port.TouchPortProvider;
-import com.testwa.distest.client.minicap.Minicap;
 import com.testwa.distest.client.util.Constant;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -21,9 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by wen on 2017/4/19.
@@ -108,6 +102,7 @@ public class Minitouch {
 
     public AdbForward createForward() {
         forward = generateForwardInfo();
+        // 修复 com.github.cosysoft.device.shell.ShellCommandException: error: device unauthorized.
         int tryTime = 10;
         while(tryTime >= 0){
             try {
