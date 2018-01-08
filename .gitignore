@@ -1,9 +1,8 @@
 */target/*
 */.idea/*
 */*.iml
-*/.log/*
-*/.logs/*
 *.iml
 .idea/*
 */bin/tpid
 agent.log
+logs/**
