@@ -34,7 +34,9 @@ public class Clients {
 
     public static void remove(String serial){
         RemoteClient rc = all.get(serial);
-        rc.stop();
+        if(rc != null){
+            rc.stop();
+        }
         all.remove(serial);
     }
 

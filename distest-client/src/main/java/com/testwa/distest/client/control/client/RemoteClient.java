@@ -142,7 +142,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
     }
 
     private void sendImage(byte[] data) {
-        log.info(String.valueOf(data.length));
+        log.debug(String.valueOf(data.length));
         try {
 
             ScreenCaptureRequest request = ScreenCaptureRequest.newBuilder()

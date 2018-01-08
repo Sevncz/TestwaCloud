@@ -62,14 +62,14 @@ public class Minicap {
         this.device = device;
         this.resourcesPath = resourcesPath;
 
-        int install = 0;
-        while (install <= 3) {
+        int install = 3;
+        while (install > 0) {
             try {
                 installMinicap(device, resourcesPath);
                 Thread.sleep(1000);
                 break;
             } catch (MinicapInstallException e) {
-                install++;
+                install--;
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -150,16 +150,25 @@ public class Minicap {
         }
     }
 
+
     public AdbForward createForward() {
         forward = generateForwardInfo();
-        try {
-//            device.createForward(forward.getPort(), forward.getLocalabstract(), IDevice.DeviceUnixSocketNamespace.ABSTRACT);
-            device.createForward(forward.getPort(), forward.getLocalabstract(), IDevice.DeviceUnixSocketNamespace.ABSTRACT);
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error("create forward failed");
+        int tryTime = 10;
+        while(tryTime >= 0){
+            try {
+                device.createForward(forward.getPort(), forward.getLocalabstract(), IDevice.DeviceUnixSocketNamespace.ABSTRACT);
+                return forward;
+            } catch (Exception e) {
+                log.error("create forward failed", e);
+                tryTime--;
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+            }
         }
-        return forward;
+        return null;
     }
 
     private void removeForward(AdbForward forward) {
@@ -169,7 +178,7 @@ public class Minicap {
         try {
             device.removeForward(forward.getPort(), forward.getLocalabstract(), IDevice.DeviceUnixSocketNamespace.ABSTRACT);
         } catch (AdbCommandRejectedException e) {
-            log.error("removeForward: AdbCommandRejectedException, {}", e.getMessage());
+            log.info("removeForward: AdbCommandRejectedException, {}", e.getMessage());
         } catch (IOException e) {
             log.error("removeForward: IOException, {}", e.getMessage());
         } catch (TimeoutException e) {
@@ -285,9 +294,22 @@ public class Minicap {
 
 
     public void start(int ow, int oh, int dw, int dh, int rotate, boolean shipFrame, String[] args) {
+
+        if(StringUtils.isEmpty(BIN)){
+            try {
+                installMinicap(device, resourcesPath);
+            } catch (MinicapInstallException e) {
+                e.printStackTrace();
+            }
+        }
+
         isRunning = true;
         // 启动minicap服务
         AdbForward forward = createForward();
+
+        if(forward == null){
+            return;
+        }
         service = new MinicapServiceBuilder()
                 .whithBin(BIN)
                 .whithDeviceId(device.getSerialNumber())
@@ -554,7 +576,7 @@ public class Minicap {
                             return;
                         }
                         byte[] finalBytes = Arrays.copyOfRange(frameBody, 0, frameBody.length);
-                        log.info("to jpg");
+                        log.debug("to jpg");
                         onJPG(finalBytes);
 
                         cursor += frameBodyLength;

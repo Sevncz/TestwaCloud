@@ -4,6 +4,7 @@ import com.android.ddmlib.AdbCommandRejectedException;
 import com.android.ddmlib.IDevice;
 import com.android.ddmlib.IShellOutputReceiver;
 import com.android.ddmlib.TimeoutException;
+import com.github.cosysoft.device.android.AndroidDevice;
 import com.testwa.core.service.AdbDriverService;
 import com.testwa.core.service.MinicapServiceBuilder;
 import com.testwa.core.service.MinitouchServiceBuilder;
@@ -32,7 +33,8 @@ public class Minitouch {
 
     private List<MinitouchListener> listenerList = new ArrayList<MinitouchListener>();
 
-    private IDevice device;
+//    private IDevice device;
+    private AndroidDevice device;
     private String resourcesPath;
     private Thread minitouchInitialThread;
     private Socket minitouchSocket;
@@ -43,13 +45,13 @@ public class Minitouch {
 
     private boolean isRunnging = true;
 
-    public static void installMinitouch(IDevice device, String resourcesPath) throws MinitouchInstallException {
+    public static void installMinitouch(AndroidDevice device, String resourcesPath) throws MinitouchInstallException {
         if (device == null) {
             throw new MinitouchInstallException("device can't be null");
         }
-
-        String sdk = device.getProperty(Constant.PROP_SDK);
-        String abi = device.getProperty(Constant.PROP_ABI);
+        IDevice iDevice = device.getDevice();
+        String sdk = iDevice.getProperty(Constant.PROP_SDK);
+        String abi = iDevice.getProperty(Constant.PROP_ABI);
 
         if (StringUtils.isEmpty(sdk) || StringUtils.isEmpty(abi)) {
             throw new MinitouchInstallException("cant not get device info. please check device is connected");
@@ -69,25 +71,25 @@ public class Minitouch {
             throw new MinitouchInstallException("File: " + minitouch_bin.getAbsolutePath() + " not exists!");
         }
         try {
-            device.pushFile(minitouch_bin.getAbsolutePath(), Constant.MINITOUCH_DIR + "/" + BIN);
+            iDevice.pushFile(minitouch_bin.getAbsolutePath(), Constant.MINITOUCH_DIR + "/" + BIN);
         } catch (Exception e) {
             throw new MinitouchInstallException(e.getMessage());
         }
 
-        AndroidHelper.getInstance().executeShellCommand(device, "chmod 777 " + Constant.MINITOUCH_DIR + "/" + BIN);
+        AndroidHelper.getInstance().executeShellCommand(iDevice, "chmod 777 " + Constant.MINITOUCH_DIR + "/" + BIN);
     }
 
-    public Minitouch(IDevice device, String resourcesPath) {
+    public Minitouch(AndroidDevice device, String resourcesPath) {
         this.device = device;
         this.resourcesPath = resourcesPath;
-        int install = 0;
-        while (install <= 3) {
+        int install = 3;
+        while (install > 0) {
             try {
                 installMinitouch(device, resourcesPath);
                 Thread.sleep(1000);
                 break;
             } catch (MinitouchInstallException e) {
-                install++;
+                install--;
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -95,7 +97,7 @@ public class Minitouch {
     }
 
     public Minitouch(String serialNumber, String resourcesPath) {
-        this(AndroidHelper.getInstance().getAndroidDevice(serialNumber).getDevice(), resourcesPath);
+        this(AndroidHelper.getInstance().getAndroidDevice(serialNumber), resourcesPath);
     }
 
     public void addEventListener(MinitouchListener listener) {
@@ -106,13 +108,23 @@ public class Minitouch {
 
     public AdbForward createForward() {
         forward = generateForwardInfo();
-        try {
-            device.createForward(forward.getPort(), forward.getLocalabstract(), IDevice.DeviceUnixSocketNamespace.ABSTRACT);
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error("create forward failed");
+        int tryTime = 10;
+        while(tryTime >= 0){
+            try {
+                device.getDevice().createForward(forward.getPort(), forward.getLocalabstract(), IDevice.DeviceUnixSocketNamespace.ABSTRACT);
+
+                return forward;
+            } catch (Exception e) {
+                log.error("create forward failed", e);
+                tryTime--;
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+            }
         }
-        return forward;
+        return null;
     }
 
     private void removeForward(AdbForward forward) {
@@ -120,9 +132,9 @@ public class Minitouch {
             return;
         }
         try {
-            device.removeForward(forward.getPort(), forward.getLocalabstract(), IDevice.DeviceUnixSocketNamespace.ABSTRACT);
+            device.getDevice().removeForward(forward.getPort(), forward.getLocalabstract(), IDevice.DeviceUnixSocketNamespace.ABSTRACT);
         } catch (AdbCommandRejectedException e) {
-            log.error("removeForward: AdbCommandRejectedException, {}", e.getMessage());
+            log.info("removeForward: AdbCommandRejectedException, {}", e.getMessage());
         } catch (IOException e) {
             log.error("removeForward: IOException, {}", e.getMessage());
         } catch (TimeoutException e) {
@@ -130,8 +142,22 @@ public class Minitouch {
         }
     }
 
-    public void start() {
+    public void start(){
+        /*
+         * BIN有可能为空字符串, 在这里判断，如果为空，再install下
+         */
+        if(StringUtils.isEmpty(BIN)){
+            try {
+                installMinitouch(device, resourcesPath);
+            } catch (MinitouchInstallException e) {
+                e.printStackTrace();
+            }
+        }
+        isRunnging = true;
         AdbForward forward = createForward();
+        if(forward == null){
+            return;
+        }
         service = new MinitouchServiceBuilder()
                 .whithDeviceId(device.getSerialNumber())
                 .whithExecute(Constant.MINITOUCH_DIR + "/" + BIN)
@@ -146,6 +172,10 @@ public class Minitouch {
     public void kill() {
         onClose();
         this.isRunnging = false;
+
+        if (service != null) {
+            service.stop();
+        }
         // 关闭socket
         if (minitouchSocket != null && minitouchSocket.isConnected()) {
             try {
@@ -155,13 +185,6 @@ public class Minitouch {
             minitouchSocket = null;
         }
 
-        if (minitouchInitialThread != null) {
-            try {
-                minitouchInitialThread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     public void sendEvent(String str) {
@@ -176,11 +199,11 @@ public class Minitouch {
     }
 
     public void sendKeyEvent(int k) {
-        AndroidHelper.getInstance().executeShellCommand(device, "input keyevent " + k);
+        AndroidHelper.getInstance().executeShellCommand(device.getDevice(), "input keyevent " + k);
     }
 
     public void inputText(String str) {
-        AndroidHelper.getInstance().executeShellCommand(device, "input text " + str);
+        AndroidHelper.getInstance().executeShellCommand(device.getDevice(), "input text " + str);
     }
 
     /**
@@ -234,12 +257,11 @@ public class Minitouch {
                     OutputStream outputStream = socket.getOutputStream();
                     int n = inputStream.read(bytes);
                     if (n == -1) {
-                        Thread.sleep(100);
+                        Thread.sleep(1000);
                         log.info("minitouch socket close, retry again");
                         socket.close();
                     } else {
-                        String str = new String(bytes);
-                        log.info("minitouch socket listener start, [{}]", str);
+                        log.info("minitouch ---------- start ");
                         minitouchSocket = socket;
                         minitouchOutputStream = outputStream;
                         onStartup(true);
@@ -254,12 +276,11 @@ public class Minitouch {
                             e.printStackTrace();
                         }
                     }
-                }finally {
-                    tryTime--;
-                    if (tryTime == 0) {
-                        onStartup(false);
-                        break;
-                    }
+                }
+                tryTime--;
+                if (tryTime == 0) {
+                    onStartup(false);
+                    break;
                 }
             }
         }
