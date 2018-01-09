@@ -1,6 +1,5 @@
 package com.testwa.distest.server.web.device.controller;
 
-import com.testwa.core.base.constant.ResultCode;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.AccountException;
@@ -15,7 +14,6 @@ import com.testwa.distest.server.service.device.form.DeviceListForm;
 import com.testwa.distest.server.service.device.service.DeviceAuthService;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.user.service.UserService;
-import com.testwa.distest.server.web.auth.validator.UserValidator;
 import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
 import com.testwa.distest.server.web.device.validator.DeviceValidatoer;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
@@ -32,11 +30,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
@@ -82,7 +78,7 @@ public class DeviceController extends BaseController {
         if(deviceIds.size() == 0 ){
             return ok(new PageResult<>(Arrays.asList(), 0));
         }
-        PageResult<Device> devicePR = deviceService.findByDeviceIdsPage(deviceIds, form);
+        PageResult<Device> devicePR = deviceService.findOnlinePage(deviceIds, form);
         return ok(devicePR);
     }
 
@@ -99,7 +95,7 @@ public class DeviceController extends BaseController {
         if(deviceIds.size() == 0 ){
             return ok(Arrays.asList());
         }
-        List<Device> deviceList = deviceService.findByDeviceIds(deviceIds, form);
+        List<Device> deviceList = deviceService.findOnlineList(deviceIds, form);
         return ok(deviceList);
     }
 
@@ -117,7 +113,8 @@ public class DeviceController extends BaseController {
     @ResponseBody
     @GetMapping(value = "/all/page")
     public Result allPage(@Valid DeviceListForm form) throws ObjectNotExistsException, AuthorizedException {
-        PageResult<Device> devicePR = deviceService.findByPage(form);
+        Set<String> deviceIds = deviceAuthMgr.allEnableDevices();
+        PageResult<Device> devicePR = deviceService.findByPage(deviceIds, form);
         return ok(devicePR);
     }
     /**
@@ -129,7 +126,8 @@ public class DeviceController extends BaseController {
     @ResponseBody
     @GetMapping(value = "/all/list")
     public Result allList(@Valid DeviceListForm form) throws ObjectNotExistsException, AuthorizedException {
-        List<Device> devices = deviceService.findList(form);
+        Set<String> deviceIds = deviceAuthMgr.allEnableDevices();
+        List<Device> devices = deviceService.findList(deviceIds, form);
         return ok(devices);
     }
 
@@ -137,8 +135,9 @@ public class DeviceController extends BaseController {
     @ResponseBody
     @GetMapping(value = "/my/list")
     public Result myList() {
+        Set<String> deviceIds = deviceAuthMgr.allEnableDevices();
         User user = userService.findByUsername(getCurrentUsername());
-        List<Device> deviceList = deviceService.fetchList(user.getId());
+        List<Device> deviceList = deviceService.fetchList(deviceIds, user.getId());
         return ok(deviceList);
     }
 

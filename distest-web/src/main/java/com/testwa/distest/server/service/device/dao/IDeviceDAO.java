@@ -7,6 +7,7 @@ import com.testwa.distest.server.entity.DeviceAndroid;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface IDeviceDAO extends IBaseDAO<Device, Long> {
 //    List<Device> findBy(Device entity);
@@ -15,7 +16,7 @@ public interface IDeviceDAO extends IBaseDAO<Device, Long> {
 
     void updateAndroid(DeviceAndroid entity);
 
-    List<Device> findBy(Map<String, Object> queryMap);
+    List<Device> findOnlineList(Map<String, Object> queryMap);
 
     void updateStatus(String deviceId, DB.PhoneOnlineStatus status);
 
@@ -25,4 +26,6 @@ public interface IDeviceDAO extends IBaseDAO<Device, Long> {
     List<Device> fetchList(Map<String, Object> queryMap);
 
     List<DeviceAndroid> findAllDeviceAndroid(List<String> deviceIds);
+
+    List<Device> findListByOnlineDevice(Map<String, Object> queryMap, Set<String> onlineDeviceList);
 }

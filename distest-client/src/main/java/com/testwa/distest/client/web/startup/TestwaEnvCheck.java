@@ -51,11 +51,7 @@ public class TestwaEnvCheck implements CommandLineRunner {
 
     @Override
     public void run(String... strings) throws Exception {
-        boolean isAuth = checkAuth(env.getProperty("username"), env.getProperty("password"));
-        if (!isAuth) {
-            log.error("username or password not match");
-            System.exit(0);
-        }
+        checkAuth(env.getProperty("username"), env.getProperty("password"));
         checkTempDirPath();
         Config.setEnv(env);
         startDeviceManager();
@@ -125,8 +121,6 @@ public class TestwaEnvCheck implements CommandLineRunner {
             }
         };
         httpService.postJson(String.format("%s/api/auth/login", agentWebUrl), new User(username, password), cb);
-//        User userData = new User(username, password)
-//        Http.post(String.format("%s/account/purelogin", agentWebUrl), 60000, )
         return true;
     }
 

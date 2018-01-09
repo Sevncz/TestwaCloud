@@ -17,6 +17,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 @Log4j2
@@ -68,7 +69,7 @@ public class DeviceServiceTest {
         page.setPageNo(1);
         page.setPageSize(10);
         form.setPage(page);
-        PageResult<Device> devices = deviceService.findByPage(form);
+        PageResult<Device> devices = deviceService.findByPage(new HashSet<>(Arrays.asList("123456", "223456", "323456")), form);
         log.info(devices.getPages());
     }
 
@@ -80,7 +81,7 @@ public class DeviceServiceTest {
 
     @Test
     public void testFetchList(){
-        List<Device> deviceList = deviceService.fetchList(3l);
+        List<Device> deviceList = deviceService.fetchList(new HashSet<>(),3l);
         for(Device d : deviceList){
             log.info(d.getDeviceAuths());
             log.info(d.toString());

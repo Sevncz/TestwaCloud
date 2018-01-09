@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Repository
 public class DeviceDAO extends BaseDAO<Device, Long>  implements IDeviceDAO{
@@ -18,11 +19,6 @@ public class DeviceDAO extends BaseDAO<Device, Long>  implements IDeviceDAO{
     @Resource
     private DeviceMapper deviceMapper;
 
-
-    @Override
-    public List<Device> findBy(Map queryMap) {
-        return deviceMapper.findBy(queryMap);
-    }
 
     @Override
     public long insertAndroid(DeviceAndroid entity) {
@@ -57,5 +53,15 @@ public class DeviceDAO extends BaseDAO<Device, Long>  implements IDeviceDAO{
     @Override
     public List<DeviceAndroid> findAllDeviceAndroid(List<String> deviceIds) {
         return deviceMapper.findAllDeviceAndroid(deviceIds);
+    }
+
+    @Override
+    public List<Device> findOnlineList(Map queryMap) {
+        return deviceMapper.findOnlineList(queryMap);
+    }
+
+    @Override
+    public List<Device> findListByOnlineDevice(Map<String, Object> queryMap, Set<String> onlineDeviceList) {
+        return deviceMapper.findListByOnlineDevice(queryMap, onlineDeviceList);
     }
 }
