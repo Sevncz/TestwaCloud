@@ -63,6 +63,7 @@ public class DeviceService {
         queryMap.put("brand", pageForm.getBrand());
         queryMap.put("model", pageForm.getModel());
         queryMap.put("deviceId", pageForm.getDeviceId());
+        queryMap.put("onlineStatus", pageForm.getOnlineStatus());
         //分页处理
         PageHelper.startPage(pageForm.getPageNo(), pageForm.getPageSize());
         if(StringUtils.isBlank(pageForm.getOrderBy()) ){
@@ -76,6 +77,15 @@ public class DeviceService {
         PageInfo<Device> info = new PageInfo(deviceList);
         PageResult<Device> pr = new PageResult<>(info.getList(), info.getTotal());
         return pr;
+    }
+
+    public List<Device> findList(DeviceListForm form) {
+        Map<String, Object> queryMap = new HashMap<>();
+        queryMap.put("brand", form.getBrand());
+        queryMap.put("model", form.getModel());
+        queryMap.put("deviceId", form.getDeviceId());
+        queryMap.put("onlineStatus", form.getOnlineStatus());
+        return deviceDAO.findBy(queryMap);
     }
 
     public List<Device> findByDeviceIds(Set<String> deviceIds, DeviceListForm form) {
@@ -108,14 +118,14 @@ public class DeviceService {
         return pr;
     }
 
-    public List<Device> fetchList(Long createBy, Collection deviceIds) {
+    public List<Device> fetchList(Long createBy) {
         Map<String, Object> queryMap = new HashMap<>();
         queryMap.put("createBy", createBy);
-        queryMap.put("deviceIdList", deviceIds);
         return deviceDAO.fetchList(queryMap);
     }
 
     public List<DeviceAndroid> findAllDeviceAndroid(List<String> deviceIds) {
         return deviceDAO.findAllDeviceAndroid(deviceIds);
     }
+
 }

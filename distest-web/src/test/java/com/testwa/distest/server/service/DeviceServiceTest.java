@@ -80,7 +80,7 @@ public class DeviceServiceTest {
 
     @Test
     public void testFetchList(){
-        List<Device> deviceList = deviceService.fetchList(3l, Arrays.asList("123456", "223456", "323456"));
+        List<Device> deviceList = deviceService.fetchList(3l);
         for(Device d : deviceList){
             log.info(d.getDeviceAuths());
             log.info(d.toString());

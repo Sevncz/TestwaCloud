@@ -85,7 +85,7 @@
                 and deviceId in <foreach item="devId" index="index" collection="deviceIdList" open="(" separator="," close=")">#{devId} </foreach>
             </if>
             <if test="phoneOS != null">and phoneOS = #{phoneOS}</if>
-            <if test="onlineStatus != null">and onlineStatus = #{onlineStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
+            <if test="onlineStatus != null">and onlineStatus = #{onlineStatus}</if>
             <if test="model != null">and model = #{model}</if>
             <if test="brand != null">and brand = #{brand}</if>
             <if test="lastUserId != null">and lastUserId = #{lastUserId}</if>

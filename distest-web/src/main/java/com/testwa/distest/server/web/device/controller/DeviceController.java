@@ -64,6 +64,10 @@ public class DeviceController extends BaseController {
     @Autowired
     private Environment env;
 
+
+    /*
+     * 可见设备查询
+     */
     /**
      * 可见在线设备分页列表
      * @param form
@@ -99,18 +103,45 @@ public class DeviceController extends BaseController {
         return ok(deviceList);
     }
 
-    @ApiOperation(value="查看登录用户自己的在线设备，获得包括设备权限和用户信息", notes = "")
+
+    /*
+     * 所有设备查询
+     */
+
+    /**
+     * 所有设备分页列表
+     * @param form
+     * @return
+     */
+    @ApiOperation(value="查看所有设备分页列表")
+    @ResponseBody
+    @GetMapping(value = "/all/page")
+    public Result allPage(@Valid DeviceListForm form) throws ObjectNotExistsException, AuthorizedException {
+        PageResult<Device> devicePR = deviceService.findByPage(form);
+        return ok(devicePR);
+    }
+    /**
+     * 所有设备列表
+     * @param form
+     * @return
+     */
+    @ApiOperation(value="所有设备列表")
+    @ResponseBody
+    @GetMapping(value = "/all/list")
+    public Result allList(@Valid DeviceListForm form) throws ObjectNotExistsException, AuthorizedException {
+        List<Device> devices = deviceService.findList(form);
+        return ok(devices);
+    }
+
+    @ApiOperation(value="查看登录用户自己的在线设备，获得包括设备权限和用户信息")
     @ResponseBody
     @GetMapping(value = "/my/list")
     public Result myList() {
-        Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
-        if(deviceIds.size() == 0 ){
-            return ok(Arrays.asList());
-        }
         User user = userService.findByUsername(getCurrentUsername());
-        List<Device> deviceList = deviceService.fetchList(user.getId(), deviceIds);
+        List<Device> deviceList = deviceService.fetchList(user.getId());
         return ok(deviceList);
     }
+
 
     @ApiOperation(value="把自己的设备分享给其他人", notes = "暂时所有设备都可见，可不使用")
     @ResponseBody
