@@ -37,7 +37,7 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
     @Async
     @Override
     public void onApplicationEvent(TestcaseRunEvent testcaseRunEvent) {
-        log.info("run cmd ...");
+        log.info("Event: run cmd {}", testcaseRunEvent.getCmd().toString());
         RemoteRunCommand cmd = testcaseRunEvent.getCmd();
 
         switch (cmd.getCmd()){

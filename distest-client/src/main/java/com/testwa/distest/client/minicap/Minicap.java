@@ -508,7 +508,7 @@ public class Minicap {
         }
 
         public void readData() throws IOException {
-            log.info("start read data");
+            log.debug("start read data");
 
             DataInputStream stream = new DataInputStream(inputStream);
             while (isRunning) {
@@ -587,7 +587,7 @@ public class Minicap {
                         long timeused = (System.currentTimeMillis() - t);
                         timeused = timeused == 0 ? 1 : timeused;
                         String logMsg = String.format("jpg: %d timeused: %dms  fps: %d", finalBytes.length, (int) timeused, 1000 / timeused);
-                        log.info(logMsg);
+                        log.debug(logMsg);
                     } else {
                         byte[] subByte = Arrays.copyOfRange(buffer, cursor, length);
                         frameBody = Common.mergeArray(frameBody, subByte);

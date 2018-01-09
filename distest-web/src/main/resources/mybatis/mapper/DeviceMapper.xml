@@ -78,7 +78,7 @@
     </update>
 
     <select id="findOnlineList" parameterType="java.util.HashMap" resultMap="BaseResultMap" >
-        SELECT id, deviceId, phoneOS, updateTime, model, brand, cpuabi, sdk, width, height, osName, density, host, 2 AS onlineStatus
+        SELECT id, deviceId, phoneOS, updateTime, model, brand, cpuabi, sdk, width, height, osName, density, host, lastUserId, 1 AS onlineStatus
         FROM device
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             <if test="deviceId != null">and deviceId = #{deviceId}</if>
@@ -94,7 +94,7 @@
     </select>
 
     <select id="findListByOnlineDevice" resultMap="BaseResultMap" >
-        SELECT id, deviceId, phoneOS, updateTime, model, brand, cpuabi, sdk, width, height, osName, density, host,
+        SELECT id, deviceId, phoneOS, updateTime, model, brand, cpuabi, sdk, width, height, osName, density, host, lastUserId,
         <if test="onlineDeviceList != null and onlineDeviceList.size > 0">
           CASE WHEN deviceId in <foreach item="onlineDev" index="index" collection="onlineDeviceList" open="(" separator="," close=")">#{onlineDev} </foreach> THEN 1 ELSE 2 END AS onlineStatus
         </if>
@@ -113,7 +113,7 @@
     </select>
 
     <select id="fetchList" parameterType="java.util.HashMap" resultMap="BaseResultMap" >
-        SELECT device.id, device.deviceId, device.phoneOS, device.updateTime, device.model, device.brand, device.cpuabi, device.sdk, device.width, device.height, device.osName, device.density, device.host,device_auth.id as deviceAuth_id,device_auth.userId,user.id as user_id,user.username as username, user.email as email
+        SELECT device.id, device.deviceId, device.phoneOS, device.updateTime, device.model, device.brand, device.cpuabi, device.sdk, device.width, device.height, device.osName, device.density, device.host,device_auth.id as deviceAuth_id,device_auth.userId,user.id as user_id,user.username as username, user.email as email,
         <if test="onlineDeviceList != null and onlineDeviceList.size > 0">
             CASE WHEN device.deviceId in <foreach item="onlineDev" index="index" collection="onlineDeviceList" open="(" separator="," close=")">#{onlineDev} </foreach> THEN 1 ELSE 2 END AS onlineStatus
         </if>

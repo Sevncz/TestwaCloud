@@ -85,11 +85,6 @@ public class TestwaEnvCheck implements CommandLineRunner {
                             MainSocket.connect(url, token);
                             MainSocket.receive(WebsocketEvent.ON_START, startRemoteClientCB);
                             MainSocket.receive(WebsocketEvent.ON_TESTCASE_RUN, startTestcaseClientCB);
-                            TreeSet<AndroidDevice> androidDevices = AndroidDeviceStore.getInstance().getDevices();
-                            for (AndroidDevice ad : androidDevices) {
-                                gClientService.createRemoteClient(ad.getDevice());
-                                gClientService.initDevice(ad);
-                            }
 
                         } else {
                             log.error("login error {}", resultCode);
