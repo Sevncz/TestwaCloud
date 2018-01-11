@@ -14,7 +14,7 @@ import java.util.Map;
 @Component
 public class TaskCacheMgr {
 
-    private static final String device_execut_info = "device.execut.info.%s";
+    private static final String device_execut_info = "device.executor.info.%s";
 
     @Autowired
     private RedisCacheManager redisCacheMgr;

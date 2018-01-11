@@ -2,27 +2,13 @@ package com.testwa.distest.client.android;
 
 import com.android.ddmlib.AndroidDebugBridge;
 import com.android.ddmlib.IDevice;
-import com.github.cosysoft.device.android.AndroidDevice;
-import com.github.cosysoft.device.android.impl.DefaultHardwareDevice;
 import com.testwa.distest.client.ApplicationContextUtil;
-import com.testwa.distest.client.control.client.MainSocket;
-import com.testwa.distest.client.control.event.DeviceConnectedEvent;
-import com.testwa.distest.client.control.event.DeviceDisconnectEvent;
-import com.testwa.distest.client.control.event.DeviceOfflineEvent;
-import com.testwa.distest.client.control.event.DeviceOnlineEvent;
-import com.testwa.distest.client.grpc.Gvice;
-import com.testwa.distest.client.model.TestwaDevice;
-import com.testwa.distest.client.service.GrpcClientService;
-import com.testwa.distest.client.task.TestwaScheduled;
-import io.rpc.testwa.device.Device;
+import com.testwa.distest.client.event.DeviceConnectedEvent;
+import com.testwa.distest.client.event.DeviceDisconnectEvent;
+import com.testwa.distest.client.event.DeviceOfflineEvent;
+import com.testwa.distest.client.event.DeviceOnlineEvent;
 import lombok.extern.log4j.Log4j2;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * 设备监听器

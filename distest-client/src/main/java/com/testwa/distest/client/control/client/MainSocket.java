@@ -1,14 +1,10 @@
 package com.testwa.distest.client.control.client;
 
-import com.github.cosysoft.device.android.AndroidDevice;
-import com.github.cosysoft.device.android.impl.AndroidDeviceStore;
 import com.testwa.distest.client.ApplicationContextUtil;
-import com.testwa.distest.client.control.client.boost.Message;
-import com.testwa.distest.client.control.client.boost.MessageCallback;
-import com.testwa.distest.client.control.event.DeviceConnectedEvent;
-import com.testwa.distest.client.control.event.WebSocketConnectedEvent;
-import com.testwa.distest.client.control.event.WebSocketDisconnectedEvent;
-import com.testwa.distest.client.model.UserInfo;
+import com.testwa.distest.client.control.boost.Message;
+import com.testwa.distest.client.control.boost.MessageCallback;
+import com.testwa.distest.client.event.WebSocketConnectedEvent;
+import com.testwa.distest.client.event.WebSocketDisconnectedEvent;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import org.slf4j.Logger;
@@ -16,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 import java.net.URISyntaxException;
-import java.util.TreeSet;
 
 /**
  * Created by wen on 10/06/2017.

@@ -1,1 +1,0 @@
-package com.testwa.distest.client.control.client.task;public class PythonExecutorHandler extends AbstractExecutorHandler {    @Override    public void handleRequest(Executor executor) {        executor.runScripts();    }}

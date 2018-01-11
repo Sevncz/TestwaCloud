@@ -192,7 +192,7 @@ public class ExecuteMgr {
             try {
                 content = taskCacheMgr.getExeInfoProgress(d.getDeviceId());
             } catch (Exception e) {
-                log.error("get task cache error", e);
+                log.error("get executor cache error", e);
             }
             if(StringUtils.isNotBlank(content)){
                 Map<String, String> jsonContent = JSON.parseObject(content, Map.class);

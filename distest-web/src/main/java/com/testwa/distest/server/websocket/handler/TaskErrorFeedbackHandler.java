@@ -28,7 +28,7 @@ public class TaskErrorFeedbackHandler {
         Task t = JSON.parseObject(data, Task.class);
         Task task = taskService.findOne(t.getId());
         if(task == null){
-            log.error("This task was not found, {}", t.toString());
+            log.error("This executor was not found, {}", t.toString());
             return;
         }
         task.setStatus(DB.TaskStatus.ERROR);

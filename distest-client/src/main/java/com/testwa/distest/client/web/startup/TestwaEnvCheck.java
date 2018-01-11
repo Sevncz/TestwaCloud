@@ -2,13 +2,11 @@ package com.testwa.distest.client.web.startup;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
-import com.github.cosysoft.device.android.AndroidDevice;
-import com.github.cosysoft.device.android.impl.AndroidDeviceStore;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.android.DeviceManager;
 import com.testwa.distest.client.appium.utils.Config;
 import com.testwa.distest.client.control.client.MainSocket;
-import com.testwa.distest.client.control.client.boost.MessageCallback;
+import com.testwa.distest.client.control.boost.MessageCallback;
 import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.service.GrpcClientService;
 import com.testwa.distest.client.service.HttpService;
@@ -26,7 +24,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.TreeSet;
 
 /**
  * Created by wen on 16/8/27.

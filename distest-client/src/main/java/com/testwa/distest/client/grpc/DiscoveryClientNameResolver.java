@@ -89,7 +89,7 @@ public class DiscoveryClientNameResolver extends NameResolver {
         public void run() {
             Listener savedListener;
             synchronized (DiscoveryClientNameResolver.this) {
-                // If this task is started by refresh(), there might already be a scheduled task.
+                // If this executor is started by refresh(), there might already be a scheduled executor.
                 if (resolutionTask != null) {
                     resolutionTask.cancel(false);
                     resolutionTask = null;

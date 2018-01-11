@@ -1,0 +1,1 @@
+package com.testwa.distest.client.event;import org.springframework.context.ApplicationEvent;public class WebSocketConnectedEvent extends ApplicationEvent {    public WebSocketConnectedEvent(Object source) {        super(source);    }}

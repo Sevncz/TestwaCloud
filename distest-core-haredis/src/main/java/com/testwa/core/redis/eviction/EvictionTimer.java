@@ -19,13 +19,13 @@ public class EvictionTimer {
     }
 
     /**
-     * Add the specified eviction task to the timer. Tasks that are added with a call to this method *must* call
-     * {@link #cancel(TimerTask)} to cancel the task to prevent memory and/or thread leaks in application
+     * Add the specified eviction executor to the timer. Tasks that are added with a call to this method *must* call
+     * {@link #cancel(TimerTask)} to cancel the executor to prevent memory and/or thread leaks in application
      * server
      * environments.
      *
      * @param task                      TaskScene to be scheduled
-     * @param evictorDelayCheckSeconds  Delay in milliseconds before task is executed
+     * @param evictorDelayCheckSeconds  Delay in milliseconds before executor is executed
      * @param evictorCheckPeriodSeconds Time in milliseconds between executions
      */
     public static synchronized void schedule(TimerTask task, int evictorDelayCheckSeconds,
@@ -38,7 +38,7 @@ public class EvictionTimer {
     }
 
     /**
-     * Remove the specified eviction task from the timer.
+     * Remove the specified eviction executor from the timer.
      *
      * @param task TaskScene to be scheduled
      */

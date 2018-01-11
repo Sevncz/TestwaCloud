@@ -36,7 +36,7 @@ import java.util.List;
 @Log4j2
 @Api("任务执行相关api")
 @RestController
-@RequestMapping(path = WebConstants.API_PREFIX + "/task")
+@RequestMapping(path = WebConstants.API_PREFIX + "/executor")
 public class TaskController extends BaseController {
 
     @Autowired

@@ -1,1 +1,0 @@
-package com.testwa.distest.client.control.event;import lombok.Data;import org.springframework.context.ApplicationEvent;@Datapublic class DeviceOfflineEvent extends ApplicationEvent {    private String deviceId;    public DeviceOfflineEvent(Object source, String deviceId){        super(source);        this.deviceId = deviceId;    }}
