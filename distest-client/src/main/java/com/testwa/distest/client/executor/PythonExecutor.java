@@ -5,7 +5,10 @@ import com.github.cosysoft.device.android.impl.DefaultAndroidApp;
 import com.testwa.core.cmd.RemoteTestcaseContent;
 import com.testwa.core.service.PythonScriptDriverService;
 import com.testwa.core.service.PythonServiceBuilder;
+import com.testwa.distest.client.ApplicationContextUtil;
 import com.testwa.distest.client.appium.AppiumManager;
+import com.testwa.distest.client.event.DeviceDisconnectEvent;
+import com.testwa.distest.client.event.ExecutorCurrentInfoNotifyEvent;
 import com.testwa.distest.client.exception.DownloadFailException;
 import com.testwa.distest.client.grpc.Gvice;
 import com.testwa.distest.client.model.UserInfo;
@@ -17,6 +20,7 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -30,7 +34,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 执行器
+ * python 执行器
  * 1. 下载app
  * 2. 下载脚本
  * 3. 运行脚本
@@ -57,8 +61,6 @@ public class PythonExecutor {
     private boolean isStop = false;
     private Long currScript;
     private Long currTestCaseId;
-
-    private Channel channel;
 
     // 所有脚本的本地保存路径
     private Map<Long, String> scriptPath = new HashMap<>();
@@ -365,17 +367,8 @@ public class PythonExecutor {
 
     public void notifyCurrExeInfo(){
 
-        CurrentExeInfoRequest request = CurrentExeInfoRequest.newBuilder()
-                .setDeviceId(this.deviceId)
-                .setExeId(this.taskId)
-                .setScriptId(this.currScript)
-                .setTestcaseId(this.currTestCaseId)
-                .setToken(UserInfo.token)
-                .build();
-        Gvice.taskService(this.channel).currExeInfo(request);
+        ApplicationContext context = ApplicationContextUtil.getApplicationContext();
+        context.publishEvent(new ExecutorCurrentInfoNotifyEvent(this, deviceId, taskId, currScript, currTestCaseId));
     }
 
-    public void setChannel(Channel channel) {
-        this.channel = channel;
-    }
 }

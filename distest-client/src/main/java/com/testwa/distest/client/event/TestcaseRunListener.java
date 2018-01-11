@@ -9,6 +9,7 @@ import com.testwa.distest.client.exception.DownloadFailException;
 import com.testwa.distest.client.grpc.GrpcClient;
 import com.testwa.distest.client.grpc.Gvice;
 import com.testwa.distest.client.model.UserInfo;
+import com.testwa.distest.client.service.GrpcClientService;
 import io.grpc.Channel;
 import io.rpc.testwa.task.CurrentExeInfoRequest;
 import io.rpc.testwa.task.TaskOverRequest;
@@ -35,8 +36,8 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
 
     @Autowired
     public AppiumManagerPool pool;
-    @GrpcClient("local-grpc-server")
-    private Channel serverChannel;
+    @Autowired
+    public GrpcClientService grpcClientService;
     @Value("${agent.web.url}")
     private String agentWebUrl;
 
@@ -72,7 +73,6 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
                 PythonExecutor executor2 = new PythonExecutor(agentWebUrl, manager);
                 try {
                     executors.put(cmd.getDeviceId(), executor2);
-                    executor2.setChannel(serverChannel);
                     executor2.setAppId(cmd.getAppId());
                     executor2.setDeviceId(cmd.getDeviceId());
                     executor2.setInstall(cmd.getInstall());
@@ -92,14 +92,7 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
                     pool.release(manager);
                     executors.remove(cmd.getDeviceId());
 
-                    // 测试结束，通知服务器，任务已结束
-                    TaskOverRequest taskOverRequest = TaskOverRequest.newBuilder()
-                            .setToken(UserInfo.token)
-                            .setExeId(cmd.getExeId())
-                            .setTimestamp(TimeUtil.getTimestampLong())
-                            .build();
-
-                    Gvice.taskService(serverChannel).gameover(taskOverRequest);
+                    grpcClientService.gameover(cmd.getExeId());
                 }
                 log.info("executors over!");
 
@@ -110,14 +103,7 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
                 if(executor4 != null){
                     Long currScriptId = executor4.getCurrScript();
                     Long currTestcaseId = executor4.getCurrTestCaseId();
-                    CurrentExeInfoRequest request = CurrentExeInfoRequest.newBuilder()
-                            .setDeviceId(cmd.getDeviceId())
-                            .setExeId(cmd.getExeId())
-                            .setScriptId(currScriptId)
-                            .setTestcaseId(currTestcaseId)
-                            .setToken(UserInfo.token)
-                            .build();
-                    Gvice.taskService(serverChannel).currExeInfo(request);
+                    grpcClientService.notifyServerCurrentTaskExecutorInfo(cmd.getDeviceId(), cmd.getExeId(), currScriptId, currTestcaseId);
                 }
                 break;
         }
