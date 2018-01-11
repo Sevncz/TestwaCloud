@@ -1,0 +1,1 @@
+package com.testwa.distest.client.exception;public class DownloadFailException extends Exception{    public DownloadFailException(){    }    public DownloadFailException(String message){        super(message);    }}

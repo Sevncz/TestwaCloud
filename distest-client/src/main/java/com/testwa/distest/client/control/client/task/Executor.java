@@ -7,6 +7,7 @@ import com.testwa.core.service.PythonScriptDriverService;
 import com.testwa.core.service.PythonServiceBuilder;
 import com.testwa.core.utils.Identities;
 import com.testwa.distest.client.appium.manager.CustomServerFlag;
+import com.testwa.distest.client.exception.DownloadFailException;
 import com.testwa.distest.client.grpc.Gvice;
 import com.testwa.distest.client.control.port.AppiumPortProvider;
 import com.testwa.distest.client.model.UserInfo;
@@ -26,13 +27,19 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * 执行器
+ * 1. 下载app
+ * 2. 下载脚本
+ * 3. 运行脚本
  * Created by wen on 19/08/2017.
  */
 public class Executor {
@@ -58,6 +65,9 @@ public class Executor {
     private Long currTestCaseId;
 
     private Channel channel;
+
+    // 所有脚本的本地保存路径
+    private Map<Long, String> scriptPath = new HashMap<>();
 
 
     public Executor(String nodePath, String appiumPath, String agentWebUrl, String clientWebUrl) throws IOException {
@@ -87,11 +97,6 @@ public class Executor {
 
         try {
 
-            AndroidApp app = new DefaultAndroidApp(new File(appPath));
-            String basePackage = app.getBasePackage();
-            String mainActivity = app.getMainActivity();
-
-
             RemoteTestcaseContent content = this.testcases.poll();
             List<Long> scIds = content.getScriptIds();
             this.scripts = new ArrayBlockingQueue<>(scIds.size());
@@ -119,7 +124,7 @@ public class Executor {
                     this.scripts = new ArrayBlockingQueue<>(scIds.size());
                     this.scripts.addAll(scIds);
                 }
-                boolean status = runOneScript(appPath, basePackage, mainActivity);
+                boolean status = runOneScript();
                 if(!status){
                     log.info("Complete All !");
                     break;
@@ -150,21 +155,23 @@ public class Executor {
 
     }
 
-    private Boolean runOneScript(String appPath, String basePackage, String mainActivity) throws Exception {
+    private Boolean runOneScript() throws Exception {
         Long runscriptId = this.scripts.poll();
         if(runscriptId == null){
             return false;
         }
 
         this.currScript = runscriptId;
+        AndroidApp app = new DefaultAndroidApp(new File(appPath));
+        String basePackage = app.getBasePackage();
+        String mainActivity = app.getMainActivity();
 
-
-        String scriptUrl = String.format(Constant.SCRIPT_URL, agentWebUrl, runscriptId);
-
-        String scriptPath = Http.download(scriptUrl, Constant.localAppPath);
+//        String scriptUrl = String.format(Constant.SCRIPT_URL, agentWebUrl, runscriptId);
+//        String scriptPath = Http.download(scriptUrl, Constant.localScriptPath);
+        String filePath = scriptPath.get(runscriptId);
         // 脚本替换
         String url = this.service.getUrl().toString().replace("0.0.0.0", "127.0.0.1");
-        String tempPath = replaceScriptByAndroid(scriptPath, appPath, basePackage, mainActivity, url);
+        String tempPath = replaceScriptByAndroid(filePath, appPath, basePackage, mainActivity, url);
         log.info("temp script path is [{}]", tempPath);
 
         // 执行脚本
@@ -342,16 +349,38 @@ public class Executor {
         this.scripts.clear();
     }
 
-    public void setAppId(Long appId){
-        this.appId = appId;
+    public void downloadApp() throws DownloadFailException, IOException {
         String appUrl = String.format(Constant.APP_URL, agentWebUrl, appId);
         this.appPath = Http.download(appUrl, Constant.localAppPath);
 
         if(StringUtils.isBlank(appPath)){
             log.error("appPath is null, app url is [{}]", appUrl);
+            throw new DownloadFailException("app download fail");
         }
-
     }
+    public void downloadScript() throws DownloadFailException, IOException {
+        for (RemoteTestcaseContent remoteTestcaseContent : this.testcaseList) {
+            List<Long> scriptIds = remoteTestcaseContent.getScriptIds();
+            for (Long scriptId : scriptIds) {
+                if(scriptPath.containsKey(scriptId)){
+                    continue;
+                }
+                String scriptUrl = String.format(Constant.SCRIPT_URL, agentWebUrl, scriptId);
+                String saveDir = Constant.localScriptPath + File.separator + scriptId;
+                String savePath = Http.download(scriptUrl, saveDir);
+                if (StringUtils.isBlank(savePath)) {
+                    log.error("scriptPath is null, script url is [{}]", scriptUrl);
+                    throw new DownloadFailException("script download fail");
+                }
+                scriptPath.put(scriptId, savePath);
+            }
+        }
+    }
+
+    public void setAppId(Long appId){
+        this.appId = appId;
+    }
+
     public void setDeviceId(String deviceId){
         this.deviceId = deviceId;
     }

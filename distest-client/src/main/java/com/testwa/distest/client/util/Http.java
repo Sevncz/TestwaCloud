@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.testwa.core.utils.Identities;
 import com.testwa.core.utils.TimeUtil;
 import com.testwa.core.utils.UUID;
+import com.testwa.distest.client.exception.DownloadFailException;
 import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.task.Testcase;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
@@ -101,13 +102,19 @@ public class Http {
     }
 
 
-    public static String download(String url, String savePath){
+    public static String download(String url, String saveDir) throws DownloadFailException, IOException {
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet(url);
         httpGet.setHeader("X-TOKEN", UserInfo.token);
         OutputStream out = null;
         InputStream in = null;
-        String localSavePath = null;
+//        String localSavePath = null;
+
+        Path saveDirPath = Paths.get(saveDir);
+        if(!Files.exists(saveDirPath)){
+            Files.createDirectories(saveDirPath);
+        }
+
         try {
             HttpResponse httpResponse = httpclient.execute(httpGet);
             HttpEntity entity = httpResponse.getEntity();
@@ -115,8 +122,7 @@ public class Http {
             in = entity.getContent();
             long length = entity.getContentLength();
             if (length <= 0) {
-                log.error("The file is not exist");
-                return null;
+                throw new DownloadFailException("File length is null");
             }
 
             String filename = httpResponse.getLastHeader("filename").getValue();
@@ -124,13 +130,9 @@ public class Http {
             String[] f = filename.split("\\.");
             String newFileName = f[0] + UUID.uuid(10) + "." + f[f.length - 1];
 
-            localSavePath = Paths.get(savePath, newFileName).toString();
-            log.info("savePath ------------> " + localSavePath);
-            File file = new File(localSavePath);
-            if(!file.exists()){
-                file.createNewFile();
-            }
-
+            Path localSavePath = Files.createFile(Paths.get(saveDir, newFileName));
+            log.info("savePath : " + localSavePath);
+            File file = localSavePath.toFile();
             out = new FileOutputStream(file);
             byte[] buffer = new byte[4096];
             int readLength = 0;
@@ -141,9 +143,9 @@ public class Http {
             }
 
             out.flush();
-
+            return localSavePath.toString();
         }catch (Exception e){
-            log.error("Download from server error.", e);
+            throw new DownloadFailException(e.getMessage());
         }finally{
             try {
                 if(in != null){
@@ -161,7 +163,6 @@ public class Http {
                 e.printStackTrace();
             }
         }
-        return localSavePath;
     }
 
 

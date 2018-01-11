@@ -2,8 +2,9 @@ package com.testwa.distest.client.control.event;
 
 import com.testwa.core.cmd.RemoteRunCommand;
 import com.testwa.core.utils.TimeUtil;
-import com.testwa.distest.client.control.client.task.Executor;
+import com.testwa.distest.client.control.client.task.*;
 import com.testwa.distest.client.control.client.task.pool.ExecutorPool;
+import com.testwa.distest.client.exception.DownloadFailException;
 import com.testwa.distest.client.grpc.GrpcClient;
 import com.testwa.distest.client.grpc.Gvice;
 import com.testwa.distest.client.model.UserInfo;
@@ -18,6 +19,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,6 +61,8 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
                     log.error("this device {} was running", cmd.getDeviceId());
                     break;
                 }
+
+
                 Executor executor2 = pool.getService();
                 try {
                     excutors.put(cmd.getDeviceId(), executor2);
@@ -68,15 +72,22 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
                     executor2.setInstall(cmd.getInstall());
                     executor2.setTaskId(cmd.getExeId());
                     executor2.setTestcaseList(cmd.getTestcaseList());
-                    executor2.runScripts();
-                }catch (Exception e){
+
+                    AbstractExecutorHandler appHander = new AppDownloadExecutorHandler();
+                    AbstractExecutorHandler scriptHander = new ScriptDownloadExecutorHandler();
+                    AbstractExecutorHandler pythonHander = new PythonExecutorHandler();
+                    // 如A处理不掉转交给B
+                    appHander.setHandler(scriptHander);
+                    scriptHander.setHandler(pythonHander);
+                    appHander.handleRequest(executor2);
+                }catch (DownloadFailException | IOException e){
                     log.error("excutors error", e);
-                }finally {
+                } finally {
 
                     pool.release(executor2);
                     excutors.remove(cmd.getDeviceId());
 
-                    // 测试结束，通知服务器结束
+                    // 测试结束，通知服务器，任务已结束
                     TaskOverRequest taskOverRequest = TaskOverRequest.newBuilder()
                             .setToken(UserInfo.token)
                             .setExeId(cmd.getExeId())
