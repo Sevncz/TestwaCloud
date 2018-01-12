@@ -7,15 +7,10 @@ import com.testwa.core.service.PythonScriptDriverService;
 import com.testwa.core.service.PythonServiceBuilder;
 import com.testwa.distest.client.ApplicationContextUtil;
 import com.testwa.distest.client.appium.AppiumManager;
-import com.testwa.distest.client.event.DeviceDisconnectEvent;
 import com.testwa.distest.client.event.ExecutorCurrentInfoNotifyEvent;
 import com.testwa.distest.client.exception.DownloadFailException;
-import com.testwa.distest.client.grpc.Gvice;
-import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.util.Constant;
 import com.testwa.distest.client.util.Http;
-import io.grpc.Channel;
-import io.rpc.testwa.task.CurrentExeInfoRequest;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -45,7 +40,7 @@ public class PythonExecutor {
     private static Logger log = LoggerFactory.getLogger(PythonExecutor.class);
 
     private String agentWebUrl;
-    private AppiumManager appiumManager;
+    private String appiumUrl;
     private PythonScriptDriverService pyService;
 
     private BlockingQueue<RemoteTestcaseContent> testcases;
@@ -66,9 +61,9 @@ public class PythonExecutor {
     private Map<Long, String> scriptPath = new HashMap<>();
 
 
-    public PythonExecutor(String agentWebUrl, AppiumManager appiumManager) {
+    public PythonExecutor(String agentWebUrl, String appiumUrl) {
         this.agentWebUrl = agentWebUrl;
-        this.appiumManager = appiumManager;
+        this.appiumUrl = appiumUrl;
     }
 
     public void runScripts(){
@@ -151,7 +146,7 @@ public class PythonExecutor {
 //        String scriptPath = Http.download(scriptUrl, Constant.localScriptPath);
         String filePath = scriptPath.get(runscriptId);
         // 脚本替换
-        String url = this.appiumManager.getAppiumService().getUrl().toString().replace("0.0.0.0", "127.0.0.1");
+        String url = appiumUrl.replace("0.0.0.0", "127.0.0.1");
         String tempPath = replaceScriptByAndroid(filePath, appPath, basePackage, mainActivity, url);
         log.info("temp script path is [{}]", tempPath);
 
@@ -300,7 +295,7 @@ public class PythonExecutor {
         return this.pyService.isRunning();
     }
 
-    public void pythonStop() {
+    public void stop() {
         if(!this.pyService.isRunning()){
             this.pyService.stop();
         }

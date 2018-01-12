@@ -1,22 +1,12 @@
 package com.testwa.distest.client.event;
 
 import com.testwa.core.cmd.RemoteRunCommand;
-import com.testwa.core.utils.TimeUtil;
 import com.testwa.distest.client.appium.AppiumManager;
 import com.testwa.distest.client.executor.*;
 import com.testwa.distest.client.appium.pool.AppiumManagerPool;
 import com.testwa.distest.client.exception.DownloadFailException;
-import com.testwa.distest.client.grpc.GrpcClient;
-import com.testwa.distest.client.grpc.Gvice;
-import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.service.GrpcClientService;
-import io.grpc.Channel;
-import io.rpc.testwa.task.CurrentExeInfoRequest;
-import io.rpc.testwa.task.TaskOverRequest;
-import io.rpc.testwa.task.TaskServiceGrpc;
 import lombok.extern.log4j.Log4j2;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
@@ -52,8 +42,7 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
                 // 停止
                 PythonExecutor executor1 = executors.get(cmd.getDeviceId());
                 if(executor1 != null){
-                    executor1.pythonStop();
-                    pool.release(executor1.getAppiumManager());
+                    executor1.stop();
                 }
                 break;
             case 1:
@@ -70,7 +59,8 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
                     break;
                 }
                 AppiumManager manager = pool.getManager();
-                PythonExecutor executor2 = new PythonExecutor(agentWebUrl, manager);
+                String appiumUrl = manager.getAppiumService().getUrl().toString();
+                PythonExecutor executor2 = new PythonExecutor(agentWebUrl, appiumUrl);
                 try {
                     executors.put(cmd.getDeviceId(), executor2);
                     executor2.setAppId(cmd.getAppId());
@@ -91,7 +81,6 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
                 } finally {
                     pool.release(manager);
                     executors.remove(cmd.getDeviceId());
-
                     grpcClientService.gameover(cmd.getExeId());
                 }
                 log.info("executors over!");
