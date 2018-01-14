@@ -2,6 +2,7 @@ package com.testwa.distest.client.event;
 
 import com.testwa.core.cmd.RemoteRunCommand;
 import com.testwa.distest.client.appium.AppiumManager;
+import com.testwa.distest.client.exception.AppiumStartFailedException;
 import com.testwa.distest.client.executor.*;
 import com.testwa.distest.client.appium.pool.AppiumManagerPool;
 import com.testwa.distest.client.exception.DownloadFailException;
@@ -58,33 +59,35 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
                     log.error("this device {} was running", cmd.getDeviceId());
                     break;
                 }
-                AppiumManager manager = pool.getManager();
-                String appiumUrl = manager.getAppiumService().getUrl().toString();
-                PythonExecutor executor2 = new PythonExecutor(agentWebUrl, appiumUrl);
-                try {
-                    executors.put(cmd.getDeviceId(), executor2);
-                    executor2.setAppId(cmd.getAppId());
-                    executor2.setDeviceId(cmd.getDeviceId());
-                    executor2.setInstall(cmd.getInstall());
-                    executor2.setTaskId(cmd.getExeId());
-                    executor2.setTestcaseList(cmd.getTestcaseList());
+                final AppiumManager manager = pool.getManager();
+                if(manager != null){
+                    try {
+                        String appiumUrl = manager.getAppiumService().getUrl().toString();
+                        PythonExecutor executor2 = new PythonExecutor(agentWebUrl, appiumUrl);
+                        executors.put(cmd.getDeviceId(), executor2);
+                        executor2.setAppId(cmd.getAppId());
+                        executor2.setDeviceId(cmd.getDeviceId());
+                        executor2.setInstall(cmd.getInstall());
+                        executor2.setTaskId(cmd.getExeId());
+                        executor2.setTestcaseList(cmd.getTestcaseList());
 
-                    AbstractExecutorHandler appHander = new AppDownloadExecutorHandler();
-                    AbstractExecutorHandler scriptHander = new ScriptDownloadExecutorHandler();
-                    AbstractExecutorHandler pythonHander = new PythonExecutorHandler();
-                    // 如A处理不掉转交给B
-                    appHander.setHandler(scriptHander);
-                    scriptHander.setHandler(pythonHander);
-                    appHander.handleRequest(executor2);
-                }catch (DownloadFailException | IOException e){
-                    log.error("executors error", e);
-                } finally {
+                        AbstractExecutorHandler appHander = new AppDownloadExecutorHandler();
+                        AbstractExecutorHandler scriptHander = new ScriptDownloadExecutorHandler();
+                        AbstractExecutorHandler pythonHander = new PythonExecutorHandler();
+                        // 如A处理不掉转交给B
+                        appHander.setHandler(scriptHander);
+                        scriptHander.setHandler(pythonHander);
+                        appHander.handleRequest(executor2);
+                        //| AppiumStartFailedException
+                    }catch (DownloadFailException | IOException  e){
+                        log.error("executors error", e);
+                    }
                     pool.release(manager);
-                    executors.remove(cmd.getDeviceId());
-                    grpcClientService.gameover(cmd.getExeId());
                 }
+                // 通知结束
+                executors.remove(cmd.getDeviceId());
+                grpcClientService.gameover(cmd.getExeId());
                 log.info("executors over!");
-
                 break;
             case 2:
                 // 检查

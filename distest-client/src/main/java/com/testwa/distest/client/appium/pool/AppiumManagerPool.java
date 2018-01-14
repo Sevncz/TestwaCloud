@@ -1,12 +1,14 @@
 package com.testwa.distest.client.appium.pool;
 
 import com.testwa.distest.client.appium.AppiumManager;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 /**
  * Created by wen on 13/08/2017.
  */
+@Log4j2
 public class AppiumManagerPool {
     private final GenericObjectPool<AppiumManager> pool;
 
@@ -22,7 +24,7 @@ public class AppiumManagerPool {
         try {
             return pool.borrowObject();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Borrow appium manager error", e);
             return null;
         }
     }
