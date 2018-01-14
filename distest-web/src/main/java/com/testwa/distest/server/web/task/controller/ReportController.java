@@ -3,18 +3,17 @@ package com.testwa.distest.server.web.task.controller;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.AuthorizedException;
 import com.testwa.core.base.exception.ObjectNotExistsException;
+import com.testwa.core.base.exception.ParamsIsNullException;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.base.vo.Result;
 import com.testwa.distest.common.util.WebUtil;
-import com.testwa.distest.server.entity.DeviceAndroid;
-import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.Task;
-import com.testwa.core.utils.TimeUtil;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.mvc.model.ProcedureInfo;
-import com.testwa.distest.server.mvc.model.ProcedureStatis;
 import com.testwa.distest.server.mvc.service.ProcedureInfoService;
+import com.testwa.distest.server.service.task.form.StepListForm;
+import com.testwa.distest.server.service.task.form.StepPageForm;
 import com.testwa.distest.server.service.task.form.TaskListForm;
 import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.service.user.service.UserService;
@@ -28,8 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -90,6 +87,28 @@ public class ReportController extends BaseController {
         PageResult<Task> taskPR = taskService.findPageForCreateUser(pageForm, user.getId());
 
         return ok(taskPR);
+    }
+
+    @ApiOperation(value="步骤信息列表", notes="")
+    @ResponseBody
+    @GetMapping(value = "/step/list")
+    public Result stepList(@Valid StepListForm form) throws ParamsIsNullException {
+        if(form.getTaskId() == null){
+            throw new ParamsIsNullException("TaskId is null");
+        }
+        List<ProcedureInfo> procedureInfoList = procedureInfoService.findList(form);
+        return ok(procedureInfoList);
+    }
+
+    @ApiOperation(value="步骤信息分页列表", notes="")
+    @ResponseBody
+    @GetMapping(value = "/step/page")
+    public Result stepPage(@Valid StepPageForm pageForm) throws ParamsIsNullException {
+        if(pageForm.getTaskId() == null){
+            throw new ParamsIsNullException("TaskId is null");
+        }
+        PageResult<ProcedureInfo> procedureInfoPage = procedureInfoService.findByPage(pageForm);
+        return ok(procedureInfoPage);
     }
 
 }

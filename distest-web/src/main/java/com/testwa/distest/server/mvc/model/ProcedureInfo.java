@@ -1,6 +1,7 @@
 package com.testwa.distest.server.mvc.model;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.testwa.distest.common.serializer.StringValueToLongSerializer;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
@@ -31,12 +32,14 @@ public class ProcedureInfo {
     private String sessionId;
     @Indexed
     private String deviceId;
+    // 脚本ID
     @Indexed
     @JSONField(serializeUsing = StringValueToLongSerializer.class)
     private Long testSuit;
     @Indexed
     @JSONField(serializeUsing = StringValueToLongSerializer.class)
     private Long testcaseId;
+    // 任务ID
     @Indexed
     @JSONField(serializeUsing = StringValueToLongSerializer.class)
     private Long executionTaskId;
@@ -47,6 +50,8 @@ public class ProcedureInfo {
     private Date createDate;
     private Long timestamp;
 
+    @JsonIgnore
     private Long userId;
+    @JsonIgnore
     private String token;
 }

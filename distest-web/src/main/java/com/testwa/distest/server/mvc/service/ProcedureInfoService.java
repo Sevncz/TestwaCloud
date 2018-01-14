@@ -1,9 +1,12 @@
 package com.testwa.distest.server.mvc.service;
 
+import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.server.mvc.model.ProcedureInfo;
 import com.testwa.distest.server.mvc.model.ProcedureStatis;
 import com.testwa.distest.server.mvc.repository.ProcedureInfoRepository;
 import com.testwa.distest.server.mvc.repository.ProcedureStatisRepository;
+import com.testwa.distest.server.service.task.form.StepListForm;
+import com.testwa.distest.server.service.task.form.StepPageForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -68,8 +71,8 @@ public class ProcedureInfoService extends BaseService {
         procedureStatisRepository.save(s);
     }
 
-    public void deleteStatisById(String exeId) {
-        procedureStatisRepository.delete(exeId);
+    public void deleteStatisById(String taskId) {
+        procedureStatisRepository.delete(taskId);
     }
 
     public List<ProcedureInfo> findBySessionId(String sessionId) {
@@ -78,5 +81,34 @@ public class ProcedureInfoService extends BaseService {
 
     public List<ProcedureInfo> findByExeId(Long taskId) {
         return procedureInfoRepository.findByExecutionTaskIdOrderByTimestampAsc(taskId);
+    }
+
+    public PageResult<ProcedureInfo> findByPage(StepPageForm form) {
+        Query query = new Query();
+        if(form.getScriptId() != null){
+            query.addCriteria(Criteria.where("testSuit").is(form.getScriptId()));
+        }
+        if(form.getTaskId() != null){
+            query.addCriteria(Criteria.where("executionTaskId").is(form.getTaskId()));
+        }
+        int pageNum = form.getPageNo();
+        int rows = form.getPageSize();
+        String sortField = "timestamp";
+        Sort sort = new Sort(Sort.Direction.ASC, sortField);
+        PageRequest pageRequest = new PageRequest(pageNum, rows, sort);
+        Page<ProcedureInfo> page = procedureInfoRepository.find(query, pageRequest);
+        PageResult<ProcedureInfo> result = new PageResult<>(page.getContent(), page.getTotalElements());
+        return result;
+    }
+
+    public List<ProcedureInfo> findList(StepListForm form) {
+        Query query = new Query();
+        if(form.getScriptId() != null){
+            query.addCriteria(Criteria.where("testSuit").is(form.getScriptId()));
+        }
+        if(form.getTaskId() != null){
+            query.addCriteria(Criteria.where("executionTaskId").is(form.getTaskId()));
+        }
+        return procedureInfoRepository.find(query);
     }
 }
