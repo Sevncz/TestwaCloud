@@ -1,13 +1,10 @@
 package com.testwa.distest.server.rpc.service;
 
-import com.alibaba.fastjson.JSON;
-import com.testwa.core.WebsocketEvent;
-import com.testwa.core.redis.RedisCacheManager;
 import com.testwa.distest.common.enums.DB;
+import com.testwa.distest.config.DisFileProperties;
 import com.testwa.distest.config.security.JwtTokenUtil;
 import com.testwa.distest.server.entity.Task;
 import com.testwa.distest.server.LogInterceptor;
-import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.mvc.event.GameOverEvent;
 import com.testwa.distest.server.rpc.GRpcService;
 import com.testwa.distest.server.service.cache.mgr.TaskCacheMgr;
@@ -17,22 +14,28 @@ import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
 import com.testwa.distest.server.web.task.execute.ProcedureRedisMgr;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.task.*;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
-import java.util.Map;
-import java.util.Objects;
 
 /**
  * Created by wen on 09/09/2017.
  */
+@Log4j2
 @GRpcService(interceptors = { LogInterceptor.class })
 public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
-    private static final Logger log = LoggerFactory.getLogger(TaskGvice.class);
+
+    private BufferedOutputStream mBufferedOutputStream = null;
+    private int mStatus = 200;
+    private String mMessage = "";
 
     @Autowired
     private TaskService taskService;
@@ -45,9 +48,11 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     @Autowired
     private DeviceAuthMgr deviceAuthMgr;
     @Autowired
-    ApplicationContext context;
+    private ApplicationContext context;
     @Autowired
     private ProcedureRedisMgr procedureRedisMgr;
+    @Autowired
+    private DisFileProperties disFileProperties;
 
     @Override
     public void gameover(TaskOverRequest request, StreamObserver<CommonReply> responseObserver) {
@@ -86,5 +91,163 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     public void procedureInfoUpload(ProcedureInfoUploadRequest request, StreamObserver<CommonReply> responseObserver) {
         String info = request.getInfoJson();
         procedureRedisMgr.addProcedureToQueue(info);
+    }
+
+    @Override
+    public StreamObserver<FileUploadRequest> logcatUpload(StreamObserver<CommonReply> responseObserver) {
+        return new StreamObserver<FileUploadRequest>() {
+            int mmCount = 0;
+
+            @Override
+            public void onNext(FileUploadRequest request) {
+                log.info("onNext count: " + mmCount);
+                mmCount++;
+
+                byte[] data = request.getData().toByteArray();
+                int offset = request.getOffset();
+                String name = request.getName();
+
+                try {
+                    if (mBufferedOutputStream == null) {
+                        mBufferedOutputStream = new BufferedOutputStream(new FileOutputStream("receive_" + name));
+                    }
+                    mBufferedOutputStream.write(data, offset, data.length);
+                    mBufferedOutputStream.flush();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onError(Throwable t) {
+
+            }
+
+            @Override
+            public void onCompleted() {
+                responseObserver.onNext(CommonReply.newBuilder()
+                        .setStatus(mStatus)
+                        .setMessage(mMessage)
+                        .build());
+                responseObserver.onCompleted();
+                if (mBufferedOutputStream != null) {
+                    try {
+                        mBufferedOutputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        mBufferedOutputStream = null;
+                    }
+                }
+            }
+        };
+    }
+
+    @Override
+    public StreamObserver<FileUploadRequest> appiumLogUpload(StreamObserver<CommonReply> responseObserver) {
+        return new StreamObserver<FileUploadRequest>() {
+            int mmCount = 0;
+
+            @Override
+            public void onNext(FileUploadRequest request) {
+                log.info("onNext count: " + mmCount);
+                mmCount++;
+
+                byte[] data = request.getData().toByteArray();
+                int offset = request.getOffset();
+                int size = (int) request.getSize();
+                String name = request.getName();
+                String localPath = disFileProperties.getAppium();
+                Path localFile = Paths.get(localPath, name);
+                if(Files.exists(localFile)){
+                    try {
+                        Files.createFile(localFile);
+                    } catch (IOException e) {
+                        log.error("Receive appium log, create error", e);
+                    }
+                }
+                try {
+                    if (mBufferedOutputStream == null) {
+                        mBufferedOutputStream = new BufferedOutputStream(new FileOutputStream(localFile.toFile()));
+                    }
+                    mBufferedOutputStream.write(data, offset, size);
+                    mBufferedOutputStream.flush();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onError(Throwable t) {
+
+            }
+
+            @Override
+            public void onCompleted() {
+                responseObserver.onNext(CommonReply.newBuilder()
+                        .setStatus(mStatus)
+                        .setMessage(mMessage)
+                        .build());
+                responseObserver.onCompleted();
+                if (mBufferedOutputStream != null) {
+                    try {
+                        mBufferedOutputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        mBufferedOutputStream = null;
+                    }
+                }
+            }
+        };
+    }
+
+    @Override
+    public StreamObserver<FileUploadRequest> imgUpload(StreamObserver<CommonReply> responseObserver) {
+        return new StreamObserver<FileUploadRequest>() {
+            int mmCount = 0;
+
+            @Override
+            public void onNext(FileUploadRequest request) {
+                log.info("onNext count: " + mmCount);
+                mmCount++;
+
+                byte[] data = request.getData().toByteArray();
+                int offset = request.getOffset();
+                String name = request.getName();
+                try {
+                    if (mBufferedOutputStream == null) {
+                        mBufferedOutputStream = new BufferedOutputStream(new FileOutputStream("receive_" + name));
+                    }
+                    mBufferedOutputStream.write(data, offset, data.length);
+                    mBufferedOutputStream.flush();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onError(Throwable t) {
+
+            }
+
+            @Override
+            public void onCompleted() {
+                responseObserver.onNext(CommonReply.newBuilder()
+                        .setStatus(mStatus)
+                        .setMessage(mMessage)
+                        .build());
+                responseObserver.onCompleted();
+                if (mBufferedOutputStream != null) {
+                    try {
+                        mBufferedOutputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        mBufferedOutputStream = null;
+                    }
+                }
+            }
+        };
     }
 }

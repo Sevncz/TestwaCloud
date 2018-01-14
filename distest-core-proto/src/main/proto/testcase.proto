@@ -11,6 +11,9 @@ package testcase;
 
 service TaskService {
     rpc gameover (TaskOverRequest) returns ( CommonReply ) {}
+    rpc LogcatUpload (stream FileUploadRequest) returns ( CommonReply ) {}
+    rpc AppiumLogUpload (stream FileUploadRequest) returns ( CommonReply ) {}
+    rpc ImgUpload (stream FileUploadRequest) returns ( CommonReply ) {}
     rpc currExeInfo (CurrentExeInfoRequest) returns ( CommonReply ) {}
     rpc procedureInfoUpload (ProcedureInfoUploadRequest) returns ( CommonReply ) {}
 }
@@ -57,6 +60,16 @@ message CurrentExeInfoRequest {
 
 message ProcedureInfoUploadRequest {
     string infoJson = 1;
+}
+
+message FileUploadRequest {
+    int64 exeId = 1;
+    int64 timestamp = 2;
+    string token = 3;
+    bytes data = 4;
+    int32 offset = 5;
+    int64 size = 6;
+    string name = 7;
 }
 
 

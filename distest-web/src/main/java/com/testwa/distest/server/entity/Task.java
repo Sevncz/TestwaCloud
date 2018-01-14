@@ -16,7 +16,7 @@ import java.util.List;
  * Created by wen on 12/08/2017.
  */
 @Data
-@TableName("executor")
+@TableName("task")
 public class Task extends BaseEntity {
 
     private DB.TaskStatus status;

@@ -8,6 +8,7 @@ import com.testwa.core.service.PythonServiceBuilder;
 import com.testwa.distest.client.ApplicationContextUtil;
 import com.testwa.distest.client.appium.AppiumManager;
 import com.testwa.distest.client.event.ExecutorCurrentInfoNotifyEvent;
+import com.testwa.distest.client.event.UploadFileToServerEvent;
 import com.testwa.distest.client.exception.DownloadFailException;
 import com.testwa.distest.client.util.Constant;
 import com.testwa.distest.client.util.Http;
@@ -83,7 +84,6 @@ public class PythonExecutor {
                 if(isStop){
                     break;
                 }
-                log.info("run one script {}, deviceId {}", this.currScript, this.deviceId);
 
                 if(this.pyService != null && this.pyService.isRunning()){
                     Thread.sleep(1000);
@@ -108,18 +108,6 @@ public class PythonExecutor {
             }
         }catch (Exception e) {
             log.error("Execute script error", e);
-        }finally {
-            // upload appium log
-            Path appiumlogDir = Paths.get(Constant.localAppiumLogPath, deviceId.replaceAll("\\W", "_"));
-            log.info("Upload appium log to server, path: {}", appiumlogDir.toString());
-            String appiumlogUploadUrl = String.format("%s/device/receive/appiumlog", agentWebUrl);
-            sendLogsToServer(appiumlogDir, appiumlogUploadUrl);
-
-            //upload logcat log
-            Path logcatDir = Paths.get(Constant.localLogcatPath, deviceId.replaceAll("\\W", "_"));
-            log.info("Upload logcat to server, path: {}", logcatDir.toString());
-            String logcatUploadUrl = String.format("%s/device/receive/logcat", agentWebUrl);
-            sendLogsToServer(logcatDir, logcatUploadUrl);
         }
     }
 
@@ -127,15 +115,12 @@ public class PythonExecutor {
         this.isStop = true;
     }
 
-    private void sendLogsToServer(Path dirPath, String uploadUrl) {
-
-    }
-
     private Boolean runOneScript() throws Exception {
         Long runscriptId = this.scripts.poll();
         if(runscriptId == null){
             return false;
         }
+        log.info("run one script {}, deviceId {}", runscriptId, this.deviceId);
 
         this.currScript = runscriptId;
         AndroidApp app = new DefaultAndroidApp(new File(appPath));

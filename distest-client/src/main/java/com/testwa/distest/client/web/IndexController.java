@@ -31,8 +31,6 @@ import java.util.Map;
 public class IndexController {
     private static Logger logger = LoggerFactory.getLogger(IndexController.class);
 
-    @GrpcClient("local-grpc-server")
-    private Channel serverChannel;
     @Autowired
     private GrpcClientService grpcClientService;
 
