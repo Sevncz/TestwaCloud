@@ -47,6 +47,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint, Se
 
                 r.setCode(ResultCode.EXPRIED_TOKEN.getValue());
                 r.setMessage("token已过期");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().println(JSON.toJSON(r));
                 response.getWriter().flush();
                 return;
@@ -54,6 +55,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint, Se
 
                 r.setCode(ResultCode.ILLEGAL_TOKEN.getValue());
                 r.setMessage("非法token");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().println(JSON.toJSON(r));
                 response.getWriter().flush();
                 return;
@@ -61,6 +63,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint, Se
         }
         r.setCode(ResultCode.ILLEGAL_TOKEN.getValue());
         r.setMessage("token不能为空");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.getWriter().println(JSON.toJSON(r));
         response.getWriter().flush();
     }

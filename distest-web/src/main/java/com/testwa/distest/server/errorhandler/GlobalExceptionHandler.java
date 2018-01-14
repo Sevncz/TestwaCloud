@@ -3,16 +3,20 @@ package com.testwa.distest.server.errorhandler;
 import com.testwa.core.base.constant.ResultCode;
 import com.testwa.core.base.exception.*;
 import com.testwa.core.base.vo.Result;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.SignatureException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.servlet.http.HttpServletRequest;
@@ -40,7 +44,30 @@ class GlobalExceptionHandler {
         return r;
     }
 
+    @ExceptionHandler(value = ExpiredJwtException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseBody
+    public Result handleExpiredJwtExceptions(HttpServletRequest req, Exception e) throws Exception {
+        Result<String> r = new Result<>();
+        r.setCode(ResultCode.EXPRIED_TOKEN.getValue());
+        r.setMessage("Token已过期");
+        r.setUrl(req.getRequestURL().toString());
+        return r;
+    }
+
+    @ExceptionHandler(value = SignatureException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseBody
+    public Result handleSignatureExceptions(HttpServletRequest req, Exception e) throws Exception {
+        Result<String> r = new Result<>();
+        r.setCode(ResultCode.ILLEGAL_TOKEN.getValue());
+        r.setMessage("非法Token");
+        r.setUrl(req.getRequestURL().toString());
+        return r;
+    }
+
     @ExceptionHandler(value = AuthorizedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ResponseBody
     public Result handleAuthorizedExceptions(HttpServletRequest req, Exception e) throws Exception {
         Result<String> r = new Result<>();
