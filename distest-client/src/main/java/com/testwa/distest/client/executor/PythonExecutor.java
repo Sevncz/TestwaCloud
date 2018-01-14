@@ -1,11 +1,13 @@
 package com.testwa.distest.client.executor;
 
 import com.github.cosysoft.device.android.AndroidApp;
+import com.github.cosysoft.device.android.AndroidDevice;
 import com.github.cosysoft.device.android.impl.DefaultAndroidApp;
 import com.testwa.core.cmd.RemoteTestcaseContent;
 import com.testwa.core.service.PythonScriptDriverService;
 import com.testwa.core.service.PythonServiceBuilder;
 import com.testwa.distest.client.ApplicationContextUtil;
+import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.distest.client.appium.AppiumManager;
 import com.testwa.distest.client.event.ExecutorCurrentInfoNotifyEvent;
 import com.testwa.distest.client.event.UploadFileToServerEvent;
@@ -222,6 +224,13 @@ public class PythonExecutor {
                         bw.write("\t\n");
                         continue;
                     }
+                }
+                if(tempString.contains("desired_caps['platformVersion']")){
+                    AndroidDevice ad = AndroidHelper.getInstance().getAndroidDevice(deviceId);
+                    String version = ad.runAdbCommand("shell getprop ro.build.version.release");
+                    bw.write(replaceQuotationContent(tempString, version, null));
+                    bw.write("\t\n");
+                    continue;
                 }
 
                 bw.write(tempString + "\t\n");

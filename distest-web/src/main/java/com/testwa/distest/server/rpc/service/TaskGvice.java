@@ -214,12 +214,22 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
 
                 byte[] data = request.getData().toByteArray();
                 int offset = request.getOffset();
+                int size = (int) request.getSize();
                 String name = request.getName();
+                String localPath = disFileProperties.getScreeshot();
+                Path localFile = Paths.get(localPath, name);
+                if(Files.exists(localFile)){
+                    try {
+                        Files.createFile(localFile);
+                    } catch (IOException e) {
+                        log.error("Receive screen img, create error", e);
+                    }
+                }
                 try {
                     if (mBufferedOutputStream == null) {
-                        mBufferedOutputStream = new BufferedOutputStream(new FileOutputStream("receive_" + name));
+                        mBufferedOutputStream = new BufferedOutputStream(new FileOutputStream(localFile.toFile()));
                     }
-                    mBufferedOutputStream.write(data, offset, data.length);
+                    mBufferedOutputStream.write(data, offset, size);
                     mBufferedOutputStream.flush();
                 } catch (Exception e) {
                     e.printStackTrace();
