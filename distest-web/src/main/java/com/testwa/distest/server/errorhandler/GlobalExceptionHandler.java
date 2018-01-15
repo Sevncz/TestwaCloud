@@ -77,6 +77,17 @@ class GlobalExceptionHandler {
         return r;
     }
 
+    @ExceptionHandler(value = LoginInfoNotFoundException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseBody
+    public Result handleLoginInfoNotFoundExceptions(HttpServletRequest req, Exception e) throws Exception {
+        Result<String> r = new Result<>();
+        r.setCode(ResultCode.NO_LOGIN.getValue());
+        r.setMessage(e.getMessage());
+        r.setUrl(req.getRequestURL().toString());
+        return r;
+    }
+
     @ExceptionHandler(value = ParamsException.class)
     @ResponseBody
     public Result handleParamsExceptions(HttpServletRequest req, Exception e) throws Exception {

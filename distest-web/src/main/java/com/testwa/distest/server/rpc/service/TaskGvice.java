@@ -157,8 +157,9 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
                 int offset = request.getOffset();
                 int size = (int) request.getSize();
                 String name = request.getName();
+                long taskId = request.getExeId();
                 String localPath = disFileProperties.getAppium();
-                Path localFile = Paths.get(localPath, name);
+                Path localFile = Paths.get(localPath, taskId+"", name);
                 if(Files.exists(localFile)){
                     try {
                         Files.createFile(localFile);
@@ -216,8 +217,9 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
                 int offset = request.getOffset();
                 int size = (int) request.getSize();
                 String name = request.getName();
+                long taskId = request.getExeId();
                 String localPath = disFileProperties.getScreeshot();
-                Path localFile = Paths.get(localPath, name);
+                Path localFile = Paths.get(localPath, taskId+"", name);
                 if(Files.exists(localFile)){
                     try {
                         Files.createFile(localFile);

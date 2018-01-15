@@ -2,6 +2,7 @@ package com.testwa.distest.server.web.auth.mgr;
 
 import com.google.common.net.InetAddresses;
 import com.testwa.core.base.exception.AuthorizedException;
+import com.testwa.core.base.exception.LoginInfoNotFoundException;
 import com.testwa.core.base.vo.Result;
 import com.testwa.distest.config.security.JwtAuthenticationResponse;
 import com.testwa.distest.config.security.JwtTokenUtil;
@@ -9,6 +10,7 @@ import com.testwa.distest.config.security.JwtUser;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.user.service.UserService;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -39,7 +41,10 @@ public class AuthMgr {
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
-    public JwtAuthenticationResponse login(String username, String password, String ip) throws BadCredentialsException{
+    public JwtAuthenticationResponse login(String username, String password, String ip) throws BadCredentialsException, LoginInfoNotFoundException {
+        if(StringUtils.isEmpty(username) || StringUtils.isEmpty(password)){
+            throw new LoginInfoNotFoundException("登录信息不能为空");
+        }
 
         UsernamePasswordAuthenticationToken upToken = new UsernamePasswordAuthenticationToken(username, password);
         final Authentication authentication = authenticationManager.authenticate(upToken);
@@ -62,7 +67,7 @@ public class AuthMgr {
         return new JwtAuthenticationResponse(access_token, refresh_token, access_token_expiration);
     }
 
-    public JwtAuthenticationResponse refresh(String token) throws AuthorizedException {
+    public JwtAuthenticationResponse refresh(String token) throws LoginInfoNotFoundException {
         boolean isRefresh = jwtTokenUtil.isRefreshToken(token);
         if(isRefresh){
 
@@ -74,7 +79,7 @@ public class AuthMgr {
                 return new JwtAuthenticationResponse(access_token, token, access_token_expiration);
             }
         }
-        throw new AuthorizedException("非法的token，无法刷新");
+        throw new LoginInfoNotFoundException("Refresh Token 错误");
     }
 
 }

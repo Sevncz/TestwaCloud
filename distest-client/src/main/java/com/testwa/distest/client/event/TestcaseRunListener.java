@@ -82,7 +82,6 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
                     appHander.setHandler(scriptHander);
                     scriptHander.setHandler(pythonHander);
                     appHander.handleRequest(executor2);
-                    //| AppiumStartFailedException
                 }catch (DownloadFailException | IOException  e){
                     log.error("executors error", e);
                 }finally {

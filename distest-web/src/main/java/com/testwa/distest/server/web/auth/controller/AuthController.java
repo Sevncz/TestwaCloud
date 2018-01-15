@@ -5,10 +5,7 @@ import cn.apiclub.captcha.backgrounds.GradiatedBackgroundProducer;
 import cn.apiclub.captcha.gimpy.FishEyeGimpyRenderer;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
-import com.testwa.core.base.exception.AccountAlreadyExistException;
-import com.testwa.core.base.exception.AccountException;
-import com.testwa.core.base.exception.AuthorizedException;
-import com.testwa.core.base.exception.ParamsFormatException;
+import com.testwa.core.base.exception.*;
 import com.testwa.core.utils.Identities;
 import com.testwa.core.utils.Validator;
 import com.testwa.core.base.vo.Result;
@@ -63,7 +60,7 @@ public class AuthController extends BaseController {
     @ApiOperation(value = "登录")
     @ApiImplicitParam(name = "authenticationRequest", value = "JWT登录验证类", required = true, dataType = "JwtAuthenticationRequest")
     @PostMapping(value = "login")
-    public Result createAuthenticationToken(@RequestBody JwtAuthenticationRequest authenticationRequest, HttpServletRequest request) throws AuthorizedException {
+    public Result createAuthenticationToken(@RequestBody JwtAuthenticationRequest authenticationRequest, HttpServletRequest request) throws AuthorizedException, LoginInfoNotFoundException {
         String ip;
         if (request.getHeader("x-forwarded-for") == null) {
             ip = request.getRemoteAddr();
@@ -77,7 +74,7 @@ public class AuthController extends BaseController {
     @ApiOperation(value = "刷新Token")
     @ApiImplicitParam(name = "request", value = "请求信息（带有tokenHeader）", required = true, dataType = "HttpServletRequest")
     @GetMapping(value = "/refresh")
-    public Result refreshAndGetAuthenticationToken(HttpServletRequest request) throws AuthorizedException {
+    public Result refreshAndGetAuthenticationToken(HttpServletRequest request) throws LoginInfoNotFoundException {
         String token = request.getHeader(tokenHeader);
         JwtAuthenticationResponse response = authMgr.refresh(token);
         return ok(response);
