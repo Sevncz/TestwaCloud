@@ -38,7 +38,6 @@
         <include refid="Base_Column_List" />
         FROM script
         WHERE id = #{key}
-        enabled = 1
     </select>
     <select id="findOneInProject" resultMap="BaseResultMap" >
         SELECT

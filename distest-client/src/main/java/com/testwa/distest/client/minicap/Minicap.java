@@ -1,6 +1,7 @@
 package com.testwa.distest.client.minicap;
 
 import com.android.ddmlib.*;
+import com.github.cosysoft.device.exception.DeviceNotFoundException;
 import com.testwa.core.service.AdbDriverService;
 import com.testwa.core.service.MinicapServiceBuilder;
 import com.testwa.core.utils.Identities;
@@ -58,17 +59,17 @@ public class Minicap {
     // listener
     private List<MinicapListener> listenerList = new ArrayList<MinicapListener>();
 
-    public Minicap(IDevice device, String resourcesPath) {
-        this.device = device;
-        this.resourcesPath = resourcesPath;
+    public Minicap(String serialNumber, String resourcesPath) {
 
-        int install = 3;
+        this.resourcesPath = resourcesPath;
+        int install = 5;
         while (install > 0) {
             try {
+                this.device = AndroidHelper.getInstance().getAndroidDevice(serialNumber).getDevice();
                 installMinicap(device, resourcesPath);
                 Thread.sleep(1000);
                 break;
-            } catch (MinicapInstallException e) {
+            } catch (MinicapInstallException | DeviceNotFoundException e) {
                 install--;
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -83,10 +84,6 @@ public class Minicap {
             int screenHeight = Integer.parseInt(sizeStr.split("x")[1].trim());
             deviceSize = new Size(screenWidth, screenHeight);
         }
-    }
-
-    public Minicap(String serialNumber, String resourcesPath) {
-        this(AndroidHelper.getInstance().getAndroidDevice(serialNumber).getDevice(), resourcesPath);
     }
 
     //判断是否支持minicap

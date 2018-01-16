@@ -74,23 +74,6 @@ public class Minitouch {
         AndroidHelper.getInstance().executeShellCommand(iDevice, "chmod 777 " + Constant.MINITOUCH_DIR + "/" + BIN);
     }
 
-    public Minitouch(AndroidDevice device, String resourcesPath) {
-        this.device = device;
-        this.resourcesPath = resourcesPath;
-        int install = 3;
-        while (install > 0) {
-            try {
-                installMinitouch(device, resourcesPath);
-                Thread.sleep(1000);
-                break;
-            } catch (MinitouchInstallException e) {
-                install--;
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     public Minitouch(String serialNumber, String resourcesPath) {
         this.resourcesPath = resourcesPath;
         int install = 5;

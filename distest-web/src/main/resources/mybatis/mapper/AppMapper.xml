@@ -56,7 +56,6 @@
         <include refid="Base_Column_List" />
         FROM app
         WHERE id = #{key}
-        and enabled = 1
     </select>
     <select id="findOneInProject" resultMap="BaseResultMap" >
         SELECT
