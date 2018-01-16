@@ -11,6 +11,7 @@ import java.util.Map;
 public class ProcedureRedisMgr {
 
     private static final String procedure_key = "procedureInfo";
+    private static final String procedure_error_key = "procedureInfo.error";
     @Autowired
     private RedisCacheManager redisCacheMgr;
 
@@ -24,5 +25,9 @@ public class ProcedureRedisMgr {
 
     public Long size() {
         return redisCacheMgr.llen(procedure_key);
+    }
+
+    public void addErrorProcedureToQueue(String info) {
+        redisCacheMgr.lpush(procedure_error_key, info);
     }
 }

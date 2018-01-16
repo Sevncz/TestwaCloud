@@ -9,6 +9,6 @@ import java.util.List;
 @Data
 public class RemoteTestcaseContent {
     private Long testcaseId;
-    private List<Long> scriptIds;
+    private List<ScriptInfo> scripts;
 
 }

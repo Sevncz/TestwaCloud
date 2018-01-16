@@ -3,11 +3,13 @@ package com.testwa.distest.server.rpc.service;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.config.DisFileProperties;
 import com.testwa.distest.config.security.JwtTokenUtil;
+import com.testwa.distest.server.entity.AppiumFile;
 import com.testwa.distest.server.entity.Task;
 import com.testwa.distest.server.LogInterceptor;
 import com.testwa.distest.server.mvc.event.GameOverEvent;
 import com.testwa.distest.server.rpc.GRpcService;
 import com.testwa.distest.server.service.cache.mgr.TaskCacheMgr;
+import com.testwa.distest.server.service.task.service.AppiumFileService;
 import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
@@ -39,6 +41,8 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
 
     @Autowired
     private TaskService taskService;
+    @Autowired
+    private AppiumFileService appiumFileService;
     @Autowired
     private UserService userService;
     @Autowired
@@ -157,10 +161,29 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
                 int offset = request.getOffset();
                 int size = (int) request.getSize();
                 String name = request.getName();
+                String deviceId = request.getDeviceId();
                 long taskId = request.getExeId();
+
+                AppiumFile appiumFile = new AppiumFile();
+                appiumFile.setFilename(name);
+                appiumFile.setTaskId(taskId);
+                appiumFile.setDeviceId(deviceId);
+                appiumFile.setCreateTime(new Date());
+                AppiumFile oldFile = appiumFileService.findOne(taskId, deviceId);
+                if(oldFile == null){
+                    appiumFileService.save(appiumFile);
+                }
+
                 String localPath = disFileProperties.getAppium();
-                Path localFile = Paths.get(localPath, taskId+"", name);
-                if(Files.exists(localFile)){
+                Path localFile = Paths.get(localPath, appiumFile.buildPath());
+                if(!Files.exists(localFile.getParent())){
+                    try {
+                        Files.createDirectories(localFile.getParent());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if(!Files.exists(localFile)){
                     try {
                         Files.createFile(localFile);
                     } catch (IOException e) {
@@ -220,7 +243,14 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
                 long taskId = request.getExeId();
                 String localPath = disFileProperties.getScreeshot();
                 Path localFile = Paths.get(localPath, taskId+"", name);
-                if(Files.exists(localFile)){
+                if(!Files.exists(localFile.getParent())){
+                    try {
+                        Files.createDirectories(localFile.getParent());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if(!Files.exists(localFile)){
                     try {
                         Files.createFile(localFile);
                     } catch (IOException e) {

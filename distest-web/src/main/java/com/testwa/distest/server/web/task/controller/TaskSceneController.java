@@ -52,8 +52,8 @@ public class TaskSceneController extends BaseController {
     public Result save(@Valid @RequestBody TaskSceneNewForm form) throws ObjectNotExistsException {
         log.info(form.toString());
         projectValidator.validateProjectExist(form.getProjectId());
-        appValidator.validateAppExist(form.getAppId());
-        testcaseValidatoer.validateTestcasesExist(form.getCaseIds());
+        appValidator.validateAppInPorject(form.getAppId(), form.getProjectId());
+        testcaseValidatoer.validateTestcasesInProject(form.getCaseIds(), form.getProjectId());
 
         taskSceneService.save(form);
         return ok();
@@ -65,9 +65,9 @@ public class TaskSceneController extends BaseController {
     public Result modify(@Valid @RequestBody TaskSceneUpdateForm form) throws ObjectNotExistsException {
         log.info(form.toString());
         projectValidator.validateProjectExist(form.getProjectId());
-        appValidator.validateAppExist(form.getAppId());
-        testcaseValidatoer.validateTestcasesExist(form.getCaseIds());
-        taskSceneValidatoer.validateTaskSceneExist(form.getTaskSceneId());
+        appValidator.validateAppInPorject(form.getAppId(), form.getProjectId());
+        testcaseValidatoer.validateTestcasesInProject(form.getCaseIds(), form.getProjectId());
+        taskSceneValidatoer.validateTaskSceneInProject(form.getTaskSceneId(), form.getProjectId());
 
         taskSceneService.update(form);
         return ok();

@@ -4,6 +4,7 @@ import com.android.ddmlib.AdbCommandRejectedException;
 import com.android.ddmlib.IDevice;
 import com.android.ddmlib.TimeoutException;
 import com.github.cosysoft.device.android.AndroidDevice;
+import com.github.cosysoft.device.exception.DeviceNotFoundException;
 import com.testwa.core.service.AdbDriverService;
 import com.testwa.core.service.MinitouchServiceBuilder;
 import com.testwa.distest.client.android.AdbForward;
@@ -44,8 +45,8 @@ public class Minitouch {
             throw new MinitouchInstallException("device can't be null");
         }
         IDevice iDevice = device.getDevice();
-        String sdk = iDevice.getProperty(Constant.PROP_SDK);
-        String abi = iDevice.getProperty(Constant.PROP_ABI);
+        String abi = device.runAdbCommand("shell getprop ro.product.cpu.abi");
+        String sdk = device.runAdbCommand("shell getprop ro.build.version.sdk");
 
         if (StringUtils.isEmpty(sdk) || StringUtils.isEmpty(abi)) {
             throw new MinitouchInstallException("cant not get device info. please check device is connected");
@@ -91,7 +92,20 @@ public class Minitouch {
     }
 
     public Minitouch(String serialNumber, String resourcesPath) {
-        this(AndroidHelper.getInstance().getAndroidDevice(serialNumber), resourcesPath);
+        this.resourcesPath = resourcesPath;
+        int install = 5;
+        while (install > 0) {
+            try {
+                this.device = AndroidHelper.getInstance().getAndroidDevice(serialNumber);
+                installMinitouch(device, resourcesPath);
+                Thread.sleep(1000);
+                break;
+            } catch (MinitouchInstallException | DeviceNotFoundException e) {
+                install--;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void addEventListener(MinitouchListener listener) {

@@ -13,7 +13,7 @@ import java.util.List;
 public class RemoteRunCommand {
 
     private Long exeId;
-    private Long appId;
+    private AppInfo appInfo;
     private String deviceId;
     private List<RemoteTestcaseContent> testcaseList;
     private String install;

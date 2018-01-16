@@ -7,6 +7,7 @@ import com.testwa.core.base.exception.ParamsIsNullException;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.base.vo.Result;
 import com.testwa.distest.common.util.WebUtil;
+import com.testwa.distest.server.entity.AppiumFile;
 import com.testwa.distest.server.entity.Task;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.distest.server.entity.User;
@@ -15,6 +16,7 @@ import com.testwa.distest.server.mvc.service.ProcedureInfoService;
 import com.testwa.distest.server.service.task.form.StepListForm;
 import com.testwa.distest.server.service.task.form.StepPageForm;
 import com.testwa.distest.server.service.task.form.TaskListForm;
+import com.testwa.distest.server.service.task.service.AppiumFileService;
 import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
@@ -41,6 +43,8 @@ public class ReportController extends BaseController {
 
     @Autowired
     private TaskService taskService;
+    @Autowired
+    private AppiumFileService appiumFileService;
     @Autowired
     private UserService userService;
     @Autowired
@@ -109,6 +113,21 @@ public class ReportController extends BaseController {
         }
         PageResult<ProcedureInfo> procedureInfoPage = procedureInfoService.findByPage(pageForm);
         return ok(procedureInfoPage);
+    }
+
+    @ApiOperation(value="返回一个appium日志相对路径", notes="")
+    @ResponseBody
+    @GetMapping(value = "/appiumpath/{taskId}/{deviceId}")
+    public Result appiumLogPath(@PathVariable Long taskId, @PathVariable String deviceId) throws ParamsIsNullException, ObjectNotExistsException {
+        if(taskId == null || deviceId == null ){
+            throw new ParamsIsNullException("参数不能为空");
+        }
+        taskValidatoer.validateTaskExist(taskId);
+        AppiumFile appiumFile = appiumFileService.findOne(taskId, deviceId);
+        if(appiumFile == null){
+            throw new ObjectNotExistsException("Appium 日志不存在");
+        }
+        return ok(appiumFile.buildPath());
     }
 
 }

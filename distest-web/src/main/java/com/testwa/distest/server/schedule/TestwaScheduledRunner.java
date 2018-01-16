@@ -63,22 +63,11 @@ public class TestwaScheduledRunner {
             String info = procedureRedisMgr.getProcedureFromQueue();
             try {
                 ProcedureInfo pi = JSON.parseObject(info, ProcedureInfo.class);
-//                ProcedureInfo procedure = (ProcedureInfo) redisCacheManager.rpop(WebsocketEvent.FB_RUNNGING_LOG, ProcedureInfo.class);
-//                String screenPath = procedure.getScreenshotPath();
-//                // 转换文件分隔符
-//                String configScreenPath = env.getProperty("screeshot.path");
-//                String[] pathsplit = screenPath.split("\\\\|/");
-//                String configScreenDirName = Paths.get(configScreenPath).getFileName().toString();
-//                String newScreenPath = Paths.get(configScreenDirName, pathsplit).toString();
-//                procedure.setScreenshotPath(newScreenPath);
-//
-//                String encodeResult = new String(procedure.getAction().getBytes("UTF-8"),"UTF-8");
-//                log.info("encodeResult =====> {}", encodeResult);
-//                procedure.setAction(encodeResult);
                 logers.add(pi);
             }catch (Exception e){
                 log.error("running log transfer error", e);
-                procedureRedisMgr.addProcedureToQueue(info);
+//                procedureRedisMgr.addProcedureToQueue(info);
+                procedureRedisMgr.addErrorProcedureToQueue(info);
             }
         }
         mongoTemplate.insertAll(logers);

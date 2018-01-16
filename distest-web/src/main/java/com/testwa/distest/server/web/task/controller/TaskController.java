@@ -110,7 +110,7 @@ public class TaskController extends BaseController {
     public Result test(@RequestParam(value = "deviceId")String deviceId){
         RemoteRunCommand params = new RemoteRunCommand();
         params.setExeId(1l);
-        params.setAppId(1l);
+//        params.setAppId(1l);
         params.setDeviceId("");
         params.setInstall("");
         params.setCmd(DB.CommandEnum.START.getValue());  // 启动

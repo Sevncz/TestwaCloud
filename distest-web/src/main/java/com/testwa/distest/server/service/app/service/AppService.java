@@ -137,8 +137,12 @@ public class AppService {
         update(app);
     }
 
-    public App findOne(Long appId){
-        return appDAO.findOne(appId);
+    public App findOne(Long entityId){
+        return appDAO.findOne(entityId);
+    }
+
+    public App findOneInProject(Long entityId, Long projectId) {
+        return appDAO.findOneInProject(entityId, projectId);
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
@@ -146,7 +150,8 @@ public class AppService {
 
         String filename = uploadfile.getOriginalFilename();
         String aliasName = PinYinTool.getPingYin(filename);
-        Path dir = Paths.get(disFileProperties.getApp(), Identities.uuid2());
+        String dirName = Identities.uuid2();
+        Path dir = Paths.get(disFileProperties.getApp(), dirName);
         Files.createDirectories(dir);
         Path filepath = Paths.get(dir.toString(), aliasName);
         Files.write(filepath, uploadfile.getBytes(), StandardOpenOption.CREATE);
@@ -154,10 +159,11 @@ public class AppService {
         String type = filename.substring(filename.lastIndexOf(".") + 1);
 
         String size = uploadfile.getSize() + "";
-        return saveFile(filename, aliasName, filepath.toString(), size, type, form);
+        String relativePath = dirName + File.separator + aliasName;
+        return saveFile(filename, aliasName, filepath.toString(), relativePath, size, type, form);
 
     }
-    private App saveFile(String filename, String aliasName, String filepath, String size, String type, AppNewForm form) throws IOException {
+    private App saveFile(String filename, String aliasName, String filepath, String relativePath, String size, String type, AppNewForm form) throws IOException {
         App app = new App();
 
         switch (type.toLowerCase()){
@@ -188,7 +194,7 @@ public class AppService {
 
         app.setAliasName(aliasName);
         app.setAppName(filename);
-        app.setPath(filepath);
+        app.setPath(relativePath);
         app.setCreateTime(new Date());
         app.setSize(size);
         app.setMd5(IOUtil.fileMD5(filepath));

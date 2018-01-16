@@ -88,6 +88,7 @@ public class AppController extends BaseController {
     @ResponseBody
     @PostMapping(value = "/append")
     public Result appendInfo(@Valid @RequestBody AppUpdateForm form) throws ObjectNotExistsException, AuthorizedException {
+        appValidator.validateAppExist(form.getAppId());
         projectValidator.validateProjectExist(form.getProjectId());
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         projectValidator.validateUserIsProjectMember(form.getProjectId(), user.getId());

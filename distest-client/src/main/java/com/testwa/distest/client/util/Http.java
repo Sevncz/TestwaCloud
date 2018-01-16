@@ -27,6 +27,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -101,65 +104,33 @@ public class Http {
     }
 
 
-    public static String download(String url, String saveDir) throws DownloadFailException, IOException {
-        CloseableHttpClient httpclient = HttpClients.createDefault();
-        HttpGet httpGet = new HttpGet(url);
-        httpGet.setHeader("X-TOKEN", UserInfo.token);
-        OutputStream out = null;
-        InputStream in = null;
-//        String localSavePath = null;
-
-        Path saveDirPath = Paths.get(saveDir);
-        if(!Files.exists(saveDirPath)){
-            Files.createDirectories(saveDirPath);
+    public static void download(String fromUrl, String toLocalFile) throws DownloadFailException, IOException {
+        Path toLocal = Paths.get(toLocalFile);
+        if(!Files.exists(toLocal.getParent())){
+            Files.createDirectories(toLocal.getParent());
+        }else{
+            log.debug("File MD5 exists!  " + toLocalFile);
+            if(Files.exists(toLocal)){
+                log.info("To local file {} exists, return !", toLocalFile);
+                return;
+            }
         }
-
+        ReadableByteChannel rbc = null;
+        FileOutputStream fos = null;
         try {
-            HttpResponse httpResponse = httpclient.execute(httpGet);
-            HttpEntity entity = httpResponse.getEntity();
-
-            in = entity.getContent();
-            long length = entity.getContentLength();
-            if (length <= 0) {
-                throw new DownloadFailException("File length is null");
-            }
-
-            String filename = httpResponse.getLastHeader("filename").getValue();
-
-            String[] f = filename.split("\\.");
-            String newFileName = f[0] + UUID.uuid(10) + "." + f[f.length - 1];
-
-            Path localSavePath = Files.createFile(Paths.get(saveDir, newFileName));
-            log.info("savePath : " + localSavePath);
-            File file = localSavePath.toFile();
-            out = new FileOutputStream(file);
-            byte[] buffer = new byte[4096];
-            int readLength = 0;
-            while ((readLength=in.read(buffer)) > 0) {
-                byte[] bytes = new byte[readLength];
-                System.arraycopy(buffer, 0, bytes, 0, readLength);
-                out.write(bytes);
-            }
-
-            out.flush();
-            return localSavePath.toString();
+            URL website = new URL(fromUrl);
+            rbc = Channels.newChannel(website.openStream());
+            fos = new FileOutputStream(toLocalFile);
+            fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
         }catch (Exception e){
+            log.error("Download file {} error!", fromUrl);
             throw new DownloadFailException(e.getMessage());
-        }finally{
-            try {
-                if(in != null){
-                    in.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+        }finally {
+            if(fos != null){
+                fos.close();
             }
-
-            try {
-                if(out != null){
-                    out.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+            if(rbc != null){
+                rbc.close();
             }
         }
     }

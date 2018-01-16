@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -63,6 +64,9 @@ public class ScriptService {
     public Script findOne(Long scriptId){
         return scriptDAO.findOne(scriptId);
     }
+    public Script findOneInPorject(Long scriptId, Long projectId){
+        return scriptDAO.findOneInPorject(scriptId, projectId);
+    }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void uploadMulti(List<MultipartFile> uploadfiles) throws IOException {
@@ -82,7 +86,8 @@ public class ScriptService {
 
         String filename = uploadfile.getOriginalFilename();
         String aliasName = PinYinTool.getPingYin(filename);
-        Path dir = Paths.get(disFileProperties.getScript(), Identities.uuid2());
+        String dirName = Identities.uuid2();
+        Path dir = Paths.get(disFileProperties.getScript(), dirName);
         if (!Files.exists(dir)) {
             Files.createDirectories(dir);
         }
@@ -92,7 +97,8 @@ public class ScriptService {
         String type = filename.substring(filename.lastIndexOf(".") + 1);
 
         String size = uploadfile.getSize() + "";
-        Script script = saveScript(filename, aliasName, filepath.toString(), size, type, null);
+        String relativePath = dirName + File.separator + aliasName;
+        Script script = saveScript(filename, aliasName, filepath.toString(), relativePath, size, type, null);
         return script;
     }
 
@@ -108,7 +114,8 @@ public class ScriptService {
 
         String filename = uploadfile.getOriginalFilename();
         String aliasName = PinYinTool.getPingYin(filename);
-        Path dir = Paths.get(disFileProperties.getScript(), Identities.uuid2());
+        String dirName = Identities.uuid2();
+        Path dir = Paths.get(disFileProperties.getScript(), dirName);
         if (!Files.exists(dir)) {
             Files.createDirectories(dir);
         }
@@ -118,11 +125,12 @@ public class ScriptService {
         String type = filename.substring(filename.lastIndexOf(".") + 1);
 
         String size = uploadfile.getSize() + "";
-        Script script = saveScript(filename, aliasName, filepath.toString(), size, type, form);
+        String relativePath = dirName + File.separator + aliasName;
+        Script script = saveScript(filename, aliasName, filepath.toString(), relativePath, size, type, form);
         return script;
     }
 
-    private Script saveScript(String filename, String aliasName, String filepath, String size, String type, ScriptNewForm form) throws IOException {
+    private Script saveScript(String filename, String aliasName, String filepath, String relativePath, String size, String type, ScriptNewForm form) throws IOException {
         Script script = new Script();
 
         switch (type.toLowerCase()){
@@ -147,7 +155,7 @@ public class ScriptService {
         script.setCreateBy(currentUser.getId());
         script.setCreateTime(new Date());
         script.setScriptName(filename);
-        script.setPath(filepath);
+        script.setPath(relativePath);
         script.setAliasName(aliasName);
         script.setSize(size);
         script.setMd5(IOUtil.fileMD5(filepath));
@@ -326,6 +334,10 @@ public class ScriptService {
         return scriptDAO.findAll(scriptIds);
     }
 
+    public List<Script> findAllInProject(List<Long> scriptIds, Long projectId) {
+        return scriptDAO.findAllInProject(scriptIds, projectId);
+    }
+
     public String getContent(Long scriptId) throws IOException {
         Script script = findOne(scriptId);
         return getContent(script);
@@ -337,4 +349,5 @@ public class ScriptService {
         Files.lines(Paths.get(path)).forEach(line -> sb.append(line).append("\n"));
         return sb.toString();
     }
+
 }

@@ -19,4 +19,5 @@ public interface AppMapper extends BaseMapper<App, Long> {
 
     List<App> findByFromProject(@Param("params") Map<String, Object> params);
 
+    App findOneInProject(@Param("key") Long entityId, @Param("projectId") Long projectId);
 }

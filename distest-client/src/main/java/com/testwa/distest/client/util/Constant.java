@@ -29,9 +29,6 @@ public class Constant {
     public static final String MINITOUCH_NOPIE = "minitouch-nopie";
     public static final String MINITOUCH_DIR = "/data/local/tmp/minitouch-devel";
 
-	public static final String APP_URL = "%s/download/app/%s";
-	public static final String SCRIPT_URL = "%s/download/script/%s";
-
 	public static final String localAppPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "app").toString();
 	public static final String localScriptPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "script").toString();
 	public static final String localScriptTmpPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "script_tmp").toString();

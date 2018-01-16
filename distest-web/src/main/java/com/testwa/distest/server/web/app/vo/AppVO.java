@@ -14,7 +14,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class AppVO {
 
-    private Long Id;
+    private Long id;
     private String appName;
     private String aliasName;
     private String packageName;

@@ -11,6 +11,7 @@ import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.base.form.DeleteAllForm;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.common.util.WebUtil;
+import com.testwa.distest.server.entity.Script;
 import com.testwa.distest.server.entity.Testcase;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.testcase.form.TestcaseNewForm;
@@ -53,7 +54,7 @@ public class TestcaseController extends BaseController {
     @PostMapping(value = "/save")
     public Result save(@Valid @RequestBody TestcaseNewForm form) throws ObjectNotExistsException, AccountException, AuthorizedException {
         log.info(form.toString());
-        scriptValidator.validateScriptsExist(form.getScriptIds());
+        scriptValidator.validateScriptsInProject(form.getScriptIds(), form.getProjectId());
         projectValidator.validateProjectExist(form.getProjectId());
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         projectValidator.validateUserIsProjectMember(form.getProjectId(), user.getId());
@@ -66,7 +67,7 @@ public class TestcaseController extends BaseController {
     @PostMapping(value = "/modify")
     public Result modify(@Valid @RequestBody TestcaseUpdateForm form) throws ObjectNotExistsException {
         log.info(form.toString());
-        scriptValidator.validateScriptsExist(form.getScriptIds());
+        scriptValidator.validateScriptsInProject(form.getScriptIds(), form.getProjectId());
         testcaseValidatoer.validateTestcaseExist(form.getTestcaseId());
         testcaseService.update(form);
         return ok();

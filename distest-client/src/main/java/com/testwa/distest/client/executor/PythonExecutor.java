@@ -3,26 +3,26 @@ package com.testwa.distest.client.executor;
 import com.github.cosysoft.device.android.AndroidApp;
 import com.github.cosysoft.device.android.AndroidDevice;
 import com.github.cosysoft.device.android.impl.DefaultAndroidApp;
+import com.testwa.core.cmd.AppInfo;
 import com.testwa.core.cmd.RemoteTestcaseContent;
+import com.testwa.core.cmd.ScriptInfo;
 import com.testwa.core.service.PythonScriptDriverService;
 import com.testwa.core.service.PythonServiceBuilder;
 import com.testwa.distest.client.ApplicationContextUtil;
 import com.testwa.distest.client.android.AndroidHelper;
-import com.testwa.distest.client.appium.AppiumManager;
 import com.testwa.distest.client.event.ExecutorCurrentInfoNotifyEvent;
-import com.testwa.distest.client.event.UploadFileToServerEvent;
 import com.testwa.distest.client.exception.DownloadFailException;
 import com.testwa.distest.client.util.Constant;
 import com.testwa.distest.client.util.Http;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import sun.font.Script;
 
 import java.io.*;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,34 +39,41 @@ import java.util.regex.Pattern;
  * Created by wen on 19/08/2017.
  */
 @Data
+@Slf4j
 public class PythonExecutor {
-    private static Logger log = LoggerFactory.getLogger(PythonExecutor.class);
-
-    private String agentWebUrl;
     private String appiumUrl;
+    // 127.0.0.1:8080 or cloud.testwa.com
+    private String distestApiWeb;
+    // testwa
+    private String distestApiName;
+
     private PythonScriptDriverService pyService;
 
     private BlockingQueue<RemoteTestcaseContent> testcases;
-    private BlockingQueue<Long> scripts;
+    private BlockingQueue<ScriptInfo> scripts;
 
-    private Long appId;
-    private String appPath;
+    private String appLocalPath;
+
     private String deviceId;
+    private AppInfo appInfo;
+    private ScriptInfo scriptInfo;
+
     private List<RemoteTestcaseContent> testcaseList;
     private Long taskId;
+
     private String install;
 
     private boolean isStop = false;
-    private Long currScript;
+    private ScriptInfo currScript;
     private Long currTestCaseId;
 
     // 所有脚本的本地保存路径
     private Map<Long, String> scriptPath = new HashMap<>();
 
-
-    public PythonExecutor(String agentWebUrl, String appiumUrl) {
-        this.agentWebUrl = agentWebUrl;
+    public PythonExecutor(String distestApiWeb, String distestApiName, String appiumUrl) {
         this.appiumUrl = appiumUrl;
+        this.distestApiWeb = distestApiWeb;
+        this.distestApiName = distestApiName;
     }
 
     public void runScripts(){
@@ -77,7 +84,7 @@ public class PythonExecutor {
         try {
 
             RemoteTestcaseContent content = this.testcases.poll();
-            List<Long> scIds = content.getScriptIds();
+            List<ScriptInfo> scIds = content.getScripts();
             this.scripts = new ArrayBlockingQueue<>(scIds.size());
             this.scripts.addAll(scIds);
             this.currTestCaseId = content.getTestcaseId();
@@ -98,7 +105,7 @@ public class PythonExecutor {
 
                 if(this.scripts.isEmpty()){
                     content = this.testcases.poll();
-                    scIds = content.getScriptIds();
+                    scIds = content.getScripts();
                     this.scripts = new ArrayBlockingQueue<>(scIds.size());
                     this.scripts.addAll(scIds);
                 }
@@ -118,23 +125,23 @@ public class PythonExecutor {
     }
 
     private Boolean runOneScript() throws Exception {
-        Long runscriptId = this.scripts.poll();
-        if(runscriptId == null){
+        ScriptInfo runscript = this.scripts.poll();
+        if(runscript == null){
             return false;
         }
-        log.info("run one script {}, deviceId {}", runscriptId, this.deviceId);
+        log.info("run one script {}, deviceId {}", runscript.toString(), this.deviceId);
 
-        this.currScript = runscriptId;
-        AndroidApp app = new DefaultAndroidApp(new File(appPath));
+        this.currScript = runscript;
+        AndroidApp app = new DefaultAndroidApp(new File(appLocalPath));
         String basePackage = app.getBasePackage();
         String mainActivity = app.getMainActivity();
 
 //        String scriptUrl = String.format(Constant.SCRIPT_URL, agentWebUrl, runscriptId);
 //        String scriptPath = Http.download(scriptUrl, Constant.localScriptPath);
-        String filePath = scriptPath.get(runscriptId);
+        String filePath = scriptPath.get(runscript.getId());
         // 脚本替换
         String url = appiumUrl.replace("0.0.0.0", "127.0.0.1");
-        String tempPath = replaceScriptByAndroid(filePath, appPath, basePackage, mainActivity, url);
+        String tempPath = replaceScriptByAndroid(filePath, appLocalPath, basePackage, mainActivity, url);
         log.info("temp script path is [{}]", tempPath);
 
         // 执行脚本
@@ -173,7 +180,7 @@ public class PythonExecutor {
 
                 if(tempString.contains("udid")){
                     bw.write(replaceQuotationContent(tempString, this.deviceId, null));
-                    bw.write(replaceQuotationContent(tempString, this.currScript+"", "'testSuit'"));
+                    bw.write(replaceQuotationContent(tempString, this.currScript.getId()+"", "'testSuit'"));
                     bw.write(replaceQuotationContent(tempString, this.currTestCaseId+"", "'testcaseId'"));
                     bw.write(replaceQuotationContent(tempString, this.taskId+"", "'executionTaskId'"));
                     continue;
@@ -181,7 +188,7 @@ public class PythonExecutor {
 
                 if(tempString.contains("deviceName")){
                     bw.write(replaceQuotationContent(tempString, this.deviceId, null));
-                    bw.write(replaceQuotationContent(tempString, this.currScript+"", "'testSuit'"));
+                    bw.write(replaceQuotationContent(tempString, this.currScript.getId()+"", "'testSuit'"));
                     bw.write(replaceQuotationContent(tempString, this.currTestCaseId+"", "'testcaseId'"));
                     bw.write(replaceQuotationContent(tempString, this.taskId+"", "'executionTaskId'"));
                     continue;
@@ -298,39 +305,32 @@ public class PythonExecutor {
     }
 
     public void downloadApp() throws DownloadFailException, IOException {
-        String appUrl = String.format(Constant.APP_URL, agentWebUrl, appId);
-        this.appPath = Http.download(appUrl, Constant.localAppPath);
-
-        if(StringUtils.isBlank(appPath)){
-            log.error("appPath is null, app url is [{}]", appUrl);
-            throw new DownloadFailException("app download fail");
-        }
+        String appUrl = String.format("http://%s/app/%s", distestApiWeb, appInfo.getPath());
+        this.appLocalPath = Constant.localAppPath + File.separator + appInfo.getMd5() + File.separator + appInfo.getAliasName();
+        // 检查是否有和该app md5一致的
+        Http.download(appUrl, appLocalPath);
     }
     public void downloadScript() throws DownloadFailException, IOException {
         for (RemoteTestcaseContent remoteTestcaseContent : this.testcaseList) {
-            List<Long> scriptIds = remoteTestcaseContent.getScriptIds();
-            for (Long scriptId : scriptIds) {
-                if(scriptPath.containsKey(scriptId)){
+            List<ScriptInfo> scriptInfos = remoteTestcaseContent.getScripts();
+            for (ScriptInfo scriptInfo : scriptInfos) {
+                if(scriptPath.containsKey(scriptInfo.getId())){
                     continue;
                 }
-                String scriptUrl = String.format(Constant.SCRIPT_URL, agentWebUrl, scriptId);
-                String saveDir = Constant.localScriptPath + File.separator + scriptId;
-                String savePath = Http.download(scriptUrl, saveDir);
-                if (StringUtils.isBlank(savePath)) {
-                    log.error("scriptPath is null, script url is [{}]", scriptUrl);
-                    throw new DownloadFailException("script download fail");
-                }
-                scriptPath.put(scriptId, savePath);
+                String scriptUrl = String.format("http://%s/script/%s", distestApiWeb, scriptInfo.getPath());
+                String localPath = Constant.localScriptPath + File.separator + scriptInfo.getMd5() + File.separator + scriptInfo.getAliasName();
+                Http.download(scriptUrl, localPath);
+                scriptPath.put(scriptInfo.getId(), localPath);
             }
         }
     }
 
-    public void setAppId(Long appId){
-        this.appId = appId;
-    }
-
     public void setDeviceId(String deviceId){
         this.deviceId = deviceId;
+    }
+
+    public void setAppInfo(AppInfo appInfo){
+        this.appInfo = appInfo;
     }
 
     public void setTaskId(Long taskId) {
@@ -347,7 +347,7 @@ public class PythonExecutor {
         this.testcases.addAll(testcaseList);
     }
 
-    public Long getCurrScript(){
+    public ScriptInfo getCurrScript(){
         return currScript;
     }
     public Long getCurrTestCaseId(){
@@ -357,7 +357,7 @@ public class PythonExecutor {
     public void notifyCurrExeInfo(){
 
         ApplicationContext context = ApplicationContextUtil.getApplicationContext();
-        context.publishEvent(new ExecutorCurrentInfoNotifyEvent(this, deviceId, taskId, currScript, currTestCaseId));
+        context.publishEvent(new ExecutorCurrentInfoNotifyEvent(this, deviceId, taskId, currScript.getId(), currTestCaseId));
     }
 
 }

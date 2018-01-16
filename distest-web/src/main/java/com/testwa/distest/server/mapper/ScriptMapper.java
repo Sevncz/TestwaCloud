@@ -17,7 +17,9 @@ public interface ScriptMapper extends BaseMapper<Script, Long> {
 
     List<Script> findByFromTestcase(Long TestcaseId);
 
-    List<Script> findList(@Param("keys") List<Long> keys, @Param("orderBy") String orderBy);
+    List<Script> findList(@Param("keys") List<Long> keys, @Param("projectId") Long projectId, @Param("orderBy") String orderBy);
 
     Script findOne(Long key);
+
+    Script findOneInProject(@Param("key") Long entityId, @Param("projectId") Long projectId);
 }

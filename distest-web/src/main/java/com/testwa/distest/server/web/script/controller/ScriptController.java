@@ -46,6 +46,8 @@ public class ScriptController extends BaseController {
     @Autowired
     private ScriptService scriptService;
     @Autowired
+    private ScriptValidator scriptValidator;
+    @Autowired
     private UserService userService;
     @Autowired
     private ScriptValidator validator;
@@ -97,6 +99,7 @@ public class ScriptController extends BaseController {
     @ResponseBody
     @PostMapping(value = "/append")
     public Result appendInfo(@RequestBody @Valid ScriptUpdateForm form) throws ObjectNotExistsException, AuthorizedException {
+        scriptValidator.validateScriptExist(form.getScriptId());
         projectValidator.validateProjectExist(form.getProjectId());
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         projectValidator.validateUserIsProjectMember(form.getProjectId(), user.getId());

@@ -37,38 +37,39 @@ public class DownloadController extends BaseController {
     @Autowired
     private ScriptService scriptService;
 
-    @ResponseBody
-    @RequestMapping(value = "/script/{scriptId}", method = RequestMethod.GET)
-    public ResponseEntity<byte[]> scriptDownload(@PathVariable Long scriptId, @ApiIgnore HttpServletRequest request) throws IOException {
-        log.info(String.format("scriptDownload: %s", scriptId));
-        String agentKey = request.getHeader("agentKey");
-        String agentId = request.getHeader("agentId");
-        Script script = scriptService.findOne(scriptId);
-        if (script == null) {
-            return new ResponseEntity<>( HttpStatus.INTERNAL_SERVER_ERROR );
-        }
-        String path = script.getPath();
-        String fileName = script.getAliasName();
-        return getDownloadEntity(path, fileName);
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "/app/{appId}", method = RequestMethod.GET)
-    public ResponseEntity<byte[]> appDownload(@PathVariable Long appId, @ApiIgnore HttpServletRequest request) throws IOException {
-        log.info(String.format("appDownload: %s", appId));
-        String agentKey = request.getHeader("agentKey");
-        String agentId = request.getHeader("agentId");
-
-        App app = appService.findOne(appId);
-        if (app == null) {
-            return new ResponseEntity<>( HttpStatus.INTERNAL_SERVER_ERROR );
-        }
-//        String path = "/Users/wen/Documents/testwa/ContactManager.apk";
-//        String fileName = "ContactManager.apk";
-        String path = app.getPath();
-        String fileName = app.getAliasName();
-        return getDownloadEntity(path, fileName);
-    }
+    // 下载通过nginx静态文件下载
+//    @ResponseBody
+//    @RequestMapping(value = "/script/{scriptId}", method = RequestMethod.GET)
+//    public ResponseEntity<byte[]> scriptDownload(@PathVariable Long scriptId, @ApiIgnore HttpServletRequest request) throws IOException {
+//        log.info(String.format("scriptDownload: %s", scriptId));
+//        String agentKey = request.getHeader("agentKey");
+//        String agentId = request.getHeader("agentId");
+//        Script script = scriptService.findOne(scriptId);
+//        if (script == null) {
+//            return new ResponseEntity<>( HttpStatus.INTERNAL_SERVER_ERROR );
+//        }
+//        String path = script.getPath();
+//        String fileName = script.getAliasName();
+//        return getDownloadEntity(path, fileName);
+//    }
+//
+//    @ResponseBody
+//    @RequestMapping(value = "/app/{appId}", method = RequestMethod.GET)
+//    public ResponseEntity<byte[]> appDownload(@PathVariable Long appId, @ApiIgnore HttpServletRequest request) throws IOException {
+//        log.info(String.format("appDownload: %s", appId));
+//        String agentKey = request.getHeader("agentKey");
+//        String agentId = request.getHeader("agentId");
+//
+//        App app = appService.findOne(appId);
+//        if (app == null) {
+//            return new ResponseEntity<>( HttpStatus.INTERNAL_SERVER_ERROR );
+//        }
+////        String path = "/Users/wen/Documents/testwa/ContactManager.apk";
+////        String fileName = "ContactManager.apk";
+//        String path = app.getPath();
+//        String fileName = app.getAliasName();
+//        return getDownloadEntity(path, fileName);
+//    }
 
     private ResponseEntity<byte[]> getDownloadEntity(String path, String fileName) throws IOException {
         Path downloadPath = Paths.get(path);

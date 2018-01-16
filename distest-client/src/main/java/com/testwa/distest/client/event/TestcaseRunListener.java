@@ -33,6 +33,10 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
     public GrpcClientService grpcClientService;
     @Value("${agent.web.url}")
     private String agentWebUrl;
+    @Value("${distest.api.web}")
+    private String distestApiWeb;
+    @Value("${distest.api.name}")
+    private String distestApiName;
     @Autowired
     private ApplicationContext context;
 
@@ -67,9 +71,9 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
                 String appiumLogPath = manager.getAppiumlogPath();
                 try {
                     String appiumUrl = manager.getAppiumService().getUrl().toString();
-                    PythonExecutor executor2 = new PythonExecutor(agentWebUrl, appiumUrl);
+                    PythonExecutor executor2 = new PythonExecutor(distestApiWeb, distestApiName, appiumUrl);
                     executors.put(cmd.getDeviceId(), executor2);
-                    executor2.setAppId(cmd.getAppId());
+                    executor2.setAppInfo(cmd.getAppInfo());
                     executor2.setDeviceId(cmd.getDeviceId());
                     executor2.setInstall(cmd.getInstall());
                     executor2.setTaskId(cmd.getExeId());
@@ -86,7 +90,7 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
                     log.error("executors error", e);
                 }finally {
                     //upload log
-                    sendLogsToServer(UploadFileToServerEvent.FileType.APPIUMLOG, cmd.getExeId(), cmd.getDeviceId(), appiumLogPath);
+                    grpcClientService.appiumLogUpload(cmd.getExeId(), cmd.getDeviceId(), appiumLogPath);
 //                        sendLogsToServer(UploadFileToServerEvent.FileType.LOGCAT, cmd.getExeId(), cmd.getDeviceId());
                 }
                 pool.release(manager);
@@ -99,7 +103,7 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
                 // 检查
                 PythonExecutor executor4 = executors.get(cmd.getDeviceId());
                 if(executor4 != null){
-                    Long currScriptId = executor4.getCurrScript();
+                    Long currScriptId = executor4.getCurrScript().getId();
                     Long currTestcaseId = executor4.getCurrTestCaseId();
                     grpcClientService.notifyServerCurrentTaskExecutorInfo(cmd.getDeviceId(), cmd.getExeId(), currScriptId, currTestcaseId);
                 }

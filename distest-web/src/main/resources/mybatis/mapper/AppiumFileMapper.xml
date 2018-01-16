@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.testwa.distest.server.mapper.AppiumFileMapper" >
+    <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.AppiumFile" >
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="deviceId" property="deviceId" jdbcType="VARCHAR" />
+        <result column="filename" property="filename" jdbcType="VARCHAR" />
+        <result column="taskId" property="taskId" jdbcType="BIGINT" />
+        <result column="createTime" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+    </resultMap>
+
+    <delete id="removeFromTask" >
+        DELETE FROM appium_file
+        WHERE taskId = #{taskId}
+    </delete>
+    <select id="findOne" resultMap="BaseResultMap" >
+        SELECT * FROM appium_file
+        WHERE taskId = #{taskId}
+        and deviceId = #{deviceId}
+    </select>
+    <select id="fildAll" parameterType="com.testwa.distest.server.entity.AppiumFile" resultMap="BaseResultMap" >
+        SELECT * FROM appium_file
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            <if test="taskId != null">and taskId = #{taskId}</if>
+            <if test="deviceId != null">and deviceId = #{deviceId}</if>
+        </trim>
+    </select>
+
+</mapper>

@@ -3,6 +3,8 @@ package com.testwa.distest.server.web.task.execute;
 import com.alibaba.fastjson.JSON;
 import com.google.common.base.Preconditions;
 import com.testwa.core.base.exception.ObjectNotExistsException;
+import com.testwa.core.cmd.AppInfo;
+import com.testwa.core.cmd.ScriptInfo;
 import com.testwa.core.utils.TimeUtil;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.core.cmd.RemoteRunCommand;
@@ -28,6 +30,7 @@ import com.testwa.distest.server.websocket.service.PushCmdService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -102,7 +105,7 @@ public class ExecuteMgr {
         TaskScene scene = taskSceneService.findOne(form.getTaskSceneId());
         String sceneName = scene.getSceneName();
         task.setTaskName(String.format("%s_%s", sceneName, TimeUtil.getTimestampForFile()));
-        List<Long> allscriptId = new ArrayList<>();
+
         List<Script> allscript = new ArrayList<>();
         List<Testcase> alltestcase = new ArrayList<>();
 
@@ -111,18 +114,25 @@ public class ExecuteMgr {
             RemoteTestcaseContent content = new RemoteTestcaseContent();
             content.setTestcaseId(caseId);
             Testcase c = testcaseService.fetchOne(caseId);
+            // 批量获取案例下的所有脚本
+            List<ScriptInfo> scripts = new ArrayList<>();
             List<Long> scriptIds = new ArrayList<>();
             c.getTestcaseDetails().forEach( s -> {
                 scriptIds.add(s.getScriptId());
             });
-            content.setScriptIds(scriptIds);
+            // 转换成cmd下的scriptInfo
+            List<Script> caseAllScript = scriptService.findAll(scriptIds);
+            caseAllScript.forEach(script -> {
+                ScriptInfo info = new ScriptInfo();
+                BeanUtils.copyProperties(script, info);
+                scripts.add(info);
+            });
+            content.setScripts(scripts);
             cases.add(content);
 
-            allscriptId.addAll(scriptIds);
+            allscript.addAll(caseAllScript);
             alltestcase.add(c);
-
         }
-        allscript = scriptService.findAll(allscriptId);
         task.setScriptJson(JSON.toJSONString(allscript));
         task.setTestcaseJson(JSON.toJSONString(alltestcase));
 
@@ -137,7 +147,9 @@ public class ExecuteMgr {
 
             Device d = deviceService.findByDeviceId(key);
             RemoteRunCommand cmd = new RemoteRunCommand();
-            cmd.setAppId(appId);
+            AppInfo appInfo = new AppInfo();
+            BeanUtils.copyProperties(app, appInfo);
+            cmd.setAppInfo(appInfo);
             cmd.setCmd(DB.CommandEnum.START.getValue());
             cmd.setDeviceId(key);
             cmd.setTestcaseList(cases);

@@ -17,4 +17,8 @@ public interface IScriptDAO extends IBaseDAO<Script, Long> {
     List<Script> findAll(List<Long> keys);
 
     List<Script> findByFromProject(Map<String, Object> params);
+
+    List<Script> findAllInProject(List<Long> keys, Long projectId);
+
+    Script findOneInPorject(Long scriptId, Long projectId);
 }

@@ -25,9 +25,24 @@ public class ScriptValidator {
         }
         return scriptList;
     }
+    public List<Script> validateScriptsInProject(List<Long> scriptIds, Long projectId) throws ObjectNotExistsException {
+        List<Script> scriptList = scriptService.findAllInProject(scriptIds, projectId);
+        if(scriptList == null || scriptList.size() != scriptIds.size()){
+            throw new ObjectNotExistsException("脚本不存在");
+        }
+        return scriptList;
+    }
 
     public Script validateScriptExist(Long scriptId) throws ObjectNotExistsException {
         Script entity = scriptService.findOne(scriptId);
+        if(entity == null){
+            throw new ObjectNotExistsException("脚本不存在");
+        }
+        return entity;
+    }
+
+    public Script validateScriptInProject(Long scriptId, Long projectId) throws ObjectNotExistsException {
+        Script entity = scriptService.findOneInPorject(scriptId, projectId);
         if(entity == null){
             throw new ObjectNotExistsException("脚本不存在");
         }
