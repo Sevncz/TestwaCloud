@@ -88,10 +88,12 @@ public class TaskController extends BaseController {
 
     @ApiOperation(value="停止一个设备任务")
     @ResponseBody
-    @PostMapping(value = "/kill")
-    public Result kill(@RequestBody TaskStopForm form) throws ObjectNotExistsException {
-        taskSceneValidatoer.validateTaskSceneExist(form.getTaskSceneId());
-        deviceValidatoer.validateOnline(form.getDeviceIds());
+    @PostMapping(value = "/stop")
+    public Result stop(@RequestBody TaskStopForm form) throws ObjectNotExistsException {
+        taskValidatoer.validateTaskExist(form.getTaskId());
+        if(form.getDeviceIds() != null && form.getDeviceIds().size() > 0 ){
+            deviceValidatoer.validateOnline(form.getDeviceIds());
+        }
         executeMgr.stop(form);
         return ok();
     }

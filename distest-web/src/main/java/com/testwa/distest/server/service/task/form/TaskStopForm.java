@@ -18,9 +18,9 @@ import java.util.List;
 public class TaskStopForm extends RequestFormBase{
 
 
-    @NotNull(message = "taskSceneId.empty")
-    @NotEmpty(message = "taskSceneId.empty")
-    private Long taskSceneId;
+    @NotNull(message = "taskId.empty")
+    @NotEmpty(message = "taskId.empty")
+    private Long taskId;
 
     private List<String> deviceIds;
 }

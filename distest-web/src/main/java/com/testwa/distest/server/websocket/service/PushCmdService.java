@@ -55,13 +55,6 @@ public class PushCmdService {
     }
 
     @Async
-    public void startTestcase(RemoteRunCommand cmd, Long userId) throws ObjectNotExistsException {
-        log.info(cmd.toString());
-        SocketIOClient client = getMainClientSocketIOClient(userId);
-        client.sendEvent(WebsocketEvent.ON_TESTCASE_RUN, JSON.toJSONString(cmd));
-    }
-
-    @Async
     public void pushMinCmdStart(MiniCmd cmd, String deviceId) throws ObjectNotExistsException {
         log.info(cmd.toString());
         SocketIOClient client = getDeviceCLientSocketIOClient(deviceId);
@@ -84,6 +77,13 @@ public class PushCmdService {
     public void pushInitDeviceClient(Long userId, String deviceId) throws ObjectNotExistsException {
         SocketIOClient client = getMainClientSocketIOClient(userId);
         client.sendEvent(WebsocketEvent.ON_START, deviceId);
+    }
+
+    @Async
+    public void executeCmd(RemoteRunCommand cmd, Long userId) throws ObjectNotExistsException {
+        log.info(cmd.toString());
+        SocketIOClient client = getMainClientSocketIOClient(userId);
+        client.sendEvent(WebsocketEvent.ON_TESTCASE_RUN, JSON.toJSONString(cmd));
     }
 
 }

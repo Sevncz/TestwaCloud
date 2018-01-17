@@ -292,12 +292,8 @@ public class PythonExecutor {
         return srcStr;
     }
 
-    public Boolean pythonIsRunning(){
-        return this.pyService.isRunning();
-    }
-
     public void stop() {
-        if(!this.pyService.isRunning()){
+        if(this.pyService != null){
             this.pyService.stop();
         }
         this.testcases.clear();

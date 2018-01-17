@@ -154,7 +154,7 @@ public class ExecuteMgr {
             cmd.setDeviceId(key);
             cmd.setTestcaseList(cases);
             cmd.setExeId(taskId);
-            pushCmdService.startTestcase(cmd, d.getLastUserId());
+            pushCmdService.executeCmd(cmd, d.getLastUserId());
         }
     }
 
@@ -182,6 +182,33 @@ public class ExecuteMgr {
      */
     public void stop(TaskStopForm form) {
         log.info(form.toString());
+        Task task = taskService.findOne(form.getTaskId());
+        task.setStatus(DB.TaskStatus.CANCEL);
+        taskService.update(task);
+            // 如果传了设备ID，那么停止这几个设备上的任务
+            // 否则，停止所有设备上的任务
+            if(form.getDeviceIds() != null && form.getDeviceIds().size() > 0){
+                for (String key : form.getDeviceIds()) {
+                    Device d = deviceService.findByDeviceId(key);
+                    stopDeviceTask(d.getDeviceId(), d.getLastUserId());
+                }
+            }else{
+                List<DeviceAndroid> deviceAndroids = task.getDevices();
+                for (DeviceAndroid d : deviceAndroids) {
+                    stopDeviceTask(d.getDeviceId(), d.getLastUserId());
+                }
+            }
+    }
+
+    private void stopDeviceTask(String deviceId, Long userId) {
+        RemoteRunCommand cmd = new RemoteRunCommand();
+        cmd.setCmd(DB.CommandEnum.STOP.getValue());
+        cmd.setDeviceId(deviceId);
+        try {
+            pushCmdService.executeCmd(cmd, userId);
+        } catch (ObjectNotExistsException e) {
+            log.error("device {} offline，session not found from client.client.session.{}", deviceId, userId);
+        }
     }
 
     /**
