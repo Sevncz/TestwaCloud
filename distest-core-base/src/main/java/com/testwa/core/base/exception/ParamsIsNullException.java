@@ -6,10 +6,13 @@ package com.testwa.core.base.exception;
 public class ParamsIsNullException extends ParamsException {
 
     public ParamsIsNullException(){
-
     }
 
     public ParamsIsNullException(String message){
         super(message);
+    }
+
+    public ParamsIsNullException(String message, Throwable t){
+        super(message, t);
     }
 }

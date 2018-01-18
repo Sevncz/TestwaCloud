@@ -4,6 +4,7 @@ import com.google.common.net.InetAddresses;
 import com.testwa.core.base.exception.AuthorizedException;
 import com.testwa.core.base.exception.LoginInfoNotFoundException;
 import com.testwa.core.base.vo.Result;
+import com.testwa.core.redis.RedisCacheManager;
 import com.testwa.distest.config.security.JwtAuthenticationResponse;
 import com.testwa.distest.config.security.JwtTokenUtil;
 import com.testwa.distest.config.security.JwtUser;
@@ -40,6 +41,8 @@ public class AuthMgr {
     private UserDetailsService userDetailsService;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
+    @Autowired
+    private RedisLoginMgr redisLoginMgr;
 
     public JwtAuthenticationResponse login(String username, String password, String ip) throws BadCredentialsException, LoginInfoNotFoundException {
         if(StringUtils.isEmpty(username) || StringUtils.isEmpty(password)){
@@ -64,6 +67,7 @@ public class AuthMgr {
         InetAddress addr = InetAddresses.forString(ip);
         user.setLoginIp(InetAddresses.coerceToInteger(addr));
         userService.update(user);
+        redisLoginMgr.login(username, access_token);
         return new JwtAuthenticationResponse(access_token, refresh_token, access_token_expiration);
     }
 

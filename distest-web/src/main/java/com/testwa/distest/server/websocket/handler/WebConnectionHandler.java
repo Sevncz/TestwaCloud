@@ -21,6 +21,7 @@ import com.testwa.distest.server.websocket.service.PushCmdService;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -52,6 +53,7 @@ public class WebConnectionHandler {
     private UserService userService;
 
     @OnConnect
+    @Async
     public void onConnect(SocketIOClient client) throws ObjectNotExistsException {
 
         String type = client.getHandshakeData().getSingleUrlParam("type");
@@ -87,11 +89,6 @@ public class WebConnectionHandler {
             if(StringUtils.isNotBlank(func) && StringUtils.isNotBlank(deviceId) ){
                 if(WSFuncEnum.contains(func)){
                     subscribeMgr.subscribeDeviceEvent(deviceId, func, client.getSessionId().toString());
-//                    Set<String> subscribes = subscribeMgr.getSubscribes(deviceId, func);
-//                    if(subscribes.size() == 1 && func.equals(WSFuncEnum.SCREEN.getValue())){
-//                        requestStartMinitouch(deviceId);
-//                        requestStartMinicap(deviceId);
-//                    }
                 }
                 DeviceAndroid deviceAndroid = (DeviceAndroid) deviceService.findByDeviceId(deviceId);
                 client.sendEvent("devices", JSON.toJSON(deviceAndroid));
@@ -104,6 +101,7 @@ public class WebConnectionHandler {
     }
 
     @OnDisconnect
+    @Async
     public void onDisconnect(SocketIOClient client) {
 
         String type = client.getHandshakeData().getSingleUrlParam("type");

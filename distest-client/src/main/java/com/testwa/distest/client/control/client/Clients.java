@@ -36,6 +36,7 @@ public class Clients {
         RemoteClient rc = all.get(serial);
         if(rc != null){
             rc.stop();
+            rc = null;
         }
         all.remove(serial);
     }

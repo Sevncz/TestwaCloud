@@ -1186,4 +1186,12 @@ public final class DateUtils {
         return getBetweenDate(startDate, endDate);
     }
 
+    public static Date getMongoDate(Date date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Calendar ca = Calendar.getInstance();
+        ca.setTime(date);
+        ca.add(Calendar.HOUR_OF_DAY, 8);
+        return parseDate(sdf.format(ca.getTime()));
+    }
+
 }

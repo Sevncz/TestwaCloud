@@ -1,5 +1,6 @@
 package com.testwa.distest.server.rpc.service;
 
+import com.testwa.core.utils.DateUtils;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.config.DisFileProperties;
 import com.testwa.distest.config.security.JwtTokenUtil;
@@ -68,7 +69,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
             if(exeTask.getStatus().getValue() != DB.TaskStatus.CANCEL.getValue()){
                 exeTask.setStatus(DB.TaskStatus.COMPLETE);
             }
-            exeTask.setEndTime(new Date(timestamp));
+            exeTask.setEndTime(DateUtils.getMongoDate(new Date(timestamp)));
             taskService.update(exeTask);
             exeTask.getDevices().forEach(d -> {
                 deviceAuthMgr.releaseDev(d.getDeviceId());

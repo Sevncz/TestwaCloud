@@ -5,11 +5,11 @@ package com.testwa.core.base.exception;
  */
 public class AccountAlreadyExistException extends ObjectAlreadyExistException {
 
-    public AccountAlreadyExistException(){
-
-    }
-
     public AccountAlreadyExistException(String message){
         super(message);
+    }
+
+    public AccountAlreadyExistException(String message, Throwable t){
+        super(message, t);
     }
 }

@@ -4,10 +4,10 @@ package com.testwa.core.service;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.testwa.core.os.CommandLine;
-import io.appium.java_client.service.local.AppiumServerHasNotBeenStartedLocallyException;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
+import org.openqa.selenium.os.CommandLine;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Iterator;
@@ -20,7 +20,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * Created by wen on 16/8/28.
  */
 public final class PythonScriptDriverService extends CommonRunnerDriverService {
-    private final String pythonExec;
+    private final File pythonExec;
     private final ImmutableList<String> pythonArgs;
     private final ImmutableMap<String, String> pythonEnvironment;
     private final long startupTimeout;
@@ -29,7 +29,7 @@ public final class PythonScriptDriverService extends CommonRunnerDriverService {
     private CommandLine process;
     private final ListOutputStream stream;
 
-    PythonScriptDriverService(String pythonExec, ImmutableList<String> pythonArgs, ImmutableMap<String, String> pythonEnvironment, long startupTimeout, TimeUnit timeUnit) throws IOException {
+    PythonScriptDriverService(File pythonExec, ImmutableList<String> pythonArgs, ImmutableMap<String, String> pythonEnvironment, long startupTimeout, TimeUnit timeUnit) throws IOException {
         super(pythonExec, pythonArgs, pythonEnvironment);
         this.process = null;
         this.pythonExec = pythonExec;
@@ -75,13 +75,14 @@ public final class PythonScriptDriverService extends CommonRunnerDriverService {
     }
 
 
-    public void start() throws AppiumServerHasNotBeenStartedLocallyException {
+    public void start() throws PythonProcessHasNotBeenStartedLocallyException {
         this.lock.lock();
 
         try {
             if(!this.isRunning()) {
                 try {
-                    this.process = new CommandLine(this.pythonExec, (String[])this.pythonArgs.toArray(new String[0]));
+                    this.process = new CommandLine(this.pythonExec.getCanonicalPath(),
+                            this.pythonArgs.toArray(new String[0]));
                     this.process.setEnvironmentVariables(this.pythonEnvironment);
                     this.process.copyOutputTo(this.stream);
                     this.process.executeAsync();
@@ -96,7 +97,7 @@ public final class PythonScriptDriverService extends CommonRunnerDriverService {
                         }
                     }
 
-                    throw new AppiumServerHasNotBeenStartedLocallyException(msgTxt, e);
+                    throw new PythonProcessHasNotBeenStartedLocallyException(msgTxt, e);
                 }
             }
         } finally {

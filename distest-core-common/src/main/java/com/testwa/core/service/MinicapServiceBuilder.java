@@ -3,6 +3,7 @@ package com.testwa.core.service;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,11 +67,10 @@ public final class MinicapServiceBuilder extends AdbServiceBuilder {
         return (new ImmutableList.Builder()).addAll(argList).build();
     }
 
-
     @Override
-    protected AdbDriverService createRunnerDriverService(String executable, ImmutableList<String> args, ImmutableMap<String, String> environment) {
+    protected AdbDriverService createDriverService(File executable, int port, ImmutableList<String> immutableList, ImmutableMap<String, String> immutableMap) {
         try {
-            return new AdbDriverService(executable, args, environment, this.startupTimeout, this.timeUnit);
+            return new AdbDriverService(executable, immutableList, immutableMap, this.startupTimeout, this.timeUnit);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

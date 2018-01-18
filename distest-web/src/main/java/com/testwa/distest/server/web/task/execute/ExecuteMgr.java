@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.cmd.AppInfo;
 import com.testwa.core.cmd.ScriptInfo;
+import com.testwa.core.utils.DateUtils;
 import com.testwa.core.utils.TimeUtil;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.core.cmd.RemoteRunCommand;
@@ -140,7 +141,7 @@ public class ExecuteMgr {
         task.setDevicesJson(JSON.toJSONString(alldevice));
         task.setStatus(DB.TaskStatus.RUNNING);
         task.setCreateBy(user.getId());
-        task.setCreateTime(new Date());
+        task.setCreateTime(DateUtils.getMongoDate(new Date()));
         Long taskId = taskService.save(task);
 
         for (String key : form.getDeviceIds()) {

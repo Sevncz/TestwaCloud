@@ -16,6 +16,7 @@ import io.grpc.Channel;
 import io.rpc.testwa.device.ScreenCaptureRequest;
 import io.socket.client.IO;
 import io.socket.client.Socket;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,8 +28,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * Created by wen on 10/06/2017.
  */
+@Slf4j
 public class RemoteClient extends BaseClient implements MinicapListener, MinitouchListener {
-    private static Logger log = LoggerFactory.getLogger(RemoteClient.class);
 
     static final int DATA_TIMEOUT = 100; //ms
     private boolean isWaitting = false;
@@ -301,6 +302,10 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         }
         if (minicap != null) {
             minicap.kill();
+        }
+        if(ws != null){
+            this.ws.disconnect();
+            this.channel = null;
         }
     }
 

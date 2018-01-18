@@ -3,10 +3,10 @@ package com.testwa.core.service;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.testwa.core.os.CommandLine;
-import io.appium.java_client.service.local.AppiumServerHasNotBeenStartedLocallyException;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
+import org.openqa.selenium.os.CommandLine;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Iterator;
@@ -20,7 +20,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class AdbDriverService extends CommonRunnerDriverService {
 
-    private final String adbExec;
+    private final File adbExec;
     private final ImmutableList<String> adbArgs;
     private final ImmutableMap<String, String> androidEnvironment;
     private final long startupTimeout;
@@ -29,7 +29,7 @@ public class AdbDriverService extends CommonRunnerDriverService {
     private CommandLine process;
     private final ListOutputStream stream;
 
-    AdbDriverService(String adbExec, ImmutableList<String> adbArgs, ImmutableMap<String, String> androidEnvironment, long startupTimeout, TimeUnit timeUnit) throws IOException {
+    AdbDriverService(File adbExec, ImmutableList<String> adbArgs, ImmutableMap<String, String> androidEnvironment, long startupTimeout, TimeUnit timeUnit) throws IOException {
         super(adbExec, adbArgs, androidEnvironment);
         this.process = null;
         this.adbExec = adbExec;
@@ -56,13 +56,14 @@ public class AdbDriverService extends CommonRunnerDriverService {
     }
 
 
-    public void start() throws AppiumServerHasNotBeenStartedLocallyException {
+    public void start() throws AdbProcessHasNotBeenStartedLocallyException {
         this.lock.lock();
 
         try {
             if(!this.isRunning()) {
                 try {
-                    this.process = new CommandLine(this.adbExec, (String[])this.adbArgs.toArray(new String[0]));
+                    this.process = new CommandLine(this.adbExec.getCanonicalPath(),
+                            this.adbArgs.toArray(new String[0]));
                     this.process.setEnvironmentVariables(this.androidEnvironment);
                     this.process.copyOutputTo(this.stream);
                     this.process.executeAsync();
@@ -77,7 +78,7 @@ public class AdbDriverService extends CommonRunnerDriverService {
                         }
                     }
 
-                    throw new AppiumServerHasNotBeenStartedLocallyException(msgTxt, e);
+                    throw new AdbProcessHasNotBeenStartedLocallyException(msgTxt, e);
                 }
             }
         } finally {
