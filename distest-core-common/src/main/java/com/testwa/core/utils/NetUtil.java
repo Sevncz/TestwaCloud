@@ -1,11 +1,7 @@
 package com.testwa.core.utils;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.NetworkInterface;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.util.Enumeration;
 
 import org.slf4j.Logger;
@@ -46,20 +42,15 @@ public class NetUtil {
 	 * 
 	 * @return
 	 */
-	public static String getLocalIp() {
-		InetAddress ia = null;
-		try {
-			ia = InetAddress.getLocalHost();
-		} catch (UnknownHostException e) {
-			logger.error("获取本机内网ip出错", e);
-		}
+	public static String getLocalIp(InetAddress ia) {
 		return ia.getHostAddress();
 	}
 
 	public static String[] getAllLocalHostIP() {
-		String[] ret = null;
+        String[] ret = null;
 		try {
-			String hostName = getLocalIp();
+            InetAddress ia = InetAddress.getLocalHost();
+			String hostName = getLocalIp(ia);
 			if (hostName.length() > 0) {
 				InetAddress[] addrs = InetAddress.getAllByName("localhost");
 				if (addrs.length > 0) {
@@ -76,9 +67,28 @@ public class NetUtil {
 		return ret;
 	}
 
-	public static void main(String[] args) throws Exception {
-		for(String ip : getAllLocalHostIP()){
-			System.out.println(ip);
+	public static String getLocalMac(InetAddress ia) throws SocketException {
+		//获取网卡，获取地址
+		byte[] mac = NetworkInterface.getByInetAddress(ia).getHardwareAddress();
+		StringBuffer sb = new StringBuffer("");
+		for(int i=0; i<mac.length; i++) {
+			if(i!=0) {
+				sb.append("-");
+			}
+			//字节转换为整数
+			int temp = mac[i]&0xff;
+			String str = Integer.toHexString(temp);
+			if(str.length()==1) {
+				sb.append("0"+str);
+			}else {
+				sb.append(str);
+			}
 		}
+		return sb.toString().toUpperCase();
+	}
+
+	public static void main(String[] args) throws Exception {
+        InetAddress ia = InetAddress.getLocalHost();
+		System.out.println(getLocalMac(ia));
 	}
 }

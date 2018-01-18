@@ -3,6 +3,8 @@ package com.testwa.distest.server.web.auth.controller;
 import cn.apiclub.captcha.Captcha;
 import cn.apiclub.captcha.backgrounds.GradiatedBackgroundProducer;
 import cn.apiclub.captcha.gimpy.FishEyeGimpyRenderer;
+import com.alibaba.fastjson.JSON;
+import com.google.common.net.InetAddresses;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.*;
@@ -11,8 +13,10 @@ import com.testwa.core.utils.Validator;
 import com.testwa.core.base.vo.Result;
 import com.testwa.distest.config.security.JwtAuthenticationRequest;
 import com.testwa.distest.config.security.JwtAuthenticationResponse;
+import com.testwa.distest.server.entity.AgentLoginLogger;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.user.form.RegisterForm;
+import com.testwa.distest.server.service.user.service.AgentLoginLoggerService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.auth.mgr.AuthMgr;
 import com.testwa.distest.server.web.auth.mgr.RedisLoginMgr;
@@ -22,6 +26,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -34,6 +39,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.util.Date;
 
 import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 
@@ -51,6 +58,8 @@ public class AuthController extends BaseController {
     @Autowired
     private UserService userService;
     @Autowired
+    private AgentLoginLoggerService agentLoginLoggerService;
+    @Autowired
     private UserValidator userValidator;
     @Autowired
     private AuthMgr authMgr;
@@ -67,7 +76,30 @@ public class AuthController extends BaseController {
         }else{
             ip = request.getHeader("x-forwarded-for");
         }
-        return ok(authMgr.login(authenticationRequest.getUsername(), authenticationRequest.getPassword(), ip));
+        InetAddress addr = InetAddresses.forString(ip);
+        Integer ipInt = InetAddresses.coerceToInteger(addr);
+        JwtAuthenticationResponse response = authMgr.login(authenticationRequest.getUsername(), authenticationRequest.getPassword(), ipInt);
+        String userAgent = request.getHeader("user-agent");
+        log.info("userAgent: {}", userAgent);
+        // 判断该请求来自哪
+        if(StringUtils.isNotEmpty(userAgent)){
+            // 来自客户端
+            if(userAgent.indexOf("Distest-agent") == 0){
+                // 格式
+                // Distest-agent/1.0.0/{"host":"192.168.3.4","javaVersion":"1.8.0_73","mac":"AC-BC-32-A8-F6-A9","osArch":"x86_64","osName":"Mac OS X","osVersion":"10.12.6"}
+                String[] agents = userAgent.split("/");
+
+                String agentInfo = agents[2];
+                AgentLoginLogger lal = JSON.parseObject(agentInfo, AgentLoginLogger.class);
+                lal.setUsername(authenticationRequest.getUsername());
+                lal.setClientVersion(agents[1]);
+                lal.setLoginTime(new Date());
+                lal.setIp(ipInt);
+                agentLoginLoggerService.save(lal);
+            }
+
+        }
+        return ok(response);
     }
 
 

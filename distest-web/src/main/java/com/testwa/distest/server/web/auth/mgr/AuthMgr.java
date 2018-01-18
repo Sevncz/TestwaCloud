@@ -44,7 +44,7 @@ public class AuthMgr {
     @Autowired
     private RedisLoginMgr redisLoginMgr;
 
-    public JwtAuthenticationResponse login(String username, String password, String ip) throws BadCredentialsException, LoginInfoNotFoundException {
+    public JwtAuthenticationResponse login(String username, String password, Integer ip) throws BadCredentialsException, LoginInfoNotFoundException {
         if(StringUtils.isEmpty(username) || StringUtils.isEmpty(password)){
             throw new LoginInfoNotFoundException("登录信息不能为空");
         }
@@ -64,8 +64,7 @@ public class AuthMgr {
         if(user.getLoginIp() != null){
             user.setLastLoginIp(user.getLoginIp());
         }
-        InetAddress addr = InetAddresses.forString(ip);
-        user.setLoginIp(InetAddresses.coerceToInteger(addr));
+        user.setLoginIp(ip);
         userService.update(user);
         redisLoginMgr.login(username, access_token);
         return new JwtAuthenticationResponse(access_token, refresh_token, access_token_expiration);

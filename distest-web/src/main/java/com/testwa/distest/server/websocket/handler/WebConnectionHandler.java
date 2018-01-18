@@ -8,12 +8,14 @@ import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.common.enums.Command;
 import com.testwa.core.cmd.MiniCmd;
 import com.testwa.distest.config.security.JwtTokenUtil;
+import com.testwa.distest.server.entity.AgentLoginLogger;
 import com.testwa.distest.server.entity.DeviceAndroid;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.cache.mgr.ClientSessionMgr;
 import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
 import com.testwa.distest.server.service.cache.mgr.SubscribeMgr;
 import com.testwa.distest.server.service.device.service.DeviceService;
+import com.testwa.distest.server.service.user.service.AgentLoginLoggerService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
 import com.testwa.distest.server.websocket.WSFuncEnum;
@@ -51,6 +53,8 @@ public class WebConnectionHandler {
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
     private UserService userService;
+    @Autowired
+    private AgentLoginLoggerService agentLoginLoggerService;
 
     @OnConnect
     @Async
@@ -117,6 +121,7 @@ public class WebConnectionHandler {
                     String username = jwtTokenUtil.getUsernameFromToken(token);
                     User user = userService.findByUsername(username);
                     clientSessionMgr.logout(user.getId());
+                    agentLoginLoggerService.updateRecentLogoutTime(user.getUsername());
                 }
             } catch (Exception e) {
                 log.error("parser token error", e);
