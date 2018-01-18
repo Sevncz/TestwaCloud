@@ -35,6 +35,7 @@ class GlobalExceptionHandler {
     MessageSource messageSource;
 
     @ExceptionHandler(value = BadCredentialsException.class)
+    @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public Result handleBadCredentialsExceptions(HttpServletRequest req, Exception e) throws Exception {
         Result<String> r = new Result<>();
@@ -89,6 +90,7 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(value = ParamsException.class)
+    @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public Result handleParamsExceptions(HttpServletRequest req, Exception e) throws Exception {
         Result<String> r = new Result<>();
@@ -99,6 +101,7 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(value = ObjectNotExistsException.class)
+    @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public Result handleObjectNotFoundExceptions(HttpServletRequest req, Exception e) throws Exception {
         Result<String> r = new Result<>();
@@ -109,6 +112,7 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(value = ObjectAlreadyExistException.class)
+    @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public Result handleObjectAlreadyExistExceptions(HttpServletRequest req, Exception e) throws Exception {
         Result<String> r = new Result<>();
@@ -129,6 +133,7 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(value = DBException.class)
+    @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public Result handleDBExceptions(HttpServletRequest req, Exception e) throws Exception {
         Result<String> r = new Result<>();
@@ -141,6 +146,7 @@ class GlobalExceptionHandler {
 
 
     @ExceptionHandler(value = HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public Result handleHttpMessageNotReadableExceptions(HttpServletRequest req, Exception e) throws Exception {
         Result<String> r = new Result<>();
@@ -152,6 +158,7 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public Result handleMethodArgumentNotValidExceptions(HttpServletRequest req, MethodArgumentNotValidException e) throws Exception {
         List<String> errors = e.getBindingResult().getFieldErrors().stream()
@@ -167,13 +174,12 @@ class GlobalExceptionHandler {
 
 
     @ExceptionHandler(value = Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     public Result handleOtherExceptions(HttpServletRequest req, Exception e) throws Exception {
         log.error("Unknow error", e);
         Result<String> r = new Result<>();
-        if (e instanceof RuntimeException) {
-            r.setCode(ResultCode.SERVER_ERROR.getValue());
-        }
+        r.setCode(ResultCode.SERVER_ERROR.getValue());
         r.setMessage(ERR_INTERNAL_SERVER_ERROR);
         r.setUrl(req.getRequestURL().toString());
 

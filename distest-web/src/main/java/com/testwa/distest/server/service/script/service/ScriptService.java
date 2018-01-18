@@ -64,6 +64,7 @@ public class ScriptService {
     public Script findOne(Long scriptId){
         return scriptDAO.findOne(scriptId);
     }
+
     public Script findOneInPorject(Long scriptId, Long projectId){
         return scriptDAO.findOneInPorject(scriptId, projectId);
     }
@@ -215,12 +216,12 @@ public class ScriptService {
             return;
         }
 
-        String filePath = script.getPath();
+        String path = disFileProperties.getScript() + File.separator + script.getPath();
         try {
             // 删除app文件
-            Files.deleteIfExists(Paths.get(filePath));
+            Files.deleteIfExists(Paths.get(path));
             // 删除app文件的文件夹
-            Files.deleteIfExists(Paths.get(filePath).getParent());
+            Files.deleteIfExists(Paths.get(path).getParent());
         } catch (IOException e) {
             log.error("delete app file error", e);
         }
@@ -290,7 +291,7 @@ public class ScriptService {
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void modifyContent(Long scriptId, String content) throws IOException {
         Script script = findOne(scriptId);
-        String path = script.getPath();
+        String path = disFileProperties.getScript() + File.separator + script.getPath();
 
         content = replaceBlank(content);
         Path scriptPath = Paths.get(path);
@@ -344,7 +345,7 @@ public class ScriptService {
     }
 
     public String getContent(Script script) throws IOException {
-        String path = script.getPath();
+        String path = disFileProperties.getScript() + File.separator + script.getPath();
         StringBuffer sb = new StringBuffer();
         Files.lines(Paths.get(path)).forEach(line -> sb.append(line).append("\n"));
         return sb.toString();

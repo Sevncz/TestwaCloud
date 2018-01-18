@@ -112,7 +112,7 @@ public class ScriptController extends BaseController {
     @PostMapping(value = "/delete")
     public Result delete(@RequestBody @Valid DeleteAllForm form) {
 
-        scriptService.delete(form.getEntityIds());
+        scriptService.deleteScript(form.getEntityIds());
         return ok();
     }
 
