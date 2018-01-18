@@ -1,6 +1,8 @@
 package com.testwa.distest.config.security;
 
+import com.testwa.distest.server.web.auth.mgr.RedisLoginMgr;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,6 +29,8 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
+    @Autowired
+    private RedisLoginMgr redisLoginMgr;
 
     @Value("${jwt.header}")
     private String tokenHeader;

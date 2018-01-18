@@ -3,6 +3,7 @@ package com.testwa.distest.server.web.auth.mgr;
 import com.testwa.core.redis.RedisCacheManager;
 import com.testwa.distest.server.service.user.constant.UserConstant;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -41,5 +42,16 @@ public class RedisLoginMgr {
 
     public void loginCaptcha(String uuid, String answer) {
         redisCacheMgr.put(uuid, captchaExpires, answer);
+    }
+
+    public Boolean validateToken(String username, String authToken) {
+        String oldToken = (String) redisCacheMgr.get(getRedisKey(username));
+        if(StringUtils.isEmpty(oldToken)){
+            return true;
+        }
+        if(oldToken.equals(authToken)){
+            return true;
+        }
+        return false;
     }
 }

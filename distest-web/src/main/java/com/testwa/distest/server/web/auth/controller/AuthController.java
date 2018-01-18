@@ -58,8 +58,6 @@ public class AuthController extends BaseController {
     @Autowired
     private UserService userService;
     @Autowired
-    private AgentLoginLoggerService agentLoginLoggerService;
-    @Autowired
     private UserValidator userValidator;
     @Autowired
     private AuthMgr authMgr;
@@ -76,30 +74,8 @@ public class AuthController extends BaseController {
         }else{
             ip = request.getHeader("x-forwarded-for");
         }
-        InetAddress addr = InetAddresses.forString(ip);
-        Integer ipInt = InetAddresses.coerceToInteger(addr);
-        JwtAuthenticationResponse response = authMgr.login(authenticationRequest.getUsername(), authenticationRequest.getPassword(), ipInt);
         String userAgent = request.getHeader("user-agent");
-        log.info("userAgent: {}", userAgent);
-        // 判断该请求来自哪
-        if(StringUtils.isNotEmpty(userAgent)){
-            // 来自客户端
-            if(userAgent.indexOf("Distest-agent") == 0){
-                // 格式
-                // Distest-agent/1.0.0/{"host":"192.168.3.4","javaVersion":"1.8.0_73","mac":"AC-BC-32-A8-F6-A9","osArch":"x86_64","osName":"Mac OS X","osVersion":"10.12.6"}
-                String[] agents = userAgent.split("/");
-
-                String agentInfo = agents[2];
-                AgentLoginLogger lal = JSON.parseObject(agentInfo, AgentLoginLogger.class);
-                lal.setUsername(authenticationRequest.getUsername());
-                lal.setClientVersion(agents[1]);
-                lal.setLoginTime(new Date());
-                lal.setIp(ipInt);
-                agentLoginLoggerService.save(lal);
-            }
-
-        }
-        return ok(response);
+        return ok(authMgr.login(authenticationRequest.getUsername(), authenticationRequest.getPassword(), ip, userAgent));
     }
 
 
