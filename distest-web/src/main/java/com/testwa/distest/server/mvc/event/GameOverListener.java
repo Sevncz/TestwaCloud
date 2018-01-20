@@ -6,14 +6,8 @@ import com.testwa.distest.server.entity.Task;
 import com.testwa.distest.server.entity.Script;
 import com.testwa.distest.server.mvc.model.ProcedureInfo;
 import com.testwa.distest.server.mvc.model.ProcedureStatis;
-<<<<<<< HEAD
-import com.testwa.distest.server.mvc.model.Script;
-import com.testwa.distest.server.mvc.service.ExeTaskService;
-import com.testwa.distest.server.mvc.service.ProcedureInfoService;
-=======
 import com.testwa.distest.server.mvc.service.ProcedureInfoService;
 import com.testwa.distest.server.service.task.service.TaskService;
->>>>>>> mysql-beta-2.2.0
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +34,7 @@ public class GameOverListener implements ApplicationListener<GameOverEvent> {
     @Autowired
     private ProcedureInfoService procedureInfoService;
     @Autowired
-    private ExeTaskService exeTaskService;
+    private TaskService taskService;
 
     @Async
     @Override
@@ -48,11 +42,7 @@ public class GameOverListener implements ApplicationListener<GameOverEvent> {
         log.info("start...");
         Long taskId = e.getTaskId();
         // 根据前端需求开始统计报告
-<<<<<<< HEAD
-        ExecutionTask et = exeTaskService.getExeTaskById(exeId);
-=======
         Task task = taskService.findOne(taskId);
->>>>>>> mysql-beta-2.2.0
         // 脚本数量
         List<Script> taskScripts = task.getScriptList();
         int scriptNum = taskScripts.size();

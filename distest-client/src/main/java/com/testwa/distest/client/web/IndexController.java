@@ -43,58 +43,7 @@ public class IndexController {
     @ResponseBody
     public String action(HttpServletRequest request) {
         String urlInfo = parseInputStreamFormUrlToJson(request);
-<<<<<<< HEAD
-        Map<String, Object> payload = JSON.parseObject(urlInfo);
-        logger.info("Receive message, [{}]", payload);
-        String sessionId = "";
-        if(payload.containsKey("sessionId")){
-            sessionId = payload.get("sessionId")  == null ? "": (String)payload.getOrDefault("sessionId", "");
-        }
-
-        String deviceId = (String)payload.getOrDefault("deviceId", "");
-        String logcatFileName = "";
-        String action = "";
-        String params = "";
-        if(payload.containsKey("command")){
-            if(payload.get("command") instanceof String){
-                action = (String) payload.get("command");
-            }
-            if(payload.get("command") instanceof Map){
-                Map cmd = (Map)payload.get("command");
-                if(cmd != null){
-                    action = cmd.get("action") == null ?"" : (String)cmd.getOrDefault("action", "");
-                    params = cmd.get("beans") == null ?"" : (String)cmd.getOrDefault("beans", "");
-                }
-            }
-
-        }
-
-        String screenpath = (String) payload.getOrDefault("screenshotPath", "");
-
-        ProcedureInfoRequest fb = null;
-        fb = ProcedureInfoRequest.newBuilder()
-                .setStatus((Integer) payload.getOrDefault("status", "0"))
-                .setValue(payload.getOrDefault("value", "") + "")
-                .setRuntime((Integer) payload.getOrDefault("runtime", 0))
-                .setCpurate(Integer.parseInt(payload.getOrDefault("cpurate", 0) + ""))
-                .setMemory(Integer.parseInt(payload.getOrDefault("cpurate", 0) + ""))
-                .setSessionId( sessionId )
-                .setDeviceId( deviceId )
-                .setScreenshotPath( screenpath )
-                .setActionBytes(ByteString.copyFromUtf8(action))
-                .setParams(params)
-                .setTimestamp(TimeUtil.getTimestampLong())
-                .setLogcatFile(logcatFileName)
-                .setDescription("")
-                .setUserId(UserInfo.token)
-                .setExecutionTaskId((String)payload.getOrDefault("executionTaskId", "") )
-                .setTestcaseId((String)payload.getOrDefault("testcaseId", "") )
-                .setScriptId((String)payload.getOrDefault("testSuit", "") )
-                .build();
-        MainSocket.getSocket().emit(WebsocketEvent.FB_RUNNGING_LOG, fb.toByteArray());
-=======
         grpcClientService.procedureInfoUpload(urlInfo);
->>>>>>> mysql-beta-2.2.0
         return "ok";
     }
 

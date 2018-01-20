@@ -1,13 +1,5 @@
 package com.testwa.distest.server.rpc.service;
 
-<<<<<<< HEAD
-import com.testwa.distest.server.LogInterceptor;
-import com.testwa.distest.server.mvc.event.GameOverEvent;
-import com.testwa.distest.server.mvc.model.ExecutionTask;
-import com.testwa.distest.server.mvc.service.ExeTaskService;
-import com.testwa.distest.server.mvc.service.TaskService;
-import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
-=======
 import com.testwa.core.utils.DateUtils;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.config.DisFileProperties;
@@ -16,7 +8,6 @@ import com.testwa.distest.server.entity.AppiumFile;
 import com.testwa.distest.server.entity.Task;
 import com.testwa.distest.server.LogInterceptor;
 import com.testwa.distest.server.mvc.event.GameOverEvent;
->>>>>>> mysql-beta-2.2.0
 import com.testwa.distest.server.rpc.GRpcService;
 import com.testwa.distest.server.service.cache.mgr.TaskCacheMgr;
 import com.testwa.distest.server.service.task.service.AppiumFileService;
@@ -52,13 +43,9 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     @Autowired
     private TaskService taskService;
     @Autowired
-<<<<<<< HEAD
-    private ExeTaskService exeTaskService;
-=======
     private AppiumFileService appiumFileService;
     @Autowired
     private UserService userService;
->>>>>>> mysql-beta-2.2.0
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
@@ -77,17 +64,10 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
         Long exeId = request.getExeId();
         Long timestamp = request.getTimestamp();
 
-<<<<<<< HEAD
-        ExecutionTask exeTask = exeTaskService.getExeTaskById(exeId);
-        if(exeTask != null && exeTask.getCreator().equals(userId)){
-            if(exeTask.getStatus() != ExecutionTask.StatusEnum.CANCEL.getCode()){
-                exeTask.setStatus(ExecutionTask.StatusEnum.STOP.getCode());
-=======
         Task exeTask = taskService.findOne(exeId);
         if(exeTask != null){
             if(exeTask.getStatus().getValue() != DB.TaskStatus.CANCEL.getValue()){
                 exeTask.setStatus(DB.TaskStatus.COMPLETE);
->>>>>>> mysql-beta-2.2.0
             }
             exeTask.setEndTime(DateUtils.getMongoDate(new Date(timestamp)));
             taskService.update(exeTask);

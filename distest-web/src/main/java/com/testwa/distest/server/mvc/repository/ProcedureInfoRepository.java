@@ -16,9 +16,5 @@ public interface ProcedureInfoRepository extends CommonRepository<ProcedureInfo,
 
     List<ProcedureInfo> findBySessionId(String sessionId);
 
-<<<<<<< HEAD
-    List<ProcedureInfo> findByDeviceIdAndExecutionTaskIdAndTestcaseIdAndScriptId(String deviceId, String exeId, String caseId, String scriptId);
-=======
     List<ProcedureInfo> findByExecutionTaskIdOrderByTimestampAsc(Long executionTaskId);
->>>>>>> mysql-beta-2.2.0
 }

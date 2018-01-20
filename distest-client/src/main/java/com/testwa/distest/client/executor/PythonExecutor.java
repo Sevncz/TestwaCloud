@@ -64,31 +64,6 @@ public class PythonExecutor {
     private String install;
 
     private boolean isStop = false;
-<<<<<<< HEAD:distest-client/src/main/java/com/testwa/distest/client/control/client/task/Executor.java
-    private String currScript;
-    private String currTestCaseId;
-
-
-    public Executor(String nodePath, String appiumPath, String agentWebUrl, String clientWebUrl) throws IOException {
-        this.agentWebUrl = agentWebUrl;
-        this.port = AppiumPortProvider.pullPort();
-        this.bootstrapPort = AppiumPortProvider.pullPort();
-        String appiumlogPath = getAppiumlogPath(this.port + "");
-
-        AppiumServiceBuilder builder =
-                new AppiumServiceBuilder()
-                        .usingDriverExecutable(new File(nodePath))
-                        .withAppiumJS(new File(appiumPath))
-                        .withIPAddress("127.0.0.1")
-                        .withArgument(GeneralServerFlag.LOG_LEVEL, "info").withLogFile(new File(appiumlogPath))
-                        .withArgument(AndroidServerFlag.SUPPRESS_ADB_KILL_SERVER)
-                        .withArgument(AndroidServerFlag.BOOTSTRAP_PORT_NUMBER, Integer.toString(bootstrapPort))
-                        .withArgument(CustomServerFlag.SCREEN_PATH, Constant.localScreenshotPath)
-                        .withArgument(CustomServerFlag.FOR_PORTAL, clientWebUrl)
-                        .usingPort(port);
-        service = builder.build();
-        service.start();
-=======
     private ScriptInfo currScript;
     private Long currTestCaseId;
 
@@ -99,7 +74,6 @@ public class PythonExecutor {
         this.appiumUrl = appiumUrl;
         this.distestApiWeb = distestApiWeb;
         this.distestApiName = distestApiName;
->>>>>>> mysql-beta-2.2.0:distest-client/src/main/java/com/testwa/distest/client/executor/PythonExecutor.java
     }
 
     public void runScripts(){
