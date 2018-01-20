@@ -6,3 +6,4 @@
 */bin/tpid
 agent.log
 logs/**
+log/**
