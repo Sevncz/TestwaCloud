@@ -1,11 +1,7 @@
 {
 	"info": {
 		"name": "distest",
-<<<<<<< HEAD
-		"_postman_id": "5ddd26e1-0ba4-c9a0-013a-7897040df24e",
-=======
 		"_postman_id": "94a8ce84-9fb2-ed90-3f67-a1c978a733be",
->>>>>>> mysql-beta-2.2.0
 		"description": "",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -281,13 +277,8 @@
 					},
 					"response": [
 						{
-<<<<<<< HEAD
-							"id": "b32d0a95-40b1-4671-b10a-71588bde3034",
-							"name": "200",
-=======
-							"id": "3c503370-ba54-40be-9999-25caa131776c",
+							"id": "9a290d32-a616-44a1-b4f9-bca3996940e7",
 							"name": "按顺序返回我进过的项目，最多5个",
->>>>>>> mysql-beta-2.2.0
 							"originalRequest": {
 								"method": "GET",
 								"header": [
@@ -523,7 +514,7 @@
 					},
 					"response": [
 						{
-							"id": "6e26852e-289f-4657-8b4b-1e551b8cb2a6",
+							"id": "13b42842-b100-43b2-8c40-3aa0c062cbac",
 							"name": "200",
 							"originalRequest": {
 								"method": "GET",
@@ -717,7 +708,7 @@
 					},
 					"response": [
 						{
-							"id": "070148b1-96b9-4c31-9cec-1d8b2197e87f",
+							"id": "40101282-3953-43f4-ad2d-e99881832f57",
 							"name": "应用上传",
 							"originalRequest": {
 								"method": "POST",
@@ -851,7 +842,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"appId\": 16,\n\t\"projectId\": 13,\n\t\"version\": \"1.0.0\"\n}"
+							"raw": "{\n\t\"appId\": 1,\n\t\"projectId\": 23,\n\t\"version\": \"5\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/app/append",
@@ -868,7 +859,7 @@
 					},
 					"response": [
 						{
-							"id": "1de2a024-3e25-46c0-966d-d944d8dcccd3",
+							"id": "754b0306-26ae-439a-a34d-2796949a174f",
 							"name": "应用信息补充",
 							"originalRequest": {
 								"method": "POST",
@@ -992,7 +983,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"entityId\": 15\n}"
+							"raw": "{\n\t\"entityId\": 11\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/app/delete/one",
@@ -1009,7 +1000,7 @@
 					},
 					"response": [
 						{
-							"id": "ef4308b7-f43e-4f19-96d1-b0440cd30750",
+							"id": "130d2a32-699f-4dd3-8378-2657e7ccbc9b",
 							"name": "删除一个应用",
 							"originalRequest": {
 								"method": "POST",
@@ -1134,7 +1125,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"entityIds\": [12,13,14]\n}"
+							"raw": "{\n\t\"entityIds\": [16,17,18,19,20]\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/app/delete/all",
@@ -1151,7 +1142,7 @@
 					},
 					"response": [
 						{
-							"id": "a29a7b33-2be0-49e3-9f4b-f9a4808cb01e",
+							"id": "e83fb8d3-76b3-4142-9c08-41c8e5823e11",
 							"name": "删除多个应用",
 							"originalRequest": {
 								"method": "POST",
@@ -1321,7 +1312,7 @@
 					},
 					"response": [
 						{
-							"id": "eef2139b-bca3-4d36-ad1f-a4e3cecbf3fd",
+							"id": "af1a65cf-1fd2-4847-95db-db5af5d195cd",
 							"name": "用户所有可见应用分页列表查询",
 							"originalRequest": {
 								"method": "GET",
@@ -1499,13 +1490,8 @@
 					},
 					"response": [
 						{
-<<<<<<< HEAD
-							"id": "60a22f62-1e48-4ea2-b8b8-c13b93cc69e3",
-							"name": "200",
-=======
-							"id": "cd1ffd68-d45d-4314-9bc3-1eb036e95152",
+							"id": "13b2b992-9476-4a48-a9f5-4f600b6ed565",
 							"name": "应用列表查询",
->>>>>>> mysql-beta-2.2.0
 							"originalRequest": {
 								"method": "GET",
 								"header": [
@@ -1680,7 +1666,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"projectId\": 13,\n\t\"scriptId\": 9,\n\t\"tag\": \"py\",\n\t\"description\": \"干嘛的3\"\n}"
+							"raw": "{\n\t\"projectId\": 13,\n\t\"scriptId\": 1,\n\t\"tag\": \"py\",\n\t\"description\": \"测试的脚本，monkey\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/script/append",
@@ -1696,11 +1682,7 @@
 					},
 					"response": [
 						{
-<<<<<<< HEAD
-							"id": "f4883738-e47c-47e5-887b-f62f54416be5",
-=======
-							"id": "c0a1b4a8-2b67-49b7-913d-fe8980bb3c82",
->>>>>>> mysql-beta-2.2.0
+							"id": "c253b508-3e55-4b1f-acff-30f41a3d35bc",
 							"name": "200",
 							"originalRequest": {
 								"method": "POST",
@@ -1829,13 +1811,8 @@
 					},
 					"response": [
 						{
-<<<<<<< HEAD
-							"id": "b9920af5-a51e-491a-accb-0601acf1a5df",
-							"name": "200",
-=======
-							"id": "595cb779-e12a-41b7-9c9e-9aeae831d561",
+							"id": "318a2c96-557d-4d69-814c-14c5ae643668",
 							"name": "修改脚本",
->>>>>>> mysql-beta-2.2.0
 							"originalRequest": {
 								"method": "POST",
 								"header": [
@@ -1959,7 +1936,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"entityIds\": [6]\n}"
+							"raw": "{\n\t\"entityIds\": [1,2,3,4,5,6,7,8,9,10]\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/script/delete",
@@ -2041,13 +2018,8 @@
 					},
 					"response": [
 						{
-<<<<<<< HEAD
-							"id": "04544abb-d07d-4223-b97a-12c5a08a1a92",
-							"name": "200response",
-=======
-							"id": "b1e7646d-b73f-4eec-98ee-e28d5f79c3b7",
+							"id": "df7c653d-1c58-4547-92aa-affca4c4c26d",
 							"name": "用户可见脚本的分页列表查询",
->>>>>>> mysql-beta-2.2.0
 							"originalRequest": {
 								"method": "GET",
 								"header": [
@@ -2216,13 +2188,8 @@
 					},
 					"response": [
 						{
-<<<<<<< HEAD
-							"id": "64d8b67e-ccfb-48b8-9b67-0935cafccf51",
-							"name": "200",
-=======
-							"id": "3145743a-131e-4dfd-8a92-b8baf6943b15",
+							"id": "81c051b1-a348-4c72-9f38-fc3aa8436958",
 							"name": "获取脚本内容",
->>>>>>> mysql-beta-2.2.0
 							"originalRequest": {
 								"method": "GET",
 								"header": [
@@ -2388,7 +2355,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"name\": \"test9\",\n\t\"projectId\": 13,\n\t\"scriptIds\": [9],\n\t\"tag\": \"test1\",\n\t\"description\": \"xxxxxx9\"\n}"
+							"raw": "{\n\t\"name\": \"test9\",\n\t\"projectId\": 13,\n\t\"scriptIds\": [11],\n\t\"tag\": \"test1\",\n\t\"description\": \"xxxxxx9\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/case/save",
@@ -2404,13 +2371,8 @@
 					},
 					"response": [
 						{
-<<<<<<< HEAD
-							"id": "2429ec6d-08c4-48d0-8440-ce219ae798a4",
-							"name": "新建反馈",
-=======
-							"id": "ee030f93-1309-4934-bd8a-0a3809c8d96e",
+							"id": "d1bd0846-ef5f-432c-a701-98fb5082e38e",
 							"name": "生成一个案例",
->>>>>>> mysql-beta-2.2.0
 							"originalRequest": {
 								"method": "POST",
 								"header": [
@@ -2549,13 +2511,8 @@
 					},
 					"response": [
 						{
-<<<<<<< HEAD
-							"id": "6db9892c-daf8-4fce-ada2-227d54f3138a",
-							"name": "执行并保存一个任务反馈",
-=======
-							"id": "820838f9-deeb-44bf-8f3e-4e46b08d8e06",
+							"id": "c6917063-64a2-4096-8164-81f44eac87b2",
 							"name": "修改一个案例",
->>>>>>> mysql-beta-2.2.0
 							"originalRequest": {
 								"method": "POST",
 								"header": [
@@ -2678,7 +2635,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"entityIds\": [5,6,7]\n}"
+							"raw": "{\n\t\"entityIds\": [1,2,3,9,10,11,12,13]\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/case/delete/all",
@@ -2695,13 +2652,8 @@
 					},
 					"response": [
 						{
-<<<<<<< HEAD
-							"id": "9a383e6b-c0c5-4568-ba72-c2dadc5e4b31",
-							"name": "执行一个任务反馈",
-=======
-							"id": "c4731ea6-106a-469f-8a6b-b1fa7e27b753",
+							"id": "5a84eecb-29e5-40c3-bdb3-f5520ac6cc64",
 							"name": "删除多个案例",
->>>>>>> mysql-beta-2.2.0
 							"originalRequest": {
 								"method": "POST",
 								"header": [
@@ -2810,150 +2762,7 @@
 					]
 				},
 				{
-<<<<<<< HEAD
-					"name": "任务列表分页",
-					"request": {
-						"url": {
-							"raw": "{{base_url}}/api/task/page?page=1&size=20&sortField=id&sortOrder=desc&projectId=599aa61ba8426e1d9cf8709d",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"task",
-								"page"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "size",
-									"value": "20",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "sortField",
-									"value": "id",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "sortOrder",
-									"value": "desc",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "projectId",
-									"value": "599aa61ba8426e1d9cf8709d",
-									"equals": true,
-									"description": ""
-								}
-							],
-							"variable": []
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "新增任务",
-					"request": {
-						"url": "{{base_url}}/api/task/save",
-						"method": "POST",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"appId\": \"599b9ba0a8426e1d20897aec\",\r\n  \"caseIds\": [\r\n    \"599aad1dd3aeb027ccf2f8d8\"\r\n  ],\r\n  \"projectId\": \"599aa61ba8426e1d9cf8709d\",\r\n  \"name\":\"wwwaa\"\r\n  \r\n}"
-						},
-						"description": "新增任务"
-					},
-					"response": []
-				},
-				{
-					"name": "删除任务",
-					"request": {
-						"url": "{{base_url}}/api/task/delete",
-						"method": "POST",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n\t\"ids\":[\"599c0070a8426e1144059422\"]\n}"
-						},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "任务详情",
-					"request": {
-						"url": "{{base_url}}/api/task/detail/59a3ce236ddfff2808ed8102",
-						"method": "GET",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"description": ""
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "设备相关",
-			"description": "",
-			"item": [
-				{
-					"name": "我自己的设备列表",
-=======
 					"name": "删除一个案例",
->>>>>>> mysql-beta-2.2.0
 					"request": {
 						"method": "POST",
 						"header": [
@@ -2968,7 +2777,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"entityId\": 8\n}"
+							"raw": "{\n\t\"entityId\": 9\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/case/delete/one",
@@ -2985,13 +2794,8 @@
 					},
 					"response": [
 						{
-<<<<<<< HEAD
-							"id": "21c65878-64be-46f1-bee3-7d9f6ece52c7",
-							"name": "我自己的设备反馈",
-=======
-							"id": "0fb460ff-b21c-4a91-8644-e92c8e4d4e96",
+							"id": "f59e77ee-92b5-492d-b3cf-df2dbbae23f8",
 							"name": "删除一个案例",
->>>>>>> mysql-beta-2.2.0
 							"originalRequest": {
 								"method": "POST",
 								"header": [
@@ -3160,13 +2964,8 @@
 					},
 					"response": [
 						{
-<<<<<<< HEAD
-							"id": "b24a0d81-3296-4a24-8385-4ebbeb832d59",
-							"name": "分享给我的设备反馈",
-=======
-							"id": "d94aff9f-a915-4b64-9a68-e531960eb8d2",
+							"id": "581e4678-7a81-4ccf-9e79-cf0806e76b3c",
 							"name": "用户可见案例的分页列表 + 模糊查询",
->>>>>>> mysql-beta-2.2.0
 							"originalRequest": {
 								"method": "GET",
 								"header": [
@@ -3342,53 +3141,9 @@
 					},
 					"response": [
 						{
-<<<<<<< HEAD
-							"id": "be36c077-5ce9-4cbb-a857-d7015037c264",
-							"name": "所有可用设备反馈",
-							"originalRequest": {
-								"url": {
-									"raw": "{{base_url}}/device/available/page?page=1&size=20&sortField=id&sortOrder=desc",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"device",
-										"available",
-										"page"
-									],
-									"query": [
-										{
-											"key": "page",
-											"value": "1",
-											"equals": true,
-											"description": ""
-										},
-										{
-											"key": "size",
-											"value": "20",
-											"equals": true,
-											"description": ""
-										},
-										{
-											"key": "sortField",
-											"value": "id",
-											"equals": true,
-											"description": ""
-										},
-										{
-											"key": "sortOrder",
-											"value": "desc",
-											"equals": true,
-											"description": ""
-										}
-									],
-									"variable": []
-								},
-=======
-							"id": "286ec529-f656-44d3-98ae-2159ccc444f2",
+							"id": "21d6d88e-8e02-4817-be91-430471d25952",
 							"name": "用户可见案例的列表 + 模糊查询",
 							"originalRequest": {
->>>>>>> mysql-beta-2.2.0
 								"method": "GET",
 								"header": [
 									{
@@ -3531,13 +3286,8 @@
 					},
 					"response": [
 						{
-<<<<<<< HEAD
-							"id": "5ca407ba-8660-42dc-b94c-b500f35443a7",
-							"name": "所有可用设备反馈",
-=======
-							"id": "98966167-68ee-4fa4-ac7d-c6df54815c90",
+							"id": "90657bc9-d6c9-41d6-83f3-070e160ac3cc",
 							"name": "案例详情，包含案例的脚本集合（按脚本执行顺序排列）等信息",
->>>>>>> mysql-beta-2.2.0
 							"originalRequest": {
 								"method": "GET",
 								"header": [
@@ -3723,7 +3473,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"projectId\": 13,\r\n  \"caseIds\": [12],\r\n  \"appId\": 16,\r\n  \"sceneName\":\"测试场景87\",\r\n  \"description\":\"保存一个测试场景87\"\r\n}"
+							"raw": "{\r\n  \"projectId\": 13,\r\n  \"caseIds\": [14],\r\n  \"appId\": 21,\r\n  \"sceneName\":\"测试场景\",\r\n  \"description\":\"保存一个测试场景\"\r\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/scene/save",
@@ -3740,13 +3490,8 @@
 					},
 					"response": [
 						{
-<<<<<<< HEAD
-							"id": "84116317-467d-4c72-b85f-263731a4dbf7",
-							"name": "200",
-=======
-							"id": "6080a97e-c742-4a07-8b9b-81d0dbff7805",
+							"id": "384451a4-7687-46e7-80fa-9976c68e5611",
 							"name": "创建一个任务场景",
->>>>>>> mysql-beta-2.2.0
 							"originalRequest": {
 								"method": "POST",
 								"header": [
@@ -3889,13 +3634,8 @@
 					},
 					"response": [
 						{
-<<<<<<< HEAD
-							"id": "0ff6df8a-b942-4794-a3c4-9792f050445b",
-							"name": "所有可用设备反馈",
-=======
-							"id": "7d5e6c70-2f73-4566-a6ee-0a4fd21cf7ec",
+							"id": "6c825891-73e4-47dc-a94e-1513ac49c20e",
 							"name": "创建一个任务场景",
->>>>>>> mysql-beta-2.2.0
 							"originalRequest": {
 								"method": "POST",
 								"header": [
@@ -4003,13 +3743,8 @@
 							"body": "{\"message\":\"ok\",\"data\":null,\"code\":0,\"url\":null}"
 						},
 						{
-<<<<<<< HEAD
-							"id": "2276cda5-2e00-4c5a-b638-c0892c72ffd7",
-							"name": "200",
-=======
-							"id": "fe2bd6d5-5a2a-4b03-88a9-bcf97d189c7d",
+							"id": "9cb9943e-1440-45ce-b3bb-2ef36076f3ca",
 							"name": "删除一个任务场景",
->>>>>>> mysql-beta-2.2.0
 							"originalRequest": {
 								"method": "POST",
 								"header": [
@@ -4133,7 +3868,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"entityIds\": [5]\n}"
+							"raw": "{\n\t\"entityIds\": [6,7,8]\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/scene/delete/all",
@@ -4151,13 +3886,8 @@
 					},
 					"response": [
 						{
-<<<<<<< HEAD
-							"id": "ff941c4a-fd05-406d-b3d6-8267f003db84",
-							"name": "所有可用设备反馈",
-=======
-							"id": "6f6e3ae6-8068-4a9b-a195-7741fdc22b7f",
+							"id": "3d28f798-abd0-40b5-9ec8-2ac235ca1bea",
 							"name": "删除多个任务场景",
->>>>>>> mysql-beta-2.2.0
 							"originalRequest": {
 								"method": "POST",
 								"header": [
@@ -4298,13 +4028,8 @@
 					},
 					"response": [
 						{
-<<<<<<< HEAD
-							"id": "66eb9882-7386-4f0d-91bc-f14715dce360",
-							"name": "200",
-=======
-							"id": "44bc8072-1454-49f8-a656-ce51cc186a7c",
+							"id": "f3758105-7b33-44d0-b49b-64f6a1b3e6e4",
 							"name": "修改一个任务场景",
->>>>>>> mysql-beta-2.2.0
 							"originalRequest": {
 								"method": "POST",
 								"header": [
@@ -4440,13 +4165,8 @@
 					},
 					"response": [
 						{
-<<<<<<< HEAD
-							"id": "3808a015-ac31-44d8-a204-6db53f6f38ae",
-							"name": "我自己的设备反馈",
-=======
-							"id": "ad8d8554-3d4d-4b78-b169-bf63b6d565e0",
+							"id": "4c55ff61-667d-4faf-8435-5efb2c4b09fe",
 							"name": "任务场景详情，包括其中案例的详情",
->>>>>>> mysql-beta-2.2.0
 							"originalRequest": {
 								"method": "GET",
 								"header": [
@@ -4556,7 +4276,7 @@
 			"name": "设备相关",
 			"item": [
 				{
-					"name": "查看登录用户自己的在线设备，获得包括设备权限和用户信息",
+					"name": "查看用户自己的设备，获得包括设备权限和用户信息",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -4584,13 +4304,8 @@
 					},
 					"response": [
 						{
-<<<<<<< HEAD
-							"id": "858e159b-45e9-481a-a320-852e5bf72cdf",
-							"name": "200平台控制台",
-=======
-							"id": "7979ae22-bde0-45c5-acfc-8a71bef2f358",
+							"id": "7778876f-7688-4012-a7c2-6a28dcf002c9",
 							"name": "我自己的设备反馈",
->>>>>>> mysql-beta-2.2.0
 							"originalRequest": {
 								"method": "GET",
 								"header": [
@@ -4759,13 +4474,178 @@
 					},
 					"response": [
 						{
-<<<<<<< HEAD
-							"id": "20f639ec-f5a1-44b2-bc1e-ce039e80b55d",
-							"name": "200",
-=======
-							"id": "949e3d65-1b6c-4b7b-882d-5c14ea479fc4",
+							"id": "71ad6724-53dc-4f1d-a078-9d68a610a9b8",
 							"name": "所有可用设备反馈",
->>>>>>> mysql-beta-2.2.0
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-TOKEN",
+										"value": "{{X-TOKEN}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{base_url}}/device/available/page?page=1&size=20&sortField=id&sortOrder=desc",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"device",
+										"available",
+										"page"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1",
+											"equals": true
+										},
+										{
+											"key": "size",
+											"value": "20",
+											"equals": true
+										},
+										{
+											"key": "sortField",
+											"value": "id",
+											"equals": true
+										},
+										{
+											"key": "sortOrder",
+											"value": "desc",
+											"equals": true
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"_postman_previewtype": "text",
+							"header": [
+								{
+									"name": "cache-control",
+									"key": "cache-control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate",
+									"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
+								},
+								{
+									"name": "content-type",
+									"key": "content-type",
+									"value": "application/json;charset=UTF-8",
+									"description": "The mime type of this content"
+								},
+								{
+									"name": "date",
+									"key": "date",
+									"value": "Tue, 22 Aug 2017 03:46:23 GMT",
+									"description": "The date and time that the message was sent"
+								},
+								{
+									"name": "expires",
+									"key": "expires",
+									"value": "0",
+									"description": "Gives the date/time after which the response is considered stale"
+								},
+								{
+									"name": "pragma",
+									"key": "pragma",
+									"value": "no-cache",
+									"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
+								},
+								{
+									"name": "transfer-encoding",
+									"key": "transfer-encoding",
+									"value": "chunked",
+									"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
+								},
+								{
+									"name": "x-content-type-options",
+									"key": "x-content-type-options",
+									"value": "nosniff",
+									"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
+								},
+								{
+									"name": "x-frame-options",
+									"key": "x-frame-options",
+									"value": "DENY",
+									"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
+								},
+								{
+									"name": "x-xss-protection",
+									"key": "x-xss-protection",
+									"value": "1; mode=block",
+									"description": "Cross-site scripting (XSS) filter"
+								}
+							],
+							"cookie": [],
+							"responseTime": 87,
+							"body": "{\"message\":\"ok\",\"data\":{\"pages\":[],\"total\":0},\"code\":0,\"url\":null}"
+						}
+					]
+				},
+				{
+					"name": "所有设备分页列表",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-TOKEN",
+								"value": "{{X-TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{base_url}}/api/device/all/page?page.order=desc&page.orderBy=id&page.pageNo=1&page.pageSize=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"device",
+								"all",
+								"page"
+							],
+							"query": [
+								{
+									"key": "page.order",
+									"value": "desc",
+									"equals": true
+								},
+								{
+									"key": "page.orderBy",
+									"value": "id",
+									"equals": true
+								},
+								{
+									"key": "page.pageNo",
+									"value": "1",
+									"equals": true
+								},
+								{
+									"key": "page.pageSize",
+									"value": "10",
+									"equals": true
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"id": "fe3e2e26-f943-4530-84af-41029082b442",
+							"name": "所有可用设备反馈",
 							"originalRequest": {
 								"method": "GET",
 								"header": [
@@ -4905,6 +4785,33 @@
 						"description": ""
 					},
 					"response": []
+				},
+				{
+					"name": "所有设备列表",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-TOKEN",
+								"value": "{{X-TOKEN}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{base_url}}/api/device/all/list",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"device",
+								"all",
+								"list"
+							]
+						},
+						"description": ""
+					},
+					"response": []
 				}
 			]
 		},
@@ -4928,7 +4835,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"taskSceneId\": 6,\n\t\"deviceIds\": [\"b15d91f\"]\n}"
+							"raw": "{\n\t\"taskSceneId\": 9,\n\t\"deviceIds\": [\"b15d91f\"]\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/task/scene/run",
@@ -4940,6 +4847,39 @@
 								"task",
 								"scene",
 								"run"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "停止一个任务",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-TOKEN",
+								"value": "{{X-TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"taskId\": 9,\n\t\"deviceIds\": [\"b15d91f\"]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/task/stop",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"task",
+								"stop"
 							]
 						},
 						"description": ""
@@ -4964,7 +4904,7 @@
 						],
 						"body": {},
 						"url": {
-							"raw": "{{base_url}}/api/report/task/34",
+							"raw": "{{base_url}}/api/report/task/42",
 							"host": [
 								"{{base_url}}"
 							],
@@ -4972,7 +4912,7 @@
 								"api",
 								"report",
 								"task",
-								"34"
+								"42"
 							]
 						},
 						"description": ""
@@ -5105,6 +5045,117 @@
 						"description": ""
 					},
 					"response": []
+				},
+				{
+					"name": "步骤分页列表",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-TOKEN",
+								"value": "{{X-TOKEN}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{base_url}}/api/report/step/page?page.pageNo=3&page.pageSize=10&taskId=46",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"report",
+								"step",
+								"page"
+							],
+							"query": [
+								{
+									"key": "page.pageNo",
+									"value": "3",
+									"equals": true
+								},
+								{
+									"key": "page.pageSize",
+									"value": "10",
+									"equals": true
+								},
+								{
+									"key": "taskId",
+									"value": "46",
+									"equals": true
+								}
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "步骤列表",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-TOKEN",
+								"value": "{{X-TOKEN}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{base_url}}/api/report/step/list?taskId=46&scriptId=9",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"report",
+								"step",
+								"list"
+							],
+							"query": [
+								{
+									"key": "taskId",
+									"value": "46",
+									"equals": true
+								},
+								{
+									"key": "scriptId",
+									"value": "9",
+									"equals": true
+								}
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "获得一个appium日志的路径，一个task在一个设备下只有一个appium日志",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-TOKEN",
+								"value": "{{X-TOKEN}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{base_url}}/api/report/appiumpath/2/b15d91f",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"report",
+								"appiumpath",
+								"2",
+								"b15d91f"
+							]
+						},
+						"description": "从返回的response中获得链接的相对路径，eg:/6/b15d91f/appium_9183069150264352938.log，\n在前端配置好服务器的域名，比如 http://cloud.testwa.com，\n将两者拼接起来，访问 http://cloud.testwa.com/6/b15d91f/appium_9183069150264352938.log 即可"
+					},
+					"response": []
 				}
 			]
 		},
@@ -5140,300 +5191,6 @@
 									"equals": true
 								}
 							]
-						},
-						"description": ""
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "报告相关",
-			"description": "",
-			"item": [
-				{
-					"name": "执行任务报告页面",
-					"request": {
-						"url": {
-							"raw": "{{base_url}}/api/exeTask/statis?exeId=59a16da99d0437ab3a9448e6",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"exeTask",
-								"statis"
-							],
-							"query": [
-								{
-									"key": "exeId",
-									"value": "59a16da99d0437ab3a9448e6",
-									"equals": true,
-									"description": ""
-								}
-							],
-							"variable": []
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "报告案例脚本树",
-					"request": {
-						"url": {
-							"raw": "{{base_url}}/api/exeTask/taskTree?exeId=59a16da99d0437ab3a9448e6",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"exeTask",
-								"taskTree"
-							],
-							"query": [
-								{
-									"key": "exeId",
-									"value": "59a16da99d0437ab3a9448e6",
-									"equals": true,
-									"description": ""
-								}
-							],
-							"variable": []
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {},
-						"description": ""
-					},
-					"response": [
-						{
-							"id": "93962ca7-159d-4762-81d6-7e39e43de059",
-							"name": "200",
-							"originalRequest": {
-								"url": {
-									"raw": "{{base_url}}/api/exeTask/taskTree?exeId=59c2231e88174924c897dab7",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"exeTask",
-										"taskTree"
-									],
-									"query": [
-										{
-											"key": "exeId",
-											"value": "59c2231e88174924c897dab7",
-											"equals": true,
-											"description": ""
-										}
-									],
-									"variable": []
-								},
-								"method": "GET",
-								"header": [
-									{
-										"key": "X-TOKEN",
-										"value": "{{X-TOKEN}}",
-										"description": ""
-									}
-								],
-								"body": {}
-							},
-							"status": "OK",
-							"code": 200,
-							"_postman_previewlanguage": "json",
-							"_postman_previewtype": "text",
-							"header": [
-								{
-									"name": "cache-control",
-									"key": "cache-control",
-									"value": "no-cache, no-store, max-age=0, must-revalidate",
-									"description": "Tells all caching mechanisms from server to client whether they may cache this object. It is measured in seconds"
-								},
-								{
-									"name": "content-type",
-									"key": "content-type",
-									"value": "application/json;charset=UTF-8",
-									"description": "The mime type of this content"
-								},
-								{
-									"name": "date",
-									"key": "date",
-									"value": "Thu, 28 Sep 2017 06:22:05 GMT",
-									"description": "The date and time that the message was sent"
-								},
-								{
-									"name": "expires",
-									"key": "expires",
-									"value": "0",
-									"description": "Gives the date/time after which the response is considered stale"
-								},
-								{
-									"name": "pragma",
-									"key": "pragma",
-									"value": "no-cache",
-									"description": "Implementation-specific headers that may have various effects anywhere along the request-response chain."
-								},
-								{
-									"name": "transfer-encoding",
-									"key": "transfer-encoding",
-									"value": "chunked",
-									"description": "The form of encoding used to safely transfer the entity to the user. Currently defined methods are: chunked, compress, deflate, gzip, identity."
-								},
-								{
-									"name": "x-content-type-options",
-									"key": "x-content-type-options",
-									"value": "nosniff",
-									"description": "The only defined value, \"nosniff\", prevents Internet Explorer from MIME-sniffing a response away from the declared content-type"
-								},
-								{
-									"name": "x-frame-options",
-									"key": "x-frame-options",
-									"value": "DENY",
-									"description": "Clickjacking protection: \"deny\" - no rendering within a frame, \"sameorigin\" - no rendering if origin mismatch"
-								},
-								{
-									"name": "x-xss-protection",
-									"key": "x-xss-protection",
-									"value": "1; mode=block",
-									"description": "Cross-site scripting (XSS) filter"
-								}
-							],
-							"cookie": [],
-							"responseTime": 206,
-							"body": "{\"message\":\"ok\",\"data\":{\"id\":\"59c2231e88174924c897dab7\",\"taskId\":\"59c21f5c8817492ab0c2d2a1\",\"taskName\":null,\"app\":null,\"devices\":[{\"id\":\"e301970f7d93\",\"type\":\"Android\",\"status\":\"ON\",\"cpuabi\":\"arm64-v8a\",\"sdk\":\"23\",\"width\":\"720.0\",\"height\":\"1280.0\",\"osName\":\"ANDROID23(6.0)\",\"density\":\"320\",\"model\":\"Redmi 4X\",\"brand\":\"Xiaomi\",\"version\":\"6.0.1\",\"host\":\"c3-miui-ota-bd55.bj\",\"sessionId\":null,\"agent\":null,\"disable\":false}],\"projectId\":\"598d51691525ae14ecffbdf2\",\"testcases\":[{\"id\":\"598ea04e1525ae6a7856ea20\",\"type\":0,\"description\":null,\"scripts\":[\"598a939ba6be50270014d02d\",\"598d518a1525ae14ecffbdf5\"],\"userId\":\"5981cbf0fd2be02b34e6a9ea\",\"userName\":\"admin\",\"tag\":null,\"createDate\":1502519374639,\"name\":\"testtset\",\"projectId\":\"598d51691525ae14ecffbdf2\",\"projectName\":\"xxxx1\",\"disable\":false,\"modifyDate\":null}],\"scripts\":{\"598ea04e1525ae6a7856ea20\":[{\"id\":\"598a939ba6be50270014d02d\",\"path\":\"\\\\Users\\\\wen\\\\dev\\\\testWa\\\\center\\\\script\\\\7da0addad26349869fe6ba28dba1ec44\\\\contact.py\",\"name\":\"contact.py\",\"aliasName\":\"contact.py\",\"size\":\"2697\",\"createDate\":1502253979486,\"userId\":\"5981cbf0fd2be02b34e6a9ea\",\"username\":\"admin\",\"disable\":true,\"type\":\"python\",\"md5\":\"C08D2DEF083DD5E7675411124C12AF2F\",\"projectId\":\"1\",\"modifyDate\":null,\"modifyUserId\":null,\"modifyUserName\":null,\"tag\":null,\"description\":null},{\"id\":\"598d518a1525ae14ecffbdf5\",\"path\":\"\\\\Users\\\\wen\\\\dev\\\\testWa\\\\center\\\\script\\\\118e5c9b181f4e5aab13f7b5c8f76b57\\\\contact.py\",\"name\":\"contact.py\",\"aliasName\":\"contact.py\",\"size\":\"2697\",\"createDate\":1502433674948,\"userId\":\"5981cbf0fd2be02b34e6a9ea\",\"username\":\"admin\",\"disable\":true,\"type\":\"python\",\"md5\":\"C08D2DEF083DD5E7675411124C12AF2F\",\"projectId\":\"598d51691525ae14ecffbdf2\",\"modifyDate\":null,\"modifyUserId\":null,\"modifyUserName\":null,\"tag\":null,\"description\":null}]},\"status\":1,\"creator\":\"5981cbf0fd2be02b34e6a9ea\",\"createTime\":null,\"modifyDate\":null,\"endTime\":null},\"code\":0,\"url\":null}"
-						}
-					]
-				},
-				{
-					"name": "报告对应脚本步骤",
-					"request": {
-						"url": {
-							"raw": "{{base_url}}/api/exeTask/taskTree?deviceId&exeId=59a16da99d0437ab3a9448e6&caseId&scriptId",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"exeTask",
-								"taskTree"
-							],
-							"query": [
-								{
-									"key": "deviceId",
-									"value": "",
-									"equals": false,
-									"description": ""
-								},
-								{
-									"key": "exeId",
-									"value": "59a16da99d0437ab3a9448e6",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "caseId",
-									"value": "",
-									"equals": false,
-									"description": ""
-								},
-								{
-									"key": "scriptId",
-									"value": "",
-									"equals": false,
-									"description": ""
-								}
-							],
-							"variable": []
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {},
-						"description": ""
-					},
-					"response": []
-				},
-				{
-					"name": "报告列表分页",
-					"request": {
-						"url": {
-							"raw": "{{base_url}}/api/exeTask/page?page=1&size=20&sortField=id&sortOrder=desc&projectId=599aa61ba8426e1d9cf8709d",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"exeTask",
-								"page"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "size",
-									"value": "20",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "sortField",
-									"value": "id",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "sortOrder",
-									"value": "desc",
-									"equals": true,
-									"description": ""
-								},
-								{
-									"key": "projectId",
-									"value": "599aa61ba8426e1d9cf8709d",
-									"equals": true,
-									"description": ""
-								}
-							],
-							"variable": []
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "X-TOKEN",
-								"value": "{{X-TOKEN}}",
-								"description": ""
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
 						},
 						"description": ""
 					},
@@ -5501,11 +5258,7 @@
 			},
 			"response": [
 				{
-<<<<<<< HEAD
-					"id": "bec7ce95-e7cd-4107-bcc1-4dbba527c4e9",
-=======
-					"id": "5ec1aa5e-8ecb-4195-be76-e1c9fb529555",
->>>>>>> mysql-beta-2.2.0
+					"id": "2465fda4-b901-4c09-95d3-5e67b7066f5e",
 					"name": "response example",
 					"originalRequest": {
 						"method": "POST",
