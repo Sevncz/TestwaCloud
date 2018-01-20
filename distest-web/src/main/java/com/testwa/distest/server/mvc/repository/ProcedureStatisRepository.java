@@ -13,6 +13,6 @@ import java.util.List;
 
 public interface ProcedureStatisRepository extends CommonRepository<ProcedureStatis, Serializable> {
 
-    ProcedureStatis findByExeId(String exeId);
+    ProcedureStatis findByExeId(Long exeId);
 
 }

@@ -2,12 +2,18 @@ package com.testwa.distest.server.mvc.event;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
-import com.testwa.distest.server.mvc.model.ExecutionTask;
+import com.testwa.distest.server.entity.Task;
+import com.testwa.distest.server.entity.Script;
 import com.testwa.distest.server.mvc.model.ProcedureInfo;
 import com.testwa.distest.server.mvc.model.ProcedureStatis;
+<<<<<<< HEAD
 import com.testwa.distest.server.mvc.model.Script;
 import com.testwa.distest.server.mvc.service.ExeTaskService;
 import com.testwa.distest.server.mvc.service.ProcedureInfoService;
+=======
+import com.testwa.distest.server.mvc.service.ProcedureInfoService;
+import com.testwa.distest.server.service.task.service.TaskService;
+>>>>>>> mysql-beta-2.2.0
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,27 +46,28 @@ public class GameOverListener implements ApplicationListener<GameOverEvent> {
     @Override
     public void onApplicationEvent(GameOverEvent e) {
         log.info("start...");
-        String exeId = e.getExeId();
+        Long taskId = e.getTaskId();
         // 根据前端需求开始统计报告
+<<<<<<< HEAD
         ExecutionTask et = exeTaskService.getExeTaskById(exeId);
+=======
+        Task task = taskService.findOne(taskId);
+>>>>>>> mysql-beta-2.2.0
         // 脚本数量
-        Map<String, List<Script>> taskScripts = et.getScripts();
-        int scriptNum = 0;
-        for(List l : taskScripts.values()){
-            scriptNum = scriptNum + l.size();
-        }
+        List<Script> taskScripts = task.getScriptList();
+        int scriptNum = taskScripts.size();
 
         // 统计cpu平均占用率
-        List<Map> cpus = statisCpuRate(exeId);
+        List<Map> cpus = statisCpuRate(taskId);
 
         // 统计内存平均占用量
-        List<Map> mems = statisMemory(exeId);
+        List<Map> mems = statisMemory(taskId);
 
         // 成功和失败步骤数量
-        List<Map> statusProcedure = statisStatus(exeId);
+        List<Map> statusProcedure = statisStatus(taskId);
 
         // 成功和失败session数量
-        List<Map> sessions = statisScript(exeId);
+        List<Map> sessions = statisScript(taskId);
         List<Map> statusScripts = new ArrayList<>();
         Map<String, Integer> d = new HashMap<>();
         for(Map s : sessions){
@@ -85,12 +92,12 @@ public class GameOverListener implements ApplicationListener<GameOverEvent> {
         });
 
 
-        ProcedureStatis old = procedureInfoService.getProcedureStatisByExeId(exeId);
+        ProcedureStatis old = procedureInfoService.getProcedureStatisByExeId(taskId);
         if(old != null){
             procedureInfoService.deleteStatisById(old.getId());
         }
         ProcedureStatis ps = new ProcedureStatis();
-        ps.setExeId(exeId);
+        ps.setExeId(taskId);
         ps.setCpurateInfo(cpus);
         ps.setMemoryInfo(mems);
         ps.setStatusProcedureInfo(statusProcedure);
@@ -100,7 +107,7 @@ public class GameOverListener implements ApplicationListener<GameOverEvent> {
         procedureInfoService.saveProcedureStatis(ps);
     }
 
-    private List<Map> statisScript(String exeId) {
+    private List<Map> statisScript(Long exeId) {
         Aggregation agg = Aggregation.newAggregation(
                 Aggregation.match(Criteria.where("executionTaskId").is(exeId)),
                 Aggregation.group("sessionId").sum("status").as("count")
@@ -108,7 +115,7 @@ public class GameOverListener implements ApplicationListener<GameOverEvent> {
         return getResult(agg);
     }
 
-    private List<Map> statisStatus(String exeId) {
+    private List<Map> statisStatus(Long exeId) {
         Aggregation agg = Aggregation.newAggregation(
                 Aggregation.match(Criteria.where("executionTaskId").is(exeId)),
                 Aggregation.group("deviceId", "status").count().as("count")
@@ -116,7 +123,7 @@ public class GameOverListener implements ApplicationListener<GameOverEvent> {
         return getResult(agg);
     }
 
-    private List<Map> statisMemory(String exeId) {
+    private List<Map> statisMemory(Long exeId) {
         Aggregation agg = Aggregation.newAggregation(
                 Aggregation.match(Criteria.where("executionTaskId").is(exeId)),
                 Aggregation.group("deviceId").avg("memory").as("value")
@@ -124,7 +131,7 @@ public class GameOverListener implements ApplicationListener<GameOverEvent> {
         return getResult(agg);
     }
 
-    private List<Map> statisCpuRate(String exeId) {
+    private List<Map> statisCpuRate(Long exeId) {
         Aggregation agg = Aggregation.newAggregation(
                 Aggregation.match(Criteria.where("executionTaskId").is(exeId)),
                 Aggregation.group("deviceId").avg("cpurate").as("value")

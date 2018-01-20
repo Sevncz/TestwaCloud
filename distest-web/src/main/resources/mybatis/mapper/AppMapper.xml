@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.testwa.distest.server.mapper.AppMapper" >
+    <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.App" >
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="appName" property="appName" jdbcType="VARCHAR" />
+        <result column="aliasName" property="aliasName" jdbcType="VARCHAR" />
+        <result column="packageName" property="packageName" jdbcType="VARCHAR" />
+        <result column="activity" property="activity" jdbcType="VARCHAR" />
+        <result column="sdkVersion" property="sdkVersion" jdbcType="VARCHAR" />
+        <result column="targetSdkVersion" property="targetSdkVersion" jdbcType="VARCHAR" />
+        <result column="osType" property="osType" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
+        <result column="version" property="version" jdbcType="VARCHAR" />
+        <result column="path" property="path" jdbcType="VARCHAR" />
+        <result column="projectId" property="projectId" jdbcType="BIGINT" />
+        <result column="md5" property="md5" jdbcType="VARCHAR" />
+        <result column="size" property="size" jdbcType="VARCHAR" />
+        <result column="description" property="description" jdbcType="VARCHAR" />
+        <result column="createTime" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+        <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+        <result column="createBy" property="createBy" jdbcType="BIGINT" />
+        <result column="updateBy" property="updateBy" jdbcType="BIGINT" />
+        <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
+        <association property="createUser" javaType="com.testwa.distest.server.entity.User">
+            <id column="create_id" property="id"/>
+            <result column="create_username" property="username"/>
+            <result column="create_email" property="email"/>
+            <result column="create_phone" property="phone"/>
+        </association>
+        <association property="updateUser" javaType="com.testwa.distest.server.entity.User">
+            <id column="update_id" property="id"/>
+            <result column="update_username" property="username"/>
+            <result column="update_email" property="email"/>
+            <result column="update_phone" property="phone"/>
+        </association>
+    </resultMap>
+
+    <sql id="Base_Column_List" >
+        id, appName, aliasName, packageName, activity, sdkVersion, targetSdkVersion, osType, version, path, projectId, md5, size, description, updateTime, createTime, updateBy, createBy, enabled
+    </sql>
+
+    <select id="findBy" parameterType="com.testwa.distest.server.entity.App" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM app
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            enabled = 1
+            <if test="appName != null">and appName = #{appName}</if>
+            <if test="createBy != null">and createBy = #{createBy}</if>
+            <if test="projectId != null">and projectId = #{projectId}</if>
+        </trim>
+    </select>
+
+    <select id="findOne" parameterType="com.testwa.distest.server.entity.App" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM app
+        WHERE id = #{key}
+    </select>
+    <select id="findOneInProject" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM app
+        WHERE id = #{key}
+        and projectId = #{projectId}
+        and enabled = 1
+    </select>
+    <select id="findList" parameterType="com.testwa.distest.server.entity.App" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM app
+        WHERE enabled = 1
+        <if test="keys != null">
+            and id in <foreach item="id" index="index" collection="keys" open="(" separator="," close=")">#{id} </foreach>
+        </if>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+    </select>
+
+    <select id="findByFromProject" parameterType="java.util.Map" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM app
+        WHERE enabled = 1
+        AND projectId in
+        <foreach item="item" index="index" collection="params.projects" open="(" separator="," close=")">#{item.id} </foreach>
+        <if test="params.appName != null">and appName LIKE CONCAT('%', #{params.appName}, '%')</if>
+        <if test="params.createBy != null">and createBy = #{params.createBy}</if>
+        <if test="params.projectId != null">and projectId = #{params.projectId}</if>
+    </select>
+
+</mapper>

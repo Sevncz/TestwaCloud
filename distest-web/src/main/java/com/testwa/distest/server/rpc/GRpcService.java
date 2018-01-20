@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 /**
  *
- * Marks the annotated class to be registered as rpc-service bean;
+ * Marks the annotated class to be registered as rpc-vo bean;
  * @author  Furer Alexander
  * @since 0.0.1
  */

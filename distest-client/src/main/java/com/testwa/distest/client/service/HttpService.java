@@ -2,9 +2,6 @@ package com.testwa.distest.client.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.protobuf.ByteString;
-import com.testwa.distest.client.rpc.proto.Agent;
-import com.testwa.distest.client.util.Constant;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -25,12 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -146,45 +138,45 @@ public class HttpService {
     }
 
 
-    public Future<HttpResponse> postProtoFile(String url, Path filePath, String serial, String reportDetailId) {
-        httpAsyncClient.start();
-        String name = filePath.toString().substring(Constant.localAppiumLogPath.length() + 1);
-
-        try {
-            byte[] appium = Files.readAllBytes(filePath);
-            ByteString bys = ByteString.copyFrom(appium);
-            Agent.AppiumLogFeedback message = Agent.AppiumLogFeedback
-                    .newBuilder()
-                    .setLog(bys)
-                    .setReportDetailId(reportDetailId)
-                    .setSerial(serial)
-                    .setName(name).build();
-            return this.postProto(url, message.toByteArray(), new FutureCallback<HttpResponse>() {
-                @Override
-                public void completed(HttpResponse response) {
-                    LOG.debug("Async post log completed: {}", response.getStatusLine());
-                    try {
-                        Files.delete(filePath);
-                    } catch (IOException e) {
-                        LOG.error("File {} upload error.", filePath, e);
-                    }
-                }
-
-                @Override
-                public void failed(Exception ex) {
-                    LOG.error("Async post log fail {}", ex);
-                }
-
-                @Override
-                public void cancelled() {
-                    LOG.debug("Async post log cancelled: {} cancelled");
-                }
-            });
-        } catch (IOException e) {
-            LOG.error("Post file error.url: {}, filePath: {}", url, filePath, e);
-        }
-        return null;
-    }
+//    public Future<HttpResponse> postProtoFile(String url, Path filePath, String serial, String reportDetailId) {
+//        httpAsyncClient.start();
+//        String name = filePath.toString().substring(Constant.localAppiumLogPath.length() + 1);
+//
+//        try {
+//            byte[] appium = Files.readAllBytes(filePath);
+//            ByteString bys = ByteString.copyFrom(appium);
+//            Agent.AppiumLogFeedback message = Agent.AppiumLogFeedback
+//                    .newBuilder()
+//                    .setLog(bys)
+//                    .setReportDetailId(reportDetailId)
+//                    .setSerial(serial)
+//                    .setName(name).build();
+//            return this.postProto(url, message.toByteArray(), new FutureCallback<HttpResponse>() {
+//                @Override
+//                public void completed(HttpResponse response) {
+//                    LOG.debug("Async post log completed: {}", response.getStatusLine());
+//                    try {
+//                        Files.delete(filePath);
+//                    } catch (IOException e) {
+//                        LOG.error("File {} upload error.", filePath, e);
+//                    }
+//                }
+//
+//                @Override
+//                public void failed(Exception ex) {
+//                    LOG.error("Async post log fail {}", ex);
+//                }
+//
+//                @Override
+//                public void cancelled() {
+//                    LOG.debug("Async post log cancelled: {} cancelled");
+//                }
+//            });
+//        } catch (IOException e) {
+//            LOG.error("Post file error.url: {}, filePath: {}", url, filePath, e);
+//        }
+//        return null;
+//    }
 
 
     //通过jackson对Future响应格式化

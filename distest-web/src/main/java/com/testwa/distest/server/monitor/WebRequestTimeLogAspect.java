@@ -1,5 +1,7 @@
 package com.testwa.distest.server.monitor;
 
+import com.testwa.distest.common.context.ThreadContext;
+import lombok.extern.log4j.Log4j2;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
@@ -18,36 +20,37 @@ import java.util.Arrays;
  * 纪录耗时请求
  * Created by wen on 2016/11/12.
  */
+@Log4j2
 @Aspect
 @Component
 class WebRequestTimeLogAspect {
-    private static final Logger logger = LoggerFactory.getLogger(WebRequestTimeLogAspect.class);
 
-    ThreadLocal<Long> startTime = new ThreadLocal<Long>();
-
-    @Pointcut("execution(public * com.testwa.*.web..*.*(..))")
+    @Pointcut("execution(public * com.testwa.*.server.web..*Controller.*(..))")
     public void webLog(){}
 
     @Before("webLog()")
     public void doBefore(JoinPoint joinPoint){
-        startTime.set(System.currentTimeMillis());
+        ThreadContext.init();
+        ThreadContext.putRequestBeforeTime(System.currentTimeMillis());
+        log.info("befor: {}， {}", ThreadContext.getRequestBeforeTime(), joinPoint.getTarget());
     }
 
     @AfterReturning("webLog()")
     public void  doAfterReturning(JoinPoint joinPoint){
         // 处理完请求，返回内容
-        Long statTime = startTime.get();
+        Long startTime = ThreadContext.getRequestBeforeTime();
         Long endTime = System.currentTimeMillis();
-        if(endTime - statTime > 100){
+        log.info("after: {}， {}", endTime, joinPoint.getTarget());
+        if(endTime - startTime > 300){
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             if(attributes != null){
                 HttpServletRequest request = attributes.getRequest();
-                logger.info("TIME : {} ", endTime - statTime);
-                logger.info("URL : {}", request.getRequestURL().toString());
-                logger.info("HTTP_METHOD : {}", request.getMethod());
-                logger.info("IP : {}", request.getRemoteAddr());
-                logger.info("CLASS_METHOD : {}", joinPoint.getSignature().getDeclaringTypeName() + "." + joinPoint.getSignature().getName());
-                logger.info("ARGS : {}", Arrays.toString(joinPoint.getArgs()));
+                log.info("TIME : {} ", endTime - startTime);
+                log.info("URL : {}", request.getRequestURL().toString());
+                log.info("HTTP_METHOD : {}", request.getMethod());
+                log.info("IP : {}", request.getRemoteAddr());
+                log.info("CLASS_METHOD : {}", joinPoint.getSignature().getDeclaringTypeName() + "." + joinPoint.getSignature().getName());
+                log.info("ARGS : {}", Arrays.toString(joinPoint.getArgs()));
             }
         }
     }

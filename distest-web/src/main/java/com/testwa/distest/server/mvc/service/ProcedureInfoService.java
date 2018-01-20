@@ -1,9 +1,12 @@
 package com.testwa.distest.server.mvc.service;
 
+import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.server.mvc.model.ProcedureInfo;
 import com.testwa.distest.server.mvc.model.ProcedureStatis;
 import com.testwa.distest.server.mvc.repository.ProcedureInfoRepository;
 import com.testwa.distest.server.mvc.repository.ProcedureStatisRepository;
+import com.testwa.distest.server.service.task.form.StepListForm;
+import com.testwa.distest.server.service.task.form.StepPageForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -49,7 +52,7 @@ public class ProcedureInfoService extends BaseService {
     public ProcedureInfo findLastProcedureInfo(ProcedureInfo stepInfo) {
         Criteria criatira = new Criteria();
         criatira.andOperator(Criteria.where("executionTaskId").is(stepInfo.getExecutionTaskId()),
-                Criteria.where("scriptId").is(stepInfo.getScriptId()),
+                Criteria.where("scriptId").is(stepInfo.getTestSuit()),
                 Criteria.where("timestamp").lt(stepInfo.getTimestamp()));
         Sort sort = new Sort(Sort.Direction.DESC, "timestamp");
         ProcedureInfo last = procedureInfoRepository.findOne(new Query(criatira).with(sort));
@@ -60,7 +63,7 @@ public class ProcedureInfoService extends BaseService {
         return null;
     }
 
-    public ProcedureStatis getProcedureStatisByExeId(String exeId){
+    public ProcedureStatis getProcedureStatisByExeId(Long exeId){
         return procedureStatisRepository.findByExeId(exeId);
     }
 
@@ -68,15 +71,44 @@ public class ProcedureInfoService extends BaseService {
         procedureStatisRepository.save(s);
     }
 
-    public void deleteStatisById(String exeId) {
-        procedureStatisRepository.delete(exeId);
+    public void deleteStatisById(String taskId) {
+        procedureStatisRepository.delete(taskId);
     }
 
     public List<ProcedureInfo> findBySessionId(String sessionId) {
         return procedureInfoRepository.findBySessionId(sessionId);
     }
 
-    public List<ProcedureInfo> findByExeId(String exeId) {
-        return procedureInfoRepository.findByExecutionTaskIdOrderByTimestampAsc(exeId);
+    public List<ProcedureInfo> findByExeId(Long taskId) {
+        return procedureInfoRepository.findByExecutionTaskIdOrderByTimestampAsc(taskId);
+    }
+
+    public PageResult<ProcedureInfo> findByPage(StepPageForm form) {
+        Query query = new Query();
+        if(form.getScriptId() != null){
+            query.addCriteria(Criteria.where("testSuit").is(form.getScriptId()));
+        }
+        if(form.getTaskId() != null){
+            query.addCriteria(Criteria.where("executionTaskId").is(form.getTaskId()));
+        }
+        int pageNum = form.getPageNo();
+        int rows = form.getPageSize();
+        String sortField = "timestamp";
+        Sort sort = new Sort(Sort.Direction.ASC, sortField);
+        PageRequest pageRequest = new PageRequest(pageNum, rows, sort);
+        Page<ProcedureInfo> page = procedureInfoRepository.find(query, pageRequest);
+        PageResult<ProcedureInfo> result = new PageResult<>(page.getContent(), page.getTotalElements());
+        return result;
+    }
+
+    public List<ProcedureInfo> findList(StepListForm form) {
+        Query query = new Query();
+        if(form.getScriptId() != null){
+            query.addCriteria(Criteria.where("testSuit").is(form.getScriptId()));
+        }
+        if(form.getTaskId() != null){
+            query.addCriteria(Criteria.where("executionTaskId").is(form.getTaskId()));
+        }
+        return procedureInfoRepository.find(query);
     }
 }

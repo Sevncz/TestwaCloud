@@ -27,7 +27,20 @@
     <dependencies>
         <dependency>
             <groupId>com.testwa</groupId>
-            <artifactId>distest-core</artifactId>
+            <artifactId>distest-core-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.testwa</groupId>
+            <artifactId>distest-core-proto</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-eureka</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-consul-discovery</artifactId>
         </dependency>
 
         <dependency>
@@ -70,6 +83,14 @@
         <dependency>
             <groupId>io.socket</groupId>
             <artifactId>socket.io-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp-ws</artifactId>
         </dependency>
 
         <dependency>

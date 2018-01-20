@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.testwa.distest.server.mapper.TestcaseScriptMapper" >
+    <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.TestcaseDetail" >
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="testcaseId" property="testcaseId" jdbcType="BIGINT" />
+        <result column="scriptId" property="scriptId" jdbcType="BIGINT" />
+        <result column="seq" property="seq" jdbcType="INTEGER" />
+    </resultMap>
+
+    <sql id="Base_Column_List" >
+        id, testcaseId, scriptId
+    </sql>
+
+    <delete id="deleteByTestcaseId" parameterType="java.lang.Long">
+        DELETE FROM
+        testcase_detail
+        WHERE testcaseId = #{testcaseId}
+    </delete>
+
+    <insert id="insertAll" parameterType="java.util.List">
+        INSERT INTO testcase_detail (testcaseId, scriptId, seq) VALUES
+        <foreach item="item" index="index" collection="list" separator=",">
+            (#{item.testcaseId}, #{item.scriptId}, #{item.seq})
+        </foreach>
+    </insert>
+</mapper>

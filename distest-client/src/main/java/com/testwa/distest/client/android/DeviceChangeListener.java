@@ -2,108 +2,60 @@ package com.testwa.distest.client.android;
 
 import com.android.ddmlib.AndroidDebugBridge;
 import com.android.ddmlib.IDevice;
-import com.github.cosysoft.device.android.AndroidDevice;
-import com.github.cosysoft.device.android.impl.DefaultHardwareDevice;
-import com.testwa.distest.client.control.client.BaseClient;
-import com.testwa.distest.client.control.client.Clients;
-import com.testwa.distest.client.control.client.MainSocket;
-import com.testwa.distest.client.model.TestwaDevice;
-import com.testwa.distest.client.rpc.proto.Agent;
-import com.testwa.distest.client.task.TestwaScheduled;
-import io.rpc.testwa.device.Device;
-import io.rpc.testwa.device.NoUsedDeviceRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import com.testwa.distest.client.ApplicationContextUtil;
+import com.testwa.distest.client.event.DeviceConnectedEvent;
+import com.testwa.distest.client.event.DeviceDisconnectEvent;
+import com.testwa.distest.client.event.DeviceOfflineEvent;
+import com.testwa.distest.client.event.DeviceOnlineEvent;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.context.ApplicationContext;
 
 /**
  * 设备监听器
  */
+@Log4j2
 public class DeviceChangeListener implements AndroidDebugBridge.IDeviceChangeListener {
-
-    private static final Logger logger = LoggerFactory
-            .getLogger(DeviceChangeListener.class);
-    private Map<IDevice, AndroidDevice> connectedDevices = new HashMap<>();
-
-    public DeviceChangeListener(Map<IDevice, AndroidDevice> connectedDevices) {
-        this.connectedDevices = connectedDevices;
-    }
 
     @Override
     public void deviceConnected(IDevice device) {
-        logger.info("deviceConnected {}", device.getSerialNumber());
-        AndroidDevice ad = new DefaultHardwareDevice(device);
-        Iterator<Map.Entry<IDevice, AndroidDevice>> entryIterator = connectedDevices.entrySet().iterator();
-        boolean contain = false;
-        while (entryIterator.hasNext()) {
-            Map.Entry entry = entryIterator.next();
-            if (entry.getValue().equals(ad)) {
-                contain = true;
-                break;
-            }
-        }
-        if (!contain) {
-            connectedDevices.put(device, ad);
-            BaseClient.startRemoteClient(device);
-        }
-    }
-
-    private void sendDeviceMessageToServer(AndroidDevice ad) {
-        TestwaDevice testwaDevice = new TestwaDevice();
-        testwaDevice.setSerial(ad.getSerialNumber());
-        testwaDevice.setBrand(ad.runAdbCommand("shell getprop ro.product.brand"));
-        testwaDevice.setCpuabi(ad.runAdbCommand("shell getprop ro.product.cpu.abi"));
-        testwaDevice.setDensity(ad.getDeviceInfo().getDensity().toString());
-        testwaDevice.setOsName(ad.getDeviceInfo().getOsName());
-        testwaDevice.setWidth(String.valueOf(ad.getScreenSize().getWidth()));
-        testwaDevice.setHeight(String.valueOf(ad.getScreenSize().getHeight()));
-        testwaDevice.setCpuabi(ad.runAdbCommand("shell getprop ro.product.cpu.abi"));
-        testwaDevice.setSdk(ad.runAdbCommand("shell getprop ro.build.version.sdk"));
-        testwaDevice.setHost(ad.runAdbCommand("shell getprop ro.build.host"));
-        testwaDevice.setModel(ad.runAdbCommand("shell getprop ro.product.model"));
-        testwaDevice.setBrand(ad.runAdbCommand("shell getprop ro.product.brand"));
-        testwaDevice.setVersion(ad.runAdbCommand("shell getprop ro.build.version.release"));
-        if("ONLINE".equals(ad.getDevice().getState().name().toUpperCase())){
-            testwaDevice.setStatus(Agent.Device.LineStatus.ON.name());
-        }else{
-            testwaDevice.setStatus(Agent.Device.LineStatus.OFF.name());
-        }
-        Device message = testwaDevice.toAgentDevice();
-        MainSocket.getSocket().emit("device", message.toByteArray());
+        connect(device.getSerialNumber());
     }
 
     @Override
     public void deviceDisconnected(IDevice device) {
-        logger.info("deviceDisconnected {}", device.getSerialNumber());
-        AndroidDevice ad = new DefaultHardwareDevice(device);
-        connectedDevices.entrySet().removeIf(entry -> entry.getValue().equals(ad));
-//        sendDeviceDisconnectMessage(ad.getDevice().getSerialNumber());
-        // 汇报web设备断开
-        sendDisconnectGrpc(ad.getDevice().getSerialNumber());
-        // 本地清楚缓存设备信息
-        TestwaScheduled.a_devices.remove(device.getSerialNumber());
-    }
-
-    private void sendDisconnectGrpc(String deviceId) {
-        NoUsedDeviceRequest disconnectDevice = NoUsedDeviceRequest.newBuilder()
-                .setDeviceId(deviceId)
-                .build();
-        Clients.deviceService().disconnect(disconnectDevice);
-    }
-
-    private void sendDeviceDisconnectMessage(String deviceId) {
-        NoUsedDeviceRequest message = NoUsedDeviceRequest.newBuilder()
-                .setDeviceId(deviceId)
-                .setStatus(NoUsedDeviceRequest.LineStatus.DISCONNECTED)
-                .build();
-        MainSocket.getSocket().emit("deviceDisconnect", message.toByteArray());
+        disconnect(device.getSerialNumber());
     }
 
     @Override
     public void deviceChanged(IDevice device, int changeMask) {
-        logger.debug(device.getSerialNumber() + " " + changeMask);
+        if (device.isOnline()) {
+            log.info("device {} online", device.getSerialNumber());
+            online(device.getSerialNumber());
+        } else {
+            log.info("device {} offline", device.getSerialNumber());
+            offline(device.getSerialNumber());
+        }
     }
+
+    private void connect(String deviceId) {
+        ApplicationContext context = ApplicationContextUtil.getApplicationContext();
+        context.publishEvent(new DeviceConnectedEvent(this, deviceId));
+    }
+
+    private void disconnect(String deviceId) {
+        ApplicationContext context = ApplicationContextUtil.getApplicationContext();
+        context.publishEvent(new DeviceDisconnectEvent(this, deviceId));
+    }
+
+    private void offline(String deviceId) {
+        ApplicationContext context = ApplicationContextUtil.getApplicationContext();
+        context.publishEvent(new DeviceOfflineEvent(this, deviceId));
+    }
+
+    private void online(String deviceId) {
+        ApplicationContext context = ApplicationContextUtil.getApplicationContext();
+        context.publishEvent(new DeviceOnlineEvent(this, deviceId));
+
+    }
+
 }

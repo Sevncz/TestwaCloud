@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.testwa.core.utils.Identities;
 import com.testwa.core.utils.TimeUtil;
 import com.testwa.core.utils.UUID;
+import com.testwa.distest.client.exception.DownloadFailException;
 import com.testwa.distest.client.model.UserInfo;
-import com.testwa.distest.client.task.Testcase;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -27,6 +27,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -101,109 +104,77 @@ public class Http {
     }
 
 
-    public static String download(String url, String savePath){
-        CloseableHttpClient httpclient = HttpClients.createDefault();
-        HttpGet httpGet = new HttpGet(url);
-        httpGet.setHeader("X-TOKEN", UserInfo.token);
-        OutputStream out = null;
-        InputStream in = null;
-        String localSavePath = null;
+    public static void download(String fromUrl, String toLocalFile) throws DownloadFailException, IOException {
+        Path toLocal = Paths.get(toLocalFile);
+        if(!Files.exists(toLocal.getParent())){
+            Files.createDirectories(toLocal.getParent());
+        }else{
+            log.debug("File MD5 exists!  " + toLocalFile);
+            if(Files.exists(toLocal)){
+                log.info("To local file {} exists, return !", toLocalFile);
+                return;
+            }
+        }
+        ReadableByteChannel rbc = null;
+        FileOutputStream fos = null;
         try {
-            HttpResponse httpResponse = httpclient.execute(httpGet);
-            HttpEntity entity = httpResponse.getEntity();
-
-            in = entity.getContent();
-            long length = entity.getContentLength();
-            if (length <= 0) {
-                log.error("The file is not exist");
-                return null;
-            }
-
-            String filename = httpResponse.getLastHeader("filename").getValue();
-
-            String[] f = filename.split("\\.");
-            String newFileName = f[0] + UUID.uuid(10) + "." + f[f.length - 1];
-
-            localSavePath = Paths.get(savePath, newFileName).toString();
-            log.info("savePath ------------> " + localSavePath);
-            File file = new File(localSavePath);
-            if(!file.exists()){
-                file.createNewFile();
-            }
-
-            out = new FileOutputStream(file);
-            byte[] buffer = new byte[4096];
-            int readLength = 0;
-            while ((readLength=in.read(buffer)) > 0) {
-                byte[] bytes = new byte[readLength];
-                System.arraycopy(buffer, 0, bytes, 0, readLength);
-                out.write(bytes);
-            }
-
-            out.flush();
-
+            URL website = new URL(fromUrl);
+            rbc = Channels.newChannel(website.openStream());
+            fos = new FileOutputStream(toLocalFile);
+            fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
         }catch (Exception e){
-            log.error("Download from server error.", e);
-        }finally{
-            try {
-                if(in != null){
-                    in.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+            log.error("Download file {} error!", fromUrl);
+            throw new DownloadFailException(e.getMessage());
+        }finally {
+            if(fos != null){
+                fos.close();
             }
-
-            try {
-                if(out != null){
-                    out.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+            if(rbc != null){
+                rbc.close();
             }
         }
-        return localSavePath;
     }
 
 
-    public static String getLogcat(String url, Map<String, String> parameters, Testcase tc){
-        ObjectMapper mapper = new ObjectMapper();
-        PostMethod method = null;
-        Long start = System.currentTimeMillis();
-        try {
-            method = new PostMethod(url);
-            String jsonParam = mapper.writeValueAsString(parameters);
-
-            RequestEntity se = new StringRequestEntity(jsonParam, "application/json", "UTF-8");
-            method.setRequestEntity(se);
-            method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler());
-            HttpClient httpClient = new HttpClient();
-            int statusCode = httpClient.executeMethod(method);
-            String logcatFileName = Identities.randomLong() + ".log";
-            if (statusCode == HttpStatus.SC_OK) {
-                Path file = Paths.get(Constant.localLogcatPath, tc.getSerial().replaceAll("\\W", "_"), logcatFileName);
-                if(!Files.exists(file.getParent())){
-                    Files.createDirectories(file.getParent());
-                }
-                if(!Files.exists(file)){
-                    Files.createFile(file);
-                }
-                BufferedReader reader = new BufferedReader(new InputStreamReader(method.getResponseBodyAsStream(), "utf-8"));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    log.info("logcat length, {}", line.length());
-                    Files.write(file, line.getBytes(), StandardOpenOption.APPEND);
-                }
-                reader.close();
-                Long end = System.currentTimeMillis();
-                log.info("complete one logcat, time: {} ms", end - start);
-                return logcatFileName;
-            }
-            log.error("get logcat error, {}", statusCode);
-            return "";
-        } catch (IllegalArgumentException | IOException e) {
-            log.error("get logcat error", e);
-        }
-        return null;
-    }
+//    public static String getLogcat(String url, Map<String, String> parameters, Testcase tc){
+//        ObjectMapper mapper = new ObjectMapper();
+//        PostMethod method = null;
+//        Long start = System.currentTimeMillis();
+//        try {
+//            method = new PostMethod(url);
+//            String jsonParam = mapper.writeValueAsString(parameters);
+//
+//            RequestEntity se = new StringRequestEntity(jsonParam, "application/json", "UTF-8");
+//            method.setRequestEntity(se);
+//            method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler());
+//            HttpClient httpClient = new HttpClient();
+//            int statusCode = httpClient.executeMethod(method);
+//            String logcatFileName = Identities.randomLong() + ".log";
+//            if (statusCode == HttpStatus.SC_OK) {
+//                Path file = Paths.get(Constant.localLogcatPath, tc.getSerial().replaceAll("\\W", "_"), logcatFileName);
+//                if(!Files.exists(file.getParent())){
+//                    Files.createDirectories(file.getParent());
+//                }
+//                if(!Files.exists(file)){
+//                    Files.createFile(file);
+//                }
+//                BufferedReader reader = new BufferedReader(new InputStreamReader(method.getResponseBodyAsStream(), "utf-8"));
+//                String line;
+//                while ((line = reader.readLine()) != null) {
+//                    log.info("logcat length, {}", line.length());
+//                    Files.write(file, line.getBytes(), StandardOpenOption.APPEND);
+//                }
+//                reader.close();
+//                Long end = System.currentTimeMillis();
+//                log.info("complete one logcat, time: {} ms", end - start);
+//                return logcatFileName;
+//            }
+//            log.error("get logcat error, {}", statusCode);
+//            return "";
+//        } catch (IllegalArgumentException | IOException e) {
+//            log.error("get logcat error", e);
+//        }
+//        return null;
+//    }
 
 }

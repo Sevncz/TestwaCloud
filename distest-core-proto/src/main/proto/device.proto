@@ -1,0 +1,135 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "io.rpc.testwa.device";
+option java_outer_classname = "DeviceProto";
+option objc_class_prefix = "HLW";
+
+package device;
+
+
+service ControlService {
+    rpc forward (CommandRequest) returns ( CommonReply ) {}
+
+}
+
+service DeviceService {
+    rpc all (DevicesRequest) returns ( CommonReply ) {}
+    rpc connect (ConnectedRequest) returns ( CommonReply ) {}
+    rpc disconnect (DisconnectedRequest) returns ( CommonReply ) {}
+    rpc offline (DisconnectedRequest) returns ( CommonReply ) {}
+    rpc logcat(LogcatRequest) returns ( CommonReply ) {}
+    rpc screen(ScreenCaptureRequest) returns ( CommonReply ) {}
+}
+
+message Device {
+    string deviceId = 1;
+    string cpuabi = 3; // armeabi-v7a
+    string sdk = 4; // 23
+    string width = 5;
+    string height = 6;
+    string osName = 7; // 设备系统 ANDROID23(6.0)
+    string density = 8; // 密度
+    string model = 9; // 型号  Nexus 6
+    string brand = 10; // 品牌 google
+    string version = 11; // 系统版本 6.0.1
+    string host = 12; // vpba27.mtv.corp.google.com
+
+    enum LineStatus {
+        OFF = 0;
+        ON = 1;
+    }
+    LineStatus status = 13;
+}
+
+
+message DevicesRequest {
+    int32 count = 1;
+    repeated Device device = 2;
+    string userId = 3;
+}
+
+
+message DisconnectedRequest {
+
+    string deviceId = 1;
+    enum LineStatus {
+        OFF = 0;
+        DISCONNECTED = 1;
+    }
+    LineStatus status = 2;
+
+}
+
+message ConnectedRequest {
+
+    string deviceId = 1;
+    string cpuabi = 3; // armeabi-v7a
+    string sdk = 4; // 23
+    string width = 5;
+    string height = 6;
+    string osName = 7; // 设备系统 ANDROID23(6.0)
+    string density = 8; // 密度
+    string model = 9; // 型号  Nexus 6
+    string brand = 10; // 品牌 google
+    string version = 11; // 系统版本 6.0.1
+    string host = 12; // vpba27.mtv.corp.google.com
+    string token = 13;
+
+}
+
+message ScreenCaptureRequest {
+    bytes img = 1;
+    string serial = 2;
+    string name = 3;
+}
+
+message ScreenCaptureStartRequest {
+    string serial = 1;
+}
+
+message ScreenCaptureEndRequest {
+    string serial = 1;
+}
+
+message CommonReply {
+    string message = 1;
+}
+
+message LogcatRequest {
+    bytes content = 1;
+    string serial = 2;
+}
+
+message LogcatStartRequest {
+    string serial = 1;
+    string filter = 2;
+    string tag = 3;
+    string level = 4;
+}
+
+message LogcatEndRequest {
+    string serial = 1;
+}
+
+message CommandRequest {
+
+    string content = 1;
+
+}
+
+message CommandResult {
+
+    bytes content = 1;
+    string serial = 2;
+    string message = 3;
+    string cmd = 4;
+
+}
+
+message RemoteClientStartRequest {
+
+    string serial = 1;
+    string controller = 2;
+
+}

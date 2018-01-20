@@ -6,7 +6,8 @@ package com.testwa.distest.client.model;
 public class UserInfo {
 
     public static String token;
-    public static String userId;
+    public static String username;
+    public static Long userId;
 
     public static void rememberMe(){
         System.out.println("------ Will save userinfo to local -----");

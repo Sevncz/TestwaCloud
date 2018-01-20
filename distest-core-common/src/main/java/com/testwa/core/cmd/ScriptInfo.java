@@ -1,0 +1,1 @@
+package com.testwa.core.cmd;import lombok.Data;import lombok.ToString;@Data@ToStringpublic class ScriptInfo {    private Long id;    private String scriptName;    private String aliasName;    private String appPackage;    private String size;    private String tag;    private String description;    private String md5;    private String path;}

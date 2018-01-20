@@ -1,13 +1,9 @@
 package com.testwa.distest.server.mvc.service;
 
-import com.testwa.distest.server.mvc.beans.QueryFilters;
-import com.testwa.distest.server.mvc.beans.SubQueryFilter;
 import com.testwa.distest.server.mvc.repository.CommonRepository;
-import com.testwa.distest.server.mvc.beans.QueryOperator;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -71,4 +67,6 @@ public class BaseService {
 
         repository.updateMulti(query, update);
     }
+
+
 }

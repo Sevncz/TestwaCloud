@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.testwa.distest.server.mapper.RoleMapper" >
+    <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.Role" >
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="roleName" property="roleName" jdbcType="VARCHAR" />
+        <result column="createTime" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+        <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+        <result column="createBy" property="createBy" jdbcType="BIGINT" />
+        <result column="updateBy" property="updateBy" jdbcType="BIGINT" />
+
+    </resultMap>
+
+    <sql id="Base_Column_List" >
+        id, roleName, createTime, updateTime, createBy, updateBy
+    </sql>
+
+    <select id="findBy" parameterType="com.testwa.distest.server.entity.Role" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM role
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            <if test="roleName != null">and roleName = #{roleName}</if>
+            <if test="value != null">and value = #{value}</if>
+        </trim>
+    </select>
+
+</mapper>

@@ -18,9 +18,21 @@
     <url>http://www.testwa.com/</url>
 
     <modules>
-        <module>distest-core</module>
+        <module>distest-core-common</module>
+        <module>distest-core-haredis</module>
+        <module>distest-core-base</module>
+        <module>distest-core-proto</module>
+        <module>distest-cloud-config</module>
+        <module>distest-cloud-eureka</module>
         <module>distest-client</module>
         <module>distest-web</module>
+        <module>distest-data</module>
+        <module>distest-dm</module>
+        <module>distest-report</module>
+        <module>distest-account</module>
+        <module>distest-message</module>
+        <module>distest-file</module>
+        <module>distest-task</module>
     </modules>
 
     <properties>
@@ -28,11 +40,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
-        <slf4j.version>1.7.13</slf4j.version>
-        <logback.version>1.1.3</logback.version>
+        <slf4j.version>1.7.25</slf4j.version>
         <json.version>20141113</json.version>
         <quartz.version>2.2.1</quartz.version>
-        <socket.io-client.version>0.8.2</socket.io-client.version>
+        <netty-socketio.version>1.7.12</netty-socketio.version>
+        <socket.io-client.version>0.8.3</socket.io-client.version>
+        <okhttp.version>3.7.0</okhttp.version>
+        <okhttp-ws.version>3.4.2</okhttp-ws.version>
         <grpc.version>1.3.0</grpc.version>
         <protobuf-java.version>3.2.0</protobuf-java.version>
         <protobuf-java-format.version>1.4</protobuf-java-format.version>
@@ -42,22 +56,43 @@
         <fastjson.version>1.2.31</fastjson.version>
         <ffmpeg.version>0.6.1</ffmpeg.version>
         <com.google.guava.version>22.0</com.google.guava.version>
-        <mybatis-spring-boot>1.2.0</mybatis-spring-boot>
         <mysql-connector>5.1.39</mysql-connector>
+        <mybatis.version>3.4.1</mybatis.version>
+        <mybatis.spring.version>1.3.0</mybatis.spring.version>
+        <druid.version>1.0.24</druid.version>
+        <spring-cloud.version>Camden.SR5</spring-cloud.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
                 <groupId>com.testwa</groupId>
-                <artifactId>distest-core</artifactId>
+                <artifactId>distest-core-base</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>commons-daemon</groupId>
-                <artifactId>commons-daemon</artifactId>
-                <version>1.0.15</version>
+                <groupId>com.testwa</groupId>
+                <artifactId>distest-core-common</artifactId>
+                <version>1.0-SNAPSHOT</version>
             </dependency>
+            <dependency>
+                <groupId>com.testwa</groupId>
+                <artifactId>distest-core-proto</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.testwa</groupId>
+                <artifactId>distest-core-haredis</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+            <!-- apache start -->
 
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -66,15 +101,68 @@
             </dependency>
 
             <dependency>
+                <groupId>commons-lang</groupId>
+                <artifactId>commons-lang</artifactId>
+                <version>2.4</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.4</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-pool</groupId>
+                <artifactId>commons-pool</artifactId>
+                <version>1.6</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-pool2</artifactId>
+                <version>2.4.2</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>1.9.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>3.2.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-exec</artifactId>
+                <version>1.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpasyncclient</artifactId>
+                <version>4.1.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.ant</groupId>
+                <artifactId>ant</artifactId>
+                <version>1.7.1</version>
+            </dependency>
+            <!-- apache end-->
+
+            <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
             </dependency>
-
             <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-classic</artifactId>
-                <version>${logback.version}</version>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${slf4j.version}</version>
             </dependency>
 
             <dependency>
@@ -84,9 +172,24 @@
             </dependency>
 
             <dependency>
+                <groupId>com.corundumstudio.socketio</groupId>
+                <artifactId>netty-socketio</artifactId>
+                <version>${netty-socketio.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>io.socket</groupId>
                 <artifactId>socket.io-client</artifactId>
                 <version>${socket.io-client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>${okhttp.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp-ws</artifactId>
+                <version>${okhttp-ws.version}</version>
             </dependency>
 
             <!-- rpcgrpc-->
@@ -123,9 +226,15 @@
             </dependency>
 
             <dependency>
+                <groupId>org.seleniumhq.selenium</groupId>
+                <artifactId>selenium-java</artifactId>
+                <version>3.8.1</version>
+            </dependency>
+
+            <dependency>
                 <groupId>io.appium</groupId>
                 <artifactId>java-client</artifactId>
-                <version>4.0.0</version>
+                <version>5.0.4</version>
             </dependency>
 
             <dependency>
@@ -149,18 +258,6 @@
                 <groupId>org.reflections</groupId>
                 <artifactId>reflections</artifactId>
                 <version>0.9.10</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-exec</artifactId>
-                <version>1.3</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpasyncclient</artifactId>
-                <version>4.1.1</version>
             </dependency>
 
             <!-- quartz -->
@@ -199,12 +296,12 @@
                 <artifactId>pinyin4j</artifactId>
                 <version>2.5.0</version>
             </dependency>
-
             <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-log4j12</artifactId>
-                <version>1.7.2</version>
+                <groupId>com.github.stuxuhai</groupId>
+                <artifactId>jpinyin</artifactId>
+                <version>1.1.8</version>
             </dependency>
+
 
             <!-- fastjson -->
             <dependency>
@@ -224,28 +321,50 @@
                 <artifactId>guava</artifactId>
                 <version>${com.google.guava.version}</version>
             </dependency>
+
             <!-- MySQL 连接驱动依赖 -->
             <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
                 <version>${mysql-connector}</version>
             </dependency>
+            <!-- DruidDataSource -->
+            <!--<dependency>-->
+                <!--<groupId>com.alibaba</groupId>-->
+                <!--<artifactId>druid</artifactId>-->
+                <!--<version>${druid.version}</version>-->
+            <!--</dependency>-->
+
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>druid-spring-boot-starter</artifactId>
+                <version>1.1.4</version>
+            </dependency>
+
+            <!-- mybatis start-->
+            <!--<dependency>-->
+                <!--<groupId>org.mybatis</groupId>-->
+                <!--<artifactId>mybatis</artifactId>-->
+                <!--<version>${mybatis.version}</version>-->
+            <!--</dependency>-->
+
+            <!--<dependency>-->
+                <!--<groupId>org.mybatis</groupId>-->
+                <!--<artifactId>mybatis-spring</artifactId>-->
+                <!--<version>${mybatis.spring.version}</version>-->
+            <!--</dependency>-->
             <dependency>
                 <groupId>org.mybatis.spring.boot</groupId>
                 <artifactId>mybatis-spring-boot-starter</artifactId>
-                <version>${mybatis-spring-boot}</version>
+                <version>1.3.1</version>
             </dependency>
 
             <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-pool2</artifactId>
-                <version>2.4.2</version>
+                <groupId>com.github.pagehelper</groupId>
+                <artifactId>pagehelper-spring-boot-starter</artifactId>
+                <version>1.2.3</version>
             </dependency>
-            <dependency>
-                <groupId>commons-beanutils</groupId>
-                <artifactId>commons-beanutils</artifactId>
-                <version>1.9.2</version>
-            </dependency>
+            <!--mybatis end-->
 
             <dependency>
                 <groupId>org.projectlombok</groupId>
@@ -254,11 +373,14 @@
                 <scope>provided</scope>
             </dependency>
 
+            <!-- https://mvnrepository.com/artifact/redis.clients/jedis -->
             <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-pool2</artifactId>
-                <version>2.4.2</version>
+                <groupId>redis.clients</groupId>
+                <artifactId>jedis</artifactId>
+                <version>2.9.0</version>
             </dependency>
+
+
 
         </dependencies>
     </dependencyManagement>

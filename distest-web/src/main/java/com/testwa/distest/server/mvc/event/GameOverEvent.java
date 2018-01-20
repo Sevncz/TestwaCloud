@@ -1,6 +1,5 @@
 package com.testwa.distest.server.mvc.event;
 
-import com.testwa.core.model.RemoteRunCommand;
 import lombok.Data;
 import org.springframework.context.ApplicationEvent;
 
@@ -10,11 +9,11 @@ import org.springframework.context.ApplicationEvent;
 @Data
 public class GameOverEvent extends ApplicationEvent {
 
-    private String exeId;
+    private Long taskId;
 
-    public GameOverEvent(Object source, String exeId) {
+    public GameOverEvent(Object source, Long taskId) {
         super(source);
-        this.exeId = exeId;
+        this.taskId = taskId;
     }
 
 }

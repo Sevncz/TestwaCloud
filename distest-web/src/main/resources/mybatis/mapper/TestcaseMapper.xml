@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.testwa.distest.server.mapper.TestcaseMapper" >
+    <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.Testcase" >
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="tag" property="tag" jdbcType="VARCHAR" />
+        <result column="caseName" property="caseName" jdbcType="VARCHAR" />
+        <result column="projectId" property="projectId" jdbcType="BIGINT" />
+        <result column="exeMode" property="exeMode" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
+        <result column="description" property="description" jdbcType="VARCHAR" />
+        <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+        <result column="createTime" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+        <result column="updateBy" property="updateBy" jdbcType="BIGINT"/>
+        <result column="createBy" property="createBy" jdbcType="BIGINT"/>
+        <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
+        <association property="createUser" javaType="com.testwa.distest.server.entity.User">
+            <id column="create_id" property="id"/>
+            <result column="create_username" property="username"/>
+            <result column="create_email" property="email"/>
+            <result column="create_phone" property="phone"/>
+        </association>
+        <association property="updateUser" javaType="com.testwa.distest.server.entity.User">
+            <id column="update_id" property="id"/>
+            <result column="update_username" property="username"/>
+            <result column="update_email" property="email"/>
+            <result column="update_phone" property="phone"/>
+        </association>
+        <collection property="testcaseDetails" ofType="com.testwa.distest.server.entity.TestcaseDetail">
+            <id column="detail_id" property="id"/>
+            <id column="scriptId" property="scriptId"/>
+            <id column="testcaseId" property="testcaseId"/>
+            <id column="seq" property="seq"/>
+            <association property="script" javaType="com.testwa.distest.server.entity.Script">
+                <id column="script_id" property="id"/>
+                <result column="scriptName" property="scriptName"/>
+                <result column="description" property="description"/>
+            </association>
+        </collection>
+    </resultMap>
+
+    <sql id="Base_Column_List" >
+        id, caseName, tag, projectId, exeMode, description, createBy, updateTime, createTime, updateBy, enabled
+    </sql>
+
+    <select id="findBy" parameterType="com.testwa.distest.server.entity.Testcase" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM testcase
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            enabled = 1
+            <if test="createBy != null">and createBy = #{createBy}</if>
+            <if test="projectId != null">and projectId = #{projectId}</if>
+            <if test="caseName != null">and caseName = #{caseName}</if>
+        </trim>
+    </select>
+
+    <select id="findOne" parameterType="com.testwa.distest.server.entity.Testcase" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM testcase
+        WHERE id = #{key}
+    </select>
+
+    <select id="fetchOne" parameterType="com.testwa.distest.server.entity.Testcase" resultMap="BaseResultMap" >
+        SELECT
+        t.id, t.caseName, t.tag, t.projectId, t.exeMode, t.description, t.updateTime, t.createTime,
+        u.id as create_id, u.username as create_username, u.email as create_email, u.phone as create_phone,
+        u1.id as update_id, u1.username as update_username, u1.email as update_email, u1.phone as update_phone,
+        d.id as detail_id, d.scriptId, d.testcaseId, d.seq, s.id as script_id, s.scriptName, s.description
+        FROM testcase t
+        LEFT JOIN user u on t.createBy=u.id
+        LEFT JOIN user u1 on t.updateBy=u1.id
+        LEFT JOIN testcase_detail d on t.id=d.testcaseId
+        LEFT JOIN script s on d.scriptId=s.id
+        WHERE t.id = #{testcaseId}
+    </select>
+
+    <select id="findList" parameterType="com.testwa.distest.server.entity.Testcase" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM testcase
+        <if test="keys != null">
+            <trim prefix="WHERE" prefixOverrides="AND |OR ">
+                id in
+                <foreach item="id" index="index" collection="keys" open="(" separator="," close=")">#{id} </foreach>
+            </trim>
+        </if>
+        <if test="orderBy != null">
+            order by ${orderBy}
+        </if>
+    </select>
+
+    <select id="findByFromProject" parameterType="java.util.Map" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM testcase
+        WHERE enabled = 1
+        AND projectId in
+        <foreach item="item" index="index" collection="params.projects" open="(" separator="," close=")">#{item.id} </foreach>
+        <if test="params.caseName != null">and caseName LIKE CONCAT('%', #{params.caseName}, '%')</if>
+        <if test="params.createBy != null">and createBy = #{params.createBy}</if>
+        <if test="params.projectId != null">and projectId = #{params.projectId}</if>
+    </select>
+
+    <select id="findAllOrder" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM testcase
+        WHERE enabled = 1
+        AND id IN
+        <foreach item="item" index="index" collection="testcaseIds" open="(" separator="," close=")">#{item} </foreach>
+        ORDER BY ${order}
+    </select>
+
+    <select id="countBy" resultType="long">
+        SELECT count(1) c FROM testcase
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            enabled = 1
+            <if test="createBy != null">and createBy = #{createBy}</if>
+            <if test="projectId != null">and projectId = #{projectId}</if>
+            <if test="caseName != null">and caseName = #{caseName}</if>
+        </trim>
+    </select>
+
+
+    <select id="fetchScriptAllBySceneOrder" parameterType="com.testwa.distest.server.entity.Testcase" resultMap="BaseResultMap" >
+        SELECT
+        t.id, t.caseName, t.tag, t.projectId, t.exeMode, t.description, t.updateTime, t.createTime,
+        u.id as create_id, u.username as create_username, u.email as create_email, u.phone as create_phone,
+        u1.id as update_id, u1.username as update_username, u1.email as update_email, u1.phone as update_phone,
+        d.id as detail_id, d.seq, s.id as script_id, s.scriptName, s.description
+        FROM testcase t
+        LEFT JOIN user u on t.createBy=u.id
+        LEFT JOIN user u1 on t.updateBy=u1.id
+        LEFT JOIN testcase_detail d on t.id=d.testcaseId
+        LEFT JOIN script s on d.scriptId=s.id
+        LEFT JOIN taskscene_detail scene_d on t.id=scene_d.testcaseId
+        WHERE scene_d.tasksceneId = #{sceneId}
+    </select>
+
+</mapper>

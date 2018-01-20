@@ -1,25 +1,22 @@
 package com.testwa.distest.client.control.client;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.cosysoft.device.android.AndroidDevice;
+import com.github.cosysoft.device.android.impl.AndroidDeviceStore;
 import com.google.protobuf.ByteString;
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.testwa.core.Command;
-import com.testwa.core.WebsocketEvent;
-import com.testwa.distest.client.android.AndroidHelper;
+import com.testwa.core.common.enums.Command;
+import com.testwa.distest.client.grpc.Gvice;
 import com.testwa.distest.client.minicap.Banner;
 import com.testwa.distest.client.minicap.Minicap;
 import com.testwa.distest.client.minicap.MinicapListener;
 import com.testwa.distest.client.minitouch.Minitouch;
 import com.testwa.distest.client.minitouch.MinitouchListener;
 import com.testwa.distest.client.util.Constant;
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
+import io.grpc.Channel;
 import io.rpc.testwa.device.ScreenCaptureRequest;
 import io.socket.client.IO;
 import io.socket.client.Socket;
-import net.bramp.ffmpeg.FFmpeg;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,8 +28,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * Created by wen on 10/06/2017.
  */
+@Slf4j
 public class RemoteClient extends BaseClient implements MinicapListener, MinitouchListener {
-    private static Logger log = LoggerFactory.getLogger(RemoteClient.class);
 
     static final int DATA_TIMEOUT = 100; //ms
     private boolean isWaitting = false;
@@ -40,21 +37,24 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
 
     private String url;
     private String controller;
-    private String webHost;
-    private Integer webPort;
     private String serialNumber;
     private Socket ws;
+    private Channel channel;
+
+    private String resourcesPath;  // minicap和minitouch存放的路径
 
     Minicap minicap = null;
     Minitouch minitouch = null;
 
-    public RemoteClient(String url, String controller, String serialNumber, String webHost, int webPort) throws IOException, URISyntaxException {
+    public RemoteClient(String url, String controller, String serialNumber, Channel channel, String resourcesPath) throws IOException, URISyntaxException {
         log.info("Remote Client init");
         this.url = url;
         this.controller = controller;
-        this.webHost = webHost;
-        this.webPort = webPort;
         this.serialNumber = serialNumber;
+
+        this.resourcesPath = resourcesPath;
+
+        this.channel = channel;
 
         ws = IO.socket(url);
         ws.on(Socket.EVENT_CONNECT, args -> {
@@ -143,12 +143,21 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
     }
 
     private void sendImage(byte[] data) {
-        ScreenCaptureRequest request = ScreenCaptureRequest.newBuilder()
-                .setImg(ByteString.copyFrom(data))
-                .setName("xxx")
-                .setSerial(this.serialNumber)
-                .build();
-        Clients.deviceService(this.webHost, this.webPort).screen(request);
+        log.debug(String.valueOf(data.length));
+        try {
+
+            ScreenCaptureRequest request = ScreenCaptureRequest.newBuilder()
+                    .setImg(ByteString.copyFrom(data))
+                    .setName("xxx")
+                    .setSerial(this.serialNumber)
+                    .build();
+
+            Gvice.deviceService(this.channel).screen(request);
+
+        }catch (Exception e){
+            log.error(e.getMessage());
+        }finally {
+        }
     }
 
     private void clearObsoleteImage() {
@@ -249,7 +258,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         String name = command.getString("name", null);
         String path = command.getString("path", null);
 
-        AndroidDevice device = AndroidHelper.getInstance().getAndroidDevice(serialNumber);
+        AndroidDevice device = AndroidDeviceStore.getInstance().getDeviceBySerial(serialNumber);
         try {
             device.getDevice().pushFile(Constant.getTmpFile(name).getAbsolutePath(), path + "/" + name);
         } catch (Exception e) {
@@ -269,7 +278,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         if (scale < 0.01) {scale = 0.01f;}
         if (scale > 1.0) {scale = 1.0f;}
         if (rotate == null) { rotate = 0.0f; }
-        Minicap minicap = new Minicap(serialNumber);
+        Minicap minicap = new Minicap(serialNumber, resourcesPath);
         minicap.addEventListener(this);
         minicap.start(scale, rotate.intValue());
         this.minicap = minicap;
@@ -281,18 +290,22 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
             minitouch.kill();
         }
 
-        Minitouch minitouch = new Minitouch(serialNumber);
+        Minitouch minitouch = new Minitouch(serialNumber, resourcesPath);
         minitouch.addEventListener(this);
         minitouch.start();
         this.minitouch = minitouch;
     }
 
-    private void stop(){
+    public void stop(){
         if (minitouch != null) {
             minitouch.kill();
         }
         if (minicap != null) {
             minicap.kill();
+        }
+        if(ws != null){
+            this.ws.disconnect();
+            this.channel = null;
         }
     }
 

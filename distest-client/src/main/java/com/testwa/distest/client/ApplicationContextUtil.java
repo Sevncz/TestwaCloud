@@ -27,4 +27,6 @@ public class ApplicationContextUtil implements ApplicationContextAware {
         return (T) applicationContext.getBean(beanName);
     }
 
+
+
 }

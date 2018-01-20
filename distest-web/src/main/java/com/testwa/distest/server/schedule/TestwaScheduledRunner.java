@@ -1,51 +1,47 @@
 package com.testwa.distest.server.schedule;
 
+import com.alibaba.fastjson.JSON;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.testwa.core.WebsocketEvent;
+import com.testwa.core.base.exception.ObjectNotExistsException;
+import com.testwa.core.redis.RedisCacheManager;
 import com.testwa.distest.server.mvc.model.ProcedureInfo;
-import com.testwa.distest.server.mvc.model.ReportSdetail;
-import com.testwa.distest.server.mvc.service.ReportDetailService;
-import com.testwa.distest.server.mvc.service.ReportSdetailService;
-import com.testwa.distest.server.mvc.service.cache.RemoteClientService;
+import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
+import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
+import com.testwa.distest.server.web.task.execute.ProcedureRedisMgr;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
+@Log4j2
 @Component
 public class TestwaScheduledRunner {
-    private static final Logger log = LoggerFactory.getLogger(TestwaScheduledRunner.class);
     private ObjectMapper mapper = new ObjectMapper();
     @Autowired
-    private StringRedisTemplate stringRedisTemplate;
+    private RedisCacheManager redisCacheManager;
+
+    @Autowired
+    private ProcedureRedisMgr procedureRedisMgr;
 
     @Autowired
     private MongoTemplate mongoTemplate;
-
     @Autowired
     private Environment env;
-
     @Autowired
-    private ReportDetailService reportDetailService;
-
+    private DeviceAuthMgr deviceAuthMgr;
     @Autowired
-    private ReportSdetailService reportSdetailService;
-    @Autowired
-    private RemoteClientService remoteClientService;
+    private DeviceSessionMgr deviceSessionMgr;
 
     private final SocketIOServer server;
 
@@ -57,52 +53,40 @@ public class TestwaScheduledRunner {
 
     @Scheduled(cron = "0/10 * * * * ?")
     public void storeRunningLog() throws Exception {
-        Long logSize = stringRedisTemplate.opsForList().size(WebsocketEvent.FB_RUNNGING_LOG);
-        if(logSize == 0){
+        Long logSize = procedureRedisMgr.size();
+        if(logSize == null || logSize == 0){
             return;
         }
 
         List<ProcedureInfo> logers = new ArrayList<>();
         for(int i=0;i < logSize; i++){
+            String info = procedureRedisMgr.getProcedureFromQueue();
             try {
-                String loger_s = stringRedisTemplate.opsForList().rightPop(WebsocketEvent.FB_RUNNGING_LOG);
-                ProcedureInfo procedure = mapper.readValue(loger_s, ProcedureInfo.class);
-                String screenPath = procedure.getScreenshotPath();
-                // 转换文件分隔符
-                String configScreenPath = env.getProperty("screeshot.path");
-                String[] pathsplit = screenPath.split("\\\\|/");
-                String configScreenDirName = Paths.get(configScreenPath).getFileName().toString();
-                String newScreenPath = Paths.get(configScreenDirName, pathsplit).toString();
-                procedure.setScreenshotPath(newScreenPath);
-
-                String encodeResult = new String(procedure.getAction().getBytes("UTF-8"),"UTF-8");
-                log.info("encodeResult =====> {}", encodeResult);
-                procedure.setAction(encodeResult);
-                logers.add(procedure);
+                ProcedureInfo pi = JSON.parseObject(info, ProcedureInfo.class);
+                logers.add(pi);
             }catch (Exception e){
                 log.error("running log transfer error", e);
+//                procedureRedisMgr.addProcedureToQueue(info);
+                procedureRedisMgr.addErrorProcedureToQueue(info);
             }
         }
         mongoTemplate.insertAll(logers);
 
     }
 
-    @Scheduled(cron = "0/10 * * * * ?")
-    public void checkDeviceOnline() throws Exception {
-        List<String> devices = remoteClientService.getAllDevice();
-        devices.forEach(d -> {
-            String mainSessionId = remoteClientService.getMainSessionByDeviceId(d);
-            if(StringUtils.isBlank(mainSessionId)){
-
-                remoteClientService.delDevice(d);
-                return;
-            }
-            SocketIOClient client = server.getClient(UUID.fromString(mainSessionId));
-            if( client == null ){
-                remoteClientService.delDevice(d);
-                return;
+    @Scheduled(cron = "0/5 * * * * ?")
+    public void checkDeviceOnline(){
+        Set<String> onlineDevices = deviceAuthMgr.allOnlineDevices();
+        onlineDevices.forEach( d -> {
+            String sessionId = deviceSessionMgr.getDeviceSession(d);
+            if(StringUtils.isNotEmpty(sessionId)){
+                SocketIOClient client = server.getClient(UUID.fromString(sessionId));
+                if(client == null){
+                    deviceAuthMgr.offline(d);
+                }
             }
         });
+        deviceAuthMgr.mergeOnline();
     }
 
     @Scheduled(cron = "0 1 * * * ?")

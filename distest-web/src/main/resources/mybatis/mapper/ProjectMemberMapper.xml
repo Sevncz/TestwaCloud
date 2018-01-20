@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.testwa.distest.server.mapper.ProjectMemberMapper" >
+    <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.ProjectMember" >
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="projectId" property="projectId" jdbcType="BIGINT" />
+        <result column="memberId" property="memberId" jdbcType="BIGINT" />
+        <result column="inviteBy" property="inviteBy" jdbcType="BIGINT" />
+        <result column="projectRole" property="projectRole"  jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
+        <result column="createTime" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+
+    </resultMap>
+    <resultMap id="MemberResultMap" type="com.testwa.distest.server.entity.User" >
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="username" property="username" jdbcType="VARCHAR" />
+        <result column="password" property="password" jdbcType="VARCHAR" />
+        <result column="phone" property="phone" jdbcType="VARCHAR" />
+        <result column="email" property="email" jdbcType="VARCHAR" />
+        <result column="sex" property="sex" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
+        <result column="nickname" property="nickname" jdbcType="VARCHAR" />
+        <result column="address" property="address" jdbcType="VARCHAR" />
+        <result column="country" property="country" jdbcType="VARCHAR" />
+        <result column="header" property="header" jdbcType="VARCHAR" />
+        <result column="lastPasswordResetTime" property="lastPasswordResetTime" jdbcType="DATE" javaType="java.util.Date"/>
+        <result column="lastLoginTime" property="lastLoginTime" jdbcType="DATE" javaType="java.util.Date"/>
+        <result column="loginTime" property="loginTime" jdbcType="DATE" javaType="java.util.Date"/>
+        <result column="registerTime" property="registerTime" jdbcType="DATE" javaType="java.util.Date"/>
+        <result column="loginIp" property="loginIp" jdbcType="INTEGER" />
+        <result column="lastLoginIp" property="lastLoginIp" jdbcType="INTEGER" />
+        <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
+    </resultMap>
+
+    <sql id="Base_Column_List" >
+        id, projectId, memberId, inviteBy, projectRole, createTime
+    </sql>
+
+    <sql id="Member_Column_List" >
+        id, username, password, phone, email, sex, nickname, address, country, header, lastPasswordResetTime, lastLoginTime, loginTime, registerTime, loginIp, lastLoginIp, enabled
+    </sql>
+
+    <select id="findBy" parameterType="com.testwa.distest.server.entity.ProjectMember" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM project
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            <if test="projectId != null">and projectId = #{projectId}</if>
+            <if test="memberId != null">and memberId = #{memberId}</if>
+        </trim>
+    </select>
+
+    <insert id="mergeInsert">
+        INSERT INTO project_member (projectId,memberId,projectRole,inviteBy,createTime)
+        VALUES
+        <foreach item="item" index="index" collection="list" separator="," >
+            (#{item.projectId}, #{item.memberId}, #{item.projectRole, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}, #{item.inviteBy}, #{item.createTime})
+        </foreach>
+            on duplicate key update createTime=values(createTime);
+    </insert>
+    
+    <select id="findByProjectIdAndMembers" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM project_member
+        where projectId = #{projectId}
+        AND memberId IN
+        <foreach item="item" index="index" collection="memberIds" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+    <select id="findByProjectIdAndMember" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM project_member
+        where projectId = #{projectId}
+        AND memberId = #{memberId}
+    </select>
+
+    <delete id="deleteMembersFromProject" parameterType="java.util.Map">
+        DELETE FROM project_member
+        where projectId = #{params.projectId}
+        AND memberId IN
+        <foreach item="item" index="index" collection="params.members" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+    <delete id="deleteMemberFromProject" parameterType="com.testwa.distest.server.entity.ProjectMember">
+        DELETE FROM project_member
+        where projectId = #{projectId}
+        <if test="memberId != null">
+            AND memberId = #{memberId}
+        </if>
+    </delete>
+
+    <select id="findMembersFromProject" parameterType="java.util.Map" resultMap="MemberResultMap">
+        SELECT
+        u.id, username, password, phone, email, sex, nickname, address, country, header, lastPasswordResetTime, lastLoginTime, loginTime, registerTime, loginIp, lastLoginIp, enabled
+        FROM project_member pm LEFT JOIN user u on pm.memberId = u.id
+        WHERE pm.projectId = #{params.projectId}
+        <if test="params.user != null">
+            <if test="params.user.username != null">
+                AND u.username LIKE CONCAT('%', #{params.user.username}, '%')
+            </if>
+            <if test="user.email != null">
+                AND u.email LIKE CONCAT('%', #{params.user.email}, '%')
+            </if>
+            <if test="user.phone != null">
+                and u.phone LIKE CONCAT('%', #{params.user.phone}, '%')
+            </if>
+        </if>
+
+    </select>
+
+    <select id="findUsersProject" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT distinct u.id as id, u.username as username, u.email as email, u.phone as phone,
+        <if test="projectId != null">
+        CASE WHEN pm.projectId is not null THEN 'in' ELSE 'out' END as flag
+        </if>
+        FROM user u LEFT JOIN (select * from project_member where projectId = ${projectId}) pm on pm.memberId = u.id
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            <if test="user != null">
+                <if test="user.id != null">
+                  and u.id = #{user.id}
+                </if>
+                <if test="user.username != null">
+                  and u.username LIKE CONCAT('%', #{user.username}, '%')
+                </if>
+                <if test="user.email != null">
+                  and u.email LIKE CONCAT('%', #{user.email}, '%')
+                </if>
+                <if test="user.phone != null">
+                  and u.phone LIKE CONCAT('%', #{user.phone}, '%')
+                </if>
+            </if>
+        </trim>
+    </select>
+</mapper>

@@ -16,21 +16,7 @@ import java.util.Map;
 /**
  * Created by wen on 10/06/2017.
  */
-@Component
 public class Clients {
-
-    @Value("${grpc.host}")
-    private String GrpcHost;
-    private static String grpcHost;
-    @Value("${grpc.port}")
-    private Integer GrpcPort;
-    private static Integer grpcPort;
-
-    @PostConstruct
-    private void init() {
-        grpcHost = this.GrpcHost;
-        grpcPort = this.GrpcPort;
-    }
 
     private static Map<String, RemoteClient> all = new HashMap<>();
 
@@ -47,31 +33,12 @@ public class Clients {
     }
 
     public static void remove(String serial){
+        RemoteClient rc = all.get(serial);
+        if(rc != null){
+            rc.stop();
+            rc = null;
+        }
         all.remove(serial);
-    }
-
-    public static DeviceServiceGrpc.DeviceServiceFutureStub deviceService() {
-        final ManagedChannel channel = ManagedChannelBuilder.forAddress(grpcHost, grpcPort)
-                .usePlaintext(true)
-                .build();
-        final DeviceServiceGrpc.DeviceServiceFutureStub stub = DeviceServiceGrpc.newFutureStub(channel);
-        return stub;
-    }
-
-    public static DeviceServiceGrpc.DeviceServiceFutureStub deviceService(String webHost, Integer webPort) {
-        final ManagedChannel channel = ManagedChannelBuilder.forAddress(webHost, webPort)
-                .usePlaintext(true)
-                .build();
-        final DeviceServiceGrpc.DeviceServiceFutureStub stub = DeviceServiceGrpc.newFutureStub(channel);
-        return stub;
-    }
-
-    public static TaskServiceGrpc.TaskServiceFutureStub taskService() {
-        final ManagedChannel channel = ManagedChannelBuilder.forAddress(grpcHost, grpcPort)
-                .usePlaintext(true)
-                .build();
-        final TaskServiceGrpc.TaskServiceFutureStub stub = TaskServiceGrpc.newFutureStub(channel);
-        return stub;
     }
 
 }

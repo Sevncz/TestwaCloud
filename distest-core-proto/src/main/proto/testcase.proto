@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+
+option java_multiple_files = true;
+option java_package = "io.rpc.testwa.task";
+option java_outer_classname = "TaskProto";
+option objc_class_prefix = "RLP";
+
+package testcase;
+
+
+service TaskService {
+    rpc gameover (TaskOverRequest) returns ( CommonReply ) {}
+    rpc LogcatUpload (stream FileUploadRequest) returns ( CommonReply ) {}
+    rpc AppiumLogUpload (stream FileUploadRequest) returns ( CommonReply ) {}
+    rpc ImgUpload (stream FileUploadRequest) returns ( CommonReply ) {}
+    rpc currExeInfo (CurrentExeInfoRequest) returns ( CommonReply ) {}
+    rpc procedureInfoUpload (ProcedureInfoUploadRequest) returns ( CommonReply ) {}
+}
+
+message CommonReply {
+    int32 status = 1;
+    string message = 2;
+}
+
+message ProcedureInfoRequest {
+    int32 status = 1;
+    string value = 2;
+    int32 runtime = 3;
+    int32 cpurate = 4;
+    int32 memory = 5;
+    string sessionId = 6;
+    string deviceId = 7;
+    string screenshotPath = 10;
+    string description = 11;
+    string action = 12;
+    string params = 13;
+    int64 timestamp = 14;
+    string logcatFile = 15;
+    int64 scriptId = 16;
+    string token = 17;
+    int64 taskId = 18;
+    int64 testcaseId = 19;
+}
+
+
+message TaskOverRequest {
+    int64 exeId = 1;
+    int64 timestamp = 2;
+    string token = 3;
+}
+
+message CurrentExeInfoRequest {
+    int64 exeId = 1;
+    string deviceId = 2;
+    string token = 3;
+    int64 scriptId = 4;
+    int64 testcaseId = 5;
+}
+
+message ProcedureInfoUploadRequest {
+    string infoJson = 1;
+}
+
+message FileUploadRequest {
+    int64 exeId = 1;
+    int64 timestamp = 2;
+    string token = 3;
+    bytes data = 4;
+    int32 offset = 5;
+    int64 size = 6;
+    string name = 7;
+    string deviceId = 8;
+}
+
+

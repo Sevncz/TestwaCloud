@@ -43,14 +43,13 @@ var BLANK_IMG =
 
 var canvas = document.getElementById('phone-screen')
   , g = canvas.getContext('2d')
-
-var socket = io('http://localhost:9092?func=screen&deviceId=ZX1G427G93&type=browser');
+var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjVsKwjAURPcy3wmkaW6aZisikscVIlpLkoIg7t0W_PDvwBzmvNG2CI-QH2WBwNa4XkqGnwRS5dB554EGIjWTskY7gZaeK8OfzgL8Wn_zYCdlBUro__5uLCHej5NeNxa49XLUtHMqpCit1kYayknG-ZplGIl41E4rE_H5AgAA__8.nOEDeg-DM1njBSGC3Tlp-66dTbmJ2SQA9qrmsehepG8";
+var socket = io('http://localhost:9092?func=screen&deviceId=b15d91f&type=browser&token=' + token);
 socket.on('connect', function(){
     util.serverConnected = true
 });
 socket.on('devices', function(message){
-    var device = JSON.parse(message)
-    console.log(device)
+    var device = message
     util.screenW = parseFloat(device.width)
     util.screenH = parseFloat(device.height)
 });

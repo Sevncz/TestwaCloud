@@ -19,7 +19,7 @@ public class ProcedureStatis {
     @Id
     private String id;
     @Indexed
-    private String exeId;
+    private Long exeId;
     /**
      * 脚本数量
      */

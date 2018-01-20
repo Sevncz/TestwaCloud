@@ -1,6 +1,7 @@
 package com.testwa.distest.client.minicap;
 
 import com.android.ddmlib.*;
+import com.github.cosysoft.device.exception.DeviceNotFoundException;
 import com.testwa.core.service.AdbDriverService;
 import com.testwa.core.service.MinicapServiceBuilder;
 import com.testwa.core.utils.Identities;
@@ -10,6 +11,7 @@ import com.testwa.core.utils.Common;
 import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.distest.client.android.util.*;
 import com.testwa.distest.client.control.port.ScreenPortProvider;
+import com.testwa.distest.client.minitouch.MinitouchInstallException;
 import com.testwa.distest.client.util.Constant;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -38,6 +40,7 @@ public class Minicap {
     private Banner banner = new Banner();
     private Socket minicapSocket;
     private IDevice device;
+    private String resourcesPath;
     // 物理屏幕宽高
     private Size deviceSize;
     private AdbForward forward;
@@ -56,13 +59,21 @@ public class Minicap {
     // listener
     private List<MinicapListener> listenerList = new ArrayList<MinicapListener>();
 
-    public Minicap(IDevice device) {
-        this.device = device;
+    public Minicap(String serialNumber, String resourcesPath) {
 
-        try {
-            installMinicap(device);
-        } catch (MinicapInstallException e) {
-            e.printStackTrace();
+        this.resourcesPath = resourcesPath;
+        int install = 5;
+        while (install > 0) {
+            try {
+                this.device = AndroidHelper.getInstance().getAndroidDevice(serialNumber).getDevice();
+                installMinicap(device, resourcesPath);
+                Thread.sleep(1000);
+                break;
+            } catch (MinicapInstallException | DeviceNotFoundException e) {
+                install--;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         // 获取设备屏幕的尺寸
@@ -75,15 +86,11 @@ public class Minicap {
         }
     }
 
-    public Minicap(String serialNumber){
-        this(AndroidHelper.getInstance().getAndroidDevice(serialNumber).getDevice());
-    }
-
     //判断是否支持minicap
-    public boolean isSupoort(){
+    public boolean isSupoort() {
         String supportCommand = String.format("LD_LIBRARY_PATH=/data/local/tmp /data/local/tmp/minicap -P %s@%s/0 -t", deviceSize.w, deviceSize.h);
         String output = AndroidHelper.getInstance().executeShellCommand(device, supportCommand);
-        if(output.trim().endsWith("OK")){
+        if (output.trim().endsWith("OK")) {
             return true;
         }
         return false;
@@ -99,7 +106,7 @@ public class Minicap {
     /**
      * 将minicap的二进制和.so文件push到/data/local/tmp文件夹下，启动minicap服务
      */
-    private static void installMinicap(IDevice device) throws MinicapInstallException{
+    private static void installMinicap(IDevice device, String resourcesPath) throws MinicapInstallException {
 
         String abi = device.getProperty(Constant.PROP_ABI);
         String sdk = device.getProperty(Constant.PROP_SDK);
@@ -111,14 +118,14 @@ public class Minicap {
         }
 
         Integer sdkvalue = Integer.parseInt(sdk);
-        if(sdkvalue >= 16){
+        if (sdkvalue >= 16) {
             BIN = Constant.MINICAP_BIN;
-        }else{
+        } else {
             BIN = Constant.MINICAP_NOPIE;
         }
 
-        String minicapBinPath = Paths.get(Constant.getMinicapBin(), abi, BIN).toAbsolutePath().toString();
-        String minicapSoPath = Paths.get(Constant.getMinicapSo(), "android-" + sdk, abi, Constant.MINICAP_SO).toAbsolutePath().toString();
+        String minicapBinPath = resourcesPath + File.separator + Constant.getMinicapBin() + File.separator + abi + File.separator + BIN;
+        String minicapSoPath = resourcesPath + File.separator + Constant.getMinicapSo() + File.separator + "android-" + sdk + File.separator + abi + File.separator + Constant.MINICAP_SO;
 
         // Create a directory for minicap resources
         AndroidHelper.getInstance().executeShellCommand(device, MINICAP_DIR_COMMAND);
@@ -127,11 +134,11 @@ public class Minicap {
             // 将minicap的可执行文件和.so文件一起push到设备中
             String minicapCheckOut = AndroidHelper.getInstance().executeShellCommand(device, String.format("ls %s | grep %s", Constant.MINICAP_DIR, BIN));
             // Upload the binary
-            if(!minicapCheckOut.contains(BIN)){
+            if (!minicapCheckOut.contains(BIN)) {
                 device.pushFile(minicapBinPath, Constant.MINICAP_DIR + "/" + BIN);
             }
             // Upload the shared library
-            if(!minicapCheckOut.contains(Constant.MINICAP_SO)){
+            if (!minicapCheckOut.contains(Constant.MINICAP_SO)) {
                 device.pushFile(minicapSoPath, Constant.MINICAP_DIR + "/" + Constant.MINICAP_SO);
             }
             AndroidHelper.getInstance().executeShellCommand(device, String.format(MINICAP_CHMOD_COMMAND, Constant.MINICAP_DIR, BIN));
@@ -140,16 +147,25 @@ public class Minicap {
         }
     }
 
+
     public AdbForward createForward() {
         forward = generateForwardInfo();
-        try {
-//            device.createForward(forward.getPort(), forward.getLocalabstract(), IDevice.DeviceUnixSocketNamespace.ABSTRACT);
-            device.createForward(forward.getPort(), forward.getLocalabstract(), IDevice.DeviceUnixSocketNamespace.ABSTRACT);
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error("create forward failed");
+        int tryTime = 10;
+        while(tryTime >= 0){
+            try {
+                device.createForward(forward.getPort(), forward.getLocalabstract(), IDevice.DeviceUnixSocketNamespace.ABSTRACT);
+                return forward;
+            } catch (Exception e) {
+                log.error("create forward failed", e);
+                tryTime--;
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+            }
         }
-        return forward;
+        return null;
     }
 
     private void removeForward(AdbForward forward) {
@@ -158,8 +174,12 @@ public class Minicap {
         }
         try {
             device.removeForward(forward.getPort(), forward.getLocalabstract(), IDevice.DeviceUnixSocketNamespace.ABSTRACT);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (AdbCommandRejectedException e) {
+            log.info("removeForward: AdbCommandRejectedException, {}", e.getMessage());
+        } catch (IOException e) {
+            log.error("removeForward: IOException, {}", e.getMessage());
+        } catch (TimeoutException e) {
+            log.error("removeForward: TimeoutException, {}", e.getMessage());
         }
     }
 
@@ -223,7 +243,7 @@ public class Minicap {
 
     /**
      * 屏幕截图
-     *
+     * <p>
      * 由于个平台的换行符导致二进制流输出有问题，二进制数据将先base64编码后传输
      *
      * @return
@@ -231,7 +251,7 @@ public class Minicap {
     public byte[] takeScreenShot() {
 
         String filename = Identities.randomLong() + ".jpg";
-        String takeScreenShotCommand = getMinicapCommand(deviceSize.w, deviceSize.h, deviceSize.w, deviceSize.h, 0, false, filename, new String[] {"-s -b"});
+        String takeScreenShotCommand = getMinicapCommand(deviceSize.w, deviceSize.h, deviceSize.w, deviceSize.h, 0, false, filename, new String[]{"-s -b"});
 
         System.out.println("takeScreenShot:" + takeScreenShotCommand);
         BinaryOutputReceiver receiver = new BinaryOutputReceiver();
@@ -247,7 +267,7 @@ public class Minicap {
             int jpgStart = dataStr.indexOf("/9j/");
 
             if (jpgStart >= 0) {
-                dataStr =  dataStr.substring(jpgStart) ; // jpg特征码base64
+                dataStr = dataStr.substring(jpgStart); // jpg特征码base64
             } else {
                 break;
             }
@@ -264,16 +284,29 @@ public class Minicap {
             }
 
             return bytes;
-        } while(false);
+        } while (false);
 
         return new byte[0];
     }
 
 
     public void start(int ow, int oh, int dw, int dh, int rotate, boolean shipFrame, String[] args) {
+
+        if(StringUtils.isEmpty(BIN)){
+            try {
+                installMinicap(device, resourcesPath);
+            } catch (MinicapInstallException e) {
+                e.printStackTrace();
+            }
+        }
+
         isRunning = true;
         // 启动minicap服务
         AdbForward forward = createForward();
+
+        if(forward == null){
+            return;
+        }
         service = new MinicapServiceBuilder()
                 .whithBin(BIN)
                 .whithDeviceId(device.getSerialNumber())
@@ -285,13 +318,13 @@ public class Minicap {
                 .whithArgs(args)
                 .build();
         service.start();
-        log.info("minicap service start, forward port {}", forward.getPort());
+        log.info("minicap vo start, forward port {}", forward.getPort());
         minicapInitialThread = new Thread(new StartInitial("127.0.0.1", forward.getPort()));
         minicapInitialThread.start();
     }
 
     public void start(final float scale, final int rotate) {
-        start(deviceSize.w, deviceSize.h, (int)(deviceSize.w * scale), (int)(deviceSize.h * scale), rotate,true, null);
+        start(deviceSize.w, deviceSize.h, (int) (deviceSize.w * scale), (int) (deviceSize.h * scale), rotate, true, null);
     }
 
     public void reStart(final float scale, final int rotate) {
@@ -472,7 +505,7 @@ public class Minicap {
         }
 
         public void readData() throws IOException {
-            log.info("start read data");
+            log.debug("start read data");
 
             DataInputStream stream = new DataInputStream(inputStream);
             while (isRunning) {
@@ -507,7 +540,7 @@ public class Minicap {
                     banner = new Banner();
                     readData();
                 } catch (InterruptedException e) {
-                    System.out.println(e.getMessage());
+                    log.error(e.getMessage());
                     onClose();
                 }
             }
@@ -519,11 +552,11 @@ public class Minicap {
                 return;
             }
             int length = buffer.length;
-            for (int cursor = 0; cursor < length;) {
+            for (int cursor = 0; cursor < length; ) {
                 int ch = buffer[cursor] & 0xff;
                 if (readn < bannerLen) {
                     cursor = parserBanner(cursor, ch);
-                } else if(readFrameBytes < 4) { // frame length
+                } else if (readFrameBytes < 4) { // frame length
                     frameBodyLength += (ch << (readFrameBytes * 8));
                     cursor += 1;
                     readFrameBytes += 1;
@@ -536,11 +569,11 @@ public class Minicap {
                                 cursor + frameBodyLength);
                         frameBody = Common.mergeArray(frameBody, subByte);
                         if ((frameBody[0] != -1) || frameBody[1] != -40) {
-                            System.out.println("Frame body does not start with JPG header");
+                            log.error("Frame body does not start with JPG header");
                             return;
                         }
                         byte[] finalBytes = Arrays.copyOfRange(frameBody, 0, frameBody.length);
-
+                        log.debug("to jpg");
                         onJPG(finalBytes);
 
                         cursor += frameBodyLength;
@@ -550,7 +583,8 @@ public class Minicap {
 
                         long timeused = (System.currentTimeMillis() - t);
                         timeused = timeused == 0 ? 1 : timeused;
-                        String log = String.format("jpg: %d timeused: %dms  fps: %d", finalBytes.length, (int)timeused, 1000 / timeused);
+                        String logMsg = String.format("jpg: %d timeused: %dms  fps: %d", finalBytes.length, (int) timeused, 1000 / timeused);
+                        log.debug(logMsg);
                     } else {
                         byte[] subByte = Arrays.copyOfRange(buffer, cursor, length);
                         frameBody = Common.mergeArray(frameBody, subByte);
@@ -570,6 +604,7 @@ public class Minicap {
         int virtualHeight = 0;
         int orientation = 0;
         int quirks = 0;
+
         int parserBanner(int cursor, int ch) {
             switch (cursor) {
                 case 0:
@@ -591,8 +626,7 @@ public class Minicap {
                 case 6:
                 case 7:
                 case 8:
-                case 9:
-                {
+                case 9: {
                     realWidth += (ch << ((readn - 6) * 8));
                     if (cursor == 9)
                         banner.setReadWidth(realWidth);

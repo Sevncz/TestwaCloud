@@ -1,6 +1,9 @@
 package com.testwa.distest.server.mvc.model;
 
-import io.rpc.testwa.task.ProcedureInfoRequest;
+import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.testwa.distest.common.serializer.StringValueToLongSerializer;
+import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -11,34 +14,43 @@ import java.util.Date;
 /**
  * Created by wen on 16/8/27.
  */
+@Data
 @Document(collection = "t_procedure_info")
 public class ProcedureInfo {
     @Id
     private String id;
     private Integer status;
     private String value;
-    private Integer runtime;
-    private Integer cpurate;
-    private Integer memory;
+    @JSONField(serializeUsing = StringValueToLongSerializer.class)
+    private Long runtime;
+    @JSONField(serializeUsing = StringValueToLongSerializer.class)
+    private Long cpurate;
+    @JSONField(serializeUsing = StringValueToLongSerializer.class)
+    private Long memory;
+    private String battery;
     @Indexed
     private String sessionId;
     @Indexed
     private String deviceId;
+    // 脚本ID
     @Indexed
-    private String executionTaskId;
+    @JSONField(serializeUsing = StringValueToLongSerializer.class)
+    private Long testSuit;
     @Indexed
-    private String testcaseId;
+    @JSONField(serializeUsing = StringValueToLongSerializer.class)
+    private Long testcaseId;
+    // 任务ID
     @Indexed
-    private String scriptId;
+    @JSONField(serializeUsing = StringValueToLongSerializer.class)
+    private Long executionTaskId;
     private String screenshotPath;
     private String description;
-    private String params;
-    private String action;
+    private ProcedureCommand command;
     @CreatedDate
     private Date createDate;
-    @Indexed
     private Long timestamp;
 
+<<<<<<< HEAD
     private String userId;
 
     private String logcatFile;
@@ -233,4 +245,10 @@ public class ProcedureInfo {
     public void setTestcaseId(String testcaseId) {
         this.testcaseId = testcaseId;
     }
+=======
+    @JsonIgnore
+    private Long userId;
+    @JsonIgnore
+    private String token;
+>>>>>>> mysql-beta-2.2.0
 }

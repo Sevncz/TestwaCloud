@@ -3221,9 +3221,9 @@
     return new UTF16Decoder(false, options);
   };
 
-  // 15.5 x-user-defined
+  // 15.5 x-auth-defined
 
-  // 15.5.1 x-user-defined decoder
+  // 15.5.1 x-auth-defined decoder
   /**
    * @constructor
    * @implements {Decoder}
@@ -3253,7 +3253,7 @@
     };
   }
 
-  // 15.5.2 x-user-defined encoder
+  // 15.5.2 x-auth-defined encoder
   /**
    * @constructor
    * @implements {Encoder}

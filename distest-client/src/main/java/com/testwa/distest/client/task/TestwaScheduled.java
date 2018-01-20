@@ -1,18 +1,11 @@
 package com.testwa.distest.client.task;
 
-import com.github.cosysoft.device.android.AndroidDevice;
-import com.github.cosysoft.device.shell.ShellCommandException;
 import com.google.protobuf.ByteString;
-import com.testwa.distest.client.control.client.Clients;
-import com.testwa.distest.client.control.client.MainSocket;
+import com.testwa.distest.client.grpc.GrpcClient;
 import com.testwa.distest.client.model.TestwaDevice;
-import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.service.HttpService;
-import com.testwa.distest.client.android.AndroidHelper;
-import com.testwa.distest.client.rpc.proto.Agent;
 import com.testwa.distest.client.util.Constant;
-import io.rpc.testwa.device.Device;
-import io.rpc.testwa.device.DevicesRequest;
+import io.grpc.Channel;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,76 +43,78 @@ public class TestwaScheduled {
     private HttpService httpService;
     @Autowired
     private Environment env;
+    @GrpcClient("local-grpc-server")
+    private Channel serverChannel;
+
 
     @Scheduled(cron = "0/10 * * * * ?")
     public void senderDevice() {
-        if (MainSocket.getSocket() != null && MainSocket.getSocket().connected()) {
-            try {
-                TreeSet<AndroidDevice> androidDevices = AndroidHelper.getInstance().getAllDevices();
-                // 上报列表，当有新的设备信息获取到时
-                List<Device> devicesToReport = new ArrayList<>();
-                for (AndroidDevice ad : androidDevices) {
-                    logger.debug("send device", ad);
-                    TestwaDevice device;
-                    if (!a_devices.containsKey(ad.getSerialNumber())) {
-                        device = new TestwaDevice();
-                        device.setSerial(ad.getSerialNumber());
-                        device.setBrand(ad.runAdbCommand("shell getprop ro.product.brand"));
-                        if (device.getBrand().isEmpty()) {
-                            // 设备没有同意连接，不做设备信息更新，等待下次检查时更新
-                            continue;
-                        }
-                        device.setCpuabi(ad.runAdbCommand("shell getprop ro.product.cpu.abi"));
-                        device.setDensity(ad.getDevice().getDensity() + "");
-                        if (ad.getTargetPlatform() != null) {
-                            device.setOsName(ad.getTargetPlatform().formatedName());
-                        }
-                        if (ad.getScreenSize() != null) {
-                            device.setWidth(String.valueOf(ad.getScreenSize().getWidth()));
-                            device.setHeight(String.valueOf(ad.getScreenSize().getHeight()));
-                        }
-                        device.setCpuabi(ad.runAdbCommand("shell getprop ro.product.cpu.abi"));
-                        device.setSdk(ad.runAdbCommand("shell getprop ro.build.version.sdk"));
-                        device.setHost(ad.runAdbCommand("shell getprop ro.build.host"));
-                        device.setModel(ad.runAdbCommand("shell getprop ro.product.model"));
-                        device.setBrand(ad.runAdbCommand("shell getprop ro.product.brand"));
-                        device.setVersion(ad.runAdbCommand("shell getprop ro.build.version.release"));
-
-                        device.setStatus(Agent.Device.LineStatus.ON.name());
-                        a_devices.put(ad.getSerialNumber(), device);
-                        devicesToReport.add(device.toAgentDevice());
-                    }
-                    // 检查在线设备列表是否在缓存设备列表 无缓存信息
-//                    if("ONLINE".equals(ad.getDevice().getState().name().toUpperCase())){
-//                        device.setStatus(Agent.Device.LineStatus.ON.name());
-//                    }else{
-//                        device.setStatus(Agent.Device.LineStatus.OFF.name());
+//        if (MainSocket.getSocket() != null && MainSocket.getSocket().connected()) {
+//            try {
+//                TreeSet<AndroidDevice> androidDevices = AndroidHelper.getInstance().getAllDevices();
+//                // 上报列表，当有新的设备信息获取到时
+//                List<Device> devicesToReport = new ArrayList<>();
+//                for (AndroidDevice ad : androidDevices) {
+//                    logger.debug("send device", ad);
+//                    TestwaDevice device;
+//                    if (!a_devices.containsKey(ad.getSerialNumber())) {
+//                        device = new TestwaDevice();
+//                        device.setSerial(ad.getSerialNumber());
+//                        device.setBrand(ad.runAdbCommand("shell getprop ro.product.brand"));
+//                        if (device.getBrand().isEmpty()) {
+//                            // 设备没有同意连接，不做设备信息更新，等待下次检查时更新
+//                            continue;
+//                        }
+//                        device.setCpuabi(ad.runAdbCommand("shell getprop ro.product.cpu.abi"));
+//                        device.setDensity(ad.getDevice().getDensity() + "");
+//                        if (ad.getTargetPlatform() != null) {
+//                            device.setOsName(ad.getTargetPlatform().formatedName());
+//                        }
+//                        if (ad.getScreenSize() != null) {
+//                            device.setWidth(String.valueOf(ad.getScreenSize().getWidth()));
+//                            device.setHeight(String.valueOf(ad.getScreenSize().getHeight()));
+//                        }
+//                        device.setCpuabi(ad.runAdbCommand("shell getprop ro.product.cpu.abi"));
+//                        device.setSdk(ad.runAdbCommand("shell getprop ro.build.version.sdk"));
+//                        device.setHost(ad.runAdbCommand("shell getprop ro.build.host"));
+//                        device.setModel(ad.runAdbCommand("shell getprop ro.product.dto"));
+//                        device.setBrand(ad.runAdbCommand("shell getprop ro.product.brand"));
+//                        device.setVersion(ad.runAdbCommand("shell getprop ro.build.version.release"));
+//
+//                        device.setStatus("ON");
+//                        a_devices.put(ad.getSerialNumber(), device);
+//                        devicesToReport.add(device.toAgentDevice());
 //                    }
-                }
-
-                if (UserInfo.token == null) {
-                    logger.error("token was null");
-                    return;
-                }
-                if (devicesToReport.size() > 0) {
-                    // 有新的设备需要上报
-                    DevicesRequest devices = DevicesRequest.newBuilder()
-                            .setCount(devicesToReport.size())
-                            .setUserId(UserInfo.token)
-                            .addAllDevice(devicesToReport)
-                            .build();
-                    String webHost = env.getProperty("grpc.host");
-                    Integer webPort = Integer.parseInt(env.getProperty("grpc.port"));
-                    Clients.deviceService(webHost, webPort).all(devices);
-                }
-            } catch (ShellCommandException e) {
-                logger.error("Adb get props error", e);
-            }
-        } else {
-            logger.error("Websocket was disconnect");
-            // 与服务断开连接后，清空缓存的上报列表，待重连后， 重新上报。
-            a_devices = new ConcurrentHashMap<>();
-        }
+//                    // 检查在线设备列表是否在缓存设备列表 无缓存信息
+////                    if("ONLINE".equals(ad.getDevice().getState().name().toUpperCase())){
+////                        device.setStatus(Agent.Device.LineStatus.ON.name());
+////                    }else{
+////                        device.setStatus(Agent.Device.LineStatus.OFF.name());
+////                    }
+//                }
+//
+//                if (UserInfo.token == null) {
+//                    logger.error("token was null");
+//                    return;
+//                }
+//                if (devicesToReport.size() > 0) {
+//                    // 有新的设备需要上报
+//                    DevicesRequest request = DevicesRequest.newBuilder()
+//                            .setCount(devicesToReport.size())
+//                            .setUserId(UserInfo.token)
+//                            .addAllDevice(devicesToReport)
+//                            .build();
+//
+//                    Gvice.deviceService(serverChannel).all(request);
+//                }
+//            } catch (ShellCommandException e) {
+//                logger.error("Adb get props error", e);
+//            }
+//        } else {
+//            logger.error("Websocket was disconnect");
+//            // 与服务断开连接后，清空缓存的上报列表，待重连后， 重新上报。
+//            a_devices = new ConcurrentHashMap<>();
+//        }
     }
 
     @Scheduled(cron = "0/5 * * * * ?")
@@ -145,12 +140,12 @@ public class TestwaScheduled {
 
                 byte[] img = Files.readAllBytes(p);
                 ByteString bys = ByteString.copyFrom(img);
-                Agent.ScreenCaptureFeedback message = Agent.ScreenCaptureFeedback
-                        .newBuilder()
-                        .setImg(bys)
-                        .setName(screenName).build();
+//                Agent.ScreenCaptureFeedback message = Agent.ScreenCaptureFeedback
+//                        .newBuilder()
+//                        .setImg(bys)
+//                        .setName(screenName).build();
                 // 这里异步上传文件
-                httpService.postProto(String.format("%s/device/receive/screen", agentWebUrl), message.toByteArray());
+//                httpService.postProto(String.format("%s/device/receive/screen", agentWebUrl), message.toByteArray());
                 // feedback.runninglog.screen
 //                这里会报错io.netty.handler.codec.CorruptedFrameException: Max frame length of 65536 has been exceeded.
 //                TestwaSocket.getSocket().emit("feedback.runninglog.screen", message.toByteArray());

@@ -3,18 +3,19 @@ package com.testwa.distest.client.web.startup;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.testwa.core.WebsocketEvent;
+import com.testwa.distest.client.android.DeviceManager;
 import com.testwa.distest.client.appium.utils.Config;
 import com.testwa.distest.client.control.client.MainSocket;
-import com.testwa.distest.client.control.client.boost.MessageCallback;
+import com.testwa.distest.client.control.boost.MessageCallback;
 import com.testwa.distest.client.model.UserInfo;
+import com.testwa.distest.client.service.GrpcClientService;
 import com.testwa.distest.client.service.HttpService;
 import com.testwa.distest.client.util.Constant;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.util.EntityUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
@@ -27,16 +28,17 @@ import java.io.IOException;
 /**
  * Created by wen on 16/8/27.
  */
+@Log4j2
 @Component
 public class TestwaEnvCheck implements CommandLineRunner {
-    private static Logger log = LoggerFactory.getLogger(TestwaEnvCheck.class);
 
     @Autowired
     private Environment env;
 
     @Autowired
     private HttpService httpService;
-
+    @Autowired
+    private GrpcClientService gClientService;
     @Autowired
     @Qualifier("startRemoteClientCallbackImpl")
     private MessageCallback startRemoteClientCB;
@@ -46,13 +48,11 @@ public class TestwaEnvCheck implements CommandLineRunner {
 
     @Override
     public void run(String... strings) throws Exception {
-        boolean isAuth = checkAuth(env.getProperty("username"), env.getProperty("password"));
-        if (!isAuth) {
-            log.error("username or password not match");
-            System.exit(0);
-        }
+        checkAuth(env.getProperty("username"), env.getProperty("password"));
         checkTempDirPath();
         Config.setEnv(env);
+        startDeviceManager();
+
     }
 
     private boolean checkAuth(String username, String password) {
@@ -112,9 +112,7 @@ public class TestwaEnvCheck implements CommandLineRunner {
 
             }
         };
-        httpService.postJson(String.format("%s/auth/login", agentWebUrl), new User(username, password), cb);
-//        User userData = new User(username, password)
-//        Http.post(String.format("%s/account/purelogin", agentWebUrl), 60000, )
+        httpService.postJson(String.format("%s/api/auth/login", agentWebUrl), new User(username, password), cb);
         return true;
     }
 
@@ -163,6 +161,10 @@ public class TestwaEnvCheck implements CommandLineRunner {
         log.info("Constant.locallogcatPath --> {}", Constant.localLogcatPath);
         log.info("Constant.localScreenshotPath --> {}", Constant.localScreenshotPath);
         log.info("Constant.localScriptPath --> {}", Constant.localScriptPath);
+    }
+
+    private void startDeviceManager() {
+        new Thread(() -> DeviceManager.getInstance().start()).start();
     }
 
 }
