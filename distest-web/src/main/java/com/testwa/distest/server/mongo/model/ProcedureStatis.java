@@ -1,7 +1,5 @@
-package com.testwa.distest.server.mvc.model;
+package com.testwa.distest.server.mongo.model;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;

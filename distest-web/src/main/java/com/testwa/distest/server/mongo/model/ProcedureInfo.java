@@ -1,4 +1,4 @@
-package com.testwa.distest.server.mvc.model;
+package com.testwa.distest.server.mongo.model;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonIgnore;

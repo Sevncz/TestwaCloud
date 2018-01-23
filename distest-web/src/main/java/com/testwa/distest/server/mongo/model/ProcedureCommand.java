@@ -1,9 +1,7 @@
-package com.testwa.distest.server.mvc.model;
+package com.testwa.distest.server.mongo.model;
 
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.util.Map;
 
 @Data
 @Document(collection = "t_procedure_cmd")

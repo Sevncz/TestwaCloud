@@ -1,10 +1,10 @@
-package com.testwa.distest.server.mvc.service;
+package com.testwa.distest.server.mongo.service;
 
 import com.testwa.core.base.vo.PageResult;
-import com.testwa.distest.server.mvc.model.ProcedureInfo;
-import com.testwa.distest.server.mvc.model.ProcedureStatis;
-import com.testwa.distest.server.mvc.repository.ProcedureInfoRepository;
-import com.testwa.distest.server.mvc.repository.ProcedureStatisRepository;
+import com.testwa.distest.server.mongo.model.ProcedureInfo;
+import com.testwa.distest.server.mongo.model.ProcedureStatis;
+import com.testwa.distest.server.mongo.repository.ProcedureInfoRepository;
+import com.testwa.distest.server.mongo.repository.ProcedureStatisRepository;
 import com.testwa.distest.server.service.task.form.StepListForm;
 import com.testwa.distest.server.service.task.form.StepPageForm;
 import org.springframework.beans.factory.annotation.Autowired;

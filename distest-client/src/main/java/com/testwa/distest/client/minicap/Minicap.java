@@ -324,6 +324,9 @@ public class Minicap {
     }
 
     public void start(final float scale, final int rotate) {
+        /**
+         * 这里有的时候会报null point异常，需要处理下
+         */
         start(deviceSize.w, deviceSize.h, (int) (deviceSize.w * scale), (int) (deviceSize.h * scale), rotate, true, null);
     }
 

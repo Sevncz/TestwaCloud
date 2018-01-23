@@ -1,4 +1,4 @@
-package com.testwa.distest.server.mvc.service;
+package com.testwa.distest.server.mongo.service;
 
 import org.springframework.stereotype.Service;
 

@@ -2,7 +2,7 @@ package com.testwa.distest.server.web;
 
 import com.testwa.core.base.vo.Result;
 import com.testwa.core.base.controller.BaseController;
-import com.testwa.distest.server.mvc.event.GameOverEvent;
+import com.testwa.distest.server.mongo.event.GameOverEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -55,9 +55,9 @@ public class TestwaEnvCheck implements CommandLineRunner {
 
     }
 
-    private boolean checkAuth(String username, String password) {
+    private void checkAuth(String username, String password) {
         if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
-            return false;
+            System.exit(0);
         }
         String agentWebUrl = env.getProperty("agent.web.url");
         FutureCallback cb = new FutureCallback<HttpResponse>() {
@@ -113,7 +113,6 @@ public class TestwaEnvCheck implements CommandLineRunner {
             }
         };
         httpService.postJson(String.format("%s/api/auth/login", agentWebUrl), new User(username, password), cb);
-        return true;
     }
 
     private class User {

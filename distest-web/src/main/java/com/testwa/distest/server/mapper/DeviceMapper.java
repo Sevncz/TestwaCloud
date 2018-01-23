@@ -30,4 +30,6 @@ public interface DeviceMapper extends BaseMapper<Device, Long> {
     List<Device> findOnlineList(Map queryMap);
 
     List<Device> findListByOnlineDevice(@Param("query") Map<String, Object> queryMap, @Param("onlineDeviceList") Set<String> onlineDeviceList);
+
+    void updateWorkStatus(@Param("deviceId") String deviceId, @Param("status") DB.PhoneWorkStatus status);
 }

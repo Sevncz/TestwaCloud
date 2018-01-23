@@ -3,9 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.testwa.distest.server.mvc.repository;
+package com.testwa.distest.server.mongo.repository;
 
-import com.testwa.distest.server.mvc.model.ProcedureInfo;
+import com.testwa.distest.server.mongo.model.ProcedureInfo;
 
 import java.io.Serializable;
 import java.util.List;

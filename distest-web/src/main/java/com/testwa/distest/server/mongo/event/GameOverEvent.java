@@ -1,4 +1,4 @@
-package com.testwa.distest.server.mvc.event;
+package com.testwa.distest.server.mongo.event;
 
 import lombok.Data;
 import org.springframework.context.ApplicationEvent;

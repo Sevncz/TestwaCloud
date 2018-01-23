@@ -119,7 +119,11 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
         deviceAndroid.setWidth(request.getWidth());
         deviceAndroid.setLastUserId(user.getId());
         deviceAndroid.setLastUserToken(request.getToken());
+        // 连接上来的设备设置为在线状态
         deviceAndroid.setOnlineStatus(DB.PhoneOnlineStatus.ONLINE);
+        // 设置为空闲状态
+        deviceAndroid.setWorkStatus(DB.PhoneWorkStatus.FREE);
+
         Device deviceBase = deviceService.findByDeviceId(request.getDeviceId());
         if(deviceBase == null){
             deviceService.insertAndroid(deviceAndroid);

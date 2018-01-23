@@ -156,6 +156,8 @@ public class ExecuteMgr {
             cmd.setTestcaseList(cases);
             cmd.setExeId(taskId);
             pushCmdService.executeCmd(cmd, d.getLastUserId());
+
+            deviceService.updateWorkStatus(key, DB.PhoneWorkStatus.BUSY);
         }
     }
 

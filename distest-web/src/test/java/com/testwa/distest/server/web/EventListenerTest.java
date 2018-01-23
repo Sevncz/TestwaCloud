@@ -1,7 +1,7 @@
 package com.testwa.distest.server.web;
 
 import com.testwa.distest.WebServerApplication;
-import com.testwa.distest.server.mvc.event.GameOverEvent;
+import com.testwa.distest.server.mongo.event.GameOverEvent;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

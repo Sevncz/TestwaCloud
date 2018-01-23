@@ -6,6 +6,7 @@
         <result column="deviceId" property="deviceId" jdbcType="VARCHAR" />
         <result column="phoneOS" property="phoneOS" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
         <result column="onlineStatus" property="onlineStatus" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
+        <result column="workStatus" property="workStatus" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
         <result column="createTime" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="model" property="model" jdbcType="VARCHAR" />
@@ -72,6 +73,14 @@
         update device
         <trim prefix="SET" suffixOverrides=",">
             onlineStatus=#{status, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},
+        </trim>
+        WHERE
+        deviceId = #{deviceId}
+    </update>
+    <update id="updateWorkStatus" >
+        update device
+        <trim prefix="SET" suffixOverrides=",">
+            workStatus=#{status, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},
         </trim>
         WHERE
         deviceId = #{deviceId}

@@ -7,7 +7,9 @@ import com.testwa.distest.config.security.JwtTokenUtil;
 import com.testwa.distest.server.entity.AppiumFile;
 import com.testwa.distest.server.entity.Task;
 import com.testwa.distest.server.LogInterceptor;
-import com.testwa.distest.server.mvc.event.GameOverEvent;
+import com.testwa.distest.server.mongo.event.GameOverEvent;
+import com.testwa.distest.server.mongo.model.ExecutorLogInfo;
+import com.testwa.distest.server.mongo.service.ExecutorLogInfoService;
 import com.testwa.distest.server.rpc.GRpcService;
 import com.testwa.distest.server.service.cache.mgr.TaskCacheMgr;
 import com.testwa.distest.server.service.task.service.AppiumFileService;
@@ -58,6 +60,8 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     private ProcedureRedisMgr procedureRedisMgr;
     @Autowired
     private DisFileProperties disFileProperties;
+    @Autowired
+    private ExecutorLogInfoService executorLogInfoService;
 
     @Override
     public void gameover(TaskOverRequest request, StreamObserver<CommonReply> responseObserver) {
@@ -293,4 +297,34 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
             }
         };
     }
+
+
+    @Override
+    public void executorLogUpload(ExecutorLogRequest request, StreamObserver<CommonReply> responseObserver){
+
+        String token = request.getToken();
+        Long timestamp = request.getTimestamp();
+        Long taskId = request.getExeId();
+        String deviceId = request.getDeviceId();
+        String action = request.getAction();
+        int actionOrder = request.getOrder();
+        String args = request.getArgs();
+        String flag = request.getFlag();
+        String methodName = request.getMethodName();
+
+
+        ExecutorLogInfo logInfo = new ExecutorLogInfo();
+        logInfo.setAction(action);
+        logInfo.setArgs(args);
+        logInfo.setDeviceId(deviceId);
+        logInfo.setMethodName(methodName);
+        logInfo.setToken(token);
+        logInfo.setTaskId(taskId);
+        logInfo.setTimestamp(timestamp);
+        logInfo.setFlag(flag);
+        logInfo.setActionOrder(actionOrder);
+
+        executorLogInfoService.save(logInfo);
+    }
+
 }

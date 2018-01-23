@@ -11,6 +11,7 @@ import com.testwa.core.base.constant.WebConstants;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.entity.TaskScene;
 import com.testwa.distest.server.entity.User;
+import com.testwa.distest.server.mongo.service.ExecutorLogInfoService;
 import com.testwa.distest.server.service.task.form.TaskStartForm;
 import com.testwa.distest.server.service.task.form.TaskStopForm;
 import com.testwa.distest.server.service.task.form.TaskStartByTestcaseForm;
@@ -43,6 +44,8 @@ public class TaskController extends BaseController {
     private ExecuteMgr executeMgr;
     @Autowired
     private UserService userService;
+    @Autowired
+    private ExecutorLogInfoService executorLogInfoService;
     @Autowired
     private TaskSceneValidatoer taskSceneValidatoer;
     @Autowired
@@ -106,21 +109,5 @@ public class TaskController extends BaseController {
         List<TaskProgressVO> result = executeMgr.getProgress(taskId);
         return ok(result);
     }
-
-    @ResponseBody
-    @RequestMapping(value = "/test", method = RequestMethod.GET)
-    public Result test(@RequestParam(value = "deviceId")String deviceId){
-        RemoteRunCommand params = new RemoteRunCommand();
-        params.setExeId(1l);
-//        params.setAppId(1l);
-        params.setDeviceId("");
-        params.setInstall("");
-        params.setCmd(DB.CommandEnum.START.getValue());  // 启动
-//        String agentSession = remoteClientService.getMainSessionByDeviceId(deviceId);
-//        server.getClient(UUID.fromString(agentSession))
-//                .sendEvent(WebsocketEvent.ON_TESTCASE_RUN, JSON.toJSONString(params));
-        return ok();
-    }
-
 
 }

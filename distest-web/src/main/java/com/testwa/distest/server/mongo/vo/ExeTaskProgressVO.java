@@ -1,4 +1,4 @@
-package com.testwa.distest.server.mvc.vo;
+package com.testwa.distest.server.mongo.vo;
 
 import lombok.Data;
 

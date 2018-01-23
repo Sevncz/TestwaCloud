@@ -96,6 +96,34 @@ public final class DB {
     }
 
 
+    public enum PhoneWorkStatus implements ValueEnum {
+        UNKNOWN(0, "未知"),
+        BUSY(1, "工作中"),
+        FREE(2, "空闲");
+        private int value;
+        private String desc;
+        PhoneWorkStatus(int value, String desc){
+            this.value = value;
+            this.desc = desc;
+        }
+        public int getValue() {
+            return value;
+        }
+        public String getDesc() {
+            return desc;
+        }
+        public static PhoneWorkStatus valueOf(int value) {
+            PhoneWorkStatus os = UNKNOWN;
+            switch (value) {
+                case 1: os = BUSY;break;
+                case 2: os = FREE;break;
+                default: os = UNKNOWN;
+            }
+            return os;
+        }
+    }
+
+
     public enum TaskStatus implements ValueEnum{
         NOT_EXECUTE(0, "未执行"),
         RUNNING(1, "正在运行"),

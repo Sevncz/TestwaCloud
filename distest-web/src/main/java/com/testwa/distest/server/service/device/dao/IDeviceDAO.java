@@ -28,4 +28,6 @@ public interface IDeviceDAO extends IBaseDAO<Device, Long> {
     List<DeviceAndroid> findAllDeviceAndroid(List<String> deviceIds);
 
     List<Device> findListByOnlineDevice(Map<String, Object> queryMap, Set<String> onlineDeviceList);
+
+    void updateWorkStatus(String deviceId, DB.PhoneWorkStatus status);
 }

@@ -1,12 +1,12 @@
-package com.testwa.distest.server.mvc.event;
+package com.testwa.distest.server.mongo.event;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.testwa.distest.server.entity.Task;
 import com.testwa.distest.server.entity.Script;
-import com.testwa.distest.server.mvc.model.ProcedureInfo;
-import com.testwa.distest.server.mvc.model.ProcedureStatis;
-import com.testwa.distest.server.mvc.service.ProcedureInfoService;
+import com.testwa.distest.server.mongo.model.ProcedureInfo;
+import com.testwa.distest.server.mongo.model.ProcedureStatis;
+import com.testwa.distest.server.mongo.service.ProcedureInfoService;
 import com.testwa.distest.server.service.task.service.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

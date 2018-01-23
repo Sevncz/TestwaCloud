@@ -4,23 +4,18 @@ import com.github.cosysoft.device.android.AndroidApp;
 import com.github.cosysoft.device.android.AndroidDevice;
 import com.github.cosysoft.device.android.impl.DefaultAndroidApp;
 import com.testwa.core.cmd.AppInfo;
+import com.testwa.core.cmd.RemoteRunCommand;
 import com.testwa.core.cmd.RemoteTestcaseContent;
 import com.testwa.core.cmd.ScriptInfo;
 import com.testwa.core.service.PythonScriptDriverService;
 import com.testwa.core.service.PythonServiceBuilder;
-import com.testwa.distest.client.ApplicationContextUtil;
 import com.testwa.distest.client.android.AndroidHelper;
-import com.testwa.distest.client.event.ExecutorCurrentInfoNotifyEvent;
 import com.testwa.distest.client.exception.DownloadFailException;
 import com.testwa.distest.client.util.Constant;
 import com.testwa.distest.client.util.Http;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import sun.font.Script;
 
 import java.io.*;
 import java.util.HashMap;
@@ -70,12 +65,51 @@ public class PythonExecutor {
     // 所有脚本的本地保存路径
     private Map<Long, String> scriptPath = new HashMap<>();
 
-    public PythonExecutor(String distestApiWeb, String distestApiName, String appiumUrl) {
-        this.appiumUrl = appiumUrl;
+    @ExecutorActionInfo(desc = "参数初始化", order = 0)
+    public void init(String distestApiWeb, String distestApiName, String appiumUrl, RemoteRunCommand cmd) {
         this.distestApiWeb = distestApiWeb;
         this.distestApiName = distestApiName;
+        this.appiumUrl = appiumUrl;
+        this.appInfo = cmd.getAppInfo();
+        this.deviceId = cmd.getDeviceId();
+        this.install = cmd.getInstall();
+        this.taskId = cmd.getExeId();
+        this.testcaseList = cmd.getTestcaseList();
+        this.testcases = new ArrayBlockingQueue<>(cmd.getTestcaseList().size());
+        this.testcases.addAll(cmd.getTestcaseList());
     }
 
+    private void stopScripts(){
+        this.isStop = true;
+    }
+
+
+    @ExecutorActionInfo(desc = "下载APP", order = 1)
+    public void downloadApp() throws DownloadFailException, IOException {
+        String appUrl = String.format("http://%s/app/%s", distestApiWeb, appInfo.getPath());
+        this.appLocalPath = Constant.localAppPath + File.separator + appInfo.getMd5() + File.separator + appInfo.getAliasName();
+
+        // 检查是否有和该app md5一致的
+        Http.download(appUrl, appLocalPath);
+    }
+
+    @ExecutorActionInfo(desc = "下载脚本", order = 2)
+    public void downloadScript() throws DownloadFailException, IOException {
+        for (RemoteTestcaseContent remoteTestcaseContent : this.testcaseList) {
+            List<ScriptInfo> scriptInfos = remoteTestcaseContent.getScripts();
+            for (ScriptInfo scriptInfo : scriptInfos) {
+                if(scriptPath.containsKey(scriptInfo.getId())){
+                    continue;
+                }
+                String scriptUrl = String.format("http://%s/script/%s", distestApiWeb, scriptInfo.getPath());
+                String localPath = Constant.localScriptPath + File.separator + scriptInfo.getMd5() + File.separator + scriptInfo.getAliasName();
+                Http.download(scriptUrl, localPath);
+                scriptPath.put(scriptInfo.getId(), localPath);
+            }
+        }
+    }
+
+    @ExecutorActionInfo(desc = "脚本队列初始化", order = 3)
     public void runScripts(){
         assert StringUtils.isNotBlank(deviceId);
         assert StringUtils.isNotBlank(install);
@@ -109,7 +143,8 @@ public class PythonExecutor {
                     this.scripts = new ArrayBlockingQueue<>(scIds.size());
                     this.scripts.addAll(scIds);
                 }
-                boolean status = runOneScript();
+                ScriptInfo runscript = this.scripts.poll();
+                boolean status = runOneScript(runscript);
                 if(!status){
                     log.info("Complete All !");
                     break;
@@ -120,12 +155,13 @@ public class PythonExecutor {
         }
     }
 
-    private void stopScripts(){
-        this.isStop = true;
-    }
-
-    private Boolean runOneScript() throws Exception {
-        ScriptInfo runscript = this.scripts.poll();
+    /**
+     * 需要代理，必须是public方法
+     * @return
+     * @throws Exception
+     */
+    @ExecutorActionInfo(desc = "脚本执行前的准备", order = 4)
+    public Boolean runOneScript(ScriptInfo runscript) throws Exception {
         if(runscript == null){
             return false;
         }
@@ -141,22 +177,17 @@ public class PythonExecutor {
         String filePath = scriptPath.get(runscript.getId());
         // 脚本替换
         String url = appiumUrl.replace("0.0.0.0", "127.0.0.1");
-        String tempPath = replaceScriptByAndroid(filePath, appLocalPath, basePackage, mainActivity, url);
+        String tempPath = this.replaceScriptByAndroid(filePath, appLocalPath, basePackage, mainActivity, url);
         log.info("temp script path is [{}]", tempPath);
 
         // 执行脚本
-        this.pyService = new PythonServiceBuilder()
-                .withPyScript(new File(tempPath))
-                .build();
-        this.pyService.start();
-        log.info("python script start......");
-
-        this.notifyCurrExeInfo();
+        startPy(tempPath);
 
         return true;
     }
 
-    private String replaceScriptByAndroid(String localPath,
+    @ExecutorActionInfo(desc = "脚本参数替换", order = 5)
+    public String replaceScriptByAndroid(String localPath,
                                           String appPath,
                                           String basePackage,
                                           String mainActivity,
@@ -292,68 +323,22 @@ public class PythonExecutor {
         return srcStr;
     }
 
+    @ExecutorActionInfo(desc = "执行脚本", order = 6)
+    public void startPy(String tempPath) {
+        this.pyService = new PythonServiceBuilder()
+                .withPyScript(new File(tempPath))
+                .build();
+        this.pyService.start();
+        log.info("python script start......");
+    }
+
+    @ExecutorActionInfo(desc = "取消", order = 999)
     public void stop() {
         if(this.pyService != null){
             this.pyService.stop();
         }
         this.testcases.clear();
         this.scripts.clear();
-    }
-
-    public void downloadApp() throws DownloadFailException, IOException {
-        String appUrl = String.format("http://%s/app/%s", distestApiWeb, appInfo.getPath());
-        this.appLocalPath = Constant.localAppPath + File.separator + appInfo.getMd5() + File.separator + appInfo.getAliasName();
-        // 检查是否有和该app md5一致的
-        Http.download(appUrl, appLocalPath);
-    }
-    public void downloadScript() throws DownloadFailException, IOException {
-        for (RemoteTestcaseContent remoteTestcaseContent : this.testcaseList) {
-            List<ScriptInfo> scriptInfos = remoteTestcaseContent.getScripts();
-            for (ScriptInfo scriptInfo : scriptInfos) {
-                if(scriptPath.containsKey(scriptInfo.getId())){
-                    continue;
-                }
-                String scriptUrl = String.format("http://%s/script/%s", distestApiWeb, scriptInfo.getPath());
-                String localPath = Constant.localScriptPath + File.separator + scriptInfo.getMd5() + File.separator + scriptInfo.getAliasName();
-                Http.download(scriptUrl, localPath);
-                scriptPath.put(scriptInfo.getId(), localPath);
-            }
-        }
-    }
-
-    public void setDeviceId(String deviceId){
-        this.deviceId = deviceId;
-    }
-
-    public void setAppInfo(AppInfo appInfo){
-        this.appInfo = appInfo;
-    }
-
-    public void setTaskId(Long taskId) {
-        this.taskId = taskId;
-    }
-
-    public void setInstall(String install) {
-        this.install = install;
-    }
-
-    public void setTestcaseList(List<RemoteTestcaseContent> testcaseList) {
-        this.testcaseList = testcaseList;
-        this.testcases = new ArrayBlockingQueue<>(testcaseList.size());
-        this.testcases.addAll(testcaseList);
-    }
-
-    public ScriptInfo getCurrScript(){
-        return currScript;
-    }
-    public Long getCurrTestCaseId(){
-        return currTestCaseId;
-    }
-
-    public void notifyCurrExeInfo(){
-
-        ApplicationContext context = ApplicationContextUtil.getApplicationContext();
-        context.publishEvent(new ExecutorCurrentInfoNotifyEvent(this, deviceId, taskId, currScript.getId(), currTestCaseId));
     }
 
 }

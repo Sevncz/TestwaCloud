@@ -1,9 +1,7 @@
 package com.testwa.distest.client.event;
 
 import com.testwa.core.cmd.RemoteRunCommand;
-import com.testwa.distest.client.ApplicationContextUtil;
 import com.testwa.distest.client.appium.AppiumManager;
-import com.testwa.distest.client.exception.AppiumStartFailedException;
 import com.testwa.distest.client.executor.*;
 import com.testwa.distest.client.appium.pool.AppiumManagerPool;
 import com.testwa.distest.client.exception.DownloadFailException;
@@ -71,24 +69,21 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
                 String appiumLogPath = manager.getAppiumlogPath();
                 try {
                     String appiumUrl = manager.getAppiumService().getUrl().toString();
-                    PythonExecutor executor2 = new PythonExecutor(distestApiWeb, distestApiName, appiumUrl);
+                    PythonExecutor executor2 = ProxyFactory.getPyExecutorInstance(PythonExecutor.class, cmd);
+                    executor2.init(distestApiWeb, distestApiName, appiumUrl, cmd);
                     executors.put(cmd.getDeviceId(), executor2);
-                    executor2.setAppInfo(cmd.getAppInfo());
-                    executor2.setDeviceId(cmd.getDeviceId());
-                    executor2.setInstall(cmd.getInstall());
-                    executor2.setTaskId(cmd.getExeId());
-                    executor2.setTestcaseList(cmd.getTestcaseList());
 
-                    AbstractExecutorHandler appHander = new AppDownloadExecutorHandler();
-                    AbstractExecutorHandler scriptHander = new ScriptDownloadExecutorHandler();
-                    AbstractExecutorHandler pythonHander = new PythonExecutorHandler();
-                    // 如A处理不掉转交给B
+                    AppDownloadExecutorHandler appHander = new AppDownloadExecutorHandler();
+                    ScriptDownloadExecutorHandler scriptHander = new ScriptDownloadExecutorHandler();
+                    PythonExecutorHandler pythonHander = new PythonExecutorHandler();
+
                     appHander.setHandler(scriptHander);
                     scriptHander.setHandler(pythonHander);
                     appHander.handleRequest(executor2);
-                }catch (DownloadFailException | IOException  e){
+
+                } catch (DownloadFailException | IOException  e){
                     log.error("executors error", e);
-                }finally {
+                } finally {
                     //upload log
                     grpcClientService.appiumLogUpload(cmd.getExeId(), cmd.getDeviceId(), appiumLogPath);
 //                        sendLogsToServer(UploadFileToServerEvent.FileType.LOGCAT, cmd.getExeId(), cmd.getDeviceId());
@@ -110,10 +105,6 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
                 break;
         }
 
-    }
-
-    private void sendLogsToServer(UploadFileToServerEvent.FileType fileType, Long taskId, String deviceId, String filePath) {
-        context.publishEvent(new UploadFileToServerEvent(this, taskId, deviceId,  fileType, filePath));
     }
 
 }

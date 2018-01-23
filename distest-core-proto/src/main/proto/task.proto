@@ -14,8 +14,11 @@ service TaskService {
     rpc LogcatUpload (stream FileUploadRequest) returns ( CommonReply ) {}
     rpc AppiumLogUpload (stream FileUploadRequest) returns ( CommonReply ) {}
     rpc ImgUpload (stream FileUploadRequest) returns ( CommonReply ) {}
+
     rpc currExeInfo (CurrentExeInfoRequest) returns ( CommonReply ) {}
     rpc procedureInfoUpload (ProcedureInfoUploadRequest) returns ( CommonReply ) {}
+
+    rpc executorLogUpload (ExecutorLogRequest) returns ( CommonReply ) {}
 }
 
 message CommonReply {
@@ -71,6 +74,18 @@ message FileUploadRequest {
     int64 size = 6;
     string name = 7;
     string deviceId = 8;
+}
+
+message ExecutorLogRequest {
+    int64 exeId = 1;
+    int64 timestamp = 2;
+    string token = 3;
+    string deviceId = 4;
+    string action = 5;
+    string methodName = 6;
+    string args = 7;
+    string flag = 8;
+    int32 order = 9;
 }
 
 

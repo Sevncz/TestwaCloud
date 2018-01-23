@@ -1,4 +1,4 @@
-package com.testwa.distest.server.mvc.repository;
+package com.testwa.distest.server.mongo.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -64,4 +64,9 @@ public class DeviceDAO extends BaseDAO<Device, Long>  implements IDeviceDAO{
     public List<Device> findListByOnlineDevice(Map<String, Object> queryMap, Set<String> onlineDeviceList) {
         return deviceMapper.findListByOnlineDevice(queryMap, onlineDeviceList);
     }
+
+    @Override
+    public void updateWorkStatus(String deviceId, DB.PhoneWorkStatus status) {
+        deviceMapper.updateWorkStatus(deviceId, status);
+    }
 }

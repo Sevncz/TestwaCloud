@@ -1,6 +1,6 @@
-package com.testwa.distest.server.mvc.service;
+package com.testwa.distest.server.mongo.service;
 
-import com.testwa.distest.server.mvc.repository.CommonRepository;
+import com.testwa.distest.server.mongo.repository.CommonRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +11,6 @@ import org.springframework.data.mongodb.core.query.Update;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by wen on 2016/11/12.
