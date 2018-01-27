@@ -6,7 +6,7 @@ import com.testwa.distest.server.entity.Script;
 import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.script.service.ScriptService;
 import io.swagger.annotations.Api;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ import java.nio.file.Paths;
 /**
  * Created by wen on 16/8/26.
  */
-@Log4j2
+@Slf4j
 @Api("下载相关api")
 @RestController
 @RequestMapping(path = "download")

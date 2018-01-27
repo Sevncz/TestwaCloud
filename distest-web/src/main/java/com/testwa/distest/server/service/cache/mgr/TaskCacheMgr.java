@@ -2,7 +2,7 @@ package com.testwa.distest.server.service.cache.mgr;
 
 
 import com.testwa.core.redis.RedisCacheManager;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Log4j2
+@Slf4j
 @Component
 public class TaskCacheMgr {
 

@@ -9,15 +9,15 @@ option objc_class_prefix = "PUSH";
 package push;
 
 
-service SubscribeTopic {
+service Push {
     //注册到基于protoBuf格式的推送服务
     rpc registerToServer (ClientInfo) returns (stream Message) {}
 
     //订阅某些主题,阻塞调用
-    rpc subscribeTopic (TopicInfo) returns (Status) {}
+    rpc subscribe (TopicInfo) returns (Status) {}
 
     //取消订阅某些主题,阻塞调用
-    rpc cancelTopic (TopicInfo) returns (Status){}
+    rpc cancel (TopicInfo) returns (Status){}
 
     //从服务注销,阻塞调用
     rpc logoutFromServer (ClientInfo) returns (Status) {}
@@ -25,7 +25,7 @@ service SubscribeTopic {
 
 
 message ClientInfo {
-	string clientId = 1;
+	string deviceId = 1;
 }
 
 message Status {

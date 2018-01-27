@@ -11,7 +11,7 @@ import com.testwa.core.service.PythonScriptDriverService;
 import com.testwa.core.service.PythonServiceBuilder;
 import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.distest.client.exception.DownloadFailException;
-import com.testwa.distest.client.util.Constant;
+import com.testwa.distest.client.component.Constant;
 import com.testwa.distest.client.util.Http;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;

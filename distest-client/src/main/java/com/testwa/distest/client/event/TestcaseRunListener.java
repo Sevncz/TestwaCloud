@@ -1,12 +1,12 @@
 package com.testwa.distest.client.event;
 
 import com.testwa.core.cmd.RemoteRunCommand;
-import com.testwa.distest.client.appium.AppiumManager;
+import com.testwa.distest.client.component.appium.AppiumManager;
 import com.testwa.distest.client.executor.*;
-import com.testwa.distest.client.appium.pool.AppiumManagerPool;
+import com.testwa.distest.client.component.appium.pool.AppiumManagerPool;
 import com.testwa.distest.client.exception.DownloadFailException;
 import com.testwa.distest.client.service.GrpcClientService;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by wen on 19/08/2017.
  */
-@Log4j2
+@Slf4j
 @Component
 public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent> {
     private ConcurrentHashMap<String, PythonExecutor> executors = new ConcurrentHashMap<>();

@@ -1,7 +1,7 @@
 package com.testwa.distest.server.monitor;
 
 import com.testwa.distest.common.context.ThreadContext;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
@@ -20,7 +20,7 @@ import java.util.Arrays;
  * 纪录耗时请求
  * Created by wen on 2016/11/12.
  */
-@Log4j2
+@Slf4j
 @Aspect
 @Component
 class WebRequestTimeLogAspect {

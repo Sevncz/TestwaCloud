@@ -2,7 +2,7 @@ package com.testwa.distest.server.web.auth.mgr;
 
 import com.testwa.core.redis.RedisCacheManager;
 import com.testwa.distest.server.service.user.constant.UserConstant;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 /**
  * Created by wen on 20/10/2017.
  */
-@Log4j2
+@Slf4j
 @Component
 public class RedisLoginMgr {
 

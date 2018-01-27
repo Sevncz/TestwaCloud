@@ -9,13 +9,14 @@ import com.testwa.core.common.enums.Command;
 import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
 import com.testwa.distest.server.websocket.service.PushCmdService;
 import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
  * Created by wen on 2016/9/24.
  */
-@Log4j2
+@Slf4j
 @Component
 public class CommandHandler {
 

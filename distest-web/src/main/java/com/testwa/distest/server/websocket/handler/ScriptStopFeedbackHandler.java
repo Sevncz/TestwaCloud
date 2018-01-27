@@ -4,13 +4,13 @@ import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.annotation.OnEvent;
 import com.testwa.core.WebsocketEvent;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 /**
  * Created by wen on 2016/9/24.
  */
-@Log4j2
+@Slf4j
 @Component
 public class ScriptStopFeedbackHandler {
 

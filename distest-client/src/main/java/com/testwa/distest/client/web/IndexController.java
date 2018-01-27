@@ -1,19 +1,9 @@
 package com.testwa.distest.client.web;
 
-import com.alibaba.fastjson.JSON;
-import com.testwa.core.utils.TimeUtil;
-import com.testwa.distest.client.grpc.GrpcClient;
-import com.testwa.distest.client.grpc.Gvice;
 import com.testwa.distest.client.service.GrpcClientService;
-import com.testwa.distest.client.service.HttpService;
-import io.grpc.Channel;
-import io.grpc.ManagedChannel;
-import io.rpc.testwa.task.ProcedureInfoUploadRequest;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
 
 /**
  * Created by wen on 7/30/16.

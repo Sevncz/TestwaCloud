@@ -6,14 +6,14 @@ import com.testwa.distest.server.service.device.dao.IDeviceAuthDAO;
 import com.testwa.distest.server.service.device.form.DeviceAuthListForm;
 import com.testwa.distest.server.service.device.form.DeviceAuthNewForm;
 import com.testwa.distest.server.service.device.form.DeviceAuthRemoveForm;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
 
-@Log4j2
+@Slf4j
 @Service
 public class DeviceAuthService {
 

@@ -12,7 +12,7 @@ import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.auth.vo.UserVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * Created by wen on 24/10/2017.
  */
-@Log4j2
+@Slf4j
 @Api("用户管理相关api")
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/user")

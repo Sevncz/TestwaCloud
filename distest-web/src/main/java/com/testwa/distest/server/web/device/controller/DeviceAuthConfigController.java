@@ -17,7 +17,7 @@ import com.testwa.distest.server.web.auth.validator.UserValidator;
 import com.testwa.distest.server.web.device.validator.DeviceValidatoer;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,7 +27,7 @@ import java.util.Set;
 
 import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 
-@Log4j2
+@Slf4j
 @Api("设备权限配置相关api")
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/deviceAuth")

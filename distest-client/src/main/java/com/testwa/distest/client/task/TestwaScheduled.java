@@ -1,22 +1,18 @@
 package com.testwa.distest.client.task;
 
-import com.google.protobuf.ByteString;
 import com.testwa.distest.client.grpc.GrpcClient;
 import com.testwa.distest.client.model.TestwaDevice;
 import com.testwa.distest.client.service.HttpService;
-import com.testwa.distest.client.util.Constant;
+import com.testwa.distest.client.component.Constant;
 import io.grpc.Channel;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -27,10 +23,9 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by wen on 16/9/4.
  */
+@Slf4j
 @Component
 public class TestwaScheduled {
-    private static final Logger logger = LoggerFactory.getLogger(TestwaScheduled.class);
-
     public static BlockingQueue<String> screenUploadQueue = new ArrayBlockingQueue<>(10000);
     public static BlockingQueue<String> screenEmptyQueue = new ArrayBlockingQueue<>(10000);
 
@@ -133,13 +128,13 @@ public class TestwaScheduled {
                     try {
                         screenEmptyQueue.put(filepath);
                     } catch (InterruptedException e) {
-                        logger.error("Put screenUploadQueue error", e);
+                        log.error("Put screenUploadQueue error", e);
                     }
                     continue;
                 }
 
-                byte[] img = Files.readAllBytes(p);
-                ByteString bys = ByteString.copyFrom(img);
+//                byte[] img = Files.readAllBytes(p);
+//                ByteString bys = ByteString.copyFrom(img);
 //                Agent.ScreenCaptureFeedback message = Agent.ScreenCaptureFeedback
 //                        .newBuilder()
 //                        .setImg(bys)
@@ -149,7 +144,7 @@ public class TestwaScheduled {
                 // feedback.runninglog.screen
 //                这里会报错io.netty.handler.codec.CorruptedFrameException: Max frame length of 65536 has been exceeded.
 //                TestwaSocket.getSocket().emit("feedback.runninglog.screen", message.toByteArray());
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -169,13 +164,13 @@ public class TestwaScheduled {
                 try {
                     screenEmptyQueue.put(filepath);
                 } catch (InterruptedException e) {
-                    logger.error("Put screenEmptyQueue error", e);
+                    log.error("Put screenEmptyQueue error", e);
                 }
             } else {
                 try {
                     screenUploadQueue.put(filepath);
                 } catch (InterruptedException e) {
-                    logger.error("Put screenUploadQueue error", e);
+                    log.error("Put screenUploadQueue error", e);
                 }
             }
 

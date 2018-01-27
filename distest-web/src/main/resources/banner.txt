@@ -1,8 +1,5 @@
-${AnsiColor.BLUE}
-
 ____ ___ ____ ____ ___    ___  _ ____ ___ ____ ____ ___
 [__   |  |__| |__/  |     |  \ | [__   |  |___ [__   |
 ___]  |  |  | |  \  |     |__/ | ___]  |  |___ ___]  |
 
-${AnsiColor.BLUE}
 ::: Project (version:${application.version}) :::             ＼(^O^)／    Spring-Boot ${spring-boot.version}

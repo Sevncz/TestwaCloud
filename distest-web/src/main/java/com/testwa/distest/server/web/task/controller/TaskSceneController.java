@@ -19,7 +19,7 @@ import com.testwa.distest.server.web.task.vo.TaskSceneVO;
 import com.testwa.distest.server.web.testcase.validator.TestcaseValidatoer;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ import javax.validation.Valid;
 /**
  * Created by wen on 24/10/2017.
  */
-@Log4j2
+@Slf4j
 @Api("任务管理相关api")
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/scene")

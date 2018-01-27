@@ -5,7 +5,7 @@ import com.testwa.distest.server.service.device.form.DeviceAuthListForm;
 import com.testwa.distest.server.service.device.form.DeviceAuthNewForm;
 import com.testwa.distest.server.service.device.form.DeviceAuthRemoveForm;
 import com.testwa.distest.server.service.device.service.DeviceAuthService;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Arrays;
 
-@Log4j2
+@Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = WebServerApplication.class)
 @TestPropertySource(locations="classpath:application-test.properties")

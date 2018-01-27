@@ -1,10 +1,9 @@
 package com.testwa.distest.client.web.startup;
 
-import com.testwa.distest.client.appium.utils.Config;
 import com.testwa.distest.client.task.TestwaScheduled;
 import com.testwa.core.os.filewatch.FileActionCallback;
 import com.testwa.core.os.filewatch.WatchDir;
-import com.testwa.distest.client.util.Constant;
+import com.testwa.distest.client.component.Constant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;

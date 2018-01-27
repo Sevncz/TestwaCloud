@@ -8,7 +8,7 @@ import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.DeviceAndroid;
 import com.testwa.distest.server.service.device.form.DeviceListForm;
 import com.testwa.distest.server.service.device.service.DeviceService;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
-@Log4j2
+@Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = WebServerApplication.class)
 @TestPropertySource(locations="classpath:application-test.properties")
@@ -40,7 +40,7 @@ public class DeviceServiceTest {
         d.setHeight("1080");
         d.setWidth("720");
         deviceService.insertAndroid(d);
-        log.info(d);
+        log.info(d.toString());
     }
 
     @Test
@@ -53,13 +53,13 @@ public class DeviceServiceTest {
         d.setHeight("1080p");
         d.setWidth("720p");
         deviceService.updateAndroid(d);
-        log.info(d);
+        log.info(d.toString());
     }
 
     @Test
     public void testFindByDeviceId(){
         Device d = deviceService.findByDeviceId("123456");
-        log.info(d);
+        log.info(d.toString());
     }
 
     @Test
@@ -70,7 +70,7 @@ public class DeviceServiceTest {
         page.setPageSize(10);
         form.setPage(page);
         PageResult<Device> devices = deviceService.findByPage(new HashSet<>(Arrays.asList("123456", "223456", "323456")), form);
-        log.info(devices.getPages());
+        log.info(devices.getPages().toString());
     }
 
     @Test
@@ -83,7 +83,7 @@ public class DeviceServiceTest {
     public void testFetchList(){
         List<Device> deviceList = deviceService.fetchList(new HashSet<>(),3l);
         for(Device d : deviceList){
-            log.info(d.getDeviceAuths());
+            log.info(d.getDeviceAuths().toString());
             log.info(d.toString());
         }
     }

@@ -1,7 +1,7 @@
 package com.testwa.distest.client.config;
 
-import com.testwa.distest.client.appium.pool.AppiumManagerPool;
-import com.testwa.distest.client.appium.pool.AppiumManagerPoolConfig;
+import com.testwa.distest.client.component.appium.pool.AppiumManagerPool;
+import com.testwa.distest.client.component.appium.pool.AppiumManagerPoolConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

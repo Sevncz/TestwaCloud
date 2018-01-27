@@ -5,20 +5,20 @@ import com.github.cosysoft.device.android.AndroidDevice;
 import com.github.cosysoft.device.android.impl.AndroidDeviceStore;
 import com.google.protobuf.ByteString;
 import com.testwa.core.common.enums.Command;
+import com.testwa.distest.client.component.stfservice.StfAgent;
+import com.testwa.distest.client.component.stfservice.StfAgentListener;
 import com.testwa.distest.client.grpc.Gvice;
-import com.testwa.distest.client.minicap.Banner;
-import com.testwa.distest.client.minicap.Minicap;
-import com.testwa.distest.client.minicap.MinicapListener;
-import com.testwa.distest.client.minitouch.Minitouch;
-import com.testwa.distest.client.minitouch.MinitouchListener;
-import com.testwa.distest.client.util.Constant;
+import com.testwa.distest.client.component.minicap.Banner;
+import com.testwa.distest.client.component.minicap.Minicap;
+import com.testwa.distest.client.component.minicap.MinicapListener;
+import com.testwa.distest.client.component.minitouch.Minitouch;
+import com.testwa.distest.client.component.minitouch.MinitouchListener;
+import com.testwa.distest.client.component.Constant;
 import io.grpc.Channel;
 import io.rpc.testwa.device.ScreenCaptureRequest;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -29,7 +29,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * Created by wen on 10/06/2017.
  */
 @Slf4j
-public class RemoteClient extends BaseClient implements MinicapListener, MinitouchListener {
+public class RemoteClient extends BaseClient implements MinicapListener, MinitouchListener, StfAgentListener {
 
     static final int DATA_TIMEOUT = 100; //ms
     private boolean isWaitting = false;
@@ -45,6 +45,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
 
     Minicap minicap = null;
     Minitouch minitouch = null;
+    StfAgent stfAgent = null;
 
     public RemoteClient(String url, String controller, String serialNumber, Channel channel, String resourcesPath) throws IOException, URISyntaxException {
         log.info("Remote Client init");
@@ -285,7 +286,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
     }
 
     private void startMinitouch(Command command) {
-        log.info("startMinitouch {}", command.getCommandString());
+        log.info("start Minitouch {}", command.getCommandString());
         if (minitouch != null) {
             minitouch.kill();
         }
@@ -309,4 +310,13 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         }
     }
 
+    @Override
+    public void onStartup(StfAgent stfAgent, boolean success) {
+
+    }
+
+    @Override
+    public void onClose(StfAgent stfAgent) {
+
+    }
 }

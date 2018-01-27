@@ -24,7 +24,7 @@ import com.testwa.distest.server.web.auth.validator.UserValidator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +47,7 @@ import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 /**
  * Created by wen on 20/10/2017.
  */
-@Log4j2
+@Slf4j
 @Api("登录注册相关api")
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/auth")

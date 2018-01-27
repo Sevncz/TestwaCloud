@@ -4,11 +4,11 @@ import io.grpc.Metadata;
 import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 
-@Log4j2
+@Slf4j
 @Component
 public class LogInterceptor implements ServerInterceptor {
     @Override

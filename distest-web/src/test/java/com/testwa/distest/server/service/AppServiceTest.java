@@ -11,7 +11,7 @@ import com.testwa.distest.server.service.app.form.AppUpdateForm;
 import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.web.app.vo.AppVO;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-@Log4j2
+@Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = WebServerApplication.class)
 @TestPropertySource(locations="classpath:application-test.properties")
@@ -81,7 +81,7 @@ public class AppServiceTest {
     public void testFindAll(){
         List<Long> ids = Arrays.asList(4l,5l);
         List<App> apps = appService.findAll(ids);
-        log.info(apps.size());
+        log.info(apps.size()+"");
     }
     @Test
     public void testFindPage(){

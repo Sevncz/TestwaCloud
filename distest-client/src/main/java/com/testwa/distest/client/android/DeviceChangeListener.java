@@ -7,13 +7,13 @@ import com.testwa.distest.client.event.DeviceConnectedEvent;
 import com.testwa.distest.client.event.DeviceDisconnectEvent;
 import com.testwa.distest.client.event.DeviceOfflineEvent;
 import com.testwa.distest.client.event.DeviceOnlineEvent;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 
 /**
  * 设备监听器
  */
-@Log4j2
+@Slf4j
 public class DeviceChangeListener implements AndroidDebugBridge.IDeviceChangeListener {
 
     @Override

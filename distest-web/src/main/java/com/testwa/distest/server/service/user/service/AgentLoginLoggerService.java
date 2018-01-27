@@ -16,7 +16,7 @@ import com.testwa.distest.server.service.user.dao.IAgentLoginLoggerDAO;
 import com.testwa.distest.server.service.user.dao.IUserDAO;
 import com.testwa.distest.server.service.user.form.RegisterForm;
 import com.testwa.distest.server.service.user.form.UserQueryForm;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import java.util.List;
 
-@Log4j2
+@Slf4j
 @Service
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 public class AgentLoginLoggerService {
@@ -43,7 +43,9 @@ public class AgentLoginLoggerService {
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void updateRecentLogoutTime(String username) {
         AgentLoginLogger logger = agentLoginLoggerDAO.findRecentLoginOne(username);
-        logger.setLogoutTime(new Date());
-        agentLoginLoggerDAO.update(logger);
+        if(logger != null){
+            logger.setLogoutTime(new Date());
+            agentLoginLoggerDAO.update(logger);
+        }
     }
 }

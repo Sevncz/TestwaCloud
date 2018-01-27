@@ -1,10 +1,10 @@
 package com.testwa.distest.client.control.client;
 
-import com.testwa.distest.client.minicap.Banner;
-import com.testwa.distest.client.minicap.Minicap;
-import com.testwa.distest.client.minicap.MinicapListener;
-import com.testwa.distest.client.minitouch.Minitouch;
-import com.testwa.distest.client.minitouch.MinitouchListener;
+import com.testwa.distest.client.component.minicap.Banner;
+import com.testwa.distest.client.component.minicap.Minicap;
+import com.testwa.distest.client.component.minicap.MinicapListener;
+import com.testwa.distest.client.component.minitouch.Minitouch;
+import com.testwa.distest.client.component.minitouch.MinitouchListener;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;

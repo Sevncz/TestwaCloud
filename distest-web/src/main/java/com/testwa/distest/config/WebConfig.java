@@ -21,24 +21,6 @@ import java.util.Locale;
 //@EnableWebMvc
 public class WebConfig extends WebMvcConfigurerAdapter {
 
-//    /**
-//     * {@inheritDoc}
-//     */
-//    @Override
-//    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-//        converters.add(protobufHttpMessageConverter());
-//    }
-//
-//    /**
-//     * {@inheritDoc}
-//     */
-//    @Override
-//    public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
-//        configurer.replaceMediaTypes(new HashMap<>()) //
-//                .favorPathExtension(false) //
-//                .defaultContentType(ProtobufHttpMessageConverter.PROTOBUF);
-//    }
-
     @Bean
     ProtobufHttpMessageConverter protobufHttpMessageConverter() {
         return new ProtobufHttpMessageConverter();

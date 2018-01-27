@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -53,6 +54,8 @@ public final class MinicapServiceBuilder extends AdbServiceBuilder {
         argList.add(String.format("%s/%s", this.libPath, this.bin));
         argList.add("-P");
         argList.add(this.size);
+        argList.add("-Q");
+        argList.add("50");
         if(this.name != null){
             argList.add("-n");
             argList.add(this.name);
@@ -60,9 +63,7 @@ public final class MinicapServiceBuilder extends AdbServiceBuilder {
         if (this.shipFrame)
             argList.add("-S");
         if (this.args != null) {
-            for (String s : args) {
-                argList.add(s);
-            }
+            Collections.addAll(argList, args);
         }
         return (new ImmutableList.Builder()).addAll(argList).build();
     }

@@ -2,12 +2,12 @@ package com.testwa.distest.server.startup;
 
 import com.corundumstudio.socketio.SocketIOServer;
 import io.netty.util.concurrent.Future;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-@Log4j2
+@Slf4j
 @Component
 public class SrvRunner implements CommandLineRunner {
 

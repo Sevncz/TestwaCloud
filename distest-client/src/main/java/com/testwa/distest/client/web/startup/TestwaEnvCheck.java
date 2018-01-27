@@ -4,14 +4,14 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.android.DeviceManager;
-import com.testwa.distest.client.appium.utils.Config;
+import com.testwa.distest.client.component.appium.utils.Config;
 import com.testwa.distest.client.control.client.MainSocket;
 import com.testwa.distest.client.control.boost.MessageCallback;
 import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.service.GrpcClientService;
 import com.testwa.distest.client.service.HttpService;
-import com.testwa.distest.client.util.Constant;
-import lombok.extern.log4j.Log4j2;
+import com.testwa.distest.client.component.Constant;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
@@ -28,7 +28,7 @@ import java.io.IOException;
 /**
  * Created by wen on 16/8/27.
  */
-@Log4j2
+@Slf4j
 @Component
 public class TestwaEnvCheck implements CommandLineRunner {
 
