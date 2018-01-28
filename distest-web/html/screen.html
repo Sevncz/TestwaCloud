@@ -43,7 +43,7 @@ var BLANK_IMG =
 
 var canvas = document.getElementById('phone-screen')
   , g = canvas.getContext('2d')
-var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjUsKAjEQBe_S6wTSTv5XkUHy6UBEx2GSgCDe3Ygbdw-qqPeCNiJ4CPleN2AwGh2XmsEbBumg0GluVGiEcRq1dppBS4-dwJ9XBvTcfxiFlThZDf3fn8YW4u0b6ccgBtde55tUygRykqeiHZelnHhQKHmR2cYk0C60wPsDAAD__w.fWBUuS3G2o9DwsRRNgfi2w1DlN4sS0x7cJqxLzyajPY";
+var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjVsKwjAUBfdyvhPIDTdNmq2IlDyuENFa2hQEce9W8MO_gTOceWHbMyJSvbcZCvsm69Qqolcoq6QuB5MjT9aNbmAzKmzlsQji6awgz-U3O_ZuUGip__uHMad8-570dReFa29HTSrXkJPREthqvjjSgYh1KhysqSUwMd4fAAAA__8.2D3X5w_s-3N_UmUVvzTw1kSlk0f4wymr0_3jae5pCJE";
 var socket = io('http://127.0.0.1:9092?func=screen&deviceId=b15d91f&type=browser&token=' + token);
 socket.on('connect', function(){
     util.serverConnected = true
@@ -138,6 +138,7 @@ function sendMove(argx, argy, isRo) {
 
     var command = "m 0 " + x + " " + y + " 50\n";
     command += "c\n";
+    console.log("command: " + command)
     sendTouchEvent(command);
 }
 

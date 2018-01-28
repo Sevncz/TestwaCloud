@@ -93,6 +93,9 @@ public class WebConnectionHandler {
             if(StringUtils.isNotBlank(func) && StringUtils.isNotBlank(deviceId) ){
                 if(WSFuncEnum.contains(func)){
                     subscribeMgr.subscribeDeviceEvent(deviceId, func, client.getSessionId().toString());
+                    if(subscribeMgr.isSubscribes(deviceId, func)){
+                        pushCmdService.pushScreenUploadStart(deviceId);
+                    }
                 }
                 DeviceAndroid deviceAndroid = (DeviceAndroid) deviceService.findByDeviceId(deviceId);
                 client.sendEvent("devices", JSON.toJSON(deviceAndroid));
@@ -134,6 +137,9 @@ public class WebConnectionHandler {
             if(StringUtils.isNotBlank(func) && StringUtils.isNotBlank(deviceId) ){
                 if(WSFuncEnum.contains(func)){
                     subscribeMgr.delSubscribe(deviceId, func, client.getSessionId().toString());
+                    if(!subscribeMgr.isSubscribes(deviceId, func)){
+                        pushCmdService.pushScreenUploadStop(deviceId);
+                    }
                 }
             }else{
                 client.sendEvent("error", "参数不能为空");

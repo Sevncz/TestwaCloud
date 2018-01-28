@@ -10,7 +10,9 @@ import com.testwa.core.cmd.MiniCmd;
 import com.testwa.core.cmd.RemoteRunCommand;
 import com.testwa.distest.server.service.cache.mgr.ClientSessionMgr;
 import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
+import io.netty.util.internal.StringUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,19 +39,27 @@ public class PushCmdService {
 
     private SocketIOClient getDeviceCLientSocketIOClient(String deviceId) throws ObjectNotExistsException {
         String sessionId = deviceSessionMgr.getDeviceSession(deviceId);
+        if(StringUtils.isEmpty(sessionId)){
+            log.error("device session not found");
+            throw new ObjectNotExistsException("device session not found");
+        }
         SocketIOClient client = server.getClient(UUID.fromString(sessionId));
         if(client == null){
-            log.error("device session client not found");
-            throw new ObjectNotExistsException("device session client not found");
+            log.error("device SocketIOClient not found");
+            throw new ObjectNotExistsException("device SocketIOClient not found");
         }
         return client;
     }
     private SocketIOClient getMainClientSocketIOClient(Long userId) throws ObjectNotExistsException {
         String sessionId = clientSessionMgr.getClientSession(userId);
+        if(StringUtils.isEmpty(sessionId)){
+            log.error("device session not found");
+            throw new ObjectNotExistsException("device session not found");
+        }
         SocketIOClient client = server.getClient(UUID.fromString(sessionId));
         if(client == null){
-            log.error("client session not found");
-            throw new ObjectNotExistsException("client session not found");
+            log.error("agent SocketIOClient not found");
+            throw new ObjectNotExistsException("agent SocketIOClient not found");
         }
         return client;
     }
@@ -79,11 +89,27 @@ public class PushCmdService {
         client.sendEvent(WebsocketEvent.ON_START, deviceId);
     }
 
+    /**
+     * 屏幕截图上传开始
+     * @param deviceId
+     */
+    public void pushScreenUploadStart(String deviceId) {
+        SocketIOClient client = getDeviceCLientSocketIOClient(deviceId);
+        client.sendEvent(Command.Schem.WAITTING.getSchemString(), "");
+    }
+    /**
+     * 屏幕截图上传停止
+     * @param deviceId
+     */
+    public void pushScreenUploadStop(String deviceId) {
+        SocketIOClient client = getDeviceCLientSocketIOClient(deviceId);
+        client.sendEvent(Command.Schem.WAIT.getSchemString(), "");
+    }
+
     @Async
     public void executeCmd(RemoteRunCommand cmd, Long userId) throws ObjectNotExistsException {
         log.info(cmd.toString());
         SocketIOClient client = getMainClientSocketIOClient(userId);
         client.sendEvent(WebsocketEvent.ON_TESTCASE_RUN, JSON.toJSONString(cmd));
     }
-
 }

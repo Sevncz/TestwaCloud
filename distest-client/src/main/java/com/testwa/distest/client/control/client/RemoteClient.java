@@ -102,30 +102,20 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
 
     @Override
     public void onJPG(Minicap minicap, byte[] data) {
-//        if (isWaitting) {
-//            if (dataQueue.size() > 0) {
-//                dataQueue.add(new LocalClient.ImageData(data));
-//                // 挑选没有超时的图片
-//                LocalClient.ImageData d = getUsefulImage();
-//                sendImage(d.data);
-//            } else {
-//                sendImage(data);
-//            }
+        if (isWaitting) {
+            if (dataQueue.size() > 0) {
+                dataQueue.add(new LocalClient.ImageData(data));
+                // 挑选没有超时的图片
+                LocalClient.ImageData d = getUsefulImage();
+                sendImage(d.data);
+            } else {
+                sendImage(data);
+            }
 //            isWaitting = false;
-//        } else {
-//            clearObsoleteImage();
-//            dataQueue.add(new LocalClient.ImageData(data));
-//        }
-
-        if (dataQueue.size() > 0) {
-            dataQueue.add(new LocalClient.ImageData(data));
-            // 挑选没有超时的图片
-            LocalClient.ImageData d = getUsefulImage();
-            sendImage(d.data);
         } else {
-            sendImage(data);
+            clearObsoleteImage();
+            dataQueue.add(new LocalClient.ImageData(data));
         }
-
     }
 
     @Override
@@ -211,6 +201,9 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
             case WAITTING:
                 waittingCommand(command);
                 break;
+            case WAIT:
+                waitCommand(command);
+                break;
             case KEYEVENT:
                 keyeventCommand(command);
                 break;
@@ -237,6 +230,10 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
 
     private void waittingCommand(Command command) {
         setWaitting(true);
+    }
+
+    private void waitCommand(Command command) {
+        setWaitting(false);
     }
 
     private void keyeventCommand(Command command) {

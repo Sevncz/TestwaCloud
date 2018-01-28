@@ -336,6 +336,27 @@ public class RedisClient implements RedisOperation {
         return isExist;
     }
 
+    public Set<String> keys(String pattern) {
+        Set<String> data = Collections.EMPTY_SET;
+        Jedis jedis = null;
+        try {
+            jedis = this.jedisPool.getResource();
+            data = jedis.keys(pattern);
+
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            if (jedis != null) {
+                jedis.close();
+            }
+            throw e;
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+        return data;
+    }
+
     /**
      * Remove the specified keys.
      *
@@ -1415,5 +1436,4 @@ public class RedisClient implements RedisOperation {
     public int getTimeout() {
         return timeout;
     }
-
 }

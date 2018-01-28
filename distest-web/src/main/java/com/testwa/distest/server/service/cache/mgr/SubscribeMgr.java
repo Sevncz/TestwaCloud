@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Set;
 
 @Slf4j
@@ -12,6 +13,7 @@ import java.util.Set;
 public class SubscribeMgr {
 
     static final String subscribe_device_func = "subscribe.device.func.%s.%s";
+    static final String subscribe_device_func_partern = "subscribe.device.func.*";
 
     @Autowired
     private RedisCacheManager redisCacheMgr;
@@ -28,8 +30,16 @@ public class SubscribeMgr {
         return redisCacheMgr.hKeys(getKey(deviceId, func));
     }
 
-    public void delSubscribes(String deviceId, String func) {
-        redisCacheMgr.remove(getKey(deviceId, func));
+    public Boolean isSubscribes(String deviceId, String func) {
+        return redisCacheMgr.existsKey(getKey(deviceId, func));
+    }
+
+    public void delAllSubscribes() {
+
+        Set<String> keys = redisCacheMgr.keys(subscribe_device_func_partern);
+        keys.forEach(k -> {
+            redisCacheMgr.remove(k);
+        });
     }
 
     public void delSubscribe(String deviceId, String func, String sessionId) {

@@ -70,9 +70,4 @@ public class CommandHandler {
 
     }
 
-    private void waitingData(SocketIOClient client){
-        client.sendEvent(Command.Schem.WAITTING.getSchemString(), "");
-    }
-
-
 }

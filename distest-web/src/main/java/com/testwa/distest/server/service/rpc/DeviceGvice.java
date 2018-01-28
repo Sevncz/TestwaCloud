@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -29,6 +30,8 @@ import java.util.UUID;
 @Slf4j
 @GRpcService
 public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
+    private final static DecimalFormat format = new DecimalFormat("###.0");
+
     @Autowired
     private SocketIOServer server;
     @Autowired
@@ -157,6 +160,8 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
             SocketIOClient client = server.getClient(UUID.fromString(sessionId));
             if(client != null){
                 byte[] data = request.getImg().toByteArray();
+                double i = (data.length / (1024.0));
+                log.debug("SCREEN REC: data length is {} KB", format.format(i));
                 client.sendEvent("minicap", data);
             }
         }

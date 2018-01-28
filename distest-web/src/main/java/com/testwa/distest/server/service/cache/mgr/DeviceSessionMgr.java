@@ -5,23 +5,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Set;
-
 @Slf4j
 @Component
 public class DeviceSessionMgr {
 
-    private static final String device_client_login = "device.client.session.%s";
+    // client 中 remoteClient 连接服务器
+    private static final String ws_device_remoteClient = "ws.device.remoteClient.%s";
 
     @Autowired
     private RedisCacheManager redisCacheMgr;
 
     private String getKey(String deviceId) {
-        return String.format(device_client_login, deviceId);
+        return String.format(ws_device_remoteClient, deviceId);
     }
 
     public void login(String deviceId, String sessionId){
-        log.info("device【" + deviceId + "】login ... ...");
+        log.info("device [" + deviceId + "]ogin ... ...");
         redisCacheMgr.put(getKey(deviceId), sessionId);
     }
 
