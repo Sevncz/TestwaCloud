@@ -1,5 +1,7 @@
 #!/bin/sh
 
+adb kill-server
+
 username=""
 password=""
 

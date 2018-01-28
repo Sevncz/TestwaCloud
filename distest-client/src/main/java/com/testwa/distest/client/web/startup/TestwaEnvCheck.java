@@ -3,6 +3,7 @@ package com.testwa.distest.client.web.startup;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.testwa.core.WebsocketEvent;
+import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.distest.client.android.DeviceManager;
 import com.testwa.distest.client.component.appium.utils.Config;
 import com.testwa.distest.client.control.client.MainSocket;
@@ -19,6 +20,7 @@ import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
@@ -29,12 +31,12 @@ import java.io.IOException;
  * Created by wen on 16/8/27.
  */
 @Slf4j
+@Order(value=1)
 @Component
 public class TestwaEnvCheck implements CommandLineRunner {
 
     @Autowired
     private Environment env;
-
     @Autowired
     private HttpService httpService;
     @Autowired
@@ -48,6 +50,7 @@ public class TestwaEnvCheck implements CommandLineRunner {
 
     @Override
     public void run(String... strings) throws Exception {
+        AndroidHelper.getInstance();
         checkAuth(env.getProperty("username"), env.getProperty("password"));
         checkTempDirPath();
         Config.setEnv(env);
@@ -163,7 +166,9 @@ public class TestwaEnvCheck implements CommandLineRunner {
     }
 
     private void startDeviceManager() {
-        new Thread(() -> DeviceManager.getInstance().start()).start();
+        Thread t = new Thread(() -> DeviceManager.getInstance().start());
+        t.setDaemon(true);
+        t.start();
     }
 
 }
