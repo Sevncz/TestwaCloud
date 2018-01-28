@@ -6,16 +6,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Set;
+
 @Slf4j
 @Service
 public class ClientSessionMgr {
-    private static final String user_client_login = "client.client.session.%s";
+    private static final String ws_client = "ws.client.session.%s";
+    private static final String ws_client_pattern = "ws.client.session.*";
 
     @Autowired
     private RedisCacheManager redisCacheMgr;
 
     private String getKey(Long userId) {
-        return String.format(user_client_login, userId);
+        return String.format(ws_client, userId);
     }
 
     public void login(Long userId, String sessionId){
@@ -28,6 +31,12 @@ public class ClientSessionMgr {
 
     public String getClientSession(Long userId){
         return (String) redisCacheMgr.get(getKey(userId));
+    }
+    public void delAllClientSessions(){
+        Set<String> keys = redisCacheMgr.keys(ws_client_pattern);
+        keys.forEach(k -> {
+            redisCacheMgr.remove(k);
+        });
     }
 
 
