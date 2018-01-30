@@ -45,6 +45,7 @@ public class DeviceService {
     public void updateStatus(String deviceId, DB.PhoneOnlineStatus status) {
         deviceDAO.updateStatus(deviceId, status);
     }
+
     public void updateWorkStatus(String deviceId, DB.PhoneWorkStatus status) {
         deviceDAO.updateWorkStatus(deviceId, status);
     }

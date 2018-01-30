@@ -56,7 +56,6 @@ public class Minicap {
     private List<MinicapListener> listenerList = new ArrayList<MinicapListener>();
 
     public Minicap(String serialNumber, String resourcesPath) {
-
         this.resourcesPath = resourcesPath;
         int install = 5;
         while (install > 0) {
@@ -79,6 +78,10 @@ public class Minicap {
             int screenWidth = Integer.parseInt(sizeStr.split("x")[0].trim());
             int screenHeight = Integer.parseInt(sizeStr.split("x")[1].trim());
             deviceSize = new Size(screenWidth, screenHeight);
+        }
+
+        if(!isSupoort()){
+            log.error("This device minicap not supoort!");
         }
     }
 
@@ -249,7 +252,7 @@ public class Minicap {
         String filename = Identities.randomLong() + ".jpg";
         String takeScreenShotCommand = getMinicapCommand(deviceSize.w, deviceSize.h, deviceSize.w, deviceSize.h, 0, false, filename, new String[]{"-s -b"});
 
-        System.out.println("takeScreenShot:" + takeScreenShotCommand);
+        log.info("takeScreenShot:" + takeScreenShotCommand);
         BinaryOutputReceiver receiver = new BinaryOutputReceiver();
         try {
             device.executeShellCommand(takeScreenShotCommand, receiver);
@@ -275,7 +278,7 @@ public class Minicap {
                 break;
             }
             if (bytes[0] != -1 && bytes[1] != -40) {
-                System.out.println("not a jpg file!!");
+                log.error("not a jpg file!!");
                 break;
             }
 

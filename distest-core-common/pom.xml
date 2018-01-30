@@ -45,12 +45,6 @@
         <dependency>
             <groupId>com.github.cosysoft</groupId>
             <artifactId>device-api</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>l*</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>

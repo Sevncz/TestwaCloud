@@ -141,4 +141,10 @@ public class DeviceAuthMgr {
         redisCacheMgr.sInterStore(USING, USING, ONLINE);
     }
 
+    public void delAllOnline() {
+        redisCacheMgr.remove(ONLINE);
+    }
+    public void delAllUsing() {
+        redisCacheMgr.remove(USING);
+    }
 }

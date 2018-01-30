@@ -90,6 +90,7 @@ public class WebConnectionHandler {
             // 浏览器连接, 订阅一个设备的图像输出流
             String func = client.getHandshakeData().getSingleUrlParam("func");
             String deviceId = client.getHandshakeData().getSingleUrlParam("deviceId");
+            log.info("browser connected: {} - {}", func, deviceId);
             if(StringUtils.isNotBlank(func) && StringUtils.isNotBlank(deviceId) ){
                 if(WSFuncEnum.contains(func)){
                     subscribeMgr.subscribeDeviceEvent(deviceId, func, client.getSessionId().toString());
@@ -102,9 +103,7 @@ public class WebConnectionHandler {
             }else{
                 client.sendEvent("error", "参数不能为空");
             }
-
         }
-
     }
 
     @OnDisconnect
