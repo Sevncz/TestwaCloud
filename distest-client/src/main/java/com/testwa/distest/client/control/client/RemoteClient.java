@@ -3,8 +3,10 @@ package com.testwa.distest.client.control.client;
 import com.alibaba.fastjson.JSONObject;
 import com.github.cosysoft.device.android.AndroidDevice;
 import com.github.cosysoft.device.android.impl.AndroidDeviceStore;
+import com.github.cosysoft.device.shell.AndroidSdk;
 import com.google.protobuf.ByteString;
 import com.testwa.core.common.enums.Command;
+import com.testwa.distest.client.component.stfservice.KeyCode;
 import com.testwa.distest.client.component.stfservice.StfAgent;
 import com.testwa.distest.client.component.stfservice.StfAgentListener;
 import com.testwa.distest.client.grpc.Gvice;
@@ -19,6 +21,7 @@ import io.rpc.testwa.device.ScreenCaptureRequest;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import lombok.extern.slf4j.Slf4j;
+import org.openqa.selenium.os.CommandLine;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -29,7 +32,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * Created by wen on 10/06/2017.
  */
 @Slf4j
-public class RemoteClient extends BaseClient implements MinicapListener, MinitouchListener, StfAgentListener {
+public class RemoteClient extends BaseClient implements MinicapListener, MinitouchListener {
 
     static final int DATA_TIMEOUT = 100; //ms
     private boolean isWaitting = false;
@@ -213,6 +216,15 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
             case PUSH:
                 pushCommand(command);
                 break;
+            case BACK:
+                backCommand(command);
+                break;
+            case HOME:
+                homeCommand(command);
+                break;
+            case MENU:
+                menuCommand(command);
+                break;
         }
     }
 
@@ -224,6 +236,8 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
                 startMinicap(command);
             } else if (str.equals("minitouch")) {
                 startMinitouch(command);
+            }else if (str.equals("stfagent")) {
+//                startStfAgent(command);
             }
         }
     }
@@ -236,6 +250,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         setWaitting(false);
     }
 
+    // minitouch cmd
     private void keyeventCommand(Command command) {
         int k = Integer.parseInt(command.getContent());
         if (minitouch != null) minitouch.sendKeyEvent(k);
@@ -261,6 +276,53 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
             device.getDevice().pushFile(Constant.getTmpFile(name).getAbsolutePath(), path + "/" + name);
         } catch (Exception e) {
         }
+    }
+    // stfagent cmd
+    private void backCommand(Command command){
+        try {
+            CommandLine commandLine = new CommandLine(AndroidSdk.adb().getCanonicalPath(),
+                    "-s",
+                    serialNumber,
+                    "shell",
+                    "input",
+                    "keyevent",
+                    KeyCode.KEYCODE_BACK+""
+            );
+            commandLine.executeAsync();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    private void menuCommand(Command command){
+        try {
+            CommandLine commandLine = new CommandLine(AndroidSdk.adb().getCanonicalPath(),
+                    "-s",
+                    serialNumber,
+                    "shell",
+                    "input",
+                    "keyevent",
+                    KeyCode.KEYCODE_MENU+""
+            );
+            commandLine.executeAsync();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    private void homeCommand(Command command){
+        try {
+            CommandLine commandLine = new CommandLine(AndroidSdk.adb().getCanonicalPath(),
+                    "-s",
+                    serialNumber,
+                    "shell",
+                    "input",
+                    "keyevent",
+                    KeyCode.KEYCODE_HOME+""
+            );
+            commandLine.executeAsync();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void startMinicap(Command command) {
@@ -294,6 +356,17 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         this.minitouch = minitouch;
     }
 
+//    private void startStfAgent(Command command) {
+//        log.info("start stfagent {}", command.getCommandString());
+//        if (stfAgent != null) {
+//            stfAgent.kill();
+//        }
+//        StfAgent stfAgent = new StfAgent(serialNumber, resourcesPath);
+//        stfAgent.addEventListener(this);
+//        stfAgent.start();
+//        this.stfAgent = stfAgent;
+//    }
+
     public void stop(){
         if (minitouch != null) {
             minitouch.kill();
@@ -307,13 +380,4 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         }
     }
 
-    @Override
-    public void onStartup(StfAgent stfAgent, boolean success) {
-
-    }
-
-    @Override
-    public void onClose(StfAgent stfAgent) {
-
-    }
 }

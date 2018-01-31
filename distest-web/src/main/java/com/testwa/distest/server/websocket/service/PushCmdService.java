@@ -70,10 +70,36 @@ public class PushCmdService {
     }
 
     @Async
+    public void pushStfAgentCmdStart(MiniCmd cmd, String deviceId) {
+        log.info(cmd.toString());
+        SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
+        if(client != null)
+            client.sendEvent(Command.Schem.START.getSchemString(), JSON.toJSONString(cmd));
+    }
+
+    @Async
     public void pushTouchData(String deviceId, String data) {
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
         if(client != null)
         client.sendEvent(Command.Schem.TOUCH.getSchemString(), data);
+    }
+    @Async
+    public void pushHome(String deviceId) {
+        SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
+        if(client != null)
+        client.sendEvent(Command.Schem.HOME.getSchemString(), "");
+    }
+    @Async
+    public void pushBack(String deviceId) {
+        SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
+        if(client != null)
+        client.sendEvent(Command.Schem.BACK.getSchemString(), "");
+    }
+    @Async
+    public void pushMenu(String deviceId) {
+        SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
+        if(client != null)
+        client.sendEvent(Command.Schem.MENU.getSchemString(), "");
     }
 
     /**

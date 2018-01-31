@@ -9,6 +9,9 @@
 <canvas id="phone-screen"></canvas>
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 
+<button id="back">BACK</button>
+<button id="home" >HOME</button>
+<button id="menu">MENU</button>
 <!-- jQuery -->
 <script src="js/jquery.min.js"></script>
 <script src="js/jquery.jsonp.js"></script>
@@ -43,7 +46,7 @@ var BLANK_IMG =
 
 var canvas = document.getElementById('phone-screen')
   , g = canvas.getContext('2d')
-var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjVsKwjAUBfdyvhPIDTdNmq2IlDyuENFa2hQEce9W8MO_gTOceWHbMyJSvbcZCvsm69Qqolcoq6QuB5MjT9aNbmAzKmzlsQji6awgz-U3O_ZuUGip__uHMad8-570dReFa29HTSrXkJPREthqvjjSgYh1KhysqSUwMd4fAAAA__8.2D3X5w_s-3N_UmUVvzTw1kSlk0f4wymr0_3jae5pCJE";
+var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjUEKwyAUBe_y1grRr9HkKqUUoz9gadMQFQqld6-lm-4G3vDmhdIWzAjpnjcItMLHJSfMTiAeHCp3VlY5mozzZGkUKPGxM-bTWYCf-282mqwngRzqv9-NLSy370k9Ggtca-61dZ2mpK2VfhhYGjs6GeJCckgcjVYqcCS8PwAAAP__.7vp9ZPnqQkyWRUPHGy_gcjHJFASMpmXabhO3UMxECWE";
 var socket = io('http://127.0.0.1:9092?func=screen&deviceId=b15d91f&type=browser&token=' + token);
 socket.on('connect', function(){
     util.serverConnected = true
@@ -103,6 +106,17 @@ function getXAndY(control, event){
     var x2 = x - x1;
     var y2 = y - y1;
     return {x:x2,y:y2};
+}
+
+function sendHome() {
+    console.log("home")
+    socket.emit("home", "")
+}
+function sendBack() {
+    socket.emit("back", "")
+}
+function sendMenu() {
+    socket.emit("menu", "")
 }
 
 function sendTouchEvent(minitouchStr) {
@@ -185,6 +199,16 @@ canvas.onmouseup = function (event) {
     isDown = false;
     sendUp();
 };
+
+$("#back").click(function () {
+    sendBack();
+})
+$("#home").click(function () {
+    sendHome();
+})
+$("#menu").click(function () {
+    sendMenu();
+})
 
 </script>
 

@@ -48,15 +48,6 @@ public final class LogcatServiceBuilder extends AdbServiceBuilder {
             }
             argList.add(String.format("%s:%s", this.tag, this.level));
         }
-//        else{
-//            argList.add("-s");
-//        }
-
-//        if(StringUtils.isNotBlank(this.grep)){
-//            argList.add("|");
-//            argList.add("grep");
-//            argList.add(this.grep);
-//        }
         return (new ImmutableList.Builder()).addAll(argList).build();
     }
 

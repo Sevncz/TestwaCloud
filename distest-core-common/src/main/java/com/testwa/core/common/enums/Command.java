@@ -22,7 +22,11 @@ public class Command {
         SHOT("shot"),
         MINICAP("minicap"),
         MINITOUCH("minitouch"),
+        STFAGENT("stfagent"),
         PUSH("push"),
+        BACK("back"),
+        HOME("home"),
+        MENU("menu"),
         MESSAGE("message");
 
         private String schemStr;
@@ -75,8 +79,20 @@ public class Command {
             case "minitouch":
                 schem = Schem.MINITOUCH;
                 break;
+            case "stfagent":
+                schem = Schem.STFAGENT;
+                break;
             case "push":
                 schem = Schem.PUSH;
+                break;
+            case "back":
+                schem = Schem.BACK;
+                break;
+            case "home":
+                schem = Schem.HOME;
+                break;
+            case "menu":
+                schem = Schem.MENU;
                 break;
             case "message":
                 schem = Schem.MESSAGE;

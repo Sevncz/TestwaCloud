@@ -275,7 +275,6 @@ public class Minitouch {
                 }
             }
         }
-
     }
 
     private void onStartup(boolean success) {

@@ -22,8 +22,12 @@ public class CommandHandler {
 
     private final static String minitouch = "minitouch";
     private final static String minicap = "minicap";
+    private final static String stfagent = "stfagent";
     private final static String open = "open";
     private final static String touch = "touch";
+    private final static String home = "home";
+    private final static String back = "back";
+    private final static String menu = "menu";
 
     @Autowired
     private DeviceSessionMgr deviceSessionMgr;
@@ -50,6 +54,16 @@ public class CommandHandler {
             log.info("onMinicap close!");
         }
     }
+    @OnEvent(value = stfagent)
+    public void onStfAgent(SocketIOClient client, String data, AckRequest ackRequest) {
+        if("open".equals(data)){
+            log.info("onStfAgent open!");
+//            waitingData(client);
+        }
+        if("close".equals(data)){
+            log.info("onStfAgent close!");
+        }
+    }
 
     @OnEvent(value = open)
     public void onOpen(SocketIOClient client, String data, AckRequest ackRequest) {
@@ -67,6 +81,29 @@ public class CommandHandler {
         String deviceId = client.getHandshakeData().getSingleUrlParam("deviceId");
 
         pushCmdService.pushTouchData(deviceId, data);
+
+    }
+
+    @OnEvent(value = home)
+    public void onHome(SocketIOClient client, String data, AckRequest ackRequest) throws ObjectNotExistsException {
+
+        String deviceId = client.getHandshakeData().getSingleUrlParam("deviceId");
+        pushCmdService.pushHome(deviceId);
+
+    }
+    @OnEvent(value = back)
+    public void onBack(SocketIOClient client, String data, AckRequest ackRequest) throws ObjectNotExistsException {
+
+        String deviceId = client.getHandshakeData().getSingleUrlParam("deviceId");
+        pushCmdService.pushBack(deviceId);
+
+    }
+
+    @OnEvent(value = menu)
+    public void onMenu(SocketIOClient client, String data, AckRequest ackRequest) throws ObjectNotExistsException {
+
+        String deviceId = client.getHandshakeData().getSingleUrlParam("deviceId");
+        pushCmdService.pushMenu(deviceId);
 
     }
 

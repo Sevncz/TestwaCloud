@@ -73,6 +73,7 @@ public class WebConnectionHandler {
 
             requestStartMinitouch(serial);
             requestStartMinicap(serial);
+            requestStartStfService(serial);
 
         }else if("client".equals(type)){
             // 客户端连接
@@ -161,6 +162,11 @@ public class WebConnectionHandler {
         cmd.setType("minicap");
         cmd.setConfig(config);
         pushCmdService.pushMinCmdStart(cmd, deviceId);
+    }
+    private void requestStartStfService(String deviceId) throws ObjectNotExistsException {
+        MiniCmd cmd = new MiniCmd();
+        cmd.setType("stfagent");
+        pushCmdService.pushStfAgentCmdStart(cmd, deviceId);
     }
 
 }
