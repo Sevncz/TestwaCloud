@@ -83,6 +83,14 @@ public class PushCmdService {
         if(client != null)
         client.sendEvent(Command.Schem.TOUCH.getSchemString(), data);
     }
+
+    @Async
+    public void pushInputText(String deviceId, String data) {
+        SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
+        if(client != null)
+            client.sendEvent(Command.Schem.INPUT.getSchemString(), data);
+    }
+
     @Async
     public void pushHome(String deviceId) {
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
@@ -141,4 +149,5 @@ public class PushCmdService {
         if(client != null)
         client.sendEvent(WebsocketEvent.ON_TESTCASE_RUN, JSON.toJSONString(cmd));
     }
+
 }

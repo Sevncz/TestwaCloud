@@ -5,14 +5,17 @@ import com.android.ddmlib.IDevice;
 import com.android.ddmlib.TimeoutException;
 import com.github.cosysoft.device.android.AndroidDevice;
 import com.github.cosysoft.device.exception.DeviceNotFoundException;
+import com.github.cosysoft.device.shell.AndroidSdk;
 import com.testwa.core.service.AdbDriverService;
 import com.testwa.core.service.MinitouchServiceBuilder;
 import com.testwa.distest.client.android.AdbForward;
 import com.testwa.distest.client.android.AndroidHelper;
+import com.testwa.distest.client.component.stfservice.KeyCode;
 import com.testwa.distest.client.control.port.TouchPortProvider;
 import com.testwa.distest.client.component.Constant;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.openqa.selenium.os.CommandLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -194,7 +197,27 @@ public class Minitouch {
     }
 
     public void inputText(String str) {
-        AndroidHelper.getInstance().executeShellCommand(device.getDevice(), "input text " + str);
+//        AndroidHelper.getInstance().executeShellCommand(device.getDevice(), "input text " + str);
+        // Switch to ADBKeyBoard from adb
+        // adb shell ime set com.android.adbkeyboard/.AdbIME
+        AndroidHelper.getInstance().executeShellCommand(device.getDevice(), "ime set com.android.adbkeyboard/.AdbIME");
+        try {
+            CommandLine commandLine = new CommandLine(AndroidSdk.adb().getCanonicalPath(),
+                    "-s",
+                    device.getSerialNumber(),
+                    "shell",
+                    "am",
+                    "broadcast",
+                    "-a",
+                    "ADB_INPUT_TEXT",
+                    "--es",
+                    "msg",
+                    str
+            );
+            commandLine.executeAsync();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**

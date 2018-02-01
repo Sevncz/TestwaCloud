@@ -5,13 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Device</title>
 </head>
-<body>
 <canvas id="phone-screen"></canvas>
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 
 <button id="back">BACK</button>
 <button id="home" >HOME</button>
 <button id="menu">MENU</button>
+
+<input type="text" id="text" />
+<button id="send">SEND</button>
 <!-- jQuery -->
 <script src="js/jquery.min.js"></script>
 <script src="js/jquery.jsonp.js"></script>
@@ -46,7 +48,7 @@ var BLANK_IMG =
 
 var canvas = document.getElementById('phone-screen')
   , g = canvas.getContext('2d')
-var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjUEKwyAUBe_y1grRr9HkKqUUoz9gadMQFQqld6-lm-4G3vDmhdIWzAjpnjcItMLHJSfMTiAeHCp3VlY5mozzZGkUKPGxM-bTWYCf-282mqwngRzqv9-NLSy370k9Ggtca-61dZ2mpK2VfhhYGjs6GeJCckgcjVYqcCS8PwAAAP__.7vp9ZPnqQkyWRUPHGy_gcjHJFASMpmXabhO3UMxECWE";
+var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjcEKAiEURf_lrhXUdCb9lYh46hswahpGhSD694w27Q7cwz0v1B4RQPleVgj0yvulZIRZIO1MjQdrp2frjVHKGSNQ02NjhNNZgJ_bb3ZGK6UECrV_fxgrxdv3pO2dBa6tjNqRI5OdvJwWitJyJunZL9LmZKLXB6VzxvsDAAD__w.EpPvGRP5Xq2agFYwVVKpo4MFhTLfUJGhoTzQzqkpj6I";
 var socket = io('http://127.0.0.1:9092?func=screen&deviceId=b15d91f&type=browser&token=' + token);
 socket.on('connect', function(){
     util.serverConnected = true
@@ -121,6 +123,9 @@ function sendMenu() {
 
 function sendTouchEvent(minitouchStr) {
     socket.emit("touch", minitouchStr)
+}
+function sendInputText(text) {
+    socket.emit("input", text)
 }
 
 function sendDown(argx, argy, isRo) {
@@ -208,6 +213,11 @@ $("#home").click(function () {
 })
 $("#menu").click(function () {
     sendMenu();
+})
+
+$("#send").click(function () {
+    var text = $("#text").val()
+    sendInputText(text);
 })
 
 </script>

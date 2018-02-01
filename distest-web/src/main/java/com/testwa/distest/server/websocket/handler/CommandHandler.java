@@ -25,6 +25,7 @@ public class CommandHandler {
     private final static String stfagent = "stfagent";
     private final static String open = "open";
     private final static String touch = "touch";
+    private final static String input = "input";
     private final static String home = "home";
     private final static String back = "back";
     private final static String menu = "menu";
@@ -81,6 +82,15 @@ public class CommandHandler {
         String deviceId = client.getHandshakeData().getSingleUrlParam("deviceId");
 
         pushCmdService.pushTouchData(deviceId, data);
+
+    }
+
+    @OnEvent(value = input)
+    public void onInput(SocketIOClient client, String data, AckRequest ackRequest) throws ObjectNotExistsException {
+
+        String deviceId = client.getHandshakeData().getSingleUrlParam("deviceId");
+
+        pushCmdService.pushInputText(deviceId, data);
 
     }
 
