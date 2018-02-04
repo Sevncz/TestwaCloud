@@ -6,9 +6,9 @@ import com.github.cosysoft.device.android.impl.AndroidDeviceStore;
 import com.github.cosysoft.device.shell.AndroidSdk;
 import com.google.protobuf.ByteString;
 import com.testwa.core.common.enums.Command;
+import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.distest.client.component.stfservice.KeyCode;
 import com.testwa.distest.client.component.stfservice.StfAgent;
-import com.testwa.distest.client.component.stfservice.StfAgentListener;
 import com.testwa.distest.client.grpc.Gvice;
 import com.testwa.distest.client.component.minicap.Banner;
 import com.testwa.distest.client.component.minicap.Minicap;
@@ -23,6 +23,7 @@ import io.socket.client.Socket;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.os.CommandLine;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.concurrent.BlockingQueue;
@@ -82,6 +83,13 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
 
         ws.connect();
 
+        // install 支持中文输入的输入法
+        String keyboardPath = this.resourcesPath + File.separator + Constant.getKeyboardService();
+        try {
+            AndroidHelper.getInstance().installApp(keyboardPath, serialNumber);
+        }catch (Exception e){
+            log.error("install keyboard service error, {}", keyboardPath);
+        }
     }
 
     @Override
@@ -322,6 +330,9 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void installCommand(Command command){
 
     }
 

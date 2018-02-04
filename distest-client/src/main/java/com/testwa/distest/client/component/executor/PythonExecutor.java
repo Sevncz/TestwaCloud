@@ -1,4 +1,4 @@
-package com.testwa.distest.client.executor;
+package com.testwa.distest.client.component.executor;
 
 import com.github.cosysoft.device.android.AndroidApp;
 import com.github.cosysoft.device.android.AndroidDevice;
@@ -18,11 +18,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,6 +38,8 @@ import java.util.regex.Pattern;
 @Data
 @Slf4j
 public class PythonExecutor {
+    private List<PythonExecutorListener> listenerList = new ArrayList<>();
+
     private String appiumUrl;
     // 127.0.0.1:8080 or cloud.testwa.com
     private String distestApiWeb;
@@ -329,16 +333,33 @@ public class PythonExecutor {
                 .withPyScript(new File(tempPath))
                 .build();
         this.pyService.start();
+        onStartup(true);
         log.info("python script start......");
     }
 
     @ExecutorActionInfo(desc = "取消", order = 999)
     public void stop() {
+        onClose();
+
         if(this.pyService != null){
             this.pyService.stop();
         }
         this.testcases.clear();
         this.scripts.clear();
+    }
+
+
+
+    private void onStartup(boolean success) {
+        for (PythonExecutorListener listener : listenerList) {
+            listener.onStartup(this, success);
+        }
+    }
+
+    private void onClose() {
+        for (PythonExecutorListener listener : listenerList) {
+            listener.onClose(this);
+        }
     }
 
 }

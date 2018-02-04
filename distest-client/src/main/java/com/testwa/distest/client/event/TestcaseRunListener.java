@@ -2,7 +2,7 @@ package com.testwa.distest.client.event;
 
 import com.testwa.core.cmd.RemoteRunCommand;
 import com.testwa.distest.client.component.appium.AppiumManager;
-import com.testwa.distest.client.executor.*;
+import com.testwa.distest.client.component.executor.*;
 import com.testwa.distest.client.component.appium.pool.AppiumManagerPool;
 import com.testwa.distest.client.exception.DownloadFailException;
 import com.testwa.distest.client.service.GrpcClientService;

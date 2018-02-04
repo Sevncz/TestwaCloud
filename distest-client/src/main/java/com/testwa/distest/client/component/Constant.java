@@ -30,6 +30,8 @@ public class Constant {
     public static final String MINITOUCH_NOPIE = "minitouch-nopie";
     public static final String MINITOUCH_DIR = "/data/local/tmp/minitouch-devel";
 
+    public static final String KEYBOARD_SERVICE_APK = "keyboardservice-debug.apk";
+
 	public static final String localAppPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "app").toString();
 	public static final String localScriptPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "script").toString();
 	public static final String localScriptTmpPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "script_tmp").toString();
@@ -64,5 +66,10 @@ public class Constant {
 	public static String getMinicapSo() {
 		return File.separator + "minicap" + File.separator + "shared";
 	}
+
+    public static String getKeyboardService() {
+        return "keyboardservice" + File.separator + KEYBOARD_SERVICE_APK;
+    }
+
 
 }

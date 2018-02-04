@@ -88,7 +88,7 @@ public class UserService {
         query.setEmail(email);
         List<User> users = userDAO.findBy(query);
         if(users.size() > 1){
-            log.error("findForCurrentUser by email return > 1");
+            log.error("findForCurrentUser by email return > 1, {}", email);
         }
         if(users.size() == 0){
             return null;
@@ -101,7 +101,7 @@ public class UserService {
         query.setUsername(username);
         List<User> users = userDAO.findBy(query);
         if(users.size() > 1){
-            log.error("findForCurrentUser by username return > 1");
+            log.error("findForCurrentUser by username return > 1, {}", username);
         }
         if(users.size() == 0){
             return null;

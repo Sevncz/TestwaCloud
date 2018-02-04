@@ -23,6 +23,7 @@ public class Command {
         MINICAP("minicap"),
         MINITOUCH("minitouch"),
         STFAGENT("stfagent"),
+        PYEXECUTOR("pyexecutor"),
         PUSH("push"),
         BACK("back"),
         HOME("home"),
@@ -81,6 +82,8 @@ public class Command {
                 break;
             case "stfagent":
                 schem = Schem.STFAGENT;
+            case "pyexecutor":
+                schem = Schem.PYEXECUTOR;
                 break;
             case "push":
                 schem = Schem.PUSH;

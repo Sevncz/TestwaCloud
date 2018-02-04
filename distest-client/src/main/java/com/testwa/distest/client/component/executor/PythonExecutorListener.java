@@ -1,0 +1,1 @@
+package com.testwa.distest.client.component.executor;public interface PythonExecutorListener {    // 执行器启动完毕后    public void onStartup(PythonExecutor executor, boolean success);    // 执行器关闭    public void onClose(PythonExecutor executor);}

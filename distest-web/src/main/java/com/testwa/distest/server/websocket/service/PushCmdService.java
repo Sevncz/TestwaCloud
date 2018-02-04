@@ -5,6 +5,7 @@ import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.testwa.core.WebsocketEvent;
 import com.testwa.core.base.exception.ObjectNotExistsException;
+import com.testwa.core.cmd.KeyCode;
 import com.testwa.core.common.enums.Command;
 import com.testwa.core.cmd.MiniCmd;
 import com.testwa.core.cmd.RemoteRunCommand;
@@ -108,6 +109,12 @@ public class PushCmdService {
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
         if(client != null)
         client.sendEvent(Command.Schem.MENU.getSchemString(), "");
+    }
+    @Async
+    public void pushDel(String deviceId) {
+        SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
+        if(client != null)
+            client.sendEvent(Command.Schem.KEYEVENT.getSchemString(), KeyCode.KEYCODE_DEL+"");
     }
 
     /**

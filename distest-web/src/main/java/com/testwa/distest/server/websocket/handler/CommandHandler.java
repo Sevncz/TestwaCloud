@@ -5,10 +5,8 @@ import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.annotation.OnEvent;
 import com.testwa.core.base.exception.ObjectNotExistsException;
-import com.testwa.core.common.enums.Command;
 import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
 import com.testwa.distest.server.websocket.service.PushCmdService;
-import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -23,12 +21,15 @@ public class CommandHandler {
     private final static String minitouch = "minitouch";
     private final static String minicap = "minicap";
     private final static String stfagent = "stfagent";
+    private final static String pyexecutor = "pyeecutor";
     private final static String open = "open";
     private final static String touch = "touch";
     private final static String input = "input";
     private final static String home = "home";
     private final static String back = "back";
     private final static String menu = "menu";
+    private final static String del = "del";
+    private final static String clear = "clear";
 
     @Autowired
     private DeviceSessionMgr deviceSessionMgr;
@@ -59,10 +60,18 @@ public class CommandHandler {
     public void onStfAgent(SocketIOClient client, String data, AckRequest ackRequest) {
         if("open".equals(data)){
             log.info("onStfAgent open!");
-//            waitingData(client);
         }
         if("close".equals(data)){
             log.info("onStfAgent close!");
+        }
+    }
+    @OnEvent(value = pyexecutor)
+    public void onPyExecutor(SocketIOClient client, String data, AckRequest ackRequest) {
+        if("open".equals(data)){
+            log.info("pyexecutor open!");
+        }
+        if("close".equals(data)){
+            log.info("pyexecutor close!");
         }
     }
 
@@ -114,6 +123,14 @@ public class CommandHandler {
 
         String deviceId = client.getHandshakeData().getSingleUrlParam("deviceId");
         pushCmdService.pushMenu(deviceId);
+
+    }
+
+    @OnEvent(value = del)
+    public void onDel(SocketIOClient client, String data, AckRequest ackRequest) throws ObjectNotExistsException {
+
+        String deviceId = client.getHandshakeData().getSingleUrlParam("deviceId");
+        pushCmdService.pushDel(deviceId);
 
     }
 
