@@ -1,14 +1,17 @@
 package com.testwa.distest.client.control.client;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.cosysoft.device.android.AndroidDevice;
 import com.github.cosysoft.device.android.impl.AndroidDeviceStore;
 import com.github.cosysoft.device.shell.AndroidSdk;
 import com.google.protobuf.ByteString;
+import com.sun.tools.javac.util.Convert;
+import com.testwa.core.cmd.RemoteRunCommand;
 import com.testwa.core.common.enums.Command;
 import com.testwa.distest.client.android.AndroidHelper;
+import com.testwa.distest.client.component.executor.*;
 import com.testwa.distest.client.component.stfservice.KeyCode;
-import com.testwa.distest.client.component.stfservice.StfAgent;
 import com.testwa.distest.client.grpc.Gvice;
 import com.testwa.distest.client.component.minicap.Banner;
 import com.testwa.distest.client.component.minicap.Minicap;
@@ -21,23 +24,41 @@ import io.rpc.testwa.device.ScreenCaptureRequest;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import lombok.extern.slf4j.Slf4j;
+import net.bramp.ffmpeg.probe.FFmpegProbeResult;
+import org.bytedeco.javacpp.BytePointer;
+import org.bytedeco.javacpp.avcodec;
+import org.bytedeco.javacpp.opencv_core;
+import org.bytedeco.javacv.FFmpegFrameRecorder;
+import org.bytedeco.javacv.FrameRecorder;
+import org.bytedeco.javacv.OpenCVFrameConverter;
 import org.openqa.selenium.os.CommandLine;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+
+import static org.bytedeco.javacpp.opencv_core.CV_8UC1;
+import static org.bytedeco.javacpp.opencv_core.cvMat;
+import static org.bytedeco.javacpp.opencv_core.cvReleaseImage;
+import static org.bytedeco.javacpp.opencv_imgcodecs.cvDecodeImage;
 
 /**
  * Created by wen on 10/06/2017.
  */
 @Slf4j
-public class RemoteClient extends BaseClient implements MinicapListener, MinitouchListener {
+public class RemoteClient extends BaseClient implements MinicapListener, MinitouchListener, TaskListener {
 
     static final int DATA_TIMEOUT = 100; //ms
     private boolean isWaitting = false;
-    private BlockingQueue<LocalClient.ImageData> dataQueue = new LinkedBlockingQueue<LocalClient.ImageData>();
+    private BlockingQueue<LocalClient.ImageData> dataQueue = new LinkedBlockingQueue<>();
+    private BlockingQueue<LocalClient.ImageData> toVideoDataQueue = new LinkedBlockingQueue<>();
 
     private String url;
     private String controller;
@@ -47,9 +68,11 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
 
     private String resourcesPath;  // minicap和minitouch存放的路径
 
-    Minicap minicap = null;
-    Minitouch minitouch = null;
-    StfAgent stfAgent = null;
+    private Minicap minicap = null;
+    private Minitouch minitouch = null;
+    private Task task = null;
+
+    private FFmpegFrameRecorder recorder;
 
     public RemoteClient(String url, String controller, String serialNumber, Channel channel, String resourcesPath) throws IOException, URISyntaxException {
         log.info("Remote Client init");
@@ -92,116 +115,6 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         }
     }
 
-    @Override
-    public void onStartup(Minicap minicap, boolean success) {
-        if (ws != null) {
-            ws.emit(Command.Schem.MINICAP.getSchemString(), "open");
-        }
-    }
-
-    @Override
-    public void onClose(Minicap minicap) {
-        if (ws != null) {
-            ws.emit(Command.Schem.MINICAP.getSchemString(), "close");
-        }
-    }
-
-    @Override
-    public void onBanner(Minicap minicap, Banner banner) {
-
-    }
-
-    @Override
-    public void onJPG(Minicap minicap, byte[] data) {
-        if (isWaitting) {
-            if (dataQueue.size() > 0) {
-                dataQueue.add(new LocalClient.ImageData(data));
-                // 挑选没有超时的图片
-                LocalClient.ImageData d = getUsefulImage();
-                sendImage(d.data);
-            } else {
-                sendImage(data);
-            }
-//            isWaitting = false;
-        } else {
-            clearObsoleteImage();
-            dataQueue.add(new LocalClient.ImageData(data));
-        }
-    }
-
-    @Override
-    public void onStartup(Minitouch minitouch, boolean success) {
-        if (ws != null) {
-            ws.emit(Command.Schem.MINITOUCH.getSchemString(), "open");
-        }
-    }
-
-    @Override
-    public void onClose(Minitouch minitouch) {
-        if (ws != null) {
-            ws.emit(Command.Schem.MINITOUCH.getSchemString(), "close");
-        }
-
-    }
-
-    private void sendImage(byte[] data) {
-        log.debug(String.valueOf(data.length));
-        try {
-
-            ScreenCaptureRequest request = ScreenCaptureRequest.newBuilder()
-                    .setImg(ByteString.copyFrom(data))
-                    .setName("xxx")
-                    .setSerial(this.serialNumber)
-                    .build();
-
-            Gvice.deviceService(this.channel).screen(request);
-
-        }catch (Exception e){
-            log.error(e.getMessage());
-        }finally {
-        }
-    }
-
-    private void clearObsoleteImage() {
-        LocalClient.ImageData d = dataQueue.peek();
-        long curTS = System.currentTimeMillis();
-        while (d != null) {
-            if (curTS - d.timesp < DATA_TIMEOUT) {
-                dataQueue.poll();
-                d = dataQueue.peek();
-            } else {
-                break;
-            }
-        }
-    }
-
-    private LocalClient.ImageData getUsefulImage() {
-        long curTS = System.currentTimeMillis();
-        // 挑选没有超时的图片
-        LocalClient.ImageData d = null;
-        while (true) {
-            d = dataQueue.poll();
-            // 如果没有超时，或者超时了但是最后一张图片，也发送给客户端
-            if (d == null || curTS - d.timesp < DATA_TIMEOUT || dataQueue.size() == 0) {
-                break;
-            }
-        }
-        return d;
-    }
-
-    public void setWaitting(boolean waitting) {
-        isWaitting = waitting;
-        trySendImage();
-    }
-
-    private void trySendImage() {
-        LocalClient.ImageData d = getUsefulImage();
-        if (d != null) {
-            isWaitting = false;
-            sendImage(d.data);
-        }
-    }
-
     void executeCommand(Command command) {
         switch (command.getSchem()) {
             case START:
@@ -233,7 +146,26 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
             case MENU:
                 menuCommand(command);
                 break;
+            case START_LOGCAT:
+                logcatCommand(command);
+                break;
+            case WAIT_LOGCAT:
+                waitlogcatCommand(command);
+                break;
+            case START_TASK:
+                startTask(command);
+                break;
+            case CANCEL_TASK:
+                cancelTask(command);
+                break;
         }
+    }
+
+    // logcat
+    private void waitlogcatCommand(Command command) {
+    }
+
+    private void logcatCommand(Command command) {
     }
 
     private void startCommand(Command command) {
@@ -259,6 +191,33 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
     }
 
     // minitouch cmd
+
+    private void startMinitouch(Command command) {
+        log.info("start Minitouch {}", command.getCommandString());
+        if (minitouch != null) {
+            minitouch.kill();
+        }
+
+        Minitouch minitouch = new Minitouch(serialNumber, resourcesPath);
+        minitouch.addEventListener(this);
+        minitouch.start();
+        this.minitouch = minitouch;
+    }
+    @Override
+    public void onStartup(Minitouch minitouch, boolean success) {
+        if (ws != null) {
+            ws.emit(Command.Schem.MINITOUCH.getSchemString(), "open");
+        }
+    }
+
+    @Override
+    public void onClose(Minitouch minitouch) {
+        if (ws != null) {
+            ws.emit(Command.Schem.MINITOUCH.getSchemString(), "close");
+        }
+
+    }
+
     private void keyeventCommand(Command command) {
         int k = Integer.parseInt(command.getContent());
         if (minitouch != null) minitouch.sendKeyEvent(k);
@@ -336,6 +295,11 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
 
     }
 
+    // minicap cmd
+    private Thread tovideoThread;
+    private LocalClient.ImageData imageData = null;
+    private boolean push = true;
+
     private void startMinicap(Command command) {
         log.info("startMinicap {}", command.getCommandString());
         if (minicap != null) {
@@ -345,6 +309,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         JSONObject obj = (JSONObject) command.get("config");
         Float scale = obj.getFloat("scale");
         Float rotate = obj.getFloat("rotate");
+        scale = 0.5f;
         if (scale == null) {scale = 0.3f;}
         if (scale < 0.01) {scale = 0.01f;}
         if (scale > 1.0) {scale = 1.0f;}
@@ -355,16 +320,229 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         this.minicap = minicap;
     }
 
-    private void startMinitouch(Command command) {
-        log.info("start Minitouch {}", command.getCommandString());
-        if (minitouch != null) {
-            minitouch.kill();
+    @Override
+    public void onStartup(Minicap minicap, boolean success) {
+        if (ws != null) {
+            ws.emit(Command.Schem.MINICAP.getSchemString(), "open");
+        }
+        tovideoThread = new Thread(new ConvertRunner());
+        tovideoThread.setDaemon(false);
+        tovideoThread.start();
+    }
+
+    @Override
+    public void onClose(Minicap minicap) {
+        push = false;
+        try {
+            recorder.stop();
+            recorder.release();
+        } catch (FrameRecorder.Exception e) {
+            log.error("FrameRecorder close error", e);
+        }
+        if (ws != null) {
+            ws.emit(Command.Schem.MINICAP.getSchemString(), "close");
+        }
+    }
+
+    @Override
+    public void onBanner(Minicap minicap, Banner banner) {
+
+    }
+
+    @Override
+    public void onJPG(Minicap minicap, byte[] data) {
+        // for video queue
+        toVideoDataQueue.add(new LocalClient.ImageData(data));
+        // for pic queue
+        if (isWaitting) {
+            if (dataQueue.size() > 0) {
+                dataQueue.add(new LocalClient.ImageData(data));
+                // 挑选没有超时的图片
+                LocalClient.ImageData d = getUsefulImage();
+                sendImage(d.data);
+            } else {
+                sendImage(data);
+            }
+//            isWaitting = false;
+        } else {
+            clearObsoleteImage();
+            dataQueue.add(new LocalClient.ImageData(data));
+        }
+    }
+
+    private void sendImage(byte[] data) {
+        log.debug(String.valueOf(data.length));
+        try {
+
+            ScreenCaptureRequest request = ScreenCaptureRequest.newBuilder()
+                    .setImg(ByteString.copyFrom(data))
+                    .setName("xxx")
+                    .setSerial(this.serialNumber)
+                    .build();
+
+            Gvice.deviceService(this.channel).screen(request);
+
+        }catch (Exception e){
+            log.error(e.getMessage());
+        }finally {
+        }
+    }
+
+    class ConvertRunner implements Runnable {
+        private LocalClient.ImageData lastD = null;
+        private int FRAME_RATE = 30;
+
+        public ConvertRunner(){
+
+            int h = (int) (minicap.getDeviceSize().h * 0.3);
+            int w = (int) (minicap.getDeviceSize().w * 0.3);
+            int m_dst_h = (h >> 4) << 4 ;
+            int m_dst_w = (w >> 4) << 4 ;
+
+            // "rtmp://122.115.49.75:8090/live/123456"
+            // "rtmp://cloud.testwa.com:1935/live/123456"
+            // "/Users/wen/dev/testWa/center/minicap.flv"
+            recorder = new FFmpegFrameRecorder("/Users/wen/dev/testWa/center/minicap.flv",m_dst_w,m_dst_h, 0);
+            recorder.setInterleaved(true);
+            /**
+             * 该参数用于降低延迟 参考FFMPEG官方文档：https://trac.ffmpeg.org/wiki/StreamingGuide
+             * 官方原文参考：ffmpeg -f dshow -i video="Virtual-Camera" -vcodec libx264
+             * -tune zerolatency -b 900k -f mpegts udp://10.1.0.102:1234
+             */
+
+            recorder.setVideoOption("tune", "zerolatency");
+            /**
+             * 权衡quality(视频质量)和encode speed(编码速度) values(值)：
+             * ultrafast(终极快),superfast(超级快), veryfast(非常快), faster(很快), fast(快),
+             * medium(中等), slow(慢), slower(很慢), veryslow(非常慢)
+             * ultrafast(终极快)提供最少的压缩（低编码器CPU）和最大的视频流大小；而veryslow(非常慢)提供最佳的压缩（高编码器CPU）的同时降低视频流的大小
+             * 参考：https://trac.ffmpeg.org/wiki/Encode/H.264 官方原文参考：-preset ultrafast
+             * as the name implies provides for the fastest possible encoding. If
+             * some tradeoff between quality and encode speed, go for the speed.
+             * This might be needed if you are going to be transcoding multiple
+             * streams on one machine.
+             */
+            recorder.setVideoOption("preset", "ultrafast");
+            /**
+             * 参考转流命令: ffmpeg
+             * -i'udp://localhost:5000?fifo_size=1000000&overrun_nonfatal=1' -crf 30
+             * -preset ultrafast -acodec aac -strict experimental -ar 44100 -ac
+             * 2-b:a 96k -vcodec libx264 -r 25 -b:v 500k -f flv 'rtmp://<wowza
+             * serverIP>/live/cam0' -crf 30
+             * -设置内容速率因子,这是一个x264的动态比特率参数，它能够在复杂场景下(使用不同比特率，即可变比特率)保持视频质量；
+             * 可以设置更低的质量(quality)和比特率(bit rate),参考Encode/H.264 -preset ultrafast
+             * -参考上面preset参数，与视频压缩率(视频大小)和速度有关,需要根据情况平衡两大点：压缩率(视频大小)，编/解码速度 -acodec
+             * aac -设置音频编/解码器 (内部AAC编码) -strict experimental
+             * -允许使用一些实验的编解码器(比如上面的内部AAC属于实验编解码器) -ar 44100 设置音频采样率(audio sample
+             * rate) -ac 2 指定双通道音频(即立体声) -b:a 96k 设置音频比特率(bit rate) -vcodec libx264
+             * 设置视频编解码器(codec) -r 25 -设置帧率(frame rate) -b:v 500k -设置视频比特率(bit
+             * rate),比特率越高视频越清晰,视频体积也会变大,需要根据实际选择合理范围 -f flv
+             * -提供输出流封装格式(rtmp协议只支持flv封装格式) 'rtmp://<FMS server
+             * IP>/live/cam0'-流媒体服务器地址
+             */
+            recorder.setVideoOption("crf","28");
+            recorder.setVideoBitrate(2000000);
+            // h264编/解码器
+            recorder.setVideoCodec(avcodec.AV_CODEC_ID_H264);
+            // 封装格式flv
+            recorder.setFormat("flv");
+            // 视频帧率(保证视频质量的情况下最低25，低于25会出现闪屏)
+            recorder.setFrameRate(FRAME_RATE);
+            // 关键帧间隔，一般与帧率相同或者是视频帧率的两倍
+            recorder.setGopSize(FRAME_RATE * 2);
+
+            try {
+                recorder.start();
+            } catch (FrameRecorder.Exception e) {
+                if (recorder != null) {
+                    log.error("recorder start error!", e);
+                    try {
+                        recorder.stop();
+                        recorder.start();
+                    } catch (FrameRecorder.Exception e1) {
+                        try {
+                            log.error("recorder start error again!", e);
+                            recorder.stop();
+                        } catch (FrameRecorder.Exception e2) {
+                            log.error("recorder start error again again!", e);
+                        }
+                    }
+                }
+            }
         }
 
-        Minitouch minitouch = new Minitouch(serialNumber, resourcesPath);
-        minitouch.addEventListener(this);
-        minitouch.start();
-        this.minitouch = minitouch;
+        @Override
+        public void run() {
+            while(push){
+                LocalClient.ImageData d1 = null;
+                try {
+                    d1 = toVideoDataQueue.poll(DATA_TIMEOUT, TimeUnit.MILLISECONDS);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                if (d1 == null) {
+                    if(lastD != null){
+                        toVideo(lastD.data);
+                    }
+                }else{
+                    lastD = d1;
+                    toVideo(d1.data);
+                }
+
+            }
+        }
+        private void toVideo(byte[] data){
+
+            OpenCVFrameConverter.ToIplImage conveter = new OpenCVFrameConverter.ToIplImage();
+            opencv_core.IplImage image = cvDecodeImage(cvMat(1, data.length, CV_8UC1, new BytePointer(data)));
+            try {
+                recorder.record(conveter.convert(image));
+                cvReleaseImage(image);
+            } catch (Exception e) {
+                log.error("abort", e.getMessage());
+            }
+
+        }
+    }
+
+    private void clearObsoleteImage() {
+        LocalClient.ImageData d = dataQueue.peek();
+        long curTS = System.currentTimeMillis();
+        while (d != null) {
+            if (curTS - d.timesp < DATA_TIMEOUT) {
+                dataQueue.poll();
+                d = dataQueue.peek();
+            } else {
+                break;
+            }
+        }
+    }
+
+    private LocalClient.ImageData getUsefulImage() {
+        long curTS = System.currentTimeMillis();
+        // 挑选没有超时的图片
+        LocalClient.ImageData d = null;
+        while (true) {
+            d = dataQueue.poll();
+            // 如果没有超时，或者超时了但是最后一张图片，也发送给客户端
+            if (d == null || curTS - d.timesp < DATA_TIMEOUT || dataQueue.size() == 0) {
+                break;
+            }
+        }
+        return d;
+    }
+
+    public void setWaitting(boolean waitting) {
+        isWaitting = waitting;
+        trySendImage();
+    }
+
+    private void trySendImage() {
+        LocalClient.ImageData d = getUsefulImage();
+        if (d != null) {
+            isWaitting = false;
+            sendImage(d.data);
+        }
     }
 
 //    private void startStfAgent(Command command) {
@@ -379,16 +557,67 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
 //    }
 
     public void stop(){
+        // 关闭组件
         if (minitouch != null) {
             minitouch.kill();
         }
         if (minicap != null) {
             minicap.kill();
         }
+        if (task != null) {
+            task.kill();
+        }
         if(ws != null){
             this.ws.disconnect();
             this.channel = null;
         }
+        // 关闭录制
+        try {
+            this.push = false;
+            this.recorder.stop();
+        } catch (FrameRecorder.Exception e) {
+            e.printStackTrace();
+        }
     }
+
+
+    // task
+    @Override
+    public void onStartup(Task task, boolean success) {
+        if (ws != null) {
+            ws.emit(Command.Schem.START_TASK.getSchemString(), success);
+        }
+    }
+
+    @Override
+    public void onComplete(Task task) {
+        if (ws != null) {
+            ws.emit(Command.Schem.COMPLETE_TASK.getSchemString(), true);
+        }
+    }
+    @Override
+    public void onCancel(Task task) {
+        if (ws != null) {
+            ws.emit(Command.Schem.CANCEL_TASK.getSchemString(), true);
+        }
+    }
+
+    private void startTask(Command command) {
+        log.info("start PythonExecutor {}", command.getCommandString());
+        if (task != null) {
+            task.kill();
+        }
+        String cmdJson = command.getContent();
+        RemoteRunCommand cmd = JSON.parseObject(cmdJson, RemoteRunCommand.class);
+        Task task = new Task(cmd);
+        task.addEventListener(this);
+        task.start();
+        this.task = task;
+    }
+
+    private void cancelTask(Command command) {
+        task.kill();
+    }
+
 
 }

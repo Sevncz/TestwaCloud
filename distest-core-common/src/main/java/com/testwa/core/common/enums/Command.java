@@ -23,7 +23,11 @@ public class Command {
         MINICAP("minicap"),
         MINITOUCH("minitouch"),
         STFAGENT("stfagent"),
-        PYEXECUTOR("pyexecutor"),
+        START_TASK("start_task"),
+        COMPLETE_TASK("complete_task"),
+        CANCEL_TASK("cancel_task"),
+        START_LOGCAT("start_logcat"),
+        WAIT_LOGCAT("wait_logcat"),
         PUSH("push"),
         BACK("back"),
         HOME("home"),
@@ -82,8 +86,17 @@ public class Command {
                 break;
             case "stfagent":
                 schem = Schem.STFAGENT;
-            case "pyexecutor":
-                schem = Schem.PYEXECUTOR;
+            case "start_task":
+                schem = Schem.START_TASK;
+                break;
+            case "cancel_task":
+                schem = Schem.CANCEL_TASK;
+                break;
+            case "start_logcat":
+                schem = Schem.START_LOGCAT;
+                break;
+            case "wait_logcat":
+                schem = Schem.WAIT_LOGCAT;
                 break;
             case "push":
                 schem = Schem.PUSH;

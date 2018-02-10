@@ -267,6 +267,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
                     mBufferedOutputStream.write(data, offset, size);
                     mBufferedOutputStream.flush();
                 } catch (Exception e) {
+                    log.error("offset: {}, size: {}", offset, size);
                     e.printStackTrace();
                 }
             }

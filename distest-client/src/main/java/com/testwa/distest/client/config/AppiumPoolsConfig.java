@@ -16,7 +16,7 @@ public class AppiumPoolsConfig {
     @Autowired
     private Environment env;
 
-    @Bean
+    @Bean("appiumManagerPool")
     public AppiumManagerPool appiumPool(){
         String nodePath = env.getProperty("node.excute.path");
         String appiumPath = env.getProperty("appium.js.path");

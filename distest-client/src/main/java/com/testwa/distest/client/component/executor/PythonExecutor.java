@@ -38,8 +38,6 @@ import java.util.regex.Pattern;
 @Data
 @Slf4j
 public class PythonExecutor {
-    private List<PythonExecutorListener> listenerList = new ArrayList<>();
-
     private String appiumUrl;
     // 127.0.0.1:8080 or cloud.testwa.com
     private String distestApiWeb;
@@ -333,33 +331,16 @@ public class PythonExecutor {
                 .withPyScript(new File(tempPath))
                 .build();
         this.pyService.start();
-        onStartup(true);
         log.info("python script start......");
     }
 
     @ExecutorActionInfo(desc = "取消", order = 999)
     public void stop() {
-        onClose();
-
         if(this.pyService != null){
             this.pyService.stop();
         }
         this.testcases.clear();
         this.scripts.clear();
-    }
-
-
-
-    private void onStartup(boolean success) {
-        for (PythonExecutorListener listener : listenerList) {
-            listener.onStartup(this, success);
-        }
-    }
-
-    private void onClose() {
-        for (PythonExecutorListener listener : listenerList) {
-            listener.onClose(this);
-        }
     }
 
 }

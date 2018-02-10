@@ -7,6 +7,8 @@ import com.testwa.distest.client.control.port.ScreenPortProvider;
 import com.testwa.distest.client.control.port.TouchPortProvider;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
+import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.scheduling.annotation.AsyncConfigurerSupport;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -17,7 +19,7 @@ import java.util.concurrent.Executor;
 /**
  * Created by wen on 16/8/14.
  */
-@SpringBootApplication
+@SpringBootApplication(exclude = {MongoAutoConfiguration.class, MongoDataAutoConfiguration.class})
 @EnableScheduling
 @EnableAsync
 public class TestwaClientApplication extends AsyncConfigurerSupport {

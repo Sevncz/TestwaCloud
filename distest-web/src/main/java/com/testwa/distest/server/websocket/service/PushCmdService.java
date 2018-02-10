@@ -152,9 +152,10 @@ public class PushCmdService {
     @Async
     public void executeCmd(RemoteRunCommand cmd, Long userId) {
         log.info(cmd.toString());
-        SocketIOClient client = getMainClientSocketIOClient(userId);
+        SocketIOClient client = getDeviceClientSocketIOClient(cmd.getDeviceId());
         if(client != null)
-        client.sendEvent(WebsocketEvent.ON_TESTCASE_RUN, JSON.toJSONString(cmd));
+//        client.sendEvent(WebsocketEvent.ON_TESTCASE_RUN, JSON.toJSONString(cmd));
+        client.sendEvent(Command.Schem.START_TASK.getSchemString(), JSON.toJSONString(cmd));
     }
 
 }

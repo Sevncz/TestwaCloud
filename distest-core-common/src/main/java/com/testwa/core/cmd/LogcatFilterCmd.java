@@ -1,0 +1,1 @@
+package com.testwa.core.cmd;import lombok.Data;@Datapublic class LogcatFilterCmd {}

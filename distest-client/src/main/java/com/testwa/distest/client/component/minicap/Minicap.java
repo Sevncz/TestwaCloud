@@ -13,6 +13,10 @@ import com.testwa.distest.client.control.port.ScreenPortProvider;
 import com.testwa.distest.client.component.Constant;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.bytedeco.javacpp.BytePointer;
+import org.bytedeco.javacpp.avcodec;
+import org.bytedeco.javacpp.opencv_core;
+import org.bytedeco.javacv.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.misc.BASE64Decoder;
@@ -25,6 +29,11 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+
+import static org.bytedeco.javacpp.opencv_core.CV_8UC1;
+import static org.bytedeco.javacpp.opencv_core.cvMat;
+import static org.bytedeco.javacpp.opencv_core.cvReleaseImage;
+import static org.bytedeco.javacpp.opencv_imgcodecs.cvDecodeImage;
 
 /**
  * Created by wen on 2017/4/17.
@@ -79,16 +88,13 @@ public class Minicap {
             int screenHeight = Integer.parseInt(sizeStr.split("x")[1].trim());
             deviceSize = new Size(screenWidth, screenHeight);
         }
-
-        if(!isSupoort()){
-            log.error("This device minicap not supoort!");
-        }
     }
 
     //判断是否支持minicap
     public boolean isSupoort() {
-        String supportCommand = String.format("LD_LIBRARY_PATH=/data/local/tmp /data/local/tmp/minicap -P %s@%s/0 -t", deviceSize.w, deviceSize.h);
+        String supportCommand = String.format("LD_LIBRARY_PATH=/data/local/tmp /data/local/tmp/minicap -P %dx%d@%dx%d/0 -t", deviceSize.w, deviceSize.h, deviceSize.w, deviceSize.h);
         String output = AndroidHelper.getInstance().executeShellCommand(device, supportCommand);
+        log.info("minicap output, {}", output);
         if (output.trim().endsWith("OK")) {
             return true;
         }
@@ -673,5 +679,9 @@ public class Minicap {
             ++cursor;
             return cursor;
         }
+    }
+
+    public Size getDeviceSize(){
+        return this.deviceSize;
     }
 }

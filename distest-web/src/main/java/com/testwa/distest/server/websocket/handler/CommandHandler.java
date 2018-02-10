@@ -20,8 +20,6 @@ public class CommandHandler {
 
     private final static String minitouch = "minitouch";
     private final static String minicap = "minicap";
-    private final static String stfagent = "stfagent";
-    private final static String pyexecutor = "pyeecutor";
     private final static String open = "open";
     private final static String touch = "touch";
     private final static String input = "input";
@@ -54,24 +52,6 @@ public class CommandHandler {
         }
         if("close".equals(data)){
             log.info("onMinicap close!");
-        }
-    }
-    @OnEvent(value = stfagent)
-    public void onStfAgent(SocketIOClient client, String data, AckRequest ackRequest) {
-        if("open".equals(data)){
-            log.info("onStfAgent open!");
-        }
-        if("close".equals(data)){
-            log.info("onStfAgent close!");
-        }
-    }
-    @OnEvent(value = pyexecutor)
-    public void onPyExecutor(SocketIOClient client, String data, AckRequest ackRequest) {
-        if("open".equals(data)){
-            log.info("pyexecutor open!");
-        }
-        if("close".equals(data)){
-            log.info("pyexecutor close!");
         }
     }
 

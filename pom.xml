@@ -414,6 +414,15 @@
                 <version>${jedis.version}</version>
             </dependency>
 
+            <!-- video -->
+
+            <dependency>
+                <groupId>org.bytedeco</groupId>
+                <artifactId>javacv-platform</artifactId>
+                <version>1.4</version>
+            </dependency>
+
+
         </dependencies>
     </dependencyManagement>
 
