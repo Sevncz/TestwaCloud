@@ -144,6 +144,7 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
                 client.sendEvent("logcat", new String(data));
             }else{
                 subscribeMgr.delSubscribe(serial, WSFuncEnum.SCREEN.getValue(), sessionId);
+                pushCmdService.pushLogcatUploadStop(serial);
             }
         }
         log.debug(" GET data length {}", data.length);
@@ -167,6 +168,7 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
                 client.sendEvent("minicap", data);
             }else{
                 subscribeMgr.delSubscribe(serial, WSFuncEnum.SCREEN.getValue(), sessionId);
+                pushCmdService.pushScreenUploadStop(serial);
             }
         }
 

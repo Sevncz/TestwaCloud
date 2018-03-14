@@ -153,6 +153,10 @@ public class TestwaEnvCheck implements CommandLineRunner {
         if (!locallogcatDir.exists()) {
             locallogcatDir.mkdirs();
         }
+        File localVideoDir = new File(Constant.localVideoPath);
+        if (!localVideoDir.exists()) {
+            localVideoDir.mkdirs();
+        }
 
         log.info("Constant.localAppPath --> {}", Constant.localAppPath);
         log.info("Constant.locallogcatPath --> {}", Constant.localLogcatPath);

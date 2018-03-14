@@ -318,9 +318,9 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         if (ws != null) {
             ws.emit(Command.Schem.MINICAP.getSchemString(), "open");
         }
-        tovideoThread = new Thread(new ConvertRunner());
-        tovideoThread.setDaemon(false);
-        tovideoThread.start();
+//        tovideoThread = new Thread(new ConvertRunner());
+//        tovideoThread.setDaemon(false);
+//        tovideoThread.start();
     }
 
     @Override
@@ -388,10 +388,10 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
             int m_dst_h = (h >> 4) << 4 ;
             int m_dst_w = (w >> 4) << 4 ;
 
-
             String r1 = "rtmp://122.115.49.75:8090/live/h265";
             String r2 = "rtmp://cloud.testwa.com:1935/live/h265";
-            String r3 = "/Users/wen/dev/testWa/center/minicap.flv";
+            String r3 = Constant.localVideoPath + File.separator + "testwa-recorder.flv";
+            log.info(r3);
             recorder = new FFmpegFrameRecorder(r3, m_dst_w, m_dst_h, 2);
             recorder.setInterleaved(true);
             /**

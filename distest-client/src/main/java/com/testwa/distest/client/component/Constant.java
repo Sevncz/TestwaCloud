@@ -40,6 +40,8 @@ public class Constant {
 	public static final String localScreenshotPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "screenshot").toString();
 	public static final String localLogcatPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "logcat").toString();
 
+    public static final String localVideoPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "video").toString();
+
 
     public static String getMinitouchBin(String abi, String bin) {
         return File.separator + "minitouch" + File.separator + abi + File.separator + bin;

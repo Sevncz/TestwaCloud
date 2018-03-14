@@ -15,6 +15,10 @@
 <input type="text" id="text" />
 <button id="send">SEND</button>
 <button id="del">DEL</button>
+
+
+<button id="sub">SUB</button>
+<button id="wait">WAIT</button>
 <!-- jQuery -->
 <script src="js/jquery.min.js"></script>
 <script src="js/jquery.jsonp.js"></script>
@@ -50,7 +54,10 @@ var BLANK_IMG =
 var canvas = document.getElementById('phone-screen')
   , g = canvas.getContext('2d')
 var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjcEKAiEURf_lrhXUdCb9lYh46hswahpGhSD694w27Q7cwz0v1B4RQPleVgj0yvulZIRZIO1MjQdrp2frjVHKGSNQ02NjhNNZgJ_bb3ZGK6UECrV_fxgrxdv3pO2dBa6tjNqRI5OdvJwWitJyJunZL9LmZKLXB6VzxvsDAAD__w.EpPvGRP5Xq2agFYwVVKpo4MFhTLfUJGhoTzQzqkpj6I";
-var socket = io('http://127.0.0.1:9092?func=screen&deviceId=b15d91f&type=browser&token=' + token);
+var socket = io('http://127.0.0.1:9092?type=browser&token=' + token);
+
+var deviceId = 'b15d91f';
+
 socket.on('connect', function(){
     util.serverConnected = true
 });
@@ -113,24 +120,42 @@ function getXAndY(control, event){
 
 function sendHome() {
     console.log("home")
-    socket.emit("home", "")
+    socket.emit("home", deviceId)
 }
 function sendBack() {
-    socket.emit("back", "")
+    socket.emit("back", deviceId)
 }
 function sendMenu() {
-    socket.emit("menu", "")
+    socket.emit("menu", deviceId)
 }
 function sendDel() {
-    socket.emit("del", "")
+    socket.emit("del", deviceId)
 }
 
 function sendTouchEvent(minitouchStr) {
-    socket.emit("touch", minitouchStr)
+    var params = {
+        deviceId: deviceId,
+        touch: minitouchStr
+    }
+    socket.emit("touch", JSON.stringify(params))
 }
 function sendInputText(text) {
-    socket.emit("input", text)
+    var params = {
+        deviceId: deviceId,
+        input: text
+    }
+    socket.emit("input", JSON.stringify(params))
 }
+
+function subScreen() {
+    console.log("subScreen")
+    socket.emit("sub_screen", deviceId)
+}
+function waitScreen() {
+    console.log("wait")
+    socket.emit("wait_screen", deviceId)
+}
+
 
 function sendDown(argx, argy, isRo) {
     var scalex = util.screenW / canvas.width;
@@ -226,6 +251,15 @@ $("#send").click(function () {
     var text = $("#text").val()
     sendInputText(text);
 })
+
+
+$("#sub").click(function () {
+    subScreen();
+});
+
+$("#wait").click(function () {
+    waitScreen();
+});
 
 </script>
 
