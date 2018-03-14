@@ -41,7 +41,7 @@ public class ProcedureInfoService extends BaseService {
         procedureInfoRepository.delete(infoId);
     }
 
-    public ProcedureInfo getProcedureInfoById(String infoId){
+    public ProcedureInfo findOne(String infoId){
         return procedureInfoRepository.findOne(infoId);
     }
 
@@ -110,5 +110,23 @@ public class ProcedureInfoService extends BaseService {
             query.addCriteria(Criteria.where("executionTaskId").is(form.getTaskId()));
         }
         return procedureInfoRepository.find(query);
+    }
+
+    public ProcedureInfo findNextById(String procedureId) {
+        ProcedureInfo pi = procedureInfoRepository.findOne(procedureId);
+        Long timeStamp = pi.getTimestamp();
+
+        Query query = new Query();
+        String field = "timestamp";
+        query.addCriteria(Criteria.where(field).gt(timeStamp));
+        query.addCriteria(Criteria.where("sessionId").is(pi.getSessionId()));
+        query.limit(1);
+        Sort sort = new Sort(Sort.Direction.ASC, field);
+        query.with(sort);
+        List<ProcedureInfo> nextList = procedureInfoRepository.find(query);
+        if(nextList != null && nextList.size() >0){
+            return nextList.get(0);
+        }
+        return null;
     }
 }

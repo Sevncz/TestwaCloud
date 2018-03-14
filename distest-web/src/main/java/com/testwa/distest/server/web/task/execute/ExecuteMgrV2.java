@@ -4,12 +4,12 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.base.Preconditions;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.cmd.AppInfo;
+import com.testwa.core.cmd.RemoteRunCommand;
+import com.testwa.core.cmd.RemoteTestcaseContent;
 import com.testwa.core.cmd.ScriptInfo;
 import com.testwa.core.utils.DateUtils;
 import com.testwa.core.utils.TimeUtil;
 import com.testwa.distest.common.enums.DB;
-import com.testwa.core.cmd.RemoteRunCommand;
-import com.testwa.core.cmd.RemoteTestcaseContent;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.service.app.service.AppService;
@@ -18,11 +18,9 @@ import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
 import com.testwa.distest.server.service.cache.mgr.TaskCacheMgr;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.script.service.ScriptService;
-import com.testwa.distest.server.service.task.form.TaskStartByTestcaseForm;
-import com.testwa.distest.server.service.task.form.TaskStartForm;
-import com.testwa.distest.server.service.task.form.TaskStopForm;
-import com.testwa.distest.server.service.task.service.TaskService;
+import com.testwa.distest.server.service.task.form.*;
 import com.testwa.distest.server.service.task.service.TaskSceneService;
+import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.service.testcase.service.TestcaseService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
@@ -38,18 +36,18 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by wen on 25/10/2017.
  */
 @Component
-@Deprecated
-public class ExecuteMgr {
-    private static final Logger log = LoggerFactory.getLogger(ExecuteMgr.class);
+public class ExecuteMgrV2 {
+    private static final Logger log = LoggerFactory.getLogger(ExecuteMgrV2.class);
 
-    @Autowired
-    private TaskSceneService taskSceneService;
     @Autowired
     private UserService userService;
     @Autowired
@@ -59,13 +57,7 @@ public class ExecuteMgr {
     @Autowired
     private TaskService taskService;
     @Autowired
-    private DeviceAuthMgr deviceAuthMgr;
-    @Autowired
     private TaskCacheMgr taskCacheMgr;
-    @Autowired
-    private ClientSessionMgr clientSessionMgr;
-    @Autowired
-    private DeviceSessionMgr deviceSessionMgr;
     @Autowired
     private PushCmdService pushCmdService;
     @Autowired
@@ -78,63 +70,55 @@ public class ExecuteMgr {
      * 保存并执行一个任务
      * @param form
      */
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
-    public void start(TaskStartByTestcaseForm form) throws ObjectNotExistsException {
+    public Long start(TaskNewByCaseAndStartForm form) throws ObjectNotExistsException {
         Preconditions.checkNotNull(form.getAppId(), "数据非法");
-        Preconditions.checkNotNull(form.getCaseIds(), "数据非法");
-        Preconditions.checkNotNull(form.getProjectId(), "数据非法");
-        Preconditions.checkNotNull(form.getSceneName(), "数据非法");
+        Preconditions.checkNotNull(form.getTestcaseId(), "数据非法");
         Preconditions.checkNotNull(form.getDeviceIds(), "数据非法");
         log.info(form.toString());
-        Long taskSceneId = taskSceneService.save(form);
-        TaskStartForm startForm = new TaskStartForm();
+//        Long taskSceneId = taskSceneService.save(form);
+        TaskStartFormV2 startForm = new TaskStartFormV2();
         startForm.setDeviceIds(form.getDeviceIds());
-        startForm.setTaskSceneId(taskSceneId);
-        start(startForm, form.getCaseIds(), form.getAppId());
+        return start(startForm, form.getTestcaseId(), form.getAppId());
     }
 
-    private void start(TaskStartForm form, List<Long> caseIds, Long appId) throws ObjectNotExistsException {
+    private Long start(TaskStartFormV2 form, Long testcaseId, Long appId) throws ObjectNotExistsException {
         log.info(form.toString());
         // 记录task的执行信息
         App app = appService.findOne(appId);
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         Task task = new Task();
-        task.setTaskSceneId(form.getTaskSceneId());
         task.setProjectId(app.getProjectId());
         task.setAppId(app.getId());
         task.setAppJson(JSON.toJSONString(app));
-
-        TaskScene scene = taskSceneService.findOne(form.getTaskSceneId());
-        String sceneName = scene.getSceneName();
-        task.setTaskName(String.format("%s_%s", sceneName, TimeUtil.getTimestampForFile()));
 
         List<Script> allscript = new ArrayList<>();
         List<Testcase> alltestcase = new ArrayList<>();
 
         List<RemoteTestcaseContent> cases = new ArrayList<>();
-        for(Long caseId : caseIds){
-            RemoteTestcaseContent content = new RemoteTestcaseContent();
-            content.setTestcaseId(caseId);
-            Testcase c = testcaseService.fetchOne(caseId);
-            // 批量获取案例下的所有脚本
-            List<ScriptInfo> scripts = new ArrayList<>();
-            List<Long> scriptIds = new ArrayList<>();
-            c.getTestcaseDetails().forEach( s -> {
-                scriptIds.add(s.getScriptId());
-            });
-            // 转换成cmd下的scriptInfo
-            List<Script> caseAllScript = scriptService.findAll(scriptIds);
-            caseAllScript.forEach(script -> {
-                ScriptInfo info = new ScriptInfo();
-                BeanUtils.copyProperties(script, info);
-                scripts.add(info);
-            });
-            content.setScripts(scripts);
-            cases.add(content);
+        RemoteTestcaseContent content = new RemoteTestcaseContent();
+        content.setTestcaseId(testcaseId);
+        Testcase c = testcaseService.fetchOne(testcaseId);
+        // 批量获取案例下的所有脚本
+        List<ScriptInfo> scripts = new ArrayList<>();
+        List<Long> scriptIds = new ArrayList<>();
+        c.getTestcaseDetails().forEach( s -> {
+            scriptIds.add(s.getScriptId());
+        });
+        // 转换成cmd下的scriptInfo
+        List<Script> caseAllScript = scriptService.findAll(scriptIds);
+        caseAllScript.forEach(script -> {
+            ScriptInfo info = new ScriptInfo();
+            BeanUtils.copyProperties(script, info);
+            scripts.add(info);
+        });
+        content.setScripts(scripts);
+        cases.add(content);
 
-            allscript.addAll(caseAllScript);
-            alltestcase.add(c);
-        }
+        allscript.addAll(caseAllScript);
+        alltestcase.add(c);
+
+        task.setTaskName(String.format("%s_%s", c.getCaseName(), TimeUtil.getTimestampForFile()));
+
         task.setScriptJson(JSON.toJSONString(allscript));
         task.setTestcaseJson(JSON.toJSONString(alltestcase));
 
@@ -160,24 +144,8 @@ public class ExecuteMgr {
 
             deviceService.updateWorkStatus(key, DB.PhoneWorkStatus.BUSY);
         }
-    }
 
-    public void start(TaskStartForm form) throws ObjectNotExistsException {
-        Preconditions.checkNotNull(form.getTaskSceneId(), "数据非法");
-        Preconditions.checkNotNull(form.getDeviceIds(), "数据非法");
-        log.info(form.toString());
-        TaskScene ts = taskSceneService.fetchOne(form.getTaskSceneId());
-
-        TaskStartForm startForm = new TaskStartForm();
-        startForm.setDeviceIds(form.getDeviceIds());
-        startForm.setTaskSceneId(ts.getId());
-
-        List<Long> caseIds = new ArrayList<>();
-        ts.getTaskSceneDetails().forEach( t -> {
-            caseIds.add(t.getTestcaseId());
-        });
-
-        start(startForm, caseIds, ts.getAppId());
+        return taskId;
     }
 
     /**

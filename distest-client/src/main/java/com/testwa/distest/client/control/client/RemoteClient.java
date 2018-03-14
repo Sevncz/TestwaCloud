@@ -6,11 +6,12 @@ import com.github.cosysoft.device.android.AndroidDevice;
 import com.github.cosysoft.device.android.impl.AndroidDeviceStore;
 import com.github.cosysoft.device.shell.AndroidSdk;
 import com.google.protobuf.ByteString;
-import com.sun.tools.javac.util.Convert;
 import com.testwa.core.cmd.RemoteRunCommand;
 import com.testwa.core.common.enums.Command;
 import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.distest.client.component.executor.*;
+import com.testwa.distest.client.component.logcat.Logcat;
+import com.testwa.distest.client.component.logcat.LogcatListener;
 import com.testwa.distest.client.component.stfservice.KeyCode;
 import com.testwa.distest.client.grpc.Gvice;
 import com.testwa.distest.client.component.minicap.Banner;
@@ -20,26 +21,22 @@ import com.testwa.distest.client.component.minitouch.Minitouch;
 import com.testwa.distest.client.component.minitouch.MinitouchListener;
 import com.testwa.distest.client.component.Constant;
 import io.grpc.Channel;
+import io.rpc.testwa.device.LogcatRequest;
 import io.rpc.testwa.device.ScreenCaptureRequest;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import lombok.extern.slf4j.Slf4j;
-import net.bramp.ffmpeg.probe.FFmpegProbeResult;
 import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.avcodec;
+import org.bytedeco.javacpp.avutil;
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacv.FFmpegFrameRecorder;
 import org.bytedeco.javacv.FrameRecorder;
 import org.bytedeco.javacv.OpenCVFrameConverter;
 import org.openqa.selenium.os.CommandLine;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -53,10 +50,11 @@ import static org.bytedeco.javacpp.opencv_imgcodecs.cvDecodeImage;
  * Created by wen on 10/06/2017.
  */
 @Slf4j
-public class RemoteClient extends BaseClient implements MinicapListener, MinitouchListener, TaskListener {
+public class RemoteClient extends BaseClient implements MinicapListener, MinitouchListener, TaskListener, LogcatListener {
 
     static final int DATA_TIMEOUT = 100; //ms
     private boolean isWaitting = false;
+    private boolean isLogcatWaitting = false;
     private BlockingQueue<LocalClient.ImageData> dataQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<LocalClient.ImageData> toVideoDataQueue = new LinkedBlockingQueue<>();
 
@@ -71,8 +69,9 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
     private Minicap minicap = null;
     private Minitouch minitouch = null;
     private Task task = null;
+    private Logcat logcat = null;
 
-    private FFmpegFrameRecorder recorder;
+    private boolean isVideo;
 
     public RemoteClient(String url, String controller, String serialNumber, Channel channel, String resourcesPath) throws IOException, URISyntaxException {
         log.info("Remote Client init");
@@ -161,12 +160,6 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         }
     }
 
-    // logcat
-    private void waitlogcatCommand(Command command) {
-    }
-
-    private void logcatCommand(Command command) {
-    }
 
     private void startCommand(Command command) {
         log.info("startCommand {}", command.getCommandString());
@@ -333,12 +326,6 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
     @Override
     public void onClose(Minicap minicap) {
         push = false;
-        try {
-            recorder.stop();
-            recorder.release();
-        } catch (FrameRecorder.Exception e) {
-            log.error("FrameRecorder close error", e);
-        }
         if (ws != null) {
             ws.emit(Command.Schem.MINICAP.getSchemString(), "close");
         }
@@ -389,7 +376,9 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
     }
 
     class ConvertRunner implements Runnable {
+        private FFmpegFrameRecorder recorder;
         private LocalClient.ImageData lastD = null;
+        private FileOutputStream out = null;
         private int FRAME_RATE = 30;
 
         public ConvertRunner(){
@@ -399,10 +388,11 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
             int m_dst_h = (h >> 4) << 4 ;
             int m_dst_w = (w >> 4) << 4 ;
 
-            // "rtmp://122.115.49.75:8090/live/123456"
-            // "rtmp://cloud.testwa.com:1935/live/123456"
-            // "/Users/wen/dev/testWa/center/minicap.flv"
-            recorder = new FFmpegFrameRecorder("/Users/wen/dev/testWa/center/minicap.flv",m_dst_w,m_dst_h, 0);
+
+            String r1 = "rtmp://122.115.49.75:8090/live/h265";
+            String r2 = "rtmp://cloud.testwa.com:1935/live/h265";
+            String r3 = "/Users/wen/dev/testWa/center/minicap.flv";
+            recorder = new FFmpegFrameRecorder(r3, m_dst_w, m_dst_h, 2);
             recorder.setInterleaved(true);
             /**
              * 该参数用于降低延迟 参考FFMPEG官方文档：https://trac.ffmpeg.org/wiki/StreamingGuide
@@ -442,10 +432,15 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
              */
             recorder.setVideoOption("crf","28");
             recorder.setVideoBitrate(2000000);
-            // h264编/解码器
+            // 编/解码器
+//            recorder.setVideoCodec(avcodec.AV_CODEC_ID_HEVC);
             recorder.setVideoCodec(avcodec.AV_CODEC_ID_H264);
-            // 封装格式flv
+            // 封装格式
+            recorder.setPixelFormat(avutil.AV_PIX_FMT_YUV420P);
             recorder.setFormat("flv");
+            // mkv
+//                recorder.setFormat("mastorka");
+//                recorder.setVideoQuality(0); // lossless
             // 视频帧率(保证视频质量的情况下最低25，低于25会出现闪屏)
             recorder.setFrameRate(FRAME_RATE);
             // 关键帧间隔，一般与帧率相同或者是视频帧率的两倍
@@ -469,6 +464,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
                     }
                 }
             }
+
         }
 
         @Override
@@ -488,18 +484,32 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
                     lastD = d1;
                     toVideo(d1.data);
                 }
-
+            }
+            // 关闭录制
+            try {
+                recorder.stop();
+                if(out != null){
+                    try {
+                        out.close();
+                    } catch (IOException e) {
+                        log.error("out close error", e);
+                    }
+                }
+            } catch (FrameRecorder.Exception e) {
+                e.printStackTrace();
             }
         }
         private void toVideo(byte[] data){
-
+            if(data.length == 0){
+                return;
+            }
             OpenCVFrameConverter.ToIplImage conveter = new OpenCVFrameConverter.ToIplImage();
             opencv_core.IplImage image = cvDecodeImage(cvMat(1, data.length, CV_8UC1, new BytePointer(data)));
             try {
                 recorder.record(conveter.convert(image));
                 cvReleaseImage(image);
             } catch (Exception e) {
-                log.error("abort", e.getMessage());
+                log.error("abort", e);
             }
 
         }
@@ -572,14 +582,72 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
             this.channel = null;
         }
         // 关闭录制
-        try {
-            this.push = false;
-            this.recorder.stop();
-        } catch (FrameRecorder.Exception e) {
-            e.printStackTrace();
+        push = false;
+    }
+
+    // logcat
+
+    /**
+     * 等待时，关闭logcat
+     * @param command
+     */
+    private void waitlogcatCommand(Command command) {
+        this.logcat.close();
+    }
+
+    /**
+     * 再次发送命令下来时，重新打开logcat
+     * @param command
+     */
+    private void logcatCommand(Command command) {
+        if(this.logcat != null){
+            this.logcat.close();
+        }
+        String content = (String) command.get("content");
+        Logcat l = new Logcat(this.serialNumber, content);
+        l.addEventListener(this);
+        l.start();
+        this.logcat = l;
+    }
+
+    @Override
+    public void onStartup(Logcat logcat, boolean success) {
+        if (ws != null) {
+            ws.emit(Command.Schem.START_LOGCAT.getSchemString(), success);
         }
     }
 
+    @Override
+    public void onClose(Logcat logcat) {
+        if (ws != null) {
+            ws.emit(Command.Schem.WAIT_LOGCAT.getSchemString());
+        }
+
+    }
+
+    @Override
+    public void onLog(Logcat logcat, byte[] data) {
+        if (isLogcatWaitting) {
+            sendLog(data);
+        }
+    }
+
+    private void sendLog(byte[] data) {
+        log.debug(String.valueOf(data.length));
+        try {
+
+            LogcatRequest request = LogcatRequest.newBuilder()
+                    .setSerial(this.serialNumber)
+                    .setContent(ByteString.copyFrom(data))
+                    .build();
+
+            Gvice.deviceService(this.channel).logcat(request);
+
+        }catch (Exception e){
+            log.error(e.getMessage());
+        }finally {
+        }
+    }
 
     // task
     @Override
@@ -595,6 +663,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
             ws.emit(Command.Schem.COMPLETE_TASK.getSchemString(), true);
         }
     }
+
     @Override
     public void onCancel(Task task) {
         if (ws != null) {

@@ -142,6 +142,8 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
             SocketIOClient client = server.getClient(UUID.fromString(sessionId));
             if(client != null){
                 client.sendEvent("logcat", new String(data));
+            }else{
+                subscribeMgr.delSubscribe(serial, WSFuncEnum.SCREEN.getValue(), sessionId);
             }
         }
         log.debug(" GET data length {}", data.length);
@@ -163,6 +165,8 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
                 double i = (data.length / (1024.0));
                 log.debug("SCREEN REC: data length is {} KB", format.format(i));
                 client.sendEvent("minicap", data);
+            }else{
+                subscribeMgr.delSubscribe(serial, WSFuncEnum.SCREEN.getValue(), sessionId);
             }
         }
 

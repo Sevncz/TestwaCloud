@@ -20,11 +20,13 @@ import com.testwa.distest.server.service.task.service.AppiumFileService;
 import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
+import com.testwa.distest.server.web.task.validator.StepValidatoer;
 import com.testwa.distest.server.web.task.validator.TaskValidatoer;
 import com.testwa.distest.server.web.task.validator.TaskSceneValidatoer;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,9 +50,9 @@ public class ReportController extends BaseController {
     @Autowired
     private UserService userService;
     @Autowired
-    private TaskSceneValidatoer taskSceneValidatoer;
-    @Autowired
     private TaskValidatoer taskValidatoer;
+    @Autowired
+    private StepValidatoer stepValidatoer;
     @Autowired
     private ProcedureInfoService procedureInfoService;
     @Autowired
@@ -113,6 +115,19 @@ public class ReportController extends BaseController {
         }
         PageResult<ProcedureInfo> procedureInfoPage = procedureInfoService.findByPage(pageForm);
         return ok(procedureInfoPage);
+    }
+
+    @ApiOperation(value="当前步骤的下一个步骤", notes="")
+    @ResponseBody
+    @GetMapping(value = "/step/next/{procedureId}")
+    public Result stepNext(@PathVariable String procedureId) throws ParamsIsNullException {
+        if(StringUtils.isEmpty(procedureId)){
+            throw new ParamsIsNullException("procedureId is null");
+        }
+        stepValidatoer.validateProcedureExist(procedureId);
+
+        ProcedureInfo nextProcedure = procedureInfoService.findNextById(procedureId);
+        return ok(nextProcedure);
     }
 
     @ApiOperation(value="返回一个appium日志相对路径", notes="")

@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -158,4 +160,17 @@ public class PushCmdService {
         client.sendEvent(Command.Schem.START_TASK.getSchemString(), JSON.toJSONString(cmd));
     }
 
+    public void pushLogcatUploadStart(String deviceId, String content) {
+        Map<String, String> cmd = new HashMap<>();
+        cmd.put("content", content);
+        SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
+        if(client != null)
+            client.sendEvent(Command.Schem.START_LOGCAT.getSchemString(), JSON.toJSONString(cmd));
+    }
+
+    public void pushLogcatUploadStop(String deviceId) {
+        SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
+        if(client != null)
+            client.sendEvent(Command.Schem.WAIT_LOGCAT.getSchemString(), "");
+    }
 }

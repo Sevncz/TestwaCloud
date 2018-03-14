@@ -16,17 +16,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Created by wen on 16/8/28.
  */
 public final class LogcatServiceBuilder extends AdbServiceBuilder {
+    private TimeUnit timeUnit;
     private String getAdbExecutable;
     private long startupTimeout = 120L;
-    private TimeUnit timeUnit;
     private String deviceId;
-    private String filter;
-    private String tag;
-    private String keyword;
-    private String level;
-    private String format;
-    private String buffer;
-    private String grep;
+    private String content;
 
     @Override
     protected ImmutableList<String> createArgs() {
@@ -34,19 +28,8 @@ public final class LogcatServiceBuilder extends AdbServiceBuilder {
         argList.add("-s");
         argList.add(this.deviceId);
         argList.add("logcat");
-        if(StringUtils.isNotBlank(this.format)){
-            argList.add("-v");
-            argList.add(this.format);
-        }
-        if(StringUtils.isNotBlank(this.buffer)){
-            argList.add("-b");
-            argList.add(this.buffer);
-        }
-        if(StringUtils.isNotBlank(this.level)){
-            if(StringUtils.isBlank(this.tag)){
-                this.tag = "*";
-            }
-            argList.add(String.format("%s:%s", this.tag, this.level));
+        if(StringUtils.isNotBlank(this.content)){
+            argList.add(this.content);
         }
         return (new ImmutableList.Builder()).addAll(argList).build();
     }
@@ -61,38 +44,17 @@ public final class LogcatServiceBuilder extends AdbServiceBuilder {
         }
     }
 
-    public LogcatServiceBuilder whithDeviceId(String deviceId) {
+    public LogcatServiceBuilder withDeviceId(String deviceId) {
         this.deviceId = deviceId;
         return this;
     }
 
-    public LogcatServiceBuilder whithTag(String tag) {
-        this.tag = tag;
+    public LogcatServiceBuilder withContent(String content) {
+        this.content = content;
         return this;
     }
-
-    public LogcatServiceBuilder whithKeyword(String keyword) {
-        this.keyword = keyword;
-        return this;
-    }
-
-    public LogcatServiceBuilder whithFilter(String filter) {
-        this.filter = filter;
-        return this;
-    }
-
-    public LogcatServiceBuilder whithLevel(String level) {
-        this.level = level;
-        return this;
-    }
-
-    public LogcatServiceBuilder whithBuffer(String buffer) {
-        this.buffer = buffer;
-        return this;
-    }
-
-    public LogcatServiceBuilder whithGrep(String grep) {
-        this.grep = grep;
+    public LogcatServiceBuilder withClear() {
+        this.content = "-c";
         return this;
     }
 

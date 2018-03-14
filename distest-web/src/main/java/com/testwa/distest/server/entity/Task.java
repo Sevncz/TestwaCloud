@@ -20,6 +20,7 @@ import java.util.List;
 public class Task extends BaseEntity {
 
     private DB.TaskStatus status;
+    // v2版本中去掉场景的管理
     private Long taskSceneId;
     private Long projectId;
     private Long appId;

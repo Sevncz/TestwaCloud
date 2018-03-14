@@ -10,16 +10,17 @@ import java.util.List;
 /**
  * Created by wen on 24/10/2017.
  */
-@ApiModel(value = "TaskStartByTestcaseForm",
-        description = "新建场景并启动测试"
+@ApiModel(value = "TaskNewForm",
+        description = "创建一个任务"
 )
 @Data
-@Deprecated
-public class TaskStartByTestcaseForm extends TaskSceneNewForm {
+public class TaskNewByCaseAndStartForm extends TaskNewByCaseForm {
 
-    @NotNull(message = "deviceIds.empty")
-    @NotEmpty(message = "deviceIds.empty")
+    @NotNull
+    @NotEmpty
     private List<String> deviceIds;
-
+    @NotNull
+    @NotEmpty
+    private Long appId;
 
 }

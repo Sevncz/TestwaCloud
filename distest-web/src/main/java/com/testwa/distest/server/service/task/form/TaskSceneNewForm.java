@@ -15,6 +15,7 @@ import java.util.List;
         description = "创建"
 )
 @Data
+@Deprecated
 public class TaskSceneNewForm extends RequestFormBase {
 
     @NotNull(message = "sceneName.empty")

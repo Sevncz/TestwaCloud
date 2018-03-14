@@ -2,14 +2,44 @@
 <div id="logcat">
 
 </div>
+<button id="sub">SUB</button>
+<button id="wait">WAIT</button>
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+<!-- jQuery -->
+<script src="js/jquery.min.js"></script>
+<script src="js/jquery.jsonp.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/bootstrap-notify.min.js"></script>
+<script src="js/encoding-indexes.js"></script>
+<script src="js/encoding.js"></script>
 <script>
 
-var socket = io('http://localhost:9092?flag=logcat&deviceId=ZX1G427G93');
+var socket = io('http://localhost:9092?type=browser');
+var deviceId = 'b15d91f';
 socket.on('connect', function(){});
 socket.on('logcat', function(message){
   console.log(message)
 });
 socket.on('disconnect', function(){});
 
+$("#sub").click(function () {
+    subLogcat();
+});
+
+$("#wait").click(function () {
+    waitLogcat();
+});
+
+function subLogcat() {
+    console.log("subLogcat")
+    var params = {
+        deviceId: deviceId,
+        content: "ActivityManager:I MyApp:D *:S"
+    }
+    socket.emit("sub_logcat", JSON.stringify(params))
+}
+function waitLogcat() {
+    console.log("wait")
+    socket.emit("wait_logcat", deviceId)
+}
 </script>

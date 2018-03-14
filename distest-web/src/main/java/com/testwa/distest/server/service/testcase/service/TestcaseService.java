@@ -3,6 +3,8 @@ package com.testwa.distest.server.service.testcase.service;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.Joiner;
+import com.testwa.core.utils.StringUtil;
+import com.testwa.core.utils.TimeUtil;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.core.base.vo.PageResult;
@@ -57,7 +59,11 @@ public class TestcaseService {
     public long saveRegressionTestcase(TestcaseNewForm form) {
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         Testcase testcase = new Testcase();
-        testcase.setCaseName(form.getName());
+        if(StringUtils.isNotEmpty(form.getName())){
+            testcase.setCaseName(form.getName());
+        }else{
+            testcase.setCaseName(String.format("案例-%s", TimeUtil.getTimestampForFile()));
+        }
         testcase.setDescription(form.getDescription());
         testcase.setProjectId(form.getProjectId());
         testcase.setCreateBy(user.getId());

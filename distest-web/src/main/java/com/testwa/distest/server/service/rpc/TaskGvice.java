@@ -107,7 +107,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
 
             @Override
             public void onNext(FileUploadRequest request) {
-                log.info("onNext count: " + mmCount);
+                log.debug("onNext count: " + mmCount);
                 mmCount++;
 
                 byte[] data = request.getData().toByteArray();
@@ -157,7 +157,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
 
             @Override
             public void onNext(FileUploadRequest request) {
-                log.info("onNext count: " + mmCount);
+                log.debug("onNext count: " + mmCount);
                 mmCount++;
 
                 byte[] data = request.getData().toByteArray();
@@ -236,7 +236,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
 
             @Override
             public void onNext(FileUploadRequest request) {
-                log.info("onNext count: " + mmCount);
+                log.debug("onNext count: " + mmCount);
                 mmCount++;
 
                 byte[] data = request.getData().toByteArray();

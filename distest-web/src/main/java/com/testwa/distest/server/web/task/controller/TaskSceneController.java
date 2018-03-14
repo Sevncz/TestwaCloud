@@ -31,9 +31,10 @@ import javax.validation.Valid;
  * Created by wen on 24/10/2017.
  */
 @Slf4j
-@Api("任务管理相关api")
+@Api("任务场景管理相关api")
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/scene")
+@Deprecated
 public class TaskSceneController extends BaseController {
     @Autowired
     private TaskSceneService taskSceneService;

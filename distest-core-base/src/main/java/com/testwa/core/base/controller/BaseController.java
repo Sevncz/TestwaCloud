@@ -52,7 +52,9 @@ public class BaseController implements ApplicationContextAware {
     public Result<Object> ok(Object data) {
         Result<Object> r = new Result<>();
         r.setCode(ResultCode.SUCCESS.getValue());
-        r.setData(data);
+        if(data != null){
+            r.setData(data);
+        }
         r.setMessage("ok");
         return r;
     }

@@ -139,6 +139,7 @@ public class WebConnectionHandler {
                     subscribeMgr.delSubscribe(deviceId, func, client.getSessionId().toString());
                     if(!subscribeMgr.isSubscribes(deviceId, func)){
                         pushCmdService.pushScreenUploadStop(deviceId);
+                        pushCmdService.pushLogcatUploadStop(deviceId);
                     }
                 }
             }else{

@@ -1,25 +1,27 @@
 package com.testwa.distest.server.web.task.controller;
 
+import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.AuthorizedException;
 import com.testwa.core.base.exception.DeviceNotActiveException;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.base.vo.Result;
-import com.testwa.core.base.constant.WebConstants;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.entity.TaskScene;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.mongo.service.ExecutorLogInfoService;
+import com.testwa.distest.server.service.task.form.TaskNewByCaseAndStartForm;
+import com.testwa.distest.server.service.task.form.TaskStartByTestcaseForm;
 import com.testwa.distest.server.service.task.form.TaskStartForm;
 import com.testwa.distest.server.service.task.form.TaskStopForm;
-import com.testwa.distest.server.service.task.form.TaskStartByTestcaseForm;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.app.validator.AppValidator;
 import com.testwa.distest.server.web.device.validator.DeviceValidatoer;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
 import com.testwa.distest.server.web.task.execute.ExecuteMgr;
-import com.testwa.distest.server.web.task.validator.TaskValidatoer;
+import com.testwa.distest.server.web.task.execute.ExecuteMgrV2;
 import com.testwa.distest.server.web.task.validator.TaskSceneValidatoer;
+import com.testwa.distest.server.web.task.validator.TaskValidatoer;
 import com.testwa.distest.server.web.task.vo.TaskProgressVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -33,14 +35,13 @@ import java.util.List;
  * Created by wen on 24/10/2017.
  */
 @Slf4j
-@Api("任务执行相关api")
+@Api("任务执行相关api，第二版")
 @RestController
-@RequestMapping(path = WebConstants.API_PREFIX + "/task/~")
-@Deprecated
-public class TaskController extends BaseController {
+@RequestMapping(path = WebConstants.API_PREFIX + "/task")
+public class TaskControllerV2 extends BaseController {
 
     @Autowired
-    private ExecuteMgr executeMgr;
+    private ExecuteMgrV2 executeMgr;
     @Autowired
     private UserService userService;
     @Autowired
@@ -57,34 +58,16 @@ public class TaskController extends BaseController {
     private TaskValidatoer taskValidatoer;
 
 
-    @ApiOperation(value="保存并执行一个任务场景")
+    @ApiOperation(value="执行一个任务")
     @ResponseBody
-    @PostMapping(value = "/scene/saveandrun")
-    public Result saveAndRun(@RequestBody TaskStartByTestcaseForm form) throws ObjectNotExistsException, AuthorizedException {
-        projectValidator.validateProjectExist(form.getProjectId());
+    @PostMapping(value = "/run")
+    public Result run(@RequestBody TaskNewByCaseAndStartForm form) throws ObjectNotExistsException, AuthorizedException {
         appValidator.validateAppExist(form.getAppId());
         deviceValidatoer.validateOnline(form.getDeviceIds());
-        User user = userService.findByUsername(WebUtil.getCurrentUsername());
-        projectValidator.validateUserIsProjectMember(form.getProjectId(), user.getId());
-
-        executeMgr.start(form);
-
-        return ok();
-    }
-
-    @ApiOperation(value="执行一个任务场景")
-    @ResponseBody
-    @PostMapping(value = "/scene/run")
-    public Result run(@RequestBody TaskStartForm form) throws ObjectNotExistsException, AuthorizedException, DeviceNotActiveException {
-
-        TaskScene scene = taskSceneValidatoer.validateTaskSceneExist(form.getTaskSceneId());
-        deviceValidatoer.validateOnline(form.getDeviceIds());
-        deviceValidatoer.validateActive(form.getDeviceIds());
-        User user = userService.findByUsername(WebUtil.getCurrentUsername());
-        projectValidator.validateUserIsProjectMember(scene.getProjectId(), user.getId());
-
-        executeMgr.start(form);
-        return ok();
+//        User user = userService.findByUsername(WebUtil.getCurrentUsername());
+//        projectValidator.validateUserIsProjectMember(form.getProjectId(), user.getId());
+        Long taskId = executeMgr.start(form);
+        return ok(taskId);
     }
 
 
