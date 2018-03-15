@@ -13,12 +13,6 @@ import com.testwa.distest.client.control.port.ScreenPortProvider;
 import com.testwa.distest.client.component.Constant;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.bytedeco.javacpp.BytePointer;
-import org.bytedeco.javacpp.avcodec;
-import org.bytedeco.javacpp.opencv_core;
-import org.bytedeco.javacv.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import sun.misc.BASE64Decoder;
 
 import java.io.*;
@@ -29,11 +23,6 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-
-import static org.bytedeco.javacpp.opencv_core.CV_8UC1;
-import static org.bytedeco.javacpp.opencv_core.cvMat;
-import static org.bytedeco.javacpp.opencv_core.cvReleaseImage;
-import static org.bytedeco.javacpp.opencv_imgcodecs.cvDecodeImage;
 
 /**
  * Created by wen on 2017/4/17.
