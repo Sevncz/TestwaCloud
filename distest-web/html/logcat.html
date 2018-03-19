@@ -1,9 +1,9 @@
 <!doctype html>
-<div id="logcat">
-
-</div>
 <button id="sub">SUB</button>
 <button id="wait">WAIT</button>
+<textarea id="content" >
+
+</textarea>
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 <!-- jQuery -->
 <script src="js/jquery.min.js"></script>
@@ -18,7 +18,9 @@ var socket = io('http://localhost:9092?type=browser');
 var deviceId = 'b15d91f';
 socket.on('connect', function(){});
 socket.on('logcat', function(message){
-  console.log(message)
+    var content = $("#content").val()
+    content = content + message
+    $("#content").val(content);
 });
 socket.on('disconnect', function(){});
 
@@ -34,7 +36,7 @@ function subLogcat() {
     console.log("subLogcat")
     var params = {
         deviceId: deviceId,
-        content: "ActivityManager:I MyApp:D *:S"
+        content: ""
     }
     socket.emit("sub_logcat", JSON.stringify(params))
 }

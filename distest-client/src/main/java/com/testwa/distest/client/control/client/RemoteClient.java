@@ -592,6 +592,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
      * @param command
      */
     private void waitlogcatCommand(Command command) {
+        log.info("receive waite cmd");
         this.logcat.close();
     }
 
@@ -603,6 +604,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         if(this.logcat != null){
             this.logcat.close();
         }
+        this.isLogcatWaitting = true;
         String content = (String) command.get("content");
         Logcat l = new Logcat(this.serialNumber, content);
         l.addEventListener(this);
