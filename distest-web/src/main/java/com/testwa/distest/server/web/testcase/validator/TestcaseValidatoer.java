@@ -6,7 +6,9 @@ import com.testwa.distest.server.service.testcase.service.TestcaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by wen on 24/10/2017.
@@ -27,7 +29,10 @@ public class TestcaseValidatoer {
     }
     public List<Testcase> validateTestcasesInProject(List<Long> entityIds, Long projectId) throws ObjectNotExistsException {
         List<Testcase> entityList = testcaseService.findAll(entityIds);
-        if(entityList == null || entityList.size() != entityIds.size()){
+
+        Set<Testcase> entitySet = new HashSet<>();
+        entitySet.addAll(entityList);
+        if(entitySet.size() != entityIds.size()){
             throw new ObjectNotExistsException("案例不存在");
         }
         for(Testcase entity: entityList){

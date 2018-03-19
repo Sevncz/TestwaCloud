@@ -89,21 +89,23 @@ public class WebConnectionHandler {
             }
         }else if("browser".equals(type)){
             // 浏览器连接, 订阅一个设备的图像输出流
-            String func = client.getHandshakeData().getSingleUrlParam("func");
-            String deviceId = client.getHandshakeData().getSingleUrlParam("deviceId");
-            log.info("browser connected: {} - {}", func, deviceId);
-            if(StringUtils.isNotBlank(func) && StringUtils.isNotBlank(deviceId) ){
-                if(WSFuncEnum.contains(func)){
-                    subscribeMgr.subscribeDeviceEvent(deviceId, func, client.getSessionId().toString());
-                    if(subscribeMgr.isSubscribes(deviceId, func)){
-                        pushCmdService.pushScreenUploadStart(deviceId);
-                    }
-                }
-                DeviceAndroid deviceAndroid = (DeviceAndroid) deviceService.findByDeviceId(deviceId);
-                client.sendEvent("devices", JSON.toJSON(deviceAndroid));
-            }else{
-                client.sendEvent("error", "参数不能为空");
-            }
+//            String func = client.getHandshakeData().getSingleUrlParam("func");
+//            String deviceId = client.getHandshakeData().getSingleUrlParam("deviceId");
+//            log.info("browser connected: {} - {}", func, deviceId);
+//            if(StringUtils.isNotBlank(func) && StringUtils.isNotBlank(deviceId) ){
+//                if(WSFuncEnum.contains(func)){
+//                    subscribeMgr.subscribeDeviceEvent(deviceId, func, client.getSessionId().toString());
+//                    if(subscribeMgr.isSubscribes(deviceId, func)){
+//                        pushCmdService.pushScreenUploadStart(deviceId);
+//                    }
+//                }
+//                DeviceAndroid deviceAndroid = (DeviceAndroid) deviceService.findByDeviceId(deviceId);
+//                client.sendEvent("devices", JSON.toJSON(deviceAndroid));
+//            }else{
+//                client.sendEvent("error", "参数不能为空");
+//            }
+        } else {
+            log.error("Illegal connection");
         }
     }
 
@@ -132,19 +134,6 @@ public class WebConnectionHandler {
         }else if("browser".equals(type)){
             // 浏览器连接断开
             log.debug("browser disconnect");
-            String func = client.getHandshakeData().getSingleUrlParam("func");
-            String deviceId = client.getHandshakeData().getSingleUrlParam("deviceId");
-            if(StringUtils.isNotBlank(func) && StringUtils.isNotBlank(deviceId) ){
-                if(WSFuncEnum.contains(func)){
-                    subscribeMgr.delSubscribe(deviceId, func, client.getSessionId().toString());
-                    if(!subscribeMgr.isSubscribes(deviceId, func)){
-                        pushCmdService.pushScreenUploadStop(deviceId);
-                        pushCmdService.pushLogcatUploadStop(deviceId);
-                    }
-                }
-            }else{
-                client.sendEvent("error", "参数不能为空");
-            }
         }
     }
 

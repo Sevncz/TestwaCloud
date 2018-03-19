@@ -6,11 +6,14 @@ import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.annotation.OnEvent;
 import com.testwa.core.base.exception.ObjectNotExistsException;
+import com.testwa.distest.server.entity.DeviceAndroid;
 import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
 import com.testwa.distest.server.service.cache.mgr.SubscribeMgr;
+import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.websocket.WSFuncEnum;
 import com.testwa.distest.server.websocket.service.PushCmdService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -33,6 +36,7 @@ public class CommandHandler {
     private final static String menu = "menu";
     private final static String del = "del";
     private final static String clear = "clear";
+    private final static String getDevices = "get_devices";
 
     @Autowired
     private DeviceSessionMgr deviceSessionMgr;
@@ -40,6 +44,8 @@ public class CommandHandler {
     private PushCmdService pushCmdService;
     @Autowired
     private SubscribeMgr subscribeMgr;
+    @Autowired
+    private DeviceService deviceService;
 
     @OnEvent(value = minitouch)
     public void onMinitouch(SocketIOClient client, String data, AckRequest ackRequest) {
@@ -55,7 +61,6 @@ public class CommandHandler {
     public void onMinicap(SocketIOClient client, String data, AckRequest ackRequest) {
         if("open".equals(data)){
             log.info("onMinicap open!");
-//            waitingData(client);
         }
         if("close".equals(data)){
             log.info("onMinicap close!");
@@ -76,6 +81,7 @@ public class CommandHandler {
 
         Map params = JSON.parseObject(data, Map.class);
         String deviceId = (String) params.get("deviceId");
+        if (isIllegalDeviceId(client, deviceId)) return;
         String touch = (String) params.get("touch");
         if(subscribeMgr.isSubscribes(deviceId, WSFuncEnum.SCREEN.getValue())){
             pushCmdService.pushTouchData(deviceId, touch);
@@ -87,6 +93,8 @@ public class CommandHandler {
     public void onInput(SocketIOClient client, String data, AckRequest ackRequest) throws ObjectNotExistsException {
         Map params = JSON.parseObject(data, Map.class);
         String deviceId = (String) params.get("deviceId");
+        if (isIllegalDeviceId(client, deviceId)) return;
+
         String input = (String) params.get("input");
         if(subscribeMgr.isSubscribes(deviceId, WSFuncEnum.SCREEN.getValue())){
             pushCmdService.pushInputText(deviceId, input);
@@ -96,7 +104,7 @@ public class CommandHandler {
 
     @OnEvent(value = home)
     public void onHome(SocketIOClient client, String deviceId, AckRequest ackRequest) throws ObjectNotExistsException {
-
+        if (isIllegalDeviceId(client, deviceId)) return;
         if(subscribeMgr.isSubscribes(deviceId, WSFuncEnum.SCREEN.getValue())) {
             pushCmdService.pushHome(deviceId);
         }
@@ -104,7 +112,7 @@ public class CommandHandler {
     }
     @OnEvent(value = back)
     public void onBack(SocketIOClient client, String deviceId, AckRequest ackRequest) throws ObjectNotExistsException {
-
+        if (isIllegalDeviceId(client, deviceId)) return;
         if(subscribeMgr.isSubscribes(deviceId, WSFuncEnum.SCREEN.getValue())) {
             pushCmdService.pushBack(deviceId);
         }
@@ -113,7 +121,7 @@ public class CommandHandler {
 
     @OnEvent(value = menu)
     public void onMenu(SocketIOClient client, String deviceId, AckRequest ackRequest) throws ObjectNotExistsException {
-
+        if (isIllegalDeviceId(client, deviceId)) return;
         if(subscribeMgr.isSubscribes(deviceId, WSFuncEnum.SCREEN.getValue())) {
             pushCmdService.pushMenu(deviceId);
         }
@@ -122,10 +130,25 @@ public class CommandHandler {
 
     @OnEvent(value = del)
     public void onDel(SocketIOClient client, String deviceId, AckRequest ackRequest) throws ObjectNotExistsException {
-
+        if (isIllegalDeviceId(client, deviceId)) return;
         if(subscribeMgr.isSubscribes(deviceId, WSFuncEnum.SCREEN.getValue())) {
             pushCmdService.pushDel(deviceId);
         }
+    }
+
+    @OnEvent(value = getDevices)
+    public void onGetDevices(SocketIOClient client, String deviceId, AckRequest ackRequest) throws ObjectNotExistsException {
+        if (isIllegalDeviceId(client, deviceId)) return;
+        DeviceAndroid deviceAndroid = (DeviceAndroid) deviceService.findByDeviceId(deviceId);
+        client.sendEvent("devices", JSON.toJSON(deviceAndroid));
+    }
+
+    private boolean isIllegalDeviceId(SocketIOClient client, String deviceId) {
+        if(StringUtils.isBlank(deviceId)){
+            client.sendEvent("error", "deviceId is null");
+            return true;
+        }
+        return false;
     }
 
 }

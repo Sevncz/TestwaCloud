@@ -6,7 +6,9 @@ import com.testwa.distest.server.service.script.service.ScriptService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by wen on 23/10/2017.
@@ -27,7 +29,9 @@ public class ScriptValidator {
     }
     public List<Script> validateScriptsInProject(List<Long> scriptIds, Long projectId) throws ObjectNotExistsException {
         List<Script> scriptList = scriptService.findAllInProject(scriptIds, projectId);
-        if(scriptList == null || scriptList.size() != scriptIds.size()){
+        Set<Script> scriptSet = new HashSet<>();
+        scriptSet.addAll(scriptList);
+        if(scriptSet.size() != scriptIds.size()){
             throw new ObjectNotExistsException("脚本不存在");
         }
         return scriptList;

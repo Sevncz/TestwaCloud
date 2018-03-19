@@ -8,6 +8,7 @@
 <canvas id="phone-screen"></canvas>
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 
+<button id="devices">DEVICES</button>
 <button id="back">BACK</button>
 <button id="home" >HOME</button>
 <button id="menu">MENU</button>
@@ -63,6 +64,7 @@ socket.on('connect', function(){
 });
 socket.on('devices', function(message){
     var device = message
+    console.log(device)
     util.screenW = parseFloat(device.width)
     util.screenH = parseFloat(device.height)
 });
@@ -156,6 +158,10 @@ function waitScreen() {
     socket.emit("wait_screen", deviceId)
 }
 
+function getDevices() {
+    console.log("devices")
+    socket.emit("get_devices", deviceId)
+}
 
 function sendDown(argx, argy, isRo) {
     var scalex = util.screenW / canvas.width;
@@ -259,6 +265,9 @@ $("#sub").click(function () {
 
 $("#wait").click(function () {
     waitScreen();
+});
+$("#devices").click(function () {
+    getDevices();
 });
 
 </script>
