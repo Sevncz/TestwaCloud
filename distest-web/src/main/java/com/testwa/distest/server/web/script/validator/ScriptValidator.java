@@ -29,9 +29,9 @@ public class ScriptValidator {
     }
     public List<Script> validateScriptsInProject(List<Long> scriptIds, Long projectId) throws ObjectNotExistsException {
         List<Script> scriptList = scriptService.findAllInProject(scriptIds, projectId);
-        Set<Script> scriptSet = new HashSet<>();
-        scriptSet.addAll(scriptList);
-        if(scriptSet.size() != scriptIds.size()){
+        Set<Long> scriptSet = new HashSet<>();
+        scriptSet.addAll(scriptIds);
+        if(scriptSet.size() != scriptList.size()){
             throw new ObjectNotExistsException("脚本不存在");
         }
         return scriptList;

@@ -6,6 +6,7 @@ import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.annotation.OnEvent;
 import com.testwa.core.base.exception.ObjectNotExistsException;
+import com.testwa.core.cmd.MiniCmd;
 import com.testwa.distest.server.entity.DeviceAndroid;
 import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
 import com.testwa.distest.server.service.cache.mgr.SubscribeMgr;
@@ -28,6 +29,7 @@ public class CommandHandler {
 
     private final static String minitouch = "minitouch";
     private final static String minicap = "minicap";
+    private final static String resetMinicap = "reset_minicap";
     private final static String open = "open";
     private final static String touch = "touch";
     private final static String input = "input";
@@ -65,6 +67,24 @@ public class CommandHandler {
         if("close".equals(data)){
             log.info("onMinicap close!");
         }
+    }
+
+    @OnEvent(value = resetMinicap)
+    public void onResetMinicap(SocketIOClient client, String data, AckRequest ackRequest) {
+
+        Map params = JSON.parseObject(data, Map.class);
+        String deviceId = (String) params.get("deviceId");
+        if (isIllegalDeviceId(client, deviceId)) return;
+        Object s = params.getOrDefault("scale", "0.5");
+        Object r = params.getOrDefault("rotate", "0");
+        Float scale = Float.parseFloat(s.toString());
+        Float rotate = Float.parseFloat(r.toString());
+
+        MiniCmd cmd = new MiniCmd();
+        cmd.setType("minicap");
+        cmd.setRotate(rotate);
+        cmd.setScale(scale);
+        pushCmdService.pushMinCmdStart(cmd, deviceId);
     }
 
     @OnEvent(value = open)

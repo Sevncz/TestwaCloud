@@ -20,6 +20,9 @@
 
 <button id="sub">SUB</button>
 <button id="wait">WAIT</button>
+
+
+<button id="reset_minicap">RESET_MINICAP</button>
 <!-- jQuery -->
 <script src="js/jquery.min.js"></script>
 <script src="js/jquery.jsonp.js"></script>
@@ -268,6 +271,15 @@ $("#wait").click(function () {
 });
 $("#devices").click(function () {
     getDevices();
+});
+$("#reset_minicap").click(function () {
+
+    var params = {
+        deviceId: deviceId,
+        scale: 0.5,   //  分辨率，画质，越小越模糊
+        rotate: 90.0  // 屏幕旋转度数，支持0,90,180,270 4个值
+    }
+    socket.emit("reset_minicap", JSON.stringify(params))
 });
 
 </script>

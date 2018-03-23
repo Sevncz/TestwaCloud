@@ -406,7 +406,9 @@ public class Minicap {
                     if (n == -1) {
                         Thread.sleep(1000);
                         log.info("minicap socket close, retry again");
-                        minicapSocket.close();
+                        if(minicapSocket != null){
+                            minicapSocket.close();
+                        }
                     } else {
 
                         log.info("minicap ---------- start ");

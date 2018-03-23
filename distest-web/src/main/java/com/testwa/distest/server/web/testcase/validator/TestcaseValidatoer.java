@@ -30,9 +30,9 @@ public class TestcaseValidatoer {
     public List<Testcase> validateTestcasesInProject(List<Long> entityIds, Long projectId) throws ObjectNotExistsException {
         List<Testcase> entityList = testcaseService.findAll(entityIds);
 
-        Set<Testcase> entitySet = new HashSet<>();
-        entitySet.addAll(entityList);
-        if(entitySet.size() != entityIds.size()){
+        Set<Long> entitySet = new HashSet<>();
+        entitySet.addAll(entityIds);
+        if(entitySet.size() != entityList.size()){
             throw new ObjectNotExistsException("案例不存在");
         }
         for(Testcase entity: entityList){
