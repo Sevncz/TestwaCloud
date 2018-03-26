@@ -30,8 +30,8 @@ public class SubscribeMgr {
         return redisCacheMgr.hKeys(getKey(deviceId, func));
     }
 
-    public Boolean isSubscribes(String deviceId, String func) {
-        return redisCacheMgr.existsKey(getKey(deviceId, func));
+    public Boolean isSubscribes(String deviceId, String func, String sessionId) {
+        return redisCacheMgr.hExists(getKey(deviceId, func), sessionId);
     }
 
     public void delAllSubscribes() {
@@ -45,5 +45,4 @@ public class SubscribeMgr {
     public void delSubscribe(String deviceId, String func, String sessionId) {
         redisCacheMgr.hdel(getKey(deviceId, func), sessionId);
     }
-
 }

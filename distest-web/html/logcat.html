@@ -21,6 +21,7 @@ socket.on('logcat', function(message){
     var content = $("#content").val()
     content = content + message
     $("#content").val(content);
+    console.log(message)
 });
 socket.on('disconnect', function(){});
 

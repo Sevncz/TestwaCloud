@@ -16,7 +16,7 @@ public class RemoteRunCommand {
     private AppInfo appInfo;
     private String deviceId;
     private List<RemoteTestcaseContent> testcaseList;
-    private String install;
+    private Boolean install = true;  // 默认安装
     private int cmd;  // 0 关闭，1 启动
 
 

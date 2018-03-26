@@ -141,13 +141,14 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
         for(String sessionId : sessions){
             SocketIOClient client = server.getClient(UUID.fromString(sessionId));
             if(client != null){
-                client.sendEvent("logcat", new String(data));
+                String ds = new String(data);
+                ds = ds.replace("\0", "");
+                client.sendEvent("logcat", ds.trim());
             }else{
-                subscribeMgr.delSubscribe(serial, WSFuncEnum.SCREEN.getValue(), sessionId);
-                pushCmdService.pushLogcatUploadStop(serial);
+                log.info("[logcat] client is not found");
+                subscribeMgr.delSubscribe(serial, WSFuncEnum.LOGCAT.getValue(), sessionId);
             }
         }
-        log.debug(" GET data length {}", data.length);
 
         final CommonReply.Builder replyBuilder = CommonReply.newBuilder().setMessage("OK ");
         responseObserver.onNext(replyBuilder.build());
@@ -167,8 +168,8 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
                 log.debug("SCREEN REC: data length is {} KB", format.format(i));
                 client.sendEvent("minicap", data);
             }else{
+                log.info("[screen] client is not found");
                 subscribeMgr.delSubscribe(serial, WSFuncEnum.SCREEN.getValue(), sessionId);
-                pushCmdService.pushScreenUploadStop(serial);
             }
         }
 

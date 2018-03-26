@@ -103,7 +103,7 @@ public class CommandHandler {
         String deviceId = (String) params.get("deviceId");
         if (isIllegalDeviceId(client, deviceId)) return;
         String touch = (String) params.get("touch");
-        if(subscribeMgr.isSubscribes(deviceId, WSFuncEnum.SCREEN.getValue())){
+        if(subscribeMgr.isSubscribes(deviceId, WSFuncEnum.SCREEN.getValue(), client.getSessionId().toString())){
             pushCmdService.pushTouchData(deviceId, touch);
         }
 
@@ -116,7 +116,7 @@ public class CommandHandler {
         if (isIllegalDeviceId(client, deviceId)) return;
 
         String input = (String) params.get("input");
-        if(subscribeMgr.isSubscribes(deviceId, WSFuncEnum.SCREEN.getValue())){
+        if(subscribeMgr.isSubscribes(deviceId, WSFuncEnum.SCREEN.getValue(), client.getSessionId().toString())){
             pushCmdService.pushInputText(deviceId, input);
         }
 
@@ -125,7 +125,7 @@ public class CommandHandler {
     @OnEvent(value = home)
     public void onHome(SocketIOClient client, String deviceId, AckRequest ackRequest) throws ObjectNotExistsException {
         if (isIllegalDeviceId(client, deviceId)) return;
-        if(subscribeMgr.isSubscribes(deviceId, WSFuncEnum.SCREEN.getValue())) {
+        if(subscribeMgr.isSubscribes(deviceId, WSFuncEnum.SCREEN.getValue(), client.getSessionId().toString())) {
             pushCmdService.pushHome(deviceId);
         }
 
@@ -133,7 +133,7 @@ public class CommandHandler {
     @OnEvent(value = back)
     public void onBack(SocketIOClient client, String deviceId, AckRequest ackRequest) throws ObjectNotExistsException {
         if (isIllegalDeviceId(client, deviceId)) return;
-        if(subscribeMgr.isSubscribes(deviceId, WSFuncEnum.SCREEN.getValue())) {
+        if(subscribeMgr.isSubscribes(deviceId, WSFuncEnum.SCREEN.getValue(), client.getSessionId().toString())) {
             pushCmdService.pushBack(deviceId);
         }
 
@@ -142,7 +142,7 @@ public class CommandHandler {
     @OnEvent(value = menu)
     public void onMenu(SocketIOClient client, String deviceId, AckRequest ackRequest) throws ObjectNotExistsException {
         if (isIllegalDeviceId(client, deviceId)) return;
-        if(subscribeMgr.isSubscribes(deviceId, WSFuncEnum.SCREEN.getValue())) {
+        if(subscribeMgr.isSubscribes(deviceId, WSFuncEnum.SCREEN.getValue(), client.getSessionId().toString())) {
             pushCmdService.pushMenu(deviceId);
         }
 
@@ -151,7 +151,7 @@ public class CommandHandler {
     @OnEvent(value = del)
     public void onDel(SocketIOClient client, String deviceId, AckRequest ackRequest) throws ObjectNotExistsException {
         if (isIllegalDeviceId(client, deviceId)) return;
-        if(subscribeMgr.isSubscribes(deviceId, WSFuncEnum.SCREEN.getValue())) {
+        if(subscribeMgr.isSubscribes(deviceId, WSFuncEnum.SCREEN.getValue(), client.getSessionId().toString())) {
             pushCmdService.pushDel(deviceId);
         }
     }

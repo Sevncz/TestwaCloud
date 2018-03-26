@@ -58,7 +58,7 @@ public class PythonExecutor {
     private List<RemoteTestcaseContent> testcaseList;
     private Long taskId;
 
-    private String install;
+    private boolean install;
 
     private boolean isStop = false;
     private ScriptInfo currScript;
@@ -114,7 +114,6 @@ public class PythonExecutor {
     @ExecutorActionInfo(desc = "脚本队列初始化", order = 3)
     public void runScripts(){
         assert StringUtils.isNotBlank(deviceId);
-        assert StringUtils.isNotBlank(install);
         assert testcaseList.size() > 0;
 
         try {
@@ -339,8 +338,12 @@ public class PythonExecutor {
         if(this.pyService != null){
             this.pyService.stop();
         }
-        this.testcases.clear();
-        this.scripts.clear();
+        if(this.testcases != null){
+            this.testcases.clear();
+        }
+        if(this.scripts != null){
+            this.scripts.clear();
+        }
     }
 
 }
