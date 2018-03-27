@@ -79,22 +79,24 @@ public class TaskService {
     public Map<String, Object> statis(Task task) {
         ProcedureStatis ps = procedureStatisRepository.findByExeId(task.getId());
         Map<String, Object> result = new HashMap<>();
-        // app 基本情况
-        result.put("appStaty", task.getApp());
-        List<Map> statusScript = ps.getStatusScriptInfo();
+        if(ps != null){
 
-        Map<String, Device> devInfo = new HashMap<>();
-        Map<String, List> devCpuLine = new HashMap<>();
-        Map<String, List> devRawLine = new HashMap<>();
-        // 设备基本情况
-        task.getDevices().forEach( device -> {
+            // app 基本情况
+            result.put("appStaty", task.getApp());
+            List<Map> statusScript = ps.getStatusScriptInfo();
 
-            devInfo.put(device.getDeviceId(), device);
-            devCpuLine.put(device.getDeviceId(), new ArrayList());
-            devRawLine.put(device.getDeviceId(), new ArrayList());
-        });
+            Map<String, Device> devInfo = new HashMap<>();
+            Map<String, List> devCpuLine = new HashMap<>();
+            Map<String, List> devRawLine = new HashMap<>();
+            // 设备基本情况
+            task.getDevices().forEach( device -> {
 
-        // 设备脚本执行情况，app信息可以从app基本情况获得
+                devInfo.put(device.getDeviceId(), device);
+                devCpuLine.put(device.getDeviceId(), new ArrayList());
+                devRawLine.put(device.getDeviceId(), new ArrayList());
+            });
+
+            // 设备脚本执行情况，app信息可以从app基本情况获得
         /*
          {
          "dto": "TaskScene 4",
@@ -107,63 +109,63 @@ public class TaskService {
          "appVersion": 123
          }
          */
-        List<Map> scriptStaty = new ArrayList<>();
-        statusScript.forEach( s -> {
-            String deviceId = (String) s.get("deviceId");
-            Map<String, Object> subInfo = new HashMap<>();
-            subInfo.put("deviceId", deviceId);
-            subInfo.put("successNum", s.get("success"));
-            subInfo.put("failedNum", s.get("fail"));
-            subInfo.put("total", ps.getScriptNum());
-            DeviceAndroid d = (DeviceAndroid) devInfo.get(deviceId);
-            subInfo.put("dto", d.getModel());
-            subInfo.put("brand", d.getBrand());
-            scriptStaty.add(subInfo);
-        });
+            List<Map> scriptStaty = new ArrayList<>();
+            statusScript.forEach( s -> {
+                String deviceId = (String) s.get("deviceId");
+                Map<String, Object> subInfo = new HashMap<>();
+                subInfo.put("deviceId", deviceId);
+                subInfo.put("successNum", s.get("success"));
+                subInfo.put("failedNum", s.get("fail"));
+                subInfo.put("total", ps.getScriptNum());
+                DeviceAndroid d = (DeviceAndroid) devInfo.get(deviceId);
+                subInfo.put("dto", d.getModel());
+                subInfo.put("brand", d.getBrand());
+                scriptStaty.add(subInfo);
+            });
 
-        result.put("scriptStaty", scriptStaty);
+            result.put("scriptStaty", scriptStaty);
 
-        // cpu 平均消耗
+            // cpu 平均消耗
         /*
         {
           "name": "Xiao Mi",
           "value": 89.4
         }
          */
-        List<Map> cpuAvgRate = ps.getCpurateInfo();
-        List<Map> cpuStaty = new ArrayList<>();
-        cpuAvgRate.forEach( s -> {
-            String deviceId = (String) s.get("_id");
-            DeviceAndroid d = (DeviceAndroid) devInfo.get(deviceId);
-            Map<String, Object> subInfo = new HashMap<>();
-            subInfo.put("dto", d.getModel());
-            subInfo.put("brand", d.getBrand());
-            subInfo.put("value", s.get("value"));
-            cpuStaty.add(subInfo);
-        });
-        result.put("cpuStaty", cpuStaty);
+            List<Map> cpuAvgRate = ps.getCpurateInfo();
+            List<Map> cpuStaty = new ArrayList<>();
+            cpuAvgRate.forEach( s -> {
+                String deviceId = (String) s.get("_id");
+                DeviceAndroid d = (DeviceAndroid) devInfo.get(deviceId);
+                Map<String, Object> subInfo = new HashMap<>();
+                subInfo.put("dto", d.getModel());
+                subInfo.put("brand", d.getBrand());
+                subInfo.put("value", s.get("value"));
+                cpuStaty.add(subInfo);
+            });
+            result.put("cpuStaty", cpuStaty);
 
-        // 内存 平均消耗
+            // 内存 平均消耗
         /*
         {
           "name": "Xiao Mi",
           "value": 89.4
         }
          */
-        List<Map> memAvgRate = ps.getMemoryInfo();
-        List<Map> ramStaty = new ArrayList<>();
-        memAvgRate.forEach( s -> {
-            String deviceId = (String) s.get("_id");
-            DeviceAndroid d = (DeviceAndroid) devInfo.get(deviceId);
-            Map<String, Object> subInfo = new HashMap<>();
-            subInfo.put("dto", d.getModel());
-            subInfo.put("brand", d.getBrand());
-            subInfo.put("value", s.get("value"));
-            ramStaty.add(subInfo);
-        });
-        result.put("ramStaty", ramStaty);
+            List<Map> memAvgRate = ps.getMemoryInfo();
+            List<Map> ramStaty = new ArrayList<>();
+            memAvgRate.forEach( s -> {
+                String deviceId = (String) s.get("_id");
+                DeviceAndroid d = (DeviceAndroid) devInfo.get(deviceId);
+                Map<String, Object> subInfo = new HashMap<>();
+                subInfo.put("dto", d.getModel());
+                subInfo.put("brand", d.getBrand());
+                subInfo.put("value", s.get("value"));
+                ramStaty.add(subInfo);
+            });
+            result.put("ramStaty", ramStaty);
 
-        // 内存和cpu时刻消耗
+            // 内存和cpu时刻消耗
         /*
         {
           "name": "Xiao Mi",
@@ -191,45 +193,46 @@ public class TaskService {
           ]
         }
          */
-        List<ProcedureInfo> detailInfo = procedureInfoRepository.findByExecutionTaskIdOrderByTimestampAsc(task.getId());
+            List<ProcedureInfo> detailInfo = procedureInfoRepository.findByExecutionTaskIdOrderByTimestampAsc(task.getId());
 
-        List<Map> cpuline = new ArrayList<>();
-        List<Map> rawline = new ArrayList<>();
-        detailInfo.forEach( d -> {
-            Map<String, Object> cpuPoint = new HashMap<>();
-            cpuPoint.put("value", d.getCpurate());
-            cpuPoint.put("name", TimeUtil.formatTimeStamp(d.getTimestamp()));
-            devCpuLine.get(d.getDeviceId()).add(cpuPoint);
-            Map<String, Object> rawPoint = new HashMap<>();
-            rawPoint.put("value", d.getMemory());
-            rawPoint.put("name", TimeUtil.formatTimeStamp(d.getTimestamp()));
-            devRawLine.get(d.getDeviceId()).add(rawPoint);
-        });
+            List<Map> cpuline = new ArrayList<>();
+            List<Map> rawline = new ArrayList<>();
+            detailInfo.forEach( d -> {
+                Map<String, Object> cpuPoint = new HashMap<>();
+                cpuPoint.put("value", d.getCpurate());
+                cpuPoint.put("name", TimeUtil.formatTimeStamp(d.getTimestamp()));
+                devCpuLine.get(d.getDeviceId()).add(cpuPoint);
+                Map<String, Object> rawPoint = new HashMap<>();
+                rawPoint.put("value", d.getMemory());
+                rawPoint.put("name", TimeUtil.formatTimeStamp(d.getTimestamp()));
+                devRawLine.get(d.getDeviceId()).add(rawPoint);
+            });
 
-        devCpuLine.forEach( (d, l) -> {
+            devCpuLine.forEach( (d, l) -> {
 
-            DeviceAndroid tDevice = (DeviceAndroid) devInfo.get(d);
-            Map<String, Object> subInfo = new HashMap<>();
-            subInfo.put("dto", tDevice.getModel());
-            subInfo.put("brand", tDevice.getBrand());
-            subInfo.put("series", l);
-            cpuline.add(subInfo);
-        });
+                DeviceAndroid tDevice = (DeviceAndroid) devInfo.get(d);
+                Map<String, Object> subInfo = new HashMap<>();
+                subInfo.put("dto", tDevice.getModel());
+                subInfo.put("brand", tDevice.getBrand());
+                subInfo.put("series", l);
+                cpuline.add(subInfo);
+            });
 
-        devRawLine.forEach( (d, l) -> {
+            devRawLine.forEach( (d, l) -> {
 
-            DeviceAndroid tDevice = (DeviceAndroid) devInfo.get(d);
-            Map<String, Object> subInfo = new HashMap<>();
-            subInfo.put("dto", tDevice.getModel());
-            subInfo.put("brand", tDevice.getBrand());
-            subInfo.put("series", l);
-            rawline.add(subInfo);
-        });
+                DeviceAndroid tDevice = (DeviceAndroid) devInfo.get(d);
+                Map<String, Object> subInfo = new HashMap<>();
+                subInfo.put("dto", tDevice.getModel());
+                subInfo.put("brand", tDevice.getBrand());
+                subInfo.put("series", l);
+                rawline.add(subInfo);
+            });
 
 
-        result.put("cpuLine", cpuline);
-        result.put("rawLine", rawline);
+            result.put("cpuLine", cpuline);
+            result.put("rawLine", rawline);
 
+        }
         return result;
     }
 
