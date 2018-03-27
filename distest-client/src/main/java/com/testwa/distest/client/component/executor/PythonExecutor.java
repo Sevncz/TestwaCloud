@@ -339,8 +339,13 @@ public class PythonExecutor {
         if(this.pyService != null){
             this.pyService.stop();
         }
-        this.testcases.clear();
-        this.scripts.clear();
+        if(this.testcases != null){
+            this.testcases.clear();
+        }
+        if(this.scripts != null){
+            this.scripts.clear();
+        }
+
     }
 
 }
