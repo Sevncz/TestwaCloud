@@ -197,7 +197,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
                     if (mBufferedOutputStream == null) {
                         mBufferedOutputStream = new BufferedOutputStream(new FileOutputStream(localFile.toFile()));
                     }
-                    mBufferedOutputStream.write(data, offset, size);
+                    mBufferedOutputStream.write(data, 0, size);
                     mBufferedOutputStream.flush();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -264,7 +264,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
                     if (mBufferedOutputStream == null) {
                         mBufferedOutputStream = new BufferedOutputStream(new FileOutputStream(localFile.toFile()));
                     }
-                    mBufferedOutputStream.write(data, offset, size);
+                    mBufferedOutputStream.write(data, 0, size);
                     mBufferedOutputStream.flush();
                 } catch (Exception e) {
                     log.error("offset: {}, size: {}", offset, size);
