@@ -118,7 +118,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
                     if (mBufferedOutputStream == null) {
                         mBufferedOutputStream = new BufferedOutputStream(new FileOutputStream("receive_" + name));
                     }
-                    mBufferedOutputStream.write(data, offset, data.length);
+                    mBufferedOutputStream.write(data, 0, data.length);
                     mBufferedOutputStream.flush();
                 } catch (Exception e) {
                     e.printStackTrace();
