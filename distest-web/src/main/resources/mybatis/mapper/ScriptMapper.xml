@@ -72,6 +72,7 @@
             <if test="createBy != null">and createBy = #{createBy}</if>
             <if test="projectId != null">and projectId = #{projectId}</if>
             <if test="scriptName != null">and scriptName = #{scriptName}</if>
+            <if test="md5 != null">and md5 = #{md5}</if>
         </trim>
     </select>
 

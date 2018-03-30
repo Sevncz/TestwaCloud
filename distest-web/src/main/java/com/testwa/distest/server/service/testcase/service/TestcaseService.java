@@ -3,7 +3,6 @@ package com.testwa.distest.server.service.testcase.service;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.Joiner;
-import com.testwa.core.utils.StringUtil;
 import com.testwa.core.utils.TimeUtil;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.util.WebUtil;
@@ -56,7 +55,7 @@ public class TestcaseService {
      * @return
      */
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public long saveRegressionTestcase(TestcaseNewForm form) {
+    public long saveHGTestcase(TestcaseNewForm form) {
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         Testcase testcase = new Testcase();
         if(StringUtils.isNotEmpty(form.getName())){
@@ -70,7 +69,7 @@ public class TestcaseService {
         testcase.setTag(form.getTag());
         testcase.setCreateTime(new Date());
         testcase.setEnabled(true);
-        testcase.setExeMode(DB.RunMode.REGRESSIONTEST);
+        testcase.setExeMode(DB.RunMode.HG);
         long testcaseId = testcaseDAO.insert(testcase);
         saveTestcaseScript(form.getScriptIds(), testcaseId);
         return testcaseId;
@@ -79,20 +78,29 @@ public class TestcaseService {
     /**
      * 保存兼容测试测试案例
      * @param projectId
-     * @param scripts
+     * @param scriptId
      * @return
      */
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public Long saveCompatibilityTestcase(Long projectId, List<Long> scripts){
+    public Long saveJRTestcase(Long projectId, Long scriptId){
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
+        Testcase testcase = getJRTestcase(projectId, user);
+        long testcaseId = testcaseDAO.insert(testcase);
+        List<Long> scriptIds = new ArrayList<>();
+        scriptIds.add(scriptId);
+        saveTestcaseScript(scriptIds, testcaseId);
+        return testcaseId;
+    }
+
+    public Testcase getJRTestcase(Long projectId, User user) {
         Testcase testcase = new Testcase();
-        testcase.setCaseName("compatibility test");
-        testcase.setDescription("compatibility test");
+        testcase.setCaseName("兼容测试");
+        testcase.setDescription("兼容测试");
         testcase.setProjectId(projectId);
         testcase.setCreateBy(user.getId());
         testcase.setTag("兼容");
-        testcase.setExeMode(DB.RunMode.COMPATIBILITYTEST);
-        return testcaseDAO.insert(testcase);
+        testcase.setExeMode(DB.RunMode.JR);
+        return testcase;
     }
 
     private void saveTestcaseScript(List<Long> scriptIds, long testcaseId) {

@@ -3,26 +3,23 @@ package com.testwa.distest.server.web.task.controller;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.AuthorizedException;
-import com.testwa.core.base.exception.DeviceNotActiveException;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.base.vo.Result;
-import com.testwa.distest.common.util.WebUtil;
-import com.testwa.distest.server.entity.TaskScene;
-import com.testwa.distest.server.entity.User;
+import com.testwa.distest.server.entity.Script;
+import com.testwa.distest.server.entity.Testcase;
 import com.testwa.distest.server.mongo.service.ExecutorLogInfoService;
-import com.testwa.distest.server.service.task.form.TaskNewByCaseAndStartForm;
-import com.testwa.distest.server.service.task.form.TaskStartByTestcaseForm;
-import com.testwa.distest.server.service.task.form.TaskStartForm;
-import com.testwa.distest.server.service.task.form.TaskStopForm;
+import com.testwa.distest.server.service.script.form.ScriptNewForm;
+import com.testwa.distest.server.service.script.service.ScriptService;
+import com.testwa.distest.server.service.task.form.*;
+import com.testwa.distest.server.service.testcase.service.TestcaseService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.app.validator.AppValidator;
 import com.testwa.distest.server.web.device.validator.DeviceValidatoer;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
-import com.testwa.distest.server.web.task.execute.ExecuteMgr;
 import com.testwa.distest.server.web.task.execute.ExecuteMgrV2;
-import com.testwa.distest.server.web.task.validator.TaskSceneValidatoer;
 import com.testwa.distest.server.web.task.validator.TaskValidatoer;
 import com.testwa.distest.server.web.task.vo.TaskProgressVO;
+import com.testwa.distest.server.web.testcase.validator.TestcaseValidatoer;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +36,7 @@ import java.util.List;
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/task")
 public class TaskControllerV2 extends BaseController {
+    private static final String JR_MD5 = "jrcs_md5";
 
     @Autowired
     private ExecuteMgrV2 executeMgr;
@@ -47,7 +45,7 @@ public class TaskControllerV2 extends BaseController {
     @Autowired
     private ExecutorLogInfoService executorLogInfoService;
     @Autowired
-    private TaskSceneValidatoer taskSceneValidatoer;
+    private TestcaseValidatoer testcaseValidatoer;
     @Autowired
     private ProjectValidator projectValidator;
     @Autowired
@@ -56,17 +54,42 @@ public class TaskControllerV2 extends BaseController {
     private DeviceValidatoer deviceValidatoer;
     @Autowired
     private TaskValidatoer taskValidatoer;
+    @Autowired
+    private ScriptService scriptService;
+    @Autowired
+    private TestcaseService testcaseService;
 
 
-    @ApiOperation(value="执行一个任务")
+    @ApiOperation(value="执行一个回归测试任务")
     @ResponseBody
     @PostMapping(value = "/run")
     public Result run(@RequestBody TaskNewByCaseAndStartForm form) throws ObjectNotExistsException, AuthorizedException {
         appValidator.validateAppExist(form.getAppId());
         deviceValidatoer.validateOnline(form.getDeviceIds());
-//        User user = userService.findByUsername(WebUtil.getCurrentUsername());
-//        projectValidator.validateUserIsProjectMember(form.getProjectId(), user.getId());
+        testcaseValidatoer.validateTestcaseExist(form.getTestcaseId());
         Long taskId = executeMgr.start(form);
+        return ok(taskId);
+    }
+
+    @ApiOperation(value="执行一个兼容测试任务")
+    @ResponseBody
+    @PostMapping(value = "/run/jr")
+    public Result runJR(@RequestBody TaskNewStartJRForm form) throws ObjectNotExistsException, AuthorizedException {
+        appValidator.validateAppExist(form.getAppId());
+        deviceValidatoer.validateOnline(form.getDeviceIds());
+        ScriptNewForm scriptNewForm = new ScriptNewForm();
+        scriptNewForm.setProjectId(form.getProjectId());
+        List<Script> scriptList = scriptService.findByMD5InProject(JR_MD5, form.getProjectId());
+        Script script = null;
+        if(scriptList == null || scriptList.size() == 0){
+            // 生成一个脚本
+            script = scriptService.saveScript("jr.py", "jr.py", JR_MD5, "jr/jr.py", "0", "py", scriptNewForm);
+        }else{
+            script = scriptList.get(0);
+        }
+        // 生成一个案例
+        Long testcaseId = testcaseService.saveJRTestcase(form.getProjectId(), script.getId());
+        Long taskId = executeMgr.startJR(form, testcaseId);
         return ok(taskId);
     }
 
@@ -82,6 +105,7 @@ public class TaskControllerV2 extends BaseController {
         executeMgr.stop(form);
         return ok();
     }
+
 
     @ApiOperation(value="查看一个任务的进度")
     @ResponseBody

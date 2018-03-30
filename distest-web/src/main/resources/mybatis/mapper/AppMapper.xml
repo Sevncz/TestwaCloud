@@ -48,6 +48,7 @@
             <if test="appName != null">and appName = #{appName}</if>
             <if test="createBy != null">and createBy = #{createBy}</if>
             <if test="projectId != null">and projectId = #{projectId}</if>
+            <if test="md5 != null">and md5 = #{md5}</if>
         </trim>
     </select>
 

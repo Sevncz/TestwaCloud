@@ -146,6 +146,39 @@ public class AppService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public App uploadOnly(MultipartFile uploadfile, Long projectId) throws IOException {
+
+        String filename = uploadfile.getOriginalFilename();
+        String aliasName = PinYinTool.getPingYin(filename);
+        String dirName = Identities.uuid2();
+        Path dir = Paths.get(disFileProperties.getApp(), dirName);
+        Files.createDirectories(dir);
+        Path filepath = Paths.get(dir.toString(), aliasName);
+        Files.write(filepath, uploadfile.getBytes(), StandardOpenOption.CREATE);
+
+        String type = filename.substring(filename.lastIndexOf(".") + 1);
+
+        String size = uploadfile.getSize() + "";
+        String relativePath = dirName + File.separator + aliasName;
+        String md5 = IOUtil.fileMD5(filepath.toString());
+        List<App> appList = findByMd5InProject(md5, projectId);
+        AppNewForm form = new AppNewForm();
+        form.setProjectId(projectId);
+        if(appList == null || appList.size() == 0){
+            return saveFile(filename, aliasName, filepath.toString(), relativePath, size, type, md5, form);
+        }
+        return appList.get(0);
+    }
+
+    private List<App> findByMd5InProject(String md5, Long projectId) {
+        App query = new App();
+        query.setProjectId(projectId);
+        query.setMd5(md5);
+        List<App> appList = appDAO.findBy(query);
+        return appList;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public App upload(MultipartFile uploadfile, AppNewForm form) throws IOException {
 
         String filename = uploadfile.getOriginalFilename();
@@ -160,10 +193,11 @@ public class AppService {
 
         String size = uploadfile.getSize() + "";
         String relativePath = dirName + File.separator + aliasName;
-        return saveFile(filename, aliasName, filepath.toString(), relativePath, size, type, form);
+        String md5 = IOUtil.fileMD5(filepath.toString());
+        return saveFile(filename, aliasName, filepath.toString(), relativePath, size, type, md5, form);
 
     }
-    private App saveFile(String filename, String aliasName, String filepath, String relativePath, String size, String type, AppNewForm form) throws IOException {
+    private App saveFile(String filename, String aliasName, String filepath, String relativePath, String size, String type, String md5, AppNewForm form) throws IOException {
         App app = new App();
 
         switch (type.toLowerCase()){
@@ -191,13 +225,12 @@ public class AppService {
                 break;
 
         }
-
         app.setAliasName(aliasName);
         app.setAppName(filename);
         app.setPath(relativePath);
         app.setCreateTime(new Date());
         app.setSize(size);
-        app.setMd5(IOUtil.fileMD5(filepath));
+        app.setMd5(md5);
         if(form != null){
 
             app.setProjectId(form.getProjectId());
@@ -313,4 +346,5 @@ public class AppService {
         }
         return params;
     }
+
 }

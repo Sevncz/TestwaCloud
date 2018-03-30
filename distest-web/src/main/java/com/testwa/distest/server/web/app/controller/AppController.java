@@ -84,6 +84,23 @@ public class AppController extends BaseController {
         return ok(vo);
     }
 
+    @ApiOperation(value="上传应用，兼容测试", notes="")
+    @ResponseBody
+    @PostMapping(value="/upload/only/{projectId}", consumes = "multipart/form-data")
+    public Result uploadOnly(@RequestParam("appfile") MultipartFile appfile, @PathVariable Long projectId) throws IOException, AccountException, ParamsIsNullException, ParamsFormatException {
+        //
+        // 校验
+        //
+        long fileSize = 1024 * 1024 * 400;
+        String[] allowExtName = {".apk", ".ipa", ".zip"};
+        fileUploadValidator.validateFile(appfile, fileSize, allowExtName);
+        projectValidator.validateProjectExist(projectId);
+
+        App app = appService.uploadOnly(appfile, projectId);
+        AppVO vo = buildVO(app, AppVO.class);
+        return ok(vo);
+    }
+
     @ApiOperation(value="更新应用信息", notes="在upload之后调用，用于补充app的信息")
     @ResponseBody
     @PostMapping(value = "/append")
@@ -106,6 +123,7 @@ public class AppController extends BaseController {
         appService.deleteApp(del.getEntityIds());
         return ok();
     }
+
     @ApiOperation(value="删除一个应用", notes="")
     @ResponseBody
     @PostMapping(value = "/delete/one")

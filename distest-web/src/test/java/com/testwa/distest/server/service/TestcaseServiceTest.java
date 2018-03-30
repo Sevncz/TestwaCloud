@@ -34,7 +34,7 @@ public class TestcaseServiceTest {
         form.setName("测试案例测试啊");
         form.setProjectId(4l);
         form.setScriptIds(Arrays.asList(2l, 3l));
-        testcaseService.saveRegressionTestcase(form);
+        testcaseService.saveHGTestcase(form);
     }
 
     @Test
@@ -95,7 +95,7 @@ public class TestcaseServiceTest {
         form.setName("测试案例测试啊");
         form.setProjectId(4l);
         form.setScriptIds(Arrays.asList(2l, 3l, 1l));
-        Long testcaseId = testcaseService.saveRegressionTestcase(form);
+        Long testcaseId = testcaseService.saveHGTestcase(form);
 
         testcaseService.delete(testcaseId);
     }

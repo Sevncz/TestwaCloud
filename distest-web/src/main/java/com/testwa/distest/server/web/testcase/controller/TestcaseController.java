@@ -11,7 +11,6 @@ import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.base.form.DeleteAllForm;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.common.util.WebUtil;
-import com.testwa.distest.server.entity.Script;
 import com.testwa.distest.server.entity.Testcase;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.testcase.form.TestcaseNewForm;
@@ -59,7 +58,7 @@ public class TestcaseController extends BaseController {
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         projectValidator.validateUserIsProjectMember(form.getProjectId(), user.getId());
 
-        testcaseService.saveRegressionTestcase(form);
+        testcaseService.saveHGTestcase(form);
         return ok();
     }
 

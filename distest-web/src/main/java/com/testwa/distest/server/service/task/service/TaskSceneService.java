@@ -86,7 +86,7 @@ public class TaskSceneService {
         ts.setDescription(form.getDescription());
         ts.setCreateTime(new Date());
         ts.setCreateBy(user.getId());
-        ts.setExeMode(DB.RunMode.REGRESSIONTEST);
+        ts.setExeMode(DB.RunMode.HG);
 
         long taskId = save(ts);
 

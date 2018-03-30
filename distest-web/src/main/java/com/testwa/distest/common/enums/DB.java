@@ -228,8 +228,8 @@ public final class DB {
     }
 
     public enum RunMode implements ValueEnum {
-        REGRESSIONTEST(1, "回归测试"),
-        COMPATIBILITYTEST(2, "兼容测试");
+        HG(1, "回归测试"),
+        JR(2, "兼容测试");
         private int value;
         private String desc;
         RunMode(int value, String desc){
@@ -243,11 +243,11 @@ public final class DB {
             return desc;
         }
         public static RunMode valueOf(int value) {
-            RunMode tt = REGRESSIONTEST;
+            RunMode tt = HG;
             switch (value) {
-                case 1: tt = REGRESSIONTEST;break;
-                case 2: tt = COMPATIBILITYTEST;break;
-                default: tt = REGRESSIONTEST;
+                case 1: tt = HG;break;
+                case 2: tt = JR;break;
+                default: tt = HG;
             }
             return tt;
         }

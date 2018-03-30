@@ -67,7 +67,7 @@ public class ExecuteMgrV2 {
 
 
     /**
-     * 保存并执行一个任务
+     * 保存并执行一个回归测试任务
      * @param form
      */
     public Long start(TaskNewByCaseAndStartForm form) throws ObjectNotExistsException {
@@ -75,7 +75,6 @@ public class ExecuteMgrV2 {
         Preconditions.checkNotNull(form.getTestcaseId(), "数据非法");
         Preconditions.checkNotNull(form.getDeviceIds(), "数据非法");
         log.info(form.toString());
-//        Long taskSceneId = taskSceneService.save(form);
         TaskStartFormV2 startForm = new TaskStartFormV2();
         startForm.setDeviceIds(form.getDeviceIds());
         return start(startForm, form.getTestcaseId(), form.getAppId());
@@ -93,35 +92,36 @@ public class ExecuteMgrV2 {
 
         List<Script> allscript = new ArrayList<>();
         List<Testcase> alltestcase = new ArrayList<>();
-
         List<RemoteTestcaseContent> cases = new ArrayList<>();
         RemoteTestcaseContent content = new RemoteTestcaseContent();
-        content.setTestcaseId(testcaseId);
-        Testcase c = testcaseService.fetchOne(testcaseId);
-        // 批量获取案例下的所有脚本
-        List<ScriptInfo> scripts = new ArrayList<>();
-        List<Long> scriptIds = new ArrayList<>();
-        c.getTestcaseDetails().forEach( s -> {
-            scriptIds.add(s.getScriptId());
-        });
-        // 转换成cmd下的scriptInfo
-        List<Script> caseAllScript = scriptService.findAll(scriptIds);
-        caseAllScript.forEach(script -> {
-            ScriptInfo info = new ScriptInfo();
-            BeanUtils.copyProperties(script, info);
-            scripts.add(info);
-        });
-        content.setScripts(scripts);
-        cases.add(content);
+        if(testcaseId != null){
 
-        allscript.addAll(caseAllScript);
-        alltestcase.add(c);
+            content.setTestcaseId(testcaseId);
+            Testcase c = testcaseService.fetchOne(testcaseId);
+            // 批量获取案例下的所有脚本
+            List<ScriptInfo> scripts = new ArrayList<>();
+            List<Long> scriptIds = new ArrayList<>();
+            c.getTestcaseDetails().forEach( s -> {
+                scriptIds.add(s.getScriptId());
+            });
+            // 转换成cmd下的scriptInfo
+            List<Script> caseAllScript = scriptService.findAll(scriptIds);
+            caseAllScript.forEach(script -> {
+                ScriptInfo info = new ScriptInfo();
+                BeanUtils.copyProperties(script, info);
+                scripts.add(info);
+            });
+            content.setScripts(scripts);
+            cases.add(content);
 
-        task.setTaskName(String.format("%s_%s", c.getCaseName(), TimeUtil.getTimestampForFile()));
-
-        task.setScriptJson(JSON.toJSONString(allscript));
-        task.setTestcaseJson(JSON.toJSONString(alltestcase));
-
+            allscript.addAll(caseAllScript);
+            alltestcase.add(c);
+            task.setTaskName(String.format("%s_%s", c.getCaseName(), TimeUtil.getTimestampForFile()));
+            task.setScriptJson(JSON.toJSONString(allscript));
+            task.setTestcaseJson(JSON.toJSONString(alltestcase));
+        }else{
+            task.setTaskName("兼容测试");
+        }
         List<DeviceAndroid> alldevice = deviceService.findAllDeviceAndroid(form.getDeviceIds());
         task.setDevicesJson(JSON.toJSONString(alldevice));
         task.setStatus(DB.TaskStatus.RUNNING);
@@ -223,4 +223,14 @@ public class ExecuteMgrV2 {
         return df.format(num);
     }
 
+    /**
+     * 保存并执行一个兼容测试任务
+     * @param form
+     * @return
+     */
+    public Long startJR(TaskNewStartJRForm form, Long testcaseId) {
+        TaskStartFormV2 startForm = new TaskStartFormV2();
+        startForm.setDeviceIds(form.getDeviceIds());
+        return start(startForm, testcaseId, form.getAppId());
+    }
 }

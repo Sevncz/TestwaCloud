@@ -181,7 +181,7 @@ public class DeviceController extends BaseController {
             }
             Files.copy(new ByteArrayInputStream(message), logPath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            log.error("saveRegressionTestcase logfile error", e);
+            log.error("saveHGTestcase logfile error", e);
         }
     }
 

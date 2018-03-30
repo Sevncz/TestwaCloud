@@ -122,16 +122,19 @@ public class ScriptService {
         }
         Path filepath = Paths.get(dir.toString(), aliasName);
         Files.copy(uploadfile.getInputStream(), filepath, StandardCopyOption.REPLACE_EXISTING);
+        String md5 = IOUtil.fileMD5(filepath.toString());
 
         String type = filename.substring(filename.lastIndexOf(".") + 1);
 
         String size = uploadfile.getSize() + "";
         String relativePath = dirName + File.separator + aliasName;
-        Script script = saveScript(filename, aliasName, filepath.toString(), relativePath, size, type, form);
+        Script script = saveScript(filename, aliasName, md5, relativePath, size, type, form);
         return script;
     }
 
-    private Script saveScript(String filename, String aliasName, String filepath, String relativePath, String size, String type, ScriptNewForm form) throws IOException {
+
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public Script saveScript(String filename, String aliasName, String md5, String relativePath, String size, String type, ScriptNewForm form) {
         Script script = new Script();
 
         switch (type.toLowerCase()){
@@ -159,7 +162,7 @@ public class ScriptService {
         script.setPath(relativePath);
         script.setAliasName(aliasName);
         script.setSize(size);
-        script.setMd5(IOUtil.fileMD5(filepath));
+        script.setMd5(md5);
         if(form != null){
             script.setProjectId(form.getProjectId());
             script.setTag(form.getTag());
@@ -351,4 +354,10 @@ public class ScriptService {
         return sb.toString();
     }
 
+    public List<Script> findByMD5InProject(String jrMd5, Long projectId) {
+        Script query = new Script();
+        query.setMd5(jrMd5);
+        query.setProjectId(projectId);
+        return scriptDAO.findBy(query);
+    }
 }
