@@ -60,6 +60,16 @@ public class TaskService {
         taskDAO.update(entity);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public void deleteTask(List<Long> entityIds) {
+        taskDAO.delete(entityIds);
+        entityIds.forEach( id -> {
+            List<ProcedureInfo> infos = procedureInfoRepository.findByExecutionTaskIdOrderByTimestampAsc(id);
+            procedureInfoRepository.delete(infos);
+        });
+    }
+
+
     public List<Task> getRunningTask(Long projectId, Long userId) {
         Task query = new Task();
         query.setStatus(DB.TaskStatus.RUNNING);

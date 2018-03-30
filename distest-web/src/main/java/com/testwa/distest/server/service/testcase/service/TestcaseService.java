@@ -83,8 +83,7 @@ public class TestcaseService {
      */
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public Long saveJRTestcase(Long projectId, Long scriptId){
-        User user = userService.findByUsername(WebUtil.getCurrentUsername());
-        Testcase testcase = getJRTestcase(projectId, user);
+        Testcase testcase = getJRTestcase(projectId);
         long testcaseId = testcaseDAO.insert(testcase);
         List<Long> scriptIds = new ArrayList<>();
         scriptIds.add(scriptId);
@@ -92,14 +91,16 @@ public class TestcaseService {
         return testcaseId;
     }
 
-    public Testcase getJRTestcase(Long projectId, User user) {
+    public Testcase getJRTestcase(Long projectId) {
         Testcase testcase = new Testcase();
         testcase.setCaseName("兼容测试");
         testcase.setDescription("兼容测试");
         testcase.setProjectId(projectId);
-        testcase.setCreateBy(user.getId());
+        testcase.setCreateBy(0l);
         testcase.setTag("兼容");
         testcase.setExeMode(DB.RunMode.JR);
+        testcase.setEnabled(true);
+        testcase.setCreateTime(new Date());
         return testcase;
     }
 
@@ -279,5 +280,10 @@ public class TestcaseService {
     public List<Testcase> fetchScriptAllBySceneOrder(Long sceneId) {
 
         return testcaseDAO.fetchScriptAllBySceneOrder(sceneId);
+    }
+
+    public List<Testcase> findSysJR(Long projectId) {
+        Testcase JRcase = getJRTestcase(projectId);
+        return testcaseDAO.findBy(JRcase);
     }
 }

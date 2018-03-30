@@ -87,8 +87,16 @@ public class TaskControllerV2 extends BaseController {
         }else{
             script = scriptList.get(0);
         }
-        // 生成一个案例
-        Long testcaseId = testcaseService.saveJRTestcase(form.getProjectId(), script.getId());
+
+        List<Testcase> testcaseList = testcaseService.findSysJR(form.getProjectId());
+        Long testcaseId = null;
+        if(testcaseList == null || testcaseList.size() == 0){
+            // 生成一个案例
+            testcaseId = testcaseService.saveJRTestcase(form.getProjectId(), script.getId());
+        }else{
+            Testcase testcase = testcaseList.get(0);
+            testcaseId = testcase.getId();
+        }
         Long taskId = executeMgr.startJR(form, testcaseId);
         return ok(taskId);
     }
