@@ -67,7 +67,7 @@ public class TaskControllerV2 extends BaseController {
         appValidator.validateAppExist(form.getAppId());
         deviceValidatoer.validateOnline(form.getDeviceIds());
         testcaseValidatoer.validateTestcaseExist(form.getTestcaseId());
-        Long taskId = executeMgr.start(form);
+        Long taskId = executeMgr.startHG(form);
         return ok(taskId);
     }
 

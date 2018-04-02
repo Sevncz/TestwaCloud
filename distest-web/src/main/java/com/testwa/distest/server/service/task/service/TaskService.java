@@ -241,6 +241,7 @@ public class TaskService {
 
             result.put("cpuLine", cpuline);
             result.put("rawLine", rawline);
+            result.put("devInfo", devInfo.values());
 
         }
         return result;

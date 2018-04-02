@@ -70,17 +70,27 @@ public class ExecuteMgrV2 {
      * 保存并执行一个回归测试任务
      * @param form
      */
-    public Long start(TaskNewByCaseAndStartForm form) throws ObjectNotExistsException {
+    public Long startHG(TaskNewByCaseAndStartForm form) throws ObjectNotExistsException {
         Preconditions.checkNotNull(form.getAppId(), "数据非法");
         Preconditions.checkNotNull(form.getTestcaseId(), "数据非法");
         Preconditions.checkNotNull(form.getDeviceIds(), "数据非法");
         log.info(form.toString());
         TaskStartFormV2 startForm = new TaskStartFormV2();
         startForm.setDeviceIds(form.getDeviceIds());
-        return start(startForm, form.getTestcaseId(), form.getAppId());
+        return start(startForm, form.getTestcaseId(), form.getAppId(), "回归测试");
+    }
+    /**
+     * 保存并执行一个兼容测试任务
+     * @param form
+     * @return
+     */
+    public Long startJR(TaskNewStartJRForm form, Long testcaseId) {
+        TaskStartFormV2 startForm = new TaskStartFormV2();
+        startForm.setDeviceIds(form.getDeviceIds());
+        return start(startForm, testcaseId, form.getAppId(), "兼容测试");
     }
 
-    private Long start(TaskStartFormV2 form, Long testcaseId, Long appId) throws ObjectNotExistsException {
+    private Long start(TaskStartFormV2 form, Long testcaseId, Long appId, String taskName) throws ObjectNotExistsException {
         log.info(form.toString());
         // 记录task的执行信息
         App app = appService.findOne(appId);
@@ -116,12 +126,10 @@ public class ExecuteMgrV2 {
 
             allscript.addAll(caseAllScript);
             alltestcase.add(c);
-            task.setTaskName(String.format("%s_%s", c.getCaseName(), TimeUtil.getTimestampForFile()));
             task.setScriptJson(JSON.toJSONString(allscript));
             task.setTestcaseJson(JSON.toJSONString(alltestcase));
-        }else{
-            task.setTaskName("兼容测试");
         }
+        task.setTaskName(taskName);
         List<DeviceAndroid> alldevice = deviceService.findAllDeviceAndroid(form.getDeviceIds());
         task.setDevicesJson(JSON.toJSONString(alldevice));
         task.setStatus(DB.TaskStatus.RUNNING);
@@ -223,14 +231,4 @@ public class ExecuteMgrV2 {
         return df.format(num);
     }
 
-    /**
-     * 保存并执行一个兼容测试任务
-     * @param form
-     * @return
-     */
-    public Long startJR(TaskNewStartJRForm form, Long testcaseId) {
-        TaskStartFormV2 startForm = new TaskStartFormV2();
-        startForm.setDeviceIds(form.getDeviceIds());
-        return start(startForm, testcaseId, form.getAppId());
-    }
 }
