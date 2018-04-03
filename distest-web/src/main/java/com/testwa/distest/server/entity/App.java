@@ -37,6 +37,7 @@ public class App extends BaseEntity {
     private Date updateTime;
     private Long updateBy;
 
+    @JsonIgnore
     private Boolean enabled;
 
     @Column(value="createUser", ignore=true)

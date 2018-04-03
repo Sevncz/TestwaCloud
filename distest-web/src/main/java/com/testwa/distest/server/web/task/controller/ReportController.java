@@ -9,11 +9,14 @@ import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.base.vo.Result;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.entity.AppiumFile;
+import com.testwa.distest.server.entity.Script;
 import com.testwa.distest.server.entity.Task;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.mongo.model.ProcedureInfo;
 import com.testwa.distest.server.mongo.service.ProcedureInfoService;
+import com.testwa.distest.server.service.script.service.ScriptService;
+import com.testwa.distest.server.service.task.form.ScriptListForm;
 import com.testwa.distest.server.service.task.form.StepListForm;
 import com.testwa.distest.server.service.task.form.StepPageForm;
 import com.testwa.distest.server.service.task.form.TaskListForm;
@@ -70,7 +73,6 @@ public class ReportController extends BaseController {
         return ok(result);
     }
 
-
     @ApiOperation(value="登录用户可见的任务分页列表", notes="")
     @ResponseBody
     @GetMapping(value = "/page")
@@ -92,10 +94,8 @@ public class ReportController extends BaseController {
         }
 
         PageResult<Task> taskPR = taskService.findPageForCreateUser(pageForm, user.getId());
-
         return ok(taskPR);
     }
-
 
     @ApiOperation(value="删除报告", notes="")
     @ResponseBody
@@ -104,6 +104,17 @@ public class ReportController extends BaseController {
 
         taskService.deleteTask(form.getEntityIds());
         return ok();
+    }
+
+    @ApiOperation(value="任务脚本列表", notes="")
+    @ResponseBody
+    @GetMapping(value = "/script/list")
+    public Result scriptList(@Valid ScriptListForm form) throws ParamsIsNullException {
+        if(form.getTaskId() == null){
+            throw new ParamsIsNullException("TaskId is null");
+        }
+        List<Script> scriptList = taskService.findScriptListInTask(form);
+        return ok(scriptList);
     }
 
     @ApiOperation(value="步骤信息列表", notes="")

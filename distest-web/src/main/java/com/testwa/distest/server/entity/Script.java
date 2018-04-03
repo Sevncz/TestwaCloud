@@ -1,5 +1,6 @@
 package com.testwa.distest.server.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.testwa.core.base.annotation.Column;
 import com.testwa.core.base.annotation.TableName;
 import com.testwa.core.base.bo.BaseEntity;
@@ -35,6 +36,7 @@ public class Script extends BaseEntity {
     private Long updateBy;
     private Date createTime;
     private Long createBy;
+    @JsonIgnore
     private Boolean enabled;
 
     @Column(value="createUser", ignore=true)

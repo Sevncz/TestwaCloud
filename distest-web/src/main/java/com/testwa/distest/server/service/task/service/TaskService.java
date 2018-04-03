@@ -13,6 +13,7 @@ import com.testwa.distest.server.mongo.repository.ProcedureInfoRepository;
 import com.testwa.distest.server.mongo.repository.ProcedureStatisRepository;
 import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.service.task.dao.ITaskDAO;
+import com.testwa.distest.server.service.task.form.ScriptListForm;
 import com.testwa.distest.server.service.task.form.TaskListForm;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -251,8 +252,8 @@ public class TaskService {
                 }
             });
             result.put("cpuLine", cpuline);
-            result.put("rawline", rawline);
-            result.put("devInfo", devInfo);
+            result.put("rawLine", rawline);
+            result.put("devInfo", task.getDevices());
         }
         return result;
     }
@@ -308,4 +309,8 @@ public class TaskService {
         return pr;
     }
 
+    public List<Script> findScriptListInTask(ScriptListForm form) {
+        Task task = taskDAO.findOne(form.getTaskId());
+        return task.getScriptList();
+    }
 }
