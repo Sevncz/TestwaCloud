@@ -1,5 +1,6 @@
 package com.testwa.distest.server.service.task.service;
 
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.testwa.core.base.vo.PageResult;
@@ -128,11 +129,12 @@ public class TaskService {
                 subInfo.put("failedNum", s.get("fail"));
                 subInfo.put("total", ps.getScriptNum());
                 DeviceAndroid d = (DeviceAndroid) devInfo.get(deviceId);
-                subInfo.put("dto", d.getModel());
-                subInfo.put("brand", d.getBrand());
-                scriptStaty.add(subInfo);
+                if(d != null){
+                    subInfo.put("dto", d.getModel());
+                    subInfo.put("brand", d.getBrand());
+                    scriptStaty.add(subInfo);
+                }
             });
-
             result.put("scriptStaty", scriptStaty);
 
             // cpu 平均消耗
@@ -148,10 +150,12 @@ public class TaskService {
                 String deviceId = (String) s.get("_id");
                 DeviceAndroid d = (DeviceAndroid) devInfo.get(deviceId);
                 Map<String, Object> subInfo = new HashMap<>();
-                subInfo.put("dto", d.getModel());
-                subInfo.put("brand", d.getBrand());
-                subInfo.put("value", s.get("value"));
-                cpuStaty.add(subInfo);
+                if(d != null) {
+                    subInfo.put("dto", d.getModel());
+                    subInfo.put("brand", d.getBrand());
+                    subInfo.put("value", s.get("value"));
+                    cpuStaty.add(subInfo);
+                }
             });
             result.put("cpuStaty", cpuStaty);
 
@@ -168,10 +172,12 @@ public class TaskService {
                 String deviceId = (String) s.get("_id");
                 DeviceAndroid d = (DeviceAndroid) devInfo.get(deviceId);
                 Map<String, Object> subInfo = new HashMap<>();
-                subInfo.put("dto", d.getModel());
-                subInfo.put("brand", d.getBrand());
-                subInfo.put("value", s.get("value"));
-                ramStaty.add(subInfo);
+                if(d != null) {
+                    subInfo.put("dto", d.getModel());
+                    subInfo.put("brand", d.getBrand());
+                    subInfo.put("value", s.get("value"));
+                    ramStaty.add(subInfo);
+                }
             });
             result.put("ramStaty", ramStaty);
 
@@ -207,19 +213,7 @@ public class TaskService {
 
             List<Map> cpuline = new ArrayList<>();
             List<Map> rawline = new ArrayList<>();
-            detailInfo.forEach( d -> {
-                Map<String, Object> cpuPoint = new HashMap<>();
-                cpuPoint.put("value", d.getCpurate());
-                cpuPoint.put("name", TimeUtil.formatTimeStamp(d.getTimestamp()));
-                devCpuLine.get(d.getDeviceId()).add(cpuPoint);
-                Map<String, Object> rawPoint = new HashMap<>();
-                rawPoint.put("value", d.getMemory());
-                rawPoint.put("name", TimeUtil.formatTimeStamp(d.getTimestamp()));
-                devRawLine.get(d.getDeviceId()).add(rawPoint);
-            });
-
             devCpuLine.forEach( (d, l) -> {
-
                 DeviceAndroid tDevice = (DeviceAndroid) devInfo.get(d);
                 Map<String, Object> subInfo = new HashMap<>();
                 subInfo.put("dto", tDevice.getModel());
@@ -227,9 +221,7 @@ public class TaskService {
                 subInfo.put("series", l);
                 cpuline.add(subInfo);
             });
-
-            devRawLine.forEach( (d, l) -> {
-
+            devRawLine.forEach((d, l) -> {
                 DeviceAndroid tDevice = (DeviceAndroid) devInfo.get(d);
                 Map<String, Object> subInfo = new HashMap<>();
                 subInfo.put("dto", tDevice.getModel());
@@ -238,11 +230,29 @@ public class TaskService {
                 rawline.add(subInfo);
             });
 
-
+            detailInfo.forEach( d -> {
+                if(devCpuLine.size() > 0){
+                    Map<String, Object> cpuPoint = new HashMap<>();
+                    cpuPoint.put("value", d.getCpurate());
+                    cpuPoint.put("name", TimeUtil.formatTimeStamp(d.getTimestamp()));
+                    List l = devCpuLine.get(d.getDeviceId());
+                    if(l == null) l = new ArrayList();
+                    l.add(cpuPoint);
+                    devCpuLine.put(d.getDeviceId(), l);
+                }
+                if(devRawLine.size() > 0){
+                    Map<String, Object> rawPoint = new HashMap<>();
+                    rawPoint.put("value", d.getMemory());
+                    rawPoint.put("name", TimeUtil.formatTimeStamp(d.getTimestamp()));
+                    List l = devRawLine.get(d.getDeviceId());
+                    if(l == null) l = new ArrayList();
+                    l.add(rawPoint);
+                    devRawLine.put(d.getDeviceId(), l);
+                }
+            });
             result.put("cpuLine", cpuline);
-            result.put("rawLine", rawline);
-            result.put("devInfo", devInfo.values());
-
+            result.put("rawline", rawline);
+            result.put("devInfo", devInfo);
         }
         return result;
     }
