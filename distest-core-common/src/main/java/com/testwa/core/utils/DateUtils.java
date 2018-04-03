@@ -1094,17 +1094,6 @@ public final class DateUtils {
         return result;
     }
 
-    public static void main(String args[]) {
-        System.out.println(ISO_DATETIME_FORMAT.format(new Date()));
-        Date d = null;
-        System.out.println(ISO_DATETIME_FORMAT.format(d));
-
-        Date t = addMonths(new Date(), 13);
-        System.out.println(t.toString());
-        t = addDays(t, 20);
-        System.out.println(t.toString());
-    }
-
     /**
      * 根据传递的参数格式化日期
      *
@@ -1191,7 +1180,19 @@ public final class DateUtils {
         Calendar ca = Calendar.getInstance();
         ca.setTime(date);
         ca.add(Calendar.HOUR_OF_DAY, 8);
-        return parseDate(sdf.format(ca.getTime()));
+
+        return ca.getTime();
+    }
+
+    public static void main(String args[]) {
+        System.out.println(ISO_DATETIME_FORMAT.format(new Date()));
+        Date d = null;
+        System.out.println(ISO_DATETIME_FORMAT.format(d));
+
+        Date t = addMonths(new Date(), 13);
+        System.out.println(t.toString());
+        t = addDays(t, 20);
+        System.out.println(t.toString());
     }
 
 }

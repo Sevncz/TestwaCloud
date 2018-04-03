@@ -51,8 +51,8 @@ public class EnumValueHandler extends BaseTypeHandler<ValueEnum> {
     private ValueEnum getValuedEnum(int value) {
             ValueEnum[] objs = type.getEnumConstants();
             for(ValueEnum em:objs){
-                if(em.getValue()==value){
-                    return  em;
+                if(em.getValue() == value){
+                    return em;
                 }
             }
             throw new IllegalArgumentException(

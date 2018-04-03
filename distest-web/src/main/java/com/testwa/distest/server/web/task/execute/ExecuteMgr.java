@@ -99,7 +99,6 @@ public class ExecuteMgr {
         App app = appService.findOne(appId);
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         Task task = new Task();
-        task.setTaskSceneId(form.getTaskSceneId());
         task.setProjectId(app.getProjectId());
         task.setAppId(app.getId());
         task.setAppJson(JSON.toJSONString(app));

@@ -20,7 +20,7 @@ public class TaskSceneVO {
     private Long projectId;
     private Long appId;
     private String description;
-    private DB.RunMode exeMode;
+    private DB.TaskType exeMode;
 
     private Date createTime;
     private Date updateTime;

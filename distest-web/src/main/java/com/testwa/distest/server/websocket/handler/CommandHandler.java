@@ -7,6 +7,8 @@ import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.annotation.OnEvent;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.cmd.MiniCmd;
+import com.testwa.distest.common.enums.DB;
+import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.DeviceAndroid;
 import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
 import com.testwa.distest.server.service.cache.mgr.SubscribeMgr;
@@ -92,8 +94,12 @@ public class CommandHandler {
 
         Object jsonObj = JSONObject.parse(data);
 
-        String sn = ((JSONObject) jsonObj).getString("sn");
-        log.info("Remote client {} open", sn);
+        String deviceId = ((JSONObject) jsonObj).getString("sn");
+        log.info("Remote client {} open", deviceId);
+        Device deviceBase = deviceService.findByDeviceId(deviceId);
+        if(deviceBase != null){
+            deviceService.updateStatus(deviceId, DB.PhoneOnlineStatus.ONLINE);
+        }
     }
 
     @OnEvent(value = touch)

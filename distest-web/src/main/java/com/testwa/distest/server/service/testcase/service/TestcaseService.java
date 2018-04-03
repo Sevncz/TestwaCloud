@@ -69,7 +69,6 @@ public class TestcaseService {
         testcase.setTag(form.getTag());
         testcase.setCreateTime(new Date());
         testcase.setEnabled(true);
-        testcase.setExeMode(DB.RunMode.HG);
         long testcaseId = testcaseDAO.insert(testcase);
         saveTestcaseScript(form.getScriptIds(), testcaseId);
         return testcaseId;
@@ -98,7 +97,6 @@ public class TestcaseService {
         testcase.setProjectId(projectId);
         testcase.setCreateBy(0l);
         testcase.setTag("兼容");
-        testcase.setExeMode(DB.RunMode.JR);
         testcase.setEnabled(true);
         testcase.setCreateTime(new Date());
         return testcase;

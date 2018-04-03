@@ -19,7 +19,7 @@ public class TestcaseVO {
     private String caseName;
     private Long projectId;
     private String description;
-    private DB.RunMode exeMode;
+    private DB.TaskType exeMode;
 
     private Date createTime;
     private Date updateTime;

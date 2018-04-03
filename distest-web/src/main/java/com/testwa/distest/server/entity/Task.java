@@ -20,9 +20,8 @@ import java.util.List;
 public class Task extends BaseEntity {
 
     private DB.TaskStatus status;
-    // v2版本中去掉场景的管理
-    private Long taskSceneId;
     private Long projectId;
+    @JsonIgnore
     private Long appId;
     @JsonIgnore
     private String appJson; // json
@@ -34,6 +33,7 @@ public class Task extends BaseEntity {
     private String devicesJson; // json
 
     private String taskName;
+    private DB.TaskType taskType;
 
     private Long createBy;
     private Date createTime;

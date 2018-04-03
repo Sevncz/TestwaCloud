@@ -6,7 +6,6 @@
         <result column="tag" property="tag" jdbcType="VARCHAR" />
         <result column="caseName" property="caseName" jdbcType="VARCHAR" />
         <result column="projectId" property="projectId" jdbcType="BIGINT" />
-        <result column="exeMode" property="exeMode" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
         <result column="description" property="description" jdbcType="VARCHAR" />
         <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="createTime" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
@@ -39,7 +38,7 @@
     </resultMap>
 
     <sql id="Base_Column_List" >
-        id, caseName, tag, projectId, exeMode, description, createBy, updateTime, createTime, updateBy, enabled
+        id, caseName, tag, projectId, description, createBy, updateTime, createTime, updateBy, enabled
     </sql>
 
     <select id="findBy" parameterType="com.testwa.distest.server.entity.Testcase" resultMap="BaseResultMap" >
@@ -63,7 +62,7 @@
 
     <select id="fetchOne" parameterType="com.testwa.distest.server.entity.Testcase" resultMap="BaseResultMap" >
         SELECT
-        t.id, t.caseName, t.tag, t.projectId, t.exeMode, t.description, t.updateTime, t.createTime,
+        t.id, t.caseName, t.tag, t.projectId, t.description, t.updateTime, t.createTime,
         u.id as create_id, u.username as create_username, u.email as create_email, u.phone as create_phone,
         u1.id as update_id, u1.username as update_username, u1.email as update_email, u1.phone as update_phone,
         d.id as detail_id, d.scriptId, d.testcaseId, d.seq, s.id as script_id, s.scriptName, s.description
@@ -125,7 +124,7 @@
 
     <select id="fetchScriptAllBySceneOrder" parameterType="com.testwa.distest.server.entity.Testcase" resultMap="BaseResultMap" >
         SELECT
-        t.id, t.caseName, t.tag, t.projectId, t.exeMode, t.description, t.updateTime, t.createTime,
+        t.id, t.caseName, t.tag, t.projectId, t.description, t.updateTime, t.createTime,
         u.id as create_id, u.username as create_username, u.email as create_email, u.phone as create_phone,
         u1.id as update_id, u1.username as update_username, u1.email as update_email, u1.phone as update_phone,
         d.id as detail_id, d.seq, s.id as script_id, s.scriptName, s.description

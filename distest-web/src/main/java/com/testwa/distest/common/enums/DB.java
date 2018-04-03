@@ -1,6 +1,7 @@
 package com.testwa.distest.common.enums;
 
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.testwa.core.base.enums.ValueEnum;
 import org.apache.commons.lang3.StringUtils;
 
@@ -23,6 +24,7 @@ public final class DB {
         public int getValue() {
             return value;
         }
+        @JsonValue
         public String getDesc() {
             return desc;
         }
@@ -51,6 +53,7 @@ public final class DB {
         public int getValue() {
             return value;
         }
+        @JsonValue
         public String getDesc() {
             return desc;
         }
@@ -80,6 +83,7 @@ public final class DB {
         public int getValue() {
             return value;
         }
+        @JsonValue
         public String getDesc() {
             return desc;
         }
@@ -109,6 +113,7 @@ public final class DB {
         public int getValue() {
             return value;
         }
+        @JsonValue
         public String getDesc() {
             return desc;
         }
@@ -140,6 +145,7 @@ public final class DB {
         public int getValue() {
             return value;
         }
+        @JsonValue
         public String getDesc() {
             return desc;
         }
@@ -174,6 +180,7 @@ public final class DB {
         public int getValue() {
             return value;
         }
+        @JsonValue
         public String getDesc() {
             return desc;
         }
@@ -206,6 +213,7 @@ public final class DB {
         public int getValue() {
             return value;
         }
+        @JsonValue
         public String getDesc() {
             return desc;
         }
@@ -227,26 +235,29 @@ public final class DB {
         }
     }
 
-    public enum RunMode implements ValueEnum {
+    public enum TaskType implements ValueEnum {
         HG(1, "回归测试"),
-        JR(2, "兼容测试");
+        JR(2, "兼容测试"),
+        GN(3, "功能测试");
         private int value;
         private String desc;
-        RunMode(int value, String desc){
+        TaskType(int value, String desc){
             this.value = value;
             this.desc = desc;
         }
         public int getValue() {
             return value;
         }
+        @JsonValue
         public String getDesc() {
             return desc;
         }
-        public static RunMode valueOf(int value) {
-            RunMode tt = HG;
+        public static TaskType valueOf(int value) {
+            TaskType tt = HG;
             switch (value) {
                 case 1: tt = HG;break;
                 case 2: tt = JR;break;
+                case 3: tt = GN;break;
                 default: tt = HG;
             }
             return tt;

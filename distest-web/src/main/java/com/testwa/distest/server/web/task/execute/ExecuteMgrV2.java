@@ -77,8 +77,9 @@ public class ExecuteMgrV2 {
         log.info(form.toString());
         TaskStartFormV2 startForm = new TaskStartFormV2();
         startForm.setDeviceIds(form.getDeviceIds());
-        return start(startForm, form.getTestcaseId(), form.getAppId(), "回归测试");
+        return start(startForm, form.getTestcaseId(), form.getAppId(), "回归测试", DB.TaskType.HG);
     }
+
     /**
      * 保存并执行一个兼容测试任务
      * @param form
@@ -87,15 +88,16 @@ public class ExecuteMgrV2 {
     public Long startJR(TaskNewStartJRForm form, Long testcaseId) {
         TaskStartFormV2 startForm = new TaskStartFormV2();
         startForm.setDeviceIds(form.getDeviceIds());
-        return start(startForm, testcaseId, form.getAppId(), "兼容测试");
+        return start(startForm, testcaseId, form.getAppId(), "兼容测试", DB.TaskType.JR);
     }
 
-    private Long start(TaskStartFormV2 form, Long testcaseId, Long appId, String taskName) throws ObjectNotExistsException {
+    private Long start(TaskStartFormV2 form, Long testcaseId, Long appId, String taskName, DB.TaskType taskType) throws ObjectNotExistsException {
         log.info(form.toString());
         // 记录task的执行信息
         App app = appService.findOne(appId);
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         Task task = new Task();
+        task.setTaskType(taskType);
         task.setProjectId(app.getProjectId());
         task.setAppId(app.getId());
         task.setAppJson(JSON.toJSONString(app));

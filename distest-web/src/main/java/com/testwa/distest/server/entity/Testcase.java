@@ -21,7 +21,6 @@ public class Testcase extends BaseEntity {
     private String caseName;
     private Long projectId;
     private String description;
-    private DB.RunMode exeMode;
 
     private Date createTime;
     private Long createBy;
