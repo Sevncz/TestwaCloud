@@ -5,8 +5,11 @@
         <id column="id" property="id" jdbcType="BIGINT" />
         <result column="status" property="status" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
         <result column="projectId" property="projectId" jdbcType="BIGINT"/>
+        <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="createTime" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+        <result column="updateBy" property="updateBy" jdbcType="BIGINT"/>
         <result column="createBy" property="createBy" jdbcType="BIGINT"/>
+        <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
         <result column="endTime" property="endTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="errorMsg" property="errorMsg" jdbcType="VARCHAR" javaType="String"/>
         <result column="devicesJson" property="devicesJson" jdbcType="VARCHAR" javaType="String"/>

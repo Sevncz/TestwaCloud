@@ -17,10 +17,9 @@ import java.util.List;
  */
 @Data
 @TableName("task")
-public class Task extends BaseEntity {
+public class Task extends ProjectBaseEntity {
 
     private DB.TaskStatus status;
-    private Long projectId;
     @JsonIgnore
     private Long appId;
     @JsonIgnore
@@ -31,12 +30,8 @@ public class Task extends BaseEntity {
     private String scriptJson; // json
     @JsonIgnore
     private String devicesJson; // json
-
     private String taskName;
     private DB.TaskType taskType;
-
-    private Long createBy;
-    private Date createTime;
     private Date endTime;
     private String errorMsg;
 

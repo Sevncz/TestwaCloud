@@ -94,12 +94,13 @@ public class ScriptService {
         }
         Path filepath = Paths.get(dir.toString(), aliasName);
         Files.copy(uploadfile.getInputStream(), filepath, StandardCopyOption.REPLACE_EXISTING);
+        String md5 = IOUtil.fileMD5(filepath.toString());
 
         String type = filename.substring(filename.lastIndexOf(".") + 1);
 
         String size = uploadfile.getSize() + "";
         String relativePath = dirName + File.separator + aliasName;
-        Script script = saveScript(filename, aliasName, filepath.toString(), relativePath, size, type, null);
+        Script script = saveScript(filename, aliasName, md5, relativePath, size, type, null);
         return script;
     }
 

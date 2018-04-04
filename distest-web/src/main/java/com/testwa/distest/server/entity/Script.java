@@ -20,7 +20,7 @@ import java.util.Date;
 @AllArgsConstructor
 @ToString
 @TableName("script")
-public class Script extends BaseEntity {
+public class Script extends ProjectBaseEntity {
 
     private String scriptName;
     private String aliasName;
@@ -31,13 +31,6 @@ public class Script extends BaseEntity {
     private DB.ScriptLN ln;
     private String md5;
     private String path;
-    private Long projectId;
-    private Date updateTime;
-    private Long updateBy;
-    private Date createTime;
-    private Long createBy;
-    @JsonIgnore
-    private Boolean enabled;
 
     @Column(value="createUser", ignore=true)
     private User createUser;

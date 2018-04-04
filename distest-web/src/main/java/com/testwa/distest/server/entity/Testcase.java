@@ -17,18 +17,10 @@ import java.util.List;
 @Data
 @ToString
 @TableName("testcase")
-public class Testcase extends BaseEntity {
+public class Testcase extends ProjectBaseEntity {
     private String tag;
     private String caseName;
-    private Long projectId;
     private String description;
-
-    private Date createTime;
-    private Long createBy;
-    private Date updateTime;
-    private Long updateBy;
-    @JsonIgnore
-    private Boolean enabled;
 
     @Column(value="scripts", ignore=true)
     private List<TestcaseDetail> testcaseDetails;

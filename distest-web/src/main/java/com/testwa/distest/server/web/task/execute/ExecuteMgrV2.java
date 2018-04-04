@@ -139,6 +139,7 @@ public class ExecuteMgrV2 {
         task.setStatus(DB.TaskStatus.RUNNING);
         task.setCreateBy(user.getId());
         task.setCreateTime(DateUtils.getMongoDate(new Date()));
+        task.setEnabled(true);
         Long taskId = taskService.save(task);
 
         for (String key : form.getDeviceIds()) {
