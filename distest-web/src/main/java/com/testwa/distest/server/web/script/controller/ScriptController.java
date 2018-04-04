@@ -116,7 +116,6 @@ public class ScriptController extends BaseController {
         return ok();
     }
 
-
     @ApiOperation(value="脚本分页列表", notes="")
     @ResponseBody
     @GetMapping(value = "/page")
@@ -152,7 +151,6 @@ public class ScriptController extends BaseController {
         String content = scriptService.getContent(scriptId);
         return ok(content);
     }
-
 
     @ApiOperation(value="修改脚本内容", notes="")
     @ResponseBody

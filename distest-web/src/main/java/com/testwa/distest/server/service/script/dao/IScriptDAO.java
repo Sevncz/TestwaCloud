@@ -21,4 +21,6 @@ public interface IScriptDAO extends IBaseDAO<Script, Long> {
     List<Script> findAllInProject(List<Long> keys, Long projectId);
 
     Script findOneInPorject(Long scriptId, Long projectId);
+
+    Long countBy(Script query);
 }

@@ -235,7 +235,6 @@ public class AppService {
 
             app.setProjectId(form.getProjectId());
             app.setDescription(form.getDescription());
-            app.setVersion(form.getVersion());
             app.setEnabled(true);
         }
         User currentUser = userService.findByUsername(getCurrentUsername());
@@ -258,6 +257,7 @@ public class AppService {
         PageResult<App> pr = new PageResult<>(info.getList(), info.getTotal());
         return pr;
     }
+
     public PageResult<App> findPage(AppListForm queryForm){
         //分页处理
         PageHelper.startPage(queryForm.getPageNo(), queryForm.getPageSize());

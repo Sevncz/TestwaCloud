@@ -146,7 +146,6 @@ public class AppController extends BaseController {
         PageResult<App> appPR = appService.findPageForCurrentUser(queryForm);
         PageResult<AppVO> pr = buildVOPageResult(appPR, AppVO.class);
         return ok(pr);
-
     }
 
     @ApiOperation(value="用户所有可见的app列表", notes="")

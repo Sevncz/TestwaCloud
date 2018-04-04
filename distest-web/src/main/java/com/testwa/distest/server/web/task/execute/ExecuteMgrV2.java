@@ -26,6 +26,8 @@ import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
 import com.testwa.distest.server.web.task.vo.TaskProgressVO;
 import com.testwa.distest.server.websocket.service.PushCmdService;
+import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,8 +47,8 @@ import java.util.Map;
  * Created by wen on 25/10/2017.
  */
 @Component
+@Slf4j
 public class ExecuteMgrV2 {
-    private static final Logger log = LoggerFactory.getLogger(ExecuteMgrV2.class);
 
     @Autowired
     private UserService userService;

@@ -69,4 +69,9 @@ public class DeviceDAO extends BaseDAO<Device, Long>  implements IDeviceDAO{
     public void updateWorkStatus(String deviceId, DB.PhoneWorkStatus status) {
         deviceMapper.updateWorkStatus(deviceId, status);
     }
+
+    @Override
+    public Long countBy(Device dq) {
+        return deviceMapper.countBy(dq);
+    }
 }

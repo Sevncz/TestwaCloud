@@ -14,7 +14,7 @@ import java.util.Date;
  */
 @Data
 @TableName("app")
-public class App extends BaseEntity {
+public class App extends ProjectBaseEntity {
 
     private String appName;
     @JsonIgnore
@@ -27,18 +27,10 @@ public class App extends BaseEntity {
     private DB.PhoneOS osType;
     @JsonIgnore
     private String path;
-    private Long projectId;
     // 上传创建者
     private String md5;
     private String size;
     private String description;
-    private Date createTime;
-    private Long createBy;
-    private Date updateTime;
-    private Long updateBy;
-
-    @JsonIgnore
-    private Boolean enabled;
 
     @Column(value="createUser", ignore=true)
     private User createUser;

@@ -4,18 +4,21 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.Joiner;
 import com.testwa.core.base.exception.*;
+import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.core.base.vo.PageResult;
-import com.testwa.distest.server.entity.Project;
-import com.testwa.distest.server.entity.Testcase;
-import com.testwa.distest.server.entity.User;
+import com.testwa.distest.server.entity.*;
+import com.testwa.distest.server.service.app.dao.IAppDAO;
+import com.testwa.distest.server.service.device.dao.IDeviceDAO;
 import com.testwa.distest.server.service.project.dao.IProjectDAO;
 import com.testwa.distest.server.service.project.form.MembersModifyForm;
 import com.testwa.distest.server.service.project.form.ProjectNewForm;
 import com.testwa.distest.server.service.project.form.ProjectListForm;
 import com.testwa.distest.server.service.project.form.ProjectUpdateForm;
+import com.testwa.distest.server.service.script.dao.IScriptDAO;
+import com.testwa.distest.server.service.testcase.dao.ITestcaseDAO;
 import com.testwa.distest.server.service.user.service.UserService;
-import com.testwa.distest.server.web.project.vo.ProjectStats;
+import com.testwa.distest.server.web.project.vo.ProjectStatis;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,11 +39,19 @@ public class ProjectService {
     @Autowired
     private IProjectDAO projectDAO;
     @Autowired
+    private IAppDAO appDAO;
+    @Autowired
+    private IScriptDAO scriptDAO;
+    @Autowired
+    private ITestcaseDAO testcaseDAO;
+    @Autowired
     private UserService userService;
     @Autowired
     private ViewMgr viewMgr;
     @Autowired
     private ProjectMemberService projectMemberService;
+    @Autowired
+    private IDeviceDAO deviceDAO;
 
     /**
      * 保存project，同时保存projectMember for owner
@@ -121,7 +132,7 @@ public class ProjectService {
         return viewMgr.getRecentViewProject(username);
     }
 
-    public ProjectStats getProjectStats(String projectId, User user) {
+    public ProjectStatis getProjectStats(String projectId, User user) {
         // get available device count
 //        Integer devices = remoteClientService.getDeviceByUserIdAndProjectId(user.getId(), projectId).size();
         // apps
@@ -247,5 +258,28 @@ public class ProjectService {
 
     public long count() {
         return projectDAO.count();
+    }
+
+    public ProjectStatis statis(Long projectId) {
+        App aq = new App();
+        aq.setProjectId(projectId);
+        aq.setEnabled(true);
+        Long app = appDAO.countBy(aq);
+        Script sq = new Script();
+        sq.setProjectId(projectId);
+        sq.setEnabled(true);
+        Long script = scriptDAO.countBy(sq);
+        Testcase tq = new Testcase();
+        tq.setProjectId(projectId);
+        tq.setEnabled(true);
+        Long testcase = testcaseDAO.countBy(tq);
+        Task kq = new Task();
+        kq.setProjectId(projectId);
+//        kq.setEnabled(true);
+        Long task = testcaseDAO.countBy(tq);
+        Device dq = new Device();
+        dq.setOnlineStatus(DB.PhoneOnlineStatus.ONLINE);
+        Long device = deviceDAO.countBy(dq);
+        return new ProjectStatis(app, script, testcase, task, device);
     }
 }

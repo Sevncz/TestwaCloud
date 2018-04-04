@@ -45,4 +45,9 @@ public class ScriptDAO extends BaseDAO<Script, Long> implements IScriptDAO {
         return mapper.findOneInProject(scriptId, projectId);
     }
 
+    @Override
+    public Long countBy(Script query) {
+        return mapper.countBy(query);
+    }
+
 }

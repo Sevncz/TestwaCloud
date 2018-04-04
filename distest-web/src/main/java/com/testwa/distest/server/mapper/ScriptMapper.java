@@ -22,4 +22,6 @@ public interface ScriptMapper extends BaseMapper<Script, Long> {
     Script findOne(Long key);
 
     Script findOneInProject(@Param("key") Long entityId, @Param("projectId") Long projectId);
+
+    Long countBy(Script entity);
 }

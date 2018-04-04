@@ -91,4 +91,13 @@
         <if test="params.projectId != null">and projectId = #{params.projectId}</if>
     </select>
 
+    <select id="countBy" parameterType="com.testwa.distest.server.entity.App" resultType="long">
+        SELECT count(1) c FROM app
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            <if test="enabled != null">and enabled = #{enabled}</if>
+            <if test="createBy != null">and createBy = #{createBy}</if>
+            <if test="projectId != null">and projectId = #{projectId}</if>
+        </trim>
+    </select>
+
 </mapper>

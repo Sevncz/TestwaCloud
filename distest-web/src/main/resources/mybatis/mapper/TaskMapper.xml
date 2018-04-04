@@ -49,7 +49,7 @@
         <if test="params.taskName != null">and taskName LIKE CONCAT('%', #{params.taskName}, '%')</if>
     </select>
 
-    <select id="countBy" resultType="long">
+    <select id="countBy" parameterType="com.testwa.distest.server.entity.Task" resultType="long">
         SELECT count(1) c FROM task
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             <if test="createBy != null">and createBy = #{createBy}</if>

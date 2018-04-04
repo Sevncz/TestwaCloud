@@ -21,6 +21,7 @@ public interface DeviceMapper extends BaseMapper<Device, Long> {
     void updateStatus(@Param("deviceId") String deviceId, @Param("status") DB.PhoneOnlineStatus status);
 
     List<Device> findAll(@Param("deviceIds") List<String> deviceIds);
+
     Device findOne(@Param("deviceId")String deviceId);
 
     List<Device> fetchList(Map queryMap);
@@ -32,4 +33,6 @@ public interface DeviceMapper extends BaseMapper<Device, Long> {
     List<Device> findListByOnlineDevice(@Param("query") Map<String, Object> queryMap, @Param("onlineDeviceList") Set<String> onlineDeviceList);
 
     void updateWorkStatus(@Param("deviceId") String deviceId, @Param("status") DB.PhoneWorkStatus status);
+
+    Long countBy(Device dq);
 }

@@ -40,4 +40,9 @@ public class AppDAO extends BaseDAO<App, Long> implements IAppDAO {
         return mapper.findOneInProject(entityId, projectId);
     }
 
+    @Override
+    public Long countBy(App query) {
+        return mapper.countBy(query);
+    }
+
 }

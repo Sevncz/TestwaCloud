@@ -114,7 +114,7 @@
     <select id="countBy" resultType="long">
         SELECT count(1) c FROM testcase
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
-            enabled = 1
+            <if test="enabled != null">and enabled = #{enabled}</if>
             <if test="createBy != null">and createBy = #{createBy}</if>
             <if test="projectId != null">and projectId = #{projectId}</if>
             <if test="caseName != null">and caseName = #{caseName}</if>
