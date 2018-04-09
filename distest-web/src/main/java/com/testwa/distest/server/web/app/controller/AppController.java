@@ -9,14 +9,14 @@ import com.testwa.core.base.form.DeleteAllForm;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.common.validator.FileUploadValidator;
-import com.testwa.distest.config.security.JwtTokenUtil;
 import com.testwa.distest.server.entity.App;
 import com.testwa.distest.server.entity.User;
+import com.testwa.distest.server.service.app.form.AppInstallForm;
 import com.testwa.distest.server.service.app.form.AppListForm;
-import com.testwa.distest.server.service.app.form.AppNewForm;
 import com.testwa.distest.server.service.app.form.AppUpdateForm;
 import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.user.service.UserService;
+import com.testwa.distest.server.web.app.mgr.InstallMgr;
 import com.testwa.distest.server.web.app.validator.AppValidator;
 import com.testwa.distest.server.web.app.vo.AppVO;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
@@ -45,28 +45,13 @@ public class AppController extends BaseController {
     @Autowired
     private UserService userService;
     @Autowired
+    private InstallMgr installMgr;
+    @Autowired
     private AppValidator appValidator;
     @Autowired
     private ProjectValidator projectValidator;
     @Autowired
     private FileUploadValidator fileUploadValidator;
-
-//    @ApiOperation(value="上传应用", notes="一次性提交app的信息")
-//    @ResponseBody
-//    @PostMapping(value = "/save", consumes = "multipart/form-data")
-//    public Result uploadFile(@Valid @RequestPart("appNewForm") AppNewForm form, @RequestPart("appfile") MultipartFile file) throws ParamsIsNullException, ParamsFormatException, IOException {
-//        log.info(form.toString());
-//        //
-//        // 校验
-//        //
-//        long fileSize = 1024 * 1024 * 400;
-//        String[] allowExtName = {".apk", ".ipa", ".zip"};
-//        fileUploadValidator.validateFile(file, fileSize, allowExtName);
-//        App app = appService.upload(file, form);
-//        AppVO vo = buildVO(app, AppVO.class);
-//
-//        return ok(vo);
-//    }
 
     @ApiOperation(value="上传应用", notes="")
     @ResponseBody
@@ -159,6 +144,30 @@ public class AppController extends BaseController {
         List<App> apps = appService.findForCurrentUser(queryForm);
         List<AppVO> vos = buildVOs(apps, AppVO.class);
         return ok(vos);
+    }
+
+    @ApiOperation(value="安装应用", notes="")
+    @ResponseBody
+    @PostMapping(value = "/install")
+    public Result install(@RequestBody AppInstallForm appInstallForm) throws ParamsIsNullException {
+        if( appInstallForm.getAppId() == null || appInstallForm.getDeviceIds() == null){
+            throw new ParamsIsNullException("参数不能为空");
+        }
+        appValidator.validateAppExist(appInstallForm.getAppId());
+        installMgr.install(appInstallForm);
+        return ok();
+    }
+
+    @ApiOperation(value="卸载应用", notes="")
+    @ResponseBody
+    @PostMapping(value = "/uninstall")
+    public Result uninstall(@RequestBody AppInstallForm appInstallForm) throws ParamsIsNullException {
+        if( appInstallForm.getAppId() == null || appInstallForm.getDeviceIds() == null){
+            throw new ParamsIsNullException("参数不能为空");
+        }
+        appValidator.validateAppExist(appInstallForm.getAppId());
+        installMgr.uninstall(appInstallForm);
+        return ok();
     }
 
 }

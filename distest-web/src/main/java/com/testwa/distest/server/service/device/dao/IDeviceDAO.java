@@ -18,9 +18,12 @@ public interface IDeviceDAO extends IBaseDAO<Device, Long> {
 
     List<Device> findOnlineList(Map<String, Object> queryMap);
 
-    void updateStatus(String deviceId, DB.PhoneOnlineStatus status);
+    void updateOnlineStatus(String deviceId, DB.PhoneOnlineStatus status);
+
+    void updateWorkStatus(String deviceId, DB.PhoneWorkStatus status);
 
     List<Device> findAll(List<String> deviceIds);
+    
     Device findOne(String deviceId);
 
     List<Device> fetchList(Map<String, Object> queryMap);
@@ -28,8 +31,6 @@ public interface IDeviceDAO extends IBaseDAO<Device, Long> {
     List<DeviceAndroid> findAllDeviceAndroid(List<String> deviceIds);
 
     List<Device> findListByOnlineDevice(Map<String, Object> queryMap, Set<String> onlineDeviceList);
-
-    void updateWorkStatus(String deviceId, DB.PhoneWorkStatus status);
 
     Long countBy(Device dq);
 }

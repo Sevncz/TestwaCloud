@@ -11,6 +11,7 @@ import com.testwa.distest.server.entity.App;
 import com.testwa.distest.server.entity.Project;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.app.dao.IAppDAO;
+import com.testwa.distest.server.service.app.form.AppInstallForm;
 import com.testwa.distest.server.service.app.form.AppListForm;
 import com.testwa.distest.server.service.app.form.AppNewForm;
 import com.testwa.distest.server.service.app.form.AppUpdateForm;
@@ -346,5 +347,4 @@ public class AppService {
         }
         return params;
     }
-
 }

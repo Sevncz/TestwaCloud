@@ -43,7 +43,7 @@ public class DeviceService {
     }
 
     public void updateStatus(String deviceId, DB.PhoneOnlineStatus status) {
-        deviceDAO.updateStatus(deviceId, status);
+        deviceDAO.updateOnlineStatus(deviceId, status);
     }
 
     public void updateWorkStatus(String deviceId, DB.PhoneWorkStatus status) {
@@ -145,4 +145,11 @@ public class DeviceService {
         return deviceDAO.findAllDeviceAndroid(deviceIds);
     }
 
+    public void release(String deviceId) {
+        deviceDAO.updateWorkStatus(deviceId, DB.PhoneWorkStatus.FREE);
+    }
+
+    public void work(String deviceId) {
+        deviceDAO.updateWorkStatus(deviceId, DB.PhoneWorkStatus.BUSY);
+    }
 }

@@ -98,29 +98,24 @@ public class TaskService {
             List<Map> statusScript = ps.getStatusScriptInfo();
 
             Map<String, Device> devInfo = new HashMap<>();
-            Map<String, List> devCpuLine = new HashMap<>();
-            Map<String, List> devRawLine = new HashMap<>();
             // 设备基本情况
             task.getDevices().forEach( device -> {
-
                 devInfo.put(device.getDeviceId(), device);
-                devCpuLine.put(device.getDeviceId(), new ArrayList());
-                devRawLine.put(device.getDeviceId(), new ArrayList());
             });
 
             // 设备脚本执行情况，app信息可以从app基本情况获得
-        /*
-         {
-         "dto": "TaskScene 4",
-         "brand": "lantern",
-         "state": 128 ,
-         "successNum": 23,
-         "failedNum": 25,
-         "scriptName": "已执行" ,
-         "appName": "查看",
-         "appVersion": 123
-         }
-         */
+            /*
+             {
+             "dto": "TaskScene 4",
+             "brand": "lantern",
+             "state": 128 ,
+             "successNum": 23,
+             "failedNum": 25,
+             "scriptName": "已执行" ,
+             "appName": "查看",
+             "appVersion": 123
+             }
+             */
             List<Map> scriptStaty = new ArrayList<>();
             statusScript.forEach( s -> {
                 String deviceId = (String) s.get("deviceId");
@@ -139,120 +134,106 @@ public class TaskService {
             result.put("scriptStaty", scriptStaty);
 
             // cpu 平均消耗
-        /*
-        {
-          "name": "Xiao Mi",
-          "value": 89.4
-        }
-         */
+            /*
+                cpuStaty = {
+                    name: ['nubia', 'xiaomi'],
+                    value: [6.2, 3.3]
+                }
+             */
             List<Map> cpuAvgRate = ps.getCpurateInfo();
-            List<Map> cpuStaty = new ArrayList<>();
+            List cpuName = new ArrayList();
+            List cpuValue = new ArrayList();
             cpuAvgRate.forEach( s -> {
                 String deviceId = (String) s.get("_id");
                 DeviceAndroid d = (DeviceAndroid) devInfo.get(deviceId);
-                Map<String, Object> subInfo = new HashMap<>();
                 if(d != null) {
-                    subInfo.put("dto", d.getModel());
-                    subInfo.put("brand", d.getBrand());
-                    subInfo.put("value", s.get("value"));
-                    cpuStaty.add(subInfo);
+                    cpuName.add(d.getBrand());
+                    cpuValue.add(s.get("value"));
                 }
             });
+            Map<String, List> cpuStaty = new HashMap();
+            cpuStaty.put("name", cpuName);
+            cpuStaty.put("value", cpuValue);
             result.put("cpuStaty", cpuStaty);
 
             // 内存 平均消耗
-        /*
-        {
-          "name": "Xiao Mi",
-          "value": 89.4
-        }
-         */
+            /*
+                ramStaty = {
+                    name: ['nubia', 'xiaomi'],
+                    value: [6.2, 3.3]
+                }
+             */
             List<Map> memAvgRate = ps.getMemoryInfo();
-            List<Map> ramStaty = new ArrayList<>();
+            List rawName = new ArrayList();
+            List rawValue = new ArrayList();
             memAvgRate.forEach( s -> {
                 String deviceId = (String) s.get("_id");
                 DeviceAndroid d = (DeviceAndroid) devInfo.get(deviceId);
                 Map<String, Object> subInfo = new HashMap<>();
                 if(d != null) {
-                    subInfo.put("dto", d.getModel());
-                    subInfo.put("brand", d.getBrand());
-                    subInfo.put("value", s.get("value"));
-                    ramStaty.add(subInfo);
+                    rawName.add(d.getBrand());
+                    rawValue.add(s.get("value"));
                 }
             });
+            Map<String, List> ramStaty = new HashMap();
+            ramStaty.put("name", rawName);
+            ramStaty.put("value", rawValue);
             result.put("ramStaty", ramStaty);
 
             // 内存和cpu时刻消耗
-        /*
-        {
-          "name": "Xiao Mi",
-          "series": [
-            {
-              "value": 69,
-              "name": "2016-09-18T05:24:05.254Z"
-            },
-            {
-              "value": 45,
-              "name": "2016-09-18T10:21:55.123Z"
-            },
-            {
-              "value": 39,
-              "name": "2016-09-18T17:55:43.226Z"
-            },
-            {
-              "value": 54,
-              "name": "2016-09-18T20:13:42.627Z"
-            },
-            {
-              "value": 49,
-              "name": "2016-09-18T22:28:50.058Z"
-            }
-          ]
-        }
-         */
-            List<ProcedureInfo> detailInfo = procedureInfoRepository.findByExecutionTaskIdOrderByTimestampAsc(task.getId());
+            /*
+            cpuLine = {
+                    name: ['nubia', 'xiaomo'],
+                    value: [
+                        [
+                            ["2018-03-27 22:17:04", 18],
+                            ["2018-03-27 22:17:04", 18],
+                            ["2018-03-27 22:17:04", 18]
+                        ],
+                        [
+                            ["2018-03-27 22:17:04", 18],
+                            ["2018-03-27 22:17:04", 18],
+                            ["2018-03-27 22:17:04", 18]
+                        ],
+                    ]
+                }
+             */
 
-            List<Map> cpuline = new ArrayList<>();
-            List<Map> rawline = new ArrayList<>();
-            devCpuLine.forEach( (d, l) -> {
-                DeviceAndroid tDevice = (DeviceAndroid) devInfo.get(d);
-                Map<String, Object> subInfo = new HashMap<>();
-                subInfo.put("dto", tDevice.getModel());
-                subInfo.put("brand", tDevice.getBrand());
-                subInfo.put("series", l);
-                cpuline.add(subInfo);
-            });
-            devRawLine.forEach((d, l) -> {
-                DeviceAndroid tDevice = (DeviceAndroid) devInfo.get(d);
-                Map<String, Object> subInfo = new HashMap<>();
-                subInfo.put("dto", tDevice.getModel());
-                subInfo.put("brand", tDevice.getBrand());
-                subInfo.put("series", l);
-                rawline.add(subInfo);
+            Map<String, List> cpuline = new HashMap<>();
+            Map<String, List> rawline = new HashMap<>();
+
+            List devNameList = new ArrayList();
+            List cpuLineValue = new ArrayList();
+            List rawLineValue = new ArrayList();
+
+            devInfo.forEach( (k,v) -> {
+                List<ProcedureInfo> devDetailInfo = procedureInfoRepository.findByExecutionTaskIdAndDeviceIdOrderByTimestampAsc(task.getId(), k);
+                devNameList.add(v.getBrand());
+                List cpuDevLineValue = new ArrayList();
+                List rawDevLineValue = new ArrayList();
+                devDetailInfo.forEach( data -> {
+                    List cpuPoint = new ArrayList();
+                    cpuPoint.add(TimeUtil.formatTimeStamp(data.getTimestamp()));
+                    cpuPoint.add(data.getCpurate());
+                    cpuDevLineValue.add(cpuPoint);
+
+                    List rawPoint = new ArrayList();
+                    rawPoint.add(TimeUtil.formatTimeStamp(data.getTimestamp()));
+                    rawPoint.add(data.getMemory());
+                    rawDevLineValue.add(rawPoint);
+                });
+                cpuLineValue.add(cpuDevLineValue);
+                rawLineValue.add(rawDevLineValue);
             });
 
-            detailInfo.forEach( d -> {
-                if(devCpuLine.size() > 0){
-                    Map<String, Object> cpuPoint = new HashMap<>();
-                    cpuPoint.put("value", d.getCpurate());
-                    cpuPoint.put("name", TimeUtil.formatTimeStamp(d.getTimestamp()));
-                    List l = devCpuLine.get(d.getDeviceId());
-                    if(l == null) l = new ArrayList();
-                    l.add(cpuPoint);
-                    devCpuLine.put(d.getDeviceId(), l);
-                }
-                if(devRawLine.size() > 0){
-                    Map<String, Object> rawPoint = new HashMap<>();
-                    rawPoint.put("value", d.getMemory());
-                    rawPoint.put("name", TimeUtil.formatTimeStamp(d.getTimestamp()));
-                    List l = devRawLine.get(d.getDeviceId());
-                    if(l == null) l = new ArrayList();
-                    l.add(rawPoint);
-                    devRawLine.put(d.getDeviceId(), l);
-                }
-            });
+            cpuline.put("name", devNameList);
+            cpuline.put("value", cpuLineValue);
+
+            rawline.put("name", devNameList);
+            rawline.put("value", rawLineValue);
+
             result.put("cpuLine", cpuline);
-            result.put("rawLine", rawline);
+            result.put("ramLine", rawline);
             result.put("devInfo", task.getDevices());
         }
         return result;

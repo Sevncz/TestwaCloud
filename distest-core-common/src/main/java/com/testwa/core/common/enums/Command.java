@@ -28,6 +28,8 @@ public class Command {
         CANCEL_TASK("cancel_task"),
         START_LOGCAT("start_logcat"),
         WAIT_LOGCAT("wait_logcat"),
+        INSTALL("install"),
+        UNINSTALL("uninstall"),
         PUSH("push"),
         BACK("back"),
         HOME("home"),
@@ -97,6 +99,12 @@ public class Command {
                 break;
             case "wait_logcat":
                 schem = Schem.WAIT_LOGCAT;
+                break;
+            case "install":
+                schem = Schem.INSTALL;
+                break;
+            case "uninstall":
+                schem = Schem.UNINSTALL;
                 break;
             case "push":
                 schem = Schem.PUSH;

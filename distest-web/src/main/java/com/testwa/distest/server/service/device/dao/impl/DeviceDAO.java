@@ -31,7 +31,7 @@ public class DeviceDAO extends BaseDAO<Device, Long>  implements IDeviceDAO{
     }
 
     @Override
-    public void updateStatus(String deviceId, DB.PhoneOnlineStatus status) {
+    public void updateOnlineStatus(String deviceId, DB.PhoneOnlineStatus status) {
         deviceMapper.updateStatus(deviceId, status);
     }
 

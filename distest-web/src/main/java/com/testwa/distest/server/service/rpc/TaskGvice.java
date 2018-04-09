@@ -10,6 +10,7 @@ import com.testwa.distest.server.mongo.event.GameOverEvent;
 import com.testwa.distest.server.mongo.model.ExecutorLogInfo;
 import com.testwa.distest.server.mongo.service.ExecutorLogInfoService;
 import com.testwa.distest.server.service.cache.mgr.TaskCacheMgr;
+import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.task.service.AppiumFileService;
 import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.service.user.service.UserService;
@@ -51,6 +52,8 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     @Autowired
     private TaskCacheMgr taskCacheMgr;
     @Autowired
+    private DeviceService deviceService;
+    @Autowired
     private DeviceAuthMgr deviceAuthMgr;
     @Autowired
     private ApplicationContext context;
@@ -74,7 +77,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
             exeTask.setEndTime(DateUtils.getMongoDate(new Date(timestamp)));
             taskService.update(exeTask);
             exeTask.getDevices().forEach(d -> {
-                deviceAuthMgr.releaseDev(d.getDeviceId());
+                deviceService.release(d.getDeviceId());
             });
             context.publishEvent(new GameOverEvent(this, request.getExeId()));
         }else{

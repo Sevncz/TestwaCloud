@@ -155,7 +155,7 @@ public class ExecuteMgrV2 {
             cmd.setExeId(taskId);
             pushCmdService.executeCmd(cmd, d.getLastUserId());
 
-            deviceService.updateWorkStatus(key, DB.PhoneWorkStatus.BUSY);
+            deviceService.work(key);
         }
 
         return taskId;

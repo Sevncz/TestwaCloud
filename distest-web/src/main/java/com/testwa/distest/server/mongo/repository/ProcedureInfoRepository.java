@@ -17,4 +17,6 @@ public interface ProcedureInfoRepository extends CommonRepository<ProcedureInfo,
     List<ProcedureInfo> findBySessionId(String sessionId);
 
     List<ProcedureInfo> findByExecutionTaskIdOrderByTimestampAsc(Long executionTaskId);
+
+    List<ProcedureInfo> findByExecutionTaskIdAndDeviceIdOrderByTimestampAsc(Long id, String k);
 }

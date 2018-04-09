@@ -2,17 +2,22 @@ package com.testwa.distest.client.control.client;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.github.cosysoft.device.android.AndroidApp;
 import com.github.cosysoft.device.android.AndroidDevice;
 import com.github.cosysoft.device.android.impl.AndroidDeviceStore;
+import com.github.cosysoft.device.android.impl.DefaultAndroidApp;
 import com.github.cosysoft.device.shell.AndroidSdk;
 import com.google.protobuf.ByteString;
+import com.testwa.core.cmd.AppInfo;
 import com.testwa.core.cmd.RemoteRunCommand;
 import com.testwa.core.common.enums.Command;
 import com.testwa.distest.client.android.AndroidHelper;
+import com.testwa.distest.client.component.appium.utils.Config;
 import com.testwa.distest.client.component.executor.*;
 import com.testwa.distest.client.component.logcat.Logcat;
 import com.testwa.distest.client.component.logcat.LogcatListener;
 import com.testwa.distest.client.component.stfservice.KeyCode;
+import com.testwa.distest.client.exception.DownloadFailException;
 import com.testwa.distest.client.grpc.Gvice;
 import com.testwa.distest.client.component.minicap.Banner;
 import com.testwa.distest.client.component.minicap.Minicap;
@@ -20,6 +25,7 @@ import com.testwa.distest.client.component.minicap.MinicapListener;
 import com.testwa.distest.client.component.minitouch.Minitouch;
 import com.testwa.distest.client.component.minitouch.MinitouchListener;
 import com.testwa.distest.client.component.Constant;
+import com.testwa.distest.client.util.Http;
 import io.grpc.Channel;
 import io.rpc.testwa.device.LogcatRequest;
 import io.rpc.testwa.device.ScreenCaptureRequest;
@@ -157,9 +163,14 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
             case CANCEL_TASK:
                 cancelTask(command);
                 break;
+            case INSTALL:
+                installApp(command);
+                break;
+            case UNINSTALL:
+                uninstallApp(command);
+                break;
         }
     }
-
 
     private void startCommand(Command command) {
         log.info("startCommand {}", command.getCommandString());
@@ -676,6 +687,13 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         }
     }
 
+    /**
+     *@Description: 开始执行测试任务
+     *@Param: [command]
+     *@Return: void
+     *@Author: wen
+     *@Date: 2018/4/9
+     */
     private void startTask(Command command) {
         log.info("start PythonExecutor {}", command.getCommandString());
         if (task != null) {
@@ -689,9 +707,58 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         this.task = task;
     }
 
+    /**
+     *@Description: 取消在该设备正在执行的任务
+     *@Param: [command]
+     *@Return: void
+     *@Author: wen
+     *@Date: 2018/4/9
+     */
     private void cancelTask(Command command) {
         task.kill();
     }
 
+    /**
+     *@Description: 安装app
+     *@Param: [command]
+     *@Return: void
+     *@Author: wen
+     *@Date: 2018/4/9
+     */
+    private void installApp(Command command) {
+
+        String cmdJson = command.getContent();
+        AppInfo appInfo = JSON.parseObject(cmdJson, AppInfo.class);
+
+        AndroidDevice device = AndroidDeviceStore.getInstance().getDeviceBySerial(serialNumber);
+        String distestApiWeb = Config.getString("distest.api.web");
+
+        String appUrl = String.format("http://%s/app/%s", distestApiWeb, appInfo.getPath());
+        String appLocalPath = Constant.localAppPath + File.separator + appInfo.getMd5() + File.separator + appInfo.getAliasName();
+
+        // 检查是否有和该app md5一致的
+        try {
+            Http.download(appUrl, appLocalPath);
+        } catch (DownloadFailException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        DefaultAndroidApp androidApp = new DefaultAndroidApp(new File(appLocalPath));
+        device.install(androidApp);
+    }
+
+    /**
+     *@Description: 卸载App
+     *@Param: [command]
+     *@Return: void
+     *@Author: wen
+     *@Date: 2018/4/9
+     */
+    private void uninstallApp(Command command) {
+        String appBasePackage = (String) command.get("appBasePackage");
+        AndroidDevice device = AndroidDeviceStore.getInstance().getDeviceBySerial(serialNumber);
+        device.uninstall(appBasePackage);
+    }
 
 }
