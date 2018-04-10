@@ -111,6 +111,10 @@ public class CommandHandler {
         String deviceId = (String) params.get("deviceId");
         if (isIllegalDeviceId(client, deviceId)) return;
         String touch = (String) params.get("touch");
+        if(StringUtils.isBlank(touch)){
+            client.sendEvent("error", "坐标不能为空");
+            return;
+        }
         if(subscribeMgr.isSubscribes(deviceId, WSFuncEnum.SCREEN.getValue(), client.getSessionId().toString())){
             pushCmdService.pushTouchData(deviceId, touch);
         }
@@ -124,6 +128,10 @@ public class CommandHandler {
         if (isIllegalDeviceId(client, deviceId)) return;
 
         String input = (String) params.get("input");
+        if(StringUtils.isBlank(input)){
+            client.sendEvent("error", "请输入内容");
+            return;
+        }
         if(subscribeMgr.isSubscribes(deviceId, WSFuncEnum.SCREEN.getValue(), client.getSessionId().toString())){
             pushCmdService.pushInputText(deviceId, input);
         }
@@ -173,7 +181,7 @@ public class CommandHandler {
 
     private boolean isIllegalDeviceId(SocketIOClient client, String deviceId) {
         if(StringUtils.isBlank(deviceId)){
-            client.sendEvent("error", "deviceId is null");
+            client.sendEvent("error", "deviceId不能为空");
             return true;
         }
         return false;
@@ -186,6 +194,10 @@ public class CommandHandler {
         if (isIllegalDeviceId(client, deviceId)) return;
 
         String cmd = (String) params.get("cmd");
+        if(StringUtils.isBlank(cmd)){
+            client.sendEvent("error", "shell命令不能为空");
+            return;
+        }
         pushCmdService.pushShell(deviceId, cmd);
     }
 
@@ -196,6 +208,10 @@ public class CommandHandler {
         if (isIllegalDeviceId(client, deviceId)) return;
 
         String url = (String) params.get("url");
+        if(StringUtils.isBlank(url)){
+            client.sendEvent("error", "网址不能为空");
+            return;
+        }
         pushCmdService.pushOpenWeb(deviceId, url);
     }
 
