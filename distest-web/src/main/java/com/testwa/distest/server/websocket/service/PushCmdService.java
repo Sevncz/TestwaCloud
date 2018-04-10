@@ -280,4 +280,30 @@ public class PushCmdService {
         if(client != null)
             client.sendEvent(Command.Schem.UNINSTALL.getSchemString(), JSON.toJSONString(cmd));
     }
+
+    /**
+     *@Description: 通知设备执行shell命令
+     *@Param: [deviceId, cmd]
+     *@Return: void
+     *@Author: wen
+     *@Date: 2018/4/10
+     */
+    public void pushShell(String deviceId, String cmd) {
+        SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
+        if(client != null)
+            client.sendEvent(Command.Schem.SHELL.getSchemString(), cmd);
+    }
+
+    /**
+     *@Description: 使用浏览器打开url
+     *@Param: [deviceId, url]
+     *@Return: void
+     *@Author: wen
+     *@Date: 2018/4/10
+     */
+    public void pushOpenWeb(String deviceId, String url) {
+        SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
+        if(client != null)
+            client.sendEvent(Command.Schem.OPENWEB.getSchemString(), url);
+    }
 }

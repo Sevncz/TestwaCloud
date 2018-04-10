@@ -34,6 +34,8 @@ public class Command {
         BACK("back"),
         HOME("home"),
         MENU("menu"),
+        SHELL("shell"),
+        OPENWEB("openweb"),
         MESSAGE("message");
 
         private String schemStr;
@@ -118,6 +120,12 @@ public class Command {
             case "menu":
                 schem = Schem.MENU;
                 break;
+            case "shell":
+                schem = Schem.SHELL;
+                break;
+            case "openweb":
+                schem = Schem.OPENWEB;
+                break;
             case "message":
                 schem = Schem.MESSAGE;
                 break;
@@ -131,6 +139,8 @@ public class Command {
                 !schem.equals(Schem.INPUT) &&
                 !schem.equals(Schem.MINICAP) &&
                 !schem.equals(Schem.MINITOUCH) &&
+                !schem.equals(Schem.OPENWEB) &&
+                !schem.equals(Schem.SHELL) &&
                 !schem.equals(Schem.MESSAGE)) {
             try {
                 this.content = parseContentJson(command);

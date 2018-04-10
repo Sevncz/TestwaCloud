@@ -10,7 +10,7 @@ import java.util.Set;
 
 @Slf4j
 @Component
-public class SubscribeMgr {
+public class SubscribeDeviceFuncMgr {
 
     static final String subscribe_device_func = "subscribe.device.func.%s.%s";
     static final String subscribe_device_func_partern = "subscribe.device.func.*";

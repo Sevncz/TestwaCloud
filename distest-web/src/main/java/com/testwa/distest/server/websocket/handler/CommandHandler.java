@@ -11,7 +11,7 @@ import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.DeviceAndroid;
 import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
-import com.testwa.distest.server.service.cache.mgr.SubscribeMgr;
+import com.testwa.distest.server.service.cache.mgr.SubscribeDeviceFuncMgr;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.websocket.WSFuncEnum;
 import com.testwa.distest.server.websocket.service.PushCmdService;
@@ -41,13 +41,15 @@ public class CommandHandler {
     private final static String del = "del";
     private final static String clear = "clear";
     private final static String getDevices = "get_devices";
+    private final static String shell = "shell";
+    private final static String web = "web";
 
     @Autowired
     private DeviceSessionMgr deviceSessionMgr;
     @Autowired
     private PushCmdService pushCmdService;
     @Autowired
-    private SubscribeMgr subscribeMgr;
+    private SubscribeDeviceFuncMgr subscribeMgr;
     @Autowired
     private DeviceService deviceService;
 
@@ -175,6 +177,26 @@ public class CommandHandler {
             return true;
         }
         return false;
+    }
+
+    @OnEvent(value = shell)
+    public void onShell(SocketIOClient client, String data, AckRequest ackRequest) throws ObjectNotExistsException {
+        Map params = JSON.parseObject(data, Map.class);
+        String deviceId = (String) params.get("deviceId");
+        if (isIllegalDeviceId(client, deviceId)) return;
+
+        String cmd = (String) params.get("cmd");
+        pushCmdService.pushShell(deviceId, cmd);
+    }
+
+    @OnEvent(value = web)
+    public void onWeb(SocketIOClient client, String data, AckRequest ackRequest) throws ObjectNotExistsException {
+        Map params = JSON.parseObject(data, Map.class);
+        String deviceId = (String) params.get("deviceId");
+        if (isIllegalDeviceId(client, deviceId)) return;
+
+        String url = (String) params.get("url");
+        pushCmdService.pushOpenWeb(deviceId, url);
     }
 
 }

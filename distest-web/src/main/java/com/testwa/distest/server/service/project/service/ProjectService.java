@@ -10,6 +10,8 @@ import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.service.app.dao.IAppDAO;
 import com.testwa.distest.server.service.device.dao.IDeviceDAO;
+import com.testwa.distest.server.service.device.form.DeviceListForm;
+import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.project.dao.IProjectDAO;
 import com.testwa.distest.server.service.project.form.MembersModifyForm;
 import com.testwa.distest.server.service.project.form.ProjectNewForm;
@@ -18,6 +20,7 @@ import com.testwa.distest.server.service.project.form.ProjectUpdateForm;
 import com.testwa.distest.server.service.script.dao.IScriptDAO;
 import com.testwa.distest.server.service.testcase.dao.ITestcaseDAO;
 import com.testwa.distest.server.service.user.service.UserService;
+import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
 import com.testwa.distest.server.web.project.vo.ProjectStatis;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -52,6 +55,10 @@ public class ProjectService {
     private ProjectMemberService projectMemberService;
     @Autowired
     private IDeviceDAO deviceDAO;
+    @Autowired
+    private DeviceAuthMgr deviceAuthMgr;
+    @Autowired
+    private DeviceService deviceService;
 
     /**
      * 保存project，同时保存projectMember for owner
@@ -277,9 +284,9 @@ public class ProjectService {
         kq.setProjectId(projectId);
 //        kq.setEnabled(true);
         Long task = testcaseDAO.countBy(tq);
-        Device dq = new Device();
-        dq.setOnlineStatus(DB.PhoneOnlineStatus.ONLINE);
-        Long device = deviceDAO.countBy(dq);
-        return new ProjectStatis(app, script, testcase, task, device);
+
+        Set<String> deviceIds = deviceAuthMgr.allEnableDevices();
+        int device = deviceIds.size();
+        return new ProjectStatis(app, script, testcase, task, (long) device);
     }
 }

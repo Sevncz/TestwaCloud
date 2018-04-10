@@ -8,17 +8,14 @@ import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.common.enums.Command;
 import com.testwa.core.cmd.MiniCmd;
 import com.testwa.distest.config.security.JwtTokenUtil;
-import com.testwa.distest.server.entity.AgentLoginLogger;
-import com.testwa.distest.server.entity.DeviceAndroid;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.cache.mgr.ClientSessionMgr;
 import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
-import com.testwa.distest.server.service.cache.mgr.SubscribeMgr;
+import com.testwa.distest.server.service.cache.mgr.SubscribeDeviceFuncMgr;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.user.service.AgentLoginLoggerService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
-import com.testwa.distest.server.websocket.WSFuncEnum;
 import com.testwa.distest.server.websocket.service.PushCmdService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +25,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by wen on 16/9/5.
@@ -48,7 +44,7 @@ public class WebConnectionHandler {
     @Autowired
     private DeviceService deviceService;
     @Autowired
-    private SubscribeMgr subscribeMgr;
+    private SubscribeDeviceFuncMgr subscribeMgr;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
     @Autowired

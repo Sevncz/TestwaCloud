@@ -169,8 +169,15 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
             case UNINSTALL:
                 uninstallApp(command);
                 break;
+            case SHELL:
+                shellCommand(command);
+                break;
+            case OPENWEB:
+                openWebCommand(command);
+                break;
         }
     }
+
 
     private void startCommand(Command command) {
         log.info("startCommand {}", command.getCommandString());
@@ -726,26 +733,40 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
      *@Date: 2018/4/9
      */
     private void installApp(Command command) {
-
         String cmdJson = command.getContent();
-        AppInfo appInfo = JSON.parseObject(cmdJson, AppInfo.class);
+        Thread t = new Thread(new InstallRunner(cmdJson));
+        t.start();
 
-        AndroidDevice device = AndroidDeviceStore.getInstance().getDeviceBySerial(serialNumber);
-        String distestApiWeb = Config.getString("distest.api.web");
+    }
 
-        String appUrl = String.format("http://%s/app/%s", distestApiWeb, appInfo.getPath());
-        String appLocalPath = Constant.localAppPath + File.separator + appInfo.getMd5() + File.separator + appInfo.getAliasName();
+    class InstallRunner implements Runnable{
+        private String cmdJson;
 
-        // 检查是否有和该app md5一致的
-        try {
-            Http.download(appUrl, appLocalPath);
-        } catch (DownloadFailException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        public InstallRunner(String cmdJson) {
+            this.cmdJson = cmdJson;
         }
-        DefaultAndroidApp androidApp = new DefaultAndroidApp(new File(appLocalPath));
-        device.install(androidApp);
+
+        @Override
+        public void run() {
+            AppInfo appInfo = JSON.parseObject(cmdJson, AppInfo.class);
+
+            AndroidDevice device = AndroidDeviceStore.getInstance().getDeviceBySerial(serialNumber);
+            String distestApiWeb = Config.getString("distest.api.web");
+
+            String appUrl = String.format("http://%s/app/%s", distestApiWeb, appInfo.getPath());
+            String appLocalPath = Constant.localAppPath + File.separator + appInfo.getMd5() + File.separator + appInfo.getAliasName();
+
+            // 检查是否有和该app md5一致的
+            try {
+                Http.download(appUrl, appLocalPath);
+            } catch (DownloadFailException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            DefaultAndroidApp androidApp = new DefaultAndroidApp(new File(appLocalPath));
+            device.install(androidApp);
+        }
     }
 
     /**
@@ -759,6 +780,27 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         String appBasePackage = (String) command.get("appBasePackage");
         AndroidDevice device = AndroidDeviceStore.getInstance().getDeviceBySerial(serialNumber);
         device.uninstall(appBasePackage);
+    }
+
+    /**
+     *@Description: 执行并返回shell命令的结果
+     *@Param: [command]
+     *@Return: void
+     *@Author: wen
+     *@Date: 2018/4/10
+     */
+    private void shellCommand(Command command) {
+        AndroidDevice device = AndroidDeviceStore.getInstance().getDeviceBySerial(serialNumber);
+        String result = device.runAdbCommand("shell " + command.getContent());
+        log.info(result);
+    }
+
+    private void openWebCommand(Command command) {
+        String cmd = "shell am start -a android.intent.action.VIEW -d ";
+        AndroidDevice device = AndroidDeviceStore.getInstance().getDeviceBySerial(serialNumber);
+
+        String result = device.runAdbCommand(cmd + command.getContent());
+        log.info(result);
     }
 
 }

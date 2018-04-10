@@ -12,6 +12,8 @@
 <button id="back">BACK</button>
 <button id="home" >HOME</button>
 <button id="menu">MENU</button>
+<button id="openBaidu">OPENBAIDU</button>
+<button id="shell">SHELL</button>
 
 <input type="text" id="text" />
 <button id="send">SEND</button>
@@ -135,6 +137,20 @@ function sendMenu() {
 }
 function sendDel() {
     socket.emit("del", deviceId)
+}
+function sendUrl(url) {
+    var params = {
+        deviceId: deviceId,
+        url: url
+    }
+    socket.emit("web", JSON.stringify(params))
+}
+function sendShell(cmd) {
+    var params = {
+        deviceId: deviceId,
+        cmd: cmd
+    }
+    socket.emit("shell", JSON.stringify(params))
 }
 
 function sendTouchEvent(minitouchStr) {
@@ -261,7 +277,6 @@ $("#send").click(function () {
     sendInputText(text);
 })
 
-
 $("#sub").click(function () {
     subScreen();
 });
@@ -281,6 +296,15 @@ $("#reset_minicap").click(function () {
     }
     socket.emit("reset_minicap", JSON.stringify(params))
 });
+
+$("#openBaidu").click(function () {
+    var url = "http://www.baidu.com"
+    sendUrl(url);
+})
+$("#shell").click(function () {
+    var cmd = "getprop ro.build.version.sdk"
+    sendShell(cmd);
+})
 
 </script>
 

@@ -7,7 +7,7 @@ import com.testwa.distest.config.security.JwtTokenUtil;
 import com.testwa.distest.server.entity.DeviceAndroid;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.User;
-import com.testwa.distest.server.service.cache.mgr.SubscribeMgr;
+import com.testwa.distest.server.service.cache.mgr.SubscribeDeviceFuncMgr;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
@@ -41,7 +41,7 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     @Autowired
     private UserService userService;
     @Autowired
-    private SubscribeMgr subscribeMgr;
+    private SubscribeDeviceFuncMgr subscribeMgr;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
