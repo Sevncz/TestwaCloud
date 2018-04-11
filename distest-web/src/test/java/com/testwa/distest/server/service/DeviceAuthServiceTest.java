@@ -1,7 +1,6 @@
 package com.testwa.distest.server.service;
 
-import com.testwa.distest.WebServerApplication;
-import com.testwa.distest.server.service.device.form.DeviceAuthListForm;
+import com.testwa.distest.DistestWebApplication;
 import com.testwa.distest.server.service.device.form.DeviceAuthNewForm;
 import com.testwa.distest.server.service.device.form.DeviceAuthRemoveForm;
 import com.testwa.distest.server.service.device.service.DeviceAuthService;
@@ -17,7 +16,7 @@ import java.util.Arrays;
 
 @Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = WebServerApplication.class)
+@SpringBootTest(classes = DistestWebApplication.class)
 @TestPropertySource(locations="classpath:application-test.properties")
 public class DeviceAuthServiceTest {
 

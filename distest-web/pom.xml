@@ -10,16 +10,16 @@
 
 	<artifactId>distest-web</artifactId>
 	<packaging>jar</packaging>
-	<description>server fo testwa</description>
+	<description>api server for distest</description>
 
 	<properties>
 		<dist.dir>${project.build.directory}/dist</dist.dir>
 		<dist.project.id>${project.artifactId}</dist.project.id>
-		<dist.project.name>Distest server</dist.project.name>
+		<dist.project.name>Distest web server</dist.project.name>
 		<dist.project.description>
 			Distest server
 		</dist.project.description>
-		<dist.start.class>com.testwa.distest.WebServerApplication</dist.start.class>
+		<dist.start.class>com.testwa.distest.DistestWebApplication</dist.start.class>
 	</properties>
 
 	<dependencies>

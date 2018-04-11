@@ -1,6 +1,6 @@
 package com.testwa.distest.server.web;
 
-import com.testwa.distest.WebServerApplication;
+import com.testwa.distest.DistestWebApplication;
 import com.testwa.distest.server.mongo.event.GameOverEvent;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,7 +12,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.context.WebApplicationContext;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = WebServerApplication.class)
+@SpringBootTest(classes = DistestWebApplication.class)
 @TestPropertySource(locations="classpath:application-test.properties")
 public class EventListenerTest {
 

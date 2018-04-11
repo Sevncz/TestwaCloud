@@ -2,7 +2,7 @@ package com.testwa.distest.server.service;
 
 import com.testwa.core.base.exception.AccountAlreadyExistException;
 import com.testwa.core.base.exception.AccountException;
-import com.testwa.distest.WebServerApplication;
+import com.testwa.distest.DistestWebApplication;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.server.entity.User;
@@ -10,7 +10,6 @@ import com.testwa.distest.server.service.user.service.UserService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
@@ -24,7 +23,7 @@ import java.util.List;
  * Created by wen on 19/10/2017.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = WebServerApplication.class)
+@SpringBootTest(classes = DistestWebApplication.class)
 @TestPropertySource(locations="classpath:application-test.properties")
 public class UserServiceTest {
 

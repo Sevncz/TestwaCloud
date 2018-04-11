@@ -32,7 +32,7 @@ import java.util.concurrent.Executor;
 @EnableCaching
 @EnableAsync
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-public class WebServerApplication extends AsyncConfigurerSupport {
+public class DistestWebApplication extends AsyncConfigurerSupport {
 
     @Value("${spring.data.mongodb.uri}")
     private String mongoUri;
@@ -85,7 +85,7 @@ public class WebServerApplication extends AsyncConfigurerSupport {
 	}
 
 	public static void main(String[] args) {
-		SpringApplication.run(WebServerApplication.class, args);
+		SpringApplication.run(DistestWebApplication.class, args);
 	}
 
 }

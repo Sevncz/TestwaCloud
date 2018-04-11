@@ -16,11 +16,11 @@
     <properties>
         <dist.dir>${project.build.directory}/dist</dist.dir>
         <dist.project.id>${project.artifactId}</dist.project.id>
-        <dist.project.name>Testwa client</dist.project.name>
+        <dist.project.name>Distest client</dist.project.name>
         <dist.project.description>
-            Testwa app as a desk Service
+            Distest client as a desk Service
         </dist.project.description>
-        <dist.start.class>com.testwa.distest.client.TestwaClientApplication</dist.start.class>
+        <dist.start.class>com.testwa.distest.client.DistestClientApplication</dist.start.class>
         <dist.jmx.port>50201</dist.jmx.port>
     </properties>
 

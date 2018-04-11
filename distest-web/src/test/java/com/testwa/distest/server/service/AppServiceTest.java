@@ -2,7 +2,7 @@ package com.testwa.distest.server.service;
 
 
 import com.testwa.core.base.exception.ParamsIsNullException;
-import com.testwa.distest.WebServerApplication;
+import com.testwa.distest.DistestWebApplication;
 import com.testwa.core.base.form.RequestListBase;
 import com.testwa.distest.server.entity.App;
 import com.testwa.distest.server.service.app.form.AppListForm;
@@ -28,7 +28,7 @@ import java.util.List;
 
 @Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = WebServerApplication.class)
+@SpringBootTest(classes = DistestWebApplication.class)
 @TestPropertySource(locations="classpath:application-test.properties")
 public class AppServiceTest {
 

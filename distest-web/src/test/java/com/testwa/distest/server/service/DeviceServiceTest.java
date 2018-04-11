@@ -2,7 +2,7 @@ package com.testwa.distest.server.service;
 
 import com.testwa.core.base.form.RequestListBase;
 import com.testwa.core.base.vo.PageResult;
-import com.testwa.distest.WebServerApplication;
+import com.testwa.distest.DistestWebApplication;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.DeviceAndroid;
@@ -22,7 +22,7 @@ import java.util.List;
 
 @Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = WebServerApplication.class)
+@SpringBootTest(classes = DistestWebApplication.class)
 @TestPropertySource(locations="classpath:application-test.properties")
 public class DeviceServiceTest {
 

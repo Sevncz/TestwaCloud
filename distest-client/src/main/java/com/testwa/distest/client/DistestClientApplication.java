@@ -22,7 +22,7 @@ import java.util.concurrent.Executor;
 @SpringBootApplication(exclude = {MongoAutoConfiguration.class, MongoDataAutoConfiguration.class})
 @EnableScheduling
 @EnableAsync
-public class TestwaClientApplication extends AsyncConfigurerSupport {
+public class DistestClientApplication extends AsyncConfigurerSupport {
 
     public static void main(String[] args) {
         ScreenPortProvider.init(PortConfig.screenPortStart, PortConfig.screenPortEnd);
@@ -30,7 +30,7 @@ public class TestwaClientApplication extends AsyncConfigurerSupport {
         ApkPortProvider.init(PortConfig.apkPortStart, PortConfig.apkPortEnd);
         AppiumPortProvider.init(PortConfig.appiumPortStart, PortConfig.appiumPortEnd);
 
-        SpringApplication.run(TestwaClientApplication.class, args);
+        SpringApplication.run(DistestClientApplication.class, args);
     }
 
     @Override

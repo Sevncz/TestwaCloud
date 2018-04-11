@@ -1,6 +1,6 @@
 package com.testwa.distest.server.service;
 
-import com.testwa.distest.WebServerApplication;
+import com.testwa.distest.DistestWebApplication;
 import com.testwa.core.base.form.RequestListBase;
 import com.testwa.distest.server.entity.Project;
 import com.testwa.distest.server.entity.User;
@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = WebServerApplication.class)
+@SpringBootTest(classes = DistestWebApplication.class)
 @TestPropertySource(locations="classpath:application-test.properties")
 public class ProjectServiceTest {
 

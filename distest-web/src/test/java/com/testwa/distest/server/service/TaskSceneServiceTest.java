@@ -1,7 +1,7 @@
 package com.testwa.distest.server.service;
 
 
-import com.testwa.distest.WebServerApplication;
+import com.testwa.distest.DistestWebApplication;
 import com.testwa.core.base.form.RequestListBase;
 import com.testwa.distest.server.service.task.form.TaskSceneListForm;
 import com.testwa.distest.server.service.task.form.TaskSceneNewForm;
@@ -18,7 +18,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.util.Arrays;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = WebServerApplication.class)
+@SpringBootTest(classes = DistestWebApplication.class)
 @TestPropertySource(locations="classpath:application-test.properties")
 public class TaskSceneServiceTest {
 
