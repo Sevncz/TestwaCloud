@@ -14,6 +14,8 @@
         <result column="path" property="path" jdbcType="VARCHAR" />
         <result column="projectId" property="projectId" jdbcType="BIGINT" />
         <result column="md5" property="md5" jdbcType="VARCHAR" />
+        <result column="applicationLable" property="applicationLable" jdbcType="VARCHAR" />
+        <result column="applicationIcon" property="applicationIcon" jdbcType="VARCHAR" />
         <result column="size" property="size" jdbcType="VARCHAR" />
         <result column="description" property="description" jdbcType="VARCHAR" />
         <result column="createTime" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
@@ -36,7 +38,7 @@
     </resultMap>
 
     <sql id="Base_Column_List" >
-        id, appName, aliasName, packageName, activity, sdkVersion, targetSdkVersion, osType, version, path, projectId, md5, size, description, updateTime, createTime, updateBy, createBy, enabled
+        id, appName, aliasName, packageName, activity, sdkVersion, targetSdkVersion, osType, version, path, projectId, md5, size, description, updateTime, createTime, updateBy, createBy, enabled, applicationLable, applicationIcon
     </sql>
 
     <select id="findBy" parameterType="com.testwa.distest.server.entity.App" resultMap="BaseResultMap" >

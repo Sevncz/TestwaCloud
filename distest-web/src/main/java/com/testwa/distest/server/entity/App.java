@@ -24,6 +24,8 @@ public class App extends ProjectBaseEntity {
     private String sdkVersion;
     private String targetSdkVersion;
     private String version; // app version
+    private String applicationLable;
+    private String applicationIcon;
     private DB.PhoneOS osType;
     @JsonIgnore
     private String path;

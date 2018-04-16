@@ -28,6 +28,8 @@ public class AppVO {
     private String md5;
     private String size;
     private String description;
+    private String applicationLable;
+    private String applicationIcon;
     private Date createTime;
     private Date updateTime;
     private Long createBy;

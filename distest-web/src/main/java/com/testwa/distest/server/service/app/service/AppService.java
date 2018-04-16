@@ -6,6 +6,7 @@ import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.utils.*;
 import com.testwa.distest.common.android.TestwaAndroidApp;
 import com.testwa.distest.common.enums.DB;
+import com.testwa.distest.common.util.IconUtil;
 import com.testwa.distest.config.DisFileProperties;
 import com.testwa.distest.server.entity.App;
 import com.testwa.distest.server.entity.Project;
@@ -160,13 +161,12 @@ public class AppService {
         String type = filename.substring(filename.lastIndexOf(".") + 1);
 
         String size = uploadfile.getSize() + "";
-        String relativePath = dirName + File.separator + aliasName;
         String md5 = IOUtil.fileMD5(filepath.toString());
         List<App> appList = findByMd5InProject(md5, projectId);
         AppNewForm form = new AppNewForm();
         form.setProjectId(projectId);
         if(appList == null || appList.size() == 0){
-            return saveFile(filename, aliasName, filepath.toString(), relativePath, size, type, md5, form);
+            return saveFile(filename, aliasName, filepath.toString(), dirName, size, type, md5, form);
         }
         return appList.get(0);
     }
@@ -193,14 +193,14 @@ public class AppService {
         String type = filename.substring(filename.lastIndexOf(".") + 1);
 
         String size = uploadfile.getSize() + "";
-        String relativePath = dirName + File.separator + aliasName;
         String md5 = IOUtil.fileMD5(filepath.toString());
-        return saveFile(filename, aliasName, filepath.toString(), relativePath, size, type, md5, form);
+        return saveFile(filename, aliasName, filepath.toString(), dirName, size, type, md5, form);
 
     }
-    private App saveFile(String filename, String aliasName, String filepath, String relativePath, String size, String type, String md5, AppNewForm form) throws IOException {
+    private App saveFile(String filename, String aliasName, String filepath, String dirName, String size, String type, String md5, AppNewForm form) throws IOException {
         App app = new App();
 
+        String relativePath = dirName + File.separator + aliasName;
         switch (type.toLowerCase()){
             case "apk":
                 app.setOsType(DB.PhoneOS.ANDROID);
@@ -210,6 +210,20 @@ public class AppService {
                 app.setSdkVersion(androidApp.getSdkVersion());
                 app.setTargetSdkVersion(androidApp.getTargetSdkVersion());
                 app.setVersion(androidApp.getVersionName());
+                String lableName = androidApp.getApplicationLable();
+                log.info("application lable: {}", lableName);
+                app.setApplicationLable(lableName);
+                Path dir = Paths.get(filepath).getParent();
+                String iconPath = dir + File.separator + "icon.png";
+                try {
+                    String iconName = androidApp.getApplicationIcon();
+                    if(StringUtils.isNotEmpty(iconName)){
+                        IconUtil.extractFileFromApk(filepath, iconName, iconPath);
+                        app.setApplicationIcon(dirName + File.separator + "icon.png");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 break;
             case "zip":
                 app.setOsType(DB.PhoneOS.IOS);
@@ -233,7 +247,6 @@ public class AppService {
         app.setSize(size);
         app.setMd5(md5);
         if(form != null){
-
             app.setProjectId(form.getProjectId());
             app.setDescription(form.getDescription());
             app.setEnabled(true);
