@@ -4,6 +4,7 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.annotation.SpringAnnotationScanner;
 import com.mongodb.MongoClientURI;
 import com.testwa.distest.server.mongo.repository.Impl.CommonMongoRepositoryImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -26,6 +27,7 @@ import java.net.UnknownHostException;
 import java.util.concurrent.Executor;
 
 //@EnableDiscoveryClient
+@Slf4j
 @SpringBootApplication
 @EnableMongoRepositories(repositoryBaseClass = CommonMongoRepositoryImpl.class, basePackages = {"com.testwa.distest.server.mongo.repository"})
 @EnableScheduling
@@ -86,6 +88,9 @@ public class DistestWebApplication extends AsyncConfigurerSupport {
 
 	public static void main(String[] args) {
 		SpringApplication.run(DistestWebApplication.class, args);
+
+        String androidHome = System.getenv("ANDROID_HOME");
+        log.info("androidHome: {}", androidHome);
 	}
 
 }

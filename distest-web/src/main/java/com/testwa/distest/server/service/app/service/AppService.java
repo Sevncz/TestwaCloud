@@ -74,7 +74,7 @@ public class AppService {
             return;
         }
 
-        String filePath = app.getPath();
+        String filePath = disFileProperties.getApp() + File.separator + app.getPath();
         try {
             // 删除app文件
             Files.deleteIfExists(Paths.get(filePath));
@@ -211,7 +211,7 @@ public class AppService {
                 app.setTargetSdkVersion(androidApp.getTargetSdkVersion());
                 app.setVersion(androidApp.getVersionName());
                 String lableName = androidApp.getApplicationLable();
-                log.info("application lable: {}", lableName);
+                log.info("应用名字 ========= {}", lableName);
                 app.setApplicationLable(lableName);
                 Path dir = Paths.get(filepath).getParent();
                 String iconPath = dir + File.separator + "icon.png";
@@ -257,6 +257,7 @@ public class AppService {
         app.setId(appId);
         return app;
     }
+
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public App upload(MultipartFile uploadfile) throws IOException{
