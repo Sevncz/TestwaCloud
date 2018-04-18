@@ -365,4 +365,35 @@ public final class DB {
         }
     }
 
+
+    public enum AppPlatform implements ValueEnum {
+        UNKNOWN(0, "未知"),
+        IOS(1, "iOS"),
+        ANDROID(2, "Android"),
+        WP(3, "WinPhone");
+        private int value;
+        private String desc;
+        AppPlatform(int value, String desc){
+            this.value = value;
+            this.desc = desc;
+        }
+        public int getValue() {
+            return value;
+        }
+        @JsonValue
+        public String getDesc() {
+            return desc;
+        }
+        public static AppPlatform valueOf(int value) {
+            AppPlatform os = UNKNOWN;
+            switch (value) {
+                case 1: os = IOS;break;
+                case 2: os = ANDROID;break;
+                case 3: os = WP;break;
+                default: os = UNKNOWN;
+            }
+            return os;
+        }
+    }
+
 }

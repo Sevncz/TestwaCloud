@@ -442,6 +442,11 @@
                 <version>3.4.1-1.4</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.googlecode.plist</groupId>
+                <artifactId>dd-plist</artifactId>
+                <version>1.20</version>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>

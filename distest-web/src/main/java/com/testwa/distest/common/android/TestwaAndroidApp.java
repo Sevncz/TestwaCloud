@@ -3,21 +3,14 @@ package com.testwa.distest.common.android;
 import com.github.cosysoft.device.android.impl.DefaultAndroidApp;
 import com.github.cosysoft.device.shell.AndroidSdk;
 import com.github.cosysoft.device.shell.AndroidSdkException;
-import com.github.cosysoft.device.shell.ShellCommand;
 import com.github.cosysoft.device.shell.ShellCommandException;
-import com.testwa.distest.common.shell.AbstractCommonExecs;
-import com.testwa.distest.common.shell.ExecResult;
 import com.testwa.distest.common.shell.UTF8CommonExecs;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.exec.CommandLine;
-import org.apache.commons.exec.DefaultExecutor;
-import org.apache.commons.exec.ExecuteWatchdog;
-import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -37,8 +30,9 @@ public class TestwaAndroidApp extends DefaultAndroidApp {
     private File apkFile;
     private String sdkVersion;
     private String targetSdkVersion;
-    private String applicationIcon;
-    private String applicationLable;
+    private String miniSdkVersion;
+    private String icon;
+    private String displayName;
 
 
     public TestwaAndroidApp(File apkFile) {
@@ -94,54 +88,55 @@ public class TestwaAndroidApp extends DefaultAndroidApp {
         return this.sdkVersion;
     }
 
-    public String getApplicationIcon(){
-        if(this.applicationIcon == null) {
+    public String getIcon(){
+        if(this.icon == null) {
             for(String icon : iconList){
                 try {
-                    this.applicationIcon = this.extractApkDetails(icon + ":\'(.*?)\'");
-                    if(StringUtils.isNotBlank(this.applicationIcon)){
+                    this.icon = this.extractApkDetails(icon + ":\'(.*?)\'");
+                    if(StringUtils.isNotBlank(this.icon)){
                         break;
                     }
                 } catch (ShellCommandException var2) {
                     throw new RuntimeException("The application icon of the apk " + this.apkFile.getName() + " cannot be extracted.");
                 }
             }
-            if(StringUtils.isBlank(this.applicationIcon)){
+            if(StringUtils.isBlank(this.icon)){
 
                 String regex = "application: label=\'(.*?)\' icon=\'(.*?)\'";
                 String aaptResult = this.aaptCmd();
                 Pattern pattern = Pattern.compile(regex);
                 Matcher matcher = pattern.matcher(aaptResult);
-                this.applicationIcon = matcher.find()?matcher.group(2):null;
+                this.icon = matcher.find()?matcher.group(2):null;
 
             }
         }
-        return this.applicationIcon;
+        return this.icon;
     }
-    public String getApplicationLable(){
-        // application: label='ofo共享单车' icon='res/mipmap-hdpi-v4/application_icon.png'
-        if(this.applicationLable == null) {
+    public String getDisplayName(){
+        if(this.displayName == null) {
             try {
-                this.applicationLable = this.extractApkDetails("application-label:\'(.*?)\'");
-                if(StringUtils.isBlank(this.applicationLable)){
+                this.displayName = this.extractApkDetails("application-label:\'(.*?)\'");
+                if(StringUtils.isBlank(this.displayName)){
                     String regex = "application: label=\'(.*?)\' icon=\'(.*?)\'";
-                    this.applicationLable = this.extractApkDetails(regex);
+                    this.displayName = this.extractApkDetails(regex);
                 }
-                log.info("this.applicationLable ======== {}", this.applicationLable);
+                log.info("this.displayName ======== {}", this.displayName);
             } catch (ShellCommandException var2) {
                 throw new RuntimeException("The application icon of the apk " + this.apkFile.getName() + " cannot be extracted.");
             }
         }
-        return this.applicationLable;
+        return this.displayName;
     }
 
-    public static void main(String[] args) {
-        String regex = "application: label=\'(.*)\' icon=\'(.*?)\'";
-        String output = "application: label='ofo共享单车' icon='res/mipmap-hdpi-v4/application_icon.png'";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(output);
-        if(matcher.find()){
-            System.out.println(matcher.group(1));
+    public String getMiniSdkVersion() {
+        if(this.miniSdkVersion == null) {
+            try {
+                this.miniSdkVersion = this.extractApkDetails("sdkVersion:\'(.*?)\'");
+            } catch (ShellCommandException var2) {
+                throw new RuntimeException("The miniSdkVersion of the apk " + this.apkFile.getName() + " cannot be extracted.");
+            }
         }
+        return this.miniSdkVersion;
+
     }
 }

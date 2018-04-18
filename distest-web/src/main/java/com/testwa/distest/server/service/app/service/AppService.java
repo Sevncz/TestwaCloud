@@ -4,15 +4,15 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.utils.*;
+import com.testwa.distest.common.android.AndroidOSInfo;
 import com.testwa.distest.common.android.TestwaAndroidApp;
 import com.testwa.distest.common.enums.DB;
-import com.testwa.distest.common.util.IconUtil;
+import com.testwa.distest.common.util.AppUtil;
 import com.testwa.distest.config.DisFileProperties;
 import com.testwa.distest.server.entity.App;
 import com.testwa.distest.server.entity.Project;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.app.dao.IAppDAO;
-import com.testwa.distest.server.service.app.form.AppInstallForm;
 import com.testwa.distest.server.service.app.form.AppListForm;
 import com.testwa.distest.server.service.app.form.AppNewForm;
 import com.testwa.distest.server.service.app.form.AppUpdateForm;
@@ -203,45 +203,43 @@ public class AppService {
         String relativePath = dirName + File.separator + aliasName;
         switch (type.toLowerCase()){
             case "apk":
-                app.setOsType(DB.PhoneOS.ANDROID);
+                app.setPlatform(DB.AppPlatform.ANDROID);
                 TestwaAndroidApp androidApp = new TestwaAndroidApp(new File(filepath));
                 app.setActivity(androidApp.getMainActivity());
                 app.setPackageName(androidApp.getBasePackage());
-                app.setSdkVersion(androidApp.getSdkVersion());
-                app.setTargetSdkVersion(androidApp.getTargetSdkVersion());
+                app.setSdkBuild(androidApp.getSdkVersion());
+                app.setPlatformVersion(AndroidOSInfo.getOSVersionFromSDKLevel(androidApp.getTargetSdkVersion()));
+                app.setMiniOSVersion(AndroidOSInfo.getOSVersionFromSDKLevel(androidApp.getMiniSdkVersion()));
                 app.setVersion(androidApp.getVersionName());
-                String lableName = androidApp.getApplicationLable();
-                log.info("应用名字 ========= {}", lableName);
-                app.setApplicationLable(lableName);
+                String lableName = androidApp.getDisplayName();
+                app.setDisplayName(lableName);
                 Path dir = Paths.get(filepath).getParent();
                 String iconPath = dir + File.separator + "icon.png";
                 try {
-                    String iconName = androidApp.getApplicationIcon();
+                    String iconName = androidApp.getIcon();
                     if(StringUtils.isNotEmpty(iconName)){
-                        IconUtil.extractFileFromApk(filepath, iconName, iconPath);
-                        app.setApplicationIcon(dirName + File.separator + "icon.png");
+                        AppUtil.extractFileFromApk(filepath, iconName, iconPath);
+                        app.setIcon(dirName + File.separator + "icon.png");
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 break;
             case "zip":
-                app.setOsType(DB.PhoneOS.IOS);
-                String unzipPath = filepath.substring(0, filepath.lastIndexOf(".") - 4);
-                filename = filename.substring(0, filename.lastIndexOf("."));
-                ZipUtil.unZipFiles(filepath, unzipPath);
-                aliasName = Paths.get(unzipPath.substring(unzipPath.lastIndexOf(File.separator) + 1), filename).toString();
+                String ipaname = filepath.replaceAll(".zip", ".ipa");
+                Files.copy(Paths.get(filepath), Paths.get(ipaname));
+                getIpaInfo(app, filepath, dirName);
                 break;
             case "ipa":
-                app.setOsType(DB.PhoneOS.IOS);
+                getIpaInfo(app, filepath, dirName);
                 break;
             default:
-                app.setOsType(DB.PhoneOS.UNKNOWN);
+                app.setPlatform(DB.AppPlatform.UNKNOWN);
                 break;
 
         }
-        app.setAliasName(aliasName);
-        app.setAppName(filename);
+        app.setFileAliasName(aliasName);
+        app.setFileName(filename);
         app.setPath(relativePath);
         app.setCreateTime(new Date());
         app.setSize(size);
@@ -256,6 +254,35 @@ public class AppService {
         long appId = appDAO.insert(app);
         app.setId(appId);
         return app;
+    }
+
+    private void getIpaInfo(App app, String filePath, String dirName) {
+        File ipaFile = new File(filePath);
+        Map<String, String> ipaProperties = AppUtil.getIpaInfo(ipaFile);
+        if(ipaProperties != null){
+            String displayName = ipaProperties.getOrDefault("CFBundleDisplayName", "");
+            app.setDisplayName(displayName);
+
+            String version = ipaProperties.getOrDefault("CFBundleShortVersionString", "");
+            app.setVersion(version);
+
+            String minimumOSVersion = ipaProperties.getOrDefault("MinimumOSVersion", "");
+            app.setMiniOSVersion(minimumOSVersion);
+
+            String sdkBuild = ipaProperties.getOrDefault("DTSDKBuild", "");
+            app.setSdkBuild(sdkBuild);
+
+            String icon = ipaProperties.getOrDefault("icon", "");
+            app.setIcon(dirName + File.separator + icon);
+
+            String packageName = ipaProperties.getOrDefault("CFBundleIdentifier", "");
+            app.setPackageName(packageName);
+
+            String platformVersion = ipaProperties.getOrDefault("DTPlatformVersion", "");
+            app.setPlatformVersion(platformVersion);
+
+        }
+        app.setPlatform(DB.AppPlatform.IOS);
     }
 
 
@@ -279,7 +306,7 @@ public class AppService {
         PageHelper.orderBy(queryForm.getOrderBy() + " " + queryForm.getOrder());
         App query = new App();
         query.setProjectId(queryForm.getProjectId());
-        query.setAppName(queryForm.getAppName());
+        query.setDisplayName(queryForm.getAppName());
         List<App> appList = appDAO.findBy(query);
         PageInfo info = new PageInfo(appList);
         PageResult<App> pr = new PageResult<>(info.getList(), info.getTotal());
@@ -351,7 +378,7 @@ public class AppService {
         List<Project> projects = projectService.findAllByUserList(getCurrentUsername());
         Map<String, Object> params = new HashMap<>();
         if(StringUtils.isNotEmpty(queryForm.getAppName())){
-            params.put("appName", queryForm.getAppName());
+            params.put("displayName", queryForm.getAppName());
         }
         if(queryForm.getProjectId() != null){
             params.put("projectId", queryForm.getProjectId());

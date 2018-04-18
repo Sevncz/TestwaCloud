@@ -15,24 +15,24 @@ import java.util.Date;
 public class AppVO {
 
     private Long id;
-    private String appName;
-    private String aliasName;
-    private String packageName;
-    private String activity;
-    private String sdkVersion;
-    private String targetSdkVersion;
-    private String version; // app version
-    private DB.PhoneOS osType;
+    private String fileName;
     private String path;
     private Long projectId;
     private String md5;
     private String size;
     private String description;
-    private String applicationLable;
-    private String applicationIcon;
     private Date createTime;
     private Date updateTime;
     private Long createBy;
     private Long updateBy;
+
+    private String displayName; // 应用显示名称
+    private String icon;  // 应用图标
+    private String packageName;  // 应用包名
+    private String version;  // 应用版本
+    private String miniOSVersion;  // 最低系统版本要求
+    private String platformVersion;  // 系统版本
+    private String sdkBuild;  // sdk版本
+    private String activity;  // 启动包
 
 }

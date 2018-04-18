@@ -16,27 +16,29 @@ import java.util.Date;
 @TableName("app")
 public class App extends ProjectBaseEntity {
 
-    private String appName;
+    private String fileName;
     @JsonIgnore
-    private String aliasName;
-    private String packageName;
-    private String activity;
-    private String sdkVersion;
-    private String targetSdkVersion;
-    private String version; // app version
-    private String applicationLable;
-    private String applicationIcon;
-    private DB.PhoneOS osType;
+    private String fileAliasName;
     @JsonIgnore
     private String path;
     // 上传创建者
     private String md5;
     private String size;
     private String description;
-
     @Column(value="createUser", ignore=true)
     private User createUser;
     @Column(value="updateUser", ignore=true)
     private User updateUser;
+
+    private String displayName; // 应用显示名称
+    private String icon;  // 应用图标
+    private String packageName;  // 应用包名
+    private String version;  // 应用版本
+    private String miniOSVersion;  // 支持的最低系统版本
+    private String platformVersion;  // 系统版本
+    private String sdkBuild;  // sdk版本
+    private String activity;  // 启动包
+
+    private DB.AppPlatform platform;
 
 }

@@ -189,6 +189,11 @@
 			<artifactId>lombok</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>com.googlecode.plist</groupId>
+			<artifactId>dd-plist</artifactId>
+		</dependency>
+
 	</dependencies>
 
     <build>
