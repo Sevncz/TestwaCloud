@@ -207,9 +207,9 @@ public class AppService {
                 TestwaAndroidApp androidApp = new TestwaAndroidApp(new File(filepath));
                 app.setActivity(androidApp.getMainActivity());
                 app.setPackageName(androidApp.getBasePackage());
-                app.setSdkBuild(androidApp.getSdkVersion());
+                app.setSdkBuild(androidApp.getTargetSdkVersion());
                 app.setPlatformVersion(AndroidOSInfo.getOSVersionFromSDKLevel(androidApp.getTargetSdkVersion()));
-                app.setMiniOSVersion(AndroidOSInfo.getOSVersionFromSDKLevel(androidApp.getMiniSdkVersion()));
+                app.setMiniOSVersion(AndroidOSInfo.getOSVersionFromSDKLevel(androidApp.getSdkVersion()));
                 app.setVersion(androidApp.getVersionName());
                 String lableName = androidApp.getDisplayName();
                 app.setDisplayName(lableName);
@@ -222,7 +222,7 @@ public class AppService {
                         app.setIcon(dirName + File.separator + "icon.png");
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    log.error("android 图标文件解析失败：", e);
                 }
                 break;
             case "zip":

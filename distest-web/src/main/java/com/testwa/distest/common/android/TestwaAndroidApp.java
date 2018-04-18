@@ -128,15 +128,4 @@ public class TestwaAndroidApp extends DefaultAndroidApp {
         return this.displayName;
     }
 
-    public String getMiniSdkVersion() {
-        if(this.miniSdkVersion == null) {
-            try {
-                this.miniSdkVersion = this.extractApkDetails("sdkVersion:\'(.*?)\'");
-            } catch (ShellCommandException var2) {
-                throw new RuntimeException("The miniSdkVersion of the apk " + this.apkFile.getName() + " cannot be extracted.");
-            }
-        }
-        return this.miniSdkVersion;
-
-    }
 }

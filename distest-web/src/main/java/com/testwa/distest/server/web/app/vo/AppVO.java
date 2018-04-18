@@ -1,7 +1,6 @@
 package com.testwa.distest.server.web.app.vo;
 
 
-import com.testwa.distest.common.enums.DB;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -34,5 +33,6 @@ public class AppVO {
     private String platformVersion;  // 系统版本
     private String sdkBuild;  // sdk版本
     private String activity;  // 启动包
+    private String platform;  // 平台
 
 }
