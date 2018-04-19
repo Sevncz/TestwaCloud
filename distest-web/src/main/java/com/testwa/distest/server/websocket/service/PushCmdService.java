@@ -78,7 +78,9 @@ public class PushCmdService {
         log.info(cmd.toString());
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
         if(client != null)
-        client.sendEvent(Command.Schem.START.getSchemString(), JSON.toJSONString(cmd));
+            client.sendEvent(Command.Schem.START.getSchemString(), JSON.toJSONString(cmd));
+        else
+            log.error("device {} websocket client is null", deviceId);
     }
 
     /**
@@ -94,6 +96,8 @@ public class PushCmdService {
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
         if(client != null)
             client.sendEvent(Command.Schem.START.getSchemString(), JSON.toJSONString(cmd));
+        else
+            log.error("device {} websocket client is null", deviceId);
     }
 
     /**
@@ -107,7 +111,9 @@ public class PushCmdService {
     public void pushTouchData(String deviceId, String data) {
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
         if(client != null)
-        client.sendEvent(Command.Schem.TOUCH.getSchemString(), data);
+            client.sendEvent(Command.Schem.TOUCH.getSchemString(), data);
+        else
+            log.error("device {} websocket client is null", deviceId);
     }
 
     /**
@@ -122,6 +128,8 @@ public class PushCmdService {
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
         if(client != null)
             client.sendEvent(Command.Schem.INPUT.getSchemString(), data);
+        else
+            log.error("device {} websocket client is null", deviceId);
     }
     /**
      *@Description: 模拟Home键
@@ -134,7 +142,9 @@ public class PushCmdService {
     public void pushHome(String deviceId) {
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
         if(client != null)
-        client.sendEvent(Command.Schem.HOME.getSchemString(), "");
+            client.sendEvent(Command.Schem.HOME.getSchemString(), "");
+        else
+            log.error("device {} websocket client is null", deviceId);
     }
     /**
      *@Description: 模拟返回键
@@ -147,7 +157,9 @@ public class PushCmdService {
     public void pushBack(String deviceId) {
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
         if(client != null)
-        client.sendEvent(Command.Schem.BACK.getSchemString(), "");
+            client.sendEvent(Command.Schem.BACK.getSchemString(), "");
+        else
+            log.error("device {} websocket client is null", deviceId);
     }
     /**
      *@Description: 模拟菜单键
@@ -160,7 +172,9 @@ public class PushCmdService {
     public void pushMenu(String deviceId) {
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
         if(client != null)
-        client.sendEvent(Command.Schem.MENU.getSchemString(), "");
+            client.sendEvent(Command.Schem.MENU.getSchemString(), "");
+        else
+            log.error("device {} websocket client is null", deviceId);
     }
     /**
      *@Description: 模拟删除键
@@ -174,6 +188,8 @@ public class PushCmdService {
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
         if(client != null)
             client.sendEvent(Command.Schem.KEYEVENT.getSchemString(), KeyCode.KEYCODE_DEL+"");
+        else
+            log.error("device {} websocket client is null", deviceId);
     }
 
     /**
@@ -187,7 +203,10 @@ public class PushCmdService {
     public void pushInitDeviceClient(Long userId, String deviceId) {
         SocketIOClient client = getMainClientSocketIOClient(userId);
         if(client != null)
-        client.sendEvent(WebsocketEvent.ON_START, deviceId);
+            client.sendEvent(WebsocketEvent.ON_START, deviceId);
+        else
+            log.error("user websocket client is null");
+
     }
 
     /**
@@ -200,7 +219,9 @@ public class PushCmdService {
     public void pushScreenUploadStart(String deviceId) {
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
         if(client != null)
-        client.sendEvent(Command.Schem.WAITTING.getSchemString(), "");
+            client.sendEvent(Command.Schem.WAITTING.getSchemString(), "");
+        else
+            log.error("device {} websocket client is null", deviceId);
     }
 
     /**
@@ -213,7 +234,9 @@ public class PushCmdService {
     public void pushScreenUploadStop(String deviceId) {
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
         if(client != null)
-        client.sendEvent(Command.Schem.WAIT.getSchemString(), "");
+            client.sendEvent(Command.Schem.WAIT.getSchemString(), "");
+        else
+            log.error("device {} websocket client is null", deviceId);
     }
 
     /**
@@ -229,6 +252,8 @@ public class PushCmdService {
         SocketIOClient client = getDeviceClientSocketIOClient(cmd.getDeviceId());
         if(client != null)
             client.sendEvent(Command.Schem.START_TASK.getSchemString(), JSON.toJSONString(cmd));
+        else
+            log.error("device {} websocket client is null", cmd.getDeviceId());
     }
 
     /**
@@ -244,6 +269,8 @@ public class PushCmdService {
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
         if(client != null)
             client.sendEvent(Command.Schem.START_LOGCAT.getSchemString(), JSON.toJSONString(cmd));
+        else
+            log.error("device {} websocket client is null", deviceId);
     }
 
     /**
@@ -257,6 +284,8 @@ public class PushCmdService {
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
         if(client != null)
             client.sendEvent(Command.Schem.WAIT_LOGCAT.getSchemString(), "");
+        else
+            log.error("device {} websocket client is null", deviceId);
     }
 
     /**
@@ -270,6 +299,8 @@ public class PushCmdService {
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
         if(client != null)
             client.sendEvent(Command.Schem.INSTALL.getSchemString(), JSON.toJSONString(app));
+        else
+            log.error("device {} websocket client is null", deviceId);
 
     }
 
@@ -279,6 +310,8 @@ public class PushCmdService {
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
         if(client != null)
             client.sendEvent(Command.Schem.UNINSTALL.getSchemString(), JSON.toJSONString(cmd));
+        else
+            log.error("device {} websocket client is null", deviceId);
     }
 
     /**
@@ -292,6 +325,8 @@ public class PushCmdService {
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
         if(client != null)
             client.sendEvent(Command.Schem.SHELL.getSchemString(), cmd);
+        else
+            log.error("device {} websocket client is null", deviceId);
     }
 
     /**
@@ -305,5 +340,8 @@ public class PushCmdService {
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
         if(client != null)
             client.sendEvent(Command.Schem.OPENWEB.getSchemString(), url);
+        else
+            log.error("device {} websocket client is null", deviceId);
+
     }
 }

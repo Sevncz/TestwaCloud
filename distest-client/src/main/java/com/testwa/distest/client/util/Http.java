@@ -104,36 +104,36 @@ public class Http {
     }
 
 
-    public static void download(String fromUrl, String toLocalFile) throws DownloadFailException, IOException {
-        Path toLocal = Paths.get(toLocalFile);
-        if(!Files.exists(toLocal.getParent())){
-            Files.createDirectories(toLocal.getParent());
-        }else{
-            log.debug("File MD5 exists!  " + toLocalFile);
-            if(Files.exists(toLocal)){
-                log.info("To local file {} exists, return !", toLocalFile);
-                return;
-            }
-        }
-        ReadableByteChannel rbc = null;
-        FileOutputStream fos = null;
-        try {
-            URL website = new URL(fromUrl);
-            rbc = Channels.newChannel(website.openStream());
-            fos = new FileOutputStream(toLocalFile);
-            fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-        }catch (Exception e){
-            log.error("Download file {} error!", fromUrl);
-            throw new DownloadFailException(e.getMessage());
-        }finally {
-            if(fos != null){
-                fos.close();
-            }
-            if(rbc != null){
-                rbc.close();
-            }
-        }
-    }
+//    public static void download(String fromUrl, String toLocalFile) throws DownloadFailException, IOException {
+//        Path toLocal = Paths.get(toLocalFile);
+//        if(!Files.exists(toLocal.getParent())){
+//            Files.createDirectories(toLocal.getParent());
+//        }else{
+//            log.debug("File MD5 exists!  " + toLocalFile);
+//            if(Files.exists(toLocal)){
+//                log.info("To local file {} exists, return !", toLocalFile);
+//                return;
+//            }
+//        }
+//        ReadableByteChannel rbc = null;
+//        FileOutputStream fos = null;
+//        try {
+//            URL website = new URL(fromUrl);
+//            rbc = Channels.newChannel(website.openStream());
+//            fos = new FileOutputStream(toLocalFile);
+//            fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+//        }catch (Exception e){
+//            log.error("Download file {} error!", fromUrl);
+//            throw new DownloadFailException(e.getMessage());
+//        }finally {
+//            if(fos != null){
+//                fos.close();
+//            }
+//            if(rbc != null){
+//                rbc.close();
+//            }
+//        }
+//    }
 
 
 //    public static String getLogcat(String url, Map<String, String> parameters, Testcase tc){

@@ -7,7 +7,9 @@ import com.corundumstudio.socketio.annotation.OnDisconnect;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.common.enums.Command;
 import com.testwa.core.cmd.MiniCmd;
+import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.config.security.JwtTokenUtil;
+import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.cache.mgr.ClientSessionMgr;
 import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
@@ -66,6 +68,7 @@ public class WebConnectionHandler {
             client.sendEvent(Command.Schem.WAIT.getSchemString(), JSON.toJSONString(params));
 
             deviceSessionMgr.login(serial, client.getSessionId().toString());
+            deviceAuthMgr.online(serial);
 
             requestStartMinitouch(serial);
             requestStartMinicap(serial);

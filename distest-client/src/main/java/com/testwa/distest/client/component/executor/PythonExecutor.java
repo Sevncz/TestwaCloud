@@ -10,6 +10,7 @@ import com.testwa.core.cmd.ScriptInfo;
 import com.testwa.core.service.PythonScriptDriverService;
 import com.testwa.core.service.PythonServiceBuilder;
 import com.testwa.distest.client.android.AndroidHelper;
+import com.testwa.distest.client.download.Downloader;
 import com.testwa.distest.client.exception.DownloadFailException;
 import com.testwa.distest.client.component.Constant;
 import com.testwa.distest.client.util.Http;
@@ -89,10 +90,10 @@ public class PythonExecutor {
     @ExecutorActionInfo(desc = "下载APP", order = 1)
     public void downloadApp() throws DownloadFailException, IOException {
         String appUrl = String.format("http://%s/app/%s", distestApiWeb, appInfo.getPath());
-        this.appLocalPath = Constant.localAppPath + File.separator + appInfo.getMd5() + File.separator + appInfo.getAliasName();
+        this.appLocalPath = Constant.localAppPath + File.separator + appInfo.getMd5() + File.separator + appInfo.getFileName();
 
         // 检查是否有和该app md5一致的
-        Http.download(appUrl, appLocalPath);
+        new Downloader(appUrl, appLocalPath);
     }
 
     @ExecutorActionInfo(desc = "下载脚本", order = 2)
@@ -105,7 +106,7 @@ public class PythonExecutor {
                 }
                 String scriptUrl = String.format("http://%s/script/%s", distestApiWeb, scriptInfo.getPath());
                 String localPath = Constant.localScriptPath + File.separator + scriptInfo.getMd5() + File.separator + scriptInfo.getAliasName();
-                Http.download(scriptUrl, localPath);
+                new Downloader(scriptUrl, localPath);
                 scriptPath.put(scriptInfo.getId(), localPath);
             }
         }
@@ -119,6 +120,10 @@ public class PythonExecutor {
         try {
 
             RemoteTestcaseContent content = this.testcases.poll();
+            if(content == null){
+                log.info("nothing to run");
+                return;
+            }
             List<ScriptInfo> scIds = content.getScripts();
             this.scripts = new ArrayBlockingQueue<>(scIds.size());
             this.scripts.addAll(scIds);

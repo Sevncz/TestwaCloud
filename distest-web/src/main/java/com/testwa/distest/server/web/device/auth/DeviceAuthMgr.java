@@ -109,11 +109,11 @@ public class DeviceAuthMgr {
      */
     public void online(String deviceId) {
         redisCacheMgr.sAdd(ONLINE, deviceId);
-//        deviceService.updateOnlineStatus(deviceId, DB.PhoneOnlineStatus.ONLINE);
+        deviceService.updateStatus(deviceId, DB.PhoneOnlineStatus.ONLINE);
     }
     public void offline(String deviceId) {
         redisCacheMgr.sRem(ONLINE, deviceId);
-//        deviceService.updateOnlineStatus(deviceId, DB.PhoneOnlineStatus.OFFLINE);
+        deviceService.updateStatus(deviceId, DB.PhoneOnlineStatus.OFFLINE);
     }
     public Set<String> allOnlineDevices() {
         return redisCacheMgr.sMembers(ONLINE);

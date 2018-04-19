@@ -2,6 +2,7 @@ package com.testwa.distest.server.service.rpc;
 
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
+import com.testwa.distest.common.android.AndroidOSInfo;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.config.security.JwtTokenUtil;
 import com.testwa.distest.server.entity.DeviceAndroid;
@@ -16,6 +17,7 @@ import com.testwa.distest.server.websocket.service.PushCmdService;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.device.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -49,6 +51,7 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
 
     @Override
     public void all(DevicesRequest request, StreamObserver<CommonReply> responseObserver) {
+        log.info("客户端上报device，进行更新和保存操作");
         String token = request.getUserId();
         List<io.rpc.testwa.device.Device> l = request.getDeviceList();
         String username = jwtTokenUtil.getUsernameFromToken(token);
@@ -71,14 +74,15 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
         deviceAndroid.setSdk(device.getSdk());
         deviceAndroid.setWidth(device.getWidth());
         deviceAndroid.setLastUserId(userId);
-        if("ON".equals(device.getStatus().name().toUpperCase())){
-            deviceAuthMgr.online(device.getDeviceId());
-            deviceAndroid.setOnlineStatus(DB.PhoneOnlineStatus.ONLINE);
-        }
-        if("OFF".equals(device.getStatus().name().toUpperCase())){
-            deviceAuthMgr.offline(deviceAndroid.getDeviceId());
-            deviceAndroid.setOnlineStatus(DB.PhoneOnlineStatus.OFFLINE);
-        }
+        deviceAndroid.setOsVersion(device.getVersion());
+//        if("ON".equals(device.getStatus().name().toUpperCase())){
+//            deviceAuthMgr.online(device.getDeviceId());
+//            deviceAndroid.setOnlineStatus(DB.PhoneOnlineStatus.ONLINE);
+//        }
+//        if("OFF".equals(device.getStatus().name().toUpperCase())){
+//            deviceAuthMgr.offline(deviceAndroid.getDeviceId());
+//            deviceAndroid.setOnlineStatus(DB.PhoneOnlineStatus.OFFLINE);
+//        }
         Device deviceBase = deviceService.findByDeviceId(device.getDeviceId());
         if(deviceBase == null){
             deviceService.insertAndroid(deviceAndroid);
@@ -89,19 +93,19 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
 
     @Override
     public void disconnect(DisconnectedRequest request, StreamObserver<CommonReply> responseObserver) {
-        log.info("device disconnect, {}", request.getDeviceId());
+        log.info("device {} disconnect", request.getDeviceId());
         deviceAuthMgr.offline(request.getDeviceId());
     }
 
     @Override
     public void offline(DisconnectedRequest request, StreamObserver<CommonReply> responseObserver) {
-        log.info("device offline, {}", request.getDeviceId());
+        log.info("device {} offline", request.getDeviceId());
         deviceAuthMgr.offline(request.getDeviceId());
     }
 
     @Override
     public void connect(ConnectedRequest request, StreamObserver<CommonReply> responseObserver) {
-        log.info("device connected, {}", request.getDeviceId());
+        log.info("device {} connected", request.getDeviceId());
         String username = jwtTokenUtil.getUsernameFromToken(request.getToken());
         User user = userService.findByUsername(username);
         DeviceAndroid deviceAndroid = new DeviceAndroid();

@@ -17,6 +17,7 @@ import com.testwa.distest.client.component.executor.*;
 import com.testwa.distest.client.component.logcat.Logcat;
 import com.testwa.distest.client.component.logcat.LogcatListener;
 import com.testwa.distest.client.component.stfservice.KeyCode;
+import com.testwa.distest.client.download.Downloader;
 import com.testwa.distest.client.exception.DownloadFailException;
 import com.testwa.distest.client.grpc.Gvice;
 import com.testwa.distest.client.component.minicap.Banner;
@@ -90,10 +91,10 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
             JSONObject obj = new JSONObject();
             obj.put("sn", serialNumber);
             obj.put("key", "");
-            log.info("设备【{}】已连接.", serialNumber);
+            log.info("设备{}已连接.", serialNumber);
             ws.emit(Command.Schem.OPEN.getSchemString(), obj.toJSONString());
         }).on(Socket.EVENT_DISCONNECT, args -> {
-            log.info("设备【{}】断开连接.", this.serialNumber);
+            log.info("设备{}断开连接.", this.serialNumber);
         });
 
         for(Command.Schem schem : Command.Schem.values()){
@@ -751,11 +752,11 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
             String distestApiWeb = Config.getString("distest.api.web");
 
             String appUrl = String.format("http://%s/app/%s", distestApiWeb, appInfo.getPath());
-            String appLocalPath = Constant.localAppPath + File.separator + appInfo.getMd5() + File.separator + appInfo.getAliasName();
+            String appLocalPath = Constant.localAppPath + File.separator + appInfo.getMd5() + File.separator + appInfo.getFileName();
 
             // 检查是否有和该app md5一致的
             try {
-                Http.download(appUrl, appLocalPath);
+                new Downloader(appUrl, appLocalPath);
             } catch (DownloadFailException e) {
                 e.printStackTrace();
             } catch (IOException e) {
