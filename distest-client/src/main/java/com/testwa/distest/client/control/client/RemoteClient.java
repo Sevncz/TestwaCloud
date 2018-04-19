@@ -64,8 +64,6 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
     private BlockingQueue<LocalClient.ImageData> dataQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<LocalClient.ImageData> toVideoDataQueue = new LinkedBlockingQueue<>();
 
-    private String url;
-    private String controller;
     private String serialNumber;
     private Socket ws;
     private Channel channel;
@@ -79,10 +77,8 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
 
     private boolean isVideo;
 
-    public RemoteClient(String url, String controller, String serialNumber, Channel channel, String resourcesPath) throws IOException, URISyntaxException {
+    public RemoteClient(String url, String serialNumber, Channel channel, String resourcesPath) throws URISyntaxException {
         log.info("Remote Client init");
-        this.url = url;
-        this.controller = controller;
         this.serialNumber = serialNumber;
 
         this.resourcesPath = resourcesPath;
@@ -94,10 +90,10 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
             JSONObject obj = new JSONObject();
             obj.put("sn", serialNumber);
             obj.put("key", "");
-            log.info("Remote client {} connected.", serialNumber);
+            log.info("设备【{}】已连接.", serialNumber);
             ws.emit(Command.Schem.OPEN.getSchemString(), obj.toJSONString());
         }).on(Socket.EVENT_DISCONNECT, args -> {
-            log.info("Remote client {} disconnect.", this.serialNumber);
+            log.info("设备【{}】断开连接.", this.serialNumber);
         });
 
         for(Command.Schem schem : Command.Schem.values()){
@@ -114,9 +110,10 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         // install 支持中文输入的输入法
         String keyboardPath = this.resourcesPath + File.separator + Constant.getKeyboardService();
         try {
+            AndroidHelper.getInstance().unInstallApp(keyboardPath, serialNumber);
             AndroidHelper.getInstance().installApp(keyboardPath, serialNumber);
         }catch (Exception e){
-            log.error("install keyboard service error, {}", keyboardPath);
+            log.error("安装中文输入失败, {}", keyboardPath);
         }
     }
 

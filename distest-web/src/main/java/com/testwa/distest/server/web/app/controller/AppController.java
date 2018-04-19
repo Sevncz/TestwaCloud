@@ -53,23 +53,23 @@ public class AppController extends BaseController {
     @Autowired
     private FileUploadValidator fileUploadValidator;
 
+//    @ApiOperation(value="上传应用", notes="")
+//    @ResponseBody
+//    @PostMapping(value="/upload", consumes = "multipart/form-data")
+//    public Result upload(@RequestParam("appfile") MultipartFile appfile) throws IOException, AccountException, ParamsIsNullException, ParamsFormatException {
+//        //
+//        // 校验
+//        //
+//        long fileSize = 1024 * 1024 * 400;
+//        String[] allowExtName = {".apk", ".ipa", ".zip"};
+//        fileUploadValidator.validateFile(appfile, fileSize, allowExtName);
+//
+//        App app = appService.upload(appfile);
+//        AppVO vo = buildVO(app, AppVO.class);
+//        return ok(vo);
+//    }
+
     @ApiOperation(value="上传应用", notes="")
-    @ResponseBody
-    @PostMapping(value="/upload", consumes = "multipart/form-data")
-    public Result upload(@RequestParam("appfile") MultipartFile appfile) throws IOException, AccountException, ParamsIsNullException, ParamsFormatException {
-        //
-        // 校验
-        //
-        long fileSize = 1024 * 1024 * 400;
-        String[] allowExtName = {".apk", ".ipa", ".zip"};
-        fileUploadValidator.validateFile(appfile, fileSize, allowExtName);
-
-        App app = appService.upload(appfile);
-        AppVO vo = buildVO(app, AppVO.class);
-        return ok(vo);
-    }
-
-    @ApiOperation(value="上传应用，兼容测试", notes="")
     @ResponseBody
     @PostMapping(value="/upload/only/{projectId}", consumes = "multipart/form-data")
     public Result uploadOnly(@RequestParam("appfile") MultipartFile appfile, @PathVariable Long projectId) throws IOException, AccountException, ParamsIsNullException, ParamsFormatException {

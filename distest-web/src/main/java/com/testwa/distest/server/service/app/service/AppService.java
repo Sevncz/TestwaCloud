@@ -75,10 +75,13 @@ public class AppService {
         }
 
         String filePath = disFileProperties.getApp() + File.separator + app.getPath();
+        String iconPath = disFileProperties.getApp() + File.separator + app.getIcon();
         try {
             // 删除app文件
             Files.deleteIfExists(Paths.get(filePath));
-            // 删除app文件的文件夹
+            // 删除icon
+            Files.deleteIfExists(Paths.get(iconPath));
+            // 删除文件夹
             Files.deleteIfExists(Paths.get(filePath).getParent());
         } catch (IOException e) {
             log.error("delete app file error", e);
