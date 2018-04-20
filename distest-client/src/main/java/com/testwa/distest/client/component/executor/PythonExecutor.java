@@ -19,6 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -68,6 +71,8 @@ public class PythonExecutor {
     // 所有脚本的本地保存路径
     private Map<Long, String> scriptPath = new HashMap<>();
 
+    private Downloader downloader = new Downloader();
+
     @ExecutorActionInfo(desc = "参数初始化", order = 0)
     public void init(String distestApiWeb, String distestApiName, String appiumUrl, RemoteRunCommand cmd) {
         this.distestApiWeb = distestApiWeb;
@@ -93,7 +98,7 @@ public class PythonExecutor {
         this.appLocalPath = Constant.localAppPath + File.separator + appInfo.getMd5() + File.separator + appInfo.getFileName();
 
         // 检查是否有和该app md5一致的
-        new Downloader(appUrl, appLocalPath);
+        downloader.start(appUrl, appLocalPath);
     }
 
     @ExecutorActionInfo(desc = "下载脚本", order = 2)
@@ -106,7 +111,7 @@ public class PythonExecutor {
                 }
                 String scriptUrl = String.format("http://%s/script/%s", distestApiWeb, scriptInfo.getPath());
                 String localPath = Constant.localScriptPath + File.separator + scriptInfo.getMd5() + File.separator + scriptInfo.getAliasName();
-                new Downloader(scriptUrl, localPath);
+                downloader.start(scriptUrl, localPath);
                 scriptPath.put(scriptInfo.getId(), localPath);
             }
         }
@@ -201,10 +206,14 @@ public class PythonExecutor {
         File file = new File(localPath);
         BufferedReader reader = null;
         BufferedWriter bw = null;
-
-        String transfPath = Constant.localScriptTmpPath + localPath.substring(localPath.lastIndexOf(File.separator), localPath.length());
+        Path transfDir = Paths.get(Constant.localScriptTmpPath, deviceId);
+        if(!Files.exists(transfDir)){
+            Files.createDirectory(transfDir);
+        }
+        File localFile = new File(localPath);
+        Path transfPath = Paths.get(transfDir.toString(), localFile.getName());
         try {
-            File f = new File(transfPath);
+            File f = transfPath.toFile();
             bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f),"UTF-8"));
             reader = new BufferedReader(new InputStreamReader(new FileInputStream(file),"UTF-8"));
             String tempString;
@@ -293,7 +302,7 @@ public class PythonExecutor {
                 bw.close();
             }
         }
-        return transfPath;
+        return transfPath.toString();
     }
 
     private String replaceQuotationContent(String srcStr, String replaceStr, String key){

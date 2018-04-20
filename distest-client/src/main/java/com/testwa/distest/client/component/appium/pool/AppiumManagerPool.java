@@ -20,7 +20,7 @@ public class AppiumManagerPool {
         pool = new GenericObjectPool<>(new AppiumManagerFactory(nodePath, appiumPath, clientWebUrl), config);
     }
 
-    public AppiumManager getManager() {
+    public synchronized AppiumManager getManager() {
         try {
             return pool.borrowObject();
         } catch (Exception e) {

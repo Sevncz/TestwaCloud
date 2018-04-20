@@ -214,7 +214,7 @@ public class Minitouch {
                     "msg",
                     str
             );
-            commandLine.executeAsync();
+            commandLine.execute();
         } catch (IOException e) {
             e.printStackTrace();
         }

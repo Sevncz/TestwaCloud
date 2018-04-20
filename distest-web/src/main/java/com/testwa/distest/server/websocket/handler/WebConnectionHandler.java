@@ -60,19 +60,19 @@ public class WebConnectionHandler {
 
         String type = client.getHandshakeData().getSingleUrlParam("type");
         if("device".equals(type)){
-            String serial = client.getHandshakeData().getSingleUrlParam("serial");
-            Map<String, String> params = new HashMap<>();
-            params.put("sn", serial);
-            params.put("key", serial);
-            // 设备连接
-            client.sendEvent(Command.Schem.WAIT.getSchemString(), JSON.toJSONString(params));
-
-            deviceSessionMgr.login(serial, client.getSessionId().toString());
-            deviceAuthMgr.online(serial);
-
-            requestStartMinitouch(serial);
-            requestStartMinicap(serial);
-            requestStartStfService(serial);
+//            String serial = client.getHandshakeData().getSingleUrlParam("serial");
+//            Map<String, String> params = new HashMap<>();
+//            params.put("sn", serial);
+//            params.put("key", serial);
+//            // 设备连接
+//            client.sendEvent(Command.Schem.WAIT.getSchemString(), JSON.toJSONString(params));
+//
+//            deviceSessionMgr.login(serial, client.getSessionId().toString());
+//            deviceAuthMgr.online(serial);
+//
+//            requestStartMinitouch(serial);
+//            requestStartMinicap(serial);
+//            requestStartStfService(serial);
 
         }else if("client".equals(type)){
             // 客户端连接
@@ -115,6 +115,10 @@ public class WebConnectionHandler {
         String type = client.getHandshakeData().getSingleUrlParam("type");
         if("device".equals(type)){
             // 设备连接断开
+            String serial = client.getHandshakeData().getSingleUrlParam("serial");
+            deviceSessionMgr.logout(serial);
+            deviceAuthMgr.offline(serial);
+
         }else if("client".equals(type)){
             // 客户端连接断开
             // 清理该客户端的缓存
@@ -136,26 +140,5 @@ public class WebConnectionHandler {
         }
     }
 
-
-    private void requestStartMinitouch(String deviceId) throws ObjectNotExistsException {
-        MiniCmd cmd = new MiniCmd();
-        cmd.setType("minitouch");
-        pushCmdService.pushMinCmdStart(cmd, deviceId);
-    }
-
-    private void requestStartMinicap(String deviceId) throws ObjectNotExistsException {
-        Map<String, Object> config = new HashMap<>();
-//        config.put("rotate", 0.0f);
-        config.put("scale", 0.25f);
-        MiniCmd cmd = new MiniCmd();
-        cmd.setType("minicap");
-        cmd.setConfig(config);
-        pushCmdService.pushMinCmdStart(cmd, deviceId);
-    }
-    private void requestStartStfService(String deviceId) throws ObjectNotExistsException {
-        MiniCmd cmd = new MiniCmd();
-        cmd.setType("stfagent");
-        pushCmdService.pushStfAgentCmdStart(cmd, deviceId);
-    }
 
 }

@@ -125,6 +125,7 @@ public class PushCmdService {
      */
     @Async
     public void pushInputText(String deviceId, String data) {
+        log.info("push input {} {}", deviceId, data);
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
         if(client != null)
             client.sendEvent(Command.Schem.INPUT.getSchemString(), data);
@@ -140,6 +141,7 @@ public class PushCmdService {
      */
     @Async
     public void pushHome(String deviceId) {
+        log.info("push home {}", deviceId);
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
         if(client != null)
             client.sendEvent(Command.Schem.HOME.getSchemString(), "");
@@ -155,6 +157,7 @@ public class PushCmdService {
      */
     @Async
     public void pushBack(String deviceId) {
+        log.info("push back {}", deviceId);
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
         if(client != null)
             client.sendEvent(Command.Schem.BACK.getSchemString(), "");
@@ -170,6 +173,7 @@ public class PushCmdService {
      */
     @Async
     public void pushMenu(String deviceId) {
+        log.info("push menu {}", deviceId);
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
         if(client != null)
             client.sendEvent(Command.Schem.MENU.getSchemString(), "");
@@ -185,6 +189,7 @@ public class PushCmdService {
      */
     @Async
     public void pushDel(String deviceId) {
+        log.info("push Del {}", deviceId);
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
         if(client != null)
             client.sendEvent(Command.Schem.KEYEVENT.getSchemString(), KeyCode.KEYCODE_DEL+"");
@@ -217,6 +222,7 @@ public class PushCmdService {
      *@Date: 2018/4/9
      */
     public void pushScreenUploadStart(String deviceId) {
+        log.info("push screen upload start {}", deviceId);
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
         if(client != null)
             client.sendEvent(Command.Schem.WAITTING.getSchemString(), "");
@@ -232,6 +238,7 @@ public class PushCmdService {
      *@Date: 2018/4/9
      */
     public void pushScreenUploadStop(String deviceId) {
+        log.info("push screen upload stop {}", deviceId);
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
         if(client != null)
             client.sendEvent(Command.Schem.WAIT.getSchemString(), "");
@@ -264,6 +271,7 @@ public class PushCmdService {
      *@Date: 2018/4/9
      */
     public void pushLogcatUploadStart(String deviceId, String content) {
+        log.info("push logcat upload start {} {}", deviceId, content);
         Map<String, String> cmd = new HashMap<>();
         cmd.put("content", content);
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
@@ -281,6 +289,7 @@ public class PushCmdService {
      *@Date: 2018/4/9
      */
     public void pushLogcatUploadStop(String deviceId) {
+        log.info("push logcat upload stop {}", deviceId);
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
         if(client != null)
             client.sendEvent(Command.Schem.WAIT_LOGCAT.getSchemString(), "");
@@ -296,6 +305,7 @@ public class PushCmdService {
      *@Date: 2018/4/9
      */
     public void pushInstallApp(String deviceId, AppInfo app) {
+        log.info("push install app to {} {}", deviceId, JSON.toJSONString(app));
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
         if(client != null)
             client.sendEvent(Command.Schem.INSTALL.getSchemString(), JSON.toJSONString(app));
@@ -305,6 +315,7 @@ public class PushCmdService {
     }
 
     public void pushUninstallApp(String deviceId, String appBasePackage) {
+        log.info("push uninstall app to {} {}", deviceId, appBasePackage);
         Map<String, String> cmd = new HashMap<>();
         cmd.put("appBasePackage", appBasePackage);
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
@@ -322,6 +333,7 @@ public class PushCmdService {
      *@Date: 2018/4/10
      */
     public void pushShell(String deviceId, String cmd) {
+        log.info("push shell to {} {}", deviceId, cmd);
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
         if(client != null)
             client.sendEvent(Command.Schem.SHELL.getSchemString(), cmd);
@@ -337,6 +349,7 @@ public class PushCmdService {
      *@Date: 2018/4/10
      */
     public void pushOpenWeb(String deviceId, String url) {
+        log.info("push web to {} {}", deviceId, url);
         SocketIOClient client = getDeviceClientSocketIOClient(deviceId);
         if(client != null)
             client.sendEvent(Command.Schem.OPENWEB.getSchemString(), url);

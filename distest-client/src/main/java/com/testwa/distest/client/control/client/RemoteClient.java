@@ -44,6 +44,8 @@ import org.openqa.selenium.os.CommandLine;
 
 import java.io.*;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -79,22 +81,26 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
     private boolean isVideo;
 
     public RemoteClient(String url, String serialNumber, Channel channel, String resourcesPath) throws URISyntaxException {
-        log.info("Remote Client init");
+        log.info("Remote Client {} init", serialNumber);
         this.serialNumber = serialNumber;
 
         this.resourcesPath = resourcesPath;
 
         this.channel = channel;
 
+        JSONObject obj = new JSONObject();
+        obj.put("sn", serialNumber);
+        obj.put("key", "");
         ws = IO.socket(url);
         ws.on(Socket.EVENT_CONNECT, args -> {
-            JSONObject obj = new JSONObject();
-            obj.put("sn", serialNumber);
-            obj.put("key", "");
             log.info("设备{}已连接.", serialNumber);
+
+            ws.emit("login", obj.toJSONString());
             ws.emit(Command.Schem.OPEN.getSchemString(), obj.toJSONString());
         }).on(Socket.EVENT_DISCONNECT, args -> {
             log.info("设备{}断开连接.", this.serialNumber);
+            /*断开连接之后无法发起请求 */
+//            ws.emit("logout", obj.toJSONString());
         });
 
         for(Command.Schem schem : Command.Schem.values()){
@@ -111,14 +117,18 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         // install 支持中文输入的输入法
         String keyboardPath = this.resourcesPath + File.separator + Constant.getKeyboardService();
         try {
-            AndroidHelper.getInstance().unInstallApp(keyboardPath, serialNumber);
-            AndroidHelper.getInstance().installApp(keyboardPath, serialNumber);
+            if(Files.exists(Paths.get(keyboardPath))){
+                AndroidHelper.getInstance().installApp(keyboardPath, serialNumber);
+            }else{
+                log.error("安装文件不存在");
+            }
         }catch (Exception e){
             log.error("安装中文输入失败, {}", keyboardPath);
         }
     }
 
     void executeCommand(Command command) {
+        log.info("{} command is {}", serialNumber, JSON.toJSONString(command));
         switch (command.getSchem()) {
             case START:
                 startCommand(command);
@@ -178,7 +188,6 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
 
 
     private void startCommand(Command command) {
-        log.info("startCommand {}", command.getCommandString());
         String str = command.getString("type", null);
         if (str != null) {
             if (str.equals("minicap")) {
@@ -202,7 +211,6 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
     // minitouch cmd
 
     private void startMinitouch(Command command) {
-        log.info("start Minitouch {}", command.getCommandString());
         if (minitouch != null) {
             minitouch.kill();
         }
@@ -608,7 +616,6 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
      * @param command
      */
     private void waitlogcatCommand(Command command) {
-        log.info("receive waite cmd");
         if(this.logcat != null){
             this.logcat.close();
         }
@@ -619,7 +626,6 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
      * @param command
      */
     private void logcatCommand(Command command) {
-        log.info("logcat start");
         if(this.logcat != null){
             this.logcat.close();
         }
@@ -700,7 +706,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
      *@Date: 2018/4/9
      */
     private void startTask(Command command) {
-        log.info("start PythonExecutor {}", command.getCommandString());
+        log.info("设备 {}，开始任务 {}", serialNumber, command.getCommandString());
         if (task != null) {
             task.kill();
         }
@@ -756,7 +762,8 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
 
             // 检查是否有和该app md5一致的
             try {
-                new Downloader(appUrl, appLocalPath);
+                Downloader d = new Downloader();
+                d.start(appUrl, appLocalPath);
             } catch (DownloadFailException e) {
                 e.printStackTrace();
             } catch (IOException e) {

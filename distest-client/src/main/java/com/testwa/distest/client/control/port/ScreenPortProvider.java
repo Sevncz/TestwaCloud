@@ -9,11 +9,11 @@ public class ScreenPortProvider{
 		portProvider = new PortProvider(portStart,portEnd);
 	}
 	
-	public static int pullPort(){
+	public synchronized static int pullPort(){
 		return portProvider.pullPort();
 	}
 	
-	public static boolean pushPort(int port){
+	public synchronized static boolean pushPort(int port){
 		return portProvider.pushPort(port);
 	}
 }
