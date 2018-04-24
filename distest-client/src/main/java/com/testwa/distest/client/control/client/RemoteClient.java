@@ -81,7 +81,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
     private boolean isVideo;
 
     public RemoteClient(String url, String serialNumber, Channel channel, String resourcesPath) throws URISyntaxException {
-        log.info("Remote Client {} init", serialNumber);
+        log.info("设备{}初始化", serialNumber);
         this.serialNumber = serialNumber;
 
         this.resourcesPath = resourcesPath;

@@ -36,44 +36,10 @@ import java.util.concurrent.Executor;
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 public class DistestWebApplication extends AsyncConfigurerSupport {
 
-    @Value("${spring.data.mongodb.uri}")
-    private String mongoUri;
-
 	@Bean
 	public SpringAnnotationScanner springAnnotationScanner(SocketIOServer ssrv) {
 		return new SpringAnnotationScanner(ssrv);
 	}
-
-	@Bean
-	public MongoDbFactory mongoDbFactory(){
-		MongoClientURI uri = new MongoClientURI(mongoUri);
-		try {
-			return new SimpleMongoDbFactory(uri);
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	@Bean
-	public MappingMongoConverter mongoConverter() throws Exception {
-		MongoMappingContext mappingContext = new MongoMappingContext();
-		DbRefResolver dbRefResolver = new DefaultDbRefResolver(mongoDbFactory());
-		MappingMongoConverter mongoConverter = new MappingMongoConverter(dbRefResolver, mappingContext);
-//		mongoConverter.setCustomConversions(customConversions());
-		return mongoConverter;
-	}
-
-	@Bean(autowire = Autowire.BY_NAME, name = "mongoTemplate")
-	public MongoTemplate customMongoTemplate() {
-		try {
-			return new MongoTemplate(mongoDbFactory(), mongoConverter());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
 
 	@Override
 	public Executor getAsyncExecutor() {
