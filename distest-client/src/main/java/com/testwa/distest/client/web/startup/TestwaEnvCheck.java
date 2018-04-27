@@ -26,6 +26,11 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by wen on 16/8/27.
@@ -48,10 +53,52 @@ public class TestwaEnvCheck implements CommandLineRunner {
     @Override
     public void run(String... strings) throws Exception {
         AndroidHelper.getInstance();
+        checkSupportEnv();
         checkAuth(env.getProperty("username"), env.getProperty("password"));
         checkTempDirPath();
         Config.setEnv(env);
         startDeviceManager();
+    }
+
+    /**
+     *@Description: 检查脚本执行环境是否存在
+                    distest.agent.resources=/Users/wen/IdeaProjects/distest/distest-client/bin/resources
+                    node.excute.path=/Users/wen/.nvm/versions/node/v8.1.4/bin/node
+                    appium.js.path=/Users/wen/dev/testWa/appium165beta/build/lib/main.js
+     *@Param: []
+     *@Return: void
+     *@Author: wen
+     *@Date: 2018/4/25
+     */
+    private void checkSupportEnv() {
+        List<String> keys = Arrays.asList("distest.agent.resources", "node.excute.path", "appium.js.path");
+        keys.forEach( k -> {
+            String value = env.getProperty(k);
+            if(StringUtils.isBlank(value)){
+                log.error("{} 的值为空，请配置好启动参数", k);
+                System.exit(0);
+            }else{
+                Path p = Paths.get(value);
+                if(!Files.exists(p)){
+                    log.error("路径 {} 不存在，请检查启动参数", p.toString());
+                    System.exit(0);
+                }
+                log.info("{}: {}", k, p.toString());
+            }
+        });
+
+        String androidHome = System.getenv("ANDROID_HOME");
+        if(StringUtils.isBlank(androidHome)){
+            log.error("Android 环境变量找不到，请检查ANDROID_HOME");
+            System.exit(0);
+        }else{
+            Path p = Paths.get(androidHome);
+            if(!Files.exists(p)){
+                log.error("目录 {} 不存在，请检查启动参数", p.toString());
+                System.exit(0);
+            }
+        }
+
     }
 
     private void checkAuth(String username, String password) {
