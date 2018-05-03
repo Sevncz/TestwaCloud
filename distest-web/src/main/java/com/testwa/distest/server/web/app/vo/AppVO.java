@@ -34,6 +34,6 @@ public class AppVO {
     private String platformVersion;  // 系统版本
     private String sdkBuild;  // sdk版本
     private String activity;  // 启动包
-    private DB.AppPlatform platform;  // 平台
+    private DB.PhoneOS platform;  // 平台
 
 }

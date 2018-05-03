@@ -1,7 +1,13 @@
 package com.testwa.distest.server.web.task.validator;
 
 import com.testwa.core.base.exception.ObjectNotExistsException;
+import com.testwa.core.base.exception.TaskStartException;
+import com.testwa.distest.common.enums.DB;
+import com.testwa.distest.server.entity.App;
+import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.Task;
+import com.testwa.distest.server.service.app.service.AppService;
+import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.task.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,6 +22,10 @@ public class TaskValidatoer {
 
     @Autowired
     private TaskService executionTaskService;
+    @Autowired
+    private AppService appService;
+    @Autowired
+    private DeviceService deviceService;
 
 
     public Task validateTaskExist(Long entityId) throws ObjectNotExistsException {
@@ -36,4 +46,15 @@ public class TaskValidatoer {
     }
 
 
+    public void validateAppAndDevicePlatform(Long appId, List<String> deviceIds) throws TaskStartException {
+        App app = appService.findOne(appId);
+        DB.PhoneOS platform = app.getPlatform();
+        List<Device> deviceList = deviceService.findAll(deviceIds);
+        for(Device device : deviceList) {
+            if(!device.getPhoneOS().equals(platform)){
+                throw new TaskStartException("App和设备系统不匹配");
+            }
+        }
+
+    }
 }

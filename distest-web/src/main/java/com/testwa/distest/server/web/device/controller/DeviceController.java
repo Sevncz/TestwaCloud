@@ -46,8 +46,6 @@ import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 @RequestMapping(path = WebConstants.API_PREFIX + "/device")
 public class DeviceController extends BaseController {
     @Autowired
-    private ProjectValidator projectValidator;
-    @Autowired
     private UserService userService;
     @Autowired
     private DeviceService deviceService;
@@ -57,13 +55,8 @@ public class DeviceController extends BaseController {
     private DeviceAuthMgr deviceAuthMgr;
     @Autowired
     private DeviceValidatoer deviceValidatoer;
-    @Autowired
-    private Environment env;
 
 
-    /*
-     * 可见设备查询
-     */
     /**
      * 可见在线设备分页列表
      * @param form

@@ -1,0 +1,1 @@
+package com.testwa.distest.server.service.task.dto;import com.testwa.distest.common.enums.DB;import lombok.Data;/** * @Program: distest * @Description: 任务中所有设备的状态统计 * @Author: wen * @Create: 2018-05-03 16:21 **/@Datapublic class TaskDeviceStatusStatis {    private DB.TaskStatus taskStatus;    private Integer count;}

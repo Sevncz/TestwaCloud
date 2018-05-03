@@ -15,7 +15,6 @@ import com.testwa.core.base.constant.WebConstants;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.mongo.model.ProcedureInfo;
 import com.testwa.distest.server.mongo.service.ProcedureInfoService;
-import com.testwa.distest.server.service.script.service.ScriptService;
 import com.testwa.distest.server.service.task.form.ScriptListForm;
 import com.testwa.distest.server.service.task.form.StepListForm;
 import com.testwa.distest.server.service.task.form.StepPageForm;
@@ -26,7 +25,6 @@ import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
 import com.testwa.distest.server.web.task.validator.StepValidatoer;
 import com.testwa.distest.server.web.task.validator.TaskValidatoer;
-import com.testwa.distest.server.web.task.validator.TaskSceneValidatoer;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -124,6 +122,12 @@ public class ReportController extends BaseController {
         if(form.getTaskId() == null){
             throw new ParamsIsNullException("TaskId is null");
         }
+        if(form.getScriptId() == null){
+            throw new ParamsIsNullException("ScriptId is null");
+        }
+        if(StringUtils.isBlank(form.getDeviceId())){
+            throw new ParamsIsNullException("DeviceId is null");
+        }
         List<ProcedureInfo> procedureInfoList = procedureInfoService.findList(form);
         return ok(procedureInfoList);
     }
@@ -134,6 +138,12 @@ public class ReportController extends BaseController {
     public Result stepPage(@Valid StepPageForm pageForm) throws ParamsIsNullException {
         if(pageForm.getTaskId() == null){
             throw new ParamsIsNullException("TaskId is null");
+        }
+        if(pageForm.getScriptId() == null){
+            throw new ParamsIsNullException("ScriptId is null");
+        }
+        if(StringUtils.isBlank(pageForm.getDeviceId())){
+            throw new ParamsIsNullException("DeviceId is null");
         }
         PageResult<ProcedureInfo> procedureInfoPage = procedureInfoService.findByPage(pageForm);
         return ok(procedureInfoPage);

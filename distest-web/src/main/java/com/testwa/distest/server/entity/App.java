@@ -39,6 +39,6 @@ public class App extends ProjectBaseEntity {
     private String sdkBuild;  // sdk版本
     private String activity;  // 启动包
 
-    private DB.AppPlatform platform;
+    private DB.PhoneOS platform;
 
 }

@@ -2,10 +2,8 @@ package com.testwa.distest.server.service.rpc;
 
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
-import com.testwa.distest.common.android.AndroidOSInfo;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.config.security.JwtTokenUtil;
-import com.testwa.distest.server.entity.DeviceAndroid;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.cache.mgr.SubscribeDeviceFuncMgr;
@@ -17,7 +15,6 @@ import com.testwa.distest.server.websocket.service.PushCmdService;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.device.*;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -62,7 +59,7 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     }
 
     private void handleDevice(io.rpc.testwa.device.Device device, Long userId) {
-        DeviceAndroid deviceAndroid = new DeviceAndroid();
+        Device deviceAndroid = new Device();
         deviceAndroid.setBrand(device.getBrand());
         deviceAndroid.setCpuabi(device.getCpuabi());
         deviceAndroid.setDensity(device.getDensity());
@@ -108,7 +105,7 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
         log.info("device {} connected", request.getDeviceId());
         String username = jwtTokenUtil.getUsernameFromToken(request.getToken());
         User user = userService.findByUsername(username);
-        DeviceAndroid deviceAndroid = new DeviceAndroid();
+        Device deviceAndroid = new Device();
         deviceAndroid.setBrand(request.getBrand());
         deviceAndroid.setCpuabi(request.getCpuabi());
         deviceAndroid.setDensity(request.getDensity());

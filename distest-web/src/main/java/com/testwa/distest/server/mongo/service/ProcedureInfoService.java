@@ -7,6 +7,7 @@ import com.testwa.distest.server.mongo.repository.ProcedureInfoRepository;
 import com.testwa.distest.server.mongo.repository.ProcedureStatisRepository;
 import com.testwa.distest.server.service.task.form.StepListForm;
 import com.testwa.distest.server.service.task.form.StepPageForm;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -91,6 +92,9 @@ public class ProcedureInfoService extends BaseService {
         if(form.getTaskId() != null){
             query.addCriteria(Criteria.where("executionTaskId").is(form.getTaskId()));
         }
+        if(StringUtils.isNotBlank(form.getDeviceId())){
+            query.addCriteria(Criteria.where("deviceId").is(form.getTaskId()));
+        }
         int pageNum = form.getPageNo();
         int rows = form.getPageSize();
         String sortField = "timestamp";
@@ -108,6 +112,9 @@ public class ProcedureInfoService extends BaseService {
         }
         if(form.getTaskId() != null){
             query.addCriteria(Criteria.where("executionTaskId").is(form.getTaskId()));
+        }
+        if(StringUtils.isNotBlank(form.getDeviceId())){
+            query.addCriteria(Criteria.where("deviceId").is(form.getTaskId()));
         }
         return procedureInfoRepository.find(query);
     }

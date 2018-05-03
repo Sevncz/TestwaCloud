@@ -1,6 +1,5 @@
 package com.testwa.distest.server.service.task.service;
 
-import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.testwa.core.base.vo.PageResult;
@@ -13,6 +12,7 @@ import com.testwa.distest.server.mongo.repository.ProcedureInfoRepository;
 import com.testwa.distest.server.mongo.repository.ProcedureStatisRepository;
 import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.service.task.dao.ITaskDAO;
+import com.testwa.distest.server.service.task.dto.TaskDeviceStatusStatis;
 import com.testwa.distest.server.service.task.form.ScriptListForm;
 import com.testwa.distest.server.service.task.form.TaskListForm;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +42,8 @@ public class TaskService {
     private ProcedureStatisRepository procedureStatisRepository;
     @Autowired
     private ProcedureInfoRepository procedureInfoRepository;
+    @Autowired
+    private TaskDeviceService taskDeviceService;
 
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
@@ -66,42 +68,37 @@ public class TaskService {
     public void deleteTask(List<Long> entityIds) {
         taskDAO.delete(entityIds);
         entityIds.forEach( id -> {
+
+            taskDeviceService.deleteTaskDeviceByTaskId(id);
             List<ProcedureInfo> infos = procedureInfoRepository.findByExecutionTaskIdOrderByTimestampAsc(id);
             procedureInfoRepository.delete(infos);
         });
     }
 
-
-    public List<Task> getRunningTask(Long projectId, Long userId) {
-        Task query = new Task();
-        query.setStatus(DB.TaskStatus.RUNNING);
-        query.setProjectId(projectId);
-        query.setCreateBy(userId);
-        return taskDAO.findBy(query);
-    }
-
-    public List<Task> getRecentFinishedRunningTask(Long projectId, Long userId) {
-        Task query = new Task();
-        query.setStatus(DB.TaskStatus.COMPLETE);
-        query.setProjectId(projectId);
-        query.setCreateBy(userId);
-        return taskDAO.findBy(query);
-    }
-
     public Map<String, Object> statis(Task task) {
         ProcedureStatis ps = procedureStatisRepository.findByExeId(task.getId());
         Map<String, Object> result = new HashMap<>();
-        if(ps != null){
+        // taskType
+        result.put("taskType", task.getTaskType());
+        // taskStatus
 
-            // app 基本情况
-            result.put("appStaty", task.getApp());
-            List<Map> statusScript = ps.getStatusScriptInfo();
+        List<TaskDeviceStatusStatis> tds = taskDeviceService.countTaskDeviceStatus(task.getId());
+        task.setDeviceStatusStatis(tds);
+        result.put("taskStatus", task.getDeviceStatusStatis());
+        // app 基本情况
+        result.put("appStaty", task.getApp());
+        // 设备基本情况
+        result.put("devInfo", task.getDevices());
+
+        if(ps != null){
 
             Map<String, Device> devInfo = new HashMap<>();
             // 设备基本情况
             task.getDevices().forEach( device -> {
                 devInfo.put(device.getDeviceId(), device);
             });
+
+            List<Map> statusScript = ps.getStatusScriptInfo();
 
             // 设备脚本执行情况，app信息可以从app基本情况获得
             /*
@@ -124,7 +121,7 @@ public class TaskService {
                 subInfo.put("successNum", s.get("success"));
                 subInfo.put("failedNum", s.get("fail"));
                 subInfo.put("total", ps.getScriptNum());
-                DeviceAndroid d = (DeviceAndroid) devInfo.get(deviceId);
+                Device d = devInfo.get(deviceId);
                 if(d != null){
                     subInfo.put("dto", d.getModel());
                     subInfo.put("brand", d.getBrand());
@@ -145,7 +142,7 @@ public class TaskService {
             List cpuValue = new ArrayList();
             cpuAvgRate.forEach( s -> {
                 String deviceId = (String) s.get("_id");
-                DeviceAndroid d = (DeviceAndroid) devInfo.get(deviceId);
+                Device d = (Device) devInfo.get(deviceId);
                 if(d != null) {
                     cpuName.add(d.getBrand());
                     cpuValue.add(s.get("value"));
@@ -168,7 +165,7 @@ public class TaskService {
             List rawValue = new ArrayList();
             memAvgRate.forEach( s -> {
                 String deviceId = (String) s.get("_id");
-                DeviceAndroid d = (DeviceAndroid) devInfo.get(deviceId);
+                Device d = (Device) devInfo.get(deviceId);
                 Map<String, Object> subInfo = new HashMap<>();
                 if(d != null) {
                     rawName.add(d.getBrand());
@@ -234,7 +231,6 @@ public class TaskService {
 
             result.put("cpuLine", cpuline);
             result.put("ramLine", rawline);
-            result.put("devInfo", task.getDevices());
         }
         return result;
     }
@@ -251,6 +247,10 @@ public class TaskService {
         PageHelper.startPage(pageForm.getPageNo(), pageForm.getPageSize());
         PageHelper.orderBy(pageForm.getOrderBy() + " " + pageForm.getOrder());
         List<Task> entityList = taskDAO.findByFromProject(params);
+        entityList.forEach(entity -> {
+            List<TaskDeviceStatusStatis> tds = taskDeviceService.countTaskDeviceStatus(entity.getId());
+            entity.setDeviceStatusStatis(tds);
+        });
         PageInfo<Task> info = new PageInfo(entityList);
         PageResult<Task> pr = new PageResult<>(info.getList(), info.getTotal());
         return pr;
@@ -285,6 +285,10 @@ public class TaskService {
         PageHelper.startPage(pageForm.getPageNo(), pageForm.getPageSize());
         PageHelper.orderBy(pageForm.getOrderBy() + " " + pageForm.getOrder());
         List<Task> entityList = taskDAO.findByFromProject(params);
+        entityList.forEach(entity -> {
+            List<TaskDeviceStatusStatis> tds = taskDeviceService.countTaskDeviceStatus(entity.getId());
+            entity.setDeviceStatusStatis(tds);
+        });
         PageInfo<Task> info = new PageInfo(entityList);
         PageResult<Task> pr = new PageResult<>(info.getList(), info.getTotal());
         return pr;

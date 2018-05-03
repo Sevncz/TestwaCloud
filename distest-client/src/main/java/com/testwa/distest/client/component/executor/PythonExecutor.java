@@ -126,7 +126,7 @@ public class PythonExecutor {
 
             RemoteTestcaseContent content = this.testcases.poll();
             if(content == null){
-                log.info("nothing to run");
+                log.error("没有脚本可执行");
                 return;
             }
             List<ScriptInfo> scIds = content.getScripts();
@@ -157,7 +157,7 @@ public class PythonExecutor {
                 ScriptInfo runscript = this.scripts.poll();
                 boolean status = runOneScript(runscript);
                 if(!status){
-                    log.info("Complete All !");
+                    log.info("脚本全部执行完毕");
                     break;
                 }
             }
@@ -176,7 +176,7 @@ public class PythonExecutor {
         if(runscript == null){
             return false;
         }
-        log.info("run one script {}, deviceId {}", runscript.toString(), this.deviceId);
+        log.debug("run one script {}, deviceId {}", runscript.toString(), this.deviceId);
 
         this.currScript = runscript;
         AndroidApp app = new DefaultAndroidApp(new File(appLocalPath));
@@ -189,7 +189,7 @@ public class PythonExecutor {
         // 脚本替换
         String url = appiumUrl.replace("0.0.0.0", "127.0.0.1");
         String tempPath = this.replaceScriptByAndroid(filePath, appLocalPath, basePackage, mainActivity, url);
-        log.info("temp script path is [{}]", tempPath);
+        log.debug("temp script path is [{}]", tempPath);
 
         // 执行脚本
         startPy(tempPath);

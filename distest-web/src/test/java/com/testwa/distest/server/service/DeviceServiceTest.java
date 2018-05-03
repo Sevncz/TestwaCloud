@@ -5,7 +5,6 @@ import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.DistestWebApplication;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Device;
-import com.testwa.distest.server.entity.DeviceAndroid;
 import com.testwa.distest.server.service.device.form.DeviceListForm;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +31,7 @@ public class DeviceServiceTest {
 
     @Test
     public void testInsertAndroid(){
-        DeviceAndroid d = new DeviceAndroid();
+        Device d = new Device();
         d.setCpuabi("cpu-v7");
         d.setModel("Google");
         d.setBrand("Google");
@@ -45,7 +44,7 @@ public class DeviceServiceTest {
 
     @Test
     public void testUpdate(){
-        DeviceAndroid d = new DeviceAndroid();
+        Device d = new Device();
         d.setCpuabi("cpu-v9");
         d.setModel("Google 7");
         d.setBrand("Google");

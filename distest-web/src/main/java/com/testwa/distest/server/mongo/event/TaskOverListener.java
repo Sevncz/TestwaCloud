@@ -8,8 +8,7 @@ import com.testwa.distest.server.mongo.model.ProcedureInfo;
 import com.testwa.distest.server.mongo.model.ProcedureStatis;
 import com.testwa.distest.server.mongo.service.ProcedureInfoService;
 import com.testwa.distest.server.service.task.service.TaskService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -25,10 +24,9 @@ import java.util.*;
 /**
  * Created by wen on 19/08/2017.
  */
+@Slf4j
 @Component
-public class GameOverListener implements ApplicationListener<GameOverEvent> {
-    private static Logger log = LoggerFactory.getLogger(GameOverListener.class);
-
+public class TaskOverListener implements ApplicationListener<TaskOverEvent> {
     @Autowired
     private MongoOperations mongoTemplate;
     @Autowired
@@ -38,7 +36,7 @@ public class GameOverListener implements ApplicationListener<GameOverEvent> {
 
     @Async
     @Override
-    public void onApplicationEvent(GameOverEvent e) {
+    public void onApplicationEvent(TaskOverEvent e) {
         log.info("start...");
         Long taskId = e.getTaskId();
         // 根据前端需求开始统计报告

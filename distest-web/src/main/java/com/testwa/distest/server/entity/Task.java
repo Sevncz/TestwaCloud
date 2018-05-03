@@ -2,15 +2,15 @@ package com.testwa.distest.server.entity;
 
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.testwa.core.base.annotation.Column;
 import com.testwa.core.base.annotation.TableName;
 import com.testwa.core.base.bo.BaseEntity;
 import com.testwa.distest.common.enums.DB;
+import com.testwa.distest.server.service.task.dto.TaskDeviceStatusStatis;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by wen on 12/08/2017.
@@ -19,7 +19,6 @@ import java.util.List;
 @TableName("task")
 public class Task extends ProjectBaseEntity {
 
-    private DB.TaskStatus status;
     @JsonIgnore
     private Long appId;
     @JsonIgnore
@@ -33,8 +32,11 @@ public class Task extends ProjectBaseEntity {
     private String taskName;
     private DB.TaskType taskType;
     private Date endTime;
-    private String errorMsg;
 
+//    @Column(value="status", ignore=true)
+//    private DB.TaskStatus status;
+    @Column(value="deviceStatusStatis", ignore=true)
+    private Map<String, Integer> deviceStatusStatis;
 
     public App getApp(){
         if(StringUtils.isEmpty(this.appJson)){
@@ -42,11 +44,11 @@ public class Task extends ProjectBaseEntity {
         }
         return JSON.parseObject(this.appJson, App.class);
     }
-    public List<DeviceAndroid> getDevices(){
+    public List<Device> getDevices(){
         if(StringUtils.isEmpty(this.devicesJson)){
             return new ArrayList<>();
         }
-        return JSON.parseArray(this.devicesJson, DeviceAndroid.class);
+        return JSON.parseArray(this.devicesJson, Device.class);
     }
 
     public List<Testcase> getTestcaseList(){
@@ -63,4 +65,10 @@ public class Task extends ProjectBaseEntity {
         return JSON.parseArray(this.scriptJson, Script.class);
     }
 
+    public void setDeviceStatusStatis(List<TaskDeviceStatusStatis> tds) {
+        this.deviceStatusStatis = new HashMap<>();
+        tds.forEach(t -> {
+            this.deviceStatusStatis.put(String.valueOf(t.getTaskStatus().getValue()), t.getCount());
+        });
+    }
 }

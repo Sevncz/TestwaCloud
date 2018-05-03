@@ -5,17 +5,18 @@ import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.config.DisFileProperties;
 import com.testwa.distest.config.security.JwtTokenUtil;
 import com.testwa.distest.server.entity.AppiumFile;
-import com.testwa.distest.server.entity.Task;
-import com.testwa.distest.server.mongo.event.GameOverEvent;
+import com.testwa.distest.server.entity.TaskDevice;
+import com.testwa.distest.server.mongo.event.TaskOverEvent;
 import com.testwa.distest.server.mongo.model.ExecutorLogInfo;
 import com.testwa.distest.server.mongo.service.ExecutorLogInfoService;
 import com.testwa.distest.server.service.cache.mgr.TaskCacheMgr;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.task.service.AppiumFileService;
-import com.testwa.distest.server.service.task.service.TaskService;
+import com.testwa.distest.server.service.task.service.TaskDeviceService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
 import com.testwa.distest.server.web.task.execute.ProcedureRedisMgr;
+import com.testwa.distest.server.websocket.service.MessageNotifyService;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.task.*;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +43,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     private String mMessage = "";
 
     @Autowired
-    private TaskService taskService;
+    private TaskDeviceService taskDeviceService;
     @Autowired
     private AppiumFileService appiumFileService;
     @Autowired
@@ -63,23 +64,43 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     private DisFileProperties disFileProperties;
     @Autowired
     private ExecutorLogInfoService executorLogInfoService;
+    @Autowired
+    private MessageNotifyService messageNotifyService;
 
     @Override
-    public void gameover(TaskOverRequest request, StreamObserver<CommonReply> responseObserver) {
+    public void gameover(GameOverRequest request, StreamObserver<CommonReply> responseObserver) {
         Long exeId = request.getExeId();
         Long timestamp = request.getTimestamp();
+        String errorMessage = request.getErrorMessage();
+        String deviceId = request.getDeviceId();
 
-        Task exeTask = taskService.findOne(exeId);
+        TaskDevice exeTask = taskDeviceService.findOne(exeId, deviceId);
+        if(exeTask != null){
+            exeTask.setErrorMsg(errorMessage);
+            exeTask.setStatus(DB.TaskStatus.ERROR);
+            exeTask.setEndTime(DateUtils.getMongoDate(new Date(timestamp)));
+            taskDeviceService.update(exeTask);
+            deviceService.release(exeTask.getDeviceId());
+            context.publishEvent(new TaskOverEvent(this, request.getExeId()));
+        }else{
+            log.error("exeTask info not format. {}", request.toString());
+        }
+    }
+
+    @Override
+    public void missionComplete(MissionCompleteRequest request, StreamObserver<CommonReply> responseObserver) {
+        Long exeId = request.getExeId();
+        Long timestamp = request.getTimestamp();
+        String deviceId = request.getDeviceId();
+        TaskDevice exeTask = taskDeviceService.findOne(exeId, deviceId);
         if(exeTask != null){
             if(exeTask.getStatus().getValue() != DB.TaskStatus.CANCEL.getValue()){
                 exeTask.setStatus(DB.TaskStatus.COMPLETE);
             }
             exeTask.setEndTime(DateUtils.getMongoDate(new Date(timestamp)));
-            taskService.update(exeTask);
-            exeTask.getDevices().forEach(d -> {
-                deviceService.release(d.getDeviceId());
-            });
-            context.publishEvent(new GameOverEvent(this, request.getExeId()));
+            taskDeviceService.update(exeTask);
+            deviceService.release(exeTask.getDeviceId());
+            context.publishEvent(new TaskOverEvent(this, request.getExeId()));
         }else{
             log.error("exeTask info not format. {}", request.toString());
         }
@@ -327,6 +348,10 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
         logInfo.setActionOrder(actionOrder);
 
         executorLogInfoService.save(logInfo);
+
+        // 通知页面
+        messageNotifyService.taskAction(logInfo);
+
     }
 
 }

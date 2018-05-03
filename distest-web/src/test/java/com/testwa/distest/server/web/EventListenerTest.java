@@ -1,7 +1,7 @@
 package com.testwa.distest.server.web;
 
 import com.testwa.distest.DistestWebApplication;
-import com.testwa.distest.server.mongo.event.GameOverEvent;
+import com.testwa.distest.server.mongo.event.TaskOverEvent;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ public class EventListenerTest {
     @WithAnonymousUser
     public void testSendGameOverEvent(){
 
-        context.publishEvent(new GameOverEvent(this, 31l));
+        context.publishEvent(new TaskOverEvent(this, 31l));
     }
 
 }

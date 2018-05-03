@@ -30,4 +30,9 @@ public class TaskDAO extends BaseDAO<Task, Long> implements ITaskDAO {
         return mapper.findByFromProject(params);
     }
 
+    @Override
+    public Long countBy(Task query) {
+        return mapper.countBy(query);
+    }
+
 }

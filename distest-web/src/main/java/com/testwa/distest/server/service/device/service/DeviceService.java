@@ -5,7 +5,6 @@ import com.github.pagehelper.PageInfo;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Device;
-import com.testwa.distest.server.entity.DeviceAndroid;
 import com.testwa.distest.server.service.device.dao.IDeviceDAO;
 import com.testwa.distest.server.service.device.form.DeviceListForm;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +36,7 @@ public class DeviceService {
         return null;
     }
 
-    public void insertAndroid(DeviceAndroid entity) {
+    public void insertAndroid(Device entity) {
         entity.setCreateTime(new Date());
         deviceDAO.insertAndroid(entity);
     }
@@ -50,7 +49,7 @@ public class DeviceService {
         deviceDAO.updateWorkStatus(deviceId, status);
     }
 
-    public void updateAndroid(DeviceAndroid entity) {
+    public void updateAndroid(Device entity) {
         entity.setUpdateTime(new Date());
         deviceDAO.updateAndroid(entity);
     }
@@ -141,7 +140,7 @@ public class DeviceService {
         return deviceDAO.fetchList(queryMap);
     }
 
-    public List<DeviceAndroid> findAllDeviceAndroid(List<String> deviceIds) {
+    public List<Device> findAllDeviceAndroid(List<String> deviceIds) {
         return deviceDAO.findAllDeviceAndroid(deviceIds);
     }
 

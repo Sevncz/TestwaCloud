@@ -133,7 +133,7 @@ public final class DB {
         NOT_EXECUTE(0, "未执行"),
         RUNNING(1, "正在运行"),
         COMPLETE(2, "已完成"),
-        CANCEL(3, "手动取消"),
+        CANCEL(3, "取消"),
         ERROR(4, "异常");
         private int value;
         private String desc;
@@ -166,6 +166,7 @@ public final class DB {
         public static List<Integer> finishedCode = new ArrayList<>(Arrays.asList(COMPLETE.getValue(), CANCEL.getValue(), ERROR.getValue()));
 
     }
+
 
     public enum ProjectRole implements ValueEnum {
         OWNER(0, "创建者"),
@@ -362,37 +363,6 @@ public final class DB {
                     break;
             }
             return l;
-        }
-    }
-
-
-    public enum AppPlatform implements ValueEnum {
-        UNKNOWN(0, "未知"),
-        IOS(1, "iOS"),
-        ANDROID(2, "Android"),
-        WP(3, "WinPhone");
-        private int value;
-        private String desc;
-        AppPlatform(int value, String desc){
-            this.value = value;
-            this.desc = desc;
-        }
-        public int getValue() {
-            return value;
-        }
-        @JsonValue
-        public String getDesc() {
-            return desc;
-        }
-        public static AppPlatform valueOf(int value) {
-            AppPlatform os = UNKNOWN;
-            switch (value) {
-                case 1: os = IOS;break;
-                case 2: os = ANDROID;break;
-                case 3: os = WP;break;
-                default: os = UNKNOWN;
-            }
-            return os;
         }
     }
 

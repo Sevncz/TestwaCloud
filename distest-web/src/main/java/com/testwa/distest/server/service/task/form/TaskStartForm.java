@@ -15,11 +15,8 @@ import java.util.List;
         description = "启动一个已存在的场景"
 )
 @Data
-@Deprecated
 public class TaskStartForm extends RequestFormBase {
 
-    @NotNull(message = "taskSceneId.empty")
-    private Long taskSceneId;
     @NotNull(message = "deviceIds.empty")
     @NotEmpty(message = "deviceIds.empty")
     private List<String> deviceIds;

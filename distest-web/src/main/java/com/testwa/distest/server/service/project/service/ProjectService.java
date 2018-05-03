@@ -18,6 +18,7 @@ import com.testwa.distest.server.service.project.form.ProjectNewForm;
 import com.testwa.distest.server.service.project.form.ProjectListForm;
 import com.testwa.distest.server.service.project.form.ProjectUpdateForm;
 import com.testwa.distest.server.service.script.dao.IScriptDAO;
+import com.testwa.distest.server.service.task.dao.ITaskDAO;
 import com.testwa.distest.server.service.testcase.dao.ITestcaseDAO;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
@@ -47,6 +48,8 @@ public class ProjectService {
     private IScriptDAO scriptDAO;
     @Autowired
     private ITestcaseDAO testcaseDAO;
+    @Autowired
+    private ITaskDAO taskDAO;
     @Autowired
     private UserService userService;
     @Autowired
@@ -283,7 +286,7 @@ public class ProjectService {
         Task kq = new Task();
         kq.setProjectId(projectId);
 //        kq.setEnabled(true);
-        Long task = testcaseDAO.countBy(tq);
+        Long task = taskDAO.countBy(kq);
 
         Set<String> deviceIds = deviceAuthMgr.allEnableDevices();
         int device = deviceIds.size();

@@ -3,7 +3,6 @@
 <mapper namespace="com.testwa.distest.server.mapper.TaskMapper" >
     <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.Task" >
         <id column="id" property="id" jdbcType="BIGINT" />
-        <result column="status" property="status" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
         <result column="projectId" property="projectId" jdbcType="BIGINT"/>
         <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="createTime" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
@@ -11,7 +10,6 @@
         <result column="createBy" property="createBy" jdbcType="BIGINT"/>
         <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
         <result column="endTime" property="endTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
-        <result column="errorMsg" property="errorMsg" jdbcType="VARCHAR" javaType="String"/>
         <result column="devicesJson" property="devicesJson" jdbcType="VARCHAR" javaType="String"/>
         <result column="appJson" property="appJson" jdbcType="VARCHAR" javaType="String"/>
         <result column="testcaseJson" property="testcaseJson" jdbcType="VARCHAR" javaType="String"/>
@@ -20,7 +18,7 @@
     </resultMap>
 
     <sql id="Base_Column_List" >
-        id,status,projectId,createTime,createBy,endTime,errorMsg,devicesJson,appJson,testcaseJson,scriptJson,taskType,taskName,appId
+        id,projectId,createTime,createBy,endTime,devicesJson,appJson,testcaseJson,scriptJson,taskType,taskName,appId
     </sql>
 
     <select id="findOne" parameterType="com.testwa.distest.server.entity.Task" resultMap="BaseResultMap" >
@@ -52,12 +50,12 @@
         <if test="params.taskName != null">and taskName LIKE CONCAT('%', #{params.taskName}, '%')</if>
     </select>
 
-    <select id="countBy" parameterType="com.testwa.distest.server.entity.Task" resultType="long">
+    <select id="countBy" resultType="long">
         SELECT count(1) c FROM task
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
-            <if test="createBy != null">and createBy = #{createBy}</if>
             <if test="projectId != null">and projectId = #{projectId}</if>
             <if test="appId != null">and appId = #{appId}</if>
+            <if test="taskType != null">and taskType = #{taskType, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
         </trim>
     </select>
 

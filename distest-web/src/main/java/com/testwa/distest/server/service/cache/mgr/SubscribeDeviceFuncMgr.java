@@ -12,8 +12,8 @@ import java.util.Set;
 @Component
 public class SubscribeDeviceFuncMgr {
 
-    static final String subscribe_device_func = "subscribe.device.func.%s.%s";
-    static final String subscribe_device_func_partern = "subscribe.device.func.*";
+    private static final String subscribe_device_func = "subscribe.device.func.%s.%s";
+    private static final String subscribe_device_func_partern = "subscribe.device.func.*";
 
     @Autowired
     private RedisCacheManager redisCacheMgr;
@@ -23,15 +23,15 @@ public class SubscribeDeviceFuncMgr {
     }
 
     public void subscribeDeviceEvent(String deviceId, String func, String sessionId) {
-        redisCacheMgr.hput(getKey(deviceId, func), sessionId, "000000");
+        redisCacheMgr.sAdd(getKey(deviceId, func), sessionId);
     }
 
     public Set<String> getSubscribes(String deviceId, String func) {
-        return redisCacheMgr.hKeys(getKey(deviceId, func));
+        return redisCacheMgr.sMembers(getKey(deviceId, func));
     }
 
     public Boolean isSubscribes(String deviceId, String func, String sessionId) {
-        return redisCacheMgr.hExists(getKey(deviceId, func), sessionId);
+        return redisCacheMgr.sIsMember(getKey(deviceId, func), sessionId);
     }
 
     public void delAllSubscribes() {
@@ -43,6 +43,6 @@ public class SubscribeDeviceFuncMgr {
     }
 
     public void delSubscribe(String deviceId, String func, String sessionId) {
-        redisCacheMgr.hdel(getKey(deviceId, func), sessionId);
+        redisCacheMgr.sRem(getKey(deviceId, func), sessionId);
     }
 }

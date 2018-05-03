@@ -7,11 +7,11 @@ import org.springframework.context.ApplicationEvent;
  * Created by wen on 09/09/2017.
  */
 @Data
-public class GameOverEvent extends ApplicationEvent {
+public class TaskOverEvent extends ApplicationEvent {
 
     private Long taskId;
 
-    public GameOverEvent(Object source, Long taskId) {
+    public TaskOverEvent(Object source, Long taskId) {
         super(source);
         this.taskId = taskId;
     }

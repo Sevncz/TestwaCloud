@@ -14,4 +14,6 @@ public interface ITaskDAO extends IBaseDAO<Task, Long> {
     Task findOne(Long entityId);
 
     List<Task> findByFromProject(Map<String, Object> params);
+
+    Long countBy(Task kq);
 }

@@ -206,7 +206,7 @@ public class AppService {
         String relativePath = dirName + File.separator + aliasName;
         switch (type.toLowerCase()){
             case "apk":
-                app.setPlatform(DB.AppPlatform.ANDROID);
+                app.setPlatform(DB.PhoneOS.ANDROID);
                 TestwaAndroidApp androidApp = new TestwaAndroidApp(new File(filepath));
                 app.setActivity(androidApp.getMainActivity());
                 app.setPackageName(androidApp.getBasePackage());
@@ -237,7 +237,7 @@ public class AppService {
                 getIpaInfo(app, filepath, dirName);
                 break;
             default:
-                app.setPlatform(DB.AppPlatform.UNKNOWN);
+                app.setPlatform(DB.PhoneOS.UNKNOWN);
                 break;
 
         }
@@ -285,7 +285,7 @@ public class AppService {
             app.setPlatformVersion(platformVersion);
 
         }
-        app.setPlatform(DB.AppPlatform.IOS);
+        app.setPlatform(DB.PhoneOS.IOS);
     }
 
 

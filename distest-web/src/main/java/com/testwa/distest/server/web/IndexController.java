@@ -2,7 +2,7 @@ package com.testwa.distest.server.web;
 
 import com.testwa.core.base.vo.Result;
 import com.testwa.core.base.controller.BaseController;
-import com.testwa.distest.server.mongo.event.GameOverEvent;
+import com.testwa.distest.server.mongo.event.TaskOverEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,7 +39,7 @@ public class IndexController extends BaseController {
         // 根据前端需求开始统计报告
         Long taskId = 1l;
 
-        context.publishEvent(new GameOverEvent(this, taskId));
+        context.publishEvent(new TaskOverEvent(this, taskId));
 
         return ok();
     }

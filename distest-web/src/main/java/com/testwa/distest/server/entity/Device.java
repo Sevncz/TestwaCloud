@@ -27,17 +27,21 @@ public class Device extends BaseEntity {
     /**更新时间**/
     private Date updateTime = new Date();
 
-    private String model; // 型号  Nexus 6
-    private String brand; // 品牌 google
-
     private Long lastUserId;
     @JsonIgnore
     private String lastUserToken;
 
     private List<DeviceAuth> deviceAuths;
 
-    protected Device(DB.PhoneOS phoneOS) {
-        this.phoneOS = phoneOS;
-    }
+    private String cpuabi; // android:armeabi-v7a   iphone: arm64
+    private String sdk; // 23
+    private String width;
+    private String height;
+    private String osName; // 设备系统 ANDROID23(6.0)    iphone: iPhone OS
+    private String density; // 密度
+    private String osVersion; // 系统版本 android: 6.0.1    iphone: 11.3
+    private String host; // vpba27.mtv.corp.google.com
+    private String model; // 型号  Nexus 6
+    private String brand; // 品牌 google
 
 }

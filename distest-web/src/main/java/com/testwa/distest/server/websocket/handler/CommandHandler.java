@@ -9,7 +9,6 @@ import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.cmd.MiniCmd;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Device;
-import com.testwa.distest.server.entity.DeviceAndroid;
 import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
 import com.testwa.distest.server.service.cache.mgr.SubscribeDeviceFuncMgr;
 import com.testwa.distest.server.service.device.service.DeviceService;
@@ -19,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.Map;
 
@@ -33,7 +31,7 @@ public class CommandHandler {
     private final static String minitouch = "minitouch";
     private final static String minicap = "minicap";
     private final static String resetMinicap = "reset_minicap";
-    private final static String open = "open";
+//    private final static String open = "open";
     private final static String touch = "touch";
     private final static String input = "input";
     private final static String home = "home";
@@ -92,18 +90,18 @@ public class CommandHandler {
         pushCmdService.pushMinCmdStart(cmd, deviceId);
     }
 
-    @OnEvent(value = open)
-    public void onOpen(SocketIOClient client, String data, AckRequest ackRequest) {
-
-        Object jsonObj = JSONObject.parse(data);
-
-        String deviceId = ((JSONObject) jsonObj).getString("sn");
-        log.info("Remote client {} open", deviceId);
-        Device deviceBase = deviceService.findByDeviceId(deviceId);
-        if(deviceBase != null){
-            deviceService.updateStatus(deviceId, DB.PhoneOnlineStatus.ONLINE);
-        }
-    }
+//    @OnEvent(value = open)
+//    public void onOpen(SocketIOClient client, String data, AckRequest ackRequest) {
+//
+//        Object jsonObj = JSONObject.parse(data);
+//
+//        String deviceId = ((JSONObject) jsonObj).getString("sn");
+//        log.info("Remote client {} open", deviceId);
+//        Device deviceBase = deviceService.findByDeviceId(deviceId);
+//        if(deviceBase != null){
+//            deviceService.updateStatus(deviceId, DB.PhoneOnlineStatus.ONLINE);
+//        }
+//    }
 
     @OnEvent(value = touch)
     public void onTouch(SocketIOClient client, String data, AckRequest ackRequest) throws ObjectNotExistsException {
@@ -176,7 +174,7 @@ public class CommandHandler {
     @OnEvent(value = getDevices)
     public void onGetDevices(SocketIOClient client, String deviceId, AckRequest ackRequest) throws ObjectNotExistsException {
         if (isIllegalDeviceId(client, deviceId)) return;
-        DeviceAndroid deviceAndroid = (DeviceAndroid) deviceService.findByDeviceId(deviceId);
+        Device deviceAndroid = deviceService.findByDeviceId(deviceId);
         client.sendEvent("devices", JSON.toJSON(deviceAndroid));
     }
 

@@ -3,7 +3,6 @@ package com.testwa.distest.server.service.device.dao.impl;
 import com.testwa.core.base.dao.impl.BaseDAO;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Device;
-import com.testwa.distest.server.entity.DeviceAndroid;
 import com.testwa.distest.server.mapper.DeviceMapper;
 import com.testwa.distest.server.service.device.dao.IDeviceDAO;
 import org.springframework.stereotype.Repository;
@@ -21,12 +20,12 @@ public class DeviceDAO extends BaseDAO<Device, Long>  implements IDeviceDAO{
 
 
     @Override
-    public long insertAndroid(DeviceAndroid entity) {
+    public long insertAndroid(Device entity) {
         return deviceMapper.insertAndroid(entity);
     }
 
     @Override
-    public void updateAndroid(DeviceAndroid entity) {
+    public void updateAndroid(Device entity) {
         deviceMapper.updateAndroid(entity);
     }
 
@@ -51,7 +50,7 @@ public class DeviceDAO extends BaseDAO<Device, Long>  implements IDeviceDAO{
     }
 
     @Override
-    public List<DeviceAndroid> findAllDeviceAndroid(List<String> deviceIds) {
+    public List<Device> findAllDeviceAndroid(List<String> deviceIds) {
         return deviceMapper.findAllDeviceAndroid(deviceIds);
     }
 
