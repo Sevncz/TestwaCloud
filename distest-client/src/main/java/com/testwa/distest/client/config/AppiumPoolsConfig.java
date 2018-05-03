@@ -20,7 +20,7 @@ public class AppiumPoolsConfig {
     public AppiumManagerPool appiumPool(){
         String nodePath = env.getProperty("node.excute.path");
         String appiumPath = env.getProperty("appium.js.path");
-//        String agentWebUrl = env.getProperty("agent.web.url");
+//        String agentWebUrl = env.getProperty("cloud.web.url");
         String port = env.getProperty("server.port");
         String contextPath = env.getProperty("server.context-path");
         String clientWebUrl = String.format("http://127.0.0.1:%s%s/client", port, contextPath);

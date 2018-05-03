@@ -31,7 +31,7 @@ public class TestwaScheduled {
 
     public static Map<String, TestwaDevice> a_devices = new ConcurrentHashMap<>();
 
-    @Value("${agent.web.url}")
+    @Value("${cloud.web.url}")
     private String agentWebUrl;
 
     @Autowired

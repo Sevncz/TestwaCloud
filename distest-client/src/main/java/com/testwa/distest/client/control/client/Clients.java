@@ -4,6 +4,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.rpc.testwa.device.DeviceServiceGrpc;
 import io.rpc.testwa.task.TaskServiceGrpc;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +17,7 @@ import java.util.Map;
 /**
  * Created by wen on 10/06/2017.
  */
+@Slf4j
 public class Clients {
 
     private static Map<String, RemoteClient> all = new HashMap<>();

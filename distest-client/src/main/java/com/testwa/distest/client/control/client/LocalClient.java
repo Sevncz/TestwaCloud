@@ -5,6 +5,7 @@ import com.testwa.distest.client.component.minicap.Minicap;
 import com.testwa.distest.client.component.minicap.MinicapListener;
 import com.testwa.distest.client.component.minitouch.Minitouch;
 import com.testwa.distest.client.component.minitouch.MinitouchListener;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -12,6 +13,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * Created by wen on 03/06/2017.
  */
+@Slf4j
 public class LocalClient extends BaseClient implements MinicapListener, MinitouchListener {
     static final int DATA_TIMEOUT = 100; //ms
     private boolean isWaitting = false;

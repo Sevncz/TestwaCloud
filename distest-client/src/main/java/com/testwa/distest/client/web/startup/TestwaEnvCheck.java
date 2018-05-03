@@ -19,6 +19,7 @@ import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
@@ -40,6 +41,16 @@ import java.util.List;
 @Component
 public class TestwaEnvCheck implements CommandLineRunner {
 
+    @Value("${cloud.web.url}")
+    private String cloudWebUrl;
+    @Value("${cloud.socket.url}")
+    private String cloudSocketUrl;
+    @Value("${username}")
+    private String username;
+    @Value("${password}")
+    private String password;
+    @Value("${distest.api.name}")
+    private String applicationName;
     @Autowired
     private Environment env;
     @Autowired
@@ -54,7 +65,7 @@ public class TestwaEnvCheck implements CommandLineRunner {
     public void run(String... strings) throws Exception {
         AndroidHelper.getInstance();
         checkSupportEnv();
-        checkAuth(env.getProperty("username"), env.getProperty("password"));
+        checkAuth(username, password);
         checkTempDirPath();
         Config.setEnv(env);
         startDeviceManager();
@@ -83,13 +94,13 @@ public class TestwaEnvCheck implements CommandLineRunner {
                     log.error("路径 {} 不存在，请检查启动参数", p.toString());
                     System.exit(0);
                 }
-                log.info("{}: {}", k, p.toString());
+                log.debug("{}: {}", k, p.toString());
             }
         });
 
         String androidHome = System.getenv("ANDROID_HOME");
         if(StringUtils.isBlank(androidHome)){
-            log.error("Android 环境变量找不到，请检查ANDROID_HOME");
+            log.error("Android 环境变量找不到，请检查 ANDROID_HOME");
             System.exit(0);
         }else{
             Path p = Paths.get(androidHome);
@@ -105,13 +116,12 @@ public class TestwaEnvCheck implements CommandLineRunner {
         if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
             System.exit(0);
         }
-        String agentWebUrl = env.getProperty("agent.web.url");
         FutureCallback cb = new FutureCallback<HttpResponse>() {
             @Override
             public void completed(HttpResponse response) {
                 int code = response.getStatusLine().getStatusCode();
                 if (code != 200) {
-                    log.error("Request code not 200， code is {}", code);
+                    log.error("Login is not 200， code is {}", code);
                     System.exit(0);
                 } else {
                     try {
@@ -123,9 +133,7 @@ public class TestwaEnvCheck implements CommandLineRunner {
                             JSONObject data = (JSONObject) ((JSONObject) result).get("data");
                             String token = data.getString("accessToken");
                             UserInfo.token = token;
-
-                            String url = env.getProperty("agent.socket.url");
-                            MainSocket.connect(url, token);
+                            MainSocket.connect(cloudSocketUrl, token);
                             MainSocket.receive(WebsocketEvent.ON_START, startRemoteClientCB);
 
                         } else {
@@ -157,7 +165,7 @@ public class TestwaEnvCheck implements CommandLineRunner {
 
             }
         };
-        httpService.postJson(String.format("%s/api/auth/login", agentWebUrl), new User(username, password), cb);
+        httpService.postJson(String.format("%s/%s/api/auth/login", cloudWebUrl, applicationName), new User(username, password), cb);
     }
 
     private class User {
@@ -205,10 +213,10 @@ public class TestwaEnvCheck implements CommandLineRunner {
             localVideoDir.mkdirs();
         }
 
-        log.info("Constant.localAppPath --> {}", Constant.localAppPath);
-        log.info("Constant.locallogcatPath --> {}", Constant.localLogcatPath);
-        log.info("Constant.localScreenshotPath --> {}", Constant.localScreenshotPath);
-        log.info("Constant.localScriptPath --> {}", Constant.localScriptPath);
+        log.info("App: {}", Constant.localAppPath);
+        log.info("Logcat: {}", Constant.localLogcatPath);
+        log.info("Screen: {}", Constant.localScreenshotPath);
+        log.info("Script: {}", Constant.localScriptPath);
     }
 
     private void startDeviceManager() {

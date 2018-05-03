@@ -1,6 +1,7 @@
 package com.testwa.distest.client.component.minicap;
 
 import com.android.ddmlib.*;
+import com.github.cosysoft.device.android.AndroidDevice;
 import com.github.cosysoft.device.exception.DeviceNotFoundException;
 import com.testwa.core.service.AdbDriverService;
 import com.testwa.core.service.MinicapServiceBuilder;
@@ -56,9 +57,10 @@ public class Minicap {
     public Minicap(String serialNumber, String resourcesPath) {
         this.resourcesPath = resourcesPath;
         int install = 5;
+        AndroidDevice ad = AndroidHelper.getInstance().getAndroidDevice(serialNumber);
         while (install > 0) {
             try {
-                this.device = AndroidHelper.getInstance().getAndroidDevice(serialNumber).getDevice();
+                this.device = ad.getDevice();
                 installMinicap(device, resourcesPath);
                 Thread.sleep(1000);
                 break;
@@ -68,22 +70,27 @@ public class Minicap {
                 e.printStackTrace();
             }
         }
-
-        // 获取设备屏幕的尺寸
-        String output = AndroidHelper.getInstance().executeShellCommand(device, MINICAP_WM_SIZE_COMMAND);
+        // 获取设备屏幕的实际尺寸
+        String output = ad.runAdbCommand("shell " + MINICAP_WM_SIZE_COMMAND);
         if (output != null && !output.isEmpty()) {
+            String overrideSizeFlag = "Override";
+            if(output.contains(overrideSizeFlag)){
+                output = output.split("\n")[1].trim();
+            }
             String sizeStr = output.split(":")[1].trim();
             int screenWidth = Integer.parseInt(sizeStr.split("x")[0].trim());
             int screenHeight = Integer.parseInt(sizeStr.split("x")[1].trim());
             deviceSize = new Size(screenWidth, screenHeight);
         }
+
+
     }
 
     //判断是否支持minicap
     public boolean isSupoort() {
         String supportCommand = String.format("LD_LIBRARY_PATH=/data/local/tmp /data/local/tmp/minicap -P %dx%d@%dx%d/0 -t", deviceSize.w, deviceSize.h, deviceSize.w, deviceSize.h);
         String output = AndroidHelper.getInstance().executeShellCommand(device, supportCommand);
-        log.info("minicap output, {}", output);
+        log.debug("minicap output, {}", output);
         if (output.trim().endsWith("OK")) {
             return true;
         }
@@ -312,7 +319,7 @@ public class Minicap {
                 .whithArgs(args)
                 .build();
         service.start();
-        log.info("minicap vo start, forward port {}", forward.getPort());
+        log.debug("minicap vo start, forward port {}", forward.getPort());
         minicapInitialThread = new Thread(new StartInitial("127.0.0.1", forward.getPort()));
         minicapInitialThread.start();
     }
@@ -392,7 +399,7 @@ public class Minicap {
         }
 
         public void run() {
-            log.info("StartInitial schedule start, host{}, port{}", this.host, this.port);
+            log.debug("StartInitial schedule start, host{}, port{}", this.host, this.port);
             try {
                 byte[] bytes = null;
                 int tryTime = 20;
@@ -405,13 +412,13 @@ public class Minicap {
                     int n = stream.read(bytes);
                     if (n == -1) {
                         Thread.sleep(1000);
-                        log.info("minicap socket close, retry again");
+                        log.debug("Minicap socket close, retry again");
                         if(minicapSocket != null){
                             minicapSocket.close();
                         }
                     } else {
 
-                        log.info("minicap ---------- start ");
+                        log.info("{} Minicap 启动", device.getSerialNumber());
                         // bytes内包含有信息，需要给Dataparser处理
                         dataQueue.add(Arrays.copyOfRange(bytes, 0, n));
                         isRunning = true;
@@ -430,7 +437,7 @@ public class Minicap {
                     }
                 }
             } catch (IOException e) {
-                log.error("StartInitial error", e);
+                log.error("{} Minicap StartInitial error", device.getSerialNumber(), e);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } finally {

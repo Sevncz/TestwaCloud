@@ -2,7 +2,6 @@ package com.testwa.distest.client.control.client;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.github.cosysoft.device.android.AndroidApp;
 import com.github.cosysoft.device.android.AndroidDevice;
 import com.github.cosysoft.device.android.impl.AndroidDeviceStore;
 import com.github.cosysoft.device.android.impl.DefaultAndroidApp;
@@ -26,7 +25,6 @@ import com.testwa.distest.client.component.minicap.MinicapListener;
 import com.testwa.distest.client.component.minitouch.Minitouch;
 import com.testwa.distest.client.component.minitouch.MinitouchListener;
 import com.testwa.distest.client.component.Constant;
-import com.testwa.distest.client.util.Http;
 import io.grpc.Channel;
 import io.rpc.testwa.device.LogcatRequest;
 import io.rpc.testwa.device.ScreenCaptureRequest;
@@ -59,7 +57,7 @@ import static org.bytedeco.javacpp.opencv_imgcodecs.cvDecodeImage;
  * Created by wen on 10/06/2017.
  */
 @Slf4j
-public class RemoteClient extends BaseClient implements MinicapListener, MinitouchListener, TaskListener, LogcatListener {
+public class RemoteClient extends BaseClient implements MinicapListener, MinitouchListener, DeviceTaskListener, LogcatListener {
 
     static final int DATA_TIMEOUT = 100; //ms
     private boolean isWaitting = false;
@@ -67,7 +65,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
     private BlockingQueue<LocalClient.ImageData> dataQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<LocalClient.ImageData> toVideoDataQueue = new LinkedBlockingQueue<>();
 
-    private String serialNumber;
+    private String deviceId;
     private Socket ws;
     private Channel channel;
 
@@ -75,31 +73,29 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
 
     private Minicap minicap = null;
     private Minitouch minitouch = null;
-    private Task task = null;
+    private DeviceTask task = null;
     private Logcat logcat = null;
 
     private boolean isVideo;
 
-    public RemoteClient(String url, String serialNumber, Channel channel, String resourcesPath) throws URISyntaxException {
-        log.info("设备{}初始化", serialNumber);
-        this.serialNumber = serialNumber;
+    public RemoteClient(String url, String deviceId, Channel channel, String resourcesPath) throws URISyntaxException {
+        this.deviceId = deviceId;
 
         this.resourcesPath = resourcesPath;
 
         this.channel = channel;
 
         JSONObject obj = new JSONObject();
-        obj.put("sn", serialNumber);
+        obj.put("sn", deviceId);
         obj.put("key", "");
         ws = IO.socket(url);
         ws.on(Socket.EVENT_CONNECT, args -> {
-            log.info("设备{}已连接.", serialNumber);
+            log.info("设备 {} 已连接", deviceId);
 
             ws.emit("login", obj.toJSONString());
-            ws.emit(Command.Schem.OPEN.getSchemString(), obj.toJSONString());
+//            ws.emit(Command.Schem.OPEN.getSchemString(), obj.toJSONString());
         }).on(Socket.EVENT_DISCONNECT, args -> {
-            log.info("设备{}断开连接.", this.serialNumber);
-            /*断开连接之后无法发起请求 */
+            log.info("设备 {} 断开连接.", this.deviceId);
 //            ws.emit("logout", obj.toJSONString());
         });
 
@@ -118,7 +114,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         String keyboardPath = this.resourcesPath + File.separator + Constant.getKeyboardService();
         try {
             if(Files.exists(Paths.get(keyboardPath))){
-                AndroidHelper.getInstance().installApp(keyboardPath, serialNumber);
+                AndroidHelper.getInstance().installApp(keyboardPath, deviceId);
             }else{
                 log.error("安装文件不存在");
             }
@@ -128,7 +124,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
     }
 
     void executeCommand(Command command) {
-        log.info("{} command is {}", serialNumber, JSON.toJSONString(command));
+        log.debug("{} command is {}", deviceId, JSON.toJSONString(command));
         switch (command.getSchem()) {
             case START:
                 startCommand(command);
@@ -215,7 +211,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
             minitouch.kill();
         }
 
-        Minitouch minitouch = new Minitouch(serialNumber, resourcesPath);
+        Minitouch minitouch = new Minitouch(deviceId, resourcesPath);
         minitouch.addEventListener(this);
         minitouch.start();
         this.minitouch = minitouch;
@@ -255,7 +251,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         String name = command.getString("name", null);
         String path = command.getString("path", null);
 
-        AndroidDevice device = AndroidDeviceStore.getInstance().getDeviceBySerial(serialNumber);
+        AndroidDevice device = AndroidDeviceStore.getInstance().getDeviceBySerial(deviceId);
         try {
             device.getDevice().pushFile(Constant.getTmpFile(name).getAbsolutePath(), path + "/" + name);
         } catch (Exception e) {
@@ -266,7 +262,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         try {
             CommandLine commandLine = new CommandLine(AndroidSdk.adb().getCanonicalPath(),
                     "-s",
-                    serialNumber,
+                    deviceId,
                     "shell",
                     "input",
                     "keyevent",
@@ -281,7 +277,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         try {
             CommandLine commandLine = new CommandLine(AndroidSdk.adb().getCanonicalPath(),
                     "-s",
-                    serialNumber,
+                    deviceId,
                     "shell",
                     "input",
                     "keyevent",
@@ -296,7 +292,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         try {
             CommandLine commandLine = new CommandLine(AndroidSdk.adb().getCanonicalPath(),
                     "-s",
-                    serialNumber,
+                    deviceId,
                     "shell",
                     "input",
                     "keyevent",
@@ -318,7 +314,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
     private boolean push = true;
 
     private void startMinicap(Command command) {
-        log.info("startMinicap {}", command.getCommandString());
+        log.debug("启动 minicap {}", command.getCommandString());
         if (minicap != null) {
             minicap.kill();
         }
@@ -326,12 +322,12 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         JSONObject obj = (JSONObject) command.get("config");
         Float scale = obj.getFloat("scale");
         Float rotate = obj.getFloat("rotate");
-        scale = 0.5f;
+//        scale = 0.5f;
         if (scale == null) {scale = 0.3f;}
         if (scale < 0.01) {scale = 0.01f;}
         if (scale > 1.0) {scale = 1.0f;}
         if (rotate == null) { rotate = 0.0f; }
-        Minicap minicap = new Minicap(serialNumber, resourcesPath);
+        Minicap minicap = new Minicap(deviceId, resourcesPath);
         minicap.addEventListener(this);
         minicap.start(scale, rotate.intValue());
         this.minicap = minicap;
@@ -363,7 +359,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
     @Override
     public void onJPG(Minicap minicap, byte[] data) {
         // for video queue
-        toVideoDataQueue.add(new LocalClient.ImageData(data));
+//        toVideoDataQueue.add(new LocalClient.ImageData(data));
         // for pic queue
         if (isWaitting) {
             if (dataQueue.size() > 0) {
@@ -388,7 +384,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
             ScreenCaptureRequest request = ScreenCaptureRequest.newBuilder()
                     .setImg(ByteString.copyFrom(data))
                     .setName("xxx")
-                    .setSerial(this.serialNumber)
+                    .setSerial(this.deviceId)
                     .build();
 
             Gvice.deviceService(this.channel).screen(request);
@@ -543,7 +539,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         LocalClient.ImageData d = dataQueue.peek();
         long curTS = System.currentTimeMillis();
         while (d != null) {
-            if (curTS - d.timesp < DATA_TIMEOUT) {
+            if (curTS - d.timesp > DATA_TIMEOUT) {
                 dataQueue.poll();
                 d = dataQueue.peek();
             } else {
@@ -574,7 +570,6 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
     private void trySendImage() {
         LocalClient.ImageData d = getUsefulImage();
         if (d != null) {
-            isWaitting = false;
             sendImage(d.data);
         }
     }
@@ -584,7 +579,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
 //        if (stfAgent != null) {
 //            stfAgent.kill();
 //        }
-//        StfAgent stfAgent = new StfAgent(serialNumber, resourcesPath);
+//        StfAgent stfAgent = new StfAgent(deviceId, resourcesPath);
 //        stfAgent.addEventListener(this);
 //        stfAgent.start();
 //        this.stfAgent = stfAgent;
@@ -631,7 +626,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         }
         this.isLogcatWaitting = true;
         String content = (String) command.get("content");
-        Logcat l = new Logcat(this.serialNumber, content);
+        Logcat l = new Logcat(this.deviceId, content);
         l.addEventListener(this);
         l.start();
         this.logcat = l;
@@ -664,7 +659,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         try {
 
             LogcatRequest request = LogcatRequest.newBuilder()
-                    .setSerial(this.serialNumber)
+                    .setSerial(this.deviceId)
                     .setContent(ByteString.copyFrom(data))
                     .build();
 
@@ -678,21 +673,21 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
 
     // task
     @Override
-    public void onStartup(Task task, boolean success) {
+    public void onStartup(DeviceTask task, boolean success) {
         if (ws != null) {
             ws.emit(Command.Schem.START_TASK.getSchemString(), success);
         }
     }
 
     @Override
-    public void onComplete(Task task) {
+    public void onComplete(DeviceTask task) {
         if (ws != null) {
             ws.emit(Command.Schem.COMPLETE_TASK.getSchemString(), true);
         }
     }
 
     @Override
-    public void onCancel(Task task) {
+    public void onCancel(DeviceTask task) {
         if (ws != null) {
             ws.emit(Command.Schem.CANCEL_TASK.getSchemString(), true);
         }
@@ -706,13 +701,13 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
      *@Date: 2018/4/9
      */
     private void startTask(Command command) {
-        log.info("设备 {}，开始任务 {}", serialNumber, command.getCommandString());
+        log.info("设备 {}，开始任务 {}", deviceId, command.getCommandString());
         if (task != null) {
             task.kill();
         }
         String cmdJson = command.getContent();
         RemoteRunCommand cmd = JSON.parseObject(cmdJson, RemoteRunCommand.class);
-        Task task = new Task(cmd);
+        DeviceTask task = new DeviceTask(cmd);
         task.addEventListener(this);
         task.start();
         this.task = task;
@@ -754,7 +749,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         public void run() {
             AppInfo appInfo = JSON.parseObject(cmdJson, AppInfo.class);
 
-            AndroidDevice device = AndroidDeviceStore.getInstance().getDeviceBySerial(serialNumber);
+            AndroidDevice device = AndroidDeviceStore.getInstance().getDeviceBySerial(deviceId);
             String distestApiWeb = Config.getString("distest.api.web");
 
             String appUrl = String.format("http://%s/app/%s", distestApiWeb, appInfo.getPath());
@@ -783,7 +778,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
      */
     private void uninstallApp(Command command) {
         String appBasePackage = (String) command.get("appBasePackage");
-        AndroidDevice device = AndroidDeviceStore.getInstance().getDeviceBySerial(serialNumber);
+        AndroidDevice device = AndroidDeviceStore.getInstance().getDeviceBySerial(deviceId);
         device.uninstall(appBasePackage);
     }
 
@@ -795,14 +790,21 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
      *@Date: 2018/4/10
      */
     private void shellCommand(Command command) {
-        AndroidDevice device = AndroidDeviceStore.getInstance().getDeviceBySerial(serialNumber);
+        AndroidDevice device = AndroidDeviceStore.getInstance().getDeviceBySerial(deviceId);
         String result = device.runAdbCommand("shell " + command.getContent());
         log.info(result);
     }
 
+    /**
+     *@Description: 使用浏览器打开网页
+     *@Param: [command]
+     *@Return: void
+     *@Author: wen
+     *@Date: 2018/5/2
+     */
     private void openWebCommand(Command command) {
         String cmd = "shell am start -a android.intent.action.VIEW -d ";
-        AndroidDevice device = AndroidDeviceStore.getInstance().getDeviceBySerial(serialNumber);
+        AndroidDevice device = AndroidDeviceStore.getInstance().getDeviceBySerial(deviceId);
 
         String result = device.runAdbCommand(cmd + command.getContent());
         log.info(result);

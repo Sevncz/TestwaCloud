@@ -1,4 +1,4 @@
-${AnsiColor.BRIGHT_YELLOW}
+${AnsiColor.BRIGHT_BLUE}
 
      _______.___________.    ___      .______     .___________.   .___________. _______     _______.___________.____    __    ____  ___
     /       |           |   /   \     |   _  \    |           |   |           ||   ____|   /       |           |\   \  /  \  /   / /   \
@@ -7,5 +7,4 @@ ${AnsiColor.BRIGHT_YELLOW}
 .----)   |      |  |     /  _____  \  |  |\  \----.   |  |            |  |     |  |____.----)   |      |  |        \    /\    / /  _____  \
 |_______/       |__|    /__/     \__\ | _| `._____|   |__|            |__|     |_______|_______/       |__|         \__/  \__/ /__/     \__\
 
-${AnsiColor.BRIGHT_BLUE}
-::: Project (version:${application.version}) :::             ＼(^O^)／    Spring-Boot ${spring-boot.version}
+::: 欢迎使用Testwa客户端＼(^O^)／，目前软件版本:${application.version} :::

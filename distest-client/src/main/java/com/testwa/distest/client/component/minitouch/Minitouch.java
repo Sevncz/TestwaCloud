@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +42,9 @@ public class Minitouch {
     private static String BIN = "";
 
     private boolean isRunnging = true;
+
+    private double PercentX;
+    private double PercentY;
 
     public static void installMinitouch(AndroidDevice device, String resourcesPath) throws MinitouchInstallException {
         if (device == null) {
@@ -160,7 +164,7 @@ public class Minitouch {
         service.start();
         minitouchInitialThread = new Thread(new StartInitial("127.0.0.1", forward.getPort()));
         minitouchInitialThread.start();
-        log.info("minitouch forward port {}", forward.getPort());
+        log.debug("minitouch forward port {}", forward.getPort());
     }
 
     public void kill() {
@@ -186,10 +190,36 @@ public class Minitouch {
             return;
         }
         try {
-            minitouchOutputStream.write(str.getBytes());
+            log.debug("old cmd is {}", str);
+            String newcmd = pointConvert(str);
+            log.debug("new cmd is {}", newcmd);
+            minitouchOutputStream.write(newcmd.getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     *@Description: 通过minitouch的可点击范围获得真实点击位置
+     *@Param: [cmd]
+     *@Return: java.lang.String
+     *@Author: wen
+     *@Date: 2018/5/3
+     */
+    private String pointConvert(String cmd){
+        Integer x;
+        Integer y;
+        // m <contact> <x> <y> <pressure>
+        // d <contact> <x> <y> <pressure>
+        if(cmd.startsWith("d") || cmd.startsWith("m")){
+            String[] m = cmd.split(" ");
+            x = Integer.parseInt(m[2]);
+            y = Integer.parseInt(m[3]);
+            return String.format("%s %s %s %s %s", m[0], m[1], (int)(x/PercentX), (int)(y/PercentY), m[4]);
+        }else{
+            return cmd;
+        }
+
     }
 
     public void sendKeyEvent(int k) {
@@ -258,7 +288,7 @@ public class Minitouch {
         }
 
         public void run() {
-            log.info("StartInitial schedule start, host: {}, port: {}", this.host, this.port);
+            log.debug("StartInitial schedule start, host: {}, port: {}", this.host, this.port);
             int tryTime = 20;
             byte[] bytes = null;
             // 连接minicap启动的服务
@@ -272,12 +302,33 @@ public class Minitouch {
                     int n = inputStream.read(bytes);
                     if (n == -1) {
                         Thread.sleep(1000);
-                        log.info("minitouch socket close, retry again");
+                        log.debug("Minitouch socket close, retry again");
                         socket.close();
                     } else {
-                        log.info("minitouch ---------- start ");
+                        String minitouchInfo = new String(bytes, StandardCharsets.UTF_8).replace("\n", " ");
+                        log.info("{} Minitouch 启动, \n {}", device.getSerialNumber(), minitouchInfo);
+                        String[] result = minitouchInfo.split(" ");
+                        Integer MaxX = Integer.parseInt(result[4]);
+                        Integer MaxY = Integer.parseInt(result[5]);
+
+                        // 获取设备屏幕的实际尺寸
+                        String output = device.runAdbCommand("shell wm size");
+                        String overrideSizeFlag = "Override";
+                        if(output.contains(overrideSizeFlag)){
+                            output = output.split("\n")[0].trim();
+                        }
+                        String sizeStr = output.split(":")[1].trim();
+                        int screenWidth = Integer.parseInt(sizeStr.split("x")[0].trim());
+                        int screenHeight = Integer.parseInt(sizeStr.split("x")[1].trim());
+                        PercentX = (double)screenWidth / MaxX;
+                        PercentY = (double)screenHeight / MaxY;
+
+                        log.info("PercentX: {}， PercentY: {}", PercentX, PercentY);
+
+
                         minitouchSocket = socket;
                         minitouchOutputStream = outputStream;
+
                         onStartup(true);
                         break;
                     }

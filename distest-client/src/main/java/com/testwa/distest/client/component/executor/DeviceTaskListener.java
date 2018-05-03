@@ -1,0 +1,1 @@
+package com.testwa.distest.client.component.executor;public interface DeviceTaskListener {    void onStartup(DeviceTask task, boolean success);    void onComplete(DeviceTask task);    void onCancel(DeviceTask task);}

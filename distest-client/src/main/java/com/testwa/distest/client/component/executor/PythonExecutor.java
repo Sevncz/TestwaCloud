@@ -95,7 +95,7 @@ public class PythonExecutor {
     @ExecutorActionInfo(desc = "下载APP", order = 1)
     public void downloadApp() throws DownloadFailException, IOException {
         String appUrl = String.format("http://%s/app/%s", distestApiWeb, appInfo.getPath());
-        this.appLocalPath = Constant.localAppPath + File.separator + appInfo.getMd5() + File.separator + appInfo.getFileName();
+        this.appLocalPath = Constant.localAppPath + File.separator + appInfo.getMd5() + File.separator + appInfo.getFileAliasName();
 
         // 检查是否有和该app md5一致的
         downloader.start(appUrl, appLocalPath);
@@ -258,7 +258,7 @@ public class PythonExecutor {
                     continue;
                 }
 
-                if(appPath.contains("apk")){
+                if(appPath.endsWith(".apk")){
                     if(tempString.contains("desired_caps['appPackage']")){
                         bw.write(replaceQuotationContent(tempString, basePackage, null));
                         bw.write("\t\n");
@@ -270,20 +270,28 @@ public class PythonExecutor {
                         bw.write("\t\n");
                         continue;
                     }
+                    if(tempString.contains("desired_caps['platformName']")){
+
+                        bw.write(replaceQuotationContent(tempString, "Android", null));
+                        bw.write("\t\n");
+                        continue;
+                    }
+
+                    if(tempString.contains("desired_caps['platformVersion']")){
+                        AndroidDevice ad = AndroidHelper.getInstance().getAndroidDevice(deviceId);
+                        String version = ad.runAdbCommand("shell getprop ro.build.version.release");
+                        bw.write(replaceQuotationContent(tempString, version, null));
+                        bw.write("\t\n");
+                        continue;
+                    }
 
                 }else{
                     if(tempString.contains("desired_caps['platformName']")){
+
                         bw.write(replaceQuotationContent(tempString, "iOS", null));
                         bw.write("\t\n");
                         continue;
                     }
-                }
-                if(tempString.contains("desired_caps['platformVersion']")){
-                    AndroidDevice ad = AndroidHelper.getInstance().getAndroidDevice(deviceId);
-                    String version = ad.runAdbCommand("shell getprop ro.build.version.release");
-                    bw.write(replaceQuotationContent(tempString, version, null));
-                    bw.write("\t\n");
-                    continue;
                 }
 
                 bw.write(tempString + "\t\n");

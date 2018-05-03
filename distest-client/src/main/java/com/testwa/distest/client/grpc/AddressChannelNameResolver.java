@@ -103,7 +103,7 @@ public class AddressChannelNameResolver extends NameResolver {
                 for (int i = 0; i < properties.getHost().size(); i++) {
                     String host = properties.getHost().get(i);
                     Integer port = properties.getPort().get(i);
-                    log.info("Found gRPC server {} {}:{}", name, host, port);
+                    log.debug("Found gRPC server {} {}:{}", name, host, port);
                     EquivalentAddressGroup addressGroup = new EquivalentAddressGroup(new InetSocketAddress(host, port), Attributes.EMPTY);
                     equivalentAddressGroups.add(addressGroup);
                 }

@@ -29,7 +29,7 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
     public AppiumManagerPool pool;
     @Autowired
     public GrpcClientService grpcClientService;
-    @Value("${agent.web.url}")
+    @Value("${cloud.web.url}")
     private String agentWebUrl;
     @Value("${distest.api.web}")
     private String distestApiWeb;
@@ -81,8 +81,10 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
                     scriptHander.setHandler(pythonHander);
                     appHander.handleRequest(executor2);
 
+                    grpcClientService.missionComplete(cmd.getExeId(), cmd.getDeviceId());
                 } catch (DownloadFailException | IOException  e){
                     log.error("executors error", e);
+                    grpcClientService.gameover(cmd.getExeId(), cmd.getDeviceId(), e.getMessage());
                 } finally {
                     //upload log
                     grpcClientService.appiumLogUpload(cmd.getExeId(), cmd.getDeviceId(), appiumLogPath);
@@ -91,7 +93,6 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
                 pool.release(manager);
                 // 通知结束
                 executors.remove(cmd.getDeviceId());
-                grpcClientService.gameover(cmd.getExeId());
                 log.info("executors over!");
                 break;
             case 2:
