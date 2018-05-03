@@ -152,4 +152,44 @@
         </trim>
     </select>
 
+    <select id="getResolutionCategory" resultType="com.testwa.distest.server.service.device.dto.DeviceOneCategoryResultDTO">
+        select concat(width, 'x', height) as name, count(1) value
+        from device
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            width != '' and height != ''
+            <!--and deviceId in <foreach item="devId" index="index" collection="deviceIds" open="(" separator="," close=")">#{devId} </foreach>-->
+        </trim>
+        group by concat(width, 'x', height)
+    </select>
+
+    <select id="getOSPlatformCategory" resultType="com.testwa.distest.server.service.device.dto.DeviceOneCategoryResultDTO">
+        select phoneOS as name, count(1) value
+        from device
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            phoneOS is not null
+            <!--and deviceId in <foreach item="devId" index="index" collection="deviceIds" open="(" separator="," close=")">#{devId} </foreach>-->
+        </trim>
+        group by phoneOS
+    </select>
+
+    <select id="getOSVersionCategory" resultType="com.testwa.distest.server.service.device.dto.DeviceOneCategoryResultDTO">
+        select osVersion as name, count(1) value
+        from device
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            osVersion is not null
+--             and deviceId in <foreach item="devId" index="index" collection="deviceIds" open="(" separator="," close=")">#{devId} </foreach>
+        </trim>
+        group by osVersion
+    </select>
+
+    <select id="getBrandCategory" resultType="com.testwa.distest.server.service.device.dto.DeviceOneCategoryResultDTO">
+        select brand as name, count(1) value
+        from device
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            brand is not null
+--             and deviceId in <foreach item="devId" index="index" collection="deviceIds" open="(" separator="," close=")">#{devId} </foreach>
+        </trim>
+        group by brand
+    </select>
+
 </mapper>

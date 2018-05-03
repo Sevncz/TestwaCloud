@@ -1,0 +1,1 @@
+package com.testwa.distest.server.web.device.vo;import lombok.Data;import java.util.List;/** * @Program: distest * @Description: 设备类别 * @Author: wen * @Create: 2018-05-03 18:12 **/@Datapublic class DeviceCategoryVO {    private List<String> brand;    private List<String> resolution;    private List<String> osVersion;}

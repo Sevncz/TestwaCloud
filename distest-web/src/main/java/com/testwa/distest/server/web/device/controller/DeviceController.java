@@ -16,21 +16,15 @@ import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
 import com.testwa.distest.server.web.device.validator.DeviceValidatoer;
-import com.testwa.distest.server.web.project.validator.ProjectValidator;
+import com.testwa.distest.server.web.device.vo.DeviceCategoryVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -156,101 +150,15 @@ public class DeviceController extends BaseController {
         return ok();
     }
 
-//    @RequestMapping(value = "/receive/logcat", method = RequestMethod.POST, produces = "application/x-protobuf")
-//    public Result logcat(@RequestBody com.testwa.distest.client.rpc.proto.Agent.AppiumLogFeedback message) {
-//        String[] messageName = message.getName().split("\\\\|/");
-//        Path logcatPath = Paths.get(env.getProperty("logcat.path"), messageName);
-//        Path logcatDir = logcatPath.getParent();
-//        saveMessageFile(message.getLog().toByteArray(), logcatPath, logcatDir);
-//
-//        return ok();
-//    }
 
-    private void saveMessageFile(byte[] message, Path logPath, Path logDir) {
-        try {
-            log.info("Receive log file, logPath: {}.", logPath.toString());
-            if(!Files.exists(logDir)){
-                Files.createDirectories(logDir);
-            }
-            Files.copy(new ByteArrayInputStream(message), logPath, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            log.error("saveHGTestcase logfile error", e);
-        }
+    @ApiOperation(value="Android设备的分类，各个维度", notes = "")
+    @ResponseBody
+    @GetMapping(value = "/category/android")
+    public Result category() throws ObjectNotExistsException {
+        Set<String> deviceIds = deviceAuthMgr.allEnableDevices();
+        DeviceCategoryVO vo = deviceService.getCategory(deviceIds);
+        return ok(vo);
     }
-
-//    @RequestMapping(value = "/receive/appiumlog", method = RequestMethod.POST, produces = "application/x-protobuf")
-//    public Result appiumlog(@RequestBody Agent.AppiumLogFeedback message) {
-//        String[] messageName = message.getName().split("\\\\|/");
-//        Path appiumPath = Paths.get(env.getProperty("appium.log.path"), messageName);
-//        Path appiumDir = appiumPath.getParent();
-//        saveMessageFile(message.getLog().toByteArray(), appiumPath, appiumDir);
-//
-//        return ok();
-//    }
-
-
-//    @ResponseBody
-//    @RequestMapping(value = "/show/screen/start/{deviceId}", method= RequestMethod.GET)
-//    public Result showScreenStart(@PathVariable String deviceId){
-//        String sessionId = remoteClientService.getMainSessionByDeviceId(deviceId);
-//        if(StringUtils.isBlank(sessionId)){
-//            return fail(ResultCode.PARAM_ERROR, "sessionId not found");
-//        }
-//        SocketIOClient client = server.getClient(UUID.fromString(sessionId));
-//        client.sendEvent(Command.Schem.OPEN.getSchemString(), deviceId);
-//        return ok();
-//    }
-//
-//
-//    @ResponseBody
-//    @RequestMapping(value = "/show/screen/stop/{deviceId}", method= RequestMethod.GET)
-//    public Result showScreenStop(@PathVariable String deviceId){
-//        String sessionId = remoteClientService.getMainSessionByDeviceId(deviceId);
-//        if(StringUtils.isBlank(sessionId)){
-//            return fail(ResultCode.PARAM_ERROR, "sessionId not found");
-//        }
-//        SocketIOClient client = server.getClient(UUID.fromString(sessionId));
-//        ScreenCaptureEndRequest request = ScreenCaptureEndRequest.newBuilder()
-//                .setSerial(deviceId)
-//                .build();
-//        client.sendEvent(WebsocketEvent.ON_SCREEN_SHOW_STOP, request.toByteArray());
-//        return ok();
-//    }
-//
-//
-//    @ResponseBody
-//    @RequestMapping(value = "/show/logcat/start/{deviceId}", method= RequestMethod.GET)
-//    public Result showLogcatStart(@PathVariable String deviceId){
-//        String sessionId = remoteClientService.getMainSessionByDeviceId(deviceId);
-//        if(StringUtils.isBlank(sessionId)){
-//            return fail(ResultCode.PARAM_ERROR, "sessionId not found");
-//        }
-//        SocketIOClient client = server.getClient(UUID.fromString(sessionId));
-//        LogcatStartRequest request = LogcatStartRequest.newBuilder()
-//                .setSerial(deviceId)
-//                .setFilter("")
-//                .setLevel("E")
-//                .setTag("")
-//                .build();
-//        client.sendEvent(WebsocketEvent.ON_LOGCAT_SHOW_START, request.toByteArray());
-//        return ok();
-//    }
-//
-//
-//    @ResponseBody
-//    @RequestMapping(value = "/show/logcat/stop/{deviceId}", method= RequestMethod.GET)
-//    public Result showLogcatStop(@PathVariable String deviceId){
-//        String sessionId = remoteClientService.getMainSessionByDeviceId(deviceId);
-//        if(StringUtils.isBlank(sessionId)){
-//            return fail(ResultCode.PARAM_ERROR, "sessionId not found");
-//        }
-//        SocketIOClient client = server.getClient(UUID.fromString(sessionId));
-//        LogcatEndRequest request = LogcatEndRequest.newBuilder()
-//                .setSerial(deviceId)
-//                .build();
-//        client.sendEvent(WebsocketEvent.ON_LOGCAT_SHOW_STOP, request.toByteArray());
-//        return ok();
-//    }
 
 
 }

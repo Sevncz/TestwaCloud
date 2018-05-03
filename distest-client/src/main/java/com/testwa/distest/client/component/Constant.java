@@ -42,6 +42,8 @@ public class Constant {
 
     public static final String localVideoPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "video").toString();
 
+    // ios-deploy
+
 
     public static String getMinitouchBin(String abi, String bin) {
         return File.separator + "minitouch" + File.separator + abi + File.separator + bin;

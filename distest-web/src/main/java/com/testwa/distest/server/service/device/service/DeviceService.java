@@ -6,7 +6,9 @@ import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.service.device.dao.IDeviceDAO;
+import com.testwa.distest.server.service.device.dto.DeviceOneCategoryResultDTO;
 import com.testwa.distest.server.service.device.form.DeviceListForm;
+import com.testwa.distest.server.web.device.vo.DeviceCategoryVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -150,5 +152,33 @@ public class DeviceService {
 
     public void work(String deviceId) {
         deviceDAO.updateWorkStatus(deviceId, DB.PhoneWorkStatus.BUSY);
+    }
+
+    public DeviceCategoryVO getCategory(Set<String> deviceIds) {
+
+        List<DeviceOneCategoryResultDTO> dto = deviceDAO.getResolutionCategory(deviceIds);
+        List<String> resolutions = new ArrayList<>();
+        dto.forEach( d -> {
+            resolutions.add(d.getName());
+        });
+
+        dto = deviceDAO.getOSVersionCategory(deviceIds);
+        List<String> osVersions = new ArrayList<>();
+        dto.forEach( d -> {
+            osVersions.add(d.getName());
+        });
+
+        dto = deviceDAO.getBrandCategory(deviceIds);
+        List<String> brands = new ArrayList<>();
+        dto.forEach( d -> {
+            brands.add(d.getName());
+        });
+
+        DeviceCategoryVO vo = new DeviceCategoryVO();
+        vo.setResolution(resolutions);
+        vo.setOsVersion(osVersions);
+        vo.setBrand(brands);
+
+        return vo;
     }
 }

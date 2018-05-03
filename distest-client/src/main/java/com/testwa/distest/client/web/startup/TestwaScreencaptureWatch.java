@@ -1,6 +1,6 @@
 package com.testwa.distest.client.web.startup;
 
-import com.testwa.distest.client.task.TestwaScheduled;
+import com.testwa.distest.client.task.CronScheduled;
 import com.testwa.core.os.filewatch.FileActionCallback;
 import com.testwa.core.os.filewatch.WatchDir;
 import com.testwa.distest.client.component.Constant;
@@ -29,7 +29,7 @@ public class TestwaScreencaptureWatch implements CommandLineRunner {
                         LOG.debug("文件已创建\t" + file1.getAbsolutePath());
                         try {
                             if(!file1.isDirectory()){
-                                TestwaScheduled.screenUploadQueue.put(file1.getAbsolutePath());
+                                CronScheduled.screenUploadQueue.put(file1.getAbsolutePath());
                             }
                         } catch (InterruptedException e) {
                             e.printStackTrace();

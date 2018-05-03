@@ -5,6 +5,7 @@ import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.mapper.DeviceMapper;
 import com.testwa.distest.server.service.device.dao.IDeviceDAO;
+import com.testwa.distest.server.service.device.dto.DeviceOneCategoryResultDTO;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
@@ -72,5 +73,25 @@ public class DeviceDAO extends BaseDAO<Device, Long>  implements IDeviceDAO{
     @Override
     public Long countBy(Device dq) {
         return deviceMapper.countBy(dq);
+    }
+
+    @Override
+    public List<DeviceOneCategoryResultDTO> getResolutionCategory(Set<String> deviceIds) {
+        return deviceMapper.getResolutionCategory(deviceIds);
+    }
+
+    @Override
+    public List<DeviceOneCategoryResultDTO> getOSVersionCategory(Set<String> deviceIds) {
+        return deviceMapper.getOSVersionCategory(deviceIds);
+    }
+
+    @Override
+    public List<DeviceOneCategoryResultDTO> getOSPlatformCategory(Set<String> deviceIds) {
+        return deviceMapper.getOSPlatformCategory(deviceIds);
+    }
+
+    @Override
+    public List<DeviceOneCategoryResultDTO> getBrandCategory(Set<String> deviceIds) {
+        return deviceMapper.getBrandCategory(deviceIds);
     }
 }

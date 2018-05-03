@@ -3,6 +3,7 @@ package com.testwa.distest.server.mapper;
 import com.testwa.core.base.mapper.BaseMapper;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Device;
+import com.testwa.distest.server.service.device.dto.DeviceOneCategoryResultDTO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -34,4 +35,12 @@ public interface DeviceMapper extends BaseMapper<Device, Long> {
     void updateWorkStatus(@Param("deviceId") String deviceId, @Param("status") DB.PhoneWorkStatus status);
 
     Long countBy(Device dq);
+
+    List<DeviceOneCategoryResultDTO> getResolutionCategory(@Param("deviceIds") Set<String> deviceIds);
+
+    List<DeviceOneCategoryResultDTO> getBrandCategory(@Param("deviceIds") Set<String> deviceIds);
+
+    List<DeviceOneCategoryResultDTO> getOSPlatformCategory(@Param("deviceIds") Set<String> deviceIds);
+
+    List<DeviceOneCategoryResultDTO> getOSVersionCategory(@Param("deviceIds") Set<String> deviceIds);
 }

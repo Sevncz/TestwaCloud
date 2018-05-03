@@ -1,0 +1,1 @@
+package com.testwa.distest.server.service.device.dto;import lombok.Data;/** * @Program: distest * @Description: 分类查询结果 * @Author: wen * @Create: 2018-05-03 18:37 **/@Datapublic class DeviceOneCategoryResultDTO {    private String name;    private String value;}
