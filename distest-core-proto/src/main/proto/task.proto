@@ -10,7 +10,8 @@ package testcase;
 
 
 service TaskService {
-    rpc gameover (TaskOverRequest) returns ( CommonReply ) {}
+    rpc gameover (GameOverRequest) returns ( CommonReply ) {}
+    rpc missionComplete (MissionCompleteRequest) returns ( CommonReply ) {}
     rpc LogcatUpload (stream FileUploadRequest) returns ( CommonReply ) {}
     rpc AppiumLogUpload (stream FileUploadRequest) returns ( CommonReply ) {}
     rpc ImgUpload (stream FileUploadRequest) returns ( CommonReply ) {}
@@ -47,10 +48,18 @@ message ProcedureInfoRequest {
 }
 
 
-message TaskOverRequest {
+message GameOverRequest {
     int64 exeId = 1;
     int64 timestamp = 2;
     string token = 3;
+    string errorMessage = 4;
+    string deviceId = 5;
+}
+message MissionCompleteRequest {
+    int64 exeId = 1;
+    int64 timestamp = 2;
+    string token = 3;
+    string deviceId = 4;
 }
 
 message CurrentExeInfoRequest {
