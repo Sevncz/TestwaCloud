@@ -4,7 +4,7 @@ import com.github.cosysoft.device.android.impl.DefaultAndroidApp;
 import com.github.cosysoft.device.shell.AndroidSdk;
 import com.github.cosysoft.device.shell.AndroidSdkException;
 import com.github.cosysoft.device.shell.ShellCommandException;
-import com.testwa.distest.common.shell.UTF8CommonExecs;
+import com.testwa.core.shell.UTF8CommonExecs;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.lang3.StringUtils;
@@ -60,7 +60,7 @@ public class TestwaAndroidApp extends DefaultAndroidApp {
         } catch (IOException e) {
             output = e.getCause().getMessage();
         }
-        log.info("aapt output ======= {}", output);
+        log.debug("aapt output ======= {}", output);
         return output;
     }
 

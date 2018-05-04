@@ -43,6 +43,8 @@ public class Constant {
     public static final String localVideoPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "video").toString();
 
     // ios-deploy
+    public static final String IOS_DEPLOY = "ios-deploy";
+    public static final String IOS_DEPLOY_BIN = "ios-deploy";
 
 
     public static String getMinitouchBin(String abi, String bin) {
@@ -75,5 +77,8 @@ public class Constant {
         return "keyboardservice" + File.separator + KEYBOARD_SERVICE_APK;
     }
 
+    public static String getIOSDeploy() {
+        return IOS_DEPLOY + File.separator + IOS_DEPLOY_BIN;
+    }
 
 }

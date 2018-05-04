@@ -1,8 +1,6 @@
 package com.testwa.distest.client.task;
 
 import com.testwa.distest.client.grpc.GrpcClient;
-import com.testwa.distest.client.model.TestwaDevice;
-import com.testwa.distest.client.service.HttpService;
 import com.testwa.distest.client.component.Constant;
 import io.grpc.Channel;
 import lombok.extern.slf4j.Slf4j;
@@ -15,10 +13,8 @@ import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by wen on 16/9/4.
@@ -33,9 +29,18 @@ public class CronScheduled {
     private Environment env;
     @GrpcClient("local-grpc-server")
     private Channel serverChannel;
+    @Value("${distest.agent.resources}")
+    private String resourcesPath;
 
 
-    @Scheduled(cron = "0/10 * * * * ?")
+    /**
+     *@Description:  获得ios设备信息
+     *@Param: []
+     *@Return: void
+     *@Author: wen
+     *@Date: 2018/5/4
+     */
+    @Scheduled(cron = "0/5 * * * * ?")
     public void iphoneSender() {
 
 

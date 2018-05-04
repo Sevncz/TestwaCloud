@@ -1,0 +1,1 @@
+package com.testwa.core.shell;import lombok.Data;@Datapublic class ExecResult {    private int exitCode;    private String stdout;    private String stderr;    private String codeInfo;}

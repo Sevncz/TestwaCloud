@@ -39,7 +39,7 @@ import java.util.List;
 @Slf4j
 @Order(value=1)
 @Component
-public class TestwaEnvCheck implements CommandLineRunner {
+public class EnvCheck implements CommandLineRunner {
 
     @Value("${cloud.web.url}")
     private String cloudWebUrl;

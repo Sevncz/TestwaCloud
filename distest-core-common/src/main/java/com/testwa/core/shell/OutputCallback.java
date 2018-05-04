@@ -1,0 +1,1 @@
+package com.testwa.core.shell;public interface OutputCallback {    public void parse(String line);}
