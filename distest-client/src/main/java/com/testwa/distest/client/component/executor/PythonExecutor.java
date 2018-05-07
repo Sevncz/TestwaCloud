@@ -45,7 +45,7 @@ public class PythonExecutor {
     // 127.0.0.1:8080 or cloud.testwa.com
     private String distestApiWeb;
     // testwa
-    private String distestApiName;
+//    private String distestApiName;
 
     private PythonScriptDriverService pyService;
 
@@ -73,9 +73,8 @@ public class PythonExecutor {
     private Downloader downloader = new Downloader();
 
     @ExecutorActionInfo(desc = "参数初始化", order = 0)
-    public void init(String distestApiWeb, String distestApiName, String appiumUrl, RemoteRunCommand cmd) {
+    public void init(String distestApiWeb, String appiumUrl, RemoteRunCommand cmd) {
         this.distestApiWeb = distestApiWeb;
-        this.distestApiName = distestApiName;
         this.appiumUrl = appiumUrl;
         this.appInfo = cmd.getAppInfo();
         this.deviceId = cmd.getDeviceId();

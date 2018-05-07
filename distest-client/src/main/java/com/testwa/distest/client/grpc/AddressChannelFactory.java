@@ -14,11 +14,6 @@ import io.grpc.LoadBalancer;
 import io.grpc.NameResolver;
 import io.grpc.netty.NettyChannelBuilder;
 
-/**
- * User: Michael
- * Email: yidongnan@gmail.com
- * Date: 5/17/16
- */
 public class AddressChannelFactory implements GrpcChannelFactory {
     private final GrpcChannelsProperties properties;
     private final LoadBalancer.Factory loadBalancerFactory;

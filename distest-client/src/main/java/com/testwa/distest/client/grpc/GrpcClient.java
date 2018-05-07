@@ -9,11 +9,6 @@ import java.lang.annotation.Target;
 
 import io.grpc.ClientInterceptor;
 
-/**
- * User: Michael
- * Email: yidongnan@gmail.com
- * Date: 2016/12/7
- */
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented

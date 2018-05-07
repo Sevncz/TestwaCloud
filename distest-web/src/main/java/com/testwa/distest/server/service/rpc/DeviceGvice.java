@@ -98,6 +98,13 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
         deviceAuthMgr.online(request.getDeviceId());
     }
 
+    /**
+     *@Description: android设备连接
+     *@Param: [request, responseObserver]
+     *@Return: void
+     *@Author: wen
+     *@Date: 2018/5/7
+     */
     @Override
     public void connect(ConnectedRequest request, StreamObserver<CommonReply> responseObserver) {
         log.info("device {} connected", request.getDeviceId());
@@ -117,6 +124,7 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
         device.setWidth(request.getWidth());
         device.setLastUserId(user.getId());
         device.setLastUserToken(request.getToken());
+        device.setPhoneOS(DB.PhoneOS.ANDROID);
         // 连接上来的设备设置为在线状态
         device.setOnlineStatus(DB.PhoneOnlineStatus.ONLINE);
         // 设置为空闲状态

@@ -9,11 +9,6 @@ import java.util.Map;
 
 import lombok.Data;
 
-/**
- * User: Michael
- * Email: yidongnan@gmail.com
- * Date: 5/17/16
- */
 @Data
 @ConfigurationProperties("grpc")
 public class GrpcChannelsProperties {

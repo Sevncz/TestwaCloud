@@ -11,11 +11,6 @@ import io.grpc.NameResolver;
 import io.grpc.NameResolverProvider;
 import io.grpc.internal.GrpcUtil;
 
-/**
- * User: Michael
- * Email: yidongnan@gmail.com
- * Date: 5/17/16
- */
 public class DiscoveryClientResolverFactory extends NameResolverProvider {
     private final DiscoveryClient client;
 

@@ -15,11 +15,6 @@ import io.grpc.ClientInterceptors;
 import io.grpc.LoadBalancer;
 import io.grpc.netty.NettyChannelBuilder;
 
-/**
- * User: Michael
- * Email: yidongnan@gmail.com
- * Date: 5/17/16
- */
 public class DiscoveryClientChannelFactory implements GrpcChannelFactory {
     private final GrpcChannelsProperties properties;
     private final DiscoveryClient client;

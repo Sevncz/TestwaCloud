@@ -9,6 +9,7 @@ import com.testwa.distest.server.entity.Task;
 import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.task.service.TaskService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -51,7 +52,7 @@ public class TaskValidatoer {
         DB.PhoneOS platform = app.getPlatform();
         List<Device> deviceList = deviceService.findAll(deviceIds);
         for(Device device : deviceList) {
-            if(!device.getPhoneOS().equals(platform)){
+            if(device.getPhoneOS() != null && !device.getPhoneOS().equals(platform)){
                 throw new TaskStartException("App和设备系统不匹配");
             }
         }

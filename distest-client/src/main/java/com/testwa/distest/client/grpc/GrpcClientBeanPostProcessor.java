@@ -21,11 +21,6 @@ import io.grpc.Channel;
 import io.grpc.ClientInterceptor;
 import lombok.SneakyThrows;
 
-/**
- * User: Michael
- * Email: yidongnan@gmail.com
- * Date: 5/17/16
- */
 public class GrpcClientBeanPostProcessor implements org.springframework.beans.factory.config.BeanPostProcessor {
 
     private Map<String, List<Class>> beansToProcess = Maps.newHashMap();

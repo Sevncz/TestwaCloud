@@ -70,7 +70,7 @@ public class TestcaseRunListener implements ApplicationListener<TestcaseRunEvent
                 try {
                     String appiumUrl = manager.getAppiumService().getUrl().toString();
                     PythonExecutor executor2 = ProxyFactory.getPyExecutorInstance(PythonExecutor.class, cmd);
-                    executor2.init(distestApiWeb, distestApiName, appiumUrl, cmd);
+                    executor2.init(distestApiWeb, appiumUrl, cmd);
                     executors.put(cmd.getDeviceId(), executor2);
 
                     AppDownloadExecutorHandler appHander = new AppDownloadExecutorHandler();

@@ -1,5 +1,6 @@
 package com.testwa.distest.config.security;
 
+import com.testwa.core.base.constant.WebConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -78,8 +79,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
 //                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // 对于获取token的rest api要允许匿名访问
-                .antMatchers(HttpMethod.GET, "/api/auth/**").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
+                .antMatchers(HttpMethod.GET, WebConstants.API_PREFIX + "/auth/**").permitAll()
+                .antMatchers(HttpMethod.POST, WebConstants.API_PREFIX + "/auth/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/druid/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/druid/**").permitAll()
 

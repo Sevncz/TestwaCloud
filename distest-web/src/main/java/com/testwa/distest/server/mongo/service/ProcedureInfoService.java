@@ -93,7 +93,7 @@ public class ProcedureInfoService extends BaseService {
             query.addCriteria(Criteria.where("executionTaskId").is(form.getTaskId()));
         }
         if(StringUtils.isNotBlank(form.getDeviceId())){
-            query.addCriteria(Criteria.where("deviceId").is(form.getTaskId()));
+            query.addCriteria(Criteria.where("deviceId").is(form.getDeviceId()));
         }
         int pageNum = form.getPageNo();
         int rows = form.getPageSize();
@@ -114,7 +114,7 @@ public class ProcedureInfoService extends BaseService {
             query.addCriteria(Criteria.where("executionTaskId").is(form.getTaskId()));
         }
         if(StringUtils.isNotBlank(form.getDeviceId())){
-            query.addCriteria(Criteria.where("deviceId").is(form.getTaskId()));
+            query.addCriteria(Criteria.where("deviceId").is(form.getDeviceId()));
         }
         return procedureInfoRepository.find(query);
     }

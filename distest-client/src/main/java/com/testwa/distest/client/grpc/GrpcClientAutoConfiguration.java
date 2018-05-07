@@ -12,11 +12,6 @@ import org.springframework.context.annotation.Configuration;
 import io.grpc.LoadBalancer;
 import io.grpc.util.RoundRobinLoadBalancerFactory;
 
-/**
- * User: Michael
- * Email: yidongnan@gmail.com
- * Date: 5/17/16
- */
 @Configuration
 @EnableConfigurationProperties
 @ConditionalOnClass({GrpcChannelFactory.class})

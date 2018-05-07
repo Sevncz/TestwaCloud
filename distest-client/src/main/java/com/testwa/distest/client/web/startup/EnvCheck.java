@@ -165,7 +165,8 @@ public class EnvCheck implements CommandLineRunner {
 
             }
         };
-        httpService.postJson(String.format("%s/%s/api/auth/login", cloudWebUrl, applicationName), new User(username, password), cb);
+        String uri = StringUtils.isBlank(applicationName) ? cloudWebUrl : cloudWebUrl + "/" + applicationName;
+        httpService.postJson(String.format("%s/v1/auth/login", uri), new User(username, password), cb);
     }
 
     private class User {
