@@ -53,17 +53,20 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return new JwtAuthenticationTokenFilter();
     }
 
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurerAdapter() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**").allowedOrigins("*")
-                        .allowedMethods("GET", "HEAD", "POST","PUT", "DELETE", "OPTIONS")
-                        .allowCredentials(false).maxAge(3600);
-            }
-        };
-    }
+//    @Bean
+//    public WebMvcConfigurer corsConfigurer() {
+//        return new WebMvcConfigurerAdapter() {
+//            @Override
+//            public void addCorsMappings(CorsRegistry registry) {
+//                registry.addMapping("/**")
+//                        .allowedOrigins("*")
+//                        .allowedMethods("GET", "HEAD", "POST","PUT", "DELETE", "OPTIONS")
+////                        .allowedHeaders("*")
+//                        .allowCredentials(false)
+//                        .maxAge(3600);
+//            }
+//        };
+//    }
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
