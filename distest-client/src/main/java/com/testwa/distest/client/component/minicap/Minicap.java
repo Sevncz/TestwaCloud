@@ -10,7 +10,7 @@ import com.testwa.distest.client.android.AdbForward;
 import com.testwa.core.utils.Common;
 
 import com.testwa.distest.client.android.AndroidHelper;
-import com.testwa.distest.client.control.port.ScreenPortProvider;
+import com.testwa.distest.client.control.port.MinicapPortProvider;
 import com.testwa.distest.client.component.Constant;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -189,25 +189,26 @@ public class Minicap {
      * 生成forward信息
      */
     private AdbForward generateForwardInfo() {
-        AdbForward[] forwards = AndroidHelper.getInstance().getForwardList();
-        // serial_cap_number
-        int maxNumber = 0;
-        if (forwards.length > 0) {
-            for (AdbForward forward : forwards) {
-                if (forward.getSerialNumber().equals(device.getSerialNumber())) {
-                    String l = forward.getLocalabstract();
-                    String[] s = l.split("_");
-                    if (s.length == 3) {
-                        int n = Integer.parseInt(s[2]);
-                        if (n > maxNumber) maxNumber = n;
-                    }
-                }
-            }
-        }
-        maxNumber += 1;
-
-        String forwardStr = String.format("%s_cap_%d", device.getSerialNumber(), maxNumber);
-        int freePort = ScreenPortProvider.pullPort();
+//        AdbForward[] forwards = AndroidHelper.getInstance().getForwardList();
+//        // serial_cap_number
+//        int maxNumber = 0;
+//        if (forwards.length > 0) {
+//            for (AdbForward forward : forwards) {
+//                if (forward.getSerialNumber().equals(device.getSerialNumber())) {
+//                    String l = forward.getLocalabstract();
+//                    String[] s = l.split("_");
+//                    if (s.length == 3) {
+//                        int n = Integer.parseInt(s[2]);
+//                        if (n > maxNumber) maxNumber = n;
+//                    }
+//                }
+//            }
+//        }
+//        maxNumber += 1;
+//
+//
+        String forwardStr = String.format("%s_minicap_%d", device.getSerialNumber(), Thread.currentThread().getId());
+        int freePort = MinicapPortProvider.pullPort();
         AdbForward forward = new AdbForward(device.getSerialNumber(), freePort, forwardStr);
         return forward;
     }

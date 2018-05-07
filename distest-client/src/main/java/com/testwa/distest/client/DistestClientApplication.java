@@ -3,8 +3,8 @@ package com.testwa.distest.client;
 import com.testwa.distest.client.config.PortConfig;
 import com.testwa.distest.client.control.port.ApkPortProvider;
 import com.testwa.distest.client.control.port.AppiumPortProvider;
-import com.testwa.distest.client.control.port.ScreenPortProvider;
-import com.testwa.distest.client.control.port.TouchPortProvider;
+import com.testwa.distest.client.control.port.MinicapPortProvider;
+import com.testwa.distest.client.control.port.MinitouchPortProvider;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
@@ -25,8 +25,8 @@ import java.util.concurrent.Executor;
 public class DistestClientApplication extends AsyncConfigurerSupport {
 
     public static void main(String[] args) {
-        ScreenPortProvider.init(PortConfig.screenPortStart, PortConfig.screenPortEnd);
-        TouchPortProvider.init(PortConfig.touchPortStart, PortConfig.touchPortEnd);
+        MinicapPortProvider.init(PortConfig.screenPortStart, PortConfig.screenPortEnd);
+        MinitouchPortProvider.init(PortConfig.touchPortStart, PortConfig.touchPortEnd);
         ApkPortProvider.init(PortConfig.apkPortStart, PortConfig.apkPortEnd);
         AppiumPortProvider.init(PortConfig.appiumPortStart, PortConfig.appiumPortEnd);
 
