@@ -26,8 +26,6 @@ public interface DeviceMapper extends BaseMapper<Device, Long> {
 
     List<Device> fetchList(Map queryMap);
 
-    List<Device> findAllDeviceAndroid(@Param("deviceIds") List<String> deviceIds);
-
     List<Device> findOnlineList(Map queryMap);
 
     List<Device> findListByOnlineDevice(@Param("query") Map<String, Object> queryMap, @Param("onlineDeviceList") Set<String> onlineDeviceList);

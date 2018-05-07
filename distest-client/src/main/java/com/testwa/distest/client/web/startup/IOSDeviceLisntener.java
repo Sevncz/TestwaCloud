@@ -45,8 +45,8 @@ public class IOSDeviceLisntener implements CommandLineRunner {
                     CommandLine cli = new CommandLine(iosDeployPath.toFile());
                     cli.addArgument("-c");
                     UTF8CommonExecs executable = new UTF8CommonExecs(cli);
-                    String output = "";
-                    output = executable.exec();
+                    executable.exec();
+                    String output = executable.getOutput();
 //                    log.info(output);
                     parseIOSDeviceInfo(output);
                 } catch (Exception e) {
@@ -98,8 +98,8 @@ public class IOSDeviceLisntener implements CommandLineRunner {
             cli.addArgument("-c");
 
             UTF8CommonExecs executable = new UTF8CommonExecs(cli);
-            String output = "";
-            output = executable.exec();
+            executable.exec();
+            String output = executable.getOutput();
             log.info(output);
 //            parseIOSDeviceInfo(output);
         } catch (Exception e) {

@@ -40,8 +40,8 @@ public class MainSocket extends BaseClient{
                 context.publishEvent(new WebSocketConnectedEvent(MainSocket.class));
             }).on(Socket.EVENT_DISCONNECT, objects -> {
                 log.debug("客户端连接断开");
-                ApplicationContext context = ApplicationContextUtil.getApplicationContext();
-                context.publishEvent(new WebSocketDisconnectedEvent(MainSocket.class));
+//                ApplicationContext context = ApplicationContextUtil.getApplicationContext();
+//                context.publishEvent(new WebSocketDisconnectedEvent(MainSocket.class));
             });
         } catch (URISyntaxException e) {
             e.printStackTrace();

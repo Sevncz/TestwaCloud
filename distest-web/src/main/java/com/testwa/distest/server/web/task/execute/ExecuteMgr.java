@@ -127,7 +127,7 @@ public class ExecuteMgr {
             task.setTestcaseJson(JSON.toJSONString(alltestcase));
         }
         task.setTaskName(taskName);
-        List<Device> alldevice = deviceService.findAllDeviceAndroid(form.getDeviceIds());
+        List<Device> alldevice = deviceService.findAll(form.getDeviceIds());
         task.setDevicesJson(JSON.toJSONString(alldevice));
         task.setCreateBy(user.getId());
         task.setCreateTime(DateUtils.getMongoDate(new Date()));

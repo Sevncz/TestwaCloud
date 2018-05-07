@@ -28,8 +28,6 @@ public interface IDeviceDAO extends IBaseDAO<Device, Long> {
 
     List<Device> fetchList(Map<String, Object> queryMap);
 
-    List<Device> findAllDeviceAndroid(List<String> deviceIds);
-
     List<Device> findListByOnlineDevice(Map<String, Object> queryMap, Set<String> onlineDeviceList);
 
     Long countBy(Device dq);

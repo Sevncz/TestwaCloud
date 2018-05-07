@@ -56,7 +56,8 @@ public class TestwaAndroidApp extends DefaultAndroidApp {
         UTF8CommonExecs executable = new UTF8CommonExecs(line);
         String output = "";
         try {
-            output = executable.exec();
+            executable.exec();
+            output = executable.getOutput();
         } catch (IOException e) {
             output = e.getCause().getMessage();
         }

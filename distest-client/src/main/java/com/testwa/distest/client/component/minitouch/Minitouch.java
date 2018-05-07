@@ -306,7 +306,7 @@ public class Minitouch {
                         socket.close();
                     } else {
                         String minitouchInfo = new String(bytes, StandardCharsets.UTF_8).replace("\n", " ");
-                        log.info("{} Minitouch 启动, \n {}", device.getSerialNumber(), minitouchInfo);
+                        log.info("Minitouch {} 启动  {}", device.getSerialNumber(), minitouchInfo);
                         String[] result = minitouchInfo.split(" ");
                         Integer MaxX = Integer.parseInt(result[4]);
                         Integer MaxY = Integer.parseInt(result[5]);
@@ -323,8 +323,7 @@ public class Minitouch {
                         PercentX = (double)screenWidth / MaxX;
                         PercentY = (double)screenHeight / MaxY;
 
-                        log.info("PercentX: {}， PercentY: {}", PercentX, PercentY);
-
+                        log.debug("PercentX: {}， PercentY: {}", PercentX, PercentY);
 
                         minitouchSocket = socket;
                         minitouchOutputStream = outputStream;

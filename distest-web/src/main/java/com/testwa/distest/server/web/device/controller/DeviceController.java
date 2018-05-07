@@ -86,11 +86,6 @@ public class DeviceController extends BaseController {
         return ok(deviceList);
     }
 
-
-    /*
-     * 所有设备查询
-     */
-
     /**
      * 所有设备分页列表
      * @param form

@@ -51,11 +51,6 @@ public class DeviceDAO extends BaseDAO<Device, Long>  implements IDeviceDAO{
     }
 
     @Override
-    public List<Device> findAllDeviceAndroid(List<String> deviceIds) {
-        return deviceMapper.findAllDeviceAndroid(deviceIds);
-    }
-
-    @Override
     public List<Device> findOnlineList(Map queryMap) {
         return deviceMapper.findOnlineList(queryMap);
     }

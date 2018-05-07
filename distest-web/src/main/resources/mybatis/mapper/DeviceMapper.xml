@@ -137,7 +137,7 @@
         </trim>
     </select>
 
-    <select id="findAllDeviceAndroid" resultMap="BaseResultMap" >
+    <select id="findAll" resultMap="BaseResultMap" >
         SELECT device.*
         FROM device
         WHERE deviceId IN

@@ -18,6 +18,7 @@ import sun.misc.BASE64Decoder;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -417,8 +418,8 @@ public class Minicap {
                             minicapSocket.close();
                         }
                     } else {
-
-                        log.info("{} Minicap 启动", device.getSerialNumber());
+                        String minicapInfo = new String(bytes, StandardCharsets.UTF_8).replace("\n", " ");
+                        log.info("Minicap {} 启动 {}", device.getSerialNumber(), minicapInfo);
                         // bytes内包含有信息，需要给Dataparser处理
                         dataQueue.add(Arrays.copyOfRange(bytes, 0, n));
                         isRunning = true;

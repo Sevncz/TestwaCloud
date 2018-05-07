@@ -27,7 +27,7 @@ public class StartRemoteClientCallbackImpl implements MessageCallback {
         try {
             AndroidDevice device = AndroidDeviceStore.getInstance().getDeviceBySerial(deviceID);
             if(device != null){
-                grpcClientService.createRemoteClient(device.getDevice());
+                grpcClientService.createRemoteClient(device);
             }
         } catch (DeviceNotFoundException e1) {
             e1.printStackTrace();

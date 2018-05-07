@@ -16,8 +16,9 @@ service ControlService {
 service DeviceService {
     rpc all (DevicesRequest) returns ( CommonReply ) {}
     rpc connect (ConnectedRequest) returns ( CommonReply ) {}
-    rpc disconnect (DisconnectedRequest) returns ( CommonReply ) {}
-    rpc offline (DisconnectedRequest) returns ( CommonReply ) {}
+    rpc online (DeviceStatusChangeRequest) returns ( CommonReply ) {}
+    rpc disconnect (DeviceStatusChangeRequest) returns ( CommonReply ) {}
+    rpc offline (DeviceStatusChangeRequest) returns ( CommonReply ) {}
     rpc logcat(LogcatRequest) returns ( CommonReply ) {}
     rpc screen(ScreenCaptureRequest) returns ( CommonReply ) {}
 }
@@ -50,12 +51,13 @@ message DevicesRequest {
 }
 
 
-message DisconnectedRequest {
+message DeviceStatusChangeRequest {
 
     string deviceId = 1;
     enum LineStatus {
-        OFF = 0;
-        DISCONNECTED = 1;
+        ONLINE = 0;
+        OFFLINE = 1;
+        DISCONNECTED = 2;
     }
     LineStatus status = 2;
 

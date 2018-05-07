@@ -39,7 +39,7 @@ public class DistestClientApplication extends AsyncConfigurerSupport {
         executor.setCorePoolSize(10);
         executor.setMaxPoolSize(10);
         executor.setQueueCapacity(500);
-        executor.setThreadNamePrefix("TestwaAgentLookup-");
+        executor.setThreadNamePrefix("WaLookup-");
         executor.initialize();
         return executor;
     }

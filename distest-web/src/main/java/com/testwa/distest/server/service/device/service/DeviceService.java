@@ -142,10 +142,6 @@ public class DeviceService {
         return deviceDAO.fetchList(queryMap);
     }
 
-    public List<Device> findAllDeviceAndroid(List<String> deviceIds) {
-        return deviceDAO.findAllDeviceAndroid(deviceIds);
-    }
-
     public void release(String deviceId) {
         deviceDAO.updateWorkStatus(deviceId, DB.PhoneWorkStatus.FREE);
     }

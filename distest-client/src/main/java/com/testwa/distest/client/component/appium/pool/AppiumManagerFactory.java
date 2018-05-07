@@ -23,7 +23,7 @@ public class AppiumManagerFactory extends BasePooledObjectFactory<AppiumManager>
 
     @Override
     public AppiumManager create() throws Exception {
-        log.info("executor create ......");
+        log.info("Appium manager create");
         return new AppiumManager(this.nodePath, this.appiumPath, this.clientWebUrl);
     }
 
@@ -49,6 +49,7 @@ public class AppiumManagerFactory extends BasePooledObjectFactory<AppiumManager>
      */
     @Override
     public void destroyObject(PooledObject<AppiumManager> pooledObject) {
+        log.info("Appium manager destory");
         pooledObject.getObject().destory();
         pooledObject.markAbandoned();
     }

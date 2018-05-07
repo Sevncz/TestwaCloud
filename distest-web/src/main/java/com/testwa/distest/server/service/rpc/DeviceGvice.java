@@ -72,14 +72,6 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
         deviceAndroid.setWidth(device.getWidth());
         deviceAndroid.setLastUserId(userId);
         deviceAndroid.setOsVersion(device.getVersion());
-//        if("ON".equals(device.getStatus().name().toUpperCase())){
-//            deviceAuthMgr.online(device.getDeviceId());
-//            deviceAndroid.setOnlineStatus(DB.PhoneOnlineStatus.ONLINE);
-//        }
-//        if("OFF".equals(device.getStatus().name().toUpperCase())){
-//            deviceAuthMgr.offline(deviceAndroid.getDeviceId());
-//            deviceAndroid.setOnlineStatus(DB.PhoneOnlineStatus.OFFLINE);
-//        }
         Device deviceBase = deviceService.findByDeviceId(device.getDeviceId());
         if(deviceBase == null){
             deviceService.insertAndroid(deviceAndroid);
@@ -89,15 +81,21 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     }
 
     @Override
-    public void disconnect(DisconnectedRequest request, StreamObserver<CommonReply> responseObserver) {
+    public void disconnect(DeviceStatusChangeRequest request, StreamObserver<CommonReply> responseObserver) {
         log.info("device {} disconnect", request.getDeviceId());
         deviceAuthMgr.offline(request.getDeviceId());
     }
 
     @Override
-    public void offline(DisconnectedRequest request, StreamObserver<CommonReply> responseObserver) {
+    public void offline(DeviceStatusChangeRequest request, StreamObserver<CommonReply> responseObserver) {
         log.info("device {} offline", request.getDeviceId());
         deviceAuthMgr.offline(request.getDeviceId());
+    }
+
+    @Override
+    public void online(DeviceStatusChangeRequest request, StreamObserver<CommonReply> responseObserver) {
+        log.info("device {} online", request.getDeviceId());
+        deviceAuthMgr.online(request.getDeviceId());
     }
 
     @Override
@@ -105,32 +103,34 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
         log.info("device {} connected", request.getDeviceId());
         String username = jwtTokenUtil.getUsernameFromToken(request.getToken());
         User user = userService.findByUsername(username);
-        Device deviceAndroid = new Device();
-        deviceAndroid.setBrand(request.getBrand());
-        deviceAndroid.setCpuabi(request.getCpuabi());
-        deviceAndroid.setDensity(request.getDensity());
-        deviceAndroid.setDeviceId(request.getDeviceId());
-        deviceAndroid.setHeight(request.getHeight());
-        deviceAndroid.setHost(request.getHost());
-        deviceAndroid.setModel(request.getModel());
-        deviceAndroid.setOsName(request.getOsName());
-        deviceAndroid.setOsVersion(request.getVersion());
-        deviceAndroid.setSdk(request.getSdk());
-        deviceAndroid.setWidth(request.getWidth());
-        deviceAndroid.setLastUserId(user.getId());
-        deviceAndroid.setLastUserToken(request.getToken());
+        Device device = new Device();
+        device.setBrand(request.getBrand());
+        device.setCpuabi(request.getCpuabi());
+        device.setDensity(request.getDensity());
+        device.setDeviceId(request.getDeviceId());
+        device.setHeight(request.getHeight());
+        device.setHost(request.getHost());
+        device.setModel(request.getModel());
+        device.setOsName(request.getOsName());
+        device.setOsVersion(request.getVersion());
+        device.setSdk(request.getSdk());
+        device.setWidth(request.getWidth());
+        device.setLastUserId(user.getId());
+        device.setLastUserToken(request.getToken());
         // 连接上来的设备设置为在线状态
-        deviceAndroid.setOnlineStatus(DB.PhoneOnlineStatus.ONLINE);
+        device.setOnlineStatus(DB.PhoneOnlineStatus.ONLINE);
         // 设置为空闲状态
-        deviceAndroid.setWorkStatus(DB.PhoneWorkStatus.FREE);
+        device.setWorkStatus(DB.PhoneWorkStatus.FREE);
 
         Device deviceBase = deviceService.findByDeviceId(request.getDeviceId());
         if(deviceBase == null){
-            deviceService.insertAndroid(deviceAndroid);
+            deviceService.insertAndroid(device);
         }else{
-            deviceService.updateAndroid(deviceAndroid);
+            deviceService.updateAndroid(device);
         }
         deviceAuthMgr.online(request.getDeviceId());
+
+        pushCmdService.pushInitDeviceClient(user.getId(), request.getDeviceId());
     }
 
 

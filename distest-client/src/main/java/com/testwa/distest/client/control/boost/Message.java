@@ -2,24 +2,22 @@ package com.testwa.distest.client.control.boost;
 
 import com.testwa.distest.client.control.client.MainSocket;
 import io.socket.emitter.Emitter;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Created by wen on 10/06/2017.
  */
+@Slf4j
 public class Message {
-    private static Logger log = LoggerFactory.getLogger(Message.class);
     public static void on(String channelName, final MessageCallback callbackObject){
-        MainSocket.getSocket().on(channelName, new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                log.info("{} callback called", channelName);
-                try {
-                    callbackObject.done(args[0], null);
-                } catch (MessageException e) {
-                    e.printStackTrace();
-                }
+        MainSocket.getSocket().on(channelName, args -> {
+            log.info("{} 消息接收", channelName);
+            try {
+                callbackObject.done(args[0], null);
+            } catch (MessageException e) {
+                e.printStackTrace();
             }
         });
         MainSocket.getSocket().emit("join-custom-channel", channelName );

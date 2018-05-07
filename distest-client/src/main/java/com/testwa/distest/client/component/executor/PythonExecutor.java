@@ -9,26 +9,25 @@ import com.testwa.core.cmd.RemoteTestcaseContent;
 import com.testwa.core.cmd.ScriptInfo;
 import com.testwa.core.service.PythonScriptDriverService;
 import com.testwa.core.service.PythonServiceBuilder;
+import com.testwa.core.shell.UTF8CommonExecs;
 import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.distest.client.download.Downloader;
 import com.testwa.distest.client.exception.DownloadFailException;
 import com.testwa.distest.client.component.Constant;
-import com.testwa.distest.client.util.Http;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.exec.CommandLine;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -155,7 +154,7 @@ public class PythonExecutor {
                     this.scripts.addAll(scIds);
                 }
                 ScriptInfo runscript = this.scripts.poll();
-                boolean status = runOneScript(runscript);
+                boolean status = start(runscript);
                 if(!status){
                     log.info("脚本全部执行完毕");
                     break;
@@ -172,23 +171,18 @@ public class PythonExecutor {
      * @throws Exception
      */
     @ExecutorActionInfo(desc = "脚本执行前的准备", order = 4)
-    public Boolean runOneScript(ScriptInfo runscript) throws Exception {
+    public Boolean start(ScriptInfo runscript) throws Exception {
         if(runscript == null){
             return false;
         }
         log.debug("run one script {}, deviceId {}", runscript.toString(), this.deviceId);
 
         this.currScript = runscript;
-        AndroidApp app = new DefaultAndroidApp(new File(appLocalPath));
-        String basePackage = app.getBasePackage();
-        String mainActivity = app.getMainActivity();
 
-//        String scriptUrl = String.format(Constant.SCRIPT_URL, agentWebUrl, runscriptId);
-//        String scriptPath = Http.download(scriptUrl, Constant.localScriptPath);
         String filePath = scriptPath.get(runscript.getId());
         // 脚本替换
         String url = appiumUrl.replace("0.0.0.0", "127.0.0.1");
-        String tempPath = this.replaceScriptByAndroid(filePath, appLocalPath, basePackage, mainActivity, url);
+        String tempPath = this.replaceScriptByAndroid(filePath, appLocalPath, url);
         log.debug("temp script path is [{}]", tempPath);
 
         // 执行脚本
@@ -200,9 +194,10 @@ public class PythonExecutor {
     @ExecutorActionInfo(desc = "脚本参数替换", order = 5)
     public String replaceScriptByAndroid(String localPath,
                                           String appPath,
-                                          String basePackage,
-                                          String mainActivity,
                                           String appiumUrl) throws Exception {
+        String basePackage = appInfo.getPackageName();
+        String mainActivity = appInfo.getActivity();
+
         File file = new File(localPath);
         BufferedReader reader = null;
         BufferedWriter bw = null;
@@ -347,12 +342,26 @@ public class PythonExecutor {
     }
 
     @ExecutorActionInfo(desc = "执行脚本", order = 6)
-    public void startPy(String tempPath) {
-        this.pyService = new PythonServiceBuilder()
-                .withPyScript(new File(tempPath))
-                .build();
-        this.pyService.start();
-        log.info("python script start......");
+    public void startPy(String pyPath) {
+//        this.pyService = new PythonServiceBuilder()
+//                .withPyScript(new File(tempPath))
+//                .build();
+//        this.pyService.start();
+//        log.info("python script start......");
+        CommandLine commandLine = new CommandLine("python");
+        commandLine.addArgument(pyPath);
+        UTF8CommonExecs execs = new UTF8CommonExecs(commandLine);
+        // 设置最大执行时间，5分钟
+        execs.setTimeout(5*60*1000L);
+        try {
+            execs.exec();
+            String output = execs.getOutput();
+        } catch (IOException e) {
+            String error = execs.getError();
+            log.error("Python 脚本执行错误 \n {}", error, e);
+
+        }
+
     }
 
     @ExecutorActionInfo(desc = "取消", order = 999)

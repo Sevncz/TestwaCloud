@@ -95,7 +95,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
             ws.emit("login", obj.toJSONString());
 //            ws.emit(Command.Schem.OPEN.getSchemString(), obj.toJSONString());
         }).on(Socket.EVENT_DISCONNECT, args -> {
-            log.info("设备 {} 断开连接.", this.deviceId);
+            log.info("设备 {} 断开连接", this.deviceId);
 //            ws.emit("logout", obj.toJSONString());
         });
 
