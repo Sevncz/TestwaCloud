@@ -56,6 +56,9 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
         for(io.rpc.testwa.device.Device device : l){
             handleDevice(device, user.getId());
         }
+        final CommonReply.Builder replyBuilder = CommonReply.newBuilder().setMessage("OK ");
+        responseObserver.onNext(replyBuilder.build());
+        responseObserver.onCompleted();
     }
 
     private void handleDevice(io.rpc.testwa.device.Device device, Long userId) {
@@ -84,18 +87,27 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     public void disconnect(DeviceStatusChangeRequest request, StreamObserver<CommonReply> responseObserver) {
         log.info("device {} disconnect", request.getDeviceId());
         deviceAuthMgr.offline(request.getDeviceId());
+        final CommonReply.Builder replyBuilder = CommonReply.newBuilder().setMessage("OK ");
+        responseObserver.onNext(replyBuilder.build());
+        responseObserver.onCompleted();
     }
 
     @Override
     public void offline(DeviceStatusChangeRequest request, StreamObserver<CommonReply> responseObserver) {
         log.info("device {} offline", request.getDeviceId());
         deviceAuthMgr.offline(request.getDeviceId());
+        final CommonReply.Builder replyBuilder = CommonReply.newBuilder().setMessage("OK ");
+        responseObserver.onNext(replyBuilder.build());
+        responseObserver.onCompleted();
     }
 
     @Override
     public void online(DeviceStatusChangeRequest request, StreamObserver<CommonReply> responseObserver) {
         log.info("device {} online", request.getDeviceId());
         deviceAuthMgr.online(request.getDeviceId());
+        final CommonReply.Builder replyBuilder = CommonReply.newBuilder().setMessage("OK ");
+        responseObserver.onNext(replyBuilder.build());
+        responseObserver.onCompleted();
     }
 
     /**
@@ -138,7 +150,10 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
         }
         deviceAuthMgr.online(request.getDeviceId());
 
-        pushCmdService.pushInitDeviceClient(user.getId(), request.getDeviceId());
+        final CommonReply.Builder replyBuilder = CommonReply.newBuilder().setMessage("OK ");
+        responseObserver.onNext(replyBuilder.build());
+        responseObserver.onCompleted();
+
     }
 
 

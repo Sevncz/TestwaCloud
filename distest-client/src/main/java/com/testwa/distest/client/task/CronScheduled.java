@@ -1,7 +1,10 @@
 package com.testwa.distest.client.task;
 
+import com.github.cosysoft.device.android.AndroidDevice;
+import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.distest.client.grpc.GrpcClient;
 import com.testwa.distest.client.component.Constant;
+import com.testwa.distest.client.service.GrpcClientService;
 import io.grpc.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -22,93 +26,20 @@ import java.util.concurrent.BlockingQueue;
 @Slf4j
 @Component
 public class CronScheduled {
-    public static BlockingQueue<String> screenUploadQueue = new ArrayBlockingQueue<>(10000);
-    public static BlockingQueue<String> screenEmptyQueue = new ArrayBlockingQueue<>(10000);
-
     @Autowired
-    private Environment env;
-    @GrpcClient("local-grpc-server")
-    private Channel serverChannel;
-    @Value("${distest.agent.resources}")
-    private String resourcesPath;
-
+    private GrpcClientService grpcClientService;
 
     /**
-     *@Description:  获得ios设备信息
+     *@Description: android设备在线情况的补充
      *@Param: []
      *@Return: void
      *@Author: wen
-     *@Date: 2018/5/4
+     *@Date: 2018/5/8
      */
     @Scheduled(cron = "0/5 * * * * ?")
-    public void iphoneSender() {
-
-
-    }
-
-    @Scheduled(cron = "0/5 * * * * ?")
-    private void uploadScreenCaptrue() {
-        for (; ; ) {
-            try {
-                String filepath = screenUploadQueue.poll();
-                if (StringUtils.isBlank(filepath)) {
-                    break;
-                }
-                Path p = Paths.get(filepath);
-
-                String screenName = filepath.substring(Constant.localScreenshotPath.length() + 1);
-
-                if (p.toFile().length() == 0) {
-                    try {
-                        screenEmptyQueue.put(filepath);
-                    } catch (InterruptedException e) {
-                        log.error("Put screenUploadQueue error", e);
-                    }
-                    continue;
-                }
-
-//                byte[] img = Files.readAllBytes(p);
-//                ByteString bys = ByteString.copyFrom(img);
-//                Agent.ScreenCaptureFeedback message = Agent.ScreenCaptureFeedback
-//                        .newBuilder()
-//                        .setImg(bys)
-//                        .setName(screenName).build();
-                // 这里异步上传文件
-//                httpService.postProto(String.format("%s/device/receive/screen", agentWebUrl), message.toByteArray());
-                // feedback.runninglog.screen
-//                这里会报错io.netty.handler.codec.CorruptedFrameException: Max frame length of 65536 has been exceeded.
-//                TestwaSocket.getSocket().emit("feedback.runninglog.screen", message.toByteArray());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    @Scheduled(cron = "0/2 * * * * ?")
-    private void processEmptyFile() {
-        int len = screenEmptyQueue.size();
-        for (int i = 0; i < len; i++) {
-            String filepath = screenEmptyQueue.poll();
-            if (StringUtils.isBlank(filepath)) {
-                break;
-            }
-            Path p = Paths.get(filepath);
-
-            if (p.toFile().length() == 0) {
-                try {
-                    screenEmptyQueue.put(filepath);
-                } catch (InterruptedException e) {
-                    log.error("Put screenEmptyQueue error", e);
-                }
-            } else {
-                try {
-                    screenUploadQueue.put(filepath);
-                } catch (InterruptedException e) {
-                    log.error("Put screenUploadQueue error", e);
-                }
-            }
-
-        }
+    public void androidInit() {
+//        Set<AndroidDevice> devices = AndroidHelper.getInstance().getAllDevices();
+//        devices.forEach(d -> grpcClientService.deviceOnline(d.getSerialNumber()));
     }
 
 }

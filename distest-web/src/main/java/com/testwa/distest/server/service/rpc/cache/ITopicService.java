@@ -1,0 +1,1 @@
+package com.testwa.distest.server.service.rpc.cache;import io.rpc.testwa.push.Status;import io.rpc.testwa.push.TopicInfo;import java.util.Set;public interface ITopicService {		public Status subscribeTopic(TopicInfo topicInfo);	public Status cancelTopic(TopicInfo topicInfo);	public Set<String> getClientId(String topic);}

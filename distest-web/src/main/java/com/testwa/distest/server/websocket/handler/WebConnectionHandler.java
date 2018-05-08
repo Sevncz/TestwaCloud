@@ -60,19 +60,6 @@ public class WebConnectionHandler {
 
         String type = client.getHandshakeData().getSingleUrlParam("type");
         if("device".equals(type)){
-//            String serial = client.getHandshakeData().getSingleUrlParam("serial");
-//            Map<String, String> params = new HashMap<>();
-//            params.put("sn", serial);
-//            params.put("key", serial);
-//            // 设备连接
-//            client.sendEvent(Command.Schem.WAIT.getSchemString(), JSON.toJSONString(params));
-//
-//            deviceSessionMgr.login(serial, client.getSessionId().toString());
-//            deviceAuthMgr.online(serial);
-//
-//            requestStartMinitouch(serial);
-//            requestStartMinicap(serial);
-//            requestStartStfService(serial);
 
         }else if("client".equals(type)){
             // 客户端连接
@@ -88,21 +75,6 @@ public class WebConnectionHandler {
             }
         }else if("browser".equals(type)){
             // 浏览器连接, 订阅一个设备的图像输出流
-//            String func = client.getHandshakeData().getSingleUrlParam("func");
-//            String deviceId = client.getHandshakeData().getSingleUrlParam("deviceId");
-//            log.info("browser connected: {} - {}", func, deviceId);
-//            if(StringUtils.isNotBlank(func) && StringUtils.isNotBlank(deviceId) ){
-//                if(WSFuncEnum.contains(func)){
-//                    subscribeMgr.subscribeDeviceEvent(deviceId, func, client.getSessionId().toString());
-//                    if(subscribeMgr.isSubscribes(deviceId, func)){
-//                        pushCmdService.pushScreenUploadStart(deviceId);
-//                    }
-//                }
-//                DeviceAndroid deviceAndroid = (DeviceAndroid) deviceService.findByDeviceId(deviceId);
-//                client.sendEvent("devices", JSON.toJSON(deviceAndroid));
-//            }else{
-//                client.sendEvent("error", "参数不能为空");
-//            }
         } else {
             log.error("Illegal connection");
         }

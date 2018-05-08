@@ -2,12 +2,10 @@ package com.testwa.distest.client.web.startup;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
-import com.testwa.core.WebsocketEvent;
 import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.distest.client.android.DeviceManager;
 import com.testwa.distest.client.component.appium.utils.Config;
 import com.testwa.distest.client.control.client.MainSocket;
-import com.testwa.distest.client.control.boost.MessageCallback;
 import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.service.GrpcClientService;
 import com.testwa.distest.client.service.HttpService;
@@ -18,7 +16,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
@@ -57,9 +54,6 @@ public class EnvCheck implements CommandLineRunner {
     private HttpService httpService;
     @Autowired
     private GrpcClientService gClientService;
-    @Autowired
-    @Qualifier("startRemoteClientCallbackImpl")
-    private MessageCallback startRemoteClientCB;
 
     @Override
     public void run(String... strings) throws Exception {
@@ -134,7 +128,7 @@ public class EnvCheck implements CommandLineRunner {
                             String token = data.getString("accessToken");
                             UserInfo.token = token;
                             MainSocket.connect(cloudSocketUrl, token);
-                            MainSocket.receive(WebsocketEvent.ON_START, startRemoteClientCB);
+//                            MainSocket.receive(WebsocketEvent.ON_START, startRemoteClientCB);
 
                         } else {
                             log.error("login error {}", resultCode);

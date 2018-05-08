@@ -90,12 +90,11 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
         obj.put("key", "");
         ws = IO.socket(url);
         ws.on(Socket.EVENT_CONNECT, args -> {
-            log.info("设备 {} 已连接", deviceId);
-
+            log.info("设备 {} ws 已连接", deviceId);
             ws.emit("login", obj.toJSONString());
 //            ws.emit(Command.Schem.OPEN.getSchemString(), obj.toJSONString());
         }).on(Socket.EVENT_DISCONNECT, args -> {
-            log.info("设备 {} 断开连接", this.deviceId);
+            log.info("设备 {} ws 断开连接", this.deviceId);
 //            ws.emit("logout", obj.toJSONString());
         });
 
@@ -313,7 +312,7 @@ public class RemoteClient extends BaseClient implements MinicapListener, Minitou
     private LocalClient.ImageData imageData = null;
     private boolean push = true;
 
-    private void startMinicap(Command command) {
+    public void startMinicap(Command command) {
         log.debug("启动 minicap {}", command.getCommandString());
         if (minicap != null) {
             minicap.kill();

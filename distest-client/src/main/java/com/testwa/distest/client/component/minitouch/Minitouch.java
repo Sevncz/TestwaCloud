@@ -304,9 +304,6 @@ public class Minitouch {
                     } else {
                         String minitouchInfo = new String(bytes, StandardCharsets.UTF_8).replace("\n", " ");
                         log.info("Minitouch {} 启动  {}", device.getSerialNumber(), minitouchInfo);
-                        String[] result = minitouchInfo.split(" ");
-                        Integer MaxX = Integer.parseInt(result[4]);
-                        Integer MaxY = Integer.parseInt(result[5]);
 
                         // 获取设备屏幕的实际尺寸
                         String output = device.runAdbCommand("shell wm size");
@@ -317,6 +314,13 @@ public class Minitouch {
                         String sizeStr = output.split(":")[1].trim();
                         int screenWidth = Integer.parseInt(sizeStr.split("x")[0].trim());
                         int screenHeight = Integer.parseInt(sizeStr.split("x")[1].trim());
+                        String[] minitouchResultSpilt = minitouchInfo.split(" ");
+                        Integer MaxX = screenWidth;
+                        Integer MaxY = screenHeight;
+                        if(minitouchResultSpilt.length >= 6){
+                            MaxX = Integer.parseInt(minitouchResultSpilt[4]);
+                            MaxY = Integer.parseInt(minitouchResultSpilt[5]);
+                        }
                         PercentX = (double)screenWidth / MaxX;
                         PercentY = (double)screenHeight / MaxY;
 

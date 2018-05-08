@@ -26,6 +26,7 @@ service Push {
 
 message ClientInfo {
 	string deviceId = 1;
+	string token = 2;
 }
 
 message Status {
@@ -40,7 +41,34 @@ message TopicInfo {
 
 //以ProtoBuf为通用格式返回数据
 message Message {
-	string topicName = 1;
+    enum Topic {
+        ADB = 0;
+        COMPONENT_START = 1;
+        SCREEN_WAIT = 2;
+        COMPONENT_STOP = 3;
+        DEVICE_INFO = 4;
+        SCREENSHOT = 5;
+        KEY_EVENT = 6;
+        INPUT = 7;
+        TOUCH = 8;
+        TASK_START = 9;
+        TASK_CANCEL = 10;
+        LOGCAT_START = 11;
+        LOGCAT_WAIT = 12;
+        LOGCAT_STOP = 13;
+        INSTALL_APP = 14;
+        UNINSTALL_APP = 15;
+        PUSH_FILE = 16;
+        BACK = 17;
+        HOME = 18;
+        MENU = 19;
+        SHELL = 20;
+        OPENWEB = 21;
+        MESSAGE = 22;
+        SCREEN_START = 23;
+        DEL = 24;
+    }
+	Topic topicName = 1;
 	string status = 2;
 	bytes message = 3;
 }

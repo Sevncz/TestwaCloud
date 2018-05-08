@@ -1,0 +1,1 @@
+package com.testwa.distest.server.service.rpc.cache;import io.rpc.testwa.push.Message;/** * @Program: distest * @Description: * @Author: wen * @Create: 2018-05-08 16:14 **/public class CacheUtil {    public volatile static IClientCache<Message> serverCache = new DefaultClientCache<>();    public volatile static ITopicService topicCache = new DefaultTopicService();}
