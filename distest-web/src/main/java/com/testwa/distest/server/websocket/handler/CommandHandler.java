@@ -94,7 +94,7 @@ public class CommandHandler {
         cmd.setScale(scale);
 //        pushCmdService.pushMinCmdStart(cmd, deviceId);
         StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
-        if(observer != null ){
+        if(observer != null){
             Message message = Message.newBuilder().setTopicName(Message.Topic.COMPONENT_STOP).setStatus("OK").setMessage(ByteString.copyFromUtf8("close minicap and minitouch")).build();
             observer.onNext(message);
             message = Message.newBuilder().setTopicName(Message.Topic.COMPONENT_START).setStatus("OK").setMessage(ByteString.copyFromUtf8(JSON.toJSONString(cmd.getConfig()))).build();

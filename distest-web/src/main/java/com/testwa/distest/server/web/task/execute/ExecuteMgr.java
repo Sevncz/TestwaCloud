@@ -2,6 +2,7 @@ package com.testwa.distest.server.web.task.execute;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.base.Preconditions;
+import com.google.protobuf.ByteString;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.cmd.AppInfo;
 import com.testwa.core.cmd.RemoteRunCommand;
@@ -14,6 +15,7 @@ import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.cache.mgr.TaskCacheMgr;
 import com.testwa.distest.server.service.device.service.DeviceService;
+import com.testwa.distest.server.service.rpc.cache.CacheUtil;
 import com.testwa.distest.server.service.script.service.ScriptService;
 import com.testwa.distest.server.service.task.form.*;
 import com.testwa.distest.server.service.task.service.TaskDeviceService;
@@ -22,6 +24,8 @@ import com.testwa.distest.server.service.testcase.service.TestcaseService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.task.vo.TaskProgressVO;
 import com.testwa.distest.server.websocket.service.PushCmdService;
+import io.grpc.stub.StreamObserver;
+import io.rpc.testwa.push.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -155,7 +159,15 @@ public class ExecuteMgr {
             cmd.setDeviceId(key);
             cmd.setTestcaseList(cases);
             cmd.setExeId(taskId);
-            pushCmdService.executeCmd(cmd, d.getLastUserId());
+//            pushCmdService.executeCmd(cmd, d.getLastUserId());
+
+            StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(key);
+            if(observer != null ){
+                Message message = Message.newBuilder().setTopicName(Message.Topic.TASK_START).setStatus("OK").setMessage(ByteString.copyFromUtf8(JSON.toJSONString(cmd))).build();
+                observer.onNext(message);
+            }else{
+                log.error("设备还未准备好");
+            }
 
             deviceService.work(key);
         }

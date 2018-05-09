@@ -117,44 +117,43 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
      *@Author: wen
      *@Date: 2018/5/7
      */
-    @Override
-    public void connect(ConnectedRequest request, StreamObserver<CommonReply> responseObserver) {
-        log.info("device {} connected", request.getDeviceId());
-        String username = jwtTokenUtil.getUsernameFromToken(request.getToken());
-        User user = userService.findByUsername(username);
-        Device device = new Device();
-        device.setBrand(request.getBrand());
-        device.setCpuabi(request.getCpuabi());
-        device.setDensity(request.getDensity());
-        device.setDeviceId(request.getDeviceId());
-        device.setHeight(request.getHeight());
-        device.setHost(request.getHost());
-        device.setModel(request.getModel());
-        device.setOsName(request.getOsName());
-        device.setOsVersion(request.getVersion());
-        device.setSdk(request.getSdk());
-        device.setWidth(request.getWidth());
-        device.setLastUserId(user.getId());
-        device.setLastUserToken(request.getToken());
-        device.setPhoneOS(DB.PhoneOS.ANDROID);
-        // 连接上来的设备设置为在线状态
-        device.setOnlineStatus(DB.PhoneOnlineStatus.ONLINE);
-        // 设置为空闲状态
-        device.setWorkStatus(DB.PhoneWorkStatus.FREE);
-
-        Device deviceBase = deviceService.findByDeviceId(request.getDeviceId());
-        if(deviceBase == null){
-            deviceService.insertAndroid(device);
-        }else{
-            deviceService.updateAndroid(device);
-        }
-        deviceAuthMgr.online(request.getDeviceId());
-
-        final CommonReply.Builder replyBuilder = CommonReply.newBuilder().setMessage("OK ");
-        responseObserver.onNext(replyBuilder.build());
-        responseObserver.onCompleted();
-
-    }
+//    @Override
+//    public void connect(ConnectedRequest request, StreamObserver<CommonReply> responseObserver) {
+//        log.info("device {} connected", request.getDeviceId());
+//        String username = jwtTokenUtil.getUsernameFromToken(request.getToken());
+//        User user = userService.findByUsername(username);
+//        Device device = new Device();
+//        device.setBrand(request.getBrand());
+//        device.setCpuabi(request.getCpuabi());
+//        device.setDensity(request.getDensity());
+//        device.setDeviceId(request.getDeviceId());
+//        device.setHeight(request.getHeight());
+//        device.setHost(request.getHost());
+//        device.setModel(request.getModel());
+//        device.setOsName(request.getOsName());
+//        device.setOsVersion(request.getVersion());
+//        device.setSdk(request.getSdk());
+//        device.setWidth(request.getWidth());
+//        device.setLastUserId(user.getId());
+//        device.setLastUserToken(request.getToken());
+//        device.setPhoneOS(DB.PhoneOS.ANDROID);
+//        // 连接上来的设备设置为在线状态
+//        device.setOnlineStatus(DB.PhoneOnlineStatus.ONLINE);
+//        // 设置为空闲状态
+//        device.setWorkStatus(DB.PhoneWorkStatus.FREE);
+//
+//        Device deviceBase = deviceService.findByDeviceId(request.getDeviceId());
+//        if(deviceBase == null){
+//            deviceService.insertAndroid(device);
+//        }else{
+//            deviceService.updateAndroid(device);
+//        }
+//        deviceAuthMgr.online(request.getDeviceId());
+//
+//        final CommonReply.Builder replyBuilder = CommonReply.newBuilder().setMessage("OK ");
+//        responseObserver.onNext(replyBuilder.build());
+//        responseObserver.onCompleted();
+//    }
 
 
     @Override

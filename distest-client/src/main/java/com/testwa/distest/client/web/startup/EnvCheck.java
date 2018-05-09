@@ -127,6 +127,7 @@ public class EnvCheck implements CommandLineRunner {
                             JSONObject data = (JSONObject) ((JSONObject) result).get("data");
                             String token = data.getString("accessToken");
                             UserInfo.token = token;
+                            UserInfo.username = username;
                             MainSocket.connect(cloudSocketUrl, token);
 //                            MainSocket.receive(WebsocketEvent.ON_START, startRemoteClientCB);
 

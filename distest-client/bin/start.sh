@@ -30,7 +30,7 @@ fi
 export ANDROID_HOME=/Users/wen/dev/android-sdk-macosx
 export PATH=$PATH:$ANDROID_HOME:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
 
-nohup java -jar -server -Xmx1024m -Xms2048m agent-daemon-server-1.0-SNAPSHOT.jar --spring.config.location=config/application.properties --username=$username --password=$password > /dev/null 2>&1 &
+nohup java -jar -server -Xmx1024m -Xms2048m distest-client-1.0-SNAPSHOT.jar --spring.config.location=config/application.properties --username=$username --password=$password > /dev/null 2>&1 &
 
 echo $! > tpid
 

@@ -15,7 +15,7 @@ service ControlService {
 
 service DeviceService {
     rpc all (DevicesRequest) returns ( CommonReply ) {}
-    rpc connect (ConnectedRequest) returns ( CommonReply ) {}
+    // rpc connect (ConnectedRequest) returns ( CommonReply ) {}
     rpc online (DeviceStatusChangeRequest) returns ( CommonReply ) {}
     rpc disconnect (DeviceStatusChangeRequest) returns ( CommonReply ) {}
     rpc offline (DeviceStatusChangeRequest) returns ( CommonReply ) {}
