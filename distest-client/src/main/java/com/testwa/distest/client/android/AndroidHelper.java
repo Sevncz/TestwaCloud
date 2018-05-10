@@ -52,7 +52,11 @@ public class AndroidHelper {
     }
 
     public AndroidDevice getAndroidDevice(String serial) {
-        return adbs.getDeviceBySerial(serial);
+        try {
+            return adbs.getDeviceBySerial(serial);
+        }catch (Exception e){
+        }
+        return null;
     }
 
 

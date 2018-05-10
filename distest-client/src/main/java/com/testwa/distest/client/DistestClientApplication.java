@@ -1,10 +1,10 @@
 package com.testwa.distest.client;
 
 import com.testwa.distest.client.config.PortConfig;
-import com.testwa.distest.client.control.port.ApkPortProvider;
-import com.testwa.distest.client.control.port.AppiumPortProvider;
-import com.testwa.distest.client.control.port.MinicapPortProvider;
-import com.testwa.distest.client.control.port.MinitouchPortProvider;
+import com.testwa.distest.client.component.port.ApkPortProvider;
+import com.testwa.distest.client.component.port.AppiumPortProvider;
+import com.testwa.distest.client.component.port.MinicapPortProvider;
+import com.testwa.distest.client.component.port.MinitouchPortProvider;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
@@ -36,8 +36,8 @@ public class DistestClientApplication extends AsyncConfigurerSupport {
     @Override
     public Executor getAsyncExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(10);
-        executor.setMaxPoolSize(10);
+        executor.setCorePoolSize(30);
+        executor.setMaxPoolSize(30);
         executor.setQueueCapacity(500);
         executor.setThreadNamePrefix("WaLookup-");
         executor.initialize();

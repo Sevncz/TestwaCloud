@@ -1,0 +1,1 @@
+package com.testwa.distest.client.callback;import com.google.protobuf.ByteString;public interface ICallBack<T> {	public void callback(ByteString bytes);}

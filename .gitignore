@@ -4,6 +4,6 @@
 *.iml
 .idea/*
 */bin/tpid
-agent.log
+agent.log*
 logs/**
 log/**

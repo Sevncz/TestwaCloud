@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.distest.client.android.DeviceManager;
 import com.testwa.distest.client.component.appium.utils.Config;
-import com.testwa.distest.client.control.client.MainSocket;
 import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.service.GrpcClientService;
 import com.testwa.distest.client.service.HttpService;
@@ -128,8 +127,6 @@ public class EnvCheck implements CommandLineRunner {
                             String token = data.getString("accessToken");
                             UserInfo.token = token;
                             UserInfo.username = username;
-                            MainSocket.connect(cloudSocketUrl, token);
-//                            MainSocket.receive(WebsocketEvent.ON_START, startRemoteClientCB);
 
                         } else {
                             log.error("login error {}", resultCode);

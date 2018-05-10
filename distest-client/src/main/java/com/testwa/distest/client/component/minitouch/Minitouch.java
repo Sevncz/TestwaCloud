@@ -10,7 +10,7 @@ import com.testwa.core.service.AdbDriverService;
 import com.testwa.core.service.MinitouchServiceBuilder;
 import com.testwa.distest.client.android.AdbForward;
 import com.testwa.distest.client.android.AndroidHelper;
-import com.testwa.distest.client.control.port.MinitouchPortProvider;
+import com.testwa.distest.client.component.port.MinitouchPortProvider;
 import com.testwa.distest.client.component.Constant;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -21,6 +21,8 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by wen on 2017/4/19.
@@ -31,6 +33,7 @@ public class Minitouch {
 
     private AndroidDevice device;
     private String resourcesPath;
+    private ExecutorService executor;
     private Thread minitouchInitialThread;
     private Socket minitouchSocket;
     private OutputStream minitouchOutputStream;
@@ -38,7 +41,7 @@ public class Minitouch {
     private AdbForward forward;
     private static String BIN = "";
 
-    private boolean isRunnging = true;
+    private boolean isRunning = true;
 
     private double PercentX;
     private double PercentY;
@@ -78,6 +81,7 @@ public class Minitouch {
     }
 
     public Minitouch(String serialNumber, String resourcesPath) {
+        this.executor = Executors.newScheduledThreadPool(5);
         this.resourcesPath = resourcesPath;
         int install = 5;
         while (install > 0) {
@@ -148,7 +152,7 @@ public class Minitouch {
                 e.printStackTrace();
             }
         }
-        isRunnging = true;
+        isRunning = true;
         AdbForward forward = createForward();
         if(forward == null){
             return;
@@ -164,9 +168,26 @@ public class Minitouch {
         log.debug("minitouch forward port {}", forward.getPort());
     }
 
+    private void restart(){
+        isRunning = false;
+        if (service != null) {
+            service.stop();
+        }
+        // 关闭socket
+        if (minitouchSocket != null) {
+            try {
+                minitouchSocket.close();
+            } catch (IOException e) {
+            }
+            minitouchSocket = null;
+        }
+        start();
+
+    }
+
     public void kill() {
         onClose();
-        this.isRunnging = false;
+        this.isRunning = false;
 
         if (service != null) {
             service.stop();
@@ -181,6 +202,22 @@ public class Minitouch {
         }
 
     }
+
+    private final Runnable daemonRunnable = new Runnable() {
+        @Override
+        public void run() {
+            while(isRunning){
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                if(minitouchSocket !=null && !minitouchSocket.isConnected()){
+                    restart();
+                }
+            }
+        }
+    };
 
     public void sendEvent(String str) {
         if (minitouchOutputStream == null) {
@@ -224,7 +261,6 @@ public class Minitouch {
     }
 
     public void inputText(String str) {
-//        AndroidHelper.getInstance().executeShellCommand(device.getDevice(), "input text " + str);
         // Switch to ADBKeyBoard from adb
         // adb shell ime set com.android.adbkeyboard/.AdbIME
         AndroidHelper.getInstance().executeShellCommand(device.getDevice(), "ime set com.android.adbkeyboard/.AdbIME");
@@ -289,7 +325,7 @@ public class Minitouch {
             int tryTime = 20;
             byte[] bytes = null;
             // 连接minicap启动的服务
-            while (isRunnging) {
+            while (isRunning) {
                 Socket socket = null;
                 bytes = new byte[256];
                 try {
@@ -329,6 +365,7 @@ public class Minitouch {
                         minitouchSocket = socket;
                         minitouchOutputStream = outputStream;
 
+                        executor.execute(daemonRunnable);
                         onStartup(true);
                         break;
                     }

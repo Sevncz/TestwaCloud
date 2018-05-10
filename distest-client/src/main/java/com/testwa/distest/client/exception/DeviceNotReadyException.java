@@ -1,0 +1,1 @@
+package com.testwa.distest.client.exception;public class DeviceNotReadyException extends Exception{    public DeviceNotReadyException(){    }    public DeviceNotReadyException(String message){        super(message);    }}

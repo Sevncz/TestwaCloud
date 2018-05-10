@@ -1,6 +1,7 @@
 package com.testwa.distest.client.component.minicap;
 
 import com.android.ddmlib.*;
+import com.android.ddmlib.TimeoutException;
 import com.github.cosysoft.device.android.AndroidDevice;
 import com.github.cosysoft.device.exception.DeviceNotFoundException;
 import com.testwa.core.service.AdbDriverService;
@@ -10,7 +11,7 @@ import com.testwa.distest.client.android.AdbForward;
 import com.testwa.core.utils.Common;
 
 import com.testwa.distest.client.android.AndroidHelper;
-import com.testwa.distest.client.control.port.MinicapPortProvider;
+import com.testwa.distest.client.component.port.MinicapPortProvider;
 import com.testwa.distest.client.component.Constant;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -22,9 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * Created by wen on 2017/4/17.
@@ -50,12 +49,17 @@ public class Minicap {
 
     private AdbDriverService service;
     // 启动minicap的线程
-    private Thread minicapInitialThread, dataReaderThread, imageParserThread;
+    private ExecutorService executor;
+    private Thread minicapInitialThread;
 
     // listener
     private List<MinicapListener> listenerList = new ArrayList<MinicapListener>();
 
+    private float scale;
+    private int rotate;
+
     public Minicap(String serialNumber, String resourcesPath) {
+        this.executor = Executors.newScheduledThreadPool(5);
         this.resourcesPath = resourcesPath;
         int install = 5;
         AndroidDevice ad = AndroidHelper.getInstance().getAndroidDevice(serialNumber);
@@ -330,6 +334,8 @@ public class Minicap {
         /**
          * 这里有的时候会报null point异常，需要处理下
          */
+        this.scale = scale;
+        this.rotate = rotate;
         start(deviceSize.w, deviceSize.h, (int) (deviceSize.w * scale), (int) (deviceSize.h * scale), rotate, true, null);
     }
 
@@ -338,21 +344,13 @@ public class Minicap {
         if (service != null) {
             service.stop();
         }
-
-        if (dataReaderThread != null) {
+        // 关闭socket
+        if (minicapSocket != null) {
             try {
-                dataReaderThread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                minicapSocket.close();
+            } catch (IOException e) {
             }
-        }
-
-        if (imageParserThread != null) {
-            try {
-                imageParserThread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            minicapSocket = null;
         }
         start(scale, rotate);
     }
@@ -374,22 +372,25 @@ public class Minicap {
             minicapSocket = null;
         }
 
-        if (dataReaderThread != null) {
-            try {
-                dataReaderThread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        if (imageParserThread != null) {
-            try {
-                imageParserThread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        executor.shutdown();
     }
+
+
+    private final Runnable daemonRunnable = new Runnable() {
+        @Override
+        public void run() {
+            while(isRunning){
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                if(minicapSocket != null && !minicapSocket.isConnected()){
+                    reStart(scale, rotate);
+                }
+            }
+        }
+    };
 
     class StartInitial implements Runnable {
         private String host;
@@ -426,9 +427,10 @@ public class Minicap {
                         isRunning = true;
                         onStartup(true);
 
-                        // 启动 DataReader  ImageParser
-                        dataReaderThread = startDataReaderThread(minicapSocket);
-                        imageParserThread = startImageParserThread();
+                        // 启动 DataReader  ImageParser Daemon
+                        executor.execute(imgParserRunnable);
+                        executor.execute(dataReaderRunnable);
+                        executor.execute(daemonRunnable);
                         break;
                     }
 
@@ -448,19 +450,6 @@ public class Minicap {
         }
 
     }
-
-    private Thread startDataReaderThread(Socket minicapSocket) {
-        Thread thread = new Thread(new DataReader(minicapSocket));
-        thread.start();
-        return thread;
-    }
-
-    private Thread startImageParserThread() {
-        Thread thread = new Thread(new ImageParser());
-        thread.start();
-        return thread;
-    }
-
     private void onStartup(boolean success) {
         for (MinicapListener listener : listenerList) {
             listener.onStartup(this, success);
@@ -486,33 +475,22 @@ public class Minicap {
         }
     }
 
-    private class DataReader implements Runnable {
+    private final Runnable dataReaderRunnable = new Runnable() {
         static final int BUFF_SIZ = 4096;
-        Socket socket = null;
         InputStream inputStream = null;
         long ts = 0;
-
-        DataReader(Socket minicapSocket) {
-            this.socket = minicapSocket;
-            try {
-                this.inputStream = minicapSocket.getInputStream();
-            } catch (IOException e) {
-                e.printStackTrace();
-                onClose();
-            }
-        }
 
         @Override
         public void run() {
             try {
+                inputStream = minicapSocket.getInputStream();
                 readData();
             } catch (IOException e) {
-                System.out.println("lost connection: " + e.getMessage());
-                onClose();
+                log.error("minicap lost connection", e);
             }
         }
 
-        public void readData() throws IOException {
+        private void readData() throws IOException {
             log.debug("start read data");
 
             DataInputStream stream = new DataInputStream(inputStream);
@@ -530,10 +508,9 @@ public class Minicap {
                 }
             }
         }
+    };
 
-    }
-
-    private class ImageParser implements Runnable {
+    private final Runnable imgParserRunnable = new Runnable() {
         int readn = 0; // 已读大小
         int bannerLen = 2; // banner信息大小
         int readFrameBytes = 0;
@@ -679,7 +656,7 @@ public class Minicap {
             ++cursor;
             return cursor;
         }
-    }
+    };
 
     public Size getDeviceSize(){
         return this.deviceSize;

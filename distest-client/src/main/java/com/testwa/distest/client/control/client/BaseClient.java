@@ -1,1 +1,0 @@
-package com.testwa.distest.client.control.client;public class BaseClient {}
