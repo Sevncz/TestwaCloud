@@ -2,10 +2,8 @@ package com.testwa.distest.client.web.startup;
 
 import com.testwa.core.shell.UTF8CommonExecs;
 import com.testwa.distest.client.component.Constant;
-import com.testwa.distest.client.grpc.GrpcClient;
 import com.testwa.distest.client.model.IOSDevice;
 import com.testwa.distest.client.service.GrpcClientService;
-import io.grpc.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.exec.CommandLine;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +12,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -79,7 +76,7 @@ public class IOSDeviceLisntener implements CommandLineRunner {
             if(deviceLine.startsWith("[....] Found")){
                 String uuid = deviceLine.split(" ")[2];
                 String extraInfoLine = deviceLine.substring(deviceLine.indexOf("(") + 1, deviceLine.lastIndexOf(")"));
-                log.info("uuid: {}, extraInfo: {}", uuid, extraInfoLine);
+//                log.info("uuid: {}, extraInfo: {}", uuid, extraInfoLine);
                 String[] extraInfoList = extraInfoLine.split(",");
                 IOSDevice d = new IOSDevice();
                 d.setDeviceId(uuid);

@@ -40,6 +40,7 @@ public class Minicap {
     private Size deviceSize;
     private AdbForward forward;
     private boolean isRunning = false;
+    private boolean isBrokenPip = false;
 
     private static String BIN = "";
     private static String MINICAP_CHMOD_COMMAND = "chmod 777 %s/%s";
@@ -181,7 +182,6 @@ public class Minicap {
         try {
             device.removeForward(forward.getPort(), forward.getLocalabstract(), IDevice.DeviceUnixSocketNamespace.ABSTRACT);
         } catch (AdbCommandRejectedException e) {
-            log.info("removeForward: AdbCommandRejectedException, {}", e.getMessage());
         } catch (IOException e) {
             log.error("removeForward: IOException, {}", e.getMessage());
         } catch (TimeoutException e) {
@@ -356,8 +356,6 @@ public class Minicap {
     }
 
     public void kill() {
-        onClose();
-
         isRunning = false;
         if (service != null) {
             service.stop();
@@ -385,8 +383,8 @@ public class Minicap {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                if(minicapSocket != null && !minicapSocket.isConnected()){
-                    reStart(scale, rotate);
+                if(minicapSocket != null && isBrokenPip){
+                    onClose();
                 }
             }
         }
@@ -499,6 +497,7 @@ public class Minicap {
                 ts = System.currentTimeMillis();
                 int len = stream.read(buffer);
                 if (len == -1) {
+                    isBrokenPip = true;
                     return;
                 }
                 if (len == BUFF_SIZ) {

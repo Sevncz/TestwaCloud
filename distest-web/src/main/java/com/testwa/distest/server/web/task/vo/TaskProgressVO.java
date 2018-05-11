@@ -2,14 +2,15 @@ package com.testwa.distest.server.web.task.vo;
 
 import lombok.Data;
 
+import java.util.Date;
+import java.util.List;
+
 /**
  * Created by wen on 16/09/2017.
  */
 
 @Data
 public class TaskProgressVO {
-    private String deviceId;
-    private Long scriptId;
-    private Long testcaseId;
-    private String progress;
+    List<TaskProgressLineVO> lineList;
+    List<String> deviceNameList;
 }

@@ -4,6 +4,7 @@ import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.AuthorizedException;
 import com.testwa.core.base.exception.ObjectNotExistsException;
+import com.testwa.core.base.exception.ParamsIsNullException;
 import com.testwa.core.base.exception.TaskStartException;
 import com.testwa.core.base.vo.Result;
 import com.testwa.distest.server.entity.Script;
@@ -12,6 +13,7 @@ import com.testwa.distest.server.mongo.service.ExecutorLogInfoService;
 import com.testwa.distest.server.service.script.form.ScriptNewForm;
 import com.testwa.distest.server.service.script.service.ScriptService;
 import com.testwa.distest.server.service.task.form.*;
+import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.service.testcase.service.TestcaseService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.app.validator.AppValidator;
@@ -59,6 +61,8 @@ public class TaskController extends BaseController {
     private ScriptService scriptService;
     @Autowired
     private TestcaseService testcaseService;
+    @Autowired
+    private TaskService taskService;
 
 
     @ApiOperation(value="执行一个回归测试任务")
@@ -115,16 +119,6 @@ public class TaskController extends BaseController {
         }
         executeMgr.stop(form);
         return ok();
-    }
-
-
-    @ApiOperation(value="查看一个任务的进度")
-    @ResponseBody
-    @GetMapping(value = "/progress/{taskId}")
-    public Result progress(@PathVariable(value = "taskId") Long taskId) throws ObjectNotExistsException {
-        taskValidatoer.validateTaskExist(taskId);
-        List<TaskProgressVO> result = executeMgr.getProgress(taskId);
-        return ok(result);
     }
 
 }

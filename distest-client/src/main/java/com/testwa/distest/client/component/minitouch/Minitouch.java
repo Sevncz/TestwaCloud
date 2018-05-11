@@ -42,6 +42,7 @@ public class Minitouch {
     private static String BIN = "";
 
     private boolean isRunning = true;
+    private boolean isBrokenPip = false;
 
     private double PercentX;
     private double PercentY;
@@ -170,6 +171,7 @@ public class Minitouch {
 
     private void restart(){
         isRunning = false;
+        isBrokenPip = false;
         if (service != null) {
             service.stop();
         }
@@ -186,8 +188,8 @@ public class Minitouch {
     }
 
     public void kill() {
-        onClose();
-        this.isRunning = false;
+        isRunning = false;
+        isBrokenPip = false;
 
         if (service != null) {
             service.stop();
@@ -212,8 +214,8 @@ public class Minitouch {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                if(minitouchSocket !=null && !minitouchSocket.isConnected()){
-                    restart();
+                if(isBrokenPip){
+                    onClose();
                 }
             }
         }
@@ -229,6 +231,7 @@ public class Minitouch {
             log.debug("new cmd is {}", newcmd);
             minitouchOutputStream.write(newcmd.getBytes());
         } catch (IOException e) {
+            isBrokenPip = true;
             e.printStackTrace();
         }
     }

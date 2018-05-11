@@ -213,39 +213,6 @@ public class ExecuteMgr {
         taskDeviceService.cancelOneTask(deviceId, taskId, updateBy);
     }
 
-    /**
-     * 获得任务进度
-     * @param exeId
-     * @return
-     */
-    public List<TaskProgressVO> getProgress(Long exeId) {
-
-        Task task = taskService.findOne(exeId);
-        List<Device> tds = task.getDevices();
-        int testcaseNum = task.getTestcaseList().size();
-        int scriptNum = task.getScriptList().size();
-        List<TaskProgressVO> result = new ArrayList<>();
-        tds.forEach(d -> {
-            TaskProgressVO vo = new TaskProgressVO();
-            Long size = taskCacheMgr.getExeInfoSize(d.getDeviceId());
-            vo.setProgress(getProgressNum(size, (float)scriptNum));
-            String content = null;
-            try {
-                content = taskCacheMgr.getExeInfoProgress(d.getDeviceId());
-            } catch (Exception e) {
-                log.error("get executor cache error", e);
-            }
-            if(StringUtils.isNotBlank(content)){
-                Map<String, String> jsonContent = JSON.parseObject(content, Map.class);
-                vo.setDeviceId(d.getDeviceId());
-                vo.setScriptId(Long.parseLong(jsonContent.get("srciptId")));
-                vo.setTestcaseId(Long.parseLong(jsonContent.get("testcaseId")));
-                result.add(vo);
-            }
-        });
-        return result;
-    }
-
 
     private String getProgressNum(Long exedScriptNum, float allScriptNum){
         float num= exedScriptNum/allScriptNum;

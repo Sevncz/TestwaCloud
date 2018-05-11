@@ -25,6 +25,7 @@ import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
 import com.testwa.distest.server.web.task.validator.StepValidatoer;
 import com.testwa.distest.server.web.task.validator.TaskValidatoer;
+import com.testwa.distest.server.web.task.vo.TaskProgressVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -175,6 +176,19 @@ public class ReportController extends BaseController {
             throw new ObjectNotExistsException("Appium 日志不存在");
         }
         return ok(appiumFile.buildPath());
+    }
+
+
+    @ApiOperation(value="返回任务中每个设备的执行进度")
+    @ResponseBody
+    @GetMapping(value = "/progress/{taskId}")
+    public Result progress(@PathVariable(value = "taskId") Long taskId) throws ObjectNotExistsException {
+        if(taskId == null){
+            throw new ParamsIsNullException("参数不能为空");
+        }
+        taskValidatoer.validateTaskExist(taskId);
+        TaskProgressVO result = taskService.getProgress(taskId);
+        return ok(result);
     }
 
 }

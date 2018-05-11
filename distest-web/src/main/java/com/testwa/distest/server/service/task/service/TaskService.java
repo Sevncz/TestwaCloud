@@ -6,8 +6,10 @@ import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.utils.TimeUtil;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.*;
+import com.testwa.distest.server.mongo.model.ExecutorLogInfo;
 import com.testwa.distest.server.mongo.model.ProcedureInfo;
 import com.testwa.distest.server.mongo.model.ProcedureStatis;
+import com.testwa.distest.server.mongo.repository.ExecutorLogInfoRepository;
 import com.testwa.distest.server.mongo.repository.ProcedureInfoRepository;
 import com.testwa.distest.server.mongo.repository.ProcedureStatisRepository;
 import com.testwa.distest.server.service.project.service.ProjectService;
@@ -15,9 +17,18 @@ import com.testwa.distest.server.service.task.dao.ITaskDAO;
 import com.testwa.distest.server.service.task.dto.TaskDeviceStatusStatis;
 import com.testwa.distest.server.service.task.form.ScriptListForm;
 import com.testwa.distest.server.service.task.form.TaskListForm;
+import com.testwa.distest.server.web.task.vo.TaskProgressLineVO;
+import com.testwa.distest.server.web.task.vo.TaskProgressVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +53,8 @@ public class TaskService {
     private ProcedureStatisRepository procedureStatisRepository;
     @Autowired
     private ProcedureInfoRepository procedureInfoRepository;
+    @Autowired
+    private ExecutorLogInfoRepository executorLogInfoRepository;
     @Autowired
     private TaskDeviceService taskDeviceService;
 
@@ -297,5 +310,53 @@ public class TaskService {
     public List<Script> findScriptListInTask(ScriptListForm form) {
         Task task = taskDAO.findOne(form.getTaskId());
         return task.getScriptList();
+    }
+
+    public TaskProgressVO getProgress(Long taskId) {
+        Task task = taskDAO.findOne(taskId);
+        List<Device> deviceList = task.getDevices();
+        Map<String, List<String>> dateMap = new HashMap<>();
+        Map<String, String> deviceMap = new HashMap<>();
+        deviceList.forEach( d -> {
+            List<String> dataList = new ArrayList<>();
+            // 数据库存放的是UTC时间
+            DateTime dt = new DateTime(task.getCreateTime(), DateTimeZone.UTC);
+            DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+            dataList.add(fmt.print(dt));
+            dateMap.put(d.getDeviceId(), dataList);
+            deviceMap.put(d.getDeviceId(), d.getBrand() + " " + d.getModel());
+        });
+
+        List<Integer> orders = Arrays.asList(0,1,2,3,6);
+
+        Criteria criatira = new Criteria();
+        criatira.andOperator(Criteria.where("taskId").is(taskId),
+                Criteria.where("actionOrder").in(orders));
+        Sort sort = new Sort(Sort.Direction.ASC, "actionOrder","timestamp");
+        Query query = new Query();
+        query.addCriteria(criatira);
+        query.with(sort);
+        List<ExecutorLogInfo> loginfos = executorLogInfoRepository.find(query);
+
+        for(ExecutorLogInfo l : loginfos) {
+            List<String> datas = dateMap.get(l.getDeviceId());
+            if(l.getActionOrder() != 6 && "start".equals(l.getFlag())){
+                datas.add(TimeUtil.formatTimeStamp(l.getTimestamp()));
+            }
+            if(l.getActionOrder() == 6){
+                datas.add(TimeUtil.formatTimeStamp(l.getTimestamp()));
+            }
+        }
+        List<TaskProgressLineVO> lines = new ArrayList<>();
+        dateMap.forEach( (k, v) -> {
+            TaskProgressLineVO line = new TaskProgressLineVO();
+            line.setName(deviceMap.get(k));
+            line.setData(v);
+            lines.add(line);
+        });
+        TaskProgressVO vo = new TaskProgressVO();
+        vo.setLineList(lines);
+        vo.setDeviceNameList(new ArrayList<>(deviceMap.values()));
+        return vo;
     }
 }
