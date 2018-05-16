@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by wen on 2017/4/19.
@@ -89,7 +90,7 @@ public class Minitouch {
             try {
                 this.device = AndroidHelper.getInstance().getAndroidDevice(serialNumber);
                 installMinitouch(device, resourcesPath);
-                Thread.sleep(1000);
+                TimeUnit.MILLISECONDS.sleep(1000);
                 break;
             } catch (MinitouchInstallException | DeviceNotFoundException e) {
                 install--;
@@ -118,7 +119,7 @@ public class Minitouch {
                 log.error("create forward failed", e);
                 tryTime--;
                 try {
-                    Thread.sleep(500);
+                    TimeUnit.MILLISECONDS.sleep(500);
                 } catch (InterruptedException e1) {
                     e1.printStackTrace();
                 }
@@ -210,7 +211,7 @@ public class Minitouch {
         public void run() {
             while(isRunning){
                 try {
-                    Thread.sleep(1000);
+                    TimeUnit.MILLISECONDS.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -324,7 +325,7 @@ public class Minitouch {
         }
 
         public void run() {
-            log.debug("StartInitial schedule start, host: {}, port: {}", this.host, this.port);
+            log.debug("StartInitial schedule runOneScript, host: {}, port: {}", this.host, this.port);
             int tryTime = 20;
             byte[] bytes = null;
             // 连接minicap启动的服务
@@ -337,7 +338,7 @@ public class Minitouch {
                     OutputStream outputStream = socket.getOutputStream();
                     int n = inputStream.read(bytes);
                     if (n == -1) {
-                        Thread.sleep(1000);
+                        TimeUnit.MILLISECONDS.sleep(1000);
                         log.debug("Minitouch socket close, retry again");
                         socket.close();
                     } else {

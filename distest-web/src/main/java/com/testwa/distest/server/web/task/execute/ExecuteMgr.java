@@ -160,11 +160,15 @@ public class ExecuteMgr {
             cmd.setTestcaseList(cases);
             cmd.setExeId(taskId);
 //            pushCmdService.executeCmd(cmd, d.getLastUserId());
-
             StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(key);
             if(observer != null ){
-                Message message = Message.newBuilder().setTopicName(Message.Topic.TASK_START).setStatus("OK").setMessage(ByteString.copyFromUtf8(JSON.toJSONString(cmd))).build();
-                observer.onNext(message);
+                if(taskType.equals(DB.TaskType.HG)) {
+                    Message message = Message.newBuilder().setTopicName(Message.Topic.TASK_START).setStatus("OK").setMessage(ByteString.copyFromUtf8(JSON.toJSONString(cmd))).build();
+                    observer.onNext(message);
+                }else if(taskType.equals(DB.TaskType.JR)) {
+                    Message message = Message.newBuilder().setTopicName(Message.Topic.JR_TASK_START).setStatus("OK").setMessage(ByteString.copyFromUtf8(JSON.toJSONString(cmd))).build();
+                    observer.onNext(message);
+                }
             }else{
                 log.error("设备还未准备好");
             }
@@ -184,31 +188,30 @@ public class ExecuteMgr {
         User currentUser = userService.findByUsername(WebUtil.getCurrentUsername());
         Task task = taskService.findOne(form.getTaskId());
         taskService.update(task);
-            // 如果传了设备ID，那么停止这几个设备上的任务
-            // 否则，停止所有设备上的任务
-            if(form.getDeviceIds() != null && form.getDeviceIds().size() > 0){
-                for (String key : form.getDeviceIds()) {
-                    Device d = deviceService.findByDeviceId(key);
-                    stopDeviceTask(d.getDeviceId(), d.getLastUserId(), form.getTaskId(), currentUser.getId());
-                }
-            }else{
-                List<Device> deviceAndroids = task.getDevices();
-                for (Device d : deviceAndroids) {
-                    stopDeviceTask(d.getDeviceId(), d.getLastUserId(), form.getTaskId(), currentUser.getId());
-                }
+        // 如果传了设备ID，那么停止这几个设备上的任务
+        // 否则，停止所有设备上的任务
+        if(form.getDeviceIds() != null && form.getDeviceIds().size() > 0){
+            for (String key : form.getDeviceIds()) {
+                Device d = deviceService.findByDeviceId(key);
+                stopDeviceTask(d.getDeviceId(), d.getLastUserId(), form.getTaskId(), currentUser.getId());
             }
+        }else{
+            List<Device> deviceAndroids = task.getDevices();
+            for (Device d : deviceAndroids) {
+                stopDeviceTask(d.getDeviceId(), d.getLastUserId(), form.getTaskId(), currentUser.getId());
+            }
+        }
     }
 
     private void stopDeviceTask(String deviceId, Long userId, Long taskId, Long updateBy) {
-        RemoteRunCommand cmd = new RemoteRunCommand();
-        cmd.setCmd(DB.CommandEnum.STOP.getValue());
-        cmd.setDeviceId(deviceId);
-        try {
-            pushCmdService.executeCmd(cmd, userId);
-        } catch (ObjectNotExistsException e) {
-            log.error("device {} offline，session not found from client.client.session.{}", deviceId, userId);
+
+        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
+        if(observer != null ){
+            Message message = Message.newBuilder().setTopicName(Message.Topic.TASK_CANCEL).setStatus("OK").setMessage(ByteString.copyFromUtf8("")).build();
+            observer.onNext(message);
+        }else{
+            log.error("设备还未准备好");
         }
-        // 更新状态
 
         taskDeviceService.cancelOneTask(deviceId, taskId, updateBy);
     }

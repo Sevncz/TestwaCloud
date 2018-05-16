@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by wen on 16/9/4.
@@ -49,7 +50,7 @@ public class IOSDeviceLisntener implements CommandLineRunner {
                 } catch (Exception e) {
                 }
                 try {
-                    Thread.sleep(100);
+                    TimeUnit.MILLISECONDS.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -68,7 +69,7 @@ public class IOSDeviceLisntener implements CommandLineRunner {
      */
     private void parseIOSDeviceInfo(String output) {
         /**
-         * [main] INFO com.testwa.distest.client.task.CronScheduled - [....] Waiting up to 5 seconds for iOS device to be connected
+         * [main] INFO com.testwa.distest.client.factory.CronScheduled - [....] Waiting up to 5 seconds for iOS device to be connected
          * [....] Found 62dbafcdf99e337d14515b67d869b3ec4941a00a (N61AP, iPhone 6 (GSM), iphoneos, arm64) a.k.a. 'iSevncz' connected through USB.
          */
         String[] lines = output.split("\n");

@@ -39,7 +39,7 @@ public class IndexController {
     @RequestMapping({ "/client/{deviceId}/{testcaselogId}/{prot}" })
     @ResponseBody
     public String start(@PathVariable("deviceId")String deviceId, @PathVariable("testcaselogId")Integer testcaselogId, @PathVariable("prot")Integer prot, HttpServletRequest request){
-        logger.info("start schedule py");
+        logger.info("runOneScript schedule py");
         return "ok";
     }
 

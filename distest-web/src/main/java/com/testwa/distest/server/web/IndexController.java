@@ -42,11 +42,11 @@ public class IndexController extends BaseController {
     @ResponseBody
     @RequestMapping(value = "/push")
     Result push() {
-        Set<String> ids = CacheUtil.topicCache.getClientId("task");
-        String topic = "task";
+        Set<String> ids = CacheUtil.topicCache.getClientId("factory");
+        String topic = "factory";
         ids.forEach( id -> {
             StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(id);
-            Message message = Message.newBuilder().setTopicName(Message.Topic.ADB).setStatus("OK").setMessage(ByteString.copyFromUtf8("task ---- " + id)).build();
+            Message message = Message.newBuilder().setTopicName(Message.Topic.ADB).setStatus("OK").setMessage(ByteString.copyFromUtf8("factory ---- " + id)).build();
             observer.onNext(message);
         });
         return ok();

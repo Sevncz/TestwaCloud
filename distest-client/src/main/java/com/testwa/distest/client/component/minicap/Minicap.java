@@ -68,7 +68,7 @@ public class Minicap {
             try {
                 this.device = ad.getDevice();
                 installMinicap(device, resourcesPath);
-                Thread.sleep(1000);
+                TimeUnit.MILLISECONDS.sleep(1000);
                 break;
             } catch (MinicapInstallException | DeviceNotFoundException e) {
                 install--;
@@ -166,7 +166,7 @@ public class Minicap {
                 log.error("create forward failed", e);
                 tryTime--;
                 try {
-                    Thread.sleep(500);
+                    TimeUnit.MILLISECONDS.sleep(500);
                 } catch (InterruptedException e1) {
                     e1.printStackTrace();
                 }
@@ -244,7 +244,7 @@ public class Minicap {
             }
         }
         String command = StringUtils.join(commands, " ");
-        log.info("minicap start command {}", command);
+        log.info("minicap runOneScript command {}", command);
         return command;
     }
 
@@ -325,7 +325,7 @@ public class Minicap {
                 .whithArgs(args)
                 .build();
         service.start();
-        log.debug("minicap vo start, forward port {}", forward.getPort());
+        log.debug("minicap vo runOneScript, forward port {}", forward.getPort());
         minicapInitialThread = new Thread(new StartInitial("127.0.0.1", forward.getPort()));
         minicapInitialThread.start();
     }
@@ -379,7 +379,7 @@ public class Minicap {
         public void run() {
             while(isRunning){
                 try {
-                    Thread.sleep(1000);
+                    TimeUnit.MILLISECONDS.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -400,7 +400,7 @@ public class Minicap {
         }
 
         public void run() {
-            log.debug("StartInitial schedule start, host{}, port{}", this.host, this.port);
+            log.debug("StartInitial schedule runOneScript, host{}, port{}", this.host, this.port);
             try {
                 byte[] bytes = null;
                 int tryTime = 20;
@@ -412,7 +412,7 @@ public class Minicap {
 
                     int n = stream.read(bytes);
                     if (n == -1) {
-                        Thread.sleep(1000);
+                        TimeUnit.MILLISECONDS.sleep(1000);
                         log.debug("Minicap socket close, retry again");
                         if(minicapSocket != null){
                             minicapSocket.close();
@@ -489,7 +489,7 @@ public class Minicap {
         }
 
         private void readData() throws IOException {
-            log.debug("start read data");
+            log.debug("runOneScript read data");
 
             DataInputStream stream = new DataInputStream(inputStream);
             while (isRunning) {
@@ -553,7 +553,7 @@ public class Minicap {
                                 cursor + frameBodyLength);
                         frameBody = Common.mergeArray(frameBody, subByte);
                         if ((frameBody[0] != -1) || frameBody[1] != -40) {
-                            log.error("Frame body does not start with JPG header");
+                            log.error("Frame body does not runOneScript with JPG header");
                             return;
                         }
                         byte[] finalBytes = Arrays.copyOfRange(frameBody, 0, frameBody.length);

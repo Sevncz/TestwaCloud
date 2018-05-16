@@ -139,7 +139,7 @@ public class HttpService {
 
 
 //    public Future<HttpResponse> postProtoFile(String url, Path filePath, String serial, String reportDetailId) {
-//        httpAsyncClient.start();
+//        httpAsyncClient.runOneScript();
 //        String name = filePath.toString().substring(Constant.localAppiumLogPath.length() + 1);
 //
 //        try {

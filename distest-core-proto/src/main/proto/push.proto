@@ -79,6 +79,7 @@ message Message {
         MESSAGE = 22;
         SCREEN_START = 23;
         DEL = 24;
+        JR_TASK_START = 25;
     }
 	Topic topicName = 1;
 	string status = 2;

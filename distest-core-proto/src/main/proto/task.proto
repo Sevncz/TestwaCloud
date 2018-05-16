@@ -12,9 +12,11 @@ package testcase;
 service TaskService {
     rpc gameover (GameOverRequest) returns ( CommonReply ) {}
     rpc missionComplete (MissionCompleteRequest) returns ( CommonReply ) {}
-    rpc LogcatUpload (stream FileUploadRequest) returns ( CommonReply ) {}
-    rpc AppiumLogUpload (stream FileUploadRequest) returns ( CommonReply ) {}
-    rpc ImgUpload (stream FileUploadRequest) returns ( CommonReply ) {}
+    rpc logcatStrUpload (LogcatStrRequest) returns ( CommonReply ) {}
+
+    rpc LogcatFileUpload (stream FileUploadRequest) returns ( CommonReply ) {}
+    rpc AppiumLogFileUpload (stream FileUploadRequest) returns ( CommonReply ) {}
+    rpc ImgFileUpload (stream FileUploadRequest) returns ( CommonReply ) {}
 
     rpc currExeInfo (CurrentExeInfoRequest) returns ( CommonReply ) {}
     rpc procedureInfoUpload (ProcedureInfoUploadRequest) returns ( CommonReply ) {}
@@ -60,6 +62,12 @@ message MissionCompleteRequest {
     int64 timestamp = 2;
     string token = 3;
     string deviceId = 4;
+}
+message LogcatStrRequest {
+    int64 exeId = 1;
+    int64 timestamp = 2;
+    string deviceId = 3;
+    string content = 4;
 }
 
 message CurrentExeInfoRequest {

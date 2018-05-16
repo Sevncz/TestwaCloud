@@ -1,0 +1,1 @@
+package com.testwa.distest.client.component.executor;/** * @Program: distest * @Description: * @Author: wen * @Create: 2018-05-15 15:49 **/public abstract class AbstractTestTask {    public abstract void start();    public abstract void kill();}

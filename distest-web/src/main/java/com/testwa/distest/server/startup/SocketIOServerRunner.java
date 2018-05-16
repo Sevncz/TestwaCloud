@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.TimeUnit;
+
 @Slf4j
 @Component
 public class SocketIOServerRunner implements CommandLineRunner, DisposableBean {
@@ -29,7 +31,7 @@ public class SocketIOServerRunner implements CommandLineRunner, DisposableBean {
             Future f = this.server.startAsync();
             while(true){
                 try {
-                    Thread.sleep(10*1000);
+                    TimeUnit.MILLISECONDS.sleep(10*1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

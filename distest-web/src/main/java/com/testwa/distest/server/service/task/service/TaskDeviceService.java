@@ -111,6 +111,7 @@ public class TaskDeviceService {
      *@Author: wen
      *@Date: 2018/5/3
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void cancelOneTask(String deviceId, Long taskId, Long userId) {
         TaskDevice taskDevice = taskDeviceDAO.findOne(taskId, deviceId);
         taskDevice.setEndTime(new Date());

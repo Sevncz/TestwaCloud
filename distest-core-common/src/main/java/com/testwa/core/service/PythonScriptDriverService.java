@@ -108,12 +108,10 @@ public final class PythonScriptDriverService extends CommonRunnerDriverService {
 
     public void stop() {
         this.lock.lock();
-
         try {
             if(this.process != null) {
                 this.destroyProcess();
             }
-
             this.process = null;
         } finally {
             this.lock.unlock();

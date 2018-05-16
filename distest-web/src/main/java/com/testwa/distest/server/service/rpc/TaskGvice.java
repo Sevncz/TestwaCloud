@@ -1,17 +1,23 @@
 package com.testwa.distest.server.service.rpc;
 
 import com.testwa.core.utils.DateUtils;
+import com.testwa.core.utils.UUID;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.config.DisFileProperties;
 import com.testwa.distest.config.security.JwtTokenUtil;
 import com.testwa.distest.server.entity.AppiumFile;
+import com.testwa.distest.server.entity.LoggerFile;
 import com.testwa.distest.server.entity.TaskDevice;
+import com.testwa.distest.server.mongo.event.LogcatAnalysisEvent;
 import com.testwa.distest.server.mongo.event.TaskOverEvent;
 import com.testwa.distest.server.mongo.model.ExecutorLogInfo;
+import com.testwa.distest.server.mongo.model.TaskLogger;
 import com.testwa.distest.server.mongo.service.ExecutorLogInfoService;
+import com.testwa.distest.server.mongo.service.TaskLoggerService;
 import com.testwa.distest.server.service.cache.mgr.TaskCacheMgr;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.task.service.AppiumFileService;
+import com.testwa.distest.server.service.task.service.LoggerFileService;
 import com.testwa.distest.server.service.task.service.TaskDeviceService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
@@ -47,6 +53,8 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     @Autowired
     private AppiumFileService appiumFileService;
     @Autowired
+    private LoggerFileService loggerFileService;
+    @Autowired
     private UserService userService;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
@@ -66,6 +74,8 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     private ExecutorLogInfoService executorLogInfoService;
     @Autowired
     private MessageNotifyService messageNotifyService;
+    @Autowired
+    private TaskLoggerService taskLoggerService;
 
     @Override
     public void gameover(GameOverRequest request, StreamObserver<CommonReply> responseObserver) {
@@ -81,7 +91,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
             exeTask.setEndTime(DateUtils.getMongoDate(new Date(timestamp)));
             taskDeviceService.update(exeTask);
             deviceService.release(exeTask.getDeviceId());
-            context.publishEvent(new TaskOverEvent(this, request.getExeId()));
+//            context.publishEvent(new TaskOverEvent(this, request.getExeId()));
         }else{
             log.error("exeTask info not format. {}", request.toString());
         }
@@ -100,7 +110,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
             exeTask.setEndTime(DateUtils.getMongoDate(new Date(timestamp)));
             taskDeviceService.update(exeTask);
             deviceService.release(exeTask.getDeviceId());
-            context.publishEvent(new TaskOverEvent(this, request.getExeId()));
+//            context.publishEvent(new TaskOverEvent(this, request.getExeId()));
         }else{
             log.error("exeTask info not format. {}", request.toString());
         }
@@ -125,9 +135,11 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     }
 
     @Override
-    public StreamObserver<FileUploadRequest> logcatUpload(StreamObserver<CommonReply> responseObserver) {
+    public StreamObserver<FileUploadRequest> logcatFileUpload(StreamObserver<CommonReply> responseObserver) {
         return new StreamObserver<FileUploadRequest>() {
             int mmCount = 0;
+            String deviceId = "";
+            Long taskId = null;
 
             @Override
             public void onNext(FileUploadRequest request) {
@@ -136,11 +148,40 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
 
                 byte[] data = request.getData().toByteArray();
                 int offset = request.getOffset();
+                int size = (int) request.getSize();
                 String name = request.getName();
+                deviceId = request.getDeviceId();
+                taskId = request.getExeId();
 
+                LoggerFile file = new LoggerFile();
+                file.setFilename(name);
+                file.setTaskId(taskId);
+                file.setDeviceId(deviceId);
+                file.setCreateTime(new Date());
+                LoggerFile oldFile = loggerFileService.findOne(taskId, deviceId);
+                if(oldFile == null){
+                    loggerFileService.save(file);
+                }
+
+                String localPath = disFileProperties.getLogcat();
+                Path localFile = Paths.get(localPath, file.buildPath());
+                if(!Files.exists(localFile.getParent())){
+                    try {
+                        Files.createDirectories(localFile.getParent());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if(!Files.exists(localFile)){
+                    try {
+                        Files.createFile(localFile);
+                    } catch (IOException e) {
+                        log.error("Receive logcat file, create error", e);
+                    }
+                }
                 try {
                     if (mBufferedOutputStream == null) {
-                        mBufferedOutputStream = new BufferedOutputStream(new FileOutputStream("receive_" + name));
+                        mBufferedOutputStream = new BufferedOutputStream(new FileOutputStream(localFile.toFile()));
                     }
                     mBufferedOutputStream.write(data, 0, data.length);
                     mBufferedOutputStream.flush();
@@ -170,12 +211,13 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
                         mBufferedOutputStream = null;
                     }
                 }
+                context.publishEvent(new LogcatAnalysisEvent(this, deviceId, taskId));
             }
         };
     }
 
     @Override
-    public StreamObserver<FileUploadRequest> appiumLogUpload(StreamObserver<CommonReply> responseObserver) {
+    public StreamObserver<FileUploadRequest> appiumLogFileUpload(StreamObserver<CommonReply> responseObserver) {
         return new StreamObserver<FileUploadRequest>() {
             int mmCount = 0;
 
@@ -254,7 +296,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     }
 
     @Override
-    public StreamObserver<FileUploadRequest> imgUpload(StreamObserver<CommonReply> responseObserver) {
+    public StreamObserver<FileUploadRequest> imgFileUpload(StreamObserver<CommonReply> responseObserver) {
         return new StreamObserver<FileUploadRequest>() {
             int mmCount = 0;
 
@@ -352,6 +394,27 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
         // 通知页面
         messageNotifyService.taskAction(logInfo);
 
+    }
+
+    /**
+     *@Description: logcat字符串上传接口
+     *@Param: [request, responseObserver]
+     *@Return: void
+     *@Author: wen
+     *@Date: 2018/5/16
+     */
+    @Override
+    public void logcatStrUpload(LogcatStrRequest request, StreamObserver<CommonReply> responseObserver){
+        Long taskId = request.getExeId();
+        String deviceId = request.getDeviceId();
+        String content = request.getContent();
+        Long timestamp = request.getTimestamp();
+        TaskLogger logger = new TaskLogger();
+        logger.setContent(content);
+        logger.setDeviceId(deviceId);
+        logger.setTaskId(taskId);
+        logger.setTimestamp(timestamp);
+        taskLoggerService.save(logger);
     }
 
 }

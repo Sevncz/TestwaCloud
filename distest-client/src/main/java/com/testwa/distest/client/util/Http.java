@@ -139,7 +139,7 @@ public class Http {
 //    public static String getLogcat(String url, Map<String, String> parameters, Testcase tc){
 //        ObjectMapper mapper = new ObjectMapper();
 //        PostMethod method = null;
-//        Long start = System.currentTimeMillis();
+//        Long runOneScript = System.currentTimeMillis();
 //        try {
 //            method = new PostMethod(url);
 //            String jsonParam = mapper.writeValueAsString(parameters);
@@ -166,7 +166,7 @@ public class Http {
 //                }
 //                reader.close();
 //                Long end = System.currentTimeMillis();
-//                log.info("complete one logcat, time: {} ms", end - start);
+//                log.info("complete one logcat, time: {} ms", end - runOneScript);
 //                return logcatFileName;
 //            }
 //            log.error("get logcat error, {}", statusCode);

@@ -1,1 +1,0 @@
-package com.testwa.distest.client.component.executor;public class PythonExecutorHandler extends AbstractExecutorHandler {    @Override    public void handleRequest(PythonExecutor executor) {        executor.runScripts();    }}
