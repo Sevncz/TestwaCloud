@@ -10,6 +10,7 @@ import com.testwa.core.service.AdbDriverService;
 import com.testwa.core.service.MinitouchServiceBuilder;
 import com.testwa.distest.client.android.AdbForward;
 import com.testwa.distest.client.android.AndroidHelper;
+import com.testwa.distest.client.component.ADBCommandUtils;
 import com.testwa.distest.client.component.port.MinitouchPortProvider;
 import com.testwa.distest.client.component.Constant;
 import lombok.extern.slf4j.Slf4j;
@@ -267,24 +268,8 @@ public class Minitouch {
     public void inputText(String str) {
         // Switch to ADBKeyBoard from adb
         // adb shell ime set com.android.adbkeyboard/.AdbIME
-        AndroidHelper.getInstance().executeShellCommand(device.getDevice(), "ime set com.android.adbkeyboard/.AdbIME");
-        try {
-            CommandLine commandLine = new CommandLine(AndroidSdk.adb().getCanonicalPath(),
-                    "-s",
-                    device.getSerialNumber(),
-                    "shell",
-                    "am",
-                    "broadcast",
-                    "-a",
-                    "ADB_INPUT_TEXT",
-                    "--es",
-                    "msg",
-                    str
-            );
-            commandLine.execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        ADBCommandUtils.switchADBKeyBoard(device.getSerialNumber());
+        ADBCommandUtils.inputText(device.getSerialNumber(), str, 5000L);
     }
 
     /**
