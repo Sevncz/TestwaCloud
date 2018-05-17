@@ -1,5 +1,7 @@
 package com.testwa.distest.server.web.task.controller;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.AuthorizedException;
 import com.testwa.core.base.exception.ObjectNotExistsException;
@@ -25,18 +27,20 @@ import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
 import com.testwa.distest.server.web.task.validator.StepValidatoer;
 import com.testwa.distest.server.web.task.validator.TaskValidatoer;
-import com.testwa.distest.server.web.task.vo.TaskDeviceFinishStatisVO;
-import com.testwa.distest.server.web.task.vo.TaskOverallProgressVO;
-import com.testwa.distest.server.web.task.vo.TaskOverviewVO;
-import com.testwa.distest.server.web.task.vo.TaskProgressVO;
+import com.testwa.distest.server.web.task.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -212,6 +216,20 @@ public class ReportController extends BaseController {
         result.setExecution(progressVO);
 
         return ok(result);
+    }
+
+    @ApiOperation(value="任务性能统计")
+    @ResponseBody
+    @GetMapping(value = "/performance/{taskId}")
+    public Result performance(@PathVariable(value = "taskId") Long taskId) throws ObjectNotExistsException {
+        if(taskId == null){
+            throw new ParamsIsNullException("参数不能为空");
+        }
+        taskValidatoer.validateTaskExist(taskId);
+
+        PerformanceOverviewVO ov = taskService.getPerformanceOverview(taskId);
+
+        return ok(ov);
     }
 
 }

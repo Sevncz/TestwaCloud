@@ -30,15 +30,18 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
 
 /**
  * Created by wen on 24/10/2017.
@@ -324,7 +327,6 @@ public class TaskService {
         Map<String, String> deviceMap = new HashMap<>();
         deviceList.forEach( d -> {
             List<String> dataList = new ArrayList<>();
-            // 数据库存放的是UTC时间
             DateTime dt = new DateTime(task.getCreateTime());
             DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
             dataList.add(fmt.print(dt));
@@ -379,13 +381,19 @@ public class TaskService {
             return vo;
         }
         vo.setStatus(TaskOverviewVO.TaskStatus.COMPLETE);
-
+        int deviceSize = task.getDevices().size();
         List<ProcedureInfo> installList = getAllInstallSuccessProcedure(taskId);
-        int install = installList.size();
+        double install = (installList.size() / deviceSize) * 100;
+        BigDecimal bg = new BigDecimal(install);
+        install = bg.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
         List<ProcedureInfo> lanucherList = getAllLanucherSuccessProcedure(taskId);
-        int lanucher = lanucherList.size();
+        double lanucher = (lanucherList.size() / deviceSize) * 100;
+        bg = new BigDecimal(lanucher);
+        lanucher = bg.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
         List<ProcedureInfo> uninstallList = getAllUninstallSuccessProcedure(taskId);
-        int uninstall = uninstallList.size();
+        double uninstall = (uninstallList.size() / deviceSize) * 100;
+        bg = new BigDecimal(uninstall);
+        uninstall = bg.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
 
 
         List<Map> statusStatis = getStatusStatisByDeviceId(taskId);
@@ -508,5 +516,111 @@ public class TaskService {
         vo.setGraph(graph);
         vo.setStatistics(statistics);
         return vo;
+    }
+
+    public PerformanceOverviewVO getPerformanceOverview(Long taskId) {
+        PerformanceOverviewVO vo = new PerformanceOverviewVO();
+        Task task = taskDAO.findOne(taskId);
+        List<Device> deviceList = task.getDevices();
+        Map<String, String> deviceMap = new HashMap<>();
+        deviceList.forEach( d -> {
+            deviceMap.put(d.getDeviceId(), d.getBrand() + " " + d.getModel());
+        });
+
+        List<Map> memoryavg = getMemoryAvg(taskId);
+        PerformanceDetail memoryD = getPerformanceDetail(deviceMap, memoryavg);
+        vo.setRam(memoryD);
+
+        List<Map> cpuavg = getCpuAvg(taskId);
+        PerformanceDetail cpuD = getPerformanceDetail(deviceMap, cpuavg);
+        vo.setCpu(cpuD);
+
+        List<Map> install = getInstallTime(taskId);
+        PerformanceDetail installD = getPerformanceDetail(deviceMap, install);
+        vo.setInstall(installD);
+
+        List<Map> startup = getStartUpTime(taskId);
+        PerformanceDetail startupD = getPerformanceDetail(deviceMap, startup);
+        vo.setStartUp(startupD);
+
+        return vo;
+    }
+
+    private PerformanceDetail getPerformanceDetail(Map<String, String> deviceMap, List<Map> avgList) {
+        PerformanceDetail detail = new PerformanceDetail();
+        List<String> names = new ArrayList<>();
+        List<Double> values = new ArrayList<>();
+        for(Map m : avgList){
+            String deviceId = (String) m.getOrDefault("_id", "");
+            String name = deviceMap.get(deviceId);
+            names.add(name);
+            Double d = (Double) m.getOrDefault("value", 0);
+            BigDecimal bg = new BigDecimal(d);
+            double f1 = bg.setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue();
+            values.add(f1);
+        }
+        detail.setName(names);
+        detail.setValue(values);
+        OptionalDouble avg = values.stream().mapToDouble(v -> v).average();
+        if (avg.isPresent()) {
+            detail.setOverview(String.format("%.2f", avg.getAsDouble()));
+        }else{
+           log.error("average wasn't calculated");
+            detail.setOverview("0");
+        }
+        return detail;
+    }
+
+
+    private List<Map> getStartUpTime(Long taskId) {
+        Criteria criatira = new Criteria();
+        criatira.andOperator(Criteria.where("executionTaskId").is(taskId),
+                Criteria.where("command.action").is("启动应用"));
+        Aggregation agg = Aggregation.newAggregation(
+                Aggregation.match(criatira),
+                Aggregation.project("runtime", "deviceId").andExpression("runtime/1000").as("second"),
+                Aggregation.group("deviceId").avg("second").as("value")
+        );
+        return getResult(agg);
+    }
+
+    private List<Map> getInstallTime(Long taskId) {
+        Criteria criatira = new Criteria();
+        criatira.andOperator(Criteria.where("executionTaskId").is(taskId),
+                Criteria.where("command.action").is("安装应用"));
+        Aggregation agg = Aggregation.newAggregation(
+                Aggregation.match(criatira),
+                Aggregation.project("runtime", "deviceId").andExpression("runtime/1000").as("second"),
+                Aggregation.group("deviceId").avg("second").as("value")
+        );
+        return getResult(agg);
+    }
+
+    private List<Map> getMemoryAvg(Long taskId) {
+        int m = 1024*1024;
+        Aggregation agg = Aggregation.newAggregation(
+                Aggregation.match(Criteria.where("executionTaskId").is(taskId)),
+                Aggregation.project("memory", "deviceId").andExpression("memory/1024").as("m"),
+                Aggregation.group("deviceId").avg("m").as("value")
+        );
+        return getResult(agg);
+    }
+
+    private List<Map> getCpuAvg(Long taskId) {
+        Aggregation agg = Aggregation.newAggregation(
+                Aggregation.match(Criteria.where("executionTaskId").is(taskId)),
+                Aggregation.group("deviceId").avg("cpurate").as("value")
+        );
+        return getResult(agg);
+    }
+
+    private List<Map> getResult(Aggregation agg) {
+        AggregationResults<BasicDBObject> outputType = mongoTemplate.aggregate(agg, "t_procedure_info", BasicDBObject.class);
+        List<Map> result = new ArrayList<>();
+        for (Iterator<BasicDBObject> iterator = outputType.iterator(); iterator.hasNext();) {
+            DBObject obj =iterator.next();
+            result.add(obj.toMap());
+        }
+        return result;
     }
 }

@@ -49,8 +49,14 @@ public class TaskValidatoer {
 
     public void validateAppAndDevicePlatform(Long appId, List<String> deviceIds) throws TaskStartException {
         App app = appService.findOne(appId);
+        if(app == null) {
+            throw new ObjectNotExistsException("应用不存在");
+        }
         DB.PhoneOS platform = app.getPlatform();
         List<Device> deviceList = deviceService.findAll(deviceIds);
+        if(deviceList.size() == 0){
+            throw new ObjectNotExistsException("设备不存在");
+        }
         for(Device device : deviceList) {
             if(device.getPhoneOS() != null && !device.getPhoneOS().equals(platform)){
                 throw new TaskStartException("App和设备系统不匹配");
