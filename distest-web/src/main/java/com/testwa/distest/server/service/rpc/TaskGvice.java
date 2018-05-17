@@ -1,7 +1,5 @@
 package com.testwa.distest.server.service.rpc;
 
-import com.testwa.core.utils.DateUtils;
-import com.testwa.core.utils.UUID;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.config.DisFileProperties;
 import com.testwa.distest.config.security.JwtTokenUtil;
@@ -9,7 +7,6 @@ import com.testwa.distest.server.entity.AppiumFile;
 import com.testwa.distest.server.entity.LoggerFile;
 import com.testwa.distest.server.entity.TaskDevice;
 import com.testwa.distest.server.mongo.event.LogcatAnalysisEvent;
-import com.testwa.distest.server.mongo.event.TaskOverEvent;
 import com.testwa.distest.server.mongo.model.ExecutorLogInfo;
 import com.testwa.distest.server.mongo.model.TaskLogger;
 import com.testwa.distest.server.mongo.service.ExecutorLogInfoService;
@@ -88,10 +85,8 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
         if(exeTask != null){
             exeTask.setErrorMsg(errorMessage);
             exeTask.setStatus(DB.TaskStatus.ERROR);
-            exeTask.setEndTime(DateUtils.getMongoDate(new Date(timestamp)));
+            exeTask.setEndTime(new Date(timestamp));
             taskDeviceService.update(exeTask);
-            deviceService.release(exeTask.getDeviceId());
-//            context.publishEvent(new TaskOverEvent(this, request.getExeId()));
         }else{
             log.error("exeTask info not format. {}", request.toString());
         }
@@ -104,13 +99,11 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
         String deviceId = request.getDeviceId();
         TaskDevice exeTask = taskDeviceService.findOne(exeId, deviceId);
         if(exeTask != null){
-            if(exeTask.getStatus().getValue() != DB.TaskStatus.CANCEL.getValue()){
+            if(DB.TaskStatus.RUNNING.equals(exeTask.getStatus())){
                 exeTask.setStatus(DB.TaskStatus.COMPLETE);
             }
-            exeTask.setEndTime(DateUtils.getMongoDate(new Date(timestamp)));
+            exeTask.setEndTime(new Date(timestamp));
             taskDeviceService.update(exeTask);
-            deviceService.release(exeTask.getDeviceId());
-//            context.publishEvent(new TaskOverEvent(this, request.getExeId()));
         }else{
             log.error("exeTask info not format. {}", request.toString());
         }

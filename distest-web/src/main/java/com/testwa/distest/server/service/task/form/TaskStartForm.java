@@ -17,8 +17,8 @@ import java.util.List;
 @Data
 public class TaskStartForm extends RequestFormBase {
 
-    @NotNull(message = "deviceIds.empty")
-    @NotEmpty(message = "deviceIds.empty")
     private List<String> deviceIds;
+
+    private Long projectId;
 
 }

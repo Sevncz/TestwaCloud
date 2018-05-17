@@ -1,1 +1,0 @@
-package com.testwa.distest.server.web.task.vo;import lombok.Data;import java.util.List;/** * @Program: distest * @Description: * @Author: wen * @Create: 2018-05-11 16:45 **/@Datapublic class TaskProgressLineVO {    private String name;  // deviceId    private List<String> data;  // 时间    private String type = "line";    private boolean smooth = true;}

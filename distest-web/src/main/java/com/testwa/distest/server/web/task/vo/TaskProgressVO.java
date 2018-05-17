@@ -2,7 +2,6 @@ package com.testwa.distest.server.web.task.vo;
 
 import lombok.Data;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -11,6 +10,6 @@ import java.util.List;
 
 @Data
 public class TaskProgressVO {
-    List<TaskProgressLineVO> lineList;
+    List<TaskProgressLine> lineList;
     List<String> deviceNameList;
 }

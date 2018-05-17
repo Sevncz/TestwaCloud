@@ -1,0 +1,1 @@
+package com.testwa.distest.server.web.task.vo;import lombok.Data;/** * @Program: distest * @Description: * @Author: wen * @Create: 2018-05-17 14:05 **/@Datapublic class TaskDeviceFinishStatistics {    private int running;    private int completed;    private int extremely;    private int cancel;    private String progress;}

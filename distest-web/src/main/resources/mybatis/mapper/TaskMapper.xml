@@ -59,4 +59,9 @@
         </trim>
     </select>
 
+    <update id="updateEndTime" >
+        update task
+        set endTime = #{endTime}
+        where id = #{taskId}
+    </update>
 </mapper>

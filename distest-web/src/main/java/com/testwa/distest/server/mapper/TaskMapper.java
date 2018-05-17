@@ -5,6 +5,7 @@ import com.testwa.distest.server.entity.Task;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -18,4 +19,6 @@ public interface TaskMapper extends BaseMapper<Task, Long> {
     Task findOne(Long key);
 
     Long countBy(Task query);
+
+    void updateEndTime(@Param("taskId") Long taskId, @Param("endTime") Date endTime);
 }

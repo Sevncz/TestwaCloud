@@ -7,6 +7,7 @@ import com.testwa.distest.server.service.task.dao.ITaskDAO;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +34,11 @@ public class TaskDAO extends BaseDAO<Task, Long> implements ITaskDAO {
     @Override
     public Long countBy(Task query) {
         return mapper.countBy(query);
+    }
+
+    @Override
+    public void updateEndTime(Long taskId, Date endTime) {
+        mapper.updateEndTime(taskId, endTime);
     }
 
 }

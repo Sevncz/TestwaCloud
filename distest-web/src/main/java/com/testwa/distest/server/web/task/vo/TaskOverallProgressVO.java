@@ -1,0 +1,1 @@
+package com.testwa.distest.server.web.task.vo;import lombok.Data;/** * @Program: distest * @Description: 页面需要展示的整体进度 * @Author: wen * @Create: 2018-05-17 13:35 **/@Datapublic class TaskOverallProgressVO {    // 完成设备统计    private TaskDeviceFinishStatisVO equipment;    // 进度统计    private TaskProgressVO execution;    // 总体情况    private TaskOverviewVO overview;}

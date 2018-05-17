@@ -8,10 +8,10 @@ import com.testwa.core.cmd.AppInfo;
 import com.testwa.core.cmd.RemoteRunCommand;
 import com.testwa.core.cmd.RemoteTestcaseContent;
 import com.testwa.core.cmd.ScriptInfo;
-import com.testwa.core.utils.DateUtils;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.entity.*;
+import com.testwa.distest.server.mongo.event.TaskOverEvent;
 import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.cache.mgr.TaskCacheMgr;
 import com.testwa.distest.server.service.device.service.DeviceService;
@@ -22,21 +22,18 @@ import com.testwa.distest.server.service.task.service.TaskDeviceService;
 import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.service.testcase.service.TestcaseService;
 import com.testwa.distest.server.service.user.service.UserService;
-import com.testwa.distest.server.web.task.vo.TaskProgressVO;
 import com.testwa.distest.server.websocket.service.PushCmdService;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.push.Message;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * Created by wen on 25/10/2017.
@@ -63,6 +60,13 @@ public class ExecuteMgr {
     private DeviceService deviceService;
     @Autowired
     private ScriptService scriptService;
+    @Autowired
+    private ApplicationContext context;
+
+    // 暂定同时支持100个任务并发
+    private final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(100);
+    private final ConcurrentHashMap<Long, Future> futures = new ConcurrentHashMap<>();
+
 
 
     /**
@@ -76,6 +80,8 @@ public class ExecuteMgr {
         log.info(form.toString());
         TaskStartForm startForm = new TaskStartForm();
         startForm.setDeviceIds(form.getDeviceIds());
+        Testcase tc = testcaseService.fetchOne(form.getTestcaseId());
+        startForm.setProjectId(tc.getProjectId());
         return start(startForm, form.getTestcaseId(), form.getAppId(), "回归测试", DB.TaskType.HG);
     }
 
@@ -87,6 +93,7 @@ public class ExecuteMgr {
     public Long startJR(TaskNewStartJRForm form, Long testcaseId) {
         TaskStartForm startForm = new TaskStartForm();
         startForm.setDeviceIds(form.getDeviceIds());
+        startForm.setProjectId(form.getProjectId());
         return start(startForm, testcaseId, form.getAppId(), "兼容测试", DB.TaskType.JR);
     }
 
@@ -97,7 +104,7 @@ public class ExecuteMgr {
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         Task task = new Task();
         task.setTaskType(taskType);
-        task.setProjectId(app.getProjectId());
+        task.setProjectId(form.getProjectId());
         task.setAppId(app.getId());
         task.setAppJson(JSON.toJSONString(app));
 
@@ -134,10 +141,11 @@ public class ExecuteMgr {
         List<Device> alldevice = deviceService.findAll(form.getDeviceIds());
         task.setDevicesJson(JSON.toJSONString(alldevice));
         task.setCreateBy(user.getId());
-        task.setCreateTime(DateUtils.getMongoDate(new Date()));
+        task.setCreateTime(new Date());
         task.setEnabled(true);
         Long taskId = taskService.save(task);
 
+        // 启动任务
         for (String key : form.getDeviceIds()) {
             TaskDevice taskDevice = new TaskDevice();
             taskDevice.setStatus(DB.TaskStatus.RUNNING);
@@ -176,8 +184,34 @@ public class ExecuteMgr {
             deviceService.work(key);
         }
 
+
+        int initialDelay = 0;
+        int period = 10;
+        Future future = scheduledExecutor.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                log.info("........ get task info");
+                Task t = taskService.findOne(taskId);
+                int runningCount = t.getDevices().size();
+                List<TaskDevice> tds = taskDeviceService.findByTaskId(taskId);
+                for(TaskDevice taskDevice : tds){
+                    if(!DB.TaskStatus.RUNNING.equals(taskDevice.getStatus())
+                            && !DB.TaskStatus.NOT_EXECUTE.equals(taskDevice.getStatus())) {
+                        runningCount--;
+                    }
+                }
+                if(runningCount <= 0) {
+                    context.publishEvent(new TaskOverEvent(this, taskId));
+                    Future future = futures.get(taskId);
+                    if (future != null) future.cancel(true);
+                }
+            }
+        }, initialDelay, period, TimeUnit.SECONDS);
+        futures.put(taskId, future);
+
         return taskId;
     }
+
 
     /**
      * 停止任务

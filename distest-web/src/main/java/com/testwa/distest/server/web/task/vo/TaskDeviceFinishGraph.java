@@ -1,0 +1,1 @@
+package com.testwa.distest.server.web.task.vo;import lombok.Data;/** * @Program: distest * @Description: * @Author: wen * @Create: 2018-05-17 14:05 **/@Datapublic class TaskDeviceFinishGraph {    private String name;    private int value;}

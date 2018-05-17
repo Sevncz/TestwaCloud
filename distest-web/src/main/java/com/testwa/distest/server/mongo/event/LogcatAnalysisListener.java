@@ -71,7 +71,7 @@ public class LogcatAnalysisListener implements ApplicationListener<LogcatAnalysi
                 }
                 try ( Stream<String> stream = Files.lines(logcatPath, StandardCharsets.UTF_8) ) {
                     stream.forEach( l -> {
-                        log.info(l);
+//                        log.info(l);
                     });
                 } catch (IOException e1) {
                     e1.printStackTrace();

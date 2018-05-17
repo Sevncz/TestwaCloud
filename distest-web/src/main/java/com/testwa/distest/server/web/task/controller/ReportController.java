@@ -25,6 +25,9 @@ import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
 import com.testwa.distest.server.web.task.validator.StepValidatoer;
 import com.testwa.distest.server.web.task.validator.TaskValidatoer;
+import com.testwa.distest.server.web.task.vo.TaskDeviceFinishStatisVO;
+import com.testwa.distest.server.web.task.vo.TaskOverallProgressVO;
+import com.testwa.distest.server.web.task.vo.TaskOverviewVO;
 import com.testwa.distest.server.web.task.vo.TaskProgressVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -188,6 +191,26 @@ public class ReportController extends BaseController {
         }
         taskValidatoer.validateTaskExist(taskId);
         TaskProgressVO result = taskService.getProgress(taskId);
+        return ok(result);
+    }
+
+    @ApiOperation(value="任务进度统计")
+    @ResponseBody
+    @GetMapping(value = "/overview/{taskId}")
+    public Result overview(@PathVariable(value = "taskId") Long taskId) throws ObjectNotExistsException {
+        if(taskId == null){
+            throw new ParamsIsNullException("参数不能为空");
+        }
+        taskValidatoer.validateTaskExist(taskId);
+        TaskProgressVO progressVO = taskService.getProgress(taskId);
+        TaskOverviewVO overviewVO = taskService.getOverview(taskId);
+        TaskDeviceFinishStatisVO finishStatisVO = taskService.getFinishStatisVO(taskId);
+
+        TaskOverallProgressVO result = new TaskOverallProgressVO();
+        result.setEquipment(finishStatisVO);
+        result.setOverview(overviewVO);
+        result.setExecution(progressVO);
+
         return ok(result);
     }
 

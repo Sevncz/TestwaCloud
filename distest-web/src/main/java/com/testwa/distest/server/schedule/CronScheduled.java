@@ -41,7 +41,7 @@ public class CronScheduled {
 
 
     @Scheduled(cron = "0/10 * * * * ?")
-    public void storeRunningLog() throws Exception {
+    public void saveRunningLog() {
         Long logSize = procedureRedisMgr.size();
         if(logSize == null || logSize == 0){
             return;
@@ -52,11 +52,13 @@ public class CronScheduled {
             String info = procedureRedisMgr.getProcedureFromQueue();
             try {
                 ProcedureInfo pi = JSON.parseObject(info, ProcedureInfo.class);
-                logers.add(pi);
+                if(!StringUtils.isBlank(pi.getDeviceId())){
+                    logers.add(pi);
+                }
             }catch (Exception e){
                 log.error("running log transfer error", e);
 //                procedureRedisMgr.addProcedureToQueue(info);
-                procedureRedisMgr.addErrorProcedureToQueue(info);
+//                procedureRedisMgr.addErrorProcedureToQueue(info);
             }
         }
         mongoTemplate.insertAll(logers);
