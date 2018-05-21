@@ -13,6 +13,7 @@ import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.distest.client.component.ADBCommandUtils;
 import com.testwa.distest.client.component.port.MinitouchPortProvider;
 import com.testwa.distest.client.component.Constant;
+import com.testwa.distest.client.exception.CommandFailureException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.os.CommandLine;
@@ -234,7 +235,9 @@ public class Minitouch {
             minitouchOutputStream.write(newcmd.getBytes());
         } catch (IOException e) {
             isBrokenPip = true;
-            e.printStackTrace();
+            log.error("minitouch socket close");
+        } catch (CommandFailureException e) {
+            log.error(e.getMessage());
         }
     }
 
@@ -245,16 +248,21 @@ public class Minitouch {
      *@Author: wen
      *@Date: 2018/5/3
      */
-    private String pointConvert(String cmd){
+    private String pointConvert(String cmd) throws CommandFailureException {
         Integer x;
         Integer y;
         // m <contact> <x> <y> <pressure>
         // d <contact> <x> <y> <pressure>
         if(cmd.startsWith("d") || cmd.startsWith("m")){
-            String[] m = cmd.split(" ");
-            x = Integer.parseInt(m[2]);
-            y = Integer.parseInt(m[3]);
-            return String.format("%s %s %s %s %s", m[0], m[1], (int)(x/PercentX), (int)(y/PercentY), m[4]);
+            String[] m = cmd.trim().split("\\s+");
+            try{
+                x = Integer.parseInt(m[2]);
+                y = Integer.parseInt(m[3]);
+                return String.format("%s %s %s %s %s\nc\n", m[0], m[1], (int)(x/PercentX), (int)(y/PercentY), m[4]);
+            }catch (NumberFormatException e){
+                log.error("point str error, {}", cmd);
+            }
+            throw new CommandFailureException("点击命令解析失败");
         }else{
             return cmd;
         }
@@ -263,13 +271,6 @@ public class Minitouch {
 
     public void sendKeyEvent(int k) {
         AndroidHelper.getInstance().executeShellCommand(device.getDevice(), "input keyevent " + k);
-    }
-
-    public void inputText(String str) {
-        // Switch to ADBKeyBoard from adb
-        // adb shell ime set com.android.adbkeyboard/.AdbIME
-        ADBCommandUtils.switchADBKeyBoard(device.getSerialNumber());
-        ADBCommandUtils.inputText(device.getSerialNumber(), str, 5000L);
     }
 
     /**

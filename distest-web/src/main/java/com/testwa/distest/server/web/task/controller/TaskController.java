@@ -84,27 +84,28 @@ public class TaskController extends BaseController {
         appValidator.validateAppExist(form.getAppId());
         deviceValidatoer.validateOnline(form.getDeviceIds());
         taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
-        ScriptNewForm scriptNewForm = new ScriptNewForm();
-        scriptNewForm.setProjectId(form.getProjectId());
-        List<Script> scriptList = scriptService.findByMD5InProject(JR_MD5, form.getProjectId());
-        Script script = null;
-        if(scriptList == null || scriptList.size() == 0){
-            // 生成一个脚本
-            script = scriptService.saveScript("jr.py", "jr.py", JR_MD5, "jr/jr.py", "0", "py", scriptNewForm);
-        }else{
-            script = scriptList.get(0);
-        }
-
-        List<Testcase> testcaseList = testcaseService.findSysJR(form.getProjectId());
-        Long testcaseId = null;
-        if(testcaseList == null || testcaseList.size() == 0){
-            // 生成一个案例
-            testcaseId = testcaseService.saveJRTestcase(form.getProjectId(), script.getId());
-        }else{
-            Testcase testcase = testcaseList.get(0);
-            testcaseId = testcase.getId();
-        }
-        Long taskId = executeMgr.startJR(form, testcaseId);
+//        ScriptNewForm scriptNewForm = new ScriptNewForm();
+//        scriptNewForm.setProjectId(form.getProjectId());
+//        List<Script> scriptList = scriptService.findByMD5InProject(JR_MD5, form.getProjectId());
+//        Script script = null;
+//        if(scriptList == null || scriptList.size() == 0){
+//            // 生成一个脚本
+//            script = scriptService.saveScript("jr.py", "jr.py", JR_MD5, "jr/jr.py", "0", "py", scriptNewForm);
+//        }else{
+//            script = scriptList.get(0);
+//        }
+//
+//        List<Testcase> testcaseList = testcaseService.findSysJR(form.getProjectId());
+//        Long testcaseId = null;
+//        if(testcaseList == null || testcaseList.size() == 0){
+//            // 生成一个案例
+//            testcaseId = testcaseService.saveJRTestcase(form.getProjectId(), script.getId());
+//        }else{
+//            Testcase testcase = testcaseList.get(0);
+//            testcaseId = testcase.getId();
+//        }
+//        Long taskId = executeMgr.startJR(form, testcaseId);
+        Long taskId = executeMgr.startJR(form);
         return ok(taskId);
     }
 

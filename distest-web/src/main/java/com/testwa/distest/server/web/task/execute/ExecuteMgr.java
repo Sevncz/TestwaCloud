@@ -77,12 +77,8 @@ public class ExecuteMgr {
         Preconditions.checkNotNull(form.getAppId(), "数据非法");
         Preconditions.checkNotNull(form.getTestcaseId(), "数据非法");
         Preconditions.checkNotNull(form.getDeviceIds(), "数据非法");
-        log.info(form.toString());
-        TaskStartForm startForm = new TaskStartForm();
-        startForm.setDeviceIds(form.getDeviceIds());
         Testcase tc = testcaseService.fetchOne(form.getTestcaseId());
-        startForm.setProjectId(tc.getProjectId());
-        return start(startForm, form.getTestcaseId(), form.getAppId(), "回归测试", DB.TaskType.HG);
+        return start(form.getDeviceIds(), tc.getProjectId(), form.getTestcaseId(), form.getAppId(), tc.getCaseName(), DB.TaskType.HG);
     }
 
     /**
@@ -90,21 +86,20 @@ public class ExecuteMgr {
      * @param form
      * @return
      */
-    public Long startJR(TaskNewStartJRForm form, Long testcaseId) {
-        TaskStartForm startForm = new TaskStartForm();
-        startForm.setDeviceIds(form.getDeviceIds());
-        startForm.setProjectId(form.getProjectId());
-        return start(startForm, testcaseId, form.getAppId(), "兼容测试", DB.TaskType.JR);
+    public Long startJR(TaskNewStartJRForm form) {
+        Preconditions.checkNotNull(form.getAppId(), "数据非法");
+        Preconditions.checkNotNull(form.getDeviceIds(), "数据非法");
+        App app = appService.findOne(form.getAppId());
+        return start(form.getDeviceIds(), app.getProjectId(), null, form.getAppId(), "兼容测试", DB.TaskType.JR);
     }
 
-    private Long start(TaskStartForm form, Long testcaseId, Long appId, String taskName, DB.TaskType taskType) throws ObjectNotExistsException {
-        log.info(form.toString());
+    private Long start(List<String> deviceIds, Long projectId, Long testcaseId, Long appId, String taskName, DB.TaskType taskType) throws ObjectNotExistsException {
         // 记录task的执行信息
         App app = appService.findOne(appId);
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         Task task = new Task();
         task.setTaskType(taskType);
-        task.setProjectId(form.getProjectId());
+        task.setProjectId(projectId);
         task.setAppId(app.getId());
         task.setAppJson(JSON.toJSONString(app));
 
@@ -138,7 +133,7 @@ public class ExecuteMgr {
             task.setTestcaseJson(JSON.toJSONString(alltestcase));
         }
         task.setTaskName(taskName);
-        List<Device> alldevice = deviceService.findAll(form.getDeviceIds());
+        List<Device> alldevice = deviceService.findAll(deviceIds);
         task.setDevicesJson(JSON.toJSONString(alldevice));
         task.setCreateBy(user.getId());
         task.setCreateTime(new Date());
@@ -146,7 +141,7 @@ public class ExecuteMgr {
         Long taskId = taskService.save(task);
 
         // 启动任务
-        for (String key : form.getDeviceIds()) {
+        for (String key : deviceIds) {
             TaskDevice taskDevice = new TaskDevice();
             taskDevice.setStatus(DB.TaskStatus.RUNNING);
             taskDevice.setDeviceId(key);
@@ -194,6 +189,7 @@ public class ExecuteMgr {
                 Task t = taskService.findOne(taskId);
                 int runningCount = t.getDevices().size();
                 List<TaskDevice> tds = taskDeviceService.findByTaskId(taskId);
+                //TODO 检查超时
                 for(TaskDevice taskDevice : tds){
                     if(!DB.TaskStatus.RUNNING.equals(taskDevice.getStatus())
                             && !DB.TaskStatus.NOT_EXECUTE.equals(taskDevice.getStatus())) {
