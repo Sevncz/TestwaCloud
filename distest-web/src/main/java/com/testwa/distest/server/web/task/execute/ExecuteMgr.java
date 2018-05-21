@@ -15,7 +15,7 @@ import com.testwa.distest.server.mongo.event.TaskOverEvent;
 import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.cache.mgr.TaskCacheMgr;
 import com.testwa.distest.server.service.device.service.DeviceService;
-import com.testwa.distest.server.service.rpc.cache.CacheUtil;
+import com.testwa.distest.server.rpc.cache.CacheUtil;
 import com.testwa.distest.server.service.script.service.ScriptService;
 import com.testwa.distest.server.service.task.form.*;
 import com.testwa.distest.server.service.task.service.TaskDeviceService;

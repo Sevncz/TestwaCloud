@@ -1,19 +1,17 @@
 package com.testwa.distest.server.websocket.handler;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.annotation.OnEvent;
 import com.google.protobuf.ByteString;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.cmd.MiniCmd;
-import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
 import com.testwa.distest.server.service.cache.mgr.SubscribeDeviceFuncMgr;
 import com.testwa.distest.server.service.device.service.DeviceService;
-import com.testwa.distest.server.service.rpc.cache.CacheUtil;
+import com.testwa.distest.server.rpc.cache.CacheUtil;
 import com.testwa.distest.server.websocket.WSFuncEnum;
 import com.testwa.distest.server.websocket.service.PushCmdService;
 import io.grpc.stub.StreamObserver;
@@ -24,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by wen on 2016/9/24.

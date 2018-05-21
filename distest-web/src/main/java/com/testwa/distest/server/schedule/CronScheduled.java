@@ -1,29 +1,21 @@
 package com.testwa.distest.server.schedule;
 
 import com.alibaba.fastjson.JSON;
-import com.corundumstudio.socketio.SocketIOClient;
-import com.corundumstudio.socketio.SocketIOServer;
 import com.google.protobuf.ByteString;
-import com.testwa.core.redis.RedisCacheManager;
 import com.testwa.distest.server.mongo.model.ProcedureInfo;
-import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
-import com.testwa.distest.server.service.rpc.cache.CacheUtil;
+import com.testwa.distest.server.rpc.cache.CacheUtil;
 import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
 import com.testwa.distest.server.web.task.execute.ProcedureRedisMgr;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.push.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 
 @Slf4j
