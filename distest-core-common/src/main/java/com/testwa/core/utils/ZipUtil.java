@@ -4,7 +4,11 @@ import org.apache.tools.zip.ZipEntry;
 import org.apache.tools.zip.ZipFile;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Enumeration;
+import java.util.zip.ZipOutputStream;
 
 public class ZipUtil {
 
@@ -56,20 +60,22 @@ public class ZipUtil {
         }
     }
 
-    public static void zipFile(String fileName, java.util.zip.ZipOutputStream out) throws IOException{
-        File file = new File(fileName);
-        if( file.exists() ){
-            byte[] buffer = new byte[1024];
-            FileInputStream fis = new FileInputStream(file);
-            out.putNextEntry(new ZipEntry(file.getName()));
-            int len = 0 ;
-            //读入需要下载的文件的内容，打包到zip文件
-            while ((len = fis.read(buffer)) > 0) {
-                out.write(buffer, 0, len);
-            }
-            out.flush();
-            out.closeEntry();
-            fis.close();
+    public static void pack(String sourceDirPath, String zipFilePath) throws IOException {
+        Path p = Files.createFile(Paths.get(zipFilePath));
+        try (ZipOutputStream zs = new ZipOutputStream(Files.newOutputStream(p))) {
+            Path pp = Paths.get(sourceDirPath);
+            Files.walk(pp)
+                    .filter(path -> !Files.isDirectory(path))
+                    .forEach(path -> {
+                        ZipEntry zipEntry = new ZipEntry(pp.relativize(path).toString());
+                        try {
+                            zs.putNextEntry(zipEntry);
+                            Files.copy(path, zs);
+                            zs.closeEntry();
+                        } catch (IOException e) {
+                            System.err.println(e);
+                        }
+                    });
         }
     }
 

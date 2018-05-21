@@ -1,5 +1,6 @@
 package com.testwa.distest.server.rpc;
 
+import com.testwa.core.utils.ZipUtil;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.config.DisFileProperties;
 import com.testwa.distest.config.security.JwtTokenUtil;
@@ -8,8 +9,10 @@ import com.testwa.distest.server.entity.LoggerFile;
 import com.testwa.distest.server.entity.TaskDevice;
 import com.testwa.distest.server.mongo.event.LogcatAnalysisEvent;
 import com.testwa.distest.server.mongo.model.ExecutorLogInfo;
+import com.testwa.distest.server.mongo.model.Step;
 import com.testwa.distest.server.mongo.model.TaskLogger;
 import com.testwa.distest.server.mongo.service.ExecutorLogInfoService;
+import com.testwa.distest.server.mongo.service.StepService;
 import com.testwa.distest.server.mongo.service.TaskLoggerService;
 import com.testwa.distest.server.service.cache.mgr.TaskCacheMgr;
 import com.testwa.distest.server.service.device.service.DeviceService;
@@ -73,6 +76,8 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     private MessageNotifyService messageNotifyService;
     @Autowired
     private TaskLoggerService taskLoggerService;
+    @Autowired
+    private StepService stepService;
 
     @Override
     public void gameover(GameOverRequest request, StreamObserver<CommonReply> responseObserver) {
@@ -90,6 +95,9 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
         }else{
             log.error("exeTask info not format. {}", request.toString());
         }
+        final CommonReply replyBuilder = CommonReply.newBuilder().setMessage("OK ").build();
+        responseObserver.onNext(replyBuilder);
+        responseObserver.onCompleted();
     }
 
     @Override
@@ -107,6 +115,9 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
         }else{
             log.error("exeTask info not format. {}", request.toString());
         }
+        final CommonReply replyBuilder = CommonReply.newBuilder().setMessage("OK ").build();
+        responseObserver.onNext(replyBuilder);
+        responseObserver.onCompleted();
     }
 
     @Override
@@ -119,12 +130,20 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
 
         taskCacheMgr.saveExeInfo(exeId, deviceId, testcaseId, scriptId);
 
+        final CommonReply replyBuilder = CommonReply.newBuilder().setMessage("OK ").build();
+        responseObserver.onNext(replyBuilder);
+        responseObserver.onCompleted();
+
     }
 
     @Override
     public void procedureInfoUpload(ProcedureInfoUploadRequest request, StreamObserver<CommonReply> responseObserver) {
         String info = request.getInfoJson();
         procedureRedisMgr.addProcedureToQueue(info);
+
+        final CommonReply replyBuilder = CommonReply.newBuilder().setMessage("OK ").build();
+        responseObserver.onNext(replyBuilder);
+        responseObserver.onCompleted();
     }
 
     @Override
@@ -358,6 +377,83 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
 
 
     @Override
+    public StreamObserver<FileUploadRequest> zipFileUpload(StreamObserver<CommonReply> responseObserver) {
+        return new StreamObserver<FileUploadRequest>() {
+            int mmCount = 0;
+            Path localZipFile;
+
+            @Override
+            public void onNext(FileUploadRequest request) {
+                log.debug("onNext count: " + mmCount);
+                mmCount++;
+
+                byte[] data = request.getData().toByteArray();
+                int offset = request.getOffset();
+                int size = (int) request.getSize();
+                String name = request.getName();
+                long taskId = request.getExeId();
+                String deviceId = request.getDeviceId();
+                String localPath = disFileProperties.getScreeshot();
+                localZipFile = Paths.get(localPath, String.valueOf(taskId), deviceId, name);
+                if(!Files.exists(localZipFile.getParent())){
+                    try {
+                        Files.createDirectories(localZipFile.getParent());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if(!Files.exists(localZipFile)){
+                    try {
+                        Files.createFile(localZipFile);
+                    } catch (IOException e) {
+                        log.error("Receive zip file, create error", e);
+                    }
+                }
+                try {
+                    if (mBufferedOutputStream == null) {
+                        mBufferedOutputStream = new BufferedOutputStream(new FileOutputStream(localZipFile.toFile()));
+                    }
+                    mBufferedOutputStream.write(data, 0, size);
+                    mBufferedOutputStream.flush();
+                } catch (Exception e) {
+                    log.error("offset: {}, size: {}", offset, size);
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onError(Throwable t) {
+
+            }
+
+            @Override
+            public void onCompleted() {
+                responseObserver.onNext(CommonReply.newBuilder()
+                        .setStatus(mStatus)
+                        .setMessage(mMessage)
+                        .build());
+                responseObserver.onCompleted();
+                if (mBufferedOutputStream != null) {
+                    try {
+                        mBufferedOutputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        mBufferedOutputStream = null;
+                    }
+                }
+                try {
+                    ZipUtil.unZipFiles(localZipFile.toFile(), localZipFile.getParent().toString());
+                    Files.deleteIfExists(localZipFile);
+                } catch (IOException e) {
+
+                }
+            }
+        };
+    }
+
+
+    @Override
     public void executorLogUpload(ExecutorLogRequest request, StreamObserver<CommonReply> responseObserver){
 
         String token = request.getToken();
@@ -387,6 +483,10 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
         // 通知页面
         messageNotifyService.taskAction(logInfo);
 
+        final CommonReply replyBuilder = CommonReply.newBuilder().setMessage("OK ").build();
+        responseObserver.onNext(replyBuilder);
+        responseObserver.onCompleted();
+
     }
 
     /**
@@ -408,6 +508,30 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
         logger.setTaskId(taskId);
         logger.setTimestamp(timestamp);
         taskLoggerService.save(logger);
+
+        final CommonReply replyBuilder = CommonReply.newBuilder().setMessage("OK ").build();
+        responseObserver.onNext(replyBuilder);
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void saveMonkeyStep(StepRequest request, StreamObserver<CommonReply> responseObserver){
+        Long taskId = request.getTaskId();
+        String deviceId = request.getDeviceId();
+        String img = request.getImg();
+        String dump = request.getDump();
+
+        Step step = new Step();
+        step.setDeviceId(deviceId);
+        step.setTaskId(taskId);
+        step.setDump(dump);
+        step.setImg(img);
+
+        stepService.save(step);
+
+        final CommonReply replyBuilder = CommonReply.newBuilder().setMessage("OK ").build();
+        responseObserver.onNext(replyBuilder);
+        responseObserver.onCompleted();
     }
 
 }

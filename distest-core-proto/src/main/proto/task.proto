@@ -17,9 +17,12 @@ service TaskService {
     rpc LogcatFileUpload (stream FileUploadRequest) returns ( CommonReply ) {}
     rpc AppiumLogFileUpload (stream FileUploadRequest) returns ( CommonReply ) {}
     rpc ImgFileUpload (stream FileUploadRequest) returns ( CommonReply ) {}
+    rpc ZipFileUpload (stream FileUploadRequest) returns ( CommonReply ) {}
 
     rpc currExeInfo (CurrentExeInfoRequest) returns ( CommonReply ) {}
     rpc procedureInfoUpload (ProcedureInfoUploadRequest) returns ( CommonReply ) {}
+
+    rpc saveMonkeyStep (StepRequest) returns ( CommonReply ) {}
 
     rpc executorLogUpload (ExecutorLogRequest) returns ( CommonReply ) {}
 }
@@ -47,6 +50,16 @@ message ProcedureInfoRequest {
     string token = 17;
     int64 taskId = 18;
     int64 testcaseId = 19;
+}
+
+message StepRequest {
+
+    string img = 1;
+    string dump = 2;
+    string token = 3;
+    int64 taskId = 4;
+    string deviceId = 5;
+
 }
 
 
