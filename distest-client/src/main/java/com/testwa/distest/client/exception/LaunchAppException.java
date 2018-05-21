@@ -1,0 +1,1 @@
+package com.testwa.distest.client.exception;public class LaunchAppException extends Exception{    public LaunchAppException(){    }    public LaunchAppException(String message){        super(message);    }}

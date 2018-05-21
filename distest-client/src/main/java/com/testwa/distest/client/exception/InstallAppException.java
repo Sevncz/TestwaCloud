@@ -1,0 +1,1 @@
+package com.testwa.distest.client.exception;public class InstallAppException extends Exception{    public InstallAppException(){    }    public InstallAppException(String message){        super(message);    }}

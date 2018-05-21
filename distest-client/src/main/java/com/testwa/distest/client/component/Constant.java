@@ -32,6 +32,10 @@ public class Constant {
 
     public static final String KEYBOARD_SERVICE_APK = "keyboardservice-debug.apk";
 
+    public static final String MAXIM_BIN = "maxim";
+
+    public static final String AGENT_TMP_DIR = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent").toString();
+
 	public static final String localAppPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "app").toString();
 	public static final String localScriptPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "script").toString();
 	public static final String localScriptTmpPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "script_tmp").toString();
