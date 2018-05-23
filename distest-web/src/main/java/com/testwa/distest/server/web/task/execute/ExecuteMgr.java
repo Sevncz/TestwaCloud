@@ -22,10 +22,13 @@ import com.testwa.distest.server.service.task.service.TaskDeviceService;
 import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.service.testcase.service.TestcaseService;
 import com.testwa.distest.server.service.user.service.UserService;
+import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
 import com.testwa.distest.server.websocket.service.PushCmdService;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.push.Message;
 import lombok.extern.slf4j.Slf4j;
+import org.joda.time.DateTime;
+import org.joda.time.Duration;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -55,7 +58,7 @@ public class ExecuteMgr {
     @Autowired
     private TaskCacheMgr taskCacheMgr;
     @Autowired
-    private PushCmdService pushCmdService;
+    private DeviceAuthMgr deviceAuthMgr;
     @Autowired
     private DeviceService deviceService;
     @Autowired
@@ -66,7 +69,6 @@ public class ExecuteMgr {
     // 暂定同时支持100个任务并发
     private final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(100);
     private final ConcurrentHashMap<Long, Future> futures = new ConcurrentHashMap<>();
-
 
 
     /**
@@ -185,17 +187,30 @@ public class ExecuteMgr {
         Future future = scheduledExecutor.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
-                log.info("........ get task info");
+                log.info("........ get task {} info", taskId);
                 Task t = taskService.findOne(taskId);
                 int runningCount = t.getDevices().size();
                 List<TaskDevice> tds = taskDeviceService.findByTaskId(taskId);
-                //TODO 检查超时
                 for(TaskDevice taskDevice : tds){
                     if(!DB.TaskStatus.RUNNING.equals(taskDevice.getStatus())
                             && !DB.TaskStatus.NOT_EXECUTE.equals(taskDevice.getStatus())) {
                         runningCount--;
                     }
+                    String deviceId = taskDevice.getDeviceId();
+                    if(!deviceAuthMgr.isOnline(deviceId)){
+                        runningCount--;
+                    }
                 }
+                if(runningCount > 0){
+                    // 检查超时，超过30分钟自动关闭
+                    DateTime startTime = new DateTime(t.getCreateTime());
+                    DateTime now = new DateTime();
+                    Duration d = new Duration(startTime, now);
+                    if(d.getStandardMinutes() > 30){
+                        runningCount = 0;
+                    }
+                }
+
                 if(runningCount <= 0) {
                     context.publishEvent(new TaskOverEvent(this, taskId));
                     Future future = futures.get(taskId);

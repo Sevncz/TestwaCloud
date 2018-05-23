@@ -53,59 +53,67 @@ public class TaskOverListener implements ApplicationListener<TaskOverEvent> {
         });
 
         if(DB.TaskType.HG.equals(task.getTaskType())){
-            // 脚本数量
-            List<Script> taskScripts = task.getScriptList();
-            int scriptNum = taskScripts.size();
-
-            // 统计cpu平均占用率
-            List<Map> cpus = statisCpuRate(taskId);
-
-            // 统计内存平均占用量
-            List<Map> mems = statisMemory(taskId);
-
-            // 成功和失败步骤数量
-            List<Map> statusProcedure = statisStatus(taskId);
-
-            // 成功和失败session数量
-            List<Map> sessions = statisScript(taskId);
-            List<Map> statusScripts = new ArrayList<>();
-            Map<String, Integer> d = new HashMap<>();
-            for(Map s : sessions){
-
-                List<ProcedureInfo> l = procedureInfoService.findBySessionId((String) s.get("_id"));
-                if(l != null && l.size() > 0){
-                    ProcedureInfo pi = l.get(0);
-                    Integer scriptFailNum = d.getOrDefault(pi.getDeviceId(), 0);
-                    if((Integer) s.get("count") > 0){
-                        scriptFailNum += 1;
-                    }
-                    d.put(pi.getDeviceId(), scriptFailNum);
-                }
-            }
-            int finalScriptNum = scriptNum;
-            d.forEach((k, v) -> {
-                Map<String, Object> t = new HashMap<>();
-                t.put("deviceId", k);
-                t.put("fail", v);
-                t.put("success", finalScriptNum - v);
-                statusScripts.add(t);
-            });
-
-
-            ProcedureStatis old = procedureInfoService.getProcedureStatisByExeId(taskId);
-            if(old != null){
-                procedureInfoService.deleteStatisById(old.getId());
-            }
-            ProcedureStatis ps = new ProcedureStatis();
-            ps.setExeId(taskId);
-            ps.setCpurateInfo(cpus);
-            ps.setMemoryInfo(mems);
-            ps.setStatusProcedureInfo(statusProcedure);
-            ps.setStatusScriptInfo(statusScripts);
-            ps.setScriptNum(scriptNum);
-
-            procedureInfoService.saveProcedureStatis(ps);
+            hgtaskStatis(task);
         }
+        if(DB.TaskType.JR.equals(task.getTaskType())){
+
+        }
+    }
+
+    private void hgtaskStatis(Task task) {
+        Long taskId = task.getId();
+        // 脚本数量
+        List<Script> taskScripts = task.getScriptList();
+        int scriptNum = taskScripts.size();
+
+        // 统计cpu平均占用率
+        List<Map> cpus = statisCpuRate(taskId);
+
+        // 统计内存平均占用量
+        List<Map> mems = statisMemory(taskId);
+
+        // 成功和失败步骤数量
+        List<Map> statusProcedure = statisStatus(taskId);
+
+        // 成功和失败session数量
+        List<Map> sessions = statisScript(taskId);
+        List<Map> statusScripts = new ArrayList<>();
+        Map<String, Integer> d = new HashMap<>();
+        for(Map s : sessions){
+
+            List<ProcedureInfo> l = procedureInfoService.findBySessionId((String) s.get("_id"));
+            if(l != null && l.size() > 0){
+                ProcedureInfo pi = l.get(0);
+                Integer scriptFailNum = d.getOrDefault(pi.getDeviceId(), 0);
+                if((Integer) s.get("count") > 0){
+                    scriptFailNum += 1;
+                }
+                d.put(pi.getDeviceId(), scriptFailNum);
+            }
+        }
+        int finalScriptNum = scriptNum;
+        d.forEach((k, v) -> {
+            Map<String, Object> t = new HashMap<>();
+            t.put("deviceId", k);
+            t.put("fail", v);
+            t.put("success", finalScriptNum - v);
+            statusScripts.add(t);
+        });
+
+
+        ProcedureStatis old = procedureInfoService.getProcedureStatisByExeId(taskId);
+        if(old != null){
+            procedureInfoService.deleteStatisById(old.getId());
+        }
+        ProcedureStatis ps = new ProcedureStatis();
+        ps.setExeId(taskId);
+        ps.setCpurateInfo(cpus);
+        ps.setMemoryInfo(mems);
+        ps.setStatusProcedureInfo(statusProcedure);
+        ps.setStatusScriptInfo(statusScripts);
+        ps.setScriptNum(scriptNum);
+
+        procedureInfoService.saveProcedureStatis(ps);
     }
 
     private List<Map> statisScript(Long exeId) {

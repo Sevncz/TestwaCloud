@@ -123,6 +123,9 @@ public class DeviceAuthMgr {
         return redisCacheMgr.sMembers(ONLINE);
     }
 
+    public boolean isOnline(String deviceId) {
+        return redisCacheMgr.sIsMember(ONLINE, deviceId);
+    }
     /**
      * 清理 ALLOW_USER_TO_USE， ALLOW_PROJECT_TO_USE， USING 中不在线的设备
      */
@@ -147,4 +150,5 @@ public class DeviceAuthMgr {
     public void delAllUsing() {
         redisCacheMgr.remove(USING);
     }
+
 }

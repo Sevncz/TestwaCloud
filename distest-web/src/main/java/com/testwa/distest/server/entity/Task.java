@@ -32,6 +32,7 @@ public class Task extends ProjectBaseEntity {
     private String taskName;
     private DB.TaskType taskType;
     private Date endTime;
+    private Integer outTime;
 
 //    @Column(value="status", ignore=true)
 //    private DB.TaskStatus status;

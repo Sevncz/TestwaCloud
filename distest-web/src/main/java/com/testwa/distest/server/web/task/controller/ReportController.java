@@ -1,7 +1,5 @@
 package com.testwa.distest.server.web.task.controller;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.AuthorizedException;
 import com.testwa.core.base.exception.ObjectNotExistsException;
@@ -9,6 +7,7 @@ import com.testwa.core.base.exception.ParamsIsNullException;
 import com.testwa.core.base.form.DeleteAllForm;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.base.vo.Result;
+import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.entity.AppiumFile;
 import com.testwa.distest.server.entity.Script;
@@ -33,14 +32,9 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationResults;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -225,9 +219,13 @@ public class ReportController extends BaseController {
         if(taskId == null){
             throw new ParamsIsNullException("参数不能为空");
         }
-        taskValidatoer.validateTaskExist(taskId);
-
-        PerformanceOverviewVO ov = taskService.getPerformanceOverview(taskId);
+        Task task = taskValidatoer.validateTaskExist(taskId);
+        PerformanceOverviewVO ov = new PerformanceOverviewVO();
+        if (DB.TaskType.HG.equals(task.getTaskType())) {
+            ov = taskService.getHGPerformanceOverview(task);
+        }else if (DB.TaskType.JR.equals(task.getTaskType())) {
+            ov = taskService.getJRPerformanceOverview(task);
+        }
 
         return ok(ov);
     }

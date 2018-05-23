@@ -63,10 +63,6 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     @Autowired
     private TaskCacheMgr taskCacheMgr;
     @Autowired
-    private DeviceService deviceService;
-    @Autowired
-    private DeviceAuthMgr deviceAuthMgr;
-    @Autowired
     private ApplicationContext context;
     @Autowired
     private ProcedureRedisMgr procedureRedisMgr;
