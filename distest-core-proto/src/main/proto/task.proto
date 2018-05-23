@@ -22,7 +22,8 @@ service TaskService {
     rpc currExeInfo (CurrentExeInfoRequest) returns ( CommonReply ) {}
     rpc procedureInfoUpload (ProcedureInfoUploadRequest) returns ( CommonReply ) {}
 
-    rpc saveMonkeyStep (StepRequest) returns ( CommonReply ) {}
+    rpc saveStep (StepRequest) returns ( CommonReply ) {}
+    rpc savePerformance (PerformanceRequest) returns ( CommonReply ) {}
 
     rpc executorLogUpload (ExecutorLogRequest) returns ( CommonReply ) {}
 }
@@ -53,15 +54,48 @@ message ProcedureInfoRequest {
 }
 
 message StepRequest {
-
+    enum StepStatus {
+        SUCCESS = 0;
+        FAIL = 1;
+    }
+    enum StepAction {
+        init = 0;
+        downloadApp = 1;
+        start = 2;
+        installApp = 3;
+        launch = 4;
+        operation = 5;
+        uninstallApp = 6;
+        complete = 7;
+        stop = 999;
+    }
     string img = 1;
     string dump = 2;
     string token = 3;
     int64 taskId = 4;
     string deviceId = 5;
+    StepStatus status = 6;
+    int64 runtime = 7;
+    StepAction action = 8;
+    string errormsg = 9;
 
 }
 
+message PerformanceRequest {
+    int64 taskId = 1;
+    string deviceId = 2;
+    int64 timestamp = 3;
+    int32 mem = 4;
+    int32 bat = 5;
+    double cpu = 6;
+    int64 wifiUp = 7;
+    int64 wifiDown = 8;
+    int64 gprsUp = 9;
+    int64 gprsDown = 10;
+    int32 fps = 11;
+    string token = 12;
+
+}
 
 message GameOverRequest {
     int64 exeId = 1;

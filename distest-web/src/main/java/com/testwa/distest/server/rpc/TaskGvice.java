@@ -9,6 +9,7 @@ import com.testwa.distest.server.entity.LoggerFile;
 import com.testwa.distest.server.entity.TaskDevice;
 import com.testwa.distest.server.mongo.event.LogcatAnalysisEvent;
 import com.testwa.distest.server.mongo.model.ExecutorLogInfo;
+import com.testwa.distest.server.mongo.model.Performance;
 import com.testwa.distest.server.mongo.model.Step;
 import com.testwa.distest.server.mongo.model.TaskLogger;
 import com.testwa.distest.server.mongo.service.ExecutorLogInfoService;
@@ -21,6 +22,7 @@ import com.testwa.distest.server.service.task.service.LoggerFileService;
 import com.testwa.distest.server.service.task.service.TaskDeviceService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
+import com.testwa.distest.server.web.task.execute.PerformanceRedisMgr;
 import com.testwa.distest.server.web.task.execute.ProcedureRedisMgr;
 import com.testwa.distest.server.websocket.service.MessageNotifyService;
 import io.grpc.stub.StreamObserver;
@@ -68,6 +70,8 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     private ApplicationContext context;
     @Autowired
     private ProcedureRedisMgr procedureRedisMgr;
+    @Autowired
+    private PerformanceRedisMgr performanceRedisMgr;
     @Autowired
     private DisFileProperties disFileProperties;
     @Autowired
@@ -515,7 +519,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     }
 
     @Override
-    public void saveMonkeyStep(StepRequest request, StreamObserver<CommonReply> responseObserver){
+    public void saveStep(StepRequest request, StreamObserver<CommonReply> responseObserver){
         Long taskId = request.getTaskId();
         String deviceId = request.getDeviceId();
         String img = request.getImg();
@@ -526,9 +530,35 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
         step.setTaskId(taskId);
         step.setDump(dump);
         step.setImg(img);
+        step.setAction(request.getAction().name());
+        step.setOrder(request.getAction().getNumber());
+        step.setRuntime(request.getRuntime());
+        step.setStatus(request.getStatus().getNumber());
+        step.setErrormsg(request.getErrormsg());
 
         stepService.save(step);
 
+        final CommonReply replyBuilder = CommonReply.newBuilder().setMessage("OK ").build();
+        responseObserver.onNext(replyBuilder);
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void savePerformance(PerformanceRequest request, StreamObserver<CommonReply> responseObserver){
+        Performance performance = new Performance();
+        performance.setDeviceId(request.getDeviceId());
+        performance.setTaskId(request.getTaskId());
+        performance.setBat(request.getBat());
+        performance.setCpu(request.getCpu());
+        performance.setFps(request.getFps());
+        performance.setGprsDown(request.getGprsDown());
+        performance.setGprsUp(request.getGprsUp());
+        performance.setWifiDown(request.getWifiDown());
+        performance.setWifiUp(request.getWifiUp());
+        performance.setMem(request.getMem());
+        performance.setTimestamp(request.getTimestamp());
+
+        performanceRedisMgr.addPerformanceToQueue(performance);
         final CommonReply replyBuilder = CommonReply.newBuilder().setMessage("OK ").build();
         responseObserver.onNext(replyBuilder);
         responseObserver.onCompleted();

@@ -2,9 +2,11 @@ package com.testwa.distest.server.schedule;
 
 import com.alibaba.fastjson.JSON;
 import com.google.protobuf.ByteString;
+import com.testwa.distest.server.mongo.model.Performance;
 import com.testwa.distest.server.mongo.model.ProcedureInfo;
 import com.testwa.distest.server.rpc.cache.CacheUtil;
 import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
+import com.testwa.distest.server.web.task.execute.PerformanceRedisMgr;
 import com.testwa.distest.server.web.task.execute.ProcedureRedisMgr;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.push.Message;
@@ -24,6 +26,8 @@ public class CronScheduled {
 
     @Autowired
     private ProcedureRedisMgr procedureRedisMgr;
+    @Autowired
+    private PerformanceRedisMgr performanceRedisMgr;
     @Autowired
     private MongoTemplate mongoTemplate;
     @Autowired
@@ -49,12 +53,32 @@ public class CronScheduled {
                 }
             }catch (Exception e){
                 log.error("running log transfer error", e);
-//                procedureRedisMgr.addProcedureToQueue(info);
-//                procedureRedisMgr.addErrorProcedureToQueue(info);
             }
         }
         mongoTemplate.insertAll(logers);
 
+    }
+
+    @Scheduled(cron = "0/10 * * * * ?")
+    public void savePerformance() {
+        Long logSize = performanceRedisMgr.size();
+        if(logSize == null || logSize == 0){
+            return;
+        }
+
+        List<Performance> logers = new ArrayList<>();
+        for(int i=0;i < logSize; i++){
+            String p = performanceRedisMgr.getPerformanceFormQueue();
+            try {
+                Performance entity = JSON.parseObject(p, Performance.class);
+                if(!StringUtils.isBlank(entity.getDeviceId())){
+                    logers.add(entity);
+                }
+            }catch (Exception e){
+                log.error("Performance log transfer error {}", p, e);
+            }
+        }
+        mongoTemplate.insertAll(logers);
     }
 
     /**

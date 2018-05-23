@@ -1,0 +1,1 @@
+package com.testwa.distest.client.component;import lombok.Data;import lombok.ToString;/** * @Program: distest * @Description: * @Author: wen * @Create: 2018-05-22 17:26 **/@Data@ToStringpublic class FlowResult {    private Long wifiUp;    private Long wifiDown;    private Long gprsUp;    private Long gprsDown;}
