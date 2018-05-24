@@ -15,7 +15,9 @@ import com.testwa.distest.server.entity.Task;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.mongo.model.ProcedureInfo;
+import com.testwa.distest.server.mongo.model.Step;
 import com.testwa.distest.server.mongo.service.ProcedureInfoService;
+import com.testwa.distest.server.mongo.service.StepService;
 import com.testwa.distest.server.service.task.form.ScriptListForm;
 import com.testwa.distest.server.service.task.form.StepListForm;
 import com.testwa.distest.server.service.task.form.StepPageForm;
@@ -27,6 +29,7 @@ import com.testwa.distest.server.web.project.validator.ProjectValidator;
 import com.testwa.distest.server.web.task.validator.StepValidatoer;
 import com.testwa.distest.server.web.task.validator.TaskValidatoer;
 import com.testwa.distest.server.web.task.vo.*;
+import com.testwa.distest.server.web.task.vo.echart.EchartDoubleLine;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -59,6 +62,8 @@ public class ReportController extends BaseController {
     private StepValidatoer stepValidatoer;
     @Autowired
     private ProcedureInfoService procedureInfoService;
+    @Autowired
+    private StepService stepService;
     @Autowired
     private ProjectValidator projectValidator;
 
@@ -121,34 +126,32 @@ public class ReportController extends BaseController {
     @ResponseBody
     @GetMapping(value = "/step/list")
     public Result stepList(@Valid StepListForm form) throws ParamsIsNullException {
-        if(form.getTaskId() == null){
-            throw new ParamsIsNullException("TaskId is null");
+        Long taskId = form.getTaskId();
+        Task task = taskValidatoer.validateTaskExist(taskId);
+        if (DB.TaskType.HG.equals(task.getTaskType())) {
+            List<ProcedureInfo> procedureInfoList = procedureInfoService.findList(form);
+            return ok(procedureInfoList);
+        }else if (DB.TaskType.JR.equals(task.getTaskType())) {
+            List<Step> stepList = stepService.findList(form);
+            return ok(stepList);
         }
-        if(form.getScriptId() == null){
-            throw new ParamsIsNullException("ScriptId is null");
-        }
-        if(StringUtils.isBlank(form.getDeviceId())){
-            throw new ParamsIsNullException("DeviceId is null");
-        }
-        List<ProcedureInfo> procedureInfoList = procedureInfoService.findList(form);
-        return ok(procedureInfoList);
+        return ok();
     }
 
     @ApiOperation(value="步骤信息分页列表", notes="")
     @ResponseBody
     @GetMapping(value = "/step/page")
     public Result stepPage(@Valid StepPageForm pageForm) throws ParamsIsNullException {
-        if(pageForm.getTaskId() == null){
-            throw new ParamsIsNullException("TaskId is null");
+        Long taskId = pageForm.getTaskId();
+        Task task = taskValidatoer.validateTaskExist(taskId);
+        if (DB.TaskType.HG.equals(task.getTaskType())) {
+            PageResult<ProcedureInfo> procedureInfoPage = procedureInfoService.findByPage(pageForm);
+            return ok(procedureInfoPage);
+        }else if (DB.TaskType.JR.equals(task.getTaskType())) {
+            PageResult<Step> stepPageResult = stepService.findByPage(pageForm);
+            return ok(stepPageResult);
         }
-        if(pageForm.getScriptId() == null){
-            throw new ParamsIsNullException("ScriptId is null");
-        }
-        if(StringUtils.isBlank(pageForm.getDeviceId())){
-            throw new ParamsIsNullException("DeviceId is null");
-        }
-        PageResult<ProcedureInfo> procedureInfoPage = procedureInfoService.findByPage(pageForm);
-        return ok(procedureInfoPage);
+        return ok();
     }
 
     @ApiOperation(value="当前步骤的下一个步骤", notes="")
@@ -252,7 +255,7 @@ public class ReportController extends BaseController {
     }
 
     /**
-     *@Description: 性能详细信息，供echart线性图使用，包括cpu，内存，fps，流量
+     *@Description: 性能详细信息，供echart线性图使用，包括cpu，内存，fps
      *@Param: [taskId]
      *@Return: com.testwa.core.base.vo.Result
      *@Author: wen
@@ -266,7 +269,7 @@ public class ReportController extends BaseController {
             throw new ParamsIsNullException("参数不能为空");
         }
         Task task = taskValidatoer.validateTaskExist(taskId);
-        ReportPerformanceTimePointVO vo = null;
+        ReportPerformanceDetailVO vo = null;
         if (DB.TaskType.HG.equals(task.getTaskType())) {
             vo = taskService.getHGPerformanceDetail(task);
         }else if (DB.TaskType.JR.equals(task.getTaskType())) {
@@ -285,20 +288,47 @@ public class ReportController extends BaseController {
      */
     @ApiOperation(value="性能详细信息")
     @ResponseBody
-    @GetMapping(value = "/performance/detail/{taskId}")
+    @GetMapping(value = "/performance/summary/{taskId}")
     public Result performanceSummary(@PathVariable(value = "taskId") Long taskId) throws ObjectNotExistsException {
         if(taskId == null){
             throw new ParamsIsNullException("参数不能为空");
         }
         Task task = taskValidatoer.validateTaskExist(taskId);
-        ReportPerformanceTimePointVO vo = null;
+        ReportPerformanceSummaryVO vo = null;
         if (DB.TaskType.HG.equals(task.getTaskType())) {
-            vo = taskService.getHGPerformanceDetail(task);
+            vo = taskService.getHGPerformanceSummary(task);
         }else if (DB.TaskType.JR.equals(task.getTaskType())) {
-            vo = taskService.getJRPerformanceDetail(task);
+            vo = taskService.getJRPerformanceSummary(task);
         }
 
         return ok(vo);
     }
+
+    /**
+     *@Description: 流量数据，上下行
+     *@Param: [taskId]
+     *@Return: com.testwa.core.base.vo.Result
+     *@Author: wen
+     *@Date: 2018/5/24
+     */
+    @ApiOperation(value="流量详细信息")
+    @ResponseBody
+    @GetMapping(value = "/performance/detail/flow/{taskId}/{deviceId}")
+    public Result performanceFlowSummary(@PathVariable(value = "taskId") Long taskId, @PathVariable(value = "deviceId") String deviceId) throws ObjectNotExistsException {
+        if(taskId == null){
+            throw new ParamsIsNullException("参数不能为空");
+        }
+        Task task = taskValidatoer.validateTaskExist(taskId);
+        EchartDoubleLine line = null;
+        if (DB.TaskType.HG.equals(task.getTaskType())) {
+            line = taskService.getHGPerformanceFlowSummary(task, deviceId);
+        }else if (DB.TaskType.JR.equals(task.getTaskType())) {
+            line = taskService.getJRPerformanceFlowSummary(task, deviceId);
+        }
+
+        return ok(line);
+    }
+
+
 
 }

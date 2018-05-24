@@ -46,7 +46,6 @@ import java.util.Date;
 @Slf4j
 @GRpcService
 public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
-    private BufferedOutputStream mBufferedOutputStream = null;
     private int mStatus = 200;
     private String mMessage = "";
 
@@ -149,6 +148,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     @Override
     public StreamObserver<FileUploadRequest> logcatFileUpload(StreamObserver<CommonReply> responseObserver) {
         return new StreamObserver<FileUploadRequest>() {
+            private BufferedOutputStream mBufferedOutputStream = null;
             int mmCount = 0;
             String deviceId = "";
             Long taskId = null;
@@ -231,6 +231,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     @Override
     public StreamObserver<FileUploadRequest> appiumLogFileUpload(StreamObserver<CommonReply> responseObserver) {
         return new StreamObserver<FileUploadRequest>() {
+            private BufferedOutputStream mBufferedOutputStream = null;
             int mmCount = 0;
 
             @Override
@@ -310,20 +311,16 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     @Override
     public StreamObserver<FileUploadRequest> imgFileUpload(StreamObserver<CommonReply> responseObserver) {
         return new StreamObserver<FileUploadRequest>() {
-            int mmCount = 0;
+            private BufferedOutputStream mBufferedOutputStream = null;
 
             @Override
             public void onNext(FileUploadRequest request) {
-                log.debug("onNext count: " + mmCount);
-                mmCount++;
-
                 byte[] data = request.getData().toByteArray();
-                int offset = request.getOffset();
-                int size = (int) request.getSize();
                 String name = request.getName();
-                long taskId = request.getExeId();
+                Long taskId = request.getExeId();
+                String deviceId = request.getDeviceId();
                 String localPath = disFileProperties.getScreeshot();
-                Path localFile = Paths.get(localPath, taskId+"", name);
+                Path localFile = Paths.get(localPath, String.valueOf(taskId), deviceId, name);
                 if(!Files.exists(localFile.getParent())){
                     try {
                         Files.createDirectories(localFile.getParent());
@@ -342,11 +339,10 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
                     if (mBufferedOutputStream == null) {
                         mBufferedOutputStream = new BufferedOutputStream(new FileOutputStream(localFile.toFile()));
                     }
-                    mBufferedOutputStream.write(data, 0, size);
+                    mBufferedOutputStream.write(data);
                     mBufferedOutputStream.flush();
                 } catch (Exception e) {
-                    log.error("offset: {}, size: {}", offset, size);
-                    e.printStackTrace();
+                    log.error("save img error", e);
                 }
             }
 
@@ -379,6 +375,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     @Override
     public StreamObserver<FileUploadRequest> zipFileUpload(StreamObserver<CommonReply> responseObserver) {
         return new StreamObserver<FileUploadRequest>() {
+            private BufferedOutputStream mBufferedOutputStream = null;
             int mmCount = 0;
             Path localZipFile;
 

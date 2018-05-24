@@ -21,6 +21,7 @@ import com.testwa.distest.server.service.task.dto.TaskDeviceStatusStatis;
 import com.testwa.distest.server.service.task.form.ScriptListForm;
 import com.testwa.distest.server.service.task.form.TaskListForm;
 import com.testwa.distest.server.web.task.vo.*;
+import com.testwa.distest.server.web.task.vo.echart.EchartDoubleLine;
 import com.testwa.distest.server.web.task.vo.echart.EchartLine;
 import com.testwa.distest.server.web.task.vo.echart.EchartLinePoint;
 import com.testwa.distest.server.web.task.vo.echart.EchartLineCollection;
@@ -436,19 +437,19 @@ public class TaskService {
         Map<String, String> deviceMap = getDeviceNameMap(deviceList);
 
         List<Map> memoryavg = getMemoryAvg(taskId);
-        PerformanceDetail memoryD = getPerformanceDetail(deviceMap, memoryavg);
+        PerformanceOverview memoryD = getPerformanceDetail(deviceMap, memoryavg);
         vo.setRam(memoryD);
 
         List<Map> cpuavg = getCpuAvg(taskId);
-        PerformanceDetail cpuD = getPerformanceDetail(deviceMap, cpuavg);
+        PerformanceOverview cpuD = getPerformanceDetail(deviceMap, cpuavg);
         vo.setCpu(cpuD);
 
         List<Map> install = getInstallTime(taskId);
-        PerformanceDetail installD = getPerformanceDetail(deviceMap, install);
+        PerformanceOverview installD = getPerformanceDetail(deviceMap, install);
         vo.setInstall(installD);
 
         List<Map> startup = getStartUpTime(taskId);
-        PerformanceDetail startupD = getPerformanceDetail(deviceMap, startup);
+        PerformanceOverview startupD = getPerformanceDetail(deviceMap, startup);
         vo.setStartUp(startupD);
 
         return vo;
@@ -469,8 +470,8 @@ public class TaskService {
         return deviceMap;
     }
 
-    private PerformanceDetail getPerformanceDetail(Map<String, String> deviceMap, List<Map> avgList) {
-        PerformanceDetail detail = new PerformanceDetail();
+    private PerformanceOverview getPerformanceDetail(Map<String, String> deviceMap, List<Map> avgList) {
+        PerformanceOverview detail = new PerformanceOverview();
         List<String> names = new ArrayList<>();
         List<Double> values = new ArrayList<>();
         for(Map m : avgList){
@@ -560,30 +561,30 @@ public class TaskService {
         Map<String, String> deviceMap = getDeviceNameMap(deviceList);
 
         List<Map> performanceStatisList = getPerformanceStatis(taskId);
-        PerformanceDetail memoryD = getPerformanceDetail(deviceMap, performanceStatisList, "avg_mem");
+        PerformanceOverview memoryD = getPerformanceDetail(deviceMap, performanceStatisList, "avg_mem");
         vo.setRam(memoryD);
-        PerformanceDetail cpuD = getPerformanceDetail(deviceMap, performanceStatisList, "avg_cpu");
+        PerformanceOverview cpuD = getPerformanceDetail(deviceMap, performanceStatisList, "avg_cpu");
         vo.setCpu(cpuD);
-        PerformanceDetail fpsD = getPerformanceDetail(deviceMap, performanceStatisList, "avg_fps");
+        PerformanceOverview fpsD = getPerformanceDetail(deviceMap, performanceStatisList, "avg_fps");
         vo.setFps(fpsD);
-        PerformanceDetail wifiDownD = getPerformanceDetail(deviceMap, performanceStatisList, "sum_wifiDown");
+        PerformanceOverview wifiDownD = getPerformanceDetail(deviceMap, performanceStatisList, "sum_wifiDown");
         vo.setFlowDown(wifiDownD);
-        PerformanceDetail wifiUpD = getPerformanceDetail(deviceMap, performanceStatisList, "sum_wifiUp");
+        PerformanceOverview wifiUpD = getPerformanceDetail(deviceMap, performanceStatisList, "sum_wifiUp");
         vo.setFlowUp(wifiUpD);
 
         List<Map> installRunTimeStatisList = getStepRuntimeStatis(taskId, StepRequest.StepAction.installApp.name());
-        PerformanceDetail installD = getPerformanceDetail(deviceMap, installRunTimeStatisList, "avg_time");
+        PerformanceOverview installD = getPerformanceDetail(deviceMap, installRunTimeStatisList, "avg_time");
         vo.setInstall(installD);
 
         List<Map> launchRunTimeStatisList = getStepRuntimeStatis(taskId, StepRequest.StepAction.launch.name());
-        PerformanceDetail launchD = getPerformanceDetail(deviceMap, launchRunTimeStatisList, "avg_time");
+        PerformanceOverview launchD = getPerformanceDetail(deviceMap, launchRunTimeStatisList, "avg_time");
         vo.setStartUp(launchD);
 
         return vo;
     }
 
-    private PerformanceDetail getPerformanceDetail(Map<String,String> deviceMap, List<Map> avgList, String key) {
-        PerformanceDetail detail = new PerformanceDetail();
+    private PerformanceOverview getPerformanceDetail(Map<String,String> deviceMap, List<Map> avgList, String key) {
+        PerformanceOverview detail = new PerformanceOverview();
         List<String> names = new ArrayList<>();
         List<Double> values = new ArrayList<>();
         for(Map m : avgList){
@@ -653,7 +654,7 @@ public class TaskService {
      *  ]
      * )
      *@Param: [taskId]
-     *@Return: java.util.List<java.util.Map>
+     *@Return: java.util.List<java.util.Map>  {'deviceId': xxxxx, 'avg_time': xxxx}
      *@Author: wen
      *@Date: 2018/5/23
      */
@@ -680,23 +681,19 @@ public class TaskService {
      *@Author: wen
      *@Date: 2018/5/24
      */
-    public ReportPerformanceTimePointVO getHGPerformanceDetail(Task task) {
-        ReportPerformanceTimePointVO vo = new ReportPerformanceTimePointVO();
+    public ReportPerformanceDetailVO getHGPerformanceDetail(Task task) {
+        ReportPerformanceDetailVO vo = new ReportPerformanceDetailVO();
 
         Map<String, String> deviceMap = getDeviceNameMap(task.getDevices());
 
         EchartLineCollection cpuLineList = new EchartLineCollection();
         EchartLineCollection ramLineList = new EchartLineCollection();
         EchartLineCollection fpsLineList = new EchartLineCollection();
-        EchartLineCollection flowdownLineList = new EchartLineCollection();
-        EchartLineCollection flowupLineList = new EchartLineCollection();
         task.getDevices().forEach(d -> {
             List<ProcedureInfo> performanceList = procedureInfoRepository.findByExecutionTaskIdAndDeviceIdOrderByTimestampAsc(task.getId(), d.getDeviceId());
             EchartLine cpuLine = new EchartLine();
             EchartLine ramLine = new EchartLine();
             EchartLine fpsLine = new EchartLine();
-            EchartLine flowdownLine = new EchartLine();
-            EchartLine flowupLine = new EchartLine();
             performanceList.forEach( p -> {
                 String time = TimeUtil.formatTimeStamp(p.getTimestamp());
                 String name = deviceMap.get(p.getDeviceId());
@@ -717,31 +714,15 @@ public class TaskService {
 //                fpsPoint.setValue(p.getFps());
 //                fpsLine.addPoint(cpuPoint);
 //                fpsLine.setName(name);
-//
-//                ReportEchartTimePoint flowdownPoint = new ReportEchartTimePoint();
-//                flowdownPoint.setTime(time);
-//                flowdownPoint.setValue(p.getWifiDown() + p.getGprsDown());
-//                flowdownLine.addPoint(flowdownPoint);
-//                flowdownLine.setName(name);
-//
-//                ReportEchartTimePoint flowupPoint = new ReportEchartTimePoint();
-//                flowupPoint.setTime(time);
-//                flowupPoint.setValue(p.getWifiUp() + p.getGprsUp());
-//                flowupLine.addPoint(flowupPoint);
-//                flowupLine.setName(name);
             });
             cpuLineList.addLine(cpuLine);
             ramLineList.addLine(ramLine);
             fpsLineList.addLine(fpsLine);
-            flowdownLineList.addLine(flowdownLine);
-            flowupLineList.addLine(flowupLine);
         });
 
         vo.setCpu(cpuLineList);
         vo.setRam(ramLineList);
         vo.setFps(fpsLineList);
-        vo.setFlowdown(flowdownLineList);
-        vo.setFlowup(flowupLineList);
         return vo;
     }
 
@@ -752,23 +733,19 @@ public class TaskService {
      *@Author: wen
      *@Date: 2018/5/24
      */
-    public ReportPerformanceTimePointVO getJRPerformanceDetail(Task task) {
-        ReportPerformanceTimePointVO vo = new ReportPerformanceTimePointVO();
+    public ReportPerformanceDetailVO getJRPerformanceDetail(Task task) {
+        ReportPerformanceDetailVO vo = new ReportPerformanceDetailVO();
 
         Map<String, String> deviceMap = getDeviceNameMap(task.getDevices());
 
         EchartLineCollection cpuLineList = new EchartLineCollection();
         EchartLineCollection ramLineList = new EchartLineCollection();
         EchartLineCollection fpsLineList = new EchartLineCollection();
-        EchartLineCollection flowdownLineList = new EchartLineCollection();
-        EchartLineCollection flowupLineList = new EchartLineCollection();
         task.getDevices().forEach(d -> {
             List<Performance> performanceList = performanceRepository.findByTaskIdAndDeviceIdOrderByTimestampAsc(task.getId(), d.getDeviceId());
             EchartLine cpuLine = new EchartLine();
             EchartLine ramLine = new EchartLine();
             EchartLine fpsLine = new EchartLine();
-            EchartLine flowdownLine = new EchartLine();
-            EchartLine flowupLine = new EchartLine();
             performanceList.forEach( p -> {
                 String time = TimeUtil.formatTimeStamp(p.getTimestamp());
                 String name = deviceMap.get(p.getDeviceId());
@@ -781,40 +758,96 @@ public class TaskService {
                 EchartLinePoint ramPoint = new EchartLinePoint();
                 ramPoint.setTime(time);
                 ramPoint.setValue(p.getMem());
-                ramLine.addPoint(cpuPoint);
+                ramLine.addPoint(ramPoint);
                 ramLine.setName(name);
 
                 EchartLinePoint fpsPoint = new EchartLinePoint();
                 fpsPoint.setTime(time);
                 fpsPoint.setValue(p.getFps());
-                fpsLine.addPoint(cpuPoint);
+                fpsLine.addPoint(fpsPoint);
                 fpsLine.setName(name);
 
-                EchartLinePoint flowdownPoint = new EchartLinePoint();
-                flowdownPoint.setTime(time);
-                flowdownPoint.setValue(p.getWifiDown() + p.getGprsDown());
-                flowdownLine.addPoint(flowdownPoint);
-                flowdownLine.setName(name);
-
-                EchartLinePoint flowupPoint = new EchartLinePoint();
-                flowupPoint.setTime(time);
-                flowupPoint.setValue(p.getWifiUp() + p.getGprsUp());
-                flowupLine.addPoint(flowupPoint);
-                flowupLine.setName(name);
             });
             cpuLineList.addLine(cpuLine);
             ramLineList.addLine(ramLine);
             fpsLineList.addLine(fpsLine);
-            flowdownLineList.addLine(flowdownLine);
-            flowupLineList.addLine(flowupLine);
         });
 
         vo.setCpu(cpuLineList);
         vo.setRam(ramLineList);
         vo.setFps(fpsLineList);
-        vo.setFlowdown(flowdownLineList);
-        vo.setFlowup(flowupLineList);
         return vo;
 
+    }
+
+    /**
+     *@Description: 回归测试性能综合
+     *@Param: [task]
+     *@Return: com.testwa.distest.server.web.task.vo.ReportPerformanceSummaryVO
+     *@Author: wen
+     *@Date: 2018/5/24
+     */
+    public ReportPerformanceSummaryVO getHGPerformanceSummary(Task task) {
+        ReportPerformanceSummaryVO vo = new ReportPerformanceSummaryVO();
+        // install
+        // launch
+        // cpu
+        // ram
+        return vo;
+    }
+
+    /**
+     *@Description: 兼容测试性能综合
+     *@Param: [task]
+     *@Return: com.testwa.distest.server.web.task.vo.ReportPerformanceSummaryVO
+     *@Author: wen
+     *@Date: 2018/5/24
+     */
+    public ReportPerformanceSummaryVO getJRPerformanceSummary(Task task) {
+        ReportPerformanceSummaryVO vo = new ReportPerformanceSummaryVO();
+        // install
+        List<Map> installRunTimeStatisList = getStepRuntimeStatis(task.getId(), StepRequest.StepAction.installApp.name());
+        installRunTimeStatisList.forEach(m -> {
+
+        });
+        // launch
+        List<Map> launchRunTimeStatisList = getStepRuntimeStatis(task.getId(), StepRequest.StepAction.launch.name());
+
+        // cpu
+        // ram
+        return vo;
+    }
+
+
+    /**
+     *@Description: 回归测试流量
+     *@Param: [task, deviceId]
+     *@Return: com.testwa.distest.server.web.task.vo.echart.EchartDoubleLine
+     *@Author: wen
+     *@Date: 2018/5/24
+     */
+    public EchartDoubleLine getHGPerformanceFlowSummary(Task task, String deviceId) {
+        EchartDoubleLine line = new EchartDoubleLine();
+
+        return line;
+    }
+
+    /**
+     *@Description: 兼容测试流量
+     *@Param: [task, deviceId]
+     *@Return: com.testwa.distest.server.web.task.vo.echart.EchartDoubleLine
+     *@Author: wen
+     *@Date: 2018/5/24
+     */
+    public EchartDoubleLine getJRPerformanceFlowSummary(Task task, String deviceId) {
+        EchartDoubleLine line = new EchartDoubleLine();
+
+        List<Performance> performanceList = performanceRepository.findByTaskIdAndDeviceIdOrderByTimestampAsc(task.getId(), deviceId);
+        performanceList.forEach( p -> {
+            String time = TimeUtil.formatTimeStamp(p.getTimestamp());
+            line.add(time, p.getGprsUp() + p.getWifiUp(), p.getWifiDown() + p.getGprsDown());
+        });
+
+        return line;
     }
 }

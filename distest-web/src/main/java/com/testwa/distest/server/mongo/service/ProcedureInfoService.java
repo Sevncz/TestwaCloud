@@ -1,5 +1,6 @@
 package com.testwa.distest.server.mongo.service;
 
+import com.testwa.core.base.exception.ParamsIsNullException;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.server.mongo.model.ProcedureInfo;
 import com.testwa.distest.server.mongo.model.ProcedureStatis;
@@ -85,16 +86,19 @@ public class ProcedureInfoService extends BaseService {
     }
 
     public PageResult<ProcedureInfo> findByPage(StepPageForm form) {
+        if(form.getScriptId() == null){
+            throw new ParamsIsNullException("ScriptId is null");
+        }
+        if(form.getTaskId() == null){
+            throw new ParamsIsNullException("TaskId is null");
+        }
+        if(StringUtils.isBlank(form.getDeviceId())){
+            throw new ParamsIsNullException("DeviceId is null");
+        }
         Query query = new Query();
-        if(form.getScriptId() != null){
-            query.addCriteria(Criteria.where("testSuit").is(form.getScriptId()));
-        }
-        if(form.getTaskId() != null){
-            query.addCriteria(Criteria.where("executionTaskId").is(form.getTaskId()));
-        }
-        if(StringUtils.isNotBlank(form.getDeviceId())){
-            query.addCriteria(Criteria.where("deviceId").is(form.getDeviceId()));
-        }
+        query.addCriteria(Criteria.where("testSuit").is(form.getScriptId()));
+        query.addCriteria(Criteria.where("executionTaskId").is(form.getTaskId()));
+        query.addCriteria(Criteria.where("deviceId").is(form.getDeviceId()));
         int pageNum = form.getPageNo();
         int rows = form.getPageSize();
         String sortField = "timestamp";
@@ -106,16 +110,19 @@ public class ProcedureInfoService extends BaseService {
     }
 
     public List<ProcedureInfo> findList(StepListForm form) {
+        if(form.getScriptId() == null){
+            throw new ParamsIsNullException("ScriptId is null");
+        }
+        if(form.getTaskId() == null){
+            throw new ParamsIsNullException("TaskId is null");
+        }
+        if(StringUtils.isBlank(form.getDeviceId())){
+            throw new ParamsIsNullException("DeviceId is null");
+        }
         Query query = new Query();
-        if(form.getScriptId() != null){
-            query.addCriteria(Criteria.where("testSuit").is(form.getScriptId()));
-        }
-        if(form.getTaskId() != null){
-            query.addCriteria(Criteria.where("executionTaskId").is(form.getTaskId()));
-        }
-        if(StringUtils.isNotBlank(form.getDeviceId())){
-            query.addCriteria(Criteria.where("deviceId").is(form.getDeviceId()));
-        }
+        query.addCriteria(Criteria.where("testSuit").is(form.getScriptId()));
+        query.addCriteria(Criteria.where("executionTaskId").is(form.getTaskId()));
+        query.addCriteria(Criteria.where("deviceId").is(form.getDeviceId()));
         return procedureInfoRepository.find(query);
     }
 
