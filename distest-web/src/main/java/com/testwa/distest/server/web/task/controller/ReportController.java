@@ -62,7 +62,7 @@ public class ReportController extends BaseController {
     @Autowired
     private ProjectValidator projectValidator;
 
-    @ApiOperation(value="任务统计")
+    @ApiOperation(value="任务基本信息")
     @ResponseBody
     @GetMapping(value = "/task/{taskId}")
     public Result statis(@PathVariable Long taskId) throws ObjectNotExistsException {
@@ -180,6 +180,13 @@ public class ReportController extends BaseController {
     }
 
 
+    /**
+     *@Description: 执行进度详情，每个设备执行任务过程中每开始一个子任务的时间线
+     *@Param: [taskId]
+     *@Return: com.testwa.core.base.vo.Result
+     *@Author: wen
+     *@Date: 2018/5/24
+     */
     @ApiOperation(value="返回任务中每个设备的执行进度")
     @ResponseBody
     @GetMapping(value = "/progress/{taskId}")
@@ -192,6 +199,13 @@ public class ReportController extends BaseController {
         return ok(result);
     }
 
+    /**
+     *@Description: 当前任务进度详情查看，包括设备完成度统计、每个设备执行任务过程中每开始一个子任务的时间线、任务最终状态
+     *@Param: [taskId]
+     *@Return: com.testwa.core.base.vo.Result
+     *@Author: wen
+     *@Date: 2018/5/24
+     */
     @ApiOperation(value="任务进度统计")
     @ResponseBody
     @GetMapping(value = "/overview/{taskId}")
@@ -212,7 +226,14 @@ public class ReportController extends BaseController {
         return ok(result);
     }
 
-    @ApiOperation(value="任务性能统计")
+    /**
+     *@Description: 平均性能概述，包括安装时长、启动时长、cpu平均使用率、内存平均使用量、平均fps帧率、下行流量、上行流量
+     *@Param: [taskId]
+     *@Return: com.testwa.core.base.vo.Result
+     *@Author: wen
+     *@Date: 2018/5/24
+     */
+    @ApiOperation(value="性能概述")
     @ResponseBody
     @GetMapping(value = "/performance/{taskId}")
     public Result performance(@PathVariable(value = "taskId") Long taskId) throws ObjectNotExistsException {
@@ -220,14 +241,64 @@ public class ReportController extends BaseController {
             throw new ParamsIsNullException("参数不能为空");
         }
         Task task = taskValidatoer.validateTaskExist(taskId);
-        PerformanceOverviewVO ov = new PerformanceOverviewVO();
+        PerformanceOverviewVO vo = new PerformanceOverviewVO();
         if (DB.TaskType.HG.equals(task.getTaskType())) {
-            ov = taskService.getHGPerformanceOverview(task);
+            vo = taskService.getHGPerformanceOverview(task);
         }else if (DB.TaskType.JR.equals(task.getTaskType())) {
-            ov = taskService.getJRPerformanceOverview(task);
+            vo = taskService.getJRPerformanceOverview(task);
         }
 
-        return ok(ov);
+        return ok(vo);
+    }
+
+    /**
+     *@Description: 性能详细信息，供echart线性图使用，包括cpu，内存，fps，流量
+     *@Param: [taskId]
+     *@Return: com.testwa.core.base.vo.Result
+     *@Author: wen
+     *@Date: 2018/5/24
+     */
+    @ApiOperation(value="性能详细信息")
+    @ResponseBody
+    @GetMapping(value = "/performance/detail/{taskId}")
+    public Result performanceDetail(@PathVariable(value = "taskId") Long taskId) throws ObjectNotExistsException {
+        if(taskId == null){
+            throw new ParamsIsNullException("参数不能为空");
+        }
+        Task task = taskValidatoer.validateTaskExist(taskId);
+        ReportPerformanceTimePointVO vo = null;
+        if (DB.TaskType.HG.equals(task.getTaskType())) {
+            vo = taskService.getHGPerformanceDetail(task);
+        }else if (DB.TaskType.JR.equals(task.getTaskType())) {
+            vo = taskService.getJRPerformanceDetail(task);
+        }
+
+        return ok(vo);
+    }
+
+    /**
+     *@Description: 性能综合数据，饼图和柱形图数据
+     *@Param: [taskId]
+     *@Return: com.testwa.core.base.vo.Result
+     *@Author: wen
+     *@Date: 2018/5/24
+     */
+    @ApiOperation(value="性能详细信息")
+    @ResponseBody
+    @GetMapping(value = "/performance/detail/{taskId}")
+    public Result performanceSummary(@PathVariable(value = "taskId") Long taskId) throws ObjectNotExistsException {
+        if(taskId == null){
+            throw new ParamsIsNullException("参数不能为空");
+        }
+        Task task = taskValidatoer.validateTaskExist(taskId);
+        ReportPerformanceTimePointVO vo = null;
+        if (DB.TaskType.HG.equals(task.getTaskType())) {
+            vo = taskService.getHGPerformanceDetail(task);
+        }else if (DB.TaskType.JR.equals(task.getTaskType())) {
+            vo = taskService.getJRPerformanceDetail(task);
+        }
+
+        return ok(vo);
     }
 
 }

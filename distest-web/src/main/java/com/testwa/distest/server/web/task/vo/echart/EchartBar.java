@@ -1,0 +1,1 @@
+package com.testwa.distest.server.web.task.vo.echart;import lombok.Data;import java.util.ArrayList;import java.util.List;/** * @Program: distest * @Description: 符合echart柱状图表显示的格式 * @Author: wen * @Create: 2018-05-24 12:23 **/@Datapublic class EchartBar {    private List<String> name = new ArrayList<>();    private List<Object> value = new ArrayList<>();}

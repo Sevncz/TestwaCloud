@@ -1,0 +1,1 @@
+package com.testwa.distest.server.web.task.vo.echart;import lombok.Data;/** * @Program: distest * @Description: * @Author: wen * @Create: 2018-05-24 12:23 **/@Datapublic class EchartPiePoint {    private String name;    private Object value;}
