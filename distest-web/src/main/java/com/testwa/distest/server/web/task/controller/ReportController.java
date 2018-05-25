@@ -14,8 +14,10 @@ import com.testwa.distest.server.entity.Script;
 import com.testwa.distest.server.entity.Task;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.distest.server.entity.User;
+import com.testwa.distest.server.mongo.model.CrashLog;
 import com.testwa.distest.server.mongo.model.ProcedureInfo;
 import com.testwa.distest.server.mongo.model.Step;
+import com.testwa.distest.server.mongo.service.CrashLogService;
 import com.testwa.distest.server.mongo.service.ProcedureInfoService;
 import com.testwa.distest.server.mongo.service.StepService;
 import com.testwa.distest.server.service.task.form.ScriptListForm;
@@ -66,6 +68,8 @@ public class ReportController extends BaseController {
     private StepService stepService;
     @Autowired
     private ProjectValidator projectValidator;
+    @Autowired
+    private CrashLogService crashLogService;
 
     @ApiOperation(value="任务基本信息")
     @ResponseBody
@@ -327,6 +331,18 @@ public class ReportController extends BaseController {
         }
 
         return ok(line);
+    }
+
+    @ApiOperation(value="crash日志")
+    @ResponseBody
+    @GetMapping(value = "/crash/log/{taskId}/{deviceId}")
+    public Result crashLog(@PathVariable(value = "taskId") Long taskId, @PathVariable(value = "deviceId") String deviceId) throws ObjectNotExistsException {
+        if(taskId == null){
+            throw new ParamsIsNullException("参数不能为空");
+        }
+        Task task = taskValidatoer.validateTaskExist(taskId);
+        List<CrashLog> crashLogs = crashLogService.findByTaskIdAndDeviceId(taskId, deviceId);
+        return ok(crashLogs);
     }
 
 
