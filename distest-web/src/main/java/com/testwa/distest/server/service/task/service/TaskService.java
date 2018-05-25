@@ -44,6 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
@@ -104,60 +105,20 @@ public class TaskService {
     }
 
     public Map<String, Object> statis(Task task) {
-        ProcedureStatis ps = procedureStatisRepository.findByExeId(task.getId());
         Map<String, Object> result = new HashMap<>();
         // taskType
         result.put("taskType", task.getTaskType());
         // taskStatus
-
         List<TaskDeviceStatusStatis> tds = taskDeviceService.countTaskDeviceStatus(task.getId());
         task.setDeviceStatusStatis(tds);
         result.put("taskStatus", task.getDeviceStatusStatis());
         // app 基本情况
         result.put("appStaty", task.getApp());
+        // script 基本情况
+        result.put("scriptStaty", task.getScriptList());
         // 设备基本情况
         result.put("devInfo", task.getDevices());
 
-        if(ps != null) {
-
-            Map<String, Device> devInfo = new HashMap<>();
-            // 设备基本情况
-            task.getDevices().forEach(device -> {
-                devInfo.put(device.getDeviceId(), device);
-            });
-
-            List<Map> statusScript = ps.getStatusScriptInfo();
-
-            // 设备脚本执行情况，app信息可以从app基本情况获得
-            /*
-             {
-             "dto": "TaskScene 4",
-             "brand": "lantern",
-             "state": 128 ,
-             "successNum": 23,
-             "failedNum": 25,
-             "scriptName": "已执行" ,
-             "appName": "查看",
-             "appVersion": 123
-             }
-             */
-            List<Map> scriptStaty = new ArrayList<>();
-            statusScript.forEach(s -> {
-                String deviceId = (String) s.get("deviceId");
-                Map<String, Object> subInfo = new HashMap<>();
-                subInfo.put("deviceId", deviceId);
-                subInfo.put("successNum", s.get("success"));
-                subInfo.put("failedNum", s.get("fail"));
-                subInfo.put("total", ps.getScriptNum());
-                Device d = devInfo.get(deviceId);
-                if (d != null) {
-                    subInfo.put("dto", d.getModel());
-                    subInfo.put("brand", d.getBrand());
-                    scriptStaty.add(subInfo);
-                }
-            });
-            result.put("scriptStaty", scriptStaty);
-        }
         return result;
     }
 
@@ -757,7 +718,10 @@ public class TaskService {
 
                 EchartLinePoint ramPoint = new EchartLinePoint();
                 ramPoint.setTime(time);
-                ramPoint.setValue(p.getMem());
+                double ram = (p.getMem() * 1.0)/1024;
+                BigDecimal bg = new BigDecimal(ram);
+                ram = bg.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+                ramPoint.setValue(ram);
                 ramLine.addPoint(ramPoint);
                 ramLine.setName(name);
 
@@ -807,9 +771,25 @@ public class TaskService {
         ReportPerformanceSummaryVO vo = new ReportPerformanceSummaryVO();
         // install
         List<Map> installRunTimeStatisList = getStepRuntimeStatis(task.getId(), StepRequest.StepAction.installApp.name());
-        installRunTimeStatisList.forEach(m -> {
+        int size = installRunTimeStatisList.size();
+        List<Long> runTimeList = new ArrayList<>();
+        for(Map m : installRunTimeStatisList) {
+            Long d = (Long) m.get("avg_time");
+            runTimeList.add(d);
+        }
+        runTimeList = runTimeList.stream().sorted((o1, o2) -> (int)(o1 - o2)).collect(Collectors.toList());
+        Map<Double, String> doubleStringMap = new HashMap<>();
+        if(size > 1){
+            Long min = runTimeList.get(0);
+            Long max = runTimeList.get(size - 1);
+            double diff = (max - min) * 1.0 / 5;
+            double lastvalue = runTimeList.get(0);
+            for (int i=0;i<5;i++){
+                doubleStringMap.put(lastvalue + diff, String.format("%s - %s", lastvalue, lastvalue + diff));
+                lastvalue = lastvalue + diff;
+            }
 
-        });
+        }
         // launch
         List<Map> launchRunTimeStatisList = getStepRuntimeStatis(task.getId(), StepRequest.StepAction.launch.name());
 
