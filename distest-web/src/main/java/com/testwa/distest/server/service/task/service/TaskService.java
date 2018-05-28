@@ -21,10 +21,7 @@ import com.testwa.distest.server.service.task.dto.TaskDeviceStatusStatis;
 import com.testwa.distest.server.service.task.form.ScriptListForm;
 import com.testwa.distest.server.service.task.form.TaskListForm;
 import com.testwa.distest.server.web.task.vo.*;
-import com.testwa.distest.server.web.task.vo.echart.EchartDoubleLine;
-import com.testwa.distest.server.web.task.vo.echart.EchartLine;
-import com.testwa.distest.server.web.task.vo.echart.EchartLinePoint;
-import com.testwa.distest.server.web.task.vo.echart.EchartLineCollection;
+import com.testwa.distest.server.web.task.vo.echart.*;
 import io.rpc.testwa.task.StepRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -544,6 +541,43 @@ public class TaskService {
         return vo;
     }
 
+
+    public PerformanceDeviceOverviewVO getJRPerformanceOverview(Task task, String deviceId) {
+        List<Map> performanceResult = getPerformanceDeviceStatis(task.getId(), deviceId);
+        List<Map> actionResult  = getSomeActionRuntime(task.getId(), deviceId);
+        PerformanceDeviceOverviewVO vo = new PerformanceDeviceOverviewVO();
+        Map<String, Object> result = null;
+        if(performanceResult.size() > 0){
+            result = performanceResult.get(0);
+        }
+        if (result != null) {
+            vo.setRam((Double) result.get("avg_mem"));
+            vo.setCpu((Double) result.get("avg_cpu"));
+            vo.setFps((Double) result.get("avg_fps"));
+            vo.setDown((Long) result.get("sum_wifiDown"));
+            vo.setUp((Long) result.get("sum_wifiUp"));
+        }
+        actionResult.forEach( a -> {
+            String action = (String) a.get("_id");
+            Double rt = (Double) a.get("avg_time");
+            if(StepRequest.StepAction.installApp.name().equals(action)) {
+                vo.setInstall(rt);
+            }
+            if(StepRequest.StepAction.launch.name().equals(action)) {
+                vo.setLaunch(rt);
+            }
+        });
+
+        return vo;
+    }
+
+    public PerformanceDeviceOverviewVO getHGPerformanceOverview(Task task, String deviceId) {
+        List<Map> result = getPerformanceDeviceStatis(task.getId(), deviceId);
+        PerformanceDeviceOverviewVO vo = new PerformanceDeviceOverviewVO();
+
+        return vo;
+    }
+
     private PerformanceOverview getPerformanceDetail(Map<String,String> deviceMap, List<Map> avgList, String key) {
         PerformanceOverview detail = new PerformanceOverview();
         List<String> names = new ArrayList<>();
@@ -574,15 +608,29 @@ public class TaskService {
         return detail;
     }
 
+    private List<Map> getSomeActionRuntime(Long taskId, String deviceId) {
+        List<String> actions = Arrays.asList(StepRequest.StepAction.installApp.name(), StepRequest.StepAction.launch.name(), StepRequest.StepAction.uninstallApp.name());
+
+        Aggregation agg = Aggregation.newAggregation(
+                Aggregation.match(new Criteria().andOperator(Criteria.where("taskId").is(taskId).and("action").in(actions).and("deviceId").is(deviceId))),
+                Aggregation.project("runtime","action")
+                        .andExpression("runtime/1000").as("rt"),
+                Aggregation.group("action")
+                        .avg("rt").as("avg_time"),
+                Aggregation.sort(Sort.Direction.ASC, "avg_time")
+        );
+        return getResult(agg, "t_step");
+    }
+
     /**
      *@Description: 获得性能指标统计数据
      * ﻿db.t_performance.aggregate(
-     *   [
-     *    { $match: { taskId: 164 } },
-     *    { $project: {"deviceId": 1, "mem": 1, "cpu": 1, "fps": 1, "wifiDown": 1, "wifiUp": 1} },
-     *    { $group: { _id: "$deviceId", avg_mem: {$avg: "$mem"}, avg_cpu: {$avg: "$cpu"}, avg_fps: {$avg: "$fps"}, avg_wifiDown: {$avg: "$wifiDown"}}}
-     *  ]
-     * )
+         [
+          { $match: { taskId: 164 } },
+          { $project: {"deviceId": 1, "mem": 1, "cpu": 1, "fps": 1, "wifiDown": 1, "wifiUp": 1} },
+          { $group: { _id: "$deviceId", avg_mem: {$avg: "$mem"}, avg_cpu: {$avg: "$cpu"}, avg_fps: {$avg: "$fps"}, avg_wifiDown: {$avg: "$wifiDown"}}}
+        ]
+       )
      *@Param: [taskId]
      *@Return: java.util.List<java.util.Map>
      *@Author: wen
@@ -593,8 +641,25 @@ public class TaskService {
                 Aggregation.match(Criteria.where("taskId").is(taskId)),
                 Aggregation.project("deviceId","mem","cpu","fps","wifiDown","wifiUp")
                         .andExpression("mem/1024").as("ram")
-                        .andExpression("wifiDown*01").as("down")
-                        .andExpression("wifiUp*01").as("up"),
+                        .andExpression("wifiDown").as("down")
+                        .andExpression("wifiUp").as("up"),
+                Aggregation.group("deviceId")
+                        .avg("ram").as("avg_mem")
+                        .avg("cpu").as("avg_cpu")
+                        .avg("fps").as("avg_fps")
+                        .sum("down").as("sum_wifiDown")
+                        .sum("up").as("sum_wifiUp")
+        );
+        return getResult(agg, "t_performance");
+    }
+
+    private List<Map> getPerformanceDeviceStatis(Long taskId, String deviceId) {
+        Aggregation agg = Aggregation.newAggregation(
+                Aggregation.match(new Criteria().andOperator(Criteria.where("taskId").is(taskId).and("deviceId").is(deviceId))),
+                Aggregation.project("deviceId","mem","cpu","fps","wifiDown","wifiUp")
+                        .andExpression("mem/1024").as("ram")
+                        .andExpression("wifiDown").as("down")
+                        .andExpression("wifiUp").as("up"),
                 Aggregation.group("deviceId")
                         .avg("ram").as("avg_mem")
                         .avg("cpu").as("avg_cpu")
@@ -612,6 +677,7 @@ public class TaskService {
      *    { $match: { taskId: 164, action: 'installApp'} },
      *    { $project: {"runtime": 1, "action": 1, "deviceId": 1} },
      *    { $group: { _id: "$deviceId", avg_time: {$avg: "$runtime"}}}
+     *    { $sort: {avg_time: 1} }
      *  ]
      * )
      *@Param: [taskId]
@@ -629,7 +695,8 @@ public class TaskService {
                 Aggregation.project("runtime","action","deviceId")
                         .andExpression("runtime/1000").as("rt"),
                 Aggregation.group("deviceId")
-                        .avg("rt").as("avg_time")
+                        .avg("rt").as("avg_time"),
+                Aggregation.sort(Sort.Direction.ASC, "avg_time")
         );
         return getResult(agg, "t_step");
     }
@@ -768,34 +835,137 @@ public class TaskService {
      *@Date: 2018/5/24
      */
     public ReportPerformanceSummaryVO getJRPerformanceSummary(Task task) {
+        List<Device> deviceList = task.getDevices();
+        Map<String, String> deviceMap = getDeviceNameMap(deviceList);
+
         ReportPerformanceSummaryVO vo = new ReportPerformanceSummaryVO();
         // install
         List<Map> installRunTimeStatisList = getStepRuntimeStatis(task.getId(), StepRequest.StepAction.installApp.name());
-        int size = installRunTimeStatisList.size();
-        List<Long> runTimeList = new ArrayList<>();
-        for(Map m : installRunTimeStatisList) {
-            Long d = (Long) m.get("avg_time");
+        ReportPerformanceSummary installSummary = new ReportPerformanceSummary();
+        // 饼图
+        EchartPie pie = getEchartPie(installRunTimeStatisList, "avg_time");
+        // 柱形图
+        EchartBar bar = getEchartBar(installRunTimeStatisList, deviceMap, "avg_time");
+
+        installSummary.setDistribution(pie);
+        installSummary.setWorst(bar);
+        vo.setInstall(installSummary);
+
+        // launch
+        List<Map> launchRunTimeStatisList = getStepRuntimeStatis(task.getId(), StepRequest.StepAction.launch.name());
+        ReportPerformanceSummary launchSummary = new ReportPerformanceSummary();
+        // 饼图
+        EchartPie pie1 = getEchartPie(launchRunTimeStatisList, "avg_time");
+        // 柱形图
+        EchartBar bar1 = getEchartBar(launchRunTimeStatisList, deviceMap, "avg_time");
+
+        launchSummary.setDistribution(pie1);
+        launchSummary.setWorst(bar1);
+        vo.setLaunch(launchSummary);
+
+        // cpu
+        List<Map> ramAvgList = getPerformanceMemAvg(task.getId());
+        // 饼图
+        EchartPie pie2 = getEchartPie(ramAvgList, "avg_value");
+        // 柱形图
+        EchartBar bar2 = getEchartBar(ramAvgList, deviceMap, "avg_value");
+
+        ReportPerformanceSummary ramSummary = new ReportPerformanceSummary();
+        ramSummary.setDistribution(pie2);
+        ramSummary.setWorst(bar2);
+        vo.setRam(ramSummary);
+
+        // ram
+        List<Map> cpuAvgList = getPerformanceCPUAvg(task.getId());
+        // 饼图
+        EchartPie pie3 = getEchartPie(cpuAvgList, "avg_value");
+        // 柱形图
+        EchartBar bar3 = getEchartBar(cpuAvgList, deviceMap, "avg_value");
+
+        ReportPerformanceSummary cpuSummary = new ReportPerformanceSummary();
+        cpuSummary.setDistribution(pie3);
+        cpuSummary.setWorst(bar3);
+        vo.setRam(cpuSummary);
+
+
+        return vo;
+    }
+
+    private EchartPie getEchartPie(List<Map> deviceAvgValueList, String key) {
+        int size = deviceAvgValueList.size();
+        List<Double> runTimeList = new ArrayList<>();
+        for(Map m : deviceAvgValueList) {
+            Double d = (Double) m.get(key);
             runTimeList.add(d);
         }
         runTimeList = runTimeList.stream().sorted((o1, o2) -> (int)(o1 - o2)).collect(Collectors.toList());
-        Map<Double, String> doubleStringMap = new HashMap<>();
-        if(size > 1){
-            Long min = runTimeList.get(0);
-            Long max = runTimeList.get(size - 1);
-            double diff = (max - min) * 1.0 / 5;
-            double lastvalue = runTimeList.get(0);
+        Double min = runTimeList.get(0);
+        Double max = runTimeList.get(size - 1);
+        double diff = (max - min) * 1.0 / 5;
+        double lastvalue = runTimeList.get(0);
+        EchartPie pie = new EchartPie();
+        if( diff > 0) {
             for (int i=0;i<5;i++){
-                doubleStringMap.put(lastvalue + diff, String.format("%s - %s", lastvalue, lastvalue + diff));
-                lastvalue = lastvalue + diff;
+                double thisvalue = lastvalue + diff;
+
+                String pointName = String.format("%.2s - %.2s", lastvalue, thisvalue);
+                Integer pointValue = 0;
+                for (Double r : runTimeList) {
+                    if(lastvalue < r && r < thisvalue) {
+                        pointValue++;
+                    }
+                }
+                lastvalue = thisvalue;
+
+                EchartPiePoint point = new EchartPiePoint();
+                point.setName(pointName);
+                point.setValue(pointValue);
+                pie.addPoint(point);
             }
-
+        }else{
+            pie.addPoint(new EchartPiePoint(String.format("%.2s - %.2s", lastvalue, lastvalue), size));
         }
-        // launch
-        List<Map> launchRunTimeStatisList = getStepRuntimeStatis(task.getId(), StepRequest.StepAction.launch.name());
+        return pie;
+    }
 
-        // cpu
-        // ram
-        return vo;
+    private EchartBar getEchartBar(List<Map> deviceAvgValueList, Map<String, String> deviceMap, String key) {
+        int size = deviceAvgValueList.size();
+        List<Map> endFive;
+        if(size >= 5){
+            endFive = deviceAvgValueList.subList(size-5, size);
+        }else{
+            endFive = deviceAvgValueList;
+        }
+        EchartBar bar = new EchartBar();
+        for(Map m : endFive) {
+            String deviceId = (String) m.getOrDefault("_id", "");
+            bar.add(deviceMap.get(deviceId), m.getOrDefault(key, 0));
+        }
+        return bar;
+    }
+
+
+    private List<Map> getPerformanceMemAvg(Long taskId) {
+        Aggregation agg = Aggregation.newAggregation(
+                Aggregation.match(Criteria.where("taskId").is(taskId)),
+                Aggregation.project("deviceId","mem")
+                        .andExpression("mem/1024").as("ram"),
+                Aggregation.group("deviceId")
+                        .avg("ram").as("avg_value"),
+                Aggregation.sort(Sort.Direction.ASC, "avg_value")
+        );
+        return getResult(agg, "t_performance");
+    }
+
+    private List<Map> getPerformanceCPUAvg(Long taskId) {
+        Aggregation agg = Aggregation.newAggregation(
+                Aggregation.match(Criteria.where("taskId").is(taskId)),
+                Aggregation.project("deviceId","cpu"),
+                Aggregation.group("deviceId")
+                        .avg("cpu").as("avg_value"),
+                Aggregation.sort(Sort.Direction.ASC, "avg_value")
+        );
+        return getResult(agg, "t_performance");
     }
 
 

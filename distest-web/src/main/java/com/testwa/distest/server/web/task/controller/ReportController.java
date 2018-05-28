@@ -259,6 +259,31 @@ public class ReportController extends BaseController {
     }
 
     /**
+     *@Description: 设备性能的基本概述， 包括安装时长、启动时长、cpu平均使用率、内存平均使用量、平均fps帧率、下行流量、上行流量
+     *@Param: [taskId, deviceId]
+     *@Return: com.testwa.core.base.vo.Result
+     *@Author: wen
+     *@Date: 2018/5/25
+     */
+    @ApiOperation(value="设备性能的基本概述")
+    @ResponseBody
+    @GetMapping(value = "/performance/{taskId}/{deviceId}")
+    public Result performanceDevice(@PathVariable(value = "taskId") Long taskId, @PathVariable(value = "deviceId") String deviceId) throws ObjectNotExistsException {
+        if(taskId == null){
+            throw new ParamsIsNullException("参数不能为空");
+        }
+        Task task = taskValidatoer.validateTaskExist(taskId);
+        PerformanceDeviceOverviewVO vo = new PerformanceDeviceOverviewVO();
+        if (DB.TaskType.HG.equals(task.getTaskType())) {
+            vo = taskService.getHGPerformanceOverview(task, deviceId);
+        }else if (DB.TaskType.JR.equals(task.getTaskType())) {
+            vo = taskService.getJRPerformanceOverview(task, deviceId);
+        }
+
+        return ok(vo);
+    }
+
+    /**
      *@Description: 性能详细信息，供echart线性图使用，包括cpu，内存，fps
      *@Param: [taskId]
      *@Return: com.testwa.core.base.vo.Result
@@ -333,6 +358,13 @@ public class ReportController extends BaseController {
         return ok(line);
     }
 
+    /**
+     *@Description: crash日志列表获取
+     *@Param: [taskId, deviceId]
+     *@Return: com.testwa.core.base.vo.Result
+     *@Author: wen
+     *@Date: 2018/5/25
+     */
     @ApiOperation(value="crash日志")
     @ResponseBody
     @GetMapping(value = "/crash/log/{taskId}/{deviceId}")
@@ -344,7 +376,4 @@ public class ReportController extends BaseController {
         List<CrashLog> crashLogs = crashLogService.findByTaskIdAndDeviceId(taskId, deviceId);
         return ok(crashLogs);
     }
-
-
-
 }

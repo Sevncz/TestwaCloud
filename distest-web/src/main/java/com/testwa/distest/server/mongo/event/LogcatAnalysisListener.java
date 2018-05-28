@@ -2,9 +2,12 @@ package com.testwa.distest.server.mongo.event;
 
 import com.testwa.core.shell.UTF8CommonExecs;
 import com.testwa.distest.config.DisFileProperties;
+import com.testwa.distest.server.entity.App;
 import com.testwa.distest.server.entity.LoggerFile;
+import com.testwa.distest.server.entity.Task;
 import com.testwa.distest.server.mongo.model.CrashLog;
 import com.testwa.distest.server.service.task.service.LoggerFileService;
+import com.testwa.distest.server.service.task.service.TaskService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.exec.CommandLine;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +55,8 @@ public class LogcatAnalysisListener implements ApplicationListener<LogcatAnalysi
     private LoggerFileService loggerFileService;
     @Autowired
     private DisFileProperties disFileProperties;
+    @Autowired
+    private TaskService taskService;
     @Value("${dis-logdog.py}")
     private String logdogPy;
 
@@ -102,11 +107,22 @@ public class LogcatAnalysisListener implements ApplicationListener<LogcatAnalysi
 
             // 分析outputlog文件
             // 清理文件格式
+            Task task = taskService.findOne(e.getTaskId());
+            App app = null;
+            if(task != null) {
+                app = task.getApp();
+            }
+            final App appfinal = app;
             List<CrashLog> logs = analysisResult(outputLog.toString());
             if(logs.size() > 0){
                 logs.forEach( i -> {
                     i.setTaskId(e.getTaskId());
                     i.setDeviceId(e.getDeviceId());
+                    if(appfinal != null) {
+                        i.setBasepackage(appfinal.getPackageName());
+                        i.setAppName(appfinal.getDisplayName());
+                        i.setAppVersion(appfinal.getVersion());
+                    }
                 });
                 // 存入数据库
                 mongoTemplate.insertAll(logs);
@@ -141,7 +157,7 @@ public class LogcatAnalysisListener implements ApplicationListener<LogcatAnalysi
         Pattern countPattern = Pattern.compile(count);
         Pattern procNamePattern = Pattern.compile(proc_name);
         Pattern exceptionPattern = Pattern.compile(exception);
-        List<CrashLog> infos = new ArrayList<>();
+        List<CrashLog> logs = new ArrayList<>();
         try {
             Long size = Files.size(outputLog);
             if(size > 0){
@@ -166,11 +182,11 @@ public class LogcatAnalysisListener implements ApplicationListener<LogcatAnalysi
                                 if(matcher3.find()){
                                     exception = matcher3.group(1);
                                 }
-                                CrashLog info = new CrashLog();
-                                info.setCount(count);
-                                info.setProcName(procName);
-                                info.setException(exception);
-                                infos.add(info);
+                                CrashLog log = new CrashLog();
+                                log.setCount(count);
+                                log.setProcName(procName);
+                                log.setException(exception);
+                                logs.add(log);
                                 if(sb.length() > 0){
                                     contents.add(sb.toString());
                                     sb.delete(0, sb.length());
@@ -183,10 +199,9 @@ public class LogcatAnalysisListener implements ApplicationListener<LogcatAnalysi
                     });
                     contents.add(sb.toString());
 
-                    for(int i=0;i<infos.size();i++){
-                        CrashLog info = infos.get(i);
-                        info.setContent(contents.get(i));
-                        System.out.println(info.toString());
+                    for(int i=0;i<logs.size();i++){
+                        CrashLog log = logs.get(i);
+                        log.setContent(contents.get(i));
                     }
 
                 } catch (IOException e1) {
@@ -196,7 +211,7 @@ public class LogcatAnalysisListener implements ApplicationListener<LogcatAnalysi
         } catch (IOException e1) {
             log.error("get outputlog {} size error", outputLog.toString());
         }
-        return infos;
+        return logs;
     }
 
 
