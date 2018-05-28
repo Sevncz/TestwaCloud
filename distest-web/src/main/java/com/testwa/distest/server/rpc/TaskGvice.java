@@ -8,20 +8,18 @@ import com.testwa.distest.server.entity.AppiumFile;
 import com.testwa.distest.server.entity.LoggerFile;
 import com.testwa.distest.server.entity.TaskDevice;
 import com.testwa.distest.server.mongo.event.LogcatAnalysisEvent;
-import com.testwa.distest.server.mongo.model.ExecutorLogInfo;
+import com.testwa.distest.server.mongo.model.MethodRunningLog;
 import com.testwa.distest.server.mongo.model.Performance;
 import com.testwa.distest.server.mongo.model.Step;
-import com.testwa.distest.server.mongo.model.TaskLogger;
-import com.testwa.distest.server.mongo.service.ExecutorLogInfoService;
+import com.testwa.distest.server.mongo.model.TaskLog;
+import com.testwa.distest.server.mongo.service.MethodRunningLogService;
 import com.testwa.distest.server.mongo.service.StepService;
 import com.testwa.distest.server.mongo.service.TaskLoggerService;
 import com.testwa.distest.server.service.cache.mgr.TaskCacheMgr;
-import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.task.service.AppiumFileService;
 import com.testwa.distest.server.service.task.service.LoggerFileService;
 import com.testwa.distest.server.service.task.service.TaskDeviceService;
 import com.testwa.distest.server.service.user.service.UserService;
-import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
 import com.testwa.distest.server.web.task.execute.PerformanceRedisMgr;
 import com.testwa.distest.server.web.task.execute.ProcedureRedisMgr;
 import com.testwa.distest.server.websocket.service.MessageNotifyService;
@@ -70,7 +68,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     @Autowired
     private DisFileProperties disFileProperties;
     @Autowired
-    private ExecutorLogInfoService executorLogInfoService;
+    private MethodRunningLogService executorLogInfoService;
     @Autowired
     private MessageNotifyService messageNotifyService;
     @Autowired
@@ -136,7 +134,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     }
 
     @Override
-    public void procedureInfoUpload(ProcedureInfoUploadRequest request, StreamObserver<CommonReply> responseObserver) {
+    public void appiumRunningLogUpload(AppiumRunningLogUploadRequest request, StreamObserver<CommonReply> responseObserver) {
         String info = request.getInfoJson();
         procedureRedisMgr.addProcedureToQueue(info);
 
@@ -457,15 +455,15 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
         Long timestamp = request.getTimestamp();
         Long taskId = request.getExeId();
         String deviceId = request.getDeviceId();
-        String action = request.getAction();
+        String desc = request.getMethodDesc();
         int actionOrder = request.getOrder();
         String args = request.getArgs();
         String flag = request.getFlag();
         String methodName = request.getMethodName();
 
 
-        ExecutorLogInfo logInfo = new ExecutorLogInfo();
-        logInfo.setAction(action);
+        MethodRunningLog logInfo = new MethodRunningLog();
+        logInfo.setMethodDesc(desc);
         logInfo.setArgs(args);
         logInfo.setDeviceId(deviceId);
         logInfo.setMethodName(methodName);
@@ -473,7 +471,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
         logInfo.setTaskId(taskId);
         logInfo.setTimestamp(timestamp);
         logInfo.setFlag(flag);
-        logInfo.setActionOrder(actionOrder);
+        logInfo.setMethodOrder(actionOrder);
 
         executorLogInfoService.save(logInfo);
 
@@ -499,12 +497,12 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
         String deviceId = request.getDeviceId();
         String content = request.getContent();
         Long timestamp = request.getTimestamp();
-        TaskLogger logger = new TaskLogger();
-        logger.setContent(content);
-        logger.setDeviceId(deviceId);
-        logger.setTaskId(taskId);
-        logger.setTimestamp(timestamp);
-        taskLoggerService.save(logger);
+        TaskLog log = new TaskLog();
+        log.setContent(content);
+        log.setDeviceId(deviceId);
+        log.setTaskId(taskId);
+        log.setTimestamp(timestamp);
+        taskLoggerService.save(log);
 
         final CommonReply replyBuilder = CommonReply.newBuilder().setMessage("OK ").build();
         responseObserver.onNext(replyBuilder);

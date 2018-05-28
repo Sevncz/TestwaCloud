@@ -15,8 +15,8 @@ import java.util.Date;
  * Created by wen on 16/8/27.
  */
 @Data
-@Document(collection = "t_procedure_info")
-public class ProcedureInfo {
+@Document(collection = "t_appium_running_log")
+public class AppiumRunningLog {
     @Id
     private String id;
     private Integer status;
@@ -45,7 +45,7 @@ public class ProcedureInfo {
     private Long executionTaskId;
     private String screenshotPath;
     private String description;
-    private ProcedureCommand command;
+    private AppiumRunningCommand command;
     @CreatedDate
     private Date createDate;
     private Long timestamp;
@@ -53,4 +53,9 @@ public class ProcedureInfo {
     private Long userId;
     @JsonIgnore
     private String token;
+
+    public static String getCollectionName() {
+        Document doc = AppiumRunningLog.class.getAnnotation(Document.class);
+        return doc.collection();
+    }
 }

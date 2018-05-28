@@ -6,7 +6,6 @@
 package com.testwa.distest.server.mongo.repository;
 
 import com.testwa.distest.server.mongo.model.Performance;
-import com.testwa.distest.server.mongo.model.ProcedureInfo;
 
 import java.io.Serializable;
 import java.util.List;

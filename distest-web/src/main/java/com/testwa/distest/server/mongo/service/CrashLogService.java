@@ -1,9 +1,7 @@
 package com.testwa.distest.server.mongo.service;
 
 import com.testwa.distest.server.mongo.model.CrashLog;
-import com.testwa.distest.server.mongo.model.ExecutorLogInfo;
 import com.testwa.distest.server.mongo.repository.CrashLogRepository;
-import com.testwa.distest.server.mongo.repository.ExecutorLogInfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

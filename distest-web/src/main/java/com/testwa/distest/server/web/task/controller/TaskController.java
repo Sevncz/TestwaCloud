@@ -4,13 +4,9 @@ import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.AuthorizedException;
 import com.testwa.core.base.exception.ObjectNotExistsException;
-import com.testwa.core.base.exception.ParamsIsNullException;
 import com.testwa.core.base.exception.TaskStartException;
 import com.testwa.core.base.vo.Result;
-import com.testwa.distest.server.entity.Script;
-import com.testwa.distest.server.entity.Testcase;
-import com.testwa.distest.server.mongo.service.ExecutorLogInfoService;
-import com.testwa.distest.server.service.script.form.ScriptNewForm;
+import com.testwa.distest.server.mongo.service.MethodRunningLogService;
 import com.testwa.distest.server.service.script.service.ScriptService;
 import com.testwa.distest.server.service.task.form.*;
 import com.testwa.distest.server.service.task.service.TaskService;
@@ -21,15 +17,12 @@ import com.testwa.distest.server.web.device.validator.DeviceValidatoer;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
 import com.testwa.distest.server.web.task.execute.ExecuteMgr;
 import com.testwa.distest.server.web.task.validator.TaskValidatoer;
-import com.testwa.distest.server.web.task.vo.TaskProgressVO;
 import com.testwa.distest.server.web.testcase.validator.TestcaseValidatoer;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * Created by wen on 24/10/2017.
@@ -46,7 +39,7 @@ public class TaskController extends BaseController {
     @Autowired
     private UserService userService;
     @Autowired
-    private ExecutorLogInfoService executorLogInfoService;
+    private MethodRunningLogService executorLogInfoService;
     @Autowired
     private TestcaseValidatoer testcaseValidatoer;
     @Autowired

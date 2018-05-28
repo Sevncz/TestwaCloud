@@ -5,9 +5,9 @@ import com.mongodb.DBObject;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Task;
 import com.testwa.distest.server.entity.Script;
-import com.testwa.distest.server.mongo.model.ProcedureInfo;
+import com.testwa.distest.server.mongo.model.AppiumRunningLog;
 import com.testwa.distest.server.mongo.model.ProcedureStatis;
-import com.testwa.distest.server.mongo.service.ProcedureInfoService;
+import com.testwa.distest.server.mongo.service.AppiumRunningLogService;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.task.service.TaskService;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +32,7 @@ public class TaskOverListener implements ApplicationListener<TaskOverEvent> {
     @Autowired
     private MongoOperations mongoTemplate;
     @Autowired
-    private ProcedureInfoService procedureInfoService;
+    private AppiumRunningLogService procedureInfoService;
     @Autowired
     private TaskService taskService;
     @Autowired
@@ -81,9 +81,9 @@ public class TaskOverListener implements ApplicationListener<TaskOverEvent> {
         Map<String, Integer> d = new HashMap<>();
         for(Map s : sessions){
 
-            List<ProcedureInfo> l = procedureInfoService.findBySessionId((String) s.get("_id"));
+            List<AppiumRunningLog> l = procedureInfoService.findBySessionId((String) s.get("_id"));
             if(l != null && l.size() > 0){
-                ProcedureInfo pi = l.get(0);
+                AppiumRunningLog pi = l.get(0);
                 Integer scriptFailNum = d.getOrDefault(pi.getDeviceId(), 0);
                 if((Integer) s.get("count") > 0){
                     scriptFailNum += 1;
@@ -149,7 +149,7 @@ public class TaskOverListener implements ApplicationListener<TaskOverEvent> {
     }
 
     private List<Map> getResult(Aggregation agg) {
-        AggregationResults<BasicDBObject> outputType = mongoTemplate.aggregate(agg, "t_procedure_info", BasicDBObject.class);
+        AggregationResults<BasicDBObject> outputType = mongoTemplate.aggregate(agg, AppiumRunningLog.getCollectionName(), BasicDBObject.class);
         List<Map> result = new ArrayList<>();
         for (Iterator<BasicDBObject> iterator = outputType.iterator(); iterator.hasNext();) {
             DBObject obj =iterator.next();

@@ -20,7 +20,7 @@ service TaskService {
     rpc ZipFileUpload (stream FileUploadRequest) returns ( CommonReply ) {}
 
     rpc currExeInfo (CurrentExeInfoRequest) returns ( CommonReply ) {}
-    rpc procedureInfoUpload (ProcedureInfoUploadRequest) returns ( CommonReply ) {}
+    rpc appiumRunningLogUpload (AppiumRunningLogUploadRequest) returns ( CommonReply ) {}
 
     rpc saveStep (StepRequest) returns ( CommonReply ) {}
     rpc savePerformance (PerformanceRequest) returns ( CommonReply ) {}
@@ -33,7 +33,7 @@ message CommonReply {
     string message = 2;
 }
 
-message ProcedureInfoRequest {
+message AppiumRunningLogRequest {
     int32 status = 1;
     string value = 2;
     int32 runtime = 3;
@@ -43,7 +43,7 @@ message ProcedureInfoRequest {
     string deviceId = 7;
     string screenshotPath = 10;
     string description = 11;
-    string action = 12;
+    string methodDesc = 12;
     string params = 13;
     int64 timestamp = 14;
     string logcatFile = 15;
@@ -125,7 +125,7 @@ message CurrentExeInfoRequest {
     int64 testcaseId = 5;
 }
 
-message ProcedureInfoUploadRequest {
+message AppiumRunningLogUploadRequest {
     string infoJson = 1;
 }
 
@@ -145,11 +145,9 @@ message ExecutorLogRequest {
     int64 timestamp = 2;
     string token = 3;
     string deviceId = 4;
-    string action = 5;
+    string methodDesc = 5;
     string methodName = 6;
     string args = 7;
     string flag = 8;
     int32 order = 9;
 }
-
-

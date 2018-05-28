@@ -6,8 +6,6 @@
 package com.testwa.distest.server.mongo.repository;
 
 import com.testwa.distest.server.mongo.model.CrashLog;
-import com.testwa.distest.server.mongo.model.ExecutorLogInfo;
-import com.testwa.distest.server.mongo.repository.CommonRepository;
 
 import java.io.Serializable;
 import java.util.List;

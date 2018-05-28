@@ -5,14 +5,13 @@
  */
 package com.testwa.distest.server.mongo.repository;
 
-import com.testwa.distest.server.mongo.model.TaskLogger;
+import com.testwa.distest.server.mongo.model.TaskLog;
 
 import java.io.Serializable;
-import java.util.List;
 
-public interface TaskLoggerRepository extends CommonRepository<TaskLogger, Serializable> {
+public interface TaskLogRepository extends CommonRepository<TaskLog, Serializable> {
 
-    TaskLogger findByTaskId(Long taskId);
+    TaskLog findByTaskId(Long taskId);
 
     void deleteByTaskId(Long taskId);
 }

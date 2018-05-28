@@ -5,29 +5,17 @@ import com.github.pagehelper.PageInfo;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.testwa.core.base.vo.PageResult;
-import com.testwa.core.utils.TimeUtil;
 import com.testwa.distest.server.entity.*;
-import com.testwa.distest.server.mongo.model.ExecutorLogInfo;
-import com.testwa.distest.server.mongo.model.Performance;
-import com.testwa.distest.server.mongo.model.ProcedureInfo;
-import com.testwa.distest.server.mongo.model.ProcedureStatis;
-import com.testwa.distest.server.mongo.repository.ExecutorLogInfoRepository;
-import com.testwa.distest.server.mongo.repository.PerformanceRepository;
-import com.testwa.distest.server.mongo.repository.ProcedureInfoRepository;
-import com.testwa.distest.server.mongo.repository.ProcedureStatisRepository;
+import com.testwa.distest.server.mongo.model.*;
+import com.testwa.distest.server.mongo.repository.*;
 import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.service.task.dao.ITaskDAO;
 import com.testwa.distest.server.service.task.dto.TaskDeviceStatusStatis;
 import com.testwa.distest.server.service.task.form.ScriptListForm;
 import com.testwa.distest.server.service.task.form.TaskListForm;
-import com.testwa.distest.server.web.task.vo.*;
-import com.testwa.distest.server.web.task.vo.echart.*;
 import io.rpc.testwa.task.StepRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -39,9 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
@@ -61,11 +47,13 @@ public class TaskService {
     @Autowired
     private ProcedureStatisRepository procedureStatisRepository;
     @Autowired
-    private ProcedureInfoRepository procedureInfoRepository;
+    private AppiumRunningLogRepository procedureInfoRepository;
+    @Autowired
+    private StepRepository stepRepository;
     @Autowired
     private PerformanceRepository performanceRepository;
     @Autowired
-    private ExecutorLogInfoRepository executorLogInfoRepository;
+    private MethodRunningLogRepository executorLogInfoRepository;
     @Autowired
     private TaskDeviceService taskDeviceService;
     @Autowired
@@ -96,7 +84,7 @@ public class TaskService {
         entityIds.forEach( id -> {
 
             taskDeviceService.deleteTaskDeviceByTaskId(id);
-            List<ProcedureInfo> infos = procedureInfoRepository.findByExecutionTaskIdOrderByTimestampAsc(id);
+            List<AppiumRunningLog> infos = procedureInfoRepository.findByExecutionTaskIdOrderByTimestampAsc(id);
             procedureInfoRepository.delete(infos);
         });
     }
@@ -183,52 +171,6 @@ public class TaskService {
         return task.getScriptList();
     }
 
-    public TaskProgressVO getProgress(Long taskId) {
-        Task task = taskDAO.findOne(taskId);
-        List<Device> deviceList = task.getDevices();
-        Map<String, List<String>> dateMap = new HashMap<>();
-        Map<String, String> deviceMap = new HashMap<>();
-        deviceList.forEach( d -> {
-            List<String> dataList = new ArrayList<>();
-            DateTime dt = new DateTime(task.getCreateTime());
-            DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-            dataList.add(fmt.print(dt));
-            dateMap.put(d.getDeviceId(), dataList);
-            deviceMap.put(d.getDeviceId(), d.getBrand() + " " + d.getModel());
-        });
-
-        List<Integer> orders = Arrays.asList(0,1,2,3,6);
-
-        Criteria criatira = new Criteria();
-        criatira.andOperator(Criteria.where("taskId").is(taskId),
-                Criteria.where("actionOrder").in(orders));
-        Sort sort = new Sort(Sort.Direction.ASC, "actionOrder","timestamp");
-        Query query = new Query();
-        query.addCriteria(criatira);
-        query.with(sort);
-        List<ExecutorLogInfo> loginfos = executorLogInfoRepository.find(query);
-
-        for(ExecutorLogInfo l : loginfos) {
-            List<String> datas = dateMap.get(l.getDeviceId());
-            if(l.getActionOrder() != 6 && "start".equals(l.getFlag())){
-                datas.add(TimeUtil.formatTimeStamp(l.getTimestamp()));
-            }
-            if(l.getActionOrder() == 6){
-                datas.add(TimeUtil.formatTimeStamp(l.getTimestamp()));
-            }
-        }
-        List<TaskProgressLine> lines = new ArrayList<>();
-        dateMap.forEach( (k, v) -> {
-            TaskProgressLine line = new TaskProgressLine();
-            line.setName(deviceMap.get(k));
-            line.setData(v);
-            lines.add(line);
-        });
-        TaskProgressVO vo = new TaskProgressVO();
-        vo.setLineList(lines);
-        vo.setDeviceNameList(new ArrayList<>(deviceMap.values()));
-        return vo;
-    }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void updateEndTime(Long taskId) {
@@ -236,182 +178,60 @@ public class TaskService {
         taskDAO.updateEndTime(taskId, endTime);
     }
 
-    public TaskOverviewVO getOverview(Long taskId) {
-        TaskOverviewVO vo = new TaskOverviewVO();
-        Task task = taskDAO.findOne(taskId);
-        if(task.getEndTime() == null) {
-            vo.setStatus(TaskOverviewVO.TaskStatus.RUNNING);
-            return vo;
-        }
-        vo.setStatus(TaskOverviewVO.TaskStatus.COMPLETE);
-        int deviceSize = task.getDevices().size();
-        List<ProcedureInfo> installList = getAllInstallSuccessProcedure(taskId);
-        double install = (installList.size() / deviceSize) * 100;
-        BigDecimal bg = new BigDecimal(install);
-        install = bg.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-        List<ProcedureInfo> lanucherList = getAllLanucherSuccessProcedure(taskId);
-        double lanucher = (lanucherList.size() / deviceSize) * 100;
-        bg = new BigDecimal(lanucher);
-        lanucher = bg.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-        List<ProcedureInfo> uninstallList = getAllUninstallSuccessProcedure(taskId);
-        double uninstall = (uninstallList.size() / deviceSize) * 100;
-        bg = new BigDecimal(uninstall);
-        uninstall = bg.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
 
-
-        List<Map> statusStatis = getStatusStatisByDeviceId(taskId);
-        int success = 0;
-        int fail = 0;
-        for(Map m : statusStatis){
-            int status = (int) m.getOrDefault("_id", 0);
-            if(status == 0){
-                success = (int) m.getOrDefault("count", 0);
-            }
-            if(status == 1){
-                fail = (int) m.getOrDefault("count", 0);
-            }
-        }
-        int conclusion = ( success + fail ) == 0 ? 0 : (success / (success + fail)) * 100;
-        vo.setConclusion(conclusion + "%");
-        vo.setValue(Arrays.asList(install, lanucher, uninstall));
-        return vo;
-    }
-
-    private List<Map> getStatusStatisByDeviceId(Long taskId) {
+    public List<Map> getAppiumRunningLogStatisByTaskId(Long taskId) {
 
         Aggregation agg = Aggregation.newAggregation(
                 Aggregation.match(Criteria.where("executionTaskId").is(taskId)),
                 Aggregation.group( "status").count().as("count")
         );
-        AggregationResults<BasicDBObject> outputType = mongoTemplate.aggregate(agg, "t_procedure_info", BasicDBObject.class);
-        List<Map> result = new ArrayList<>();
-        for (Iterator<BasicDBObject> iterator = outputType.iterator(); iterator.hasNext();) {
-            DBObject obj =iterator.next();
-            result.add(obj.toMap());
-        }
-        return result;
+
+        return getResult(agg, AppiumRunningLog.getCollectionName());
     }
 
-    public List<ProcedureInfo> getAllInstallSuccessProcedure(Long taskId) {
+    public List<AppiumRunningLog> getAllInstallSuccessProcedure(Long taskId) {
         Criteria criatira = new Criteria();
         criatira.andOperator(Criteria.where("executionTaskId").is(taskId),
                 Criteria.where("status").is(0),
-                Criteria.where("command.action").is("安装应用"));
+                Criteria.where("command.methodDesc").is("安装应用"));
 
         return procedureInfoRepository.find(new Query(criatira));
     }
 
-    public List<ProcedureInfo> getAllLanucherSuccessProcedure(Long taskId) {
+    public List<AppiumRunningLog> getAllLanucherSuccessProcedure(Long taskId) {
         Criteria criatira = new Criteria();
         criatira.andOperator(Criteria.where("executionTaskId").is(taskId),
                 Criteria.where("status").is(0),
-                Criteria.where("command.action").is("启动应用"));
+                Criteria.where("command.methodDesc").is("启动应用"));
         return procedureInfoRepository.find(new Query(criatira));
     }
 
-    public List<ProcedureInfo> getAllUninstallSuccessProcedure(Long taskId) {
+    public List<AppiumRunningLog> getAllUninstallSuccessProcedure(Long taskId) {
         Criteria criatira = new Criteria();
         criatira.andOperator(Criteria.where("executionTaskId").is(taskId),
                 Criteria.where("status").is(0),
-                Criteria.where("command.action").is("卸载应用"));
+                Criteria.where("command.methodDesc").is("卸载应用"));
         return procedureInfoRepository.find(new Query(criatira));
     }
 
-    public TaskDeviceFinishStatisVO getFinishStatisVO(Long taskId) {
-        TaskDeviceFinishStatisVO vo = new TaskDeviceFinishStatisVO();
-        List<TaskDevice> taskDeviceList = taskDeviceService.findByTaskId(taskId);
-        if(taskDeviceList.size() == 0){
-            return vo;
-        }
-        List<TaskDeviceFinishGraph> graph = new ArrayList<>();
-        int running = 0;
-        int completed = 0;
-        int extremely = 0;
-        int cancel = 0;
-        for(TaskDevice taskDevice : taskDeviceList) {
-            switch (taskDevice.getStatus()){
-                case CANCEL:
-                    cancel++;
-                    break;
-                case RUNNING:
-                    running++;
-                    break;
-                case COMPLETE:
-                    completed++;
-                    break;
-                case ERROR:
-                    extremely++;
-                    break;
-            }
-        }
-        int progress = (1 - (running/taskDeviceList.size())) * 100;
-        TaskDeviceFinishStatistics statistics = new TaskDeviceFinishStatistics();
-        statistics.setCancel(cancel);
-        statistics.setCompleted(completed);
-        statistics.setExtremely(extremely);
-        statistics.setRunning(running);
-        statistics.setProgress(progress + "%");
+    public List<Step> getSuccessStep(Long taskId, StepRequest.StepAction uninstallApp) {
+        Criteria criatira = new Criteria();
+        criatira.andOperator(Criteria.where("taskId").is(taskId),
+                Criteria.where("status").is(StepRequest.StepStatus.SUCCESS.getNumber()),
+                Criteria.where("methodDesc").is(uninstallApp.name()));
 
-        if(running > 0) {
-            TaskDeviceFinishGraph subGraph = new TaskDeviceFinishGraph();
-            subGraph.setName("运行中");
-            subGraph.setValue(running);
-            graph.add(subGraph);
-        }
-        if(completed > 0) {
-            TaskDeviceFinishGraph subGraph = new TaskDeviceFinishGraph();
-            subGraph.setName("完成");
-            subGraph.setValue(completed);
-            graph.add(subGraph);
-        }
-        if(extremely > 0) {
-            TaskDeviceFinishGraph subGraph = new TaskDeviceFinishGraph();
-            subGraph.setName("异常");
-            subGraph.setValue(extremely);
-            graph.add(subGraph);
-        }
-        if(cancel > 0) {
-            TaskDeviceFinishGraph subGraph = new TaskDeviceFinishGraph();
-            subGraph.setName("取消");
-            subGraph.setValue(cancel);
-            graph.add(subGraph);
-        }
-        vo.setGraph(graph);
-        vo.setStatistics(statistics);
-        return vo;
+        return stepRepository.find(new Query(criatira));
     }
 
-    /**
-     *@Description: 回归测试性能统计
-     *@Param: [task]
-     *@Return: com.testwa.distest.server.web.task.vo.PerformanceOverviewVO
-     *@Author: wen
-     *@Date: 2018/5/23
-     */
-    public PerformanceOverviewVO getHGPerformanceOverview(Task task) {
-        PerformanceOverviewVO vo = new PerformanceOverviewVO();
-        Long taskId = task.getId();
-        List<Device> deviceList = task.getDevices();
-        Map<String, String> deviceMap = getDeviceNameMap(deviceList);
+    public List<Map> getStepStatusStatis(Long taskId) {
 
-        List<Map> memoryavg = getMemoryAvg(taskId);
-        PerformanceOverview memoryD = getPerformanceDetail(deviceMap, memoryavg);
-        vo.setRam(memoryD);
-
-        List<Map> cpuavg = getCpuAvg(taskId);
-        PerformanceOverview cpuD = getPerformanceDetail(deviceMap, cpuavg);
-        vo.setCpu(cpuD);
-
-        List<Map> install = getInstallTime(taskId);
-        PerformanceOverview installD = getPerformanceDetail(deviceMap, install);
-        vo.setInstall(installD);
-
-        List<Map> startup = getStartUpTime(taskId);
-        PerformanceOverview startupD = getPerformanceDetail(deviceMap, startup);
-        vo.setStartUp(startupD);
-
-        return vo;
+        Aggregation agg = Aggregation.newAggregation(
+                Aggregation.match(Criteria.where("taskId").is(taskId)),
+                Aggregation.group( "status").count().as("count")
+        );
+        return getResult(agg, Step.getCollectionName());
     }
+
 
     /**
      *@Description: key= deviceId  value= modelName
@@ -420,7 +240,7 @@ public class TaskService {
      *@Author: wen
      *@Date: 2018/5/24
      */
-    private Map<String, String> getDeviceNameMap(List<Device> deviceList) {
+    public Map<String, String> getDeviceNameMap(List<Device> deviceList) {
         Map<String, String> deviceMap = new HashMap<>();
         deviceList.forEach( d -> {
             deviceMap.put(d.getDeviceId(), d.getModel().contains(d.getBrand()) ? d.getModel() : d.getBrand() + " " + d.getModel());
@@ -428,74 +248,48 @@ public class TaskService {
         return deviceMap;
     }
 
-    private PerformanceOverview getPerformanceDetail(Map<String, String> deviceMap, List<Map> avgList) {
-        PerformanceOverview detail = new PerformanceOverview();
-        List<String> names = new ArrayList<>();
-        List<Double> values = new ArrayList<>();
-        for(Map m : avgList){
-            String deviceId = (String) m.getOrDefault("_id", "");
-            String name = deviceMap.get(deviceId);
-            names.add(name);
-            Double d = (Double) m.getOrDefault("value", 0);
-            BigDecimal bg = new BigDecimal(d);
-            double f1 = bg.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-            values.add(f1);
-        }
-        detail.setName(names);
-        detail.setValue(values);
-        OptionalDouble avg = values.stream().mapToDouble(v -> v).average();
-        if (avg.isPresent()) {
-            detail.setOverview(String.format("%.2f", avg.getAsDouble()));
-        }else{
-           log.error("average wasn't calculated");
-            detail.setOverview("0");
-        }
-        return detail;
-    }
-
-
-    private List<Map> getStartUpTime(Long taskId) {
+    public List<Map> getStartUpTime(Long taskId) {
         Criteria criatira = new Criteria();
         criatira.andOperator(Criteria.where("executionTaskId").is(taskId),
-                Criteria.where("command.action").is("启动应用"));
+                Criteria.where("command.methodDesc").is("启动应用"));
         Aggregation agg = Aggregation.newAggregation(
                 Aggregation.match(criatira),
                 Aggregation.project("runtime", "deviceId").andExpression("runtime/1000").as("second"),
                 Aggregation.group("deviceId").avg("second").as("value")
         );
-        return getResult(agg, "t_procedure_info");
+        return getResult(agg, AppiumRunningLog.getCollectionName());
     }
 
-    private List<Map> getInstallTime(Long taskId) {
+    public List<Map> getInstallTime(Long taskId) {
         Criteria criatira = new Criteria();
         criatira.andOperator(Criteria.where("executionTaskId").is(taskId),
-                Criteria.where("command.action").is("安装应用"));
+                Criteria.where("command.methodDesc").is("安装应用"));
         Aggregation agg = Aggregation.newAggregation(
                 Aggregation.match(criatira),
                 Aggregation.project("runtime", "deviceId").andExpression("runtime/1000").as("second"),
                 Aggregation.group("deviceId").avg("second").as("value")
         );
-        return getResult(agg, "t_procedure_info");
+        return getResult(agg, AppiumRunningLog.getCollectionName());
     }
 
-    private List<Map> getMemoryAvg(Long taskId) {
+    public List<Map> getMemoryAvg(Long taskId) {
         Aggregation agg = Aggregation.newAggregation(
                 Aggregation.match(Criteria.where("executionTaskId").is(taskId)),
                 Aggregation.project("memory", "deviceId").andExpression("memory/1024").as("m"),
                 Aggregation.group("deviceId").avg("m").as("value")
         );
-        return getResult(agg, "t_procedure_info");
+        return getResult(agg, AppiumRunningLog.getCollectionName());
     }
 
-    private List<Map> getCpuAvg(Long taskId) {
+    public List<Map> getCpuAvg(Long taskId) {
         Aggregation agg = Aggregation.newAggregation(
                 Aggregation.match(Criteria.where("executionTaskId").is(taskId)),
                 Aggregation.group("deviceId").avg("cpurate").as("value")
         );
-        return getResult(agg, "t_procedure_info");
+        return getResult(agg, AppiumRunningLog.getCollectionName());
     }
 
-    private List<Map> getResult(Aggregation agg, String tableName) {
+    public List<Map> getResult(Aggregation agg, String tableName) {
         AggregationResults<BasicDBObject> outputType = mongoTemplate.aggregate(agg, tableName, BasicDBObject.class);
         List<Map> result = new ArrayList<>();
         for (Iterator<BasicDBObject> iterator = outputType.iterator(); iterator.hasNext();) {
@@ -505,121 +299,18 @@ public class TaskService {
         return result;
     }
 
-    /**
-     *@Description: 兼容测试性能统计
-     *@Param: [task]
-     *@Return: com.testwa.distest.server.web.task.vo.PerformanceOverviewVO
-     *@Author: wen
-     *@Date: 2018/5/23
-     */
-    public PerformanceOverviewVO getJRPerformanceOverview(Task task) {
-        PerformanceOverviewVO vo = new PerformanceOverviewVO();
-        Long taskId = task.getId();
-        List<Device> deviceList = task.getDevices();
-        Map<String, String> deviceMap = getDeviceNameMap(deviceList);
-
-        List<Map> performanceStatisList = getPerformanceStatis(taskId);
-        PerformanceOverview memoryD = getPerformanceDetail(deviceMap, performanceStatisList, "avg_mem");
-        vo.setRam(memoryD);
-        PerformanceOverview cpuD = getPerformanceDetail(deviceMap, performanceStatisList, "avg_cpu");
-        vo.setCpu(cpuD);
-        PerformanceOverview fpsD = getPerformanceDetail(deviceMap, performanceStatisList, "avg_fps");
-        vo.setFps(fpsD);
-        PerformanceOverview wifiDownD = getPerformanceDetail(deviceMap, performanceStatisList, "sum_wifiDown");
-        vo.setFlowDown(wifiDownD);
-        PerformanceOverview wifiUpD = getPerformanceDetail(deviceMap, performanceStatisList, "sum_wifiUp");
-        vo.setFlowUp(wifiUpD);
-
-        List<Map> installRunTimeStatisList = getStepRuntimeStatis(taskId, StepRequest.StepAction.installApp.name());
-        PerformanceOverview installD = getPerformanceDetail(deviceMap, installRunTimeStatisList, "avg_time");
-        vo.setInstall(installD);
-
-        List<Map> launchRunTimeStatisList = getStepRuntimeStatis(taskId, StepRequest.StepAction.launch.name());
-        PerformanceOverview launchD = getPerformanceDetail(deviceMap, launchRunTimeStatisList, "avg_time");
-        vo.setStartUp(launchD);
-
-        return vo;
-    }
-
-
-    public PerformanceDeviceOverviewVO getJRPerformanceOverview(Task task, String deviceId) {
-        List<Map> performanceResult = getPerformanceDeviceStatis(task.getId(), deviceId);
-        List<Map> actionResult  = getSomeActionRuntime(task.getId(), deviceId);
-        PerformanceDeviceOverviewVO vo = new PerformanceDeviceOverviewVO();
-        Map<String, Object> result = null;
-        if(performanceResult.size() > 0){
-            result = performanceResult.get(0);
-        }
-        if (result != null) {
-            vo.setRam((Double) result.get("avg_mem"));
-            vo.setCpu((Double) result.get("avg_cpu"));
-            vo.setFps((Double) result.get("avg_fps"));
-            vo.setDown((Long) result.get("sum_wifiDown"));
-            vo.setUp((Long) result.get("sum_wifiUp"));
-        }
-        actionResult.forEach( a -> {
-            String action = (String) a.get("_id");
-            Double rt = (Double) a.get("avg_time");
-            if(StepRequest.StepAction.installApp.name().equals(action)) {
-                vo.setInstall(rt);
-            }
-            if(StepRequest.StepAction.launch.name().equals(action)) {
-                vo.setLaunch(rt);
-            }
-        });
-
-        return vo;
-    }
-
-    public PerformanceDeviceOverviewVO getHGPerformanceOverview(Task task, String deviceId) {
-        List<Map> result = getPerformanceDeviceStatis(task.getId(), deviceId);
-        PerformanceDeviceOverviewVO vo = new PerformanceDeviceOverviewVO();
-
-        return vo;
-    }
-
-    private PerformanceOverview getPerformanceDetail(Map<String,String> deviceMap, List<Map> avgList, String key) {
-        PerformanceOverview detail = new PerformanceOverview();
-        List<String> names = new ArrayList<>();
-        List<Double> values = new ArrayList<>();
-        for(Map m : avgList){
-            String deviceId = (String) m.getOrDefault("_id", "");
-            String name = deviceMap.get(deviceId);
-            names.add(name);
-            try {
-                Double d = (Double) m.getOrDefault(key, 0);
-                BigDecimal bg = new BigDecimal(d);
-                double f1 = bg.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-                values.add(f1);
-            }catch (ClassCastException e) {
-                Long d = (Long) m.getOrDefault(key, 0);
-                values.add(d * 1.0);
-            }
-        }
-        detail.setName(names);
-        detail.setValue(values);
-        OptionalDouble avg = values.stream().mapToDouble(v -> v).average();
-        if (avg.isPresent()) {
-            detail.setOverview(String.format("%.2f", avg.getAsDouble()));
-        }else{
-            log.error("average wasn't calculated");
-            detail.setOverview("0");
-        }
-        return detail;
-    }
-
-    private List<Map> getSomeActionRuntime(Long taskId, String deviceId) {
+    public List<Map> getSomeActionRuntime(Long taskId, String deviceId) {
         List<String> actions = Arrays.asList(StepRequest.StepAction.installApp.name(), StepRequest.StepAction.launch.name(), StepRequest.StepAction.uninstallApp.name());
 
         Aggregation agg = Aggregation.newAggregation(
                 Aggregation.match(new Criteria().andOperator(Criteria.where("taskId").is(taskId).and("action").in(actions).and("deviceId").is(deviceId))),
-                Aggregation.project("runtime","action")
+                Aggregation.project("runtime","methodDesc")
                         .andExpression("runtime/1000").as("rt"),
-                Aggregation.group("action")
+                Aggregation.group("methodDesc")
                         .avg("rt").as("avg_time"),
                 Aggregation.sort(Sort.Direction.ASC, "avg_time")
         );
-        return getResult(agg, "t_step");
+        return getResult(agg, Step.getCollectionName());
     }
 
     /**
@@ -636,7 +327,7 @@ public class TaskService {
      *@Author: wen
      *@Date: 2018/5/23
      */
-    private List<Map> getPerformanceStatis(Long taskId) {
+    public List<Map> getPerformanceStatis(Long taskId) {
         Aggregation agg = Aggregation.newAggregation(
                 Aggregation.match(Criteria.where("taskId").is(taskId)),
                 Aggregation.project("deviceId","mem","cpu","fps","wifiDown","wifiUp")
@@ -650,10 +341,10 @@ public class TaskService {
                         .sum("down").as("sum_wifiDown")
                         .sum("up").as("sum_wifiUp")
         );
-        return getResult(agg, "t_performance");
+        return getResult(agg, Performance.getCollectionName());
     }
 
-    private List<Map> getPerformanceDeviceStatis(Long taskId, String deviceId) {
+    public List<Map> getPerformanceDeviceStatis(Long taskId, String deviceId) {
         Aggregation agg = Aggregation.newAggregation(
                 Aggregation.match(new Criteria().andOperator(Criteria.where("taskId").is(taskId).and("deviceId").is(deviceId))),
                 Aggregation.project("deviceId","mem","cpu","fps","wifiDown","wifiUp")
@@ -667,15 +358,15 @@ public class TaskService {
                         .sum("down").as("sum_wifiDown")
                         .sum("up").as("sum_wifiUp")
         );
-        return getResult(agg, "t_performance");
+        return getResult(agg, Performance.getCollectionName());
     }
 
     /**
      *@Description:  步骤时间统计
      * ﻿db.t_step.aggregate(
      *   [
-     *    { $match: { taskId: 164, action: 'installApp'} },
-     *    { $project: {"runtime": 1, "action": 1, "deviceId": 1} },
+     *    { $match: { taskId: 164, methodDesc: 'installApp'} },
+     *    { $project: {"runtime": 1, "methodDesc": 1, "deviceId": 1} },
      *    { $group: { _id: "$deviceId", avg_time: {$avg: "$runtime"}}}
      *    { $sort: {avg_time: 1} }
      *  ]
@@ -685,267 +376,23 @@ public class TaskService {
      *@Author: wen
      *@Date: 2018/5/23
      */
-    private List<Map> getStepRuntimeStatis(Long taskId, String actionName) {
+    public List<Map> getStepRuntimeStatis(Long taskId, String actionName) {
         List<String> actions = Arrays.asList(StepRequest.StepAction.installApp.name(), StepRequest.StepAction.launch.name(), StepRequest.StepAction.uninstallApp.name());
         if(!actions.contains(actionName)){
             return new ArrayList<>();
         }
         Aggregation agg = Aggregation.newAggregation(
                 Aggregation.match(new Criteria().andOperator(Criteria.where("taskId").is(taskId).and("action").is(actionName))),
-                Aggregation.project("runtime","action","deviceId")
+                Aggregation.project("runtime","methodDesc","deviceId")
                         .andExpression("runtime/1000").as("rt"),
                 Aggregation.group("deviceId")
                         .avg("rt").as("avg_time"),
                 Aggregation.sort(Sort.Direction.ASC, "avg_time")
         );
-        return getResult(agg, "t_step");
+        return getResult(agg, Step.getCollectionName());
     }
 
-
-    /**
-     *@Description: 回归测试性能详情
-     *@Param: [task]
-     *@Return: com.testwa.distest.server.web.task.vo.echart.ReportEchartTimeVO
-     *@Author: wen
-     *@Date: 2018/5/24
-     */
-    public ReportPerformanceDetailVO getHGPerformanceDetail(Task task) {
-        ReportPerformanceDetailVO vo = new ReportPerformanceDetailVO();
-
-        Map<String, String> deviceMap = getDeviceNameMap(task.getDevices());
-
-        EchartLineCollection cpuLineList = new EchartLineCollection();
-        EchartLineCollection ramLineList = new EchartLineCollection();
-        EchartLineCollection fpsLineList = new EchartLineCollection();
-        task.getDevices().forEach(d -> {
-            List<ProcedureInfo> performanceList = procedureInfoRepository.findByExecutionTaskIdAndDeviceIdOrderByTimestampAsc(task.getId(), d.getDeviceId());
-            EchartLine cpuLine = new EchartLine();
-            EchartLine ramLine = new EchartLine();
-            EchartLine fpsLine = new EchartLine();
-            performanceList.forEach( p -> {
-                String time = TimeUtil.formatTimeStamp(p.getTimestamp());
-                String name = deviceMap.get(p.getDeviceId());
-                EchartLinePoint cpuPoint = new EchartLinePoint();
-                cpuPoint.setTime(time);
-                cpuPoint.setValue(p.getCpurate());
-                cpuLine.addPoint(cpuPoint);
-                cpuLine.setName(name);
-
-                EchartLinePoint ramPoint = new EchartLinePoint();
-                ramPoint.setTime(time);
-                ramPoint.setValue(p.getMemory());
-                ramLine.addPoint(cpuPoint);
-                ramLine.setName(name);
-                // 回归测试还拿不到以下几项
-//                ReportEchartTimePoint fpsPoint = new ReportEchartTimePoint();
-//                fpsPoint.setTime(time);
-//                fpsPoint.setValue(p.getFps());
-//                fpsLine.addPoint(cpuPoint);
-//                fpsLine.setName(name);
-            });
-            cpuLineList.addLine(cpuLine);
-            ramLineList.addLine(ramLine);
-            fpsLineList.addLine(fpsLine);
-        });
-
-        vo.setCpu(cpuLineList);
-        vo.setRam(ramLineList);
-        vo.setFps(fpsLineList);
-        return vo;
-    }
-
-    /**
-     *@Description: 兼容测试性能详情
-     *@Param: [task]
-     *@Return: com.testwa.distest.server.web.task.vo.echart.ReportEchartTimeVO
-     *@Author: wen
-     *@Date: 2018/5/24
-     */
-    public ReportPerformanceDetailVO getJRPerformanceDetail(Task task) {
-        ReportPerformanceDetailVO vo = new ReportPerformanceDetailVO();
-
-        Map<String, String> deviceMap = getDeviceNameMap(task.getDevices());
-
-        EchartLineCollection cpuLineList = new EchartLineCollection();
-        EchartLineCollection ramLineList = new EchartLineCollection();
-        EchartLineCollection fpsLineList = new EchartLineCollection();
-        task.getDevices().forEach(d -> {
-            List<Performance> performanceList = performanceRepository.findByTaskIdAndDeviceIdOrderByTimestampAsc(task.getId(), d.getDeviceId());
-            EchartLine cpuLine = new EchartLine();
-            EchartLine ramLine = new EchartLine();
-            EchartLine fpsLine = new EchartLine();
-            performanceList.forEach( p -> {
-                String time = TimeUtil.formatTimeStamp(p.getTimestamp());
-                String name = deviceMap.get(p.getDeviceId());
-                EchartLinePoint cpuPoint = new EchartLinePoint();
-                cpuPoint.setTime(time);
-                cpuPoint.setValue(p.getCpu());
-                cpuLine.addPoint(cpuPoint);
-                cpuLine.setName(name);
-
-                EchartLinePoint ramPoint = new EchartLinePoint();
-                ramPoint.setTime(time);
-                double ram = (p.getMem() * 1.0)/1024;
-                BigDecimal bg = new BigDecimal(ram);
-                ram = bg.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-                ramPoint.setValue(ram);
-                ramLine.addPoint(ramPoint);
-                ramLine.setName(name);
-
-                EchartLinePoint fpsPoint = new EchartLinePoint();
-                fpsPoint.setTime(time);
-                fpsPoint.setValue(p.getFps());
-                fpsLine.addPoint(fpsPoint);
-                fpsLine.setName(name);
-
-            });
-            cpuLineList.addLine(cpuLine);
-            ramLineList.addLine(ramLine);
-            fpsLineList.addLine(fpsLine);
-        });
-
-        vo.setCpu(cpuLineList);
-        vo.setRam(ramLineList);
-        vo.setFps(fpsLineList);
-        return vo;
-
-    }
-
-    /**
-     *@Description: 回归测试性能综合
-     *@Param: [task]
-     *@Return: com.testwa.distest.server.web.task.vo.ReportPerformanceSummaryVO
-     *@Author: wen
-     *@Date: 2018/5/24
-     */
-    public ReportPerformanceSummaryVO getHGPerformanceSummary(Task task) {
-        ReportPerformanceSummaryVO vo = new ReportPerformanceSummaryVO();
-        // install
-        // launch
-        // cpu
-        // ram
-        return vo;
-    }
-
-    /**
-     *@Description: 兼容测试性能综合
-     *@Param: [task]
-     *@Return: com.testwa.distest.server.web.task.vo.ReportPerformanceSummaryVO
-     *@Author: wen
-     *@Date: 2018/5/24
-     */
-    public ReportPerformanceSummaryVO getJRPerformanceSummary(Task task) {
-        List<Device> deviceList = task.getDevices();
-        Map<String, String> deviceMap = getDeviceNameMap(deviceList);
-
-        ReportPerformanceSummaryVO vo = new ReportPerformanceSummaryVO();
-        // install
-        List<Map> installRunTimeStatisList = getStepRuntimeStatis(task.getId(), StepRequest.StepAction.installApp.name());
-        ReportPerformanceSummary installSummary = new ReportPerformanceSummary();
-        // 饼图
-        EchartPie pie = getEchartPie(installRunTimeStatisList, "avg_time");
-        // 柱形图
-        EchartBar bar = getEchartBar(installRunTimeStatisList, deviceMap, "avg_time");
-
-        installSummary.setDistribution(pie);
-        installSummary.setWorst(bar);
-        vo.setInstall(installSummary);
-
-        // launch
-        List<Map> launchRunTimeStatisList = getStepRuntimeStatis(task.getId(), StepRequest.StepAction.launch.name());
-        ReportPerformanceSummary launchSummary = new ReportPerformanceSummary();
-        // 饼图
-        EchartPie pie1 = getEchartPie(launchRunTimeStatisList, "avg_time");
-        // 柱形图
-        EchartBar bar1 = getEchartBar(launchRunTimeStatisList, deviceMap, "avg_time");
-
-        launchSummary.setDistribution(pie1);
-        launchSummary.setWorst(bar1);
-        vo.setLaunch(launchSummary);
-
-        // cpu
-        List<Map> ramAvgList = getPerformanceMemAvg(task.getId());
-        // 饼图
-        EchartPie pie2 = getEchartPie(ramAvgList, "avg_value");
-        // 柱形图
-        EchartBar bar2 = getEchartBar(ramAvgList, deviceMap, "avg_value");
-
-        ReportPerformanceSummary ramSummary = new ReportPerformanceSummary();
-        ramSummary.setDistribution(pie2);
-        ramSummary.setWorst(bar2);
-        vo.setRam(ramSummary);
-
-        // ram
-        List<Map> cpuAvgList = getPerformanceCPUAvg(task.getId());
-        // 饼图
-        EchartPie pie3 = getEchartPie(cpuAvgList, "avg_value");
-        // 柱形图
-        EchartBar bar3 = getEchartBar(cpuAvgList, deviceMap, "avg_value");
-
-        ReportPerformanceSummary cpuSummary = new ReportPerformanceSummary();
-        cpuSummary.setDistribution(pie3);
-        cpuSummary.setWorst(bar3);
-        vo.setRam(cpuSummary);
-
-
-        return vo;
-    }
-
-    private EchartPie getEchartPie(List<Map> deviceAvgValueList, String key) {
-        int size = deviceAvgValueList.size();
-        List<Double> runTimeList = new ArrayList<>();
-        for(Map m : deviceAvgValueList) {
-            Double d = (Double) m.get(key);
-            runTimeList.add(d);
-        }
-        runTimeList = runTimeList.stream().sorted((o1, o2) -> (int)(o1 - o2)).collect(Collectors.toList());
-        Double min = runTimeList.get(0);
-        Double max = runTimeList.get(size - 1);
-        double diff = (max - min) * 1.0 / 5;
-        double lastvalue = runTimeList.get(0);
-        EchartPie pie = new EchartPie();
-        if( diff > 0) {
-            for (int i=0;i<5;i++){
-                double thisvalue = lastvalue + diff;
-
-                String pointName = String.format("%.2s - %.2s", lastvalue, thisvalue);
-                Integer pointValue = 0;
-                for (Double r : runTimeList) {
-                    if(lastvalue < r && r < thisvalue) {
-                        pointValue++;
-                    }
-                }
-                lastvalue = thisvalue;
-
-                EchartPiePoint point = new EchartPiePoint();
-                point.setName(pointName);
-                point.setValue(pointValue);
-                pie.addPoint(point);
-            }
-        }else{
-            pie.addPoint(new EchartPiePoint(String.format("%.2s - %.2s", lastvalue, lastvalue), size));
-        }
-        return pie;
-    }
-
-    private EchartBar getEchartBar(List<Map> deviceAvgValueList, Map<String, String> deviceMap, String key) {
-        int size = deviceAvgValueList.size();
-        List<Map> endFive;
-        if(size >= 5){
-            endFive = deviceAvgValueList.subList(size-5, size);
-        }else{
-            endFive = deviceAvgValueList;
-        }
-        EchartBar bar = new EchartBar();
-        for(Map m : endFive) {
-            String deviceId = (String) m.getOrDefault("_id", "");
-            bar.add(deviceMap.get(deviceId), m.getOrDefault(key, 0));
-        }
-        return bar;
-    }
-
-
-    private List<Map> getPerformanceMemAvg(Long taskId) {
+    public List<Map> getPerformanceMemAvg(Long taskId) {
         Aggregation agg = Aggregation.newAggregation(
                 Aggregation.match(Criteria.where("taskId").is(taskId)),
                 Aggregation.project("deviceId","mem")
@@ -954,10 +401,10 @@ public class TaskService {
                         .avg("ram").as("avg_value"),
                 Aggregation.sort(Sort.Direction.ASC, "avg_value")
         );
-        return getResult(agg, "t_performance");
+        return getResult(agg, Performance.getCollectionName());
     }
 
-    private List<Map> getPerformanceCPUAvg(Long taskId) {
+    public List<Map> getPerformanceCPUAvg(Long taskId) {
         Aggregation agg = Aggregation.newAggregation(
                 Aggregation.match(Criteria.where("taskId").is(taskId)),
                 Aggregation.project("deviceId","cpu"),
@@ -965,39 +412,7 @@ public class TaskService {
                         .avg("cpu").as("avg_value"),
                 Aggregation.sort(Sort.Direction.ASC, "avg_value")
         );
-        return getResult(agg, "t_performance");
+        return getResult(agg, Performance.getCollectionName());
     }
 
-
-    /**
-     *@Description: 回归测试流量
-     *@Param: [task, deviceId]
-     *@Return: com.testwa.distest.server.web.task.vo.echart.EchartDoubleLine
-     *@Author: wen
-     *@Date: 2018/5/24
-     */
-    public EchartDoubleLine getHGPerformanceFlowSummary(Task task, String deviceId) {
-        EchartDoubleLine line = new EchartDoubleLine();
-
-        return line;
-    }
-
-    /**
-     *@Description: 兼容测试流量
-     *@Param: [task, deviceId]
-     *@Return: com.testwa.distest.server.web.task.vo.echart.EchartDoubleLine
-     *@Author: wen
-     *@Date: 2018/5/24
-     */
-    public EchartDoubleLine getJRPerformanceFlowSummary(Task task, String deviceId) {
-        EchartDoubleLine line = new EchartDoubleLine();
-
-        List<Performance> performanceList = performanceRepository.findByTaskIdAndDeviceIdOrderByTimestampAsc(task.getId(), deviceId);
-        performanceList.forEach( p -> {
-            String time = TimeUtil.formatTimeStamp(p.getTimestamp());
-            line.add(time, p.getGprsUp() + p.getWifiUp(), p.getWifiDown() + p.getGprsDown());
-        });
-
-        return line;
-    }
 }

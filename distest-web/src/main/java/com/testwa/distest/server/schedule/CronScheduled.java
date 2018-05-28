@@ -3,7 +3,7 @@ package com.testwa.distest.server.schedule;
 import com.alibaba.fastjson.JSON;
 import com.google.protobuf.ByteString;
 import com.testwa.distest.server.mongo.model.Performance;
-import com.testwa.distest.server.mongo.model.ProcedureInfo;
+import com.testwa.distest.server.mongo.model.AppiumRunningLog;
 import com.testwa.distest.server.rpc.cache.CacheUtil;
 import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
 import com.testwa.distest.server.web.task.execute.PerformanceRedisMgr;
@@ -43,11 +43,11 @@ public class CronScheduled {
             return;
         }
 
-        List<ProcedureInfo> logers = new ArrayList<>();
+        List<AppiumRunningLog> logers = new ArrayList<>();
         for(int i=0;i < logSize; i++){
             String info = procedureRedisMgr.getProcedureFromQueue();
             try {
-                ProcedureInfo pi = JSON.parseObject(info, ProcedureInfo.class);
+                AppiumRunningLog pi = JSON.parseObject(info, AppiumRunningLog.class);
                 if(!StringUtils.isBlank(pi.getDeviceId())){
                     logers.add(pi);
                 }

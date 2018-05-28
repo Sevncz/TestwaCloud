@@ -15,10 +15,10 @@ import com.testwa.distest.server.entity.Task;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.mongo.model.CrashLog;
-import com.testwa.distest.server.mongo.model.ProcedureInfo;
+import com.testwa.distest.server.mongo.model.AppiumRunningLog;
 import com.testwa.distest.server.mongo.model.Step;
 import com.testwa.distest.server.mongo.service.CrashLogService;
-import com.testwa.distest.server.mongo.service.ProcedureInfoService;
+import com.testwa.distest.server.mongo.service.AppiumRunningLogService;
 import com.testwa.distest.server.mongo.service.StepService;
 import com.testwa.distest.server.service.task.form.ScriptListForm;
 import com.testwa.distest.server.service.task.form.StepListForm;
@@ -28,6 +28,7 @@ import com.testwa.distest.server.service.task.service.AppiumFileService;
 import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
+import com.testwa.distest.server.web.task.execute.ReportMgr;
 import com.testwa.distest.server.web.task.validator.StepValidatoer;
 import com.testwa.distest.server.web.task.validator.TaskValidatoer;
 import com.testwa.distest.server.web.task.vo.*;
@@ -63,13 +64,15 @@ public class ReportController extends BaseController {
     @Autowired
     private StepValidatoer stepValidatoer;
     @Autowired
-    private ProcedureInfoService procedureInfoService;
+    private AppiumRunningLogService procedureInfoService;
     @Autowired
     private StepService stepService;
     @Autowired
     private ProjectValidator projectValidator;
     @Autowired
     private CrashLogService crashLogService;
+    @Autowired
+    private ReportMgr reportMgr;
 
     @ApiOperation(value="任务基本信息")
     @ResponseBody
@@ -133,7 +136,7 @@ public class ReportController extends BaseController {
         Long taskId = form.getTaskId();
         Task task = taskValidatoer.validateTaskExist(taskId);
         if (DB.TaskType.HG.equals(task.getTaskType())) {
-            List<ProcedureInfo> procedureInfoList = procedureInfoService.findList(form);
+            List<AppiumRunningLog> procedureInfoList = procedureInfoService.findList(form);
             return ok(procedureInfoList);
         }else if (DB.TaskType.JR.equals(task.getTaskType())) {
             List<Step> stepList = stepService.findList(form);
@@ -149,7 +152,7 @@ public class ReportController extends BaseController {
         Long taskId = pageForm.getTaskId();
         Task task = taskValidatoer.validateTaskExist(taskId);
         if (DB.TaskType.HG.equals(task.getTaskType())) {
-            PageResult<ProcedureInfo> procedureInfoPage = procedureInfoService.findByPage(pageForm);
+            PageResult<AppiumRunningLog> procedureInfoPage = procedureInfoService.findByPage(pageForm);
             return ok(procedureInfoPage);
         }else if (DB.TaskType.JR.equals(task.getTaskType())) {
             PageResult<Step> stepPageResult = stepService.findByPage(pageForm);
@@ -167,7 +170,7 @@ public class ReportController extends BaseController {
         }
         stepValidatoer.validateProcedureExist(procedureId);
 
-        ProcedureInfo nextProcedure = procedureInfoService.findNextById(procedureId);
+        AppiumRunningLog nextProcedure = procedureInfoService.findNextById(procedureId);
         return ok(nextProcedure);
     }
 
@@ -202,13 +205,26 @@ public class ReportController extends BaseController {
             throw new ParamsIsNullException("参数不能为空");
         }
         taskValidatoer.validateTaskExist(taskId);
-        TaskProgressVO result = taskService.getProgress(taskId);
+        TaskProgressVO result = reportMgr.getProgress(taskId);
         return ok(result);
+    }
+
+
+    @ApiOperation(value="设备的进度")
+    @ResponseBody
+    @GetMapping(value = "/progress/{taskId}/{deviceId}")
+    public Result progressDevice(@PathVariable(value = "taskId") Long taskId, @PathVariable(value = "deviceId") String deviceId) throws ObjectNotExistsException {
+        if(taskId == null){
+            throw new ParamsIsNullException("参数不能为空");
+        }
+        Task task = taskValidatoer.validateTaskExist(taskId);
+        DeviceProgressVO vo = reportMgr.getProgress(taskId, deviceId);
+        return ok(vo);
     }
 
     /**
      *@Description: 当前任务进度详情查看，包括设备完成度统计、每个设备执行任务过程中每开始一个子任务的时间线、任务最终状态
-     *@Param: [taskId]
+     *@Param: [taskId]  `
      *@Return: com.testwa.core.base.vo.Result
      *@Author: wen
      *@Date: 2018/5/24
@@ -220,10 +236,15 @@ public class ReportController extends BaseController {
         if(taskId == null){
             throw new ParamsIsNullException("参数不能为空");
         }
-        taskValidatoer.validateTaskExist(taskId);
-        TaskProgressVO progressVO = taskService.getProgress(taskId);
-        TaskOverviewVO overviewVO = taskService.getOverview(taskId);
-        TaskDeviceFinishStatisVO finishStatisVO = taskService.getFinishStatisVO(taskId);
+        Task task = taskValidatoer.validateTaskExist(taskId);
+        TaskProgressVO progressVO = reportMgr.getProgress(taskId);
+        TaskOverviewVO overviewVO = new TaskOverviewVO();
+        if (DB.TaskType.HG.equals(task.getTaskType())) {
+            overviewVO = reportMgr.getHGOverview(task);
+        }else if (DB.TaskType.JR.equals(task.getTaskType())) {
+            overviewVO = reportMgr.getJROverview(task);
+        }
+        TaskDeviceFinishStatisVO finishStatisVO = reportMgr.getFinishStatisVO(taskId);
 
         TaskOverallProgressVO result = new TaskOverallProgressVO();
         result.setEquipment(finishStatisVO);
@@ -250,9 +271,9 @@ public class ReportController extends BaseController {
         Task task = taskValidatoer.validateTaskExist(taskId);
         PerformanceOverviewVO vo = new PerformanceOverviewVO();
         if (DB.TaskType.HG.equals(task.getTaskType())) {
-            vo = taskService.getHGPerformanceOverview(task);
+            vo = reportMgr.getHGPerformanceOverview(task);
         }else if (DB.TaskType.JR.equals(task.getTaskType())) {
-            vo = taskService.getJRPerformanceOverview(task);
+            vo = reportMgr.getJRPerformanceOverview(task);
         }
 
         return ok(vo);
@@ -275,9 +296,9 @@ public class ReportController extends BaseController {
         Task task = taskValidatoer.validateTaskExist(taskId);
         PerformanceDeviceOverviewVO vo = new PerformanceDeviceOverviewVO();
         if (DB.TaskType.HG.equals(task.getTaskType())) {
-            vo = taskService.getHGPerformanceOverview(task, deviceId);
+            vo = reportMgr.getHGPerformanceOverview(task, deviceId);
         }else if (DB.TaskType.JR.equals(task.getTaskType())) {
-            vo = taskService.getJRPerformanceOverview(task, deviceId);
+            vo = reportMgr.getJRPerformanceOverview(task, deviceId);
         }
 
         return ok(vo);
@@ -300,9 +321,9 @@ public class ReportController extends BaseController {
         Task task = taskValidatoer.validateTaskExist(taskId);
         ReportPerformanceDetailVO vo = null;
         if (DB.TaskType.HG.equals(task.getTaskType())) {
-            vo = taskService.getHGPerformanceDetail(task);
+            vo = reportMgr.getHGPerformanceDetail(task);
         }else if (DB.TaskType.JR.equals(task.getTaskType())) {
-            vo = taskService.getJRPerformanceDetail(task);
+            vo = reportMgr.getJRPerformanceDetail(task);
         }
 
         return ok(vo);
@@ -325,9 +346,9 @@ public class ReportController extends BaseController {
         Task task = taskValidatoer.validateTaskExist(taskId);
         ReportPerformanceSummaryVO vo = null;
         if (DB.TaskType.HG.equals(task.getTaskType())) {
-            vo = taskService.getHGPerformanceSummary(task);
+            vo = reportMgr.getHGPerformanceSummary(task);
         }else if (DB.TaskType.JR.equals(task.getTaskType())) {
-            vo = taskService.getJRPerformanceSummary(task);
+            vo = reportMgr.getJRPerformanceSummary(task);
         }
 
         return ok(vo);
@@ -350,9 +371,9 @@ public class ReportController extends BaseController {
         Task task = taskValidatoer.validateTaskExist(taskId);
         EchartDoubleLine line = null;
         if (DB.TaskType.HG.equals(task.getTaskType())) {
-            line = taskService.getHGPerformanceFlowSummary(task, deviceId);
+            line = reportMgr.getHGPerformanceFlowSummary(task, deviceId);
         }else if (DB.TaskType.JR.equals(task.getTaskType())) {
-            line = taskService.getJRPerformanceFlowSummary(task, deviceId);
+            line = reportMgr.getJRPerformanceFlowSummary(task, deviceId);
         }
 
         return ok(line);
@@ -376,4 +397,5 @@ public class ReportController extends BaseController {
         List<CrashLog> crashLogs = crashLogService.findByTaskIdAndDeviceId(taskId, deviceId);
         return ok(crashLogs);
     }
+
 }

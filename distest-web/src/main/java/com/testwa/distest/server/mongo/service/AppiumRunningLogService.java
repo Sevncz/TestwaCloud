@@ -2,9 +2,9 @@ package com.testwa.distest.server.mongo.service;
 
 import com.testwa.core.base.exception.ParamsIsNullException;
 import com.testwa.core.base.vo.PageResult;
-import com.testwa.distest.server.mongo.model.ProcedureInfo;
+import com.testwa.distest.server.mongo.model.AppiumRunningLog;
 import com.testwa.distest.server.mongo.model.ProcedureStatis;
-import com.testwa.distest.server.mongo.repository.ProcedureInfoRepository;
+import com.testwa.distest.server.mongo.repository.AppiumRunningLogRepository;
 import com.testwa.distest.server.mongo.repository.ProcedureStatisRepository;
 import com.testwa.distest.server.service.task.form.StepListForm;
 import com.testwa.distest.server.service.task.form.StepPageForm;
@@ -25,17 +25,17 @@ import java.util.Map;
  * Created by wen on 16/9/7.
  */
 @Service
-public class ProcedureInfoService extends BaseService {
+public class AppiumRunningLogService extends BaseService {
 
     @Autowired
-    private ProcedureInfoRepository procedureInfoRepository;
+    private AppiumRunningLogRepository procedureInfoRepository;
     @Autowired
     private ProcedureStatisRepository procedureStatisRepository;
 
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    public void save(ProcedureInfo info){
+    public void save(AppiumRunningLog info){
         procedureInfoRepository.save(info);
     }
 
@@ -43,25 +43,25 @@ public class ProcedureInfoService extends BaseService {
         procedureInfoRepository.delete(infoId);
     }
 
-    public ProcedureInfo findOne(String infoId){
+    public AppiumRunningLog findOne(String infoId){
         return procedureInfoRepository.findOne(infoId);
     }
 
-    public Page<ProcedureInfo> findAll(PageRequest pageRequest) {
+    public Page<AppiumRunningLog> findAll(PageRequest pageRequest) {
         return procedureInfoRepository.findAll(pageRequest);
     }
 
-    public ProcedureInfo findLastProcedureInfo(ProcedureInfo stepInfo) {
+    public AppiumRunningLog findLastProcedureInfo(AppiumRunningLog stepInfo) {
         Criteria criatira = new Criteria();
         criatira.andOperator(Criteria.where("executionTaskId").is(stepInfo.getExecutionTaskId()),
                 Criteria.where("scriptId").is(stepInfo.getTestSuit()),
                 Criteria.where("timestamp").lt(stepInfo.getTimestamp()));
         Sort sort = new Sort(Sort.Direction.DESC, "timestamp");
-        ProcedureInfo last = procedureInfoRepository.findOne(new Query(criatira).with(sort));
+        AppiumRunningLog last = procedureInfoRepository.findOne(new Query(criatira).with(sort));
         return last;
     }
 
-    public Page<ProcedureInfo> find(List<Map<String, String>> filters, PageRequest pageRequest) {
+    public Page<AppiumRunningLog> find(List<Map<String, String>> filters, PageRequest pageRequest) {
         return null;
     }
 
@@ -77,15 +77,15 @@ public class ProcedureInfoService extends BaseService {
         procedureStatisRepository.delete(taskId);
     }
 
-    public List<ProcedureInfo> findBySessionId(String sessionId) {
+    public List<AppiumRunningLog> findBySessionId(String sessionId) {
         return procedureInfoRepository.findBySessionId(sessionId);
     }
 
-    public List<ProcedureInfo> findByExeId(Long taskId) {
+    public List<AppiumRunningLog> findByExeId(Long taskId) {
         return procedureInfoRepository.findByExecutionTaskIdOrderByTimestampAsc(taskId);
     }
 
-    public PageResult<ProcedureInfo> findByPage(StepPageForm form) {
+    public PageResult<AppiumRunningLog> findByPage(StepPageForm form) {
         if(form.getScriptId() == null){
             throw new ParamsIsNullException("ScriptId is null");
         }
@@ -104,12 +104,12 @@ public class ProcedureInfoService extends BaseService {
         String sortField = "timestamp";
         Sort sort = new Sort(Sort.Direction.ASC, sortField);
         PageRequest pageRequest = new PageRequest(pageNum, rows, sort);
-        Page<ProcedureInfo> page = procedureInfoRepository.find(query, pageRequest);
-        PageResult<ProcedureInfo> result = new PageResult<>(page.getContent(), page.getTotalElements());
+        Page<AppiumRunningLog> page = procedureInfoRepository.find(query, pageRequest);
+        PageResult<AppiumRunningLog> result = new PageResult<>(page.getContent(), page.getTotalElements());
         return result;
     }
 
-    public List<ProcedureInfo> findList(StepListForm form) {
+    public List<AppiumRunningLog> findList(StepListForm form) {
         if(form.getScriptId() == null){
             throw new ParamsIsNullException("ScriptId is null");
         }
@@ -126,8 +126,8 @@ public class ProcedureInfoService extends BaseService {
         return procedureInfoRepository.find(query);
     }
 
-    public ProcedureInfo findNextById(String procedureId) {
-        ProcedureInfo pi = procedureInfoRepository.findOne(procedureId);
+    public AppiumRunningLog findNextById(String procedureId) {
+        AppiumRunningLog pi = procedureInfoRepository.findOne(procedureId);
         Long timeStamp = pi.getTimestamp();
 
         Query query = new Query();
@@ -137,10 +137,14 @@ public class ProcedureInfoService extends BaseService {
         query.limit(1);
         Sort sort = new Sort(Sort.Direction.ASC, field);
         query.with(sort);
-        List<ProcedureInfo> nextList = procedureInfoRepository.find(query);
+        List<AppiumRunningLog> nextList = procedureInfoRepository.find(query);
         if(nextList != null && nextList.size() >0){
             return nextList.get(0);
         }
         return null;
+    }
+
+    public List<AppiumRunningLog> findByExecutionTaskIdAndDeviceId(Long taskId, String deviceId) {
+        return procedureInfoRepository.findByExecutionTaskIdAndDeviceIdOrderByTimestampAsc(taskId, deviceId);
     }
 }

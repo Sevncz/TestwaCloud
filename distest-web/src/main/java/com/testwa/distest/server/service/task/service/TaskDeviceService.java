@@ -2,8 +2,8 @@ package com.testwa.distest.server.service.task.service;
 
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.*;
-import com.testwa.distest.server.mongo.model.ProcedureInfo;
-import com.testwa.distest.server.mongo.repository.ProcedureInfoRepository;
+import com.testwa.distest.server.mongo.model.AppiumRunningLog;
+import com.testwa.distest.server.mongo.repository.AppiumRunningLogRepository;
 import com.testwa.distest.server.service.task.dao.ITaskDeviceDAO;
 import com.testwa.distest.server.service.task.dto.TaskDeviceStatusStatis;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by wen on 24/10/2017.
@@ -27,7 +26,7 @@ public class TaskDeviceService {
     @Autowired
     private ITaskDeviceDAO taskDeviceDAO;
     @Autowired
-    private ProcedureInfoRepository procedureInfoRepository;
+    private AppiumRunningLogRepository procedureInfoRepository;
 
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
@@ -52,7 +51,7 @@ public class TaskDeviceService {
     public void deleteTaskDevice(List<Long> entityIds) {
         taskDeviceDAO.delete(entityIds);
         entityIds.forEach( id -> {
-            List<ProcedureInfo> infos = procedureInfoRepository.findByExecutionTaskIdOrderByTimestampAsc(id);
+            List<AppiumRunningLog> infos = procedureInfoRepository.findByExecutionTaskIdOrderByTimestampAsc(id);
             procedureInfoRepository.delete(infos);
         });
     }
