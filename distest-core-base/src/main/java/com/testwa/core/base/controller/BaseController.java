@@ -29,6 +29,7 @@ public class BaseController implements ApplicationContextAware {
     public Result<String> fail(ResultCode code, String message) {
         Result<String> r = new Result<>();
         r.setCode(code.getValue());
+        r.setType(code.name());
         r.setMessage(message);
         return r;
     }
@@ -40,6 +41,7 @@ public class BaseController implements ApplicationContextAware {
     public Result<String> ok() {
         Result<String> r = new Result<>();
         r.setCode(ResultCode.SUCCESS.getValue());
+        r.setType(ResultCode.SUCCESS.name());
         r.setMessage("ok");
         return r;
     }
@@ -52,6 +54,7 @@ public class BaseController implements ApplicationContextAware {
     public Result<Object> ok(Object data) {
         Result<Object> r = new Result<>();
         r.setCode(ResultCode.SUCCESS.getValue());
+        r.setType(ResultCode.SUCCESS.name());
         if(data != null){
             r.setData(data);
         }

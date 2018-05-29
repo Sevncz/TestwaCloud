@@ -7,15 +7,18 @@ import com.testwa.core.base.exception.AuthorizedException;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.base.vo.Result;
+import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.device.form.DeviceAuthNewForm;
+import com.testwa.distest.server.service.device.form.DeviceBatchCheckForm;
 import com.testwa.distest.server.service.device.form.DeviceListForm;
 import com.testwa.distest.server.service.device.service.DeviceAuthService;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
 import com.testwa.distest.server.web.device.validator.DeviceValidatoer;
+import com.testwa.distest.server.web.device.vo.CheckDeviceResultVO;
 import com.testwa.distest.server.web.device.vo.DeviceCategoryVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -135,8 +138,6 @@ public class DeviceController extends BaseController {
         deviceValidatoer.validateDeviceBelongUser(form.getDeviceId(), currentUser.getId());
         //  保存到数据库
         deviceAuthService.insert(form, currentUser.getId());
-        //  保存到缓存
-        deviceAuthMgr.allowUsersToUse(form.getDeviceId(), form.getUserIds());
         return ok();
     }
 
@@ -152,6 +153,29 @@ public class DeviceController extends BaseController {
     public Result category() throws ObjectNotExistsException {
         Set<String> deviceIds = deviceAuthMgr.allEnableDevices();
         DeviceCategoryVO vo = deviceService.getCategory(deviceIds);
+        return ok(vo);
+    }
+
+    @ApiOperation(value="检查设备是否可用", notes = "")
+    @ResponseBody
+    @PostMapping(value = "/check/usable")
+    public Result checkUsable(@RequestBody DeviceBatchCheckForm form) throws ObjectNotExistsException {
+        if(form.getDeviceIds() == null || form.getDeviceIds().size() == 0) {
+            return ok();
+        }
+        List<String> deviceIds = form.getDeviceIds();
+        CheckDeviceResultVO vo = new CheckDeviceResultVO();
+        for(String deviceId: deviceIds) {
+            // 检查是否在线
+            deviceValidatoer.validateOnline(deviceId);
+            // 检查是否在工作中
+            Device device = deviceService.findByDeviceId(deviceId);
+            if (!DB.DeviceWorkStatus.FREE.equals(device.getWorkStatus()) || !DB.DeviceDebugStatus.FREE.equals(device.getDebugStatus())) {
+                vo.setStatus(false);
+                vo.addUnusableDevice(device);
+            }
+        }
+
         return ok(vo);
     }
 

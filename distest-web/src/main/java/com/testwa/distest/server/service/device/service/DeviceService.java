@@ -47,7 +47,7 @@ public class DeviceService {
         deviceDAO.updateOnlineStatus(deviceId, status);
     }
 
-    public void updateWorkStatus(String deviceId, DB.PhoneWorkStatus status) {
+    public void updateWorkStatus(String deviceId, DB.DeviceWorkStatus status) {
         deviceDAO.updateWorkStatus(deviceId, status);
     }
 
@@ -143,11 +143,11 @@ public class DeviceService {
     }
 
     public void release(String deviceId) {
-        deviceDAO.updateWorkStatus(deviceId, DB.PhoneWorkStatus.FREE);
+        deviceDAO.updateWorkStatus(deviceId, DB.DeviceWorkStatus.FREE);
     }
 
     public void work(String deviceId) {
-        deviceDAO.updateWorkStatus(deviceId, DB.PhoneWorkStatus.BUSY);
+        deviceDAO.updateWorkStatus(deviceId, DB.DeviceWorkStatus.BUSY);
     }
 
     public DeviceCategoryVO getCategory(Set<String> deviceIds) {

@@ -1,0 +1,1 @@
+package com.testwa.core.base.exception;public class DeviceUnusableException extends RuntimeException {    public DeviceUnusableException(String message){        super(message);    }    public DeviceUnusableException(String message, Throwable t){        super(message, t);    }}

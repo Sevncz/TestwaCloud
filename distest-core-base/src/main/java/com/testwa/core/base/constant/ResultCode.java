@@ -17,6 +17,8 @@ public enum ResultCode {
     NOT_FOUND(2),  // 查询对象不存在
     CONFLICT(3),  // 操作冲突
 
+    DEVICE_UNUSABLE(50),  // 设备不可用
+
     ILLEGAL_OP(100), // 非法操作，通常是进行了不被授权的操作
     NO_LOGIN(101), // 没有登录信息
     ACCOUNT_FREEZE(102), //账户冻结
@@ -28,6 +30,7 @@ public enum ResultCode {
     ILLEGAL_TOKEN(-5), //非法token。
     EXPRIED_TOKEN(-6), //token过期。
     NO_API(-10), //API不存在。
+    ILLEGAL_PARAM(-11), //非法参数。
 
     SERVER_ERROR(-500), // 服务器内部错误
     ;

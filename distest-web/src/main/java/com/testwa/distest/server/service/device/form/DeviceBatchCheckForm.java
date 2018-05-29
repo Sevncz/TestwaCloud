@@ -1,0 +1,1 @@
+package com.testwa.distest.server.service.device.form;import com.testwa.core.base.form.RequestFormBase;import lombok.Data;import java.util.List;/** * @Program: distest * @Description: * @Author: wen * @Create: 2018-05-29 18:08 **/@Datapublic class DeviceBatchCheckForm extends RequestFormBase {    private List<String> deviceIds;}

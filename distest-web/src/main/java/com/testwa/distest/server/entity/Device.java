@@ -20,7 +20,8 @@ public class Device extends BaseEntity {
 
     private String deviceId;
     private DB.PhoneOnlineStatus onlineStatus;
-    private DB.PhoneWorkStatus workStatus;
+    private DB.DeviceWorkStatus workStatus;
+    private DB.DeviceDebugStatus debugStatus;
     private DB.PhoneOS phoneOS;
     /**注册时间**/
     private Date createTime = new Date();

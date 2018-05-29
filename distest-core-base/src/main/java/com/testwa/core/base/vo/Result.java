@@ -1,44 +1,16 @@
 package com.testwa.core.base.vo;
 
+import lombok.Data;
+
 /**
  * Created by wen on 2016/11/19.
  */
+@Data
 public class Result<T> {
 
-    private String message;
-    private T data;
     private Integer code;
+    private String type;
+    private String message;
     private String url;
-
-    public Integer getCode() {
-        return code;
-    }
-
-    public void setCode(Integer code) {
-        this.code = code;
-    }
-
-    public T getData() {
-        return data;
-    }
-
-    public void setData(T data) {
-        this.data = data;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
+    private T data;
 }

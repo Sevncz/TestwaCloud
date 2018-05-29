@@ -20,7 +20,7 @@ public interface IDeviceDAO extends IBaseDAO<Device, Long> {
 
     void updateOnlineStatus(String deviceId, DB.PhoneOnlineStatus status);
 
-    void updateWorkStatus(String deviceId, DB.PhoneWorkStatus status);
+    void updateWorkStatus(String deviceId, DB.DeviceWorkStatus status);
 
     List<Device> findAll(List<String> deviceIds);
     

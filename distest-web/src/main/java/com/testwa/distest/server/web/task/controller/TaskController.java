@@ -1,11 +1,14 @@
 package com.testwa.distest.server.web.task.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.AuthorizedException;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.base.exception.TaskStartException;
 import com.testwa.core.base.vo.Result;
+import com.testwa.distest.server.entity.Device;
+import com.testwa.distest.server.entity.Task;
 import com.testwa.distest.server.mongo.service.MethodRunningLogService;
 import com.testwa.distest.server.service.script.service.ScriptService;
 import com.testwa.distest.server.service.task.form.*;
@@ -24,6 +27,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Created by wen on 24/10/2017.
  */
@@ -32,8 +38,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/task")
 public class TaskController extends BaseController {
-    private static final String JR_MD5 = "jrcs_md5";
-
     @Autowired
     private ExecuteMgr executeMgr;
     @Autowired
@@ -63,7 +67,7 @@ public class TaskController extends BaseController {
     @PostMapping(value = "/run")
     public Result run(@RequestBody TaskNewByCaseAndStartForm form) throws ObjectNotExistsException, AuthorizedException, TaskStartException {
         appValidator.validateAppExist(form.getAppId());
-        deviceValidatoer.validateOnline(form.getDeviceIds());
+        deviceValidatoer.validateUsable(form.getDeviceIds());
         testcaseValidatoer.validateTestcaseExist(form.getTestcaseId());
         taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
         Long taskId = executeMgr.startHG(form);
@@ -75,29 +79,8 @@ public class TaskController extends BaseController {
     @PostMapping(value = "/run/jr")
     public Result runJR(@RequestBody TaskNewStartJRForm form) throws ObjectNotExistsException, AuthorizedException, TaskStartException {
         appValidator.validateAppExist(form.getAppId());
-        deviceValidatoer.validateOnline(form.getDeviceIds());
+        deviceValidatoer.validateUsable(form.getDeviceIds());
         taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
-//        ScriptNewForm scriptNewForm = new ScriptNewForm();
-//        scriptNewForm.setProjectId(form.getProjectId());
-//        List<Script> scriptList = scriptService.findByMD5InProject(JR_MD5, form.getProjectId());
-//        Script script = null;
-//        if(scriptList == null || scriptList.size() == 0){
-//            // 生成一个脚本
-//            script = scriptService.saveScript("jr.py", "jr.py", JR_MD5, "jr/jr.py", "0", "py", scriptNewForm);
-//        }else{
-//            script = scriptList.get(0);
-//        }
-//
-//        List<Testcase> testcaseList = testcaseService.findSysJR(form.getProjectId());
-//        Long testcaseId = null;
-//        if(testcaseList == null || testcaseList.size() == 0){
-//            // 生成一个案例
-//            testcaseId = testcaseService.saveJRTestcase(form.getProjectId(), script.getId());
-//        }else{
-//            Testcase testcase = testcaseList.get(0);
-//            testcaseId = testcase.getId();
-//        }
-//        Long taskId = executeMgr.startJR(form, testcaseId);
         Long taskId = executeMgr.startJR(form);
         return ok(taskId);
     }
@@ -107,8 +90,13 @@ public class TaskController extends BaseController {
     @ResponseBody
     @PostMapping(value = "/stop")
     public Result stop(@RequestBody TaskStopForm form) throws ObjectNotExistsException {
-        taskValidatoer.validateTaskExist(form.getTaskId());
+        Task task = taskValidatoer.validateTaskExist(form.getTaskId());
         if(form.getDeviceIds() != null && form.getDeviceIds().size() > 0 ){
+            List<Device> taskDevices = task.getDevices();
+            List<Device> notInTaskDevice = taskDevices.stream().filter(device -> !form.getDeviceIds().contains(device.getDeviceId())).collect(Collectors.toList());
+            if (notInTaskDevice != null && notInTaskDevice.size() > 0) {
+                throw new ObjectNotExistsException(String.format("设备 %s 不在该任务中", JSON.toJSON(notInTaskDevice)));
+            }
             deviceValidatoer.validateOnline(form.getDeviceIds());
         }
         executeMgr.stop(form);

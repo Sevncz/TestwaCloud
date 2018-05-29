@@ -100,13 +100,13 @@ public final class DB {
     }
 
 
-    public enum PhoneWorkStatus implements ValueEnum {
+    public enum DeviceWorkStatus implements ValueEnum {
         UNKNOWN(0, "未知"),
-        BUSY(1, "工作中"),
-        FREE(2, "空闲");
+        FREE(1, "空闲"),
+        BUSY(2, "工作中");
         private int value;
         private String desc;
-        PhoneWorkStatus(int value, String desc){
+        DeviceWorkStatus(int value, String desc){
             this.value = value;
             this.desc = desc;
         }
@@ -117,11 +117,41 @@ public final class DB {
         public String getDesc() {
             return desc;
         }
-        public static PhoneWorkStatus valueOf(int value) {
-            PhoneWorkStatus os = UNKNOWN;
+        public static DeviceWorkStatus valueOf(int value) {
+            DeviceWorkStatus os = UNKNOWN;
             switch (value) {
                 case 1: os = BUSY;break;
                 case 2: os = FREE;break;
+                default: os = UNKNOWN;
+            }
+            return os;
+        }
+    }
+
+    public enum DeviceDebugStatus implements ValueEnum {
+        UNKNOWN(0, "未知"),
+        FREE(1, "空闲"),
+        DEBUGGING(2, "调试中"),     // 观看界面 + 调试
+        TRACKING(3, "远程观看界面");  // 观看界面
+        private int value;
+        private String desc;
+        DeviceDebugStatus(int value, String desc){
+            this.value = value;
+            this.desc = desc;
+        }
+        @JsonValue
+        public int getValue() {
+            return value;
+        }
+        public String getDesc() {
+            return desc;
+        }
+        public static DeviceDebugStatus valueOf(int value) {
+            DeviceDebugStatus os = UNKNOWN;
+            switch (value) {
+                case 1: os = FREE;break;
+                case 2: os = DEBUGGING;break;
+                case 3: os = TRACKING;break;
                 default: os = UNKNOWN;
             }
             return os;

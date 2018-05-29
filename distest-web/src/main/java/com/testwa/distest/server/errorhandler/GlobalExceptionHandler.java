@@ -37,109 +37,119 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = BadCredentialsException.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Result handleBadCredentialsExceptions(HttpServletRequest req, Exception e) throws Exception {
+    public Result handleBadCredentialsExceptions(HttpServletRequest req, Exception e) {
         Result<String> r = new Result<>();
         r.setCode(ResultCode.NO_AUTH.getValue());
+        r.setType(ResultCode.NO_AUTH.name());
         r.setMessage("用户名密码错误");
-        r.setUrl(req.getRequestURL().toString());
+        r.setUrl(req.getRequestURI());
         return r;
     }
 
     @ExceptionHandler(value = ExpiredJwtException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ResponseBody
-    public Result handleExpiredJwtExceptions(HttpServletRequest req, Exception e) throws Exception {
+    public Result handleExpiredJwtExceptions(HttpServletRequest req, Exception e) {
         Result<String> r = new Result<>();
         r.setCode(ResultCode.EXPRIED_TOKEN.getValue());
+        r.setType(ResultCode.EXPRIED_TOKEN.name());
         r.setMessage("Token已过期");
-        r.setUrl(req.getRequestURL().toString());
+        r.setUrl(req.getRequestURI());
         return r;
     }
 
     @ExceptionHandler(value = SignatureException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ResponseBody
-    public Result handleSignatureExceptions(HttpServletRequest req, Exception e) throws Exception {
+    public Result handleSignatureExceptions(HttpServletRequest req, Exception e) {
         Result<String> r = new Result<>();
         r.setCode(ResultCode.ILLEGAL_TOKEN.getValue());
+        r.setType(ResultCode.ILLEGAL_TOKEN.name());
         r.setMessage("非法Token");
-        r.setUrl(req.getRequestURL().toString());
+        r.setUrl(req.getRequestURI());
         return r;
     }
 
     @ExceptionHandler(value = AuthorizedException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ResponseBody
-    public Result handleAuthorizedExceptions(HttpServletRequest req, Exception e) throws Exception {
+    public Result handleAuthorizedExceptions(HttpServletRequest req, Exception e) {
         Result<String> r = new Result<>();
         r.setCode(ResultCode.NO_AUTH.getValue());
+        r.setType(ResultCode.NO_AUTH.name());
         r.setMessage(e.getMessage());
-        r.setUrl(req.getRequestURL().toString());
+        r.setUrl(req.getRequestURI());
         return r;
     }
 
     @ExceptionHandler(value = LoginInfoNotFoundException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ResponseBody
-    public Result handleLoginInfoNotFoundExceptions(HttpServletRequest req, Exception e) throws Exception {
+    public Result handleLoginInfoNotFoundExceptions(HttpServletRequest req, Exception e) {
         Result<String> r = new Result<>();
         r.setCode(ResultCode.NO_LOGIN.getValue());
+        r.setType(ResultCode.NO_LOGIN.name());
         r.setMessage(e.getMessage());
-        r.setUrl(req.getRequestURL().toString());
+        r.setUrl(req.getRequestURI());
         return r;
     }
 
     @ExceptionHandler(value = ParamsException.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Result handleParamsExceptions(HttpServletRequest req, Exception e) throws Exception {
+    public Result handleParamsExceptions(HttpServletRequest req, Exception e) {
         Result<String> r = new Result<>();
         r.setCode(ResultCode.PARAM_ERROR.getValue());
+        r.setType(ResultCode.PARAM_ERROR.name());
         r.setMessage(e.getMessage());
-        r.setUrl(req.getRequestURL().toString());
+        r.setUrl(req.getRequestURI());
         return r;
     }
 
     @ExceptionHandler(value = ObjectNotExistsException.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Result handleObjectNotFoundExceptions(HttpServletRequest req, Exception e) throws Exception {
+    public Result handleObjectNotFoundExceptions(HttpServletRequest req, Exception e) {
         Result<String> r = new Result<>();
         r.setCode(ResultCode.NOT_FOUND.getValue());
+        r.setType(ResultCode.NOT_FOUND.name());
         r.setMessage(e.getMessage());
-        r.setUrl(req.getRequestURL().toString());
+        r.setUrl(req.getRequestURI());
         return r;
     }
 
     @ExceptionHandler(value = ObjectAlreadyExistException.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Result handleObjectAlreadyExistExceptions(HttpServletRequest req, Exception e) throws Exception {
+    public Result handleObjectAlreadyExistExceptions(HttpServletRequest req, Exception e) {
         Result<String> r = new Result<>();
-        r.setCode(ResultCode.PARAM_ERROR.getValue());
+        r.setCode(ResultCode.CONFLICT.getValue());
+        r.setType(ResultCode.CONFLICT.name());
         r.setMessage(e.getMessage());
-        r.setUrl(req.getRequestURL().toString());
+        r.setUrl(req.getRequestURI());
         return r;
     }
 
-    @ExceptionHandler(value = DeviceNotActiveException.class)
+    @ExceptionHandler(value = DeviceUnusableException.class)
     @ResponseBody
-    public Result handleDeviceNotActiveExceptions(HttpServletRequest req, Exception e) throws Exception {
+    public Result handleDeviceNotActiveExceptions(HttpServletRequest req, Exception e) {
         Result<String> r = new Result<>();
-        r.setCode(ResultCode.PARAM_ERROR.getValue());
+        r.setCode(ResultCode.DEVICE_UNUSABLE.getValue());
+        r.setType(ResultCode.DEVICE_UNUSABLE.name());
         r.setMessage(e.getMessage());
-        r.setUrl(req.getRequestURL().toString());
+        r.setUrl(req.getRequestURI());
         return r;
     }
 
     @ExceptionHandler(value = DBException.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Result handleDBExceptions(HttpServletRequest req, Exception e) throws Exception {
+    public Result handleDBExceptions(HttpServletRequest req, Exception e) {
         Result<String> r = new Result<>();
         r.setCode(ResultCode.SERVER_ERROR.getValue());
+        r.setType(ResultCode.SERVER_ERROR.name());
         r.setMessage(ERR_INTERNAL_SERVER_ERROR);
-        r.setUrl(req.getRequestURL().toString());
+        r.setUrl(req.getRequestURI());
         log.error(e.getMessage());
         return r;
     }
@@ -148,11 +158,12 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Result handleHttpMessageNotReadableExceptions(HttpServletRequest req, Exception e) throws Exception {
+    public Result handleHttpMessageNotReadableExceptions(HttpServletRequest req, Exception e) {
         Result<String> r = new Result<>();
         r.setCode(ResultCode.PARAM_ERROR.getValue());
+        r.setType(ResultCode.PARAM_ERROR.name());
         r.setMessage("请求格式错误");
-        r.setUrl(req.getRequestURL().toString());
+        r.setUrl(req.getRequestURI());
         log.error(e.getMessage());
         return r;
     }
@@ -160,14 +171,15 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Result handleMethodArgumentNotValidExceptions(HttpServletRequest req, MethodArgumentNotValidException e) throws Exception {
+    public Result handleMethodArgumentNotValidExceptions(HttpServletRequest req, MethodArgumentNotValidException e) {
         List<String> errors = e.getBindingResult().getFieldErrors().stream()
                 .map(this::buildMessage)
                 .collect(Collectors.toList());
         Result<String> r = new Result<>();
         r.setCode(ResultCode.PARAM_ERROR.getValue());
+        r.setType(ResultCode.ILLEGAL_PARAM.name());
         r.setMessage(errors.toString());
-        r.setUrl(req.getRequestURL().toString());
+        r.setUrl(req.getRequestURI());
         log.error(e.getMessage());
         return r;
     }
@@ -176,12 +188,13 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
-    public Result handleOtherExceptions(HttpServletRequest req, Exception e) throws Exception {
+    public Result handleOtherExceptions(HttpServletRequest req, Exception e) {
         log.error("Unknow error", e);
         Result<String> r = new Result<>();
         r.setCode(ResultCode.SERVER_ERROR.getValue());
+        r.setType(ResultCode.SERVER_ERROR.name());
         r.setMessage(ERR_INTERNAL_SERVER_ERROR);
-        r.setUrl(req.getRequestURL().toString());
+        r.setUrl(req.getRequestURI());
 
         log.error(e.getMessage());
         return r;

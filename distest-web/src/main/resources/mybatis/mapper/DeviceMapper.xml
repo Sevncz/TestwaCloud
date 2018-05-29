@@ -7,6 +7,7 @@
         <result column="phoneOS" property="phoneOS" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
         <result column="onlineStatus" property="onlineStatus" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
         <result column="workStatus" property="workStatus" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
+        <result column="debugStatus" property="debugStatus" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
         <result column="createTime" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="model" property="model" jdbcType="VARCHAR" />
@@ -37,15 +38,21 @@
             select LAST_INSERT_ID() as id
         </selectKey>
         INSERT INTO device
-        (deviceId,phoneOS,onlineStatus,createTime,model,brand,cpuabi,sdk,width,height,osName,density,osVersion,host)
+        (deviceId,phoneOS,onlineStatus,workStatus,debugStatus,createTime,model,brand,cpuabi,sdk,width,height,osName,density,osVersion,host)
         VALUES
-        (#{deviceId},#{phoneOS, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},#{onlineStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},#{createTime},#{model},#{brand},#{cpuabi},#{sdk},#{width},#{height},#{osName},#{density},#{osVersion},#{host})
+        (#{deviceId},#{phoneOS, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},
+        #{onlineStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},
+        #{workStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},
+        #{debugStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},
+        #{createTime},#{model},#{brand},#{cpuabi},#{sdk},#{width},#{height},#{osName},#{density},#{osVersion},#{host})
 
     </insert>
     <update id="updateAndroid" parameterType="com.testwa.distest.server.entity.Device">
         update device
         <trim prefix="SET" suffixOverrides=",">
             onlineStatus=#{onlineStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},
+            workStatus=#{workStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},
+            debugStatus=#{debugStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},
             updateTime=#{updateTime},
             model=#{model},
             brand=#{brand},
@@ -81,7 +88,7 @@
     </update>
 
     <select id="findOnlineList" parameterType="java.util.HashMap" resultMap="BaseResultMap" >
-        SELECT id, deviceId, phoneOS, updateTime, model, brand, cpuabi, sdk, width, height, osName, density, host, lastUserId, 1 AS onlineStatus, osVersion
+        SELECT id, deviceId, phoneOS, updateTime, model, brand, cpuabi, sdk, width, height, osName, density, host, lastUserId, 1 AS onlineStatus, osVersion, workStatus
         FROM device
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             <if test="deviceId != null">and deviceId = #{deviceId}</if>
@@ -97,7 +104,7 @@
     </select>
 
     <select id="findListByOnlineDevice" resultMap="BaseResultMap" >
-        SELECT id, deviceId, phoneOS, updateTime, model, brand, cpuabi, sdk, width, height, osName, density, host, lastUserId, osVersion,
+        SELECT id, deviceId, phoneOS, updateTime, model, brand, cpuabi, sdk, width, height, osName, density, host, lastUserId, osVersion, workStatus,
         <if test="onlineDeviceList != null and onlineDeviceList.size > 0">
           CASE WHEN deviceId in <foreach item="onlineDev" index="index" collection="onlineDeviceList" open="(" separator="," close=")">#{onlineDev} </foreach> THEN 1 ELSE 2 END AS onlineStatus
         </if>

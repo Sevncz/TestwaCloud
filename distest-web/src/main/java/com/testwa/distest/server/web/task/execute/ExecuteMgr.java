@@ -238,19 +238,19 @@ public class ExecuteMgr {
         if(form.getDeviceIds() != null && form.getDeviceIds().size() > 0){
             for (String key : form.getDeviceIds()) {
                 Device d = deviceService.findByDeviceId(key);
-                stopDeviceTask(d.getDeviceId(), d.getLastUserId(), form.getTaskId(), currentUser.getId());
+                stopDeviceTask(d, form.getTaskId(), currentUser.getId());
             }
         }else{
-            List<Device> deviceAndroids = task.getDevices();
-            for (Device d : deviceAndroids) {
-                stopDeviceTask(d.getDeviceId(), d.getLastUserId(), form.getTaskId(), currentUser.getId());
+            List<Device> deviceList = task.getDevices();
+            for (Device d : deviceList) {
+                stopDeviceTask(d, form.getTaskId(), currentUser.getId());
             }
         }
     }
 
-    private void stopDeviceTask(String deviceId, Long userId, Long taskId, Long updateBy) {
+    private void stopDeviceTask(Device device, Long taskId, Long updateBy) {
 
-        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
+        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(device.getDeviceId());
         if(observer != null ){
             Message message = Message.newBuilder().setTopicName(Message.Topic.TASK_CANCEL).setStatus("OK").setMessage(ByteString.copyFromUtf8("")).build();
             observer.onNext(message);
@@ -258,7 +258,8 @@ public class ExecuteMgr {
             log.error("设备还未准备好");
         }
 
-        taskDeviceService.cancelOneTask(deviceId, taskId, updateBy);
+        taskDeviceService.cancelOneTask(device.getDeviceId(), taskId, updateBy);
+        deviceService.release(device.getDeviceId());
     }
 
 
