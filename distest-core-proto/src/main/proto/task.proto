@@ -57,6 +57,7 @@ message StepRequest {
     enum StepStatus {
         SUCCESS = 0;
         FAIL = 1;
+        ERROR = 13;
     }
     enum StepAction {
         init = 0;
@@ -78,6 +79,14 @@ message StepRequest {
     int64 runtime = 7;
     StepAction action = 8;
     string errormsg = 9;
+
+    int64 timestamp = 10;
+    int64 testcaseId = 11;
+    int64 scriptId = 12;
+    string commadAction = 13;
+    string commadParams = 14;
+    string value = 15;
+    string sessionId = 16;
 
 }
 
@@ -150,4 +159,16 @@ message ExecutorLogRequest {
     string args = 7;
     string flag = 8;
     int32 order = 9;
+}
+
+
+enum ExecutorAction {
+    downloadApp = 0;
+    downloadScript = 1;
+    installApp = 2;
+    launch = 3;
+    run = 4;
+    uninstallApp = 5;
+    complete = 6;
+    stop = 7;
 }

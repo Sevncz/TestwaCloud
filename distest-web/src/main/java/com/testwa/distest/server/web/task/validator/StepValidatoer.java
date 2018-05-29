@@ -2,7 +2,9 @@ package com.testwa.distest.server.web.task.validator;
 
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.distest.server.mongo.model.AppiumRunningLog;
+import com.testwa.distest.server.mongo.model.Step;
 import com.testwa.distest.server.mongo.service.AppiumRunningLogService;
+import com.testwa.distest.server.mongo.service.StepService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -13,11 +15,21 @@ import org.springframework.stereotype.Component;
 public class StepValidatoer {
 
     @Autowired
-    private AppiumRunningLogService procedureInfoService;
+    private AppiumRunningLogService appiumRunningLogService;
+    @Autowired
+    private StepService stepService;
 
 
-    public AppiumRunningLog validateProcedureExist(String entityId) throws ObjectNotExistsException {
-        AppiumRunningLog entity = procedureInfoService.findOne(entityId);
+    public AppiumRunningLog validateAppiumLogExist(String entityId) throws ObjectNotExistsException {
+        AppiumRunningLog entity = appiumRunningLogService.findOne(entityId);
+        if(entity == null){
+            throw new ObjectNotExistsException("步骤不存在");
+        }
+        return entity;
+    }
+
+    public Step validateStepExist(String entityId) throws ObjectNotExistsException {
+        Step entity = stepService.findOne(entityId);
         if(entity == null){
             throw new ObjectNotExistsException("步骤不存在");
         }

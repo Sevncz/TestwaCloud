@@ -5,6 +5,7 @@ import com.testwa.core.base.exception.AuthorizedException;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.base.exception.ParamsIsNullException;
 import com.testwa.core.base.form.DeleteAllForm;
+import com.testwa.core.base.util.StringUtil;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.base.vo.Result;
 import com.testwa.distest.common.enums.DB;
@@ -113,7 +114,6 @@ public class ReportController extends BaseController {
     @ResponseBody
     @PostMapping(value = "/delete")
     public Result delete(@RequestBody @Valid DeleteAllForm form) {
-
         taskService.deleteTask(form.getEntityIds());
         return ok();
     }
@@ -136,11 +136,11 @@ public class ReportController extends BaseController {
         Long taskId = form.getTaskId();
         Task task = taskValidatoer.validateTaskExist(taskId);
         if (DB.TaskType.HG.equals(task.getTaskType())) {
-            List<AppiumRunningLog> procedureInfoList = procedureInfoService.findList(form);
-            return ok(procedureInfoList);
+            List<Step> HGList = stepService.findHGList(form);
+            return ok(HGList);
         }else if (DB.TaskType.JR.equals(task.getTaskType())) {
-            List<Step> stepList = stepService.findList(form);
-            return ok(stepList);
+            List<Step> JRList = stepService.findJRList(form);
+            return ok(JRList);
         }
         return ok();
     }
@@ -152,26 +152,26 @@ public class ReportController extends BaseController {
         Long taskId = pageForm.getTaskId();
         Task task = taskValidatoer.validateTaskExist(taskId);
         if (DB.TaskType.HG.equals(task.getTaskType())) {
-            PageResult<AppiumRunningLog> procedureInfoPage = procedureInfoService.findByPage(pageForm);
-            return ok(procedureInfoPage);
+            PageResult<Step> hgPage = stepService.findHGByPage(pageForm);
+            return ok(hgPage);
         }else if (DB.TaskType.JR.equals(task.getTaskType())) {
-            PageResult<Step> stepPageResult = stepService.findByPage(pageForm);
-            return ok(stepPageResult);
+            PageResult<Step> jrPage = stepService.findJRByPage(pageForm);
+            return ok(jrPage);
         }
         return ok();
     }
 
     @ApiOperation(value="当前步骤的下一个步骤", notes="")
     @ResponseBody
-    @GetMapping(value = "/step/next/{procedureId}")
-    public Result stepNext(@PathVariable String procedureId) throws ParamsIsNullException {
-        if(StringUtils.isEmpty(procedureId)){
-            throw new ParamsIsNullException("procedureId is null");
+    @GetMapping(value = "/step/next/{stepId}")
+    public Result stepNext(@PathVariable String stepId) throws ParamsIsNullException {
+        if(StringUtils.isEmpty(stepId)){
+            throw new ParamsIsNullException("stepId is null");
         }
-        stepValidatoer.validateProcedureExist(procedureId);
+        stepValidatoer.validateStepExist(stepId);
 
-        AppiumRunningLog nextProcedure = procedureInfoService.findNextById(procedureId);
-        return ok(nextProcedure);
+        Step nextStep = stepService.findNextById(stepId);
+        return ok(nextStep);
     }
 
     @ApiOperation(value="返回一个appium日志相对路径", notes="")
@@ -214,7 +214,7 @@ public class ReportController extends BaseController {
     @ResponseBody
     @GetMapping(value = "/progress/{taskId}/{deviceId}")
     public Result progressDevice(@PathVariable(value = "taskId") Long taskId, @PathVariable(value = "deviceId") String deviceId) throws ObjectNotExistsException {
-        if(taskId == null){
+        if(taskId == null || StringUtils.isBlank(deviceId)){
             throw new ParamsIsNullException("参数不能为空");
         }
         Task task = taskValidatoer.validateTaskExist(taskId);
@@ -238,12 +238,7 @@ public class ReportController extends BaseController {
         }
         Task task = taskValidatoer.validateTaskExist(taskId);
         TaskProgressVO progressVO = reportMgr.getProgress(taskId);
-        TaskOverviewVO overviewVO = new TaskOverviewVO();
-        if (DB.TaskType.HG.equals(task.getTaskType())) {
-            overviewVO = reportMgr.getHGOverview(task);
-        }else if (DB.TaskType.JR.equals(task.getTaskType())) {
-            overviewVO = reportMgr.getJROverview(task);
-        }
+        TaskOverviewVO overviewVO = reportMgr.getTaskOverview(task);
         TaskDeviceFinishStatisVO finishStatisVO = reportMgr.getFinishStatisVO(taskId);
 
         TaskOverallProgressVO result = new TaskOverallProgressVO();
@@ -261,7 +256,7 @@ public class ReportController extends BaseController {
      *@Author: wen
      *@Date: 2018/5/24
      */
-    @ApiOperation(value="性能概述")
+    @ApiOperation(value="平均性能概述")
     @ResponseBody
     @GetMapping(value = "/performance/{taskId}")
     public Result performance(@PathVariable(value = "taskId") Long taskId) throws ObjectNotExistsException {
@@ -269,13 +264,7 @@ public class ReportController extends BaseController {
             throw new ParamsIsNullException("参数不能为空");
         }
         Task task = taskValidatoer.validateTaskExist(taskId);
-        PerformanceOverviewVO vo = new PerformanceOverviewVO();
-        if (DB.TaskType.HG.equals(task.getTaskType())) {
-            vo = reportMgr.getHGPerformanceOverview(task);
-        }else if (DB.TaskType.JR.equals(task.getTaskType())) {
-            vo = reportMgr.getJRPerformanceOverview(task);
-        }
-
+        PerformanceOverviewVO vo = reportMgr.getPerformanceOverview(task);
         return ok(vo);
     }
 
@@ -294,13 +283,7 @@ public class ReportController extends BaseController {
             throw new ParamsIsNullException("参数不能为空");
         }
         Task task = taskValidatoer.validateTaskExist(taskId);
-        PerformanceDeviceOverviewVO vo = new PerformanceDeviceOverviewVO();
-        if (DB.TaskType.HG.equals(task.getTaskType())) {
-            vo = reportMgr.getHGPerformanceOverview(task, deviceId);
-        }else if (DB.TaskType.JR.equals(task.getTaskType())) {
-            vo = reportMgr.getJRPerformanceOverview(task, deviceId);
-        }
-
+        PerformanceDeviceOverviewVO vo = reportMgr.getPerformanceOverview(task, deviceId);
         return ok(vo);
     }
 
@@ -319,13 +302,7 @@ public class ReportController extends BaseController {
             throw new ParamsIsNullException("参数不能为空");
         }
         Task task = taskValidatoer.validateTaskExist(taskId);
-        ReportPerformanceDetailVO vo = null;
-        if (DB.TaskType.HG.equals(task.getTaskType())) {
-            vo = reportMgr.getHGPerformanceDetail(task);
-        }else if (DB.TaskType.JR.equals(task.getTaskType())) {
-            vo = reportMgr.getJRPerformanceDetail(task);
-        }
-
+        ReportPerformanceDetailVO vo = reportMgr.getPerformanceDetail(task);
         return ok(vo);
     }
 
@@ -344,13 +321,7 @@ public class ReportController extends BaseController {
             throw new ParamsIsNullException("参数不能为空");
         }
         Task task = taskValidatoer.validateTaskExist(taskId);
-        ReportPerformanceSummaryVO vo = null;
-        if (DB.TaskType.HG.equals(task.getTaskType())) {
-            vo = reportMgr.getHGPerformanceSummary(task);
-        }else if (DB.TaskType.JR.equals(task.getTaskType())) {
-            vo = reportMgr.getJRPerformanceSummary(task);
-        }
-
+        ReportPerformanceSummaryVO vo = reportMgr.getPerformanceSummary(task);
         return ok(vo);
     }
 

@@ -329,7 +329,7 @@ public class Minitouch {
                         socket.close();
                     } else {
                         String minitouchInfo = new String(bytes, StandardCharsets.UTF_8).replace("\n", " ");
-                        log.info("Minitouch {} 启动  {}", device.getSerialNumber(), minitouchInfo);
+                        log.info("Minitouch {} 启动", device.getSerialNumber());
 
                         // 获取设备屏幕的实际尺寸
                         String output = device.runAdbCommand("shell wm size");

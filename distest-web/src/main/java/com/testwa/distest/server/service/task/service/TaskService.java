@@ -193,7 +193,7 @@ public class TaskService {
         Criteria criatira = new Criteria();
         criatira.andOperator(Criteria.where("executionTaskId").is(taskId),
                 Criteria.where("status").is(0),
-                Criteria.where("command.methodDesc").is("安装应用"));
+                Criteria.where("command.action").is("安装应用"));
 
         return procedureInfoRepository.find(new Query(criatira));
     }
@@ -202,7 +202,7 @@ public class TaskService {
         Criteria criatira = new Criteria();
         criatira.andOperator(Criteria.where("executionTaskId").is(taskId),
                 Criteria.where("status").is(0),
-                Criteria.where("command.methodDesc").is("启动应用"));
+                Criteria.where("command.action").is("启动应用"));
         return procedureInfoRepository.find(new Query(criatira));
     }
 
@@ -210,7 +210,7 @@ public class TaskService {
         Criteria criatira = new Criteria();
         criatira.andOperator(Criteria.where("executionTaskId").is(taskId),
                 Criteria.where("status").is(0),
-                Criteria.where("command.methodDesc").is("卸载应用"));
+                Criteria.where("command.action").is("卸载应用"));
         return procedureInfoRepository.find(new Query(criatira));
     }
 
@@ -218,7 +218,7 @@ public class TaskService {
         Criteria criatira = new Criteria();
         criatira.andOperator(Criteria.where("taskId").is(taskId),
                 Criteria.where("status").is(StepRequest.StepStatus.SUCCESS.getNumber()),
-                Criteria.where("methodDesc").is(uninstallApp.name()));
+                Criteria.where("action").is(uninstallApp.name()));
 
         return stepRepository.find(new Query(criatira));
     }
@@ -251,7 +251,7 @@ public class TaskService {
     public List<Map> getStartUpTime(Long taskId) {
         Criteria criatira = new Criteria();
         criatira.andOperator(Criteria.where("executionTaskId").is(taskId),
-                Criteria.where("command.methodDesc").is("启动应用"));
+                Criteria.where("command.action").is("启动应用"));
         Aggregation agg = Aggregation.newAggregation(
                 Aggregation.match(criatira),
                 Aggregation.project("runtime", "deviceId").andExpression("runtime/1000").as("second"),
@@ -263,7 +263,7 @@ public class TaskService {
     public List<Map> getInstallTime(Long taskId) {
         Criteria criatira = new Criteria();
         criatira.andOperator(Criteria.where("executionTaskId").is(taskId),
-                Criteria.where("command.methodDesc").is("安装应用"));
+                Criteria.where("command.action").is("安装应用"));
         Aggregation agg = Aggregation.newAggregation(
                 Aggregation.match(criatira),
                 Aggregation.project("runtime", "deviceId").andExpression("runtime/1000").as("second"),
@@ -304,9 +304,9 @@ public class TaskService {
 
         Aggregation agg = Aggregation.newAggregation(
                 Aggregation.match(new Criteria().andOperator(Criteria.where("taskId").is(taskId).and("action").in(actions).and("deviceId").is(deviceId))),
-                Aggregation.project("runtime","methodDesc")
+                Aggregation.project("runtime","action")
                         .andExpression("runtime/1000").as("rt"),
-                Aggregation.group("methodDesc")
+                Aggregation.group("action")
                         .avg("rt").as("avg_time"),
                 Aggregation.sort(Sort.Direction.ASC, "avg_time")
         );

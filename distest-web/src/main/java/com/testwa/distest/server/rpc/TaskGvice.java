@@ -515,6 +515,13 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
         String deviceId = request.getDeviceId();
         String img = request.getImg();
         String dump = request.getDump();
+        Long timestamp = request.getTimestamp();
+        Long testcaseId = request.getTestcaseId();
+        Long scriptId = request.getScriptId();
+        String commandParams = request.getCommadParams();
+        String commadAction = request.getCommadAction();
+        String value = request.getValue();
+        String sessionId = request.getSessionId();
 
         Step step = new Step();
         step.setDeviceId(deviceId);
@@ -526,6 +533,14 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
         step.setRuntime(request.getRuntime());
         step.setStatus(request.getStatus().getNumber());
         step.setErrormsg(request.getErrormsg());
+
+        step.setTestcaseId(testcaseId);
+        step.setScriptId(scriptId);
+        step.setTimestamp(timestamp);
+        step.setCommandAction(commadAction);
+        step.setCommandParams(commandParams);
+        step.setValue(value);
+        step.setSessionId(sessionId);
 
         stepService.save(step);
 

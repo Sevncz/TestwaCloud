@@ -300,17 +300,17 @@ def parse_args():
     parser = OptionParser(usage="%prog [optinos] [logcat.txt ...]")
     parser.add_option("-u", "--upload-result",
                       dest="upload_result",
-                      methodDesc="store_true",
+                      action="store_true",
                       default=False,
                       help="Upload result to server after scan over"
                       )
     parser.add_option("-o", "--outfile",
-                      methodDesc="store",
+                      action="store",
                       dest="outfile",
                       help="Write result to OUTFILE, default is stdout"
                       )
     parser.add_option("-V", "--version",
-                      methodDesc="store_true",
+                      action="store_true",
                       default=False,
                       help="Print the version"
                       )

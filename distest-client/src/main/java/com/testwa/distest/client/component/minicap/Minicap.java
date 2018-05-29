@@ -418,8 +418,7 @@ public class Minicap {
                             minicapSocket.close();
                         }
                     } else {
-                        String minicapInfo = new String(bytes, StandardCharsets.UTF_8).replace("\n", " ");
-                        log.info("Minicap {} 启动 {}", device.getSerialNumber(), minicapInfo);
+                        log.info("Minicap {} 启动", device.getSerialNumber());
                         // bytes内包含有信息，需要给Dataparser处理
                         dataQueue.add(Arrays.copyOfRange(bytes, 0, n));
                         isRunning = true;
