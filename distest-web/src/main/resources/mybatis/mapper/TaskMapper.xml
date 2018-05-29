@@ -3,6 +3,7 @@
 <mapper namespace="com.testwa.distest.server.mapper.TaskMapper" >
     <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.Task" >
         <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="taskCode" property="taskCode" jdbcType="BIGINT" />
         <result column="projectId" property="projectId" jdbcType="BIGINT"/>
         <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="createTime" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
@@ -18,7 +19,7 @@
     </resultMap>
 
     <sql id="Base_Column_List" >
-        id,projectId,createTime,createBy,endTime,devicesJson,appJson,testcaseJson,scriptJson,taskType,taskName,appId
+        id,taskCode,projectId,createTime,createBy,endTime,devicesJson,appJson,testcaseJson,scriptJson,taskType,taskName,appId
     </sql>
 
     <select id="findOne" parameterType="com.testwa.distest.server.entity.Task" resultMap="BaseResultMap" >
@@ -36,6 +37,7 @@
             <if test="createBy != null">and createBy = #{createBy}</if>
             <if test="projectId != null">and projectId = #{projectId}</if>
             <if test="appId != null">and appId = #{appId}</if>
+            <if test="taskCode != null">and taskCode = #{taskCode}</if>
         </trim>
     </select>
 

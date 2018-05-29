@@ -1,4 +1,4 @@
-package com.testwa.core;
+package com.testwa.core.tools;
 
 
 import com.testwa.core.utils.NetUtil;

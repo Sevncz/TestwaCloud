@@ -7,6 +7,7 @@ import com.testwa.core.base.exception.AuthorizedException;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.base.exception.TaskStartException;
 import com.testwa.core.base.vo.Result;
+import com.testwa.core.tools.SnowflakeIdWorker;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.Task;
 import com.testwa.distest.server.mongo.service.MethodRunningLogService;
@@ -20,6 +21,7 @@ import com.testwa.distest.server.web.device.validator.DeviceValidatoer;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
 import com.testwa.distest.server.web.task.execute.ExecuteMgr;
 import com.testwa.distest.server.web.task.validator.TaskValidatoer;
+import com.testwa.distest.server.web.task.vo.TaskCodeVO;
 import com.testwa.distest.server.web.testcase.validator.TestcaseValidatoer;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -41,25 +43,13 @@ public class TaskController extends BaseController {
     @Autowired
     private ExecuteMgr executeMgr;
     @Autowired
-    private UserService userService;
-    @Autowired
-    private MethodRunningLogService executorLogInfoService;
-    @Autowired
     private TestcaseValidatoer testcaseValidatoer;
-    @Autowired
-    private ProjectValidator projectValidator;
     @Autowired
     private AppValidator appValidator;
     @Autowired
     private DeviceValidatoer deviceValidatoer;
     @Autowired
     private TaskValidatoer taskValidatoer;
-    @Autowired
-    private ScriptService scriptService;
-    @Autowired
-    private TestcaseService testcaseService;
-    @Autowired
-    private TaskService taskService;
 
 
     @ApiOperation(value="执行一个回归测试任务")
@@ -71,7 +61,7 @@ public class TaskController extends BaseController {
         testcaseValidatoer.validateTestcaseExist(form.getTestcaseId());
         taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
         Long taskId = executeMgr.startHG(form);
-        return ok(taskId);
+        return ok(new TaskCodeVO(taskId));
     }
 
     @ApiOperation(value="执行一个兼容测试任务")
@@ -82,7 +72,7 @@ public class TaskController extends BaseController {
         deviceValidatoer.validateUsable(form.getDeviceIds());
         taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
         Long taskId = executeMgr.startJR(form);
-        return ok(taskId);
+        return ok(new TaskCodeVO(taskId));
     }
 
 

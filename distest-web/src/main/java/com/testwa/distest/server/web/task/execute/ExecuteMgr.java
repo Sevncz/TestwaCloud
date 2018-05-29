@@ -8,6 +8,7 @@ import com.testwa.core.cmd.AppInfo;
 import com.testwa.core.cmd.RemoteRunCommand;
 import com.testwa.core.cmd.RemoteTestcaseContent;
 import com.testwa.core.cmd.ScriptInfo;
+import com.testwa.core.tools.SnowflakeIdWorker;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.entity.*;
@@ -65,6 +66,8 @@ public class ExecuteMgr {
     private ScriptService scriptService;
     @Autowired
     private ApplicationContext context;
+    @Autowired
+    private SnowflakeIdWorker taskIdWorker;
 
     // 暂定同时支持100个任务并发
     private final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(100);
@@ -97,9 +100,11 @@ public class ExecuteMgr {
 
     private Long start(List<String> deviceIds, Long projectId, Long testcaseId, Long appId, String taskName, DB.TaskType taskType) throws ObjectNotExistsException {
         // 记录task的执行信息
+        Long taskCode = taskIdWorker.nextId();
         App app = appService.findOne(appId);
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         Task task = new Task();
+        task.setTaskCode(taskCode);
         task.setTaskType(taskType);
         task.setProjectId(projectId);
         task.setAppId(app.getId());

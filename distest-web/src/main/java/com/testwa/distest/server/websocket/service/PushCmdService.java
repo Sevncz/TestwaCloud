@@ -3,14 +3,11 @@ package com.testwa.distest.server.websocket.service;
 import com.alibaba.fastjson.JSON;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
-import com.testwa.core.WebsocketEvent;
-import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.cmd.AppInfo;
 import com.testwa.core.cmd.KeyCode;
 import com.testwa.core.common.enums.Command;
 import com.testwa.core.cmd.MiniCmd;
 import com.testwa.core.cmd.RemoteRunCommand;
-import com.testwa.distest.server.entity.App;
 import com.testwa.distest.server.service.cache.mgr.ClientSessionMgr;
 import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
 import lombok.extern.slf4j.Slf4j;
@@ -195,23 +192,6 @@ public class PushCmdService {
             client.sendEvent(Command.Schem.KEYEVENT.getSchemString(), KeyCode.KEYCODE_DEL+"");
         else
             log.error("device {} websocket client is null", deviceId);
-    }
-
-    /**
-     *@Description: 安装并启动minicap和minitouch
-     *@Param: [userId, deviceId]
-     *@Return: void
-     *@Author: wen
-     *@Date: 2018/4/9
-     */
-    @Async
-    public void pushInitDeviceClient(Long userId, String deviceId) {
-        SocketIOClient client = getMainClientSocketIOClient(userId);
-        if(client != null)
-            client.sendEvent(WebsocketEvent.ON_START, deviceId);
-        else
-            log.error("user websocket client is null");
-
     }
 
     /**
