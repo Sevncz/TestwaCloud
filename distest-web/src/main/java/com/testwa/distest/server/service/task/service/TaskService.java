@@ -69,6 +69,9 @@ public class TaskService {
         return taskDAO.findOne(entityId);
     }
 
+    public Task findByCode(Long taskCode) {
+        return taskDAO.findByCode(taskCode);
+    }
     public List<Task> findAll(List<Long> entityIds) {
         return taskDAO.findAll(entityIds);
     }
@@ -79,14 +82,8 @@ public class TaskService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public void deleteTask(List<Long> entityIds) {
-        taskDAO.delete(entityIds);
-        entityIds.forEach( id -> {
-
-            taskDeviceService.deleteTaskDeviceByTaskId(id);
-            List<AppiumRunningLog> infos = procedureInfoRepository.findByExecutionTaskIdOrderByTimestampAsc(id);
-            procedureInfoRepository.delete(infos);
-        });
+    public void disableAll(List<Long> taskCodes) {
+        taskDAO.disableAll(taskCodes);
     }
 
     public Map<String, Object> statis(Task task) {
@@ -94,7 +91,7 @@ public class TaskService {
         // taskType
         result.put("taskType", task.getTaskType());
         // taskStatus
-        List<TaskDeviceStatusStatis> tds = taskDeviceService.countTaskDeviceStatus(task.getId());
+        List<TaskDeviceStatusStatis> tds = taskDeviceService.countTaskDeviceStatus(task.getTaskCode());
         task.setDeviceStatusStatis(tds);
         result.put("taskStatus", task.getDeviceStatusStatis());
         // app 基本情况
@@ -167,66 +164,66 @@ public class TaskService {
     }
 
     public List<Script> findScriptListInTask(ScriptListForm form) {
-        Task task = taskDAO.findOne(form.getTaskId());
+        Task task = taskDAO.findOne(form.getTaskCode());
         return task.getScriptList();
     }
 
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public void updateEndTime(Long taskId) {
+    public void updateEndTime(Long taskCode) {
         Date endTime = new Date();
-        taskDAO.updateEndTime(taskId, endTime);
+        taskDAO.updateEndTime(taskCode, endTime);
     }
 
 
-    public List<Map> getAppiumRunningLogStatisByTaskId(Long taskId) {
+    public List<Map> getAppiumRunningLogStatisByTask(Long taskCode) {
 
         Aggregation agg = Aggregation.newAggregation(
-                Aggregation.match(Criteria.where("executionTaskId").is(taskId)),
+                Aggregation.match(Criteria.where("taskCode").is(taskCode)),
                 Aggregation.group( "status").count().as("count")
         );
 
         return getResult(agg, AppiumRunningLog.getCollectionName());
     }
 
-    public List<AppiumRunningLog> getAllInstallSuccessProcedure(Long taskId) {
+    public List<AppiumRunningLog> getAllInstallSuccessProcedure(Long taskCode) {
         Criteria criatira = new Criteria();
-        criatira.andOperator(Criteria.where("executionTaskId").is(taskId),
+        criatira.andOperator(Criteria.where("taskCode").is(taskCode),
                 Criteria.where("status").is(0),
                 Criteria.where("command.action").is("安装应用"));
 
         return procedureInfoRepository.find(new Query(criatira));
     }
 
-    public List<AppiumRunningLog> getAllLanucherSuccessProcedure(Long taskId) {
+    public List<AppiumRunningLog> getAllLanucherSuccessProcedure(Long taskCode) {
         Criteria criatira = new Criteria();
-        criatira.andOperator(Criteria.where("executionTaskId").is(taskId),
+        criatira.andOperator(Criteria.where("taskCode").is(taskCode),
                 Criteria.where("status").is(0),
                 Criteria.where("command.action").is("启动应用"));
         return procedureInfoRepository.find(new Query(criatira));
     }
 
-    public List<AppiumRunningLog> getAllUninstallSuccessProcedure(Long taskId) {
+    public List<AppiumRunningLog> getAllUninstallSuccessProcedure(Long taskCode) {
         Criteria criatira = new Criteria();
-        criatira.andOperator(Criteria.where("executionTaskId").is(taskId),
+        criatira.andOperator(Criteria.where("taskCode").is(taskCode),
                 Criteria.where("status").is(0),
                 Criteria.where("command.action").is("卸载应用"));
         return procedureInfoRepository.find(new Query(criatira));
     }
 
-    public List<Step> getSuccessStep(Long taskId, StepRequest.StepAction uninstallApp) {
+    public List<Step> getSuccessStep(Long taskCode, StepRequest.StepAction uninstallApp) {
         Criteria criatira = new Criteria();
-        criatira.andOperator(Criteria.where("taskId").is(taskId),
+        criatira.andOperator(Criteria.where("taskCode").is(taskCode),
                 Criteria.where("status").is(StepRequest.StepStatus.SUCCESS.getNumber()),
                 Criteria.where("action").is(uninstallApp.name()));
 
         return stepRepository.find(new Query(criatira));
     }
 
-    public List<Map> getStepStatusStatis(Long taskId) {
+    public List<Map> getStepStatusStatis(Long taskCode) {
 
         Aggregation agg = Aggregation.newAggregation(
-                Aggregation.match(Criteria.where("taskId").is(taskId)),
+                Aggregation.match(Criteria.where("taskCode").is(taskCode)),
                 Aggregation.group( "status").count().as("count")
         );
         return getResult(agg, Step.getCollectionName());
@@ -248,9 +245,9 @@ public class TaskService {
         return deviceMap;
     }
 
-    public List<Map> getStartUpTime(Long taskId) {
+    public List<Map> getStartUpTime(Long taskCode) {
         Criteria criatira = new Criteria();
-        criatira.andOperator(Criteria.where("executionTaskId").is(taskId),
+        criatira.andOperator(Criteria.where("taskCode").is(taskCode),
                 Criteria.where("command.action").is("启动应用"));
         Aggregation agg = Aggregation.newAggregation(
                 Aggregation.match(criatira),
@@ -260,9 +257,9 @@ public class TaskService {
         return getResult(agg, AppiumRunningLog.getCollectionName());
     }
 
-    public List<Map> getInstallTime(Long taskId) {
+    public List<Map> getInstallTime(Long taskCode) {
         Criteria criatira = new Criteria();
-        criatira.andOperator(Criteria.where("executionTaskId").is(taskId),
+        criatira.andOperator(Criteria.where("taskCode").is(taskCode),
                 Criteria.where("command.action").is("安装应用"));
         Aggregation agg = Aggregation.newAggregation(
                 Aggregation.match(criatira),
@@ -272,18 +269,18 @@ public class TaskService {
         return getResult(agg, AppiumRunningLog.getCollectionName());
     }
 
-    public List<Map> getMemoryAvg(Long taskId) {
+    public List<Map> getMemoryAvg(Long taskCode) {
         Aggregation agg = Aggregation.newAggregation(
-                Aggregation.match(Criteria.where("executionTaskId").is(taskId)),
+                Aggregation.match(Criteria.where("taskCode").is(taskCode)),
                 Aggregation.project("memory", "deviceId").andExpression("memory/1024").as("m"),
                 Aggregation.group("deviceId").avg("m").as("value")
         );
         return getResult(agg, AppiumRunningLog.getCollectionName());
     }
 
-    public List<Map> getCpuAvg(Long taskId) {
+    public List<Map> getCpuAvg(Long taskCode) {
         Aggregation agg = Aggregation.newAggregation(
-                Aggregation.match(Criteria.where("executionTaskId").is(taskId)),
+                Aggregation.match(Criteria.where("taskCode").is(taskCode)),
                 Aggregation.group("deviceId").avg("cpurate").as("value")
         );
         return getResult(agg, AppiumRunningLog.getCollectionName());
@@ -299,11 +296,11 @@ public class TaskService {
         return result;
     }
 
-    public List<Map> getSomeActionRuntime(Long taskId, String deviceId) {
+    public List<Map> getSomeActionRuntime(Long taskCode, String deviceId) {
         List<String> actions = Arrays.asList(StepRequest.StepAction.installApp.name(), StepRequest.StepAction.launch.name(), StepRequest.StepAction.uninstallApp.name());
 
         Aggregation agg = Aggregation.newAggregation(
-                Aggregation.match(new Criteria().andOperator(Criteria.where("taskId").is(taskId).and("action").in(actions).and("deviceId").is(deviceId))),
+                Aggregation.match(new Criteria().andOperator(Criteria.where("taskCode").is(taskCode).and("action").in(actions).and("deviceId").is(deviceId))),
                 Aggregation.project("runtime","action")
                         .andExpression("runtime/1000").as("rt"),
                 Aggregation.group("action")
@@ -317,19 +314,19 @@ public class TaskService {
      *@Description: 获得性能指标统计数据
      * ﻿db.t_performance.aggregate(
          [
-          { $match: { taskId: 164 } },
+          { $match: { taskCode: 164 } },
           { $project: {"deviceId": 1, "mem": 1, "cpu": 1, "fps": 1, "wifiDown": 1, "wifiUp": 1} },
           { $group: { _id: "$deviceId", avg_mem: {$avg: "$mem"}, avg_cpu: {$avg: "$cpu"}, avg_fps: {$avg: "$fps"}, avg_wifiDown: {$avg: "$wifiDown"}}}
         ]
        )
-     *@Param: [taskId]
+     *@Param: [taskCode]
      *@Return: java.util.List<java.util.Map>
      *@Author: wen
      *@Date: 2018/5/23
      */
-    public List<Map> getPerformanceStatis(Long taskId) {
+    public List<Map> getPerformanceStatis(Long taskCode) {
         Aggregation agg = Aggregation.newAggregation(
-                Aggregation.match(Criteria.where("taskId").is(taskId)),
+                Aggregation.match(Criteria.where("taskCode").is(taskCode)),
                 Aggregation.project("deviceId","mem","cpu","fps","wifiDown","wifiUp")
                         .andExpression("mem/1024").as("ram")
                         .andExpression("wifiDown").as("down")
@@ -344,9 +341,9 @@ public class TaskService {
         return getResult(agg, Performance.getCollectionName());
     }
 
-    public List<Map> getPerformanceDeviceStatis(Long taskId, String deviceId) {
+    public List<Map> getPerformanceDeviceStatis(Long taskCode, String deviceId) {
         Aggregation agg = Aggregation.newAggregation(
-                Aggregation.match(new Criteria().andOperator(Criteria.where("taskId").is(taskId).and("deviceId").is(deviceId))),
+                Aggregation.match(new Criteria().andOperator(Criteria.where("taskCode").is(taskCode).and("deviceId").is(deviceId))),
                 Aggregation.project("deviceId","mem","cpu","fps","wifiDown","wifiUp")
                         .andExpression("mem/1024").as("ram")
                         .andExpression("wifiDown").as("down")
@@ -365,24 +362,24 @@ public class TaskService {
      *@Description:  步骤时间统计
      * ﻿db.t_step.aggregate(
      *   [
-     *    { $match: { taskId: 164, methodDesc: 'installApp'} },
+     *    { $match: { taskCode: 164, methodDesc: 'installApp'} },
      *    { $project: {"runtime": 1, "methodDesc": 1, "deviceId": 1} },
      *    { $group: { _id: "$deviceId", avg_time: {$avg: "$runtime"}}}
      *    { $sort: {avg_time: 1} }
      *  ]
      * )
-     *@Param: [taskId]
+     *@Param: [taskCode]
      *@Return: java.util.List<java.util.Map>  {'deviceId': xxxxx, 'avg_time': xxxx}
      *@Author: wen
      *@Date: 2018/5/23
      */
-    public List<Map> getStepRuntimeStatis(Long taskId, String actionName) {
+    public List<Map> getStepRuntimeStatis(Long taskCode, String actionName) {
         List<String> actions = Arrays.asList(StepRequest.StepAction.installApp.name(), StepRequest.StepAction.launch.name(), StepRequest.StepAction.uninstallApp.name());
         if(!actions.contains(actionName)){
             return new ArrayList<>();
         }
         Aggregation agg = Aggregation.newAggregation(
-                Aggregation.match(new Criteria().andOperator(Criteria.where("taskId").is(taskId).and("action").is(actionName))),
+                Aggregation.match(new Criteria().andOperator(Criteria.where("taskCode").is(taskCode).and("action").is(actionName))),
                 Aggregation.project("runtime","methodDesc","deviceId")
                         .andExpression("runtime/1000").as("rt"),
                 Aggregation.group("deviceId")
@@ -392,9 +389,9 @@ public class TaskService {
         return getResult(agg, Step.getCollectionName());
     }
 
-    public List<Map> getPerformanceMemAvg(Long taskId) {
+    public List<Map> getPerformanceMemAvg(Long taskCode) {
         Aggregation agg = Aggregation.newAggregation(
-                Aggregation.match(Criteria.where("taskId").is(taskId)),
+                Aggregation.match(Criteria.where("taskCode").is(taskCode)),
                 Aggregation.project("deviceId","mem")
                         .andExpression("mem/1024").as("ram"),
                 Aggregation.group("deviceId")
@@ -404,9 +401,9 @@ public class TaskService {
         return getResult(agg, Performance.getCollectionName());
     }
 
-    public List<Map> getPerformanceCPUAvg(Long taskId) {
+    public List<Map> getPerformanceCPUAvg(Long taskCode) {
         Aggregation agg = Aggregation.newAggregation(
-                Aggregation.match(Criteria.where("taskId").is(taskId)),
+                Aggregation.match(Criteria.where("taskCode").is(taskCode)),
                 Aggregation.project("deviceId","cpu"),
                 Aggregation.group("deviceId")
                         .avg("cpu").as("avg_value"),

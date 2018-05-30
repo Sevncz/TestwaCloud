@@ -13,7 +13,7 @@ import java.util.Date;
 @TableName("logger_file")
 public class LoggerFile extends BaseEntity {
 
-    private Long taskId;
+    private Long taskCode;
     private String deviceId;
     private String filename;
     private Date createTime;
@@ -23,6 +23,6 @@ public class LoggerFile extends BaseEntity {
      * @return
      */
     public String buildPath(){
-        return "/" + taskId + "/" + deviceId + "/" + filename;
+        return "/" + taskCode + "/" + deviceId + "/" + filename;
     }
 }

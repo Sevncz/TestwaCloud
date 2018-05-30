@@ -20,5 +20,9 @@ public interface TaskMapper extends BaseMapper<Task, Long> {
 
     Long countBy(Task query);
 
-    void updateEndTime(@Param("taskId") Long taskId, @Param("endTime") Date endTime);
+    void updateEndTime(@Param("taskCode") Long taskCode, @Param("endTime") Date endTime);
+
+    Task findByCode(Long taskCode);
+
+    void disableAll(@Param("taskCodes") List<Long> taskCodes);
 }

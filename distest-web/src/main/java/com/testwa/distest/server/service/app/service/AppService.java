@@ -322,7 +322,7 @@ public class AppService {
 //            andCriteria.add(Criteria.where("name").regex(appName));
 //        }
 //        andCriteria.add(Criteria.where("projectId").in(projectIds));
-//        andCriteria.add(Criteria.where("disable").is(false));
+//        andCriteria.add(Criteria.where("disableAll").is(false));
 //
 //        Query query = buildQueryByCriteria(andCriteria, null);
 //

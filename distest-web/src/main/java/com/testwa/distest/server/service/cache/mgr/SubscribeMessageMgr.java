@@ -22,35 +22,35 @@ public class SubscribeMessageMgr {
 
     /**
      *@Description: 订阅任务进度
-     *@Param: [taskId, sessionId]
+     *@Param: [taskCode, sessionId]
      *@Return: void
      *@Author: wen
      *@Date: 2018/4/28
      */
-    public void subscribeTaskAction(Long taskId, String sessionId) {
-        redisCacheMgr.put(taskAction + taskId, taskActionExpiration, sessionId);
+    public void subscribeTaskAction(Long taskCode, String sessionId) {
+        redisCacheMgr.put(taskAction + taskCode, taskActionExpiration, sessionId);
     }
 
     /**
      *@Description: 取消任务进度订阅
-     *@Param: [taskId]
+     *@Param: [taskCode]
      *@Return: void
      *@Author: wen
      *@Date: 2018/4/28
      */
-    public void unsubscribeTaskAction(Long taskId) {
-        redisCacheMgr.remove(taskAction + taskId);
+    public void unsubscribeTaskAction(Long taskCode) {
+        redisCacheMgr.remove(taskAction + taskCode);
     }
 
     /**
      *@Description: 获得订阅该任务进度的sessionId
-     *@Param: [taskId]
+     *@Param: [taskCode]
      *@Return: java.lang.String
      *@Author: wen
      *@Date: 2018/4/28
      */
-    public String getSubscribeTaskActionSessionId(Long taskId) {
-        return (String) redisCacheMgr.get(taskAction + taskId);
+    public String getSubscribeTaskActionSessionId(Long taskCode) {
+        return (String) redisCacheMgr.get(taskAction + taskCode);
     }
 
 

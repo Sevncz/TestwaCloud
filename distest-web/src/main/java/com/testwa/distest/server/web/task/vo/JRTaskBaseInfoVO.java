@@ -1,0 +1,1 @@
+package com.testwa.distest.server.web.task.vo;import lombok.Data;/** * @Program: distest * @Description: 兼容测试任务的基本信息 * @Author: wen * @Create: 2018-05-30 11:30 **/@Datapublic class JRTaskBaseInfoVO {    private int deviceNum = 0;    private int testRuntime = 0;    private int crashNum = 0;    private int debugNum = 0;}

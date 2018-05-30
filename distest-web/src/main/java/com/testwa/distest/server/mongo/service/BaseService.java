@@ -46,7 +46,7 @@ public class BaseService {
             andCriteria.add(Criteria.where("name").regex(name));
         }
         andCriteria.add(Criteria.where("projectId").in(projectIds));
-        andCriteria.add(Criteria.where("disable").is(false));
+        andCriteria.add(Criteria.where("disableAll").is(false));
 
         Criteria criteria = new Criteria();
         Criteria[] criteriaArr = new Criteria[andCriteria.size()];
@@ -61,7 +61,7 @@ public class BaseService {
         query.addCriteria(Criteria.where("id").is(id));
 
         Update update = new Update();
-        update.set("disable", true);
+        update.set("disableAll", true);
         update.set("modifyDate", new Date());
 
         repository.updateMulti(query, update);

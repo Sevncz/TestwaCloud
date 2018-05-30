@@ -11,6 +11,6 @@ import java.io.Serializable;
 
 public interface ProcedureStatisRepository extends CommonRepository<ProcedureStatis, Serializable> {
 
-    ProcedureStatis findByExeId(Long exeId);
+    ProcedureStatis findByTaskCode(Long taskCode);
 
 }

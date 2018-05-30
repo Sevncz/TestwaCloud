@@ -42,11 +42,11 @@ public class TaskOverListener implements ApplicationListener<TaskOverEvent> {
     @Override
     public void onApplicationEvent(TaskOverEvent e) {
         log.info("start...");
-        Long taskId = e.getTaskId();
+        Long taskCode = e.getTaskCode();
         log.info("........ update task info");
-        taskService.updateEndTime(taskId);
+        taskService.updateEndTime(taskCode);
         // 根据前端需求开始统计报告
-        Task task = taskService.findOne(taskId);
+        Task task = taskService.findByCode(taskCode);
 
         task.getDevices().forEach(d -> {
             deviceService.release(d.getDeviceId());
@@ -61,22 +61,22 @@ public class TaskOverListener implements ApplicationListener<TaskOverEvent> {
     }
 
     private void hgtaskStatis(Task task) {
-        Long taskId = task.getId();
+        Long taskCode = task.getTaskCode();
         // 脚本数量
         List<Script> taskScripts = task.getScriptList();
         int scriptNum = taskScripts.size();
 
         // 统计cpu平均占用率
-        List<Map> cpus = statisCpuRate(taskId);
+        List<Map> cpus = statisCpuRate(taskCode);
 
         // 统计内存平均占用量
-        List<Map> mems = statisMemory(taskId);
+        List<Map> mems = statisMemory(taskCode);
 
         // 成功和失败步骤数量
-        List<Map> statusProcedure = statisStatus(taskId);
+        List<Map> statusProcedure = statisStatus(taskCode);
 
         // 成功和失败session数量
-        List<Map> sessions = statisScript(taskId);
+        List<Map> sessions = statisScript(taskCode);
         List<Map> statusScripts = new ArrayList<>();
         Map<String, Integer> d = new HashMap<>();
         for(Map s : sessions){
@@ -101,12 +101,12 @@ public class TaskOverListener implements ApplicationListener<TaskOverEvent> {
         });
 
 
-        ProcedureStatis old = procedureInfoService.getProcedureStatisByExeId(taskId);
+        ProcedureStatis old = procedureInfoService.getProcedureStatisByExeId(taskCode);
         if(old != null){
             procedureInfoService.deleteStatisById(old.getId());
         }
         ProcedureStatis ps = new ProcedureStatis();
-        ps.setExeId(taskId);
+        ps.setTaskCode(taskCode);
         ps.setCpurateInfo(cpus);
         ps.setMemoryInfo(mems);
         ps.setStatusProcedureInfo(statusProcedure);
@@ -116,33 +116,33 @@ public class TaskOverListener implements ApplicationListener<TaskOverEvent> {
         procedureInfoService.saveProcedureStatis(ps);
     }
 
-    private List<Map> statisScript(Long exeId) {
+    private List<Map> statisScript(Long taskCode) {
         Aggregation agg = Aggregation.newAggregation(
-                Aggregation.match(Criteria.where("executionTaskId").is(exeId)),
+                Aggregation.match(Criteria.where("taskCode").is(taskCode)),
                 Aggregation.group("sessionId").sum("status").as("count")
         );
         return getResult(agg);
     }
 
-    private List<Map> statisStatus(Long exeId) {
+    private List<Map> statisStatus(Long taskCode) {
         Aggregation agg = Aggregation.newAggregation(
-                Aggregation.match(Criteria.where("executionTaskId").is(exeId)),
+                Aggregation.match(Criteria.where("taskCode").is(taskCode)),
                 Aggregation.group("deviceId", "status").count().as("count")
         );
         return getResult(agg);
     }
 
-    private List<Map> statisMemory(Long exeId) {
+    private List<Map> statisMemory(Long taskCode) {
         Aggregation agg = Aggregation.newAggregation(
-                Aggregation.match(Criteria.where("executionTaskId").is(exeId)),
+                Aggregation.match(Criteria.where("taskCode").is(taskCode)),
                 Aggregation.group("deviceId").avg("memory").as("value")
         );
         return getResult(agg);
     }
 
-    private List<Map> statisCpuRate(Long exeId) {
+    private List<Map> statisCpuRate(Long taskCode) {
         Aggregation agg = Aggregation.newAggregation(
-                Aggregation.match(Criteria.where("executionTaskId").is(exeId)),
+                Aggregation.match(Criteria.where("taskCode").is(taskCode)),
                 Aggregation.group("deviceId").avg("cpurate").as("value")
         );
         return getResult(agg);

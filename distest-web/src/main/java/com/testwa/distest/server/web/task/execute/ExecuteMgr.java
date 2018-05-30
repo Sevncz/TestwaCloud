@@ -14,7 +14,6 @@ import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.mongo.event.TaskOverEvent;
 import com.testwa.distest.server.service.app.service.AppService;
-import com.testwa.distest.server.service.cache.mgr.TaskCacheMgr;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.rpc.cache.CacheUtil;
 import com.testwa.distest.server.service.script.service.ScriptService;
@@ -24,7 +23,6 @@ import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.service.testcase.service.TestcaseService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
-import com.testwa.distest.server.websocket.service.PushCmdService;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.push.Message;
 import lombok.extern.slf4j.Slf4j;
@@ -56,8 +54,6 @@ public class ExecuteMgr {
     private TaskService taskService;
     @Autowired
     private TaskDeviceService taskDeviceService;
-    @Autowired
-    private TaskCacheMgr taskCacheMgr;
     @Autowired
     private DeviceAuthMgr deviceAuthMgr;
     @Autowired
@@ -145,22 +141,22 @@ public class ExecuteMgr {
         task.setCreateBy(user.getId());
         task.setCreateTime(new Date());
         task.setEnabled(true);
-        Long taskId = taskService.save(task);
+        taskService.save(task);
 
         // 启动任务
         for (String key : deviceIds) {
             TaskDevice taskDevice = new TaskDevice();
             taskDevice.setStatus(DB.TaskStatus.RUNNING);
             taskDevice.setDeviceId(key);
-            taskDevice.setTaskId(taskId);
+            taskDevice.setTaskCode(taskCode);
             taskDevice.setTaskType(task.getTaskType());
             taskDevice.setCreateTime(new Date());
             taskDevice.setCreateBy(user.getId());
             taskDevice.setEnabled(true);
             taskDevice.setProjectId(app.getProjectId());
-            Long taskDeviceId = taskDeviceService.save(taskDevice);
+            taskDeviceService.save(taskDevice);
 
-            Device d = deviceService.findByDeviceId(key);
+//            Device d = deviceService.findByDeviceId(key);
             RemoteRunCommand cmd = new RemoteRunCommand();
             AppInfo appInfo = new AppInfo();
             BeanUtils.copyProperties(app, appInfo);
@@ -168,8 +164,7 @@ public class ExecuteMgr {
             cmd.setCmd(DB.CommandEnum.START.getValue());
             cmd.setDeviceId(key);
             cmd.setTestcaseList(cases);
-            cmd.setExeId(taskId);
-//            pushCmdService.executeCmd(cmd, d.getLastUserId());
+            cmd.setTaskCode(taskCode);
             StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(key);
             if(observer != null ){
                 if(taskType.equals(DB.TaskType.HG)) {
@@ -192,10 +187,10 @@ public class ExecuteMgr {
         Future future = scheduledExecutor.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
-                log.info("........ get task {} info", taskId);
-                Task t = taskService.findOne(taskId);
+                log.info("........ get task {} info", taskCode);
+                Task t = taskService.findByCode(taskCode);
                 int runningCount = t.getDevices().size();
-                List<TaskDevice> tds = taskDeviceService.findByTaskId(taskId);
+                List<TaskDevice> tds = taskDeviceService.findByTaskCode(taskCode);
                 for(TaskDevice taskDevice : tds){
                     if(!DB.TaskStatus.RUNNING.equals(taskDevice.getStatus())
                             && !DB.TaskStatus.NOT_EXECUTE.equals(taskDevice.getStatus())) {
@@ -217,15 +212,15 @@ public class ExecuteMgr {
                 }
 
                 if(runningCount <= 0) {
-                    context.publishEvent(new TaskOverEvent(this, taskId));
-                    Future future = futures.get(taskId);
+                    context.publishEvent(new TaskOverEvent(this, taskCode));
+                    Future future = futures.get(taskCode);
                     if (future != null) future.cancel(true);
                 }
             }
         }, initialDelay, period, TimeUnit.SECONDS);
-        futures.put(taskId, future);
+        futures.put(taskCode, future);
 
-        return taskId;
+        return taskCode;
     }
 
 
@@ -236,34 +231,34 @@ public class ExecuteMgr {
     public void stop(TaskStopForm form) {
         log.info(form.toString());
         User currentUser = userService.findByUsername(WebUtil.getCurrentUsername());
-        Task task = taskService.findOne(form.getTaskId());
+        Task task = taskService.findByCode(form.getTaskCode());
         taskService.update(task);
         // 如果传了设备ID，那么停止这几个设备上的任务
         // 否则，停止所有设备上的任务
         if(form.getDeviceIds() != null && form.getDeviceIds().size() > 0){
             for (String key : form.getDeviceIds()) {
                 Device d = deviceService.findByDeviceId(key);
-                stopDeviceTask(d, form.getTaskId(), currentUser.getId());
+                stopDeviceTask(d, form.getTaskCode(), currentUser.getId());
             }
         }else{
             List<Device> deviceList = task.getDevices();
             for (Device d : deviceList) {
-                stopDeviceTask(d, form.getTaskId(), currentUser.getId());
+                stopDeviceTask(d, form.getTaskCode(), currentUser.getId());
             }
         }
     }
 
-    private void stopDeviceTask(Device device, Long taskId, Long updateBy) {
+    private void stopDeviceTask(Device device, Long taskCode, Long updateBy) {
 
         StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(device.getDeviceId());
         if(observer != null ){
-            Message message = Message.newBuilder().setTopicName(Message.Topic.TASK_CANCEL).setStatus("OK").setMessage(ByteString.copyFromUtf8("")).build();
+            Message message = Message.newBuilder().setTopicName(Message.Topic.TASK_CANCEL).setStatus("OK").setMessage(ByteString.copyFromUtf8(String.valueOf(taskCode))).build();
             observer.onNext(message);
         }else{
             log.error("设备还未准备好");
         }
 
-        taskDeviceService.cancelOneTask(device.getDeviceId(), taskId, updateBy);
+        taskDeviceService.cancelOneTask(device.getDeviceId(), taskCode, updateBy);
         deviceService.release(device.getDeviceId());
     }
 

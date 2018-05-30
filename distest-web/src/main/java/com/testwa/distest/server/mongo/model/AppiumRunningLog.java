@@ -42,7 +42,7 @@ public class AppiumRunningLog {
     // 任务ID
     @Indexed
     @JSONField(serializeUsing = StringValueToLongSerializer.class)
-    private Long executionTaskId;
+    private Long taskCode;
     private String screenshotPath;
     private String description;
     private AppiumRunningCommand command;

@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface MethodRunningLogRepository extends CommonRepository<MethodRunningLog, Serializable> {
 
-    List<MethodRunningLog> findByTaskIdOrderByTimestampAsc(Long taskId);
+    List<MethodRunningLog> findByTaskCodeOrderByTimestampAsc(Long taskId);
 
-    List<MethodRunningLog> findByTaskIdAndDeviceIdOrderByMethodOrderAsc(Long taskId, String deviceId);
+    List<MethodRunningLog> findByTaskCodeAndDeviceIdOrderByMethodOrderAsc(Long taskId, String deviceId);
 }

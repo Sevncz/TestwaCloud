@@ -13,10 +13,10 @@ import java.util.Map;
 public interface AppiumFileMapper extends BaseMapper<AppiumFile, Long> {
 
 
-    AppiumFile findOne(@Param("taskId") Long taskId,@Param("deviceId") String deviceId);
+    AppiumFile findOne(@Param("taskCode") Long taskCode, @Param("deviceId") String deviceId);
 
     List<AppiumFile> fildAll(AppiumFile query);
 
-    int removeFromTask(Long taskId);
+    int removeFromTask(@Param("taskCode") Long taskCode);
 
 }

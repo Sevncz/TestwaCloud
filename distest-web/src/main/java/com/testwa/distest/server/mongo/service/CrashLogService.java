@@ -21,11 +21,11 @@ public class CrashLogService extends BaseService {
         crashLogRepository.save(log);
     }
 
-    public List<CrashLog> findByTaskId(Long taskId){
-        return crashLogRepository.findByTaskId(taskId);
+    public List<CrashLog> findBy(Long taskCode){
+        return crashLogRepository.findByTaskCode(taskCode);
     }
-    public List<CrashLog> findByTaskIdAndDeviceId(Long taskId, String deviceId){
-        return crashLogRepository.findByTaskIdAndDeviceId(taskId, deviceId);
+    public List<CrashLog> findBy(Long taskCode, String deviceId){
+        return crashLogRepository.findByTaskCodeAndDeviceId(taskCode, deviceId);
     }
 
 }

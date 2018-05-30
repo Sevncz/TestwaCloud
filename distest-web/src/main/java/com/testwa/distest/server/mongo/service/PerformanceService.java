@@ -35,12 +35,12 @@ public class PerformanceService extends BaseService {
     }
 
 
-    public List<Performance> findByTaskId(Long taskId) {
-        return performanceRepository.findByTaskIdOrderByTimestampAsc(taskId);
+    public List<Performance> findBy(Long taskCode) {
+        return performanceRepository.findByTaskCodeOrderByTimestampAsc(taskCode);
     }
 
-    public List<Performance> findByTaskIdAndDeviceId(Long taskId, String deviceId) {
-        return performanceRepository.findByTaskIdAndDeviceIdOrderByTimestampAsc(taskId, deviceId);
+    public List<Performance> findBy(Long taskCode, String deviceId) {
+        return performanceRepository.findByTaskCodeAndDeviceIdOrderByTimestampAsc(taskCode, deviceId);
     }
 
 }

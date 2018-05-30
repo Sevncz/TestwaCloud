@@ -12,6 +12,6 @@ import java.util.List;
 
 public interface CrashLogRepository extends CommonRepository<CrashLog, Serializable> {
 
-    List<CrashLog> findByTaskId(Long taskId);
-    List<CrashLog> findByTaskIdAndDeviceId(Long taskId, String deviceId);
+    List<CrashLog> findByTaskCode(Long taskCode);
+    List<CrashLog> findByTaskCodeAndDeviceId(Long taskCode, String deviceId);
 }

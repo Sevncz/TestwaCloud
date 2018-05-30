@@ -41,19 +41,23 @@ public class MethodRunningLogService extends BaseService {
     };
 
     @Autowired
-    private MethodRunningLogRepository executorLogInfoRepository;
+    private MethodRunningLogRepository methodRunningLogRepository;
 
     public void save(MethodRunningLog info){
-        executorLogInfoRepository.save(info);
+        methodRunningLogRepository.save(info);
     }
 
-    public List<MethodRunningLog> findByTaskId(Long taskId){
-        return executorLogInfoRepository.findByTaskIdOrderByTimestampAsc(taskId);
+    public List<MethodRunningLog> findBy(Long taskCode){
+        return methodRunningLogRepository.findByTaskCodeOrderByTimestampAsc(taskCode);
     }
 
-    public List<MethodRunningLog> getLogCheckPointList(Long taskId) {
+    public List<MethodRunningLog> findBy(Long taskCode, String deviceId) {
+        return methodRunningLogRepository.findByTaskCodeAndDeviceIdOrderByMethodOrderAsc(taskCode, deviceId);
+    }
+
+    public List<MethodRunningLog> getLogCheckPointList(Long taskCode) {
         Criteria criatira = new Criteria();
-        criatira.andOperator(Criteria.where("taskId").is(taskId),
+        criatira.andOperator(Criteria.where("taskCode").is(taskCode),
                 Criteria.where("methodOrder").in(pointOrders),
                 Criteria.where("flag").is("start")
         );
@@ -61,11 +65,7 @@ public class MethodRunningLogService extends BaseService {
         Query query = new Query();
         query.addCriteria(criatira);
         query.with(sort);
-        return executorLogInfoRepository.find(query);
-    }
-
-    public List<MethodRunningLog> findByTaskIdAndDeviceId(Long taskId, String deviceId) {
-        return executorLogInfoRepository.findByTaskIdAndDeviceIdOrderByMethodOrderAsc(taskId, deviceId);
+        return methodRunningLogRepository.find(query);
     }
 
     public List<ExecutorAction> getCheckPoint() {
@@ -74,5 +74,10 @@ public class MethodRunningLogService extends BaseService {
 
     public String getCheckPointName(Integer pointValue) {
         return pointNames.get(pointValue);
+    }
+
+    public List<MethodRunningLog> getRuningTimeForOperation(Long taskCode) {
+
+        return null;
     }
 }

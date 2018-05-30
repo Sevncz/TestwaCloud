@@ -51,14 +51,14 @@ public class TaskDeviceService {
     public void deleteTaskDevice(List<Long> entityIds) {
         taskDeviceDAO.delete(entityIds);
         entityIds.forEach( id -> {
-            List<AppiumRunningLog> infos = procedureInfoRepository.findByExecutionTaskIdOrderByTimestampAsc(id);
+            List<AppiumRunningLog> infos = procedureInfoRepository.findByTaskCodeOrderByTimestampAsc(id);
             procedureInfoRepository.delete(infos);
         });
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public void deleteTaskDeviceByTaskId(Long taskId) {
-        taskDeviceDAO.deleteByTaskId(taskId);
+    public void deleteTaskDevice(Long taskCode) {
+        taskDeviceDAO.disableAll(taskCode);
     }
 
     public List<TaskDevice> getRunningtaskDevice(Long projectId, Long userId) {
@@ -77,35 +77,35 @@ public class TaskDeviceService {
         return taskDeviceDAO.findBy(query);
     }
 
-    public TaskDevice findOne(Long exeId, String deviceId) {
-        return taskDeviceDAO.findOne(exeId, deviceId);
+    public TaskDevice findOne(Long taskCode, String deviceId) {
+        return taskDeviceDAO.findOne(taskCode, deviceId);
     }
 
     /**
      *@Description: 按状态顺序返回
-     *@Param: [taskId]
+     *@Param: [taskCode]
      *@Return: java.util.List<com.testwa.distest.server.entity.TaskDevice>
      *@Author: wen
      *@Date: 2018/5/3
      */
-    public List<TaskDevice> findByTaskId(Long taskId) {
-        return taskDeviceDAO.findByTaskId(taskId);
+    public List<TaskDevice> findByTaskCode(Long taskCode) {
+        return taskDeviceDAO.findByTaskCode(taskCode);
     }
 
     /**
      *@Description: 返回TaskDevice各个状态的数量
-     *@Param: [taskId]
+     *@Param: [taskCode]
      *@Return: java.util.Map<java.lang.String,java.lang.Integer>
      *@Author: wen
      *@Date: 2018/5/3
      */
-    public List<TaskDeviceStatusStatis> countTaskDeviceStatus(Long taskId) {
-        return taskDeviceDAO.countTaskDeviceStatus(taskId);
+    public List<TaskDeviceStatusStatis> countTaskDeviceStatus(Long taskCode) {
+        return taskDeviceDAO.countTaskDeviceStatus(taskCode);
     }
 
     /**
      *@Description: 取消一个设备上的任务
-     *@Param: [deviceId, taskId]
+     *@Param: [deviceId, taskCode]
      *@Return: void
      *@Author: wen
      *@Date: 2018/5/3

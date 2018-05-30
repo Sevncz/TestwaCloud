@@ -27,8 +27,8 @@ public class TaskDeviceDAO extends BaseDAO<TaskDevice, Long> implements ITaskDev
     }
 
     @Override
-    public List<TaskDevice> findByTaskId(Long taskId) {
-        return mapper.findByTaskId(taskId);
+    public List<TaskDevice> findByTaskCode(Long taskCode) {
+        return mapper.findByTaskCode(taskCode);
     }
 
     @Override
@@ -37,18 +37,18 @@ public class TaskDeviceDAO extends BaseDAO<TaskDevice, Long> implements ITaskDev
     }
 
     @Override
-    public TaskDevice findOne(Long taskId, String deviceId) {
-        return mapper.findOneByTaskIdAndDeviceId(taskId, deviceId);
+    public TaskDevice findOne(Long taskCode, String deviceId) {
+        return mapper.findOneByTaskCodeAndDeviceId(taskCode, deviceId);
     }
 
     @Override
-    public List<TaskDeviceStatusStatis> countTaskDeviceStatus(Long taskId) {
-        return mapper.countTaskDeviceStatus(taskId);
+    public List<TaskDeviceStatusStatis> countTaskDeviceStatus(Long taskCode) {
+        return mapper.countTaskDeviceStatus(taskCode);
     }
 
     @Override
-    public void deleteByTaskId(Long taskId) {
-        mapper.deleteByTaskId(taskId);
+    public void disableAll(Long taskCode) {
+        mapper.disableAll(taskCode);
     }
 
 }

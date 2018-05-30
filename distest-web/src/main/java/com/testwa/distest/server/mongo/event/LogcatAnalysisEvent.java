@@ -10,11 +10,11 @@ import org.springframework.context.ApplicationEvent;
 public class LogcatAnalysisEvent extends ApplicationEvent {
 
     private String deviceId;
-    private Long taskId;
+    private Long taskCode;
 
-    public LogcatAnalysisEvent(Object source, String deviceId, Long taskId) {
+    public LogcatAnalysisEvent(Object source, String deviceId, Long taskCode) {
         super(source);
-        this.taskId = taskId;
+        this.taskCode = taskCode;
         this.deviceId = deviceId;
     }
 

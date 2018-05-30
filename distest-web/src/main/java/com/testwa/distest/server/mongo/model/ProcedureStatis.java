@@ -17,7 +17,7 @@ public class ProcedureStatis {
     @Id
     private String id;
     @Indexed
-    private Long exeId;
+    private Long taskCode;
     /**
      * 脚本数量
      */

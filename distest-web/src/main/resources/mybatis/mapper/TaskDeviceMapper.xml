@@ -4,7 +4,7 @@
     <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.TaskDevice" >
         <id column="id" property="id" jdbcType="BIGINT" />
         <result column="status" property="status" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
-        <result column="taskId" property="taskId" jdbcType="BIGINT"/>
+        <result column="taskCode" property="taskCode" jdbcType="BIGINT"/>
         <result column="deviceId" property="deviceId" jdbcType="VARCHAR" javaType="String"/>
         <result column="endTime" property="endTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="errorMsg" property="errorMsg" jdbcType="VARCHAR" javaType="String"/>
@@ -23,21 +23,21 @@
     </resultMap>
 
     <sql id="Base_Column_List" >
-        id,status,taskId,deviceId,createTime,createBy,projectId,endTime,errorMsg,taskType
+        id,status,taskCode,deviceId,createTime,createBy,projectId,endTime,errorMsg,taskType
     </sql>
 
     <select id="findOne" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />
         FROM task_device
-        WHERE id = #{key}
+        WHERE enabled = 1 AND id = #{key}
     </select>
 
-    <select id="findOneByTaskIdAndDeviceId" resultMap="BaseResultMap" >
+    <select id="findOneByTaskCodeAndDeviceId" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />
         FROM task_device
-        WHERE taskId = #{taskId} and deviceId = #{deviceId}
+        WHERE enabled = 1 AND taskCode = #{taskCode} and deviceId = #{deviceId}
     </select>
 
     <select id="findBy" parameterType="com.testwa.distest.server.entity.TaskDevice" resultMap="BaseResultMap" >
@@ -45,23 +45,25 @@
         <include refid="Base_Column_List" />
         FROM task_device
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            enabled = 1
             <if test="createBy != null">and createBy = #{createBy}</if>
-            <if test="taskId != null">and taskId = #{taskId}</if>
+            <if test="taskCode != null">and taskCode = #{taskCode}</if>
             <if test="deviceId != null">and deviceId = #{deviceId}</if>
         </trim>
     </select>
 
-    <select id="findByTaskId" parameterType="com.testwa.distest.server.entity.TaskDevice" resultMap="BaseResultMap" >
+    <select id="findByTaskCode" parameterType="com.testwa.distest.server.entity.TaskDevice" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />
         FROM task_device
-        WHERE taskId = #{taskId}
+        WHERE enabled = 1 AND taskCode = #{taskCode}
         order by status, endTime
     </select>
 
     <select id="countBy" resultType="long">
         SELECT count(1) c FROM task_device
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            enabled = 1
             <if test="status != null">and status = #{status, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
         </trim>
     </select>
@@ -69,13 +71,14 @@
     <select id="countTaskDeviceStatus" resultMap="StatisResultMap">
         SELECT count(1) as count, status as taskStatus
         FROM task_device
-        where taskId = #{taskId}
+        where taskCode = #{taskCode} AND enabled = 1
         group by status
     </select>
 
-    <delete id="deleteByTaskId">
-        DELETE FROM task_device
-        where taskId = #{taskId}
-    </delete>
+    <update id="disableAll">
+        update task_device
+        set enabled = 0
+        where taskCode = #{taskCode}
+    </update>
 
 </mapper>

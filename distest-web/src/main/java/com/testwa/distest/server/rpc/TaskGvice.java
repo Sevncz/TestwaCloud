@@ -15,7 +15,6 @@ import com.testwa.distest.server.mongo.model.TaskLog;
 import com.testwa.distest.server.mongo.service.MethodRunningLogService;
 import com.testwa.distest.server.mongo.service.StepService;
 import com.testwa.distest.server.mongo.service.TaskLoggerService;
-import com.testwa.distest.server.service.cache.mgr.TaskCacheMgr;
 import com.testwa.distest.server.service.task.service.AppiumFileService;
 import com.testwa.distest.server.service.task.service.LoggerFileService;
 import com.testwa.distest.server.service.task.service.TaskDeviceService;
@@ -58,8 +57,6 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
-    private TaskCacheMgr taskCacheMgr;
-    @Autowired
     private ApplicationContext context;
     @Autowired
     private ProcedureRedisMgr procedureRedisMgr;
@@ -78,17 +75,17 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
 
     @Override
     public void gameover(GameOverRequest request, StreamObserver<CommonReply> responseObserver) {
-        Long exeId = request.getExeId();
+        Long taskCode = request.getTaskCode();
         Long timestamp = request.getTimestamp();
         String errorMessage = request.getErrorMessage();
         String deviceId = request.getDeviceId();
 
-        TaskDevice exeTask = taskDeviceService.findOne(exeId, deviceId);
-        if(exeTask != null){
-            exeTask.setErrorMsg(errorMessage);
-            exeTask.setStatus(DB.TaskStatus.ERROR);
-            exeTask.setEndTime(new Date(timestamp));
-            taskDeviceService.update(exeTask);
+        TaskDevice taskDevice = taskDeviceService.findOne(taskCode, deviceId);
+        if(taskDevice != null){
+            taskDevice.setErrorMsg(errorMessage);
+            taskDevice.setStatus(DB.TaskStatus.ERROR);
+            taskDevice.setEndTime(new Date(timestamp));
+            taskDeviceService.update(taskDevice);
         }else{
             log.error("exeTask info not format. {}", request.toString());
         }
@@ -99,38 +96,22 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
 
     @Override
     public void missionComplete(MissionCompleteRequest request, StreamObserver<CommonReply> responseObserver) {
-        Long exeId = request.getExeId();
+        Long exeId = request.getTaskCode();
         Long timestamp = request.getTimestamp();
         String deviceId = request.getDeviceId();
-        TaskDevice exeTask = taskDeviceService.findOne(exeId, deviceId);
-        if(exeTask != null){
-            if(DB.TaskStatus.RUNNING.equals(exeTask.getStatus())){
-                exeTask.setStatus(DB.TaskStatus.COMPLETE);
+        TaskDevice taskDevice = taskDeviceService.findOne(exeId, deviceId);
+        if(taskDevice != null){
+            if(DB.TaskStatus.RUNNING.equals(taskDevice.getStatus())){
+                taskDevice.setStatus(DB.TaskStatus.COMPLETE);
             }
-            exeTask.setEndTime(new Date(timestamp));
-            taskDeviceService.update(exeTask);
+            taskDevice.setEndTime(new Date(timestamp));
+            taskDeviceService.update(taskDevice);
         }else{
             log.error("exeTask info not format. {}", request.toString());
         }
         final CommonReply replyBuilder = CommonReply.newBuilder().setMessage("OK ").build();
         responseObserver.onNext(replyBuilder);
         responseObserver.onCompleted();
-    }
-
-    @Override
-    public void currExeInfo(CurrentExeInfoRequest request, StreamObserver<CommonReply> responseObserver){
-
-        Long exeId = request.getExeId();
-        String deviceId = request.getDeviceId();
-        Long scriptId = request.getScriptId();
-        Long testcaseId = request.getTestcaseId();
-
-        taskCacheMgr.saveExeInfo(exeId, deviceId, testcaseId, scriptId);
-
-        final CommonReply replyBuilder = CommonReply.newBuilder().setMessage("OK ").build();
-        responseObserver.onNext(replyBuilder);
-        responseObserver.onCompleted();
-
     }
 
     @Override
@@ -149,7 +130,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
             private BufferedOutputStream mBufferedOutputStream = null;
             int mmCount = 0;
             String deviceId = "";
-            Long taskId = null;
+            Long taskCode = null;
 
             @Override
             public void onNext(FileUploadRequest request) {
@@ -161,14 +142,14 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
                 int size = (int) request.getSize();
                 String name = request.getName();
                 deviceId = request.getDeviceId();
-                taskId = request.getExeId();
+                taskCode = request.getTaskCode();
 
                 LoggerFile file = new LoggerFile();
                 file.setFilename(name);
-                file.setTaskId(taskId);
+                file.setTaskCode(taskCode);
                 file.setDeviceId(deviceId);
                 file.setCreateTime(new Date());
-                LoggerFile oldFile = loggerFileService.findOne(taskId, deviceId);
+                LoggerFile oldFile = loggerFileService.findOne(taskCode, deviceId);
                 if(oldFile == null){
                     loggerFileService.save(file);
                 }
@@ -221,7 +202,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
                         mBufferedOutputStream = null;
                     }
                 }
-                context.publishEvent(new LogcatAnalysisEvent(this, deviceId, taskId));
+                context.publishEvent(new LogcatAnalysisEvent(this, deviceId, taskCode));
             }
         };
     }
@@ -242,14 +223,14 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
                 int size = (int) request.getSize();
                 String name = request.getName();
                 String deviceId = request.getDeviceId();
-                long taskId = request.getExeId();
+                long taskCode = request.getTaskCode();
 
                 AppiumFile appiumFile = new AppiumFile();
                 appiumFile.setFilename(name);
-                appiumFile.setTaskId(taskId);
+                appiumFile.setTaskCode(taskCode);
                 appiumFile.setDeviceId(deviceId);
                 appiumFile.setCreateTime(new Date());
-                AppiumFile oldFile = appiumFileService.findOne(taskId, deviceId);
+                AppiumFile oldFile = appiumFileService.findOne(taskCode, deviceId);
                 if(oldFile == null){
                     appiumFileService.save(appiumFile);
                 }
@@ -315,10 +296,10 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
             public void onNext(FileUploadRequest request) {
                 byte[] data = request.getData().toByteArray();
                 String name = request.getName();
-                Long taskId = request.getExeId();
+                Long taskCode = request.getTaskCode();
                 String deviceId = request.getDeviceId();
                 String localPath = disFileProperties.getScreeshot();
-                Path localFile = Paths.get(localPath, String.valueOf(taskId), deviceId, name);
+                Path localFile = Paths.get(localPath, String.valueOf(taskCode), deviceId, name);
                 if(!Files.exists(localFile.getParent())){
                     try {
                         Files.createDirectories(localFile.getParent());
@@ -386,10 +367,10 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
                 int offset = request.getOffset();
                 int size = (int) request.getSize();
                 String name = request.getName();
-                long taskId = request.getExeId();
+                long taskCode = request.getTaskCode();
                 String deviceId = request.getDeviceId();
                 String localPath = disFileProperties.getScreeshot();
-                localZipFile = Paths.get(localPath, String.valueOf(taskId), deviceId, name);
+                localZipFile = Paths.get(localPath, String.valueOf(taskCode), deviceId, name);
                 if(!Files.exists(localZipFile.getParent())){
                     try {
                         Files.createDirectories(localZipFile.getParent());
@@ -453,7 +434,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
 
         String token = request.getToken();
         Long timestamp = request.getTimestamp();
-        Long taskId = request.getExeId();
+        Long taskCode = request.getTaskCode();
         String deviceId = request.getDeviceId();
         String desc = request.getMethodDesc();
         int actionOrder = request.getOrder();
@@ -468,7 +449,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
         logInfo.setDeviceId(deviceId);
         logInfo.setMethodName(methodName);
         logInfo.setToken(token);
-        logInfo.setTaskId(taskId);
+        logInfo.setTaskCode(taskCode);
         logInfo.setTimestamp(timestamp);
         logInfo.setFlag(flag);
         logInfo.setMethodOrder(actionOrder);
@@ -493,14 +474,14 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
      */
     @Override
     public void logcatStrUpload(LogcatStrRequest request, StreamObserver<CommonReply> responseObserver){
-        Long taskId = request.getExeId();
+        Long taskCode = request.getTaskCode();
         String deviceId = request.getDeviceId();
         String content = request.getContent();
         Long timestamp = request.getTimestamp();
         TaskLog log = new TaskLog();
         log.setContent(content);
         log.setDeviceId(deviceId);
-        log.setTaskId(taskId);
+        log.setTaskCode(taskCode);
         log.setTimestamp(timestamp);
         taskLoggerService.save(log);
 
@@ -511,7 +492,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
 
     @Override
     public void saveStep(StepRequest request, StreamObserver<CommonReply> responseObserver){
-        Long taskId = request.getTaskId();
+        Long taskCode = request.getTaskCode();
         String deviceId = request.getDeviceId();
         String img = request.getImg();
         String dump = request.getDump();
@@ -525,7 +506,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
 
         Step step = new Step();
         step.setDeviceId(deviceId);
-        step.setTaskId(taskId);
+        step.setTaskCode(taskCode);
         step.setDump(dump);
         step.setImg(img);
         step.setAction(request.getAction().name());
@@ -553,7 +534,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     public void savePerformance(PerformanceRequest request, StreamObserver<CommonReply> responseObserver){
         Performance performance = new Performance();
         performance.setDeviceId(request.getDeviceId());
-        performance.setTaskId(request.getTaskId());
+        performance.setTaskCode(request.getTaskCode());
         performance.setBat(request.getBat());
         performance.setCpu(request.getCpu());
         performance.setFps(request.getFps());

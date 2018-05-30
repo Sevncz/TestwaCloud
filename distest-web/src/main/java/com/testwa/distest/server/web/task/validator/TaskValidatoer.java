@@ -9,7 +9,6 @@ import com.testwa.distest.server.entity.Task;
 import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.task.service.TaskService;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,15 +21,15 @@ import java.util.List;
 public class TaskValidatoer {
 
     @Autowired
-    private TaskService executionTaskService;
+    private TaskService taskService;
     @Autowired
     private AppService appService;
     @Autowired
     private DeviceService deviceService;
 
 
-    public Task validateTaskExist(Long entityId) throws ObjectNotExistsException {
-        Task exetask = executionTaskService.findOne(entityId);
+    public Task validateTaskExist(Long taskCode) throws ObjectNotExistsException {
+        Task exetask = taskService.findByCode(taskCode);
         if(exetask == null){
             throw new ObjectNotExistsException("任务不存在");
         }
@@ -39,7 +38,7 @@ public class TaskValidatoer {
 
 
     public List<Task> validateTasksExist(List<Long> entityIds) throws ObjectNotExistsException {
-        List<Task> entityList = executionTaskService.findAll(entityIds);
+        List<Task> entityList = taskService.findAll(entityIds);
         if(entityList == null || entityList.size() != entityIds.size()){
             throw new ObjectNotExistsException("任务不存在");
         }

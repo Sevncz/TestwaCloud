@@ -40,14 +40,14 @@ public class IndexController {
         String urlInfo = parseInputStreamFormUrlToJson(request);
         grpcClientService.procedureInfoUpload(urlInfo);
         JSONObject appiumStepJson = JSON.parseObject(urlInfo);
-        String taskId = appiumStepJson.getString("executionTaskId");
+        String taskId = appiumStepJson.getString("taskCode");
         String scriptId = appiumStepJson.getString("testSuit");
         String testcaseId = appiumStepJson.getString("testcaseId");
         String sessionId = appiumStepJson.getString("sessionId");
         if(StringUtils.isNotBlank(taskId) && StringUtils.isNotBlank(scriptId) && StringUtils.isNotBlank(testcaseId) && StringUtils.isNotBlank(sessionId)){
             // {"status":0,"value":null,"runtime":468,"cpurate":"22","memory":"100012","battery":null,
             // "sessionId":"ace91834-73c7-4fc0-8a85-004caec5154d","deviceId":"b15d91f","testSuit":"3",
-            // "testcaseId":"3","executionTaskId":"185","screenshotPath":"1527502356422.png",
+            // "testcaseId":"3","taskCode":"185","screenshotPath":"1527502356422.png",
             // "description":"No Driver found for this session, probably appium error, please restart appium!",
             // "command":{"action":"等待","params":"60000ms"}}
             String value = appiumStepJson.getString("value");
@@ -68,7 +68,7 @@ public class IndexController {
 
             StepRequest stepRequest = StepRequest.newBuilder()
                     .setToken(UserInfo.token)
-                    .setTaskId(Long.parseLong(taskId))
+                    .setTaskCode(Long.parseLong(taskId))
                     .setDeviceId(appiumStepJson.getString("deviceId"))
                     .setImg(appiumStepJson.getString("screenshotPath"))
                     .setAction(StepRequest.StepAction.operation)

@@ -15,13 +15,13 @@ public interface ITaskDeviceDAO extends IBaseDAO<TaskDevice, Long> {
 
     TaskDevice findOne(Long entityId);
 
-    List<TaskDevice> findByTaskId(Long taskId);
+    List<TaskDevice> findByTaskCode(Long taskCode);
 
     Long countBy(TaskDevice kq);
 
-    TaskDevice findOne(Long taskId, String deviceId);
+    TaskDevice findOne(Long taskCode, String deviceId);
 
     List<TaskDeviceStatusStatis> countTaskDeviceStatus(Long taskId);
 
-    void deleteByTaskId(Long taskId);
+    void disableAll(Long taskCode);
 }

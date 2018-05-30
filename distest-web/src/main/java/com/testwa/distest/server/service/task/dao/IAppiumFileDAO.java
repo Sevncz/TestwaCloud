@@ -13,16 +13,16 @@ import java.util.Map;
 public interface IAppiumFileDAO extends IBaseDAO<AppiumFile, Long> {
     /**
      * 根据taskId获得所有appiumFile
-     * @param taskId
+     * @param taskCode
      * @return
      */
-    List<AppiumFile> findAll(Long taskId);
+    List<AppiumFile> findAll(Long taskCode);
     /**
-     * 根据taskId, deviceId获得一个appiumFile
-     * @param taskId
+     * 根据taskCode, deviceId获得一个appiumFile
+     * @param taskCode
      * @return
      */
-    AppiumFile findOne(Long taskId, String deviceId);
+    AppiumFile findOne(Long taskCode, String deviceId);
 
     /**
      * 删除一个task下的所有appiumFile

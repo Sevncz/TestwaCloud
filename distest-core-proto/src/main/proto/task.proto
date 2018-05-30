@@ -19,7 +19,6 @@ service TaskService {
     rpc ImgFileUpload (stream FileUploadRequest) returns ( CommonReply ) {}
     rpc ZipFileUpload (stream FileUploadRequest) returns ( CommonReply ) {}
 
-    rpc currExeInfo (CurrentExeInfoRequest) returns ( CommonReply ) {}
     rpc appiumRunningLogUpload (AppiumRunningLogUploadRequest) returns ( CommonReply ) {}
 
     rpc saveStep (StepRequest) returns ( CommonReply ) {}
@@ -49,7 +48,7 @@ message AppiumRunningLogRequest {
     string logcatFile = 15;
     int64 scriptId = 16;
     string token = 17;
-    int64 taskId = 18;
+    int64 taskCode = 18;
     int64 testcaseId = 19;
 }
 
@@ -73,7 +72,7 @@ message StepRequest {
     string img = 1;
     string dump = 2;
     string token = 3;
-    int64 taskId = 4;
+    int64 taskCode = 4;
     string deviceId = 5;
     StepStatus status = 6;
     int64 runtime = 7;
@@ -91,7 +90,7 @@ message StepRequest {
 }
 
 message PerformanceRequest {
-    int64 taskId = 1;
+    int64 taskCode = 1;
     string deviceId = 2;
     int64 timestamp = 3;
     int32 mem = 4;
@@ -107,31 +106,25 @@ message PerformanceRequest {
 }
 
 message GameOverRequest {
-    int64 exeId = 1;
+    int64 taskCode = 1;
     int64 timestamp = 2;
     string token = 3;
     string errorMessage = 4;
     string deviceId = 5;
 }
+
 message MissionCompleteRequest {
-    int64 exeId = 1;
+    int64 taskCode = 1;
     int64 timestamp = 2;
     string token = 3;
     string deviceId = 4;
 }
+
 message LogcatStrRequest {
-    int64 exeId = 1;
+    int64 taskCode = 1;
     int64 timestamp = 2;
     string deviceId = 3;
     string content = 4;
-}
-
-message CurrentExeInfoRequest {
-    int64 exeId = 1;
-    string deviceId = 2;
-    string token = 3;
-    int64 scriptId = 4;
-    int64 testcaseId = 5;
 }
 
 message AppiumRunningLogUploadRequest {
@@ -139,7 +132,7 @@ message AppiumRunningLogUploadRequest {
 }
 
 message FileUploadRequest {
-    int64 exeId = 1;
+    int64 taskCode = 1;
     int64 timestamp = 2;
     string token = 3;
     bytes data = 4;
@@ -150,7 +143,7 @@ message FileUploadRequest {
 }
 
 message ExecutorLogRequest {
-    int64 exeId = 1;
+    int64 taskCode = 1;
     int64 timestamp = 2;
     string token = 3;
     string deviceId = 4;

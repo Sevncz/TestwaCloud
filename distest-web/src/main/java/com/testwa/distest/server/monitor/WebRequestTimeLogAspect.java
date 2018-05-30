@@ -32,7 +32,7 @@ class WebRequestTimeLogAspect {
     public void doBefore(JoinPoint joinPoint){
         ThreadContext.init();
         ThreadContext.putRequestBeforeTime(System.currentTimeMillis());
-        log.info("befor: {}， {}", ThreadContext.getRequestBeforeTime(), joinPoint.getTarget());
+        log.debug("befor: {}， {}", ThreadContext.getRequestBeforeTime(), joinPoint.getTarget());
     }
 
     @AfterReturning("webLog()")
@@ -40,7 +40,7 @@ class WebRequestTimeLogAspect {
         // 处理完请求，返回内容
         Long startTime = ThreadContext.getRequestBeforeTime();
         Long endTime = System.currentTimeMillis();
-        log.info("after: {}， {}", endTime, joinPoint.getTarget());
+        log.debug("after: {}， {}", endTime, joinPoint.getTarget());
         if(endTime - startTime > 300){
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             if(attributes != null){

@@ -15,15 +15,15 @@ public interface TaskDeviceMapper extends BaseMapper<Task, Long> {
 
     List<TaskDevice> findBy(TaskDevice entity);
 
-    List<TaskDevice> findByTaskId(@Param("taskId") Long taskId);
+    List<TaskDevice> findByTaskCode(@Param("taskCode") Long taskCode);
 
     TaskDevice findOne(Long key);
 
     Long countBy(TaskDevice query);
 
-    TaskDevice findOneByTaskIdAndDeviceId(@Param("taskId") Long taskId, @Param("deviceId") String deviceId);
+    TaskDevice findOneByTaskCodeAndDeviceId(@Param("taskCode") Long taskCode, @Param("deviceId") String deviceId);
 
-    List<TaskDeviceStatusStatis> countTaskDeviceStatus(@Param("taskId") Long taskId);
+    List<TaskDeviceStatusStatis> countTaskDeviceStatus(@Param("taskCode") Long taskId);
 
-    void deleteByTaskId(@Param("taskId") Long taskId);
+    void disableAll(@Param("taskCode") Long taskId);
 }

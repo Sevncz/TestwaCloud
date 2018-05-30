@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface PerformanceRepository extends CommonRepository<Performance, Serializable> {
 
-    List<Performance> findByTaskIdOrderByTimestampAsc(Long taskId);
+    List<Performance> findByTaskCodeOrderByTimestampAsc(Long taskId);
 
-    List<Performance> findByTaskIdAndDeviceIdOrderByTimestampAsc(Long taskId, String deviceId);
+    List<Performance> findByTaskCodeAndDeviceIdOrderByTimestampAsc(Long taskId, String deviceId);
 }

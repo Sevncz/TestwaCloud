@@ -9,11 +9,11 @@ import org.springframework.context.ApplicationEvent;
 @Data
 public class TaskOverEvent extends ApplicationEvent {
 
-    private Long taskId;
+    private Long taskCode;
 
-    public TaskOverEvent(Object source, Long taskId) {
+    public TaskOverEvent(Object source, Long taskCode) {
         super(source);
-        this.taskId = taskId;
+        this.taskCode = taskCode;
     }
 
 }

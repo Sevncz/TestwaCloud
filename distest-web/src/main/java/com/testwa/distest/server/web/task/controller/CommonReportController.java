@@ -5,7 +5,6 @@ import com.testwa.core.base.exception.AuthorizedException;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.base.exception.ParamsIsNullException;
 import com.testwa.core.base.form.DeleteAllForm;
-import com.testwa.core.base.util.StringUtil;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.base.vo.Result;
 import com.testwa.distest.common.enums.DB;
@@ -16,10 +15,8 @@ import com.testwa.distest.server.entity.Task;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.mongo.model.CrashLog;
-import com.testwa.distest.server.mongo.model.AppiumRunningLog;
 import com.testwa.distest.server.mongo.model.Step;
 import com.testwa.distest.server.mongo.service.CrashLogService;
-import com.testwa.distest.server.mongo.service.AppiumRunningLogService;
 import com.testwa.distest.server.mongo.service.StepService;
 import com.testwa.distest.server.service.task.form.ScriptListForm;
 import com.testwa.distest.server.service.task.form.StepListForm;
@@ -49,10 +46,10 @@ import java.util.Map;
  * Created by wen on 24/10/2017.
  */
 @Slf4j
-@Api("任务报告相关api")
+@Api("通用测试任务报告")
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/report")
-public class ReportController extends BaseController {
+public class CommonReportController extends BaseController {
 
     @Autowired
     private TaskService taskService;
@@ -65,8 +62,6 @@ public class ReportController extends BaseController {
     @Autowired
     private StepValidatoer stepValidatoer;
     @Autowired
-    private AppiumRunningLogService procedureInfoService;
-    @Autowired
     private StepService stepService;
     @Autowired
     private ProjectValidator projectValidator;
@@ -77,10 +72,10 @@ public class ReportController extends BaseController {
 
     @ApiOperation(value="任务基本信息")
     @ResponseBody
-    @GetMapping(value = "/task/{taskId}")
-    public Result statis(@PathVariable Long taskId) throws ObjectNotExistsException {
+    @GetMapping(value = "/task/{taskCode}")
+    public Result statis(@PathVariable Long taskCode) throws ObjectNotExistsException {
 
-        Task task = taskValidatoer.validateTaskExist(taskId);
+        Task task = taskValidatoer.validateTaskExist(taskCode);
         Map<String, Object> result = taskService.statis(task);
 
         return ok(result);
@@ -114,7 +109,7 @@ public class ReportController extends BaseController {
     @ResponseBody
     @PostMapping(value = "/delete")
     public Result delete(@RequestBody @Valid DeleteAllForm form) {
-        taskService.deleteTask(form.getEntityIds());
+        taskService.disableAll(form.getEntityIds());
         return ok();
     }
 
@@ -122,8 +117,8 @@ public class ReportController extends BaseController {
     @ResponseBody
     @GetMapping(value = "/script/list")
     public Result scriptList(@Valid ScriptListForm form) throws ParamsIsNullException {
-        if(form.getTaskId() == null){
-            throw new ParamsIsNullException("TaskId is null");
+        if(form.getTaskCode() == null){
+            throw new ParamsIsNullException("TaskCode is null");
         }
         List<Script> scriptList = taskService.findScriptListInTask(form);
         return ok(scriptList);
@@ -133,8 +128,8 @@ public class ReportController extends BaseController {
     @ResponseBody
     @GetMapping(value = "/step/list")
     public Result stepList(@Valid StepListForm form) throws ParamsIsNullException {
-        Long taskId = form.getTaskId();
-        Task task = taskValidatoer.validateTaskExist(taskId);
+        Long taskCode = form.getTaskCode();
+        Task task = taskValidatoer.validateTaskExist(taskCode);
         if (DB.TaskType.HG.equals(task.getTaskType())) {
             List<Step> HGList = stepService.findHGList(form);
             return ok(HGList);
@@ -149,8 +144,8 @@ public class ReportController extends BaseController {
     @ResponseBody
     @GetMapping(value = "/step/page")
     public Result stepPage(@Valid StepPageForm pageForm) throws ParamsIsNullException {
-        Long taskId = pageForm.getTaskId();
-        Task task = taskValidatoer.validateTaskExist(taskId);
+        Long taskCode = pageForm.getTaskCode();
+        Task task = taskValidatoer.validateTaskExist(taskCode);
         if (DB.TaskType.HG.equals(task.getTaskType())) {
             PageResult<Step> hgPage = stepService.findHGByPage(pageForm);
             return ok(hgPage);
@@ -176,13 +171,13 @@ public class ReportController extends BaseController {
 
     @ApiOperation(value="返回一个appium日志相对路径", notes="")
     @ResponseBody
-    @GetMapping(value = "/appiumpath/{taskId}/{deviceId}")
-    public Result appiumLogPath(@PathVariable Long taskId, @PathVariable String deviceId) throws ParamsIsNullException, ObjectNotExistsException {
-        if(taskId == null || deviceId == null ){
+    @GetMapping(value = "/appiumpath/{taskCode}/{deviceId}")
+    public Result appiumLogPath(@PathVariable Long taskCode, @PathVariable String deviceId) throws ParamsIsNullException, ObjectNotExistsException {
+        if(taskCode == null || deviceId == null ){
             throw new ParamsIsNullException("参数不能为空");
         }
-        taskValidatoer.validateTaskExist(taskId);
-        AppiumFile appiumFile = appiumFileService.findOne(taskId, deviceId);
+        taskValidatoer.validateTaskExist(taskCode);
+        AppiumFile appiumFile = appiumFileService.findOne(taskCode, deviceId);
         if(appiumFile == null){
             throw new ObjectNotExistsException("Appium 日志不存在");
         }
@@ -192,54 +187,54 @@ public class ReportController extends BaseController {
 
     /**
      *@Description: 执行进度详情，每个设备执行任务过程中每开始一个子任务的时间线
-     *@Param: [taskId]
+     *@Param: [taskCode]
      *@Return: com.testwa.core.base.vo.Result
      *@Author: wen
      *@Date: 2018/5/24
      */
     @ApiOperation(value="返回任务中每个设备的执行进度")
     @ResponseBody
-    @GetMapping(value = "/progress/{taskId}")
-    public Result progress(@PathVariable(value = "taskId") Long taskId) throws ObjectNotExistsException {
-        if(taskId == null){
+    @GetMapping(value = "/progress/{taskCode}")
+    public Result progress(@PathVariable(value = "taskCode") Long taskCode) throws ObjectNotExistsException {
+        if(taskCode == null){
             throw new ParamsIsNullException("参数不能为空");
         }
-        taskValidatoer.validateTaskExist(taskId);
-        TaskProgressVO result = reportMgr.getProgress(taskId);
+        taskValidatoer.validateTaskExist(taskCode);
+        TaskProgressVO result = reportMgr.getProgress(taskCode);
         return ok(result);
     }
 
 
     @ApiOperation(value="设备的进度")
     @ResponseBody
-    @GetMapping(value = "/progress/{taskId}/{deviceId}")
-    public Result progressDevice(@PathVariable(value = "taskId") Long taskId, @PathVariable(value = "deviceId") String deviceId) throws ObjectNotExistsException {
-        if(taskId == null || StringUtils.isBlank(deviceId)){
+    @GetMapping(value = "/progress/{taskCode}/{deviceId}")
+    public Result progressDevice(@PathVariable(value = "taskCode") Long taskCode, @PathVariable(value = "deviceId") String deviceId) throws ObjectNotExistsException {
+        if(taskCode == null || StringUtils.isBlank(deviceId)){
             throw new ParamsIsNullException("参数不能为空");
         }
-        Task task = taskValidatoer.validateTaskExist(taskId);
-        DeviceProgressVO vo = reportMgr.getProgress(taskId, deviceId);
+        Task task = taskValidatoer.validateTaskExist(taskCode);
+        DeviceProgressVO vo = reportMgr.getProgress(taskCode, deviceId);
         return ok(vo);
     }
 
     /**
      *@Description: 当前任务进度详情查看，包括设备完成度统计、每个设备执行任务过程中每开始一个子任务的时间线、任务最终状态
-     *@Param: [taskId]  `
+     *@Param: [taskCode]  `
      *@Return: com.testwa.core.base.vo.Result
      *@Author: wen
      *@Date: 2018/5/24
      */
     @ApiOperation(value="任务进度统计")
     @ResponseBody
-    @GetMapping(value = "/overview/{taskId}")
-    public Result overview(@PathVariable(value = "taskId") Long taskId) throws ObjectNotExistsException {
-        if(taskId == null){
+    @GetMapping(value = "/overview/{taskCode}")
+    public Result overview(@PathVariable(value = "taskCode") Long taskCode) throws ObjectNotExistsException {
+        if(taskCode == null){
             throw new ParamsIsNullException("参数不能为空");
         }
-        Task task = taskValidatoer.validateTaskExist(taskId);
-        TaskProgressVO progressVO = reportMgr.getProgress(taskId);
+        Task task = taskValidatoer.validateTaskExist(taskCode);
+        TaskProgressVO progressVO = reportMgr.getProgress(taskCode);
         TaskOverviewVO overviewVO = reportMgr.getTaskOverview(task);
-        TaskDeviceFinishStatisVO finishStatisVO = reportMgr.getFinishStatisVO(taskId);
+        TaskDeviceFinishStatisVO finishStatisVO = reportMgr.getFinishStatisVO(taskCode);
 
         TaskOverallProgressVO result = new TaskOverallProgressVO();
         result.setEquipment(finishStatisVO);
@@ -251,121 +246,116 @@ public class ReportController extends BaseController {
 
     /**
      *@Description: 平均性能概述，包括安装时长、启动时长、cpu平均使用率、内存平均使用量、平均fps帧率、下行流量、上行流量
-     *@Param: [taskId]
+     *@Param: [taskCode]
      *@Return: com.testwa.core.base.vo.Result
      *@Author: wen
      *@Date: 2018/5/24
      */
     @ApiOperation(value="平均性能概述")
     @ResponseBody
-    @GetMapping(value = "/performance/{taskId}")
-    public Result performance(@PathVariable(value = "taskId") Long taskId) throws ObjectNotExistsException {
-        if(taskId == null){
+    @GetMapping(value = "/performance/{taskCode}")
+    public Result performance(@PathVariable(value = "taskCode") Long taskCode) throws ObjectNotExistsException {
+        if(taskCode == null){
             throw new ParamsIsNullException("参数不能为空");
         }
-        Task task = taskValidatoer.validateTaskExist(taskId);
+        Task task = taskValidatoer.validateTaskExist(taskCode);
         PerformanceOverviewVO vo = reportMgr.getPerformanceOverview(task);
         return ok(vo);
     }
 
     /**
      *@Description: 设备性能的基本概述， 包括安装时长、启动时长、cpu平均使用率、内存平均使用量、平均fps帧率、下行流量、上行流量
-     *@Param: [taskId, deviceId]
+     *@Param: [taskCode, deviceId]
      *@Return: com.testwa.core.base.vo.Result
      *@Author: wen
      *@Date: 2018/5/25
      */
     @ApiOperation(value="设备性能的基本概述")
     @ResponseBody
-    @GetMapping(value = "/performance/{taskId}/{deviceId}")
-    public Result performanceDevice(@PathVariable(value = "taskId") Long taskId, @PathVariable(value = "deviceId") String deviceId) throws ObjectNotExistsException {
-        if(taskId == null){
+    @GetMapping(value = "/performance/{taskCode}/{deviceId}")
+    public Result performanceDevice(@PathVariable(value = "taskCode") Long taskCode, @PathVariable(value = "deviceId") String deviceId) throws ObjectNotExistsException {
+        if(taskCode == null){
             throw new ParamsIsNullException("参数不能为空");
         }
-        Task task = taskValidatoer.validateTaskExist(taskId);
+        Task task = taskValidatoer.validateTaskExist(taskCode);
         PerformanceDeviceOverviewVO vo = reportMgr.getPerformanceOverview(task, deviceId);
         return ok(vo);
     }
 
     /**
      *@Description: 性能详细信息，供echart线性图使用，包括cpu，内存，fps
-     *@Param: [taskId]
+     *@Param: [taskCode]
      *@Return: com.testwa.core.base.vo.Result
      *@Author: wen
      *@Date: 2018/5/24
      */
     @ApiOperation(value="性能详细信息")
     @ResponseBody
-    @GetMapping(value = "/performance/detail/{taskId}")
-    public Result performanceDetail(@PathVariable(value = "taskId") Long taskId) throws ObjectNotExistsException {
-        if(taskId == null){
+    @GetMapping(value = "/performance/detail/{taskCode}")
+    public Result performanceDetail(@PathVariable(value = "taskCode") Long taskCode) throws ObjectNotExistsException {
+        if(taskCode == null){
             throw new ParamsIsNullException("参数不能为空");
         }
-        Task task = taskValidatoer.validateTaskExist(taskId);
+        Task task = taskValidatoer.validateTaskExist(taskCode);
         ReportPerformanceDetailVO vo = reportMgr.getPerformanceDetail(task);
         return ok(vo);
     }
 
     /**
      *@Description: 性能综合数据，饼图和柱形图数据
-     *@Param: [taskId]
+     *@Param: [taskCode]
      *@Return: com.testwa.core.base.vo.Result
      *@Author: wen
      *@Date: 2018/5/24
      */
     @ApiOperation(value="性能详细信息")
     @ResponseBody
-    @GetMapping(value = "/performance/summary/{taskId}")
-    public Result performanceSummary(@PathVariable(value = "taskId") Long taskId) throws ObjectNotExistsException {
-        if(taskId == null){
+    @GetMapping(value = "/performance/summary/{taskCode}")
+    public Result performanceSummary(@PathVariable(value = "taskCode") Long taskCode) throws ObjectNotExistsException {
+        if(taskCode == null){
             throw new ParamsIsNullException("参数不能为空");
         }
-        Task task = taskValidatoer.validateTaskExist(taskId);
+        Task task = taskValidatoer.validateTaskExist(taskCode);
         ReportPerformanceSummaryVO vo = reportMgr.getPerformanceSummary(task);
         return ok(vo);
     }
 
     /**
      *@Description: 流量数据，上下行
-     *@Param: [taskId]
+     *@Param: [taskCode]
      *@Return: com.testwa.core.base.vo.Result
      *@Author: wen
      *@Date: 2018/5/24
      */
     @ApiOperation(value="流量详细信息")
     @ResponseBody
-    @GetMapping(value = "/performance/detail/flow/{taskId}/{deviceId}")
-    public Result performanceFlowSummary(@PathVariable(value = "taskId") Long taskId, @PathVariable(value = "deviceId") String deviceId) throws ObjectNotExistsException {
-        if(taskId == null){
+    @GetMapping(value = "/performance/detail/flow/{taskCode}/{deviceId}")
+    public Result performanceFlowSummary(@PathVariable(value = "taskCode") Long taskCode, @PathVariable(value = "deviceId") String deviceId) throws ObjectNotExistsException {
+        if(taskCode == null){
             throw new ParamsIsNullException("参数不能为空");
         }
-        Task task = taskValidatoer.validateTaskExist(taskId);
-        EchartDoubleLine line = null;
-        if (DB.TaskType.HG.equals(task.getTaskType())) {
-            line = reportMgr.getHGPerformanceFlowSummary(task, deviceId);
-        }else if (DB.TaskType.JR.equals(task.getTaskType())) {
-            line = reportMgr.getJRPerformanceFlowSummary(task, deviceId);
-        }
+        Task task = taskValidatoer.validateTaskExist(taskCode);
+        EchartDoubleLine line = reportMgr.getPerformanceFlowSummary(task, deviceId);
 
         return ok(line);
     }
 
     /**
      *@Description: crash日志列表获取
-     *@Param: [taskId, deviceId]
+     *@Param: [taskCode, deviceId]
      *@Return: com.testwa.core.base.vo.Result
      *@Author: wen
      *@Date: 2018/5/25
      */
     @ApiOperation(value="crash日志")
     @ResponseBody
-    @GetMapping(value = "/crash/log/{taskId}/{deviceId}")
-    public Result crashLog(@PathVariable(value = "taskId") Long taskId, @PathVariable(value = "deviceId") String deviceId) throws ObjectNotExistsException {
-        if(taskId == null){
+    @GetMapping(value = "/crash/log/{taskCode}/{deviceId}")
+    public Result crashLog(@PathVariable(value = "taskCode") Long taskCode, @PathVariable(value = "deviceId") String deviceId) throws ObjectNotExistsException {
+        if(taskCode == null){
             throw new ParamsIsNullException("参数不能为空");
         }
-        Task task = taskValidatoer.validateTaskExist(taskId);
-        List<CrashLog> crashLogs = crashLogService.findByTaskIdAndDeviceId(taskId, deviceId);
+        Task task = taskValidatoer.validateTaskExist(taskCode);
+        List<CrashLog> crashLogs = crashLogService.findBy(taskCode, deviceId);
         return ok(crashLogs);
     }
 

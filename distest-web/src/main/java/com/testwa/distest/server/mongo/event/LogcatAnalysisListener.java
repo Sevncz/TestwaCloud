@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.data.mongodb.core.MongoOperations;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedWriter;
@@ -65,7 +64,7 @@ public class LogcatAnalysisListener implements ApplicationListener<LogcatAnalysi
         executorService.execute(() -> {
 
             log.info("logcat analysis start...");
-            LoggerFile loggerFile = loggerFileService.findOne(e.getTaskId(), e.getDeviceId());
+            LoggerFile loggerFile = loggerFileService.findOne(e.getTaskCode(), e.getDeviceId());
             Path logcatPath = Paths.get(disFileProperties.getLogcat(), loggerFile.buildPath());
             if(!Files.exists(logcatPath)){
                 log.error("logcat file not found, {}", logcatPath.toString());
@@ -107,7 +106,7 @@ public class LogcatAnalysisListener implements ApplicationListener<LogcatAnalysi
 
             // 分析outputlog文件
             // 清理文件格式
-            Task task = taskService.findOne(e.getTaskId());
+            Task task = taskService.findByCode(e.getTaskCode());
             App app = null;
             if(task != null) {
                 app = task.getApp();
@@ -116,7 +115,7 @@ public class LogcatAnalysisListener implements ApplicationListener<LogcatAnalysi
             List<CrashLog> logs = analysisResult(outputLog.toString());
             if(logs.size() > 0){
                 logs.forEach( i -> {
-                    i.setTaskId(e.getTaskId());
+                    i.setTaskCode(e.getTaskCode());
                     i.setDeviceId(e.getDeviceId());
                     if(appfinal != null) {
                         i.setBasepackage(appfinal.getPackageName());

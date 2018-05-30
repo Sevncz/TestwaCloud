@@ -4,7 +4,6 @@ import com.testwa.core.base.annotation.TableName;
 import com.testwa.core.base.bo.BaseEntity;
 import lombok.Data;
 
-import java.io.File;
 import java.util.Date;
 
 /**
@@ -14,7 +13,7 @@ import java.util.Date;
 @TableName("appium_file")
 public class AppiumFile extends BaseEntity {
 
-    private Long taskId;
+    private Long taskCode;
     private String deviceId;
     private String filename;
     private Date createTime;
@@ -24,6 +23,6 @@ public class AppiumFile extends BaseEntity {
      * @return
      */
     public String buildPath(){
-        return "/" + taskId + "/" + deviceId + "/" + filename;
+        return "/" + taskCode + "/" + deviceId + "/" + filename;
     }
 }

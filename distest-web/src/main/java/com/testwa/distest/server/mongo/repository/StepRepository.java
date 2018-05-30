@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface StepRepository extends CommonRepository<Step, Serializable> {
 
-    List<Step> findByTaskId(Long taskId);
+    List<Step> findByTaskCode(Long taskId);
 
-    List<Step> findByTaskIdAndDeviceId(Long taskId, String deviceId);
+    List<Step> findByTaskCodeAndDeviceId(Long taskId, String deviceId);
 }

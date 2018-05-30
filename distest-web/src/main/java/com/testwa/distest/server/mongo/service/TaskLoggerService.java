@@ -22,16 +22,16 @@ public class TaskLoggerService extends BaseService {
         taskLoggerRepository.save(entity);
     }
 
-    public void deleteById(String entityId){
+    public void deleteBy(String entityId){
         taskLoggerRepository.delete(entityId);
     }
 
-    public void deleteByTaskId(Long taskId){
-        taskLoggerRepository.deleteByTaskId(taskId);
+    public void deleteBy(Long taskId){
+        taskLoggerRepository.deleteByTaskCode(taskId);
     }
 
     public TaskLog findOneByTaskId(Long taskId){
-        return taskLoggerRepository.findByTaskId(taskId);
+        return taskLoggerRepository.findByTaskCode(taskId);
     }
 
 }

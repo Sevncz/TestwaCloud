@@ -53,7 +53,7 @@ public class AppiumRunningLogService extends BaseService {
 
     public AppiumRunningLog findLastProcedureInfo(AppiumRunningLog stepInfo) {
         Criteria criatira = new Criteria();
-        criatira.andOperator(Criteria.where("executionTaskId").is(stepInfo.getExecutionTaskId()),
+        criatira.andOperator(Criteria.where("taskCode").is(stepInfo.getTaskCode()),
                 Criteria.where("scriptId").is(stepInfo.getTestSuit()),
                 Criteria.where("timestamp").lt(stepInfo.getTimestamp()));
         Sort sort = new Sort(Sort.Direction.DESC, "timestamp");
@@ -65,31 +65,31 @@ public class AppiumRunningLogService extends BaseService {
         return null;
     }
 
-    public ProcedureStatis getProcedureStatisByExeId(Long exeId){
-        return procedureStatisRepository.findByExeId(exeId);
+    public ProcedureStatis getProcedureStatisByExeId(Long taskCode){
+        return procedureStatisRepository.findByTaskCode(taskCode);
     }
 
     public void saveProcedureStatis(ProcedureStatis s) {
         procedureStatisRepository.save(s);
     }
 
-    public void deleteStatisById(String taskId) {
-        procedureStatisRepository.delete(taskId);
+    public void deleteStatisById(String taskCode) {
+        procedureStatisRepository.delete(taskCode);
     }
 
     public List<AppiumRunningLog> findBySessionId(String sessionId) {
         return procedureInfoRepository.findBySessionId(sessionId);
     }
 
-    public List<AppiumRunningLog> findByExeId(Long taskId) {
-        return procedureInfoRepository.findByExecutionTaskIdOrderByTimestampAsc(taskId);
+    public List<AppiumRunningLog> findBy(Long taskCode) {
+        return procedureInfoRepository.findByTaskCodeOrderByTimestampAsc(taskCode);
     }
 
     public PageResult<AppiumRunningLog> findByPage(StepPageForm form) {
         if(form.getScriptId() == null){
             throw new ParamsIsNullException("ScriptId is null");
         }
-        if(form.getTaskId() == null){
+        if(form.getTaskCode() == null){
             throw new ParamsIsNullException("TaskId is null");
         }
         if(StringUtils.isBlank(form.getDeviceId())){
@@ -97,7 +97,7 @@ public class AppiumRunningLogService extends BaseService {
         }
         Query query = new Query();
         query.addCriteria(Criteria.where("testSuit").is(form.getScriptId()));
-        query.addCriteria(Criteria.where("executionTaskId").is(form.getTaskId()));
+        query.addCriteria(Criteria.where("taskCode").is(form.getTaskCode()));
         query.addCriteria(Criteria.where("deviceId").is(form.getDeviceId()));
         int pageNum = form.getPageNo();
         int rows = form.getPageSize();
@@ -113,7 +113,7 @@ public class AppiumRunningLogService extends BaseService {
         if(form.getScriptId() == null){
             throw new ParamsIsNullException("ScriptId is null");
         }
-        if(form.getTaskId() == null){
+        if(form.getTaskCode() == null){
             throw new ParamsIsNullException("TaskId is null");
         }
         if(StringUtils.isBlank(form.getDeviceId())){
@@ -121,7 +121,7 @@ public class AppiumRunningLogService extends BaseService {
         }
         Query query = new Query();
         query.addCriteria(Criteria.where("testSuit").is(form.getScriptId()));
-        query.addCriteria(Criteria.where("executionTaskId").is(form.getTaskId()));
+        query.addCriteria(Criteria.where("taskCode").is(form.getTaskCode()));
         query.addCriteria(Criteria.where("deviceId").is(form.getDeviceId()));
         return procedureInfoRepository.find(query);
     }
@@ -144,7 +144,7 @@ public class AppiumRunningLogService extends BaseService {
         return null;
     }
 
-    public List<AppiumRunningLog> findByExecutionTaskIdAndDeviceId(Long taskId, String deviceId) {
-        return procedureInfoRepository.findByExecutionTaskIdAndDeviceIdOrderByTimestampAsc(taskId, deviceId);
+    public List<AppiumRunningLog> findByTaskCodeAndDeviceId(Long taskCode, String deviceId) {
+        return procedureInfoRepository.findByTaskCodeAndDeviceIdOrderByTimestampAsc(taskCode, deviceId);
     }
 }

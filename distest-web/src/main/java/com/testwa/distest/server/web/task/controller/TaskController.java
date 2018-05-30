@@ -7,18 +7,11 @@ import com.testwa.core.base.exception.AuthorizedException;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.base.exception.TaskStartException;
 import com.testwa.core.base.vo.Result;
-import com.testwa.core.tools.SnowflakeIdWorker;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.Task;
-import com.testwa.distest.server.mongo.service.MethodRunningLogService;
-import com.testwa.distest.server.service.script.service.ScriptService;
 import com.testwa.distest.server.service.task.form.*;
-import com.testwa.distest.server.service.task.service.TaskService;
-import com.testwa.distest.server.service.testcase.service.TestcaseService;
-import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.app.validator.AppValidator;
 import com.testwa.distest.server.web.device.validator.DeviceValidatoer;
-import com.testwa.distest.server.web.project.validator.ProjectValidator;
 import com.testwa.distest.server.web.task.execute.ExecuteMgr;
 import com.testwa.distest.server.web.task.validator.TaskValidatoer;
 import com.testwa.distest.server.web.task.vo.TaskCodeVO;
@@ -60,8 +53,8 @@ public class TaskController extends BaseController {
         deviceValidatoer.validateUsable(form.getDeviceIds());
         testcaseValidatoer.validateTestcaseExist(form.getTestcaseId());
         taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
-        Long taskId = executeMgr.startHG(form);
-        return ok(new TaskCodeVO(taskId));
+        Long taskCode = executeMgr.startHG(form);
+        return ok(new TaskCodeVO(taskCode));
     }
 
     @ApiOperation(value="执行一个兼容测试任务")
@@ -71,8 +64,8 @@ public class TaskController extends BaseController {
         appValidator.validateAppExist(form.getAppId());
         deviceValidatoer.validateUsable(form.getDeviceIds());
         taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
-        Long taskId = executeMgr.startJR(form);
-        return ok(new TaskCodeVO(taskId));
+        Long taskCode = executeMgr.startJR(form);
+        return ok(new TaskCodeVO(taskCode));
     }
 
 
@@ -80,7 +73,7 @@ public class TaskController extends BaseController {
     @ResponseBody
     @PostMapping(value = "/stop")
     public Result stop(@RequestBody TaskStopForm form) throws ObjectNotExistsException {
-        Task task = taskValidatoer.validateTaskExist(form.getTaskId());
+        Task task = taskValidatoer.validateTaskExist(form.getTaskCode());
         if(form.getDeviceIds() != null && form.getDeviceIds().size() > 0 ){
             List<Device> taskDevices = task.getDevices();
             List<Device> notInTaskDevice = taskDevices.stream().filter(device -> !form.getDeviceIds().contains(device.getDeviceId())).collect(Collectors.toList());

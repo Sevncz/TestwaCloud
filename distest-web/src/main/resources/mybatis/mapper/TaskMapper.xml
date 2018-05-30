@@ -34,6 +34,7 @@
         <include refid="Base_Column_List" />
         FROM task
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            enabled = 1
             <if test="createBy != null">and createBy = #{createBy}</if>
             <if test="projectId != null">and projectId = #{projectId}</if>
             <if test="appId != null">and appId = #{appId}</if>
@@ -45,7 +46,8 @@
         SELECT
         <include refid="Base_Column_List" />
         FROM task
-        WHERE projectId in
+        WHERE enabled = 1
+        AND projectId in
         <foreach item="item" index="index" collection="params.projects" open="(" separator="," close=")">#{item.id} </foreach>
         <if test="params.createBy != null">and createBy = #{params.createBy}</if>
         <if test="params.projectId != null">and projectId = #{params.projectId}</if>
@@ -55,15 +57,34 @@
     <select id="countBy" resultType="long">
         SELECT count(1) c FROM task
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            enabled = 1
             <if test="projectId != null">and projectId = #{projectId}</if>
             <if test="appId != null">and appId = #{appId}</if>
             <if test="taskType != null">and taskType = #{taskType, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
         </trim>
     </select>
 
+    <select id="findByCode" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM task
+        WHERE taskCode = #{taskCode} and enabled = 1
+    </select>
+
     <update id="updateEndTime" >
         update task
         set endTime = #{endTime}
-        where id = #{taskId}
+        where taskCode = #{taskCode}
+    </update>
+    <update id="disable" >
+        update task
+        set enabled = 0
+        where taskCode = #{taskCode}
+    </update>
+    <update id="disableAll" >
+        update task
+        set enabled = 0
+        where taskCode in
+        <foreach item="item" index="index" collection="taskCodes" open="(" separator="," close=")">#{item} </foreach>
     </update>
 </mapper>

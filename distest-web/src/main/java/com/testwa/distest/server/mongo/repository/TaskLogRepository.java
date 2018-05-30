@@ -11,7 +11,7 @@ import java.io.Serializable;
 
 public interface TaskLogRepository extends CommonRepository<TaskLog, Serializable> {
 
-    TaskLog findByTaskId(Long taskId);
+    TaskLog findByTaskCode(Long taskCode);
 
-    void deleteByTaskId(Long taskId);
+    void deleteByTaskCode(Long taskCode);
 }

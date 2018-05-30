@@ -2,16 +2,12 @@ package com.testwa.distest.server.service.task.dao.impl;
 
 import com.testwa.core.base.dao.impl.BaseDAO;
 import com.testwa.distest.server.entity.AppiumFile;
-import com.testwa.distest.server.entity.Task;
 import com.testwa.distest.server.mapper.AppiumFileMapper;
-import com.testwa.distest.server.mapper.TaskMapper;
 import com.testwa.distest.server.service.task.dao.IAppiumFileDAO;
-import com.testwa.distest.server.service.task.dao.ITaskDAO;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.Map;
 
 @Repository
 public class AppiumFileDAO extends BaseDAO<AppiumFile, Long> implements IAppiumFileDAO {
@@ -20,14 +16,14 @@ public class AppiumFileDAO extends BaseDAO<AppiumFile, Long> implements IAppiumF
     private AppiumFileMapper mapper;
 
     @Override
-    public int removeFromTask(Long taskId) {
-        return mapper.removeFromTask(taskId);
+    public int removeFromTask(Long taskCode) {
+        return mapper.removeFromTask(taskCode);
     }
 
     @Override
-    public List<AppiumFile> findAll(Long taskId) {
+    public List<AppiumFile> findAll(Long taskCode) {
         AppiumFile query = new AppiumFile();
-        query.setTaskId(taskId);
+        query.setTaskCode(taskCode);
         return mapper.fildAll(query);
     }
 

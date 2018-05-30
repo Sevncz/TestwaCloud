@@ -37,8 +37,18 @@ public class TaskDAO extends BaseDAO<Task, Long> implements ITaskDAO {
     }
 
     @Override
-    public void updateEndTime(Long taskId, Date endTime) {
-        mapper.updateEndTime(taskId, endTime);
+    public void updateEndTime(Long taskCode, Date endTime) {
+        mapper.updateEndTime(taskCode, endTime);
+    }
+
+    @Override
+    public Task findByCode(Long taskCode) {
+        return mapper.findByCode(taskCode);
+    }
+
+    @Override
+    public void disableAll(List<Long> taskCodes) {
+        mapper.disableAll(taskCodes);
     }
 
 }

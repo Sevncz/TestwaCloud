@@ -14,7 +14,7 @@ public interface AppiumRunningLogRepository extends CommonRepository<AppiumRunni
 
     List<AppiumRunningLog> findBySessionId(String sessionId);
 
-    List<AppiumRunningLog> findByExecutionTaskIdOrderByTimestampAsc(Long executionTaskId);
+    List<AppiumRunningLog> findByTaskCodeOrderByTimestampAsc(Long taskCode);
 
-    List<AppiumRunningLog> findByExecutionTaskIdAndDeviceIdOrderByTimestampAsc(Long id, String k);
+    List<AppiumRunningLog> findByTaskCodeAndDeviceIdOrderByTimestampAsc(Long taskCode, String deviceId);
 }

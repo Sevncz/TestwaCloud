@@ -18,5 +18,9 @@ public interface ITaskDAO extends IBaseDAO<Task, Long> {
 
     Long countBy(Task kq);
 
-    void updateEndTime(Long taskId, Date endTime);
+    void updateEndTime(Long taskCode, Date endTime);
+
+    Task findByCode(Long taskCode);
+
+    void disableAll(List<Long> taskCodes);
 }

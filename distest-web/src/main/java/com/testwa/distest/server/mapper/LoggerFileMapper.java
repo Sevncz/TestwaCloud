@@ -12,7 +12,7 @@ import java.util.List;
 public interface LoggerFileMapper extends BaseMapper<LoggerFile, Long> {
 
 
-    LoggerFile findOne(@Param("taskId") Long taskId, @Param("deviceId") String deviceId);
+    LoggerFile findOne(@Param("taskCode") Long taskId, @Param("deviceId") String deviceId);
 
     List<LoggerFile> fildAll(LoggerFile query);
 
