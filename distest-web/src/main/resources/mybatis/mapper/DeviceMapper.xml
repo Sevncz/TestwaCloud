@@ -88,7 +88,7 @@
     </update>
 
     <select id="findOnlineList" parameterType="java.util.HashMap" resultMap="BaseResultMap" >
-        SELECT id, deviceId, phoneOS, updateTime, model, brand, cpuabi, sdk, width, height, osName, density, host, lastUserId, 1 AS onlineStatus, osVersion, workStatus
+        SELECT id, deviceId, phoneOS, updateTime, model, brand, cpuabi, sdk, width, height, osName, density, host, lastUserId, 1 AS onlineStatus, workStatus, debugStatus, osVersion
         FROM device
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             <if test="deviceId != null">and deviceId = #{deviceId}</if>

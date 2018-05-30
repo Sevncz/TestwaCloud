@@ -76,8 +76,20 @@ public class MethodRunningLogService extends BaseService {
         return pointNames.get(pointValue);
     }
 
-    public List<MethodRunningLog> getRuningTimeForOperation(Long taskCode) {
-
-        return null;
+    /**
+     *@Description: 方法run的执行时间
+     *@Param: [taskCode]
+     *@Return: java.util.List<com.testwa.distest.server.mongo.model.MethodRunningLog>
+     *@Author: wen
+     *@Date: 2018/5/30
+     */
+    public List<MethodRunningLog> getRunningTime(Long taskCode) {
+        Criteria criatira = new Criteria();
+        criatira.andOperator(Criteria.where("taskCode").is(taskCode),
+                Criteria.where("methodOrder").is(ExecutorAction.run_VALUE)
+        );
+        Query query = new Query();
+        query.addCriteria(criatira);
+        return methodRunningLogRepository.find(query);
     }
 }

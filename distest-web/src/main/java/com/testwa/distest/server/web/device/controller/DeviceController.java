@@ -4,6 +4,7 @@ import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.AccountException;
 import com.testwa.core.base.exception.AuthorizedException;
+import com.testwa.core.base.exception.DeviceUnusableException;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.base.vo.Result;
@@ -166,13 +167,13 @@ public class DeviceController extends BaseController {
         List<String> deviceIds = form.getDeviceIds();
         CheckDeviceResultVO vo = new CheckDeviceResultVO();
         for(String deviceId: deviceIds) {
-            // 检查是否在线
-            deviceValidatoer.validateOnline(deviceId);
-            // 检查是否在工作中
-            Device device = deviceService.findByDeviceId(deviceId);
-            if (!DB.DeviceWorkStatus.FREE.equals(device.getWorkStatus()) || !DB.DeviceDebugStatus.FREE.equals(device.getDebugStatus())) {
+            try {
+                deviceValidatoer.validateUsable(deviceId);
+            }catch (DeviceUnusableException | ObjectNotExistsException e) {
+                log.error("设备忙碌中 {}", deviceId, e);
+                Device unableDev = deviceService.findByDeviceId(deviceId);
                 vo.setStatus(false);
-                vo.addUnusableDevice(device);
+                vo.addUnusableDevice(unableDev);
             }
         }
 
