@@ -9,8 +9,12 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.testwa.core.base.exception.AccountAlreadyExistException;
 import com.testwa.core.base.exception.AccountException;
+import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.base.vo.PageResult;
+import com.testwa.core.redis.RedisCacheManager;
 import com.testwa.core.tools.SnowflakeIdWorker;
+import com.testwa.core.utils.Identities;
+import com.testwa.core.utils.UUID;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.mq.MQService;
 import com.testwa.distest.server.service.user.dao.IUserDAO;
@@ -38,6 +42,13 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private MQService mqService;
+    @Autowired
+    private RedisCacheManager redisCacheMgr;
+
+
+    public String getRegisterActiveCodeCacheKey(String activeCode) {
+        return "reg.active."+activeCode;
+    }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public String save(RegisterForm form) throws AccountException, AccountAlreadyExistException {
@@ -68,12 +79,19 @@ public class UserService {
         user.setRegisterTime(new Date());
         user.setEnabled(true);
         userDAO.insert(user);
-        mqService.sendActiveEmail(user);
 
+        // 生成激活code
+        Long activeCode = commonIdWorker.nextId();
+        String subffix = UUID.uuid(32);
 
+        // 放入redis缓存，48小时有效
+        redisCacheMgr.put(getRegisterActiveCodeCacheKey(String.valueOf(activeCode)), 48*60*60, userCode);
 
+        // 发邮件
+        mqService.sendActiveEmail(user, activeCode, subffix);
         return userCode;
     }
+
 
     /**
      * 更新对象
@@ -159,5 +177,23 @@ public class UserService {
         User query = new User();
         query.setUsername(form.getUsername());
         return userDAO.query(query);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public void active(String activeCode, String uuidCode) {
+
+        String key = getRegisterActiveCodeCacheKey(activeCode);
+        String userCode = (String) redisCacheMgr.get(key);
+        User user = userDAO.getByCode(userCode);
+        if (user == null) {
+            log.info("{} 激活失败，用户不存在", userCode);
+            throw new ObjectNotExistsException("激活失败，用户不存在");
+        }else if(user.getIsActive()) {
+            log.info("{} 激活失败，用户已激活", userCode);
+            throw new ObjectNotExistsException("激活失败，您已激活");
+        }else{
+            userDAO.active(userCode);
+        }
+
     }
 }

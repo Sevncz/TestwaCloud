@@ -30,7 +30,7 @@
     </resultMap>
 
     <sql id="Base_Column_List" >
-        id, username, password, phone, email, sex, nickname, address, country, header, lastPasswordResetTime, lastLoginTime, loginTime, registerTime, loginIp, lastLoginIp, enabled, isActive, isRealNameAuth, realName
+        id, username, password, phone, email, sex, nickname, address, country, header, lastPasswordResetTime, lastLoginTime, loginTime, registerTime, loginIp, lastLoginIp, enabled, isActive, isRealNameAuth, realName, userCode
     </sql>
 
     <select id="findOne" parameterType="com.testwa.distest.server.entity.User" resultMap="BaseResultMap" >
@@ -93,4 +93,16 @@
         limit 10
     </select>
 
+    <select id="getByCode" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM user
+        WHERE userCode = #{userCode}
+    </select>
+
+    <update id="active" >
+        update user
+        set isActive = 1
+        where userCode = #{userCode}
+    </update>
 </mapper>

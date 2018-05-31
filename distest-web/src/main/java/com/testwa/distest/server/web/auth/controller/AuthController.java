@@ -109,6 +109,13 @@ public class AuthController extends BaseController {
         return ok();
     }
 
+    @ApiOperation(value = "激活")
+    @PostMapping(value = "/active/{activeCode}/{uuidCode}")
+    public Result active(@PathVariable("activeCode") String activeCode, @PathVariable("uuidCode") String uuidCode) {
+        userService.active(activeCode, uuidCode);
+        return ok();
+    }
+
 
     @RequestMapping(value = "/captcha", method = RequestMethod.GET, produces = MediaType.IMAGE_PNG_VALUE)
     public @ResponseBody byte[] getCaptcha(@ApiIgnore HttpServletResponse response){

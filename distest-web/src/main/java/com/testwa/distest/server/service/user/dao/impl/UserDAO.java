@@ -43,4 +43,14 @@ public class UserDAO extends BaseDAO<User, Long> implements IUserDAO {
     public List<User> query(User userPart) {
         return userMapper.query(userPart);
     }
+
+    @Override
+    public User getByCode(String userCode) {
+        return userMapper.getByCode(userCode);
+    }
+
+    @Override
+    public void active(String userCode) {
+        userMapper.active(userCode);
+    }
 }

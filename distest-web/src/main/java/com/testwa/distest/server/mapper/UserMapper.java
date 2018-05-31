@@ -20,4 +20,8 @@ public interface UserMapper extends BaseMapper<User, Long> {
 	List<User> findByEmailList(List<String> emailList);
 
     List<User> query(User userPart);
+
+    User getByCode(String userCode);
+
+	void active(String userCode);
 }
