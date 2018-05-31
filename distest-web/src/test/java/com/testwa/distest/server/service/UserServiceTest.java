@@ -24,7 +24,7 @@ import java.util.List;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = DistestWebApplication.class)
-@TestPropertySource(locations="classpath:application-test.properties")
+@TestPropertySource(locations="classpath:application-dev.properties")
 public class UserServiceTest {
 
     @Autowired
@@ -38,8 +38,8 @@ public class UserServiceTest {
         user.setPassword("123456");
         user.setEmail("aaa1@testwa.com");
         user.setSex(DB.Sex.MALE);
-        Long id = userService.save(user);
-        System.out.println(id);
+        String code = userService.save(user);
+        System.out.println(code);
         long countAfter =userService.count();
         Assert.assertEquals(++countBefore,countAfter);
     }

@@ -1,1 +1,0 @@
-package com.testwa.distest.account.form;import com.testwa.core.base.form.RequestFormBase;import lombok.Data;@Datapublic class UserQueryForm extends RequestFormBase {    public String username;    public String email;    public String phone;}

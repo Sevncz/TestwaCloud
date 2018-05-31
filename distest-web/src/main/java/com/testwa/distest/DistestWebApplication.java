@@ -4,6 +4,7 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.annotation.SpringAnnotationScanner;
 import com.testwa.distest.server.mongo.repository.Impl.CommonMongoRepositoryImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
@@ -25,6 +26,7 @@ import java.util.concurrent.Executor;
 @EnableCaching
 @EnableAsync
 @EnableAspectJAutoProxy(proxyTargetClass = true)
+@EnableRabbit
 public class DistestWebApplication extends AsyncConfigurerSupport {
 
 	@Bean

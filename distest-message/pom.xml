@@ -10,6 +10,140 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>distest-message</artifactId>
+    <packaging>jar</packaging>
+    <description>message server for distest</description>
+
+    <properties>
+        <dist.dir>${project.build.directory}/dist</dist.dir>
+        <dist.project.id>${project.artifactId}</dist.project.id>
+        <dist.project.name>Distest message server</dist.project.name>
+        <dist.project.description>
+            Distest message manager
+        </dist.project.description>
+        <dist.start.class>com.testwa.distest.message.DistestMessageApplication</dist.start.class>
+    </properties>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.testwa</groupId>
+            <artifactId>distest-core-base</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.testwa</groupId>
+            <artifactId>distest-core-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.testwa</groupId>
+            <artifactId>distest-core-proto</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.testwa</groupId>
+            <artifactId>distest-core-haredis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-eureka</artifactId>
+        </dependency>
+
+        <!-- junit test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-eureka-server</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.biezhi</groupId>
+            <artifactId>oh-my-email</artifactId>
+            <version>0.0.3</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.subchen</groupId>
+            <artifactId>jetbrick-template</artifactId>
+            <version>2.1.2</version>
+            <scope>provided</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <extensions>
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>1.4.1.Final</version>
+            </extension>
+        </extensions>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+                <filtering>true</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
+
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>bintray-lognet-maven</id>
+            <name>bintray</name>
+            <url>http://dl.bintray.com/lognet/maven</url>
+        </repository>
+    </repositories>
+
+
+
+
 
 
 </project>

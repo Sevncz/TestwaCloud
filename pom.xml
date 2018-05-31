@@ -29,7 +29,6 @@
         <module>distest-data</module>
         <module>distest-dm</module>
         <module>distest-report</module>
-        <module>distest-account</module>
         <module>distest-message</module>
         <module>distest-file</module>
         <module>distest-task</module>

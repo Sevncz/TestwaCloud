@@ -85,3 +85,4 @@ message Message {
 	string status = 2;
 	bytes message = 3;
 }
+

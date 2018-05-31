@@ -19,6 +19,7 @@ import java.util.List;
 @ToString
 @TableName("user")
 public class User extends BaseEntity {
+    private String userCode;
     private String email;
     private String phone;
     private String username;
@@ -43,5 +44,12 @@ public class User extends BaseEntity {
     @JsonIgnore
     @Column(value = "role", ignore = true)
     private List<Role> roles;
+
+    // 是否已激活
+    private Boolean isActive;
+    // 是否已激活
+    private Boolean isRealNameAuth;
+    // 真实名字
+    private String realName;
 
 }

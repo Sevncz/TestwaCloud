@@ -10,11 +10,12 @@ import com.github.pagehelper.PageInfo;
 import com.testwa.core.base.exception.AccountAlreadyExistException;
 import com.testwa.core.base.exception.AccountException;
 import com.testwa.core.base.vo.PageResult;
+import com.testwa.core.tools.SnowflakeIdWorker;
 import com.testwa.distest.server.entity.User;
+import com.testwa.distest.server.service.mq.MQService;
 import com.testwa.distest.server.service.user.dao.IUserDAO;
 import com.testwa.distest.server.service.user.form.RegisterForm;
 import com.testwa.distest.server.service.user.form.UserQueryForm;
-import lombok.extern.slf4j.Slf4j;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,15 +29,18 @@ import java.util.*;
 @Service
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 public class UserService {
-
+    private static final String userCodePrefix = "U_";
     @Autowired
     private IUserDAO userDAO;
-
+    @Autowired
+    private SnowflakeIdWorker commonIdWorker;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private MQService mqService;
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public long save(RegisterForm form) throws AccountException, AccountAlreadyExistException {
+    public String save(RegisterForm form) throws AccountException, AccountAlreadyExistException {
         User newUser = new User();
         newUser.setEmail(form.email);
         newUser.setPassword(form.password);
@@ -45,7 +49,7 @@ public class UserService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public long save(User user) throws AccountAlreadyExistException, AccountException {
+    public String save(User user) throws AccountAlreadyExistException, AccountException {
         String username = user.getUsername();
         String email = user.getEmail();
 
@@ -54,14 +58,21 @@ public class UserService {
             throw new AccountAlreadyExistException("该邮箱已存在");
         }
 
-        User usernameUser = this.findByUsername(username);
-        if(usernameUser != null){
+        User oldUser = this.findByUsername(username);
+        if(oldUser != null){
             throw new AccountAlreadyExistException("该用户名已存在");
         }
+        String userCode = userCodePrefix + commonIdWorker.nextId();
+        user.setUserCode(userCode);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRegisterTime(new Date());
         user.setEnabled(true);
-        return userDAO.insert(user);
+        userDAO.insert(user);
+        mqService.sendActiveEmail(user);
+
+
+
+        return userCode;
     }
 
     /**

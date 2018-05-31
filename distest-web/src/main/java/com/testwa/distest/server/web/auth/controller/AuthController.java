@@ -52,6 +52,8 @@ import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/auth")
 public class AuthController extends BaseController {
+    private static final int captchaW = 200;
+    private static final int captchaH = 60;
 
     @Value("${jwt.header}")
     private String tokenHeader;
@@ -92,7 +94,7 @@ public class AuthController extends BaseController {
     @ApiImplicitParam(name = "form", value = "注册form", required = true, dataType = "RegisterForm")
     @PostMapping(value = "/register")
     public Result register(@Valid @RequestBody final RegisterForm form)
-            throws ServletException, ParamsFormatException, AccountException, AccountAlreadyExistException {
+            throws ParamsFormatException, AccountException, AccountAlreadyExistException {
 
         // 校验用户名
         if(!Validator.isUsername(form.username)){
@@ -107,8 +109,6 @@ public class AuthController extends BaseController {
         return ok();
     }
 
-    private static int captchaW = 200;
-    private static int captchaH = 60;
 
     @RequestMapping(value = "/captcha", method = RequestMethod.GET, produces = MediaType.IMAGE_PNG_VALUE)
     public @ResponseBody byte[] getCaptcha(@ApiIgnore HttpServletResponse response){

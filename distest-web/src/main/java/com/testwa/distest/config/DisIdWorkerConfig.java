@@ -17,8 +17,8 @@ public class DisIdWorkerConfig {
     public SnowflakeIdWorker taskIdWorker(){
         return new SnowflakeIdWorker(workerId, 0);
     }
-    @Bean("orderIdWorker")
-    public SnowflakeIdWorker orderIdWorker(){
+    @Bean("commonIdWorker")
+    public SnowflakeIdWorker commonIdWorker(){
         return new SnowflakeIdWorker(workerId, 1);
     }
 }
