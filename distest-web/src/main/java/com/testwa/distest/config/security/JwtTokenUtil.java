@@ -28,7 +28,6 @@ public class JwtTokenUtil implements Serializable {
 
     @Value("${jwt.secret}")
     private String secret;
-
     @Value("${jwt.access_token.expiration}")
     private Long access_token_expiration;
     @Value("${jwt.refresh_token.expiration}")
@@ -47,15 +46,15 @@ public class JwtTokenUtil implements Serializable {
         return username;
     }
 
-    public Long getUserIdFromToken(String token) {
-        Long userId;
+    public String getUserCodeFromToken(String token) {
+        String userCode;
         try {
             final Claims claims = getClaimsFromToken(token);
-            userId = (Long) claims.get(CLAIM_KEY_USER_ID);
+            userCode = (String) claims.get(CLAIM_KEY_USER_ID);
         } catch (Exception e) {
-            userId = null;
+            userCode = null;
         }
-        return userId;
+        return userCode;
     }
 
     public List<String> getScopeFromToken(String token) {
@@ -128,7 +127,6 @@ public class JwtTokenUtil implements Serializable {
         return (lastPasswordReset != null && created.before(lastPasswordReset));
     }
 
-
     public String generateRefreshToken(UserDetails userDetails) {
         JwtUser user = (JwtUser) userDetails;
         Map<String, Object> claims = generateClaims(user);
@@ -154,7 +152,7 @@ public class JwtTokenUtil implements Serializable {
 
     private Map<String, Object> generateClaims(JwtUser user) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put(CLAIM_KEY_USER_ID, user.getId());
+        claims.put(CLAIM_KEY_USER_ID, user.getUserCode());
         claims.put(CLAIM_KEY_ACCOUNT_ENABLED, user.isEnabled());
         final Date createdDate = TimeUtil.now();
         claims.put(CLAIM_KEY_CREATED, createdDate);

@@ -28,13 +28,13 @@
             <id column="create_id" property="id"/>
             <result column="create_username" property="username"/>
             <result column="create_email" property="email"/>
-            <result column="create_phone" property="phone"/>
+            <result column="create_phone" property="mobile"/>
         </association>
         <association property="updateUser" javaType="com.testwa.distest.server.entity.User">
             <id column="update_id" property="id"/>
             <result column="update_username" property="username"/>
             <result column="update_email" property="email"/>
-            <result column="update_phone" property="phone"/>
+            <result column="update_phone" property="mobile"/>
         </association>
     </resultMap>
 

@@ -14,14 +14,14 @@ public class RegisterForm extends RequestFormBase{
 
     @NotNull(message = "username.empty")
     @NotEmpty(message = "username.empty")
-    public String username;
+    private String username;
     @NotNull(message = "password.empty")
     @NotEmpty(message = "password.empty")
-    public String password;
+    private String password;
     @NotNull(message = "email.empty")
     @NotEmpty(message = "email.empty")
-    public String email;
-    public String phone;
-    public String captcha;
+    private String email;
+    private String mobile;
+    private String captcha;
 
 }

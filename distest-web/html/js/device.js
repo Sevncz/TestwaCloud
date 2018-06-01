@@ -18,7 +18,7 @@ String.prototype.endWith=function(str){
     return reg.test(this);
 };
 
-var canvas = document.getElementById("phone-screen");
+var canvas = document.getElementById("mobile-screen");
 var g = canvas.getContext('2d');
 
 

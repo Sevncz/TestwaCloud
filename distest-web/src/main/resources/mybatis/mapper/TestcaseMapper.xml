@@ -16,13 +16,13 @@
             <id column="create_id" property="id"/>
             <result column="create_username" property="username"/>
             <result column="create_email" property="email"/>
-            <result column="create_phone" property="phone"/>
+            <result column="create_phone" property="mobile"/>
         </association>
         <association property="updateUser" javaType="com.testwa.distest.server.entity.User">
             <id column="update_id" property="id"/>
             <result column="update_username" property="username"/>
             <result column="update_email" property="email"/>
-            <result column="update_phone" property="phone"/>
+            <result column="update_phone" property="mobile"/>
         </association>
         <collection property="testcaseDetails" ofType="com.testwa.distest.server.entity.TestcaseDetail">
             <id column="detail_id" property="id"/>
@@ -63,8 +63,8 @@
     <select id="fetchOne" parameterType="com.testwa.distest.server.entity.Testcase" resultMap="BaseResultMap" >
         SELECT
         t.id, t.caseName, t.tag, t.projectId, t.description, t.updateTime, t.createTime,
-        u.id as create_id, u.username as create_username, u.email as create_email, u.phone as create_phone,
-        u1.id as update_id, u1.username as update_username, u1.email as update_email, u1.phone as update_phone,
+        u.id as create_id, u.username as create_username, u.email as create_email, u.mobile as create_phone,
+        u1.id as update_id, u1.username as update_username, u1.email as update_email, u1.mobile as update_phone,
         d.id as detail_id, d.scriptId, d.testcaseId, d.seq, s.id as script_id, s.scriptName, s.description
         FROM testcase t
         LEFT JOIN user u on t.createBy=u.id
@@ -125,8 +125,8 @@
     <select id="fetchScriptAllBySceneOrder" parameterType="com.testwa.distest.server.entity.Testcase" resultMap="BaseResultMap" >
         SELECT
         t.id, t.caseName, t.tag, t.projectId, t.description, t.updateTime, t.createTime,
-        u.id as create_id, u.username as create_username, u.email as create_email, u.phone as create_phone,
-        u1.id as update_id, u1.username as update_username, u1.email as update_email, u1.phone as update_phone,
+        u.id as create_id, u.username as create_username, u.email as create_email, u.mobile as create_phone,
+        u1.id as update_id, u1.username as update_username, u1.email as update_email, u1.mobile as update_phone,
         d.id as detail_id, d.seq, s.id as script_id, s.scriptName, s.description
         FROM testcase t
         LEFT JOIN user u on t.createBy=u.id

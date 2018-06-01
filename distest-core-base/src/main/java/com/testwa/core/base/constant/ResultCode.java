@@ -22,6 +22,8 @@ public enum ResultCode {
     ILLEGAL_OP(100), // 非法操作，通常是进行了不被授权的操作
     NO_LOGIN(101), // 没有登录信息
     ACCOUNT_FREEZE(102), //账户冻结
+    ACCOUNT_NOT_ACTIVED(103), //账户未激活
+    ACTIVE_EXPIRED(104), //激活信息过期
 
     INVALID_PARAM(-1), //无效参数
     NO_AUTH(-2), //无API访问权限。

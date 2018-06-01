@@ -7,20 +7,16 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Date;
 
-/**
- * Created by Yuicon on 2017/5/14.
- * https://segmentfault.com/u/yuicon
- */
 public class JwtUser implements UserDetails {
 
-    private final Long id;
+    private final String userCode;
     private final String account;
     private final String password;
     private final Collection<? extends GrantedAuthority> authorities;
     private final Date lastPasswordResetDate;
 
-    JwtUser(Long id, String account, String password, Collection<? extends GrantedAuthority> authorities, Date lastPasswordResetDate) {
-        this.id = id;
+    JwtUser(String userCode, String account, String password, Collection<? extends GrantedAuthority> authorities, Date lastPasswordResetDate) {
+        this.userCode = userCode;
         this.account = account;
         this.password = password;
         this.authorities = authorities;
@@ -34,8 +30,8 @@ public class JwtUser implements UserDetails {
     }
 
     @JsonIgnore
-    public Long getId() {
-        return id;
+    public String getUserCode() {
+        return userCode;
     }
 
     @JsonIgnore

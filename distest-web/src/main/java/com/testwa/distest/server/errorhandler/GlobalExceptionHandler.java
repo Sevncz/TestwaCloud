@@ -94,6 +94,29 @@ class GlobalExceptionHandler {
         return r;
     }
 
+    @ExceptionHandler(value = AccountActiveCodeHavaExpiredException.class)
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public Result handleAccountNoActiveException(HttpServletRequest req, Exception e) {
+        Result<String> r = new Result<>();
+        r.setCode(ResultCode.ACTIVE_EXPIRED.getValue());
+        r.setType(ResultCode.ACTIVE_EXPIRED.name());
+        r.setMessage(e.getMessage());
+        r.setUrl(req.getRequestURI());
+        return r;
+    }
+    @ExceptionHandler(value = AccountNoActiveException.class)
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public Result handleAAccountNoActiveException(HttpServletRequest req, Exception e) {
+        Result<String> r = new Result<>();
+        r.setCode(ResultCode.ACCOUNT_NOT_ACTIVED.getValue());
+        r.setType(ResultCode.ACCOUNT_NOT_ACTIVED.name());
+        r.setMessage(e.getMessage());
+        r.setUrl(req.getRequestURI());
+        return r;
+    }
+
     @ExceptionHandler(value = ParamsException.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody

@@ -68,7 +68,7 @@ public class UserServiceTest {
     @Test
     public void testUpdate(){
         User update = userService.findByEmail("admin@testwa.com");
-        update.setPhone("18600753024");
+        update.setMobile("18600753024");
         update.setNickname("wen");
         update.setSex(DB.Sex.MALE);
         update.setLastLoginIp(123456);

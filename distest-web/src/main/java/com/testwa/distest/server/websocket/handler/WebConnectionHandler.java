@@ -1,15 +1,10 @@
 package com.testwa.distest.server.websocket.handler;
 
-import com.alibaba.fastjson.JSON;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.annotation.OnConnect;
 import com.corundumstudio.socketio.annotation.OnDisconnect;
 import com.testwa.core.base.exception.ObjectNotExistsException;
-import com.testwa.core.common.enums.Command;
-import com.testwa.core.cmd.MiniCmd;
-import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.config.security.JwtTokenUtil;
-import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.cache.mgr.ClientSessionMgr;
 import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
@@ -24,9 +19,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by wen on 16/9/5.

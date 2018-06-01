@@ -321,7 +321,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
                     mBufferedOutputStream.write(data);
                     mBufferedOutputStream.flush();
                 } catch (Exception e) {
-                    log.error("save img error", e);
+                    log.error("register img error", e);
                 }
             }
 

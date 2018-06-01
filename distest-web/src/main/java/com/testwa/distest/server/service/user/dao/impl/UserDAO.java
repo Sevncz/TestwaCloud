@@ -50,7 +50,22 @@ public class UserDAO extends BaseDAO<User, Long> implements IUserDAO {
     }
 
     @Override
-    public void active(String userCode) {
-        userMapper.active(userCode);
+    public User getByUsername(String username) {
+        return userMapper.getByUsername(username);
+    }
+
+    @Override
+    public User getByEmail(String email) {
+        return userMapper.getByEmail(email);
+    }
+
+    @Override
+    public void updateActiveToTrue(String userCode) {
+        userMapper.updateActiveToTrue(userCode);
+    }
+
+    @Override
+    public void resetPwd(String userCode, String newHashPwd) {
+        userMapper.resetPwd(userCode, newHashPwd);
     }
 }

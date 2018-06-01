@@ -14,7 +14,7 @@
         <id column="id" property="id" jdbcType="BIGINT" />
         <result column="username" property="username" jdbcType="VARCHAR" />
         <result column="password" property="password" jdbcType="VARCHAR" />
-        <result column="phone" property="phone" jdbcType="VARCHAR" />
+        <result column="mobile" property="mobile" jdbcType="VARCHAR" />
         <result column="email" property="email" jdbcType="VARCHAR" />
         <result column="sex" property="sex" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
         <result column="nickname" property="nickname" jdbcType="VARCHAR" />
@@ -35,7 +35,7 @@
     </sql>
 
     <sql id="Member_Column_List" >
-        id, username, password, phone, email, sex, nickname, address, country, header, lastPasswordResetTime, lastLoginTime, loginTime, registerTime, loginIp, lastLoginIp, enabled
+        id, username, password, mobile, email, sex, nickname, address, country, header, lastPasswordResetTime, lastLoginTime, loginTime, registerTime, loginIp, lastLoginIp, enabled
     </sql>
 
     <select id="findBy" parameterType="com.testwa.distest.server.entity.ProjectMember" resultMap="BaseResultMap" >
@@ -93,7 +93,7 @@
 
     <select id="findMembersFromProject" parameterType="java.util.Map" resultMap="MemberResultMap">
         SELECT
-        u.id, username, password, phone, email, sex, nickname, address, country, header, lastPasswordResetTime, lastLoginTime, loginTime, registerTime, loginIp, lastLoginIp, enabled
+        u.id, username, password, mobile, email, sex, nickname, address, country, header, lastPasswordResetTime, lastLoginTime, loginTime, registerTime, loginIp, lastLoginIp, enabled
         FROM project_member pm LEFT JOIN user u on pm.memberId = u.id
         WHERE pm.projectId = #{params.projectId}
         <if test="params.user != null">
@@ -103,15 +103,15 @@
             <if test="user.email != null">
                 AND u.email LIKE CONCAT('%', #{params.user.email}, '%')
             </if>
-            <if test="user.phone != null">
-                and u.phone LIKE CONCAT('%', #{params.user.phone}, '%')
+            <if test="user.mobile != null">
+                and u.mobile LIKE CONCAT('%', #{params.user.mobile}, '%')
             </if>
         </if>
 
     </select>
 
     <select id="findUsersProject" parameterType="java.util.Map" resultType="java.util.Map">
-        SELECT distinct u.id as id, u.username as username, u.email as email, u.phone as phone,
+        SELECT distinct u.id as id, u.username as username, u.email as email, u.mobile as mobile,
         <if test="projectId != null">
         CASE WHEN pm.projectId is not null THEN 'in' ELSE 'out' END as flag
         </if>
@@ -127,8 +127,8 @@
                 <if test="user.email != null">
                   and u.email LIKE CONCAT('%', #{user.email}, '%')
                 </if>
-                <if test="user.phone != null">
-                  and u.phone LIKE CONCAT('%', #{user.phone}, '%')
+                <if test="user.mobile != null">
+                  and u.mobile LIKE CONCAT('%', #{user.mobile}, '%')
                 </if>
             </if>
         </trim>

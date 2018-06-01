@@ -9,16 +9,11 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.testwa.core.base.exception.AccountAlreadyExistException;
 import com.testwa.core.base.exception.AccountException;
-import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.redis.RedisCacheManager;
 import com.testwa.core.tools.SnowflakeIdWorker;
-import com.testwa.core.utils.Identities;
-import com.testwa.core.utils.UUID;
 import com.testwa.distest.server.entity.User;
-import com.testwa.distest.server.service.mq.MQService;
 import com.testwa.distest.server.service.user.dao.IUserDAO;
-import com.testwa.distest.server.service.user.form.RegisterForm;
 import com.testwa.distest.server.service.user.form.UserQueryForm;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,54 +36,18 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
-    private MQService mqService;
-    @Autowired
     private RedisCacheManager redisCacheMgr;
-
-
-    public String getRegisterActiveCodeCacheKey(String activeCode) {
-        return "reg.active."+activeCode;
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public String save(RegisterForm form) throws AccountException, AccountAlreadyExistException {
-        User newUser = new User();
-        newUser.setEmail(form.email);
-        newUser.setPassword(form.password);
-        newUser.setUsername(form.username);
-        return save(newUser);
-    }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public String save(User user) throws AccountAlreadyExistException, AccountException {
-        String username = user.getUsername();
-        String email = user.getEmail();
-
-        User emailUser = this.findByEmail(email);
-        if(emailUser != null){
-            throw new AccountAlreadyExistException("该邮箱已存在");
-        }
-
-        User oldUser = this.findByUsername(username);
-        if(oldUser != null){
-            throw new AccountAlreadyExistException("该用户名已存在");
-        }
         String userCode = userCodePrefix + commonIdWorker.nextId();
         user.setUserCode(userCode);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRegisterTime(new Date());
         user.setEnabled(true);
+        user.setIsActive(false);
+        user.setIsRealNameAuth(false);
         userDAO.insert(user);
-
-        // 生成激活code
-        Long activeCode = commonIdWorker.nextId();
-        String subffix = UUID.uuid(32);
-
-        // 放入redis缓存，48小时有效
-        redisCacheMgr.put(getRegisterActiveCodeCacheKey(String.valueOf(activeCode)), 48*60*60, userCode);
-
-        // 发邮件
-        mqService.sendActiveEmail(user, activeCode, subffix);
         return userCode;
     }
 
@@ -113,29 +72,15 @@ public class UserService {
     }
 
     public User findByEmail(String email) {
-        User query = new User();
-        query.setEmail(email);
-        List<User> users = userDAO.findBy(query);
-        if(users.size() > 1){
-            log.error("findForCurrentUser by email return > 1, {}", email);
-        }
-        if(users.size() == 0){
-            return null;
-        }
-        return users.get(0);
+        return userDAO.getByEmail(email);
     }
 
     public User findByUsername(String username) {
-        User query = new User();
-        query.setUsername(username);
-        List<User> users = userDAO.findBy(query);
-        if(users.size() > 1){
-            log.error("findForCurrentUser by username return > 1, {}", username);
-        }
-        if(users.size() == 0){
-            return null;
-        }
-        return users.get(0);
+        return userDAO.getByUsername(username);
+    }
+
+    public User findByUserCode(String userCode) {
+        return userDAO.getByCode(userCode);
     }
 
     public List<User> findByUsernames(List<String> usernames) {
@@ -167,7 +112,6 @@ public class UserService {
         return pr;
     }
 
-
     /**
      * 返回匹配的前十
      * @param form
@@ -180,20 +124,13 @@ public class UserService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public void active(String activeCode, String uuidCode) {
+    public void updateActiveToTrue(String userCode) {
+        userDAO.updateActiveToTrue(userCode);
+    }
 
-        String key = getRegisterActiveCodeCacheKey(activeCode);
-        String userCode = (String) redisCacheMgr.get(key);
-        User user = userDAO.getByCode(userCode);
-        if (user == null) {
-            log.info("{} 激活失败，用户不存在", userCode);
-            throw new ObjectNotExistsException("激活失败，用户不存在");
-        }else if(user.getIsActive()) {
-            log.info("{} 激活失败，用户已激活", userCode);
-            throw new ObjectNotExistsException("激活失败，您已激活");
-        }else{
-            userDAO.active(userCode);
-        }
-
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public void resetPwd(String userCode, String newpassword) {
+        String newHashPwd = passwordEncoder.encode(newpassword);
+        userDAO.resetPwd(userCode, newHashPwd);
     }
 }

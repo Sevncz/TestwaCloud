@@ -21,7 +21,7 @@ import java.util.List;
 public class User extends BaseEntity {
     private String userCode;
     private String email;
-    private String phone;
+    private String mobile;
     private String username;
     @JsonIgnore
     private String password;
