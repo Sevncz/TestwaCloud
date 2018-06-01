@@ -116,12 +116,17 @@ public class AuthMgr {
 
     public String register(User user) throws AccountAlreadyExistException, AccountException {
         String userCode = userService.save(user);
+        sendActiveMail(user, userCode);
+        return userCode;
+    }
+
+    public void sendActiveMail(User user, String userCode) {
         // 生成激活code
         String token = TokenGenerator.generator(userCode, "register", 48*60*60L);
         // 发邮件
         mqService.sendActiveEmail(user, token);
-        return userCode;
     }
+
 
     /**
      *@Description: 用户账号激活

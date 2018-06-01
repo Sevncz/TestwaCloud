@@ -144,7 +144,6 @@ public class AuthController extends BaseController {
         return ok();
     }
 
-
     @ApiOperation(value = "激活")
     @GetMapping(value = "/active/{token:.+}")
     public Result active(@PathVariable("token") String token) throws ObjectNotExistsException,  AccountActiveCodeHavaExpiredException{

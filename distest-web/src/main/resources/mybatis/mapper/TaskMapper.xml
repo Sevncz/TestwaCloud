@@ -47,8 +47,10 @@
         <include refid="Base_Column_List" />
         FROM task
         WHERE enabled = 1
-        AND projectId in
-        <foreach item="item" index="index" collection="params.projects" open="(" separator="," close=")">#{item.id} </foreach>
+        <if test="params.projects != null">
+            AND projectId in
+            <foreach item="item" index="index" collection="params.projects" open="(" separator="," close=")">#{item.id} </foreach>
+        </if>
         <if test="params.createBy != null">and createBy = #{params.createBy}</if>
         <if test="params.projectId != null">and projectId = #{params.projectId}</if>
         <if test="params.taskName != null">and taskName LIKE CONCAT('%', #{params.taskName}, '%')</if>

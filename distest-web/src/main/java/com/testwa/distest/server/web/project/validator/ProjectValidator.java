@@ -47,4 +47,19 @@ public class ProjectValidator {
         }
     }
 
+    /**
+     *@Description: 检查用户是否在任何项目里
+     *@Param: [id]
+     *@Return: void
+     *@Author: wen
+     *@Date: 2018/6/1
+     */
+    public void validateUserInAnyProject(String username) {
+        List<Project> projectList = projectService.findAllByUserList(username);
+        if(projectList.size() == 0){
+            throw new AuthorizedException("该用户不在项目中");
+        }
+
+
+    }
 }

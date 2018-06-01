@@ -3,10 +3,11 @@ package com.testwa.distest.config.security;
 import com.alibaba.fastjson.JSON;
 import com.testwa.core.base.constant.ResultCode;
 import com.testwa.core.base.vo.Result;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureException;
+import com.testwa.distest.server.entity.User;
+import com.testwa.distest.server.service.user.service.UserService;
+import io.jsonwebtoken.*;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -25,6 +26,10 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint, Se
     private String tokenHeader;
     @Value("${jwt.secret}")
     private String secret;
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
+    @Autowired
+    private UserService userService;
 
     @Override
     public void commence(HttpServletRequest request,
@@ -38,31 +43,30 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint, Se
         String token = request.getHeader(tokenHeader);
         Result<String> r = new Result<>();
         if(StringUtils.isNotEmpty(token)){
-            try {
-                Jwts.parser()
-                        .setSigningKey(secret)
-                        .parseClaimsJws(token)
-                        .getBody();
-            } catch (ExpiredJwtException e) {
 
+            String username = jwtTokenUtil.getUsernameFromToken(token);
+            if(StringUtils.isBlank(username)) {
                 r.setCode(ResultCode.EXPRIED_TOKEN.getValue());
-                r.setMessage("Token已过期");
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().println(JSON.toJSON(r));
-                response.getWriter().flush();
-                return;
-            } catch (SignatureException e){
-
-                r.setCode(ResultCode.ILLEGAL_TOKEN.getValue());
-                r.setMessage("非法Token");
+                r.setMessage("非法的TOKEN");
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().println(JSON.toJSON(r));
                 response.getWriter().flush();
                 return;
             }
+
+            User user = userService.findByUsername(username);
+            if(!user.getIsActive()) {
+                r.setCode(ResultCode.ACCOUNT_NOT_ACTIVED.getValue());
+                r.setMessage("账号未激活");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().println(JSON.toJSON(r));
+                response.getWriter().flush();
+                return;
+            }
+
         }
         r.setCode(ResultCode.NO_LOGIN.getValue());
-        r.setMessage("Token为空");
+        r.setMessage("TOKEN为空");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.getWriter().println(JSON.toJSON(r));
         response.getWriter().flush();

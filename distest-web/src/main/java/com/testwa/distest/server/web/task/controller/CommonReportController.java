@@ -85,7 +85,12 @@ public class CommonReportController extends BaseController {
     @ResponseBody
     @GetMapping(value = "/page")
     public Result page(@Valid TaskListForm pageForm) {
-
+        User user = userService.findByUsername(WebUtil.getCurrentUsername());
+        if(pageForm.getProjectId() != null) {
+            projectValidator.validateUserIsProjectMember(pageForm.getProjectId(), user.getId());
+        }else{
+            projectValidator.validateUserInAnyProject(WebUtil.getCurrentUsername());
+        }
         PageResult<Task> taskPR = taskService.findPageForCurrentUser(pageForm);
 
         return ok(taskPR);
