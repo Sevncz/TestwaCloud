@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.security.auth.login.AccountException;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -201,6 +202,22 @@ class GlobalExceptionHandler {
         Result<String> r = new Result<>();
         r.setCode(ResultCode.PARAM_ERROR.getValue());
         r.setType(ResultCode.ILLEGAL_PARAM.name());
+        r.setMessage(errors.toString());
+        r.setUrl(req.getRequestURI());
+        log.error(e.getMessage());
+        return r;
+    }
+
+    @ExceptionHandler(value = AccountException.class)
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public Result handleAccountExceptions(HttpServletRequest req, MethodArgumentNotValidException e) {
+        List<String> errors = e.getBindingResult().getFieldErrors().stream()
+                .map(this::buildMessage)
+                .collect(Collectors.toList());
+        Result<String> r = new Result<>();
+        r.setCode(ResultCode.ILLEGAL_OP.getValue());
+        r.setType(ResultCode.ILLEGAL_OP.name());
         r.setMessage(errors.toString());
         r.setUrl(req.getRequestURI());
         log.error(e.getMessage());

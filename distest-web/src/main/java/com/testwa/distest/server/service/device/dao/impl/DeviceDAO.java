@@ -81,11 +81,6 @@ public class DeviceDAO extends BaseDAO<Device, Long>  implements IDeviceDAO{
     }
 
     @Override
-    public List<DeviceOneCategoryResultDTO> getOSPlatformCategory(Set<String> deviceIds) {
-        return deviceMapper.getOSPlatformCategory(deviceIds);
-    }
-
-    @Override
     public List<DeviceOneCategoryResultDTO> getBrandCategory(Set<String> deviceIds) {
         return deviceMapper.getBrandCategory(deviceIds);
     }

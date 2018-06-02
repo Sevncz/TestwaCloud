@@ -288,7 +288,7 @@ public class ProjectService {
 //        kq.setEnabled(true);
         Long task = taskDAO.countBy(kq);
 
-        Set<String> deviceIds = deviceAuthMgr.allEnableDevices();
+        Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
         int device = deviceIds.size();
         return new ProjectStatis(app, script, testcase, task, (long) device);
     }

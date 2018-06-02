@@ -15,9 +15,6 @@ import java.util.Set;
 @Component
 public class DeviceAuthMgr {
 
-    private static final String ALLOW_USER_TO_USE = "devices.allowUser.{0}";
-    private static final String ALLOW_USER_TO_USE_VALUE = "devices.allowUser.value";
-    private static final String USING = "devices.using";
     private static final String ONLINE = "devices.online";
 
     @Autowired
@@ -41,19 +38,12 @@ public class DeviceAuthMgr {
         return redisCacheMgr.sMembers(ONLINE);
     }
 
-    public Set<String> allEnableDevices() {
-        return redisCacheMgr.sMembers(ONLINE);
-    }
-
     public boolean isOnline(String deviceId) {
         return redisCacheMgr.sIsMember(ONLINE, deviceId);
     }
 
     public void delAllOnline() {
         redisCacheMgr.remove(ONLINE);
-    }
-    public void delAllUsing() {
-        redisCacheMgr.remove(USING);
     }
 
 }

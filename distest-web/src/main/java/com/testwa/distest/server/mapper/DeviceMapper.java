@@ -38,7 +38,5 @@ public interface DeviceMapper extends BaseMapper<Device, Long> {
 
     List<DeviceOneCategoryResultDTO> getBrandCategory(@Param("deviceIds") Set<String> deviceIds);
 
-    List<DeviceOneCategoryResultDTO> getOSPlatformCategory(@Param("deviceIds") Set<String> deviceIds);
-
     List<DeviceOneCategoryResultDTO> getOSVersionCategory(@Param("deviceIds") Set<String> deviceIds);
 }

@@ -58,7 +58,7 @@ public class UserController extends BaseController{
     public Result sendActiveMail() throws ObjectNotExistsException, AccountActiveCodeHavaExpiredException, AccountException {
         String username = WebUtil.getCurrentUsername();
         User user = userService.findByUsername(username);
-        if(!user.getIsActive()) {
+        if(user.getIsActive()) {
             throw new AccountException("您的账号已激活过");
         }
         authMgr.sendActiveMail(user, user.getUserCode());

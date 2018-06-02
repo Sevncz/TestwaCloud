@@ -82,7 +82,7 @@ public class DeviceController extends BaseController {
     @ResponseBody
     @GetMapping(value = "/enable/list")
     public Result enableList(@Valid DeviceListForm form) throws AccountException, ObjectNotExistsException, AuthorizedException {
-        Set<String> deviceIds = deviceAuthMgr.allEnableDevices();
+        Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
         if(deviceIds.size() == 0 ){
             return ok(Arrays.asList());
         }
@@ -99,7 +99,7 @@ public class DeviceController extends BaseController {
     @ResponseBody
     @GetMapping(value = "/all/page")
     public Result allPage(@Valid DeviceListForm form) throws ObjectNotExistsException, AuthorizedException {
-        Set<String> deviceIds = deviceAuthMgr.allEnableDevices();
+        Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
         PageResult<Device> devicePR = deviceService.findByPage(deviceIds, form);
         return ok(devicePR);
     }
@@ -112,7 +112,7 @@ public class DeviceController extends BaseController {
     @ResponseBody
     @GetMapping(value = "/all/list")
     public Result allList(@Valid DeviceListForm form) throws ObjectNotExistsException, AuthorizedException {
-        Set<String> deviceIds = deviceAuthMgr.allEnableDevices();
+        Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
         List<Device> devices = deviceService.findList(deviceIds, form);
         return ok(devices);
     }
@@ -121,7 +121,7 @@ public class DeviceController extends BaseController {
     @ResponseBody
     @GetMapping(value = "/my/list")
     public Result myList() {
-        Set<String> deviceIds = deviceAuthMgr.allEnableDevices();
+        Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
         User user = userService.findByUsername(getCurrentUsername());
         List<Device> deviceList = deviceService.fetchList(deviceIds, user.getId());
         return ok(deviceList);
@@ -152,7 +152,7 @@ public class DeviceController extends BaseController {
     @ResponseBody
     @GetMapping(value = "/category/android")
     public Result category() throws ObjectNotExistsException {
-        Set<String> deviceIds = deviceAuthMgr.allEnableDevices();
+        Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
         DeviceCategoryVO vo = deviceService.getCategory(deviceIds);
         return ok(vo);
     }
