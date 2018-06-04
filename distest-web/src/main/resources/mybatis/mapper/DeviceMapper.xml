@@ -104,10 +104,15 @@
                 and deviceId in <foreach item="devId" index="index" collection="deviceIdList" open="(" separator="," close=")">#{devId} </foreach>
             </if>
             <if test="phoneOS != null">and phoneOS = #{phoneOS}</if>
-            <if test="onlineStatus != null">and onlineStatus = #{onlineStatus}</if>
+            <if test="onlineStatus != null">and onlineStatus = #{onlineStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
+            <if test="workStatus != null">and workStatus = #{workStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
+            <if test="debugStatus != null">and debugStatus = #{debugStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
             <if test="model != null">and model = #{model}</if>
             <if test="brand != null">and brand = #{brand}</if>
             <if test="lastUserId != null">and lastUserId = #{lastUserId}</if>
+            <if test="width != null">and width = #{width}</if>
+            <if test="height != null">and height = #{height}</if>
+            <if test="osVersion != null">and osVersion = #{osVersion}</if>
         </trim>
     </select>
 
@@ -123,7 +128,7 @@
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             <if test="query.deviceId != null">and deviceId = #{query.deviceId}</if>
             <if test="query.phoneOS != null">and phoneOS = #{query.phoneOS}</if>
-            <if test="query.onlineStatus != null">and onlineStatus = #{query.onlineStatus}</if>
+            <if test="query.onlineStatus != null">and onlineStatus = #{query.onlineStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
             <if test="query.model != null">and model = #{query.model}</if>
             <if test="query.brand != null">and brand = #{query.brand}</if>
             <if test="query.lastUserId != null">and lastUserId = #{query.lastUserId}</if>

@@ -145,7 +145,7 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = ObjectAlreadyExistException.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Result handleObjectAlreadyExistExceptions(HttpServletRequest req, Exception e) {
+    public Result handleObjectAlreadyExistExceptions(HttpServletRequest req, ObjectAlreadyExistException e) {
         Result<String> r = new Result<>();
         r.setCode(ResultCode.CONFLICT.getValue());
         r.setType(ResultCode.CONFLICT.name());

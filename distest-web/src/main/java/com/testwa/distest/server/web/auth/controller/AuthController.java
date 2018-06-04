@@ -64,7 +64,7 @@ public class AuthController extends BaseController {
     @ApiOperation(value = "登录")
     @ApiImplicitParam(name = "authenticationRequest", value = "JWT登录验证类", required = true, dataType = "JwtAuthenticationRequest")
     @PostMapping(value = "login")
-    public Result createAuthenticationToken(@RequestBody JwtAuthenticationRequest authenticationRequest, HttpServletRequest request) throws AuthorizedException, LoginInfoNotFoundException {
+    public Result createAuthenticationToken(@RequestBody JwtAuthenticationRequest authenticationRequest, HttpServletRequest request) throws AuthorizedException, LoginInfoNotFoundException, AccountNoActiveException {
         String ip;
         if (request.getHeader("x-forwarded-for") == null) {
             ip = request.getRemoteAddr();
@@ -72,6 +72,7 @@ public class AuthController extends BaseController {
             ip = request.getHeader("x-forwarded-for");
         }
         String userAgent = request.getHeader("user-agent");
+        userValidator.validateActive(authenticationRequest.getUsername());
         return ok(authMgr.login(authenticationRequest.getUsername(), authenticationRequest.getPassword(), ip, userAgent));
     }
 
@@ -89,7 +90,7 @@ public class AuthController extends BaseController {
     @ApiImplicitParam(name = "form", value = "注册form", required = true, dataType = "RegisterForm")
     @PostMapping(value = "/register")
     public Result register(@Valid @RequestBody final RegisterForm form)
-            throws ParamsFormatException, AccountException, AccountAlreadyExistException {
+            throws ParamsFormatException, AccountException, ObjectAlreadyExistException {
         // 校验邮箱
         if(StringUtils.isBlank(form.getEmail())) {
             throw new ParamsIsNullException("邮箱不能为空");
@@ -131,7 +132,7 @@ public class AuthController extends BaseController {
         return ok();
     }
 
-    @RequestMapping(value = "/verify/email/{email}", method= RequestMethod.GET)
+    @RequestMapping(value = "/verify/email/{email:.+}", method= RequestMethod.GET)
     public Result verifyEmail(@PathVariable String email) throws ParamsFormatException, AccountAlreadyExistException {
         // 校验邮箱
         if(!Validator.isEmail(email)){

@@ -86,7 +86,7 @@ public class DeviceDAO extends BaseDAO<Device, Long>  implements IDeviceDAO{
     }
 
     @Override
-    public void updateDebugStatus(String deviceId, DB.DeviceDebugStatus debug) {
-        deviceMapper.updateDebugStatus(deviceId, debug);
+    public void updateDebugStatus(String deviceId, DB.DeviceDebugStatus status) {
+        deviceMapper.updateDebugStatus(deviceId, status);
     }
 }

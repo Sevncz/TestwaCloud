@@ -1,6 +1,7 @@
 package com.testwa.distest.server.web.auth.validator;
 
 import com.testwa.core.base.exception.AccountException;
+import com.testwa.core.base.exception.AccountNoActiveException;
 import com.testwa.core.base.exception.ObjectAlreadyExistException;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.distest.common.util.WebUtil;
@@ -34,7 +35,7 @@ public class UserValidator {
             throw new ObjectNotExistsException("用户不存在");
         }
     }
-    public void validateEmailHasExist(String email) throws ObjectNotExistsException {
+    public void validateEmailHasExist(String email) throws ObjectAlreadyExistException {
         User user = userService.findByEmail(email);
         if(user != null){
             throw new ObjectAlreadyExistException("邮箱已存在");
@@ -55,10 +56,10 @@ public class UserValidator {
         }
     }
 
-    public void validateUsernameHasExist(String username) throws ObjectNotExistsException {
+    public void validateUsernameHasExist(String username) throws ObjectAlreadyExistException {
         User user = userService.findByUsername(username);
         if(user != null){
-            throw new ObjectNotExistsException("用户名已存在");
+            throw new ObjectAlreadyExistException("用户名已存在");
         }
     }
 
@@ -72,6 +73,13 @@ public class UserValidator {
         List<User> users = userService.findByUserIds(userIds);
         if(users == null || userIds.size() != users.size()){
             throw new AccountNotFoundException("用户不存在");
+        }
+    }
+
+    public void validateActive(String username) throws AccountNoActiveException{
+        User user = userService.findByUsername(username);
+        if(!user.getIsActive()) {
+            throw new AccountNoActiveException("账户未激活");
         }
     }
 }

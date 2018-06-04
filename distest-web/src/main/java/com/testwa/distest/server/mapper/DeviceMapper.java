@@ -40,5 +40,5 @@ public interface DeviceMapper extends BaseMapper<Device, Long> {
 
     List<DeviceOneCategoryResultDTO> getOSVersionCategory(@Param("deviceIds") Set<String> deviceIds);
 
-    void updateDebugStatus(String deviceId, DB.DeviceDebugStatus debug);
+    void updateDebugStatus(@Param("deviceId")String deviceId, @Param("status") DB.DeviceDebugStatus status);
 }

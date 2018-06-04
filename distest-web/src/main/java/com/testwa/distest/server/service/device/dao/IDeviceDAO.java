@@ -38,5 +38,5 @@ public interface IDeviceDAO extends IBaseDAO<Device, Long> {
 
     List<DeviceOneCategoryResultDTO> getBrandCategory(Set<String> deviceIds);
 
-    void updateDebugStatus(String deviceId, DB.DeviceDebugStatus debugging);
+    void updateDebugStatus(String deviceId, DB.DeviceDebugStatus status);
 }

@@ -54,9 +54,8 @@ public class UserController extends BaseController{
 
 
     @ApiOperation(value = "发送激活邮件")
-    @GetMapping(value = "/send/active")
-    public Result sendActiveMail() throws ObjectNotExistsException, AccountActiveCodeHavaExpiredException, AccountException {
-        String username = WebUtil.getCurrentUsername();
+    @GetMapping(value = "/send/active/{username}")
+    public Result sendActiveMail(@PathVariable String username) throws ObjectNotExistsException, AccountActiveCodeHavaExpiredException, AccountException {
         User user = userService.findByUsername(username);
         if(user.getIsActive()) {
             throw new AccountException("您的账号已激活过");

@@ -217,6 +217,9 @@ public class DeviceController extends BaseController {
         String username = WebUtil.getCurrentUsername();
         User user = userService.findByUsername(username);
         boolean islock = deviceLockMgr.lock(deviceId, user.getUserCode(), debugExpireTime);
+
+        deviceService.debugging(deviceId);
+
         DeviceLockResultVO vo = new DeviceLockResultVO();
         vo.setSuccess(islock);
         return ok(vo);
@@ -255,6 +258,7 @@ public class DeviceController extends BaseController {
         if(!isSuccess) {
             vo.setError("用户不匹配，无法解锁");
         }else {
+            deviceService.debugFree(deviceId);
             vo.setError("解锁成功");
         }
         return ok(vo);
