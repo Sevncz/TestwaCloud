@@ -84,4 +84,9 @@ public class DeviceDAO extends BaseDAO<Device, Long>  implements IDeviceDAO{
     public List<DeviceOneCategoryResultDTO> getBrandCategory(Set<String> deviceIds) {
         return deviceMapper.getBrandCategory(deviceIds);
     }
+
+    @Override
+    public void updateDebugStatus(String deviceId, DB.DeviceDebugStatus debug) {
+        deviceMapper.updateDebugStatus(deviceId, debug);
+    }
 }

@@ -62,41 +62,35 @@ public class ExecuteMgr {
     private ScriptService scriptService;
     @Autowired
     private ApplicationContext context;
-    @Autowired
-    private SnowflakeIdWorker taskIdWorker;
 
     // 暂定同时支持100个任务并发
     private final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(100);
     private final ConcurrentHashMap<Long, Future> futures = new ConcurrentHashMap<>();
 
-
     /**
-     * 保存并执行一个回归测试任务
-     * @param form
+     *@Description: 开始执行一个回归测试任务
+     *@Param: [deviceIds, projectId, testcaseId, appId, caseName, taskCode]
+     *@Return: void
+     *@Author: wen
+     *@Date: 2018/6/4
      */
-    public Long startHG(TaskNewByCaseAndStartForm form) throws ObjectNotExistsException {
-        Preconditions.checkNotNull(form.getAppId(), "数据非法");
-        Preconditions.checkNotNull(form.getTestcaseId(), "数据非法");
-        Preconditions.checkNotNull(form.getDeviceIds(), "数据非法");
-        Testcase tc = testcaseService.fetchOne(form.getTestcaseId());
-        return start(form.getDeviceIds(), tc.getProjectId(), form.getTestcaseId(), form.getAppId(), tc.getCaseName(), DB.TaskType.HG);
+    public void startHG(List<String> deviceIds, Long projectId, Long testcaseId, Long appId, String caseName, Long taskCode) throws ObjectNotExistsException {
+        start(deviceIds, projectId, testcaseId, appId, caseName, DB.TaskType.HG, taskCode);
     }
 
     /**
-     * 保存并执行一个兼容测试任务
-     * @param form
-     * @return
+     *@Description: 开始执行一个兼容测试任务
+     *@Param: [deviceIds, projectId, appId, taskCode]
+     *@Return: void
+     *@Author: wen
+     *@Date: 2018/6/4
      */
-    public Long startJR(TaskNewStartJRForm form) {
-        Preconditions.checkNotNull(form.getAppId(), "数据非法");
-        Preconditions.checkNotNull(form.getDeviceIds(), "数据非法");
-        App app = appService.findOne(form.getAppId());
-        return start(form.getDeviceIds(), app.getProjectId(), null, form.getAppId(), "兼容测试", DB.TaskType.JR);
+    public void startJR(List<String> deviceIds, Long projectId, Long appId, Long taskCode) throws ObjectNotExistsException {
+        start(deviceIds, projectId, null, appId, "兼容测试", DB.TaskType.JR, taskCode);
     }
 
-    private Long start(List<String> deviceIds, Long projectId, Long testcaseId, Long appId, String taskName, DB.TaskType taskType) throws ObjectNotExistsException {
+    private Long start(List<String> deviceIds, Long projectId, Long testcaseId, Long appId, String taskName, DB.TaskType taskType, Long taskCode) throws ObjectNotExistsException {
         // 记录task的执行信息
-        Long taskCode = taskIdWorker.nextId();
         App app = appService.findOne(appId);
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         Task task = new Task();
@@ -175,7 +169,8 @@ public class ExecuteMgr {
                     observer.onNext(message);
                 }
             }else{
-                log.error("设备还未准备好");
+                log.error("设备{}还未准备好", key);
+                throw new ObjectNotExistsException("设备" + key + "还未准备好");
             }
 
             deviceService.work(key);

@@ -10,7 +10,7 @@ import java.util.Set;
 
 @Slf4j
 @Service
-public class ClientSessionMgr {
+public class WebsocketLoginMgr {
     private static final String ws_client = "ws.client.session.%s";
     private static final String ws_client_pattern = "ws.client.session.*";
 

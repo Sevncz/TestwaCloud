@@ -86,6 +86,14 @@
         WHERE
         deviceId = #{deviceId}
     </update>
+    <update id="updateDebugStatus" >
+        update device
+        <trim prefix="SET" suffixOverrides=",">
+            debugStatus=#{status, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},
+        </trim>
+        WHERE
+        deviceId = #{deviceId}
+    </update>
 
     <select id="findOnlineList" parameterType="java.util.HashMap" resultMap="BaseResultMap" >
         SELECT id, deviceId, phoneOS, updateTime, model, brand, cpuabi, sdk, width, height, osName, density, host, lastUserId, 1 AS onlineStatus, workStatus, debugStatus, osVersion

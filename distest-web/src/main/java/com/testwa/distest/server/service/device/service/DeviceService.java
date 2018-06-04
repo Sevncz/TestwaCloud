@@ -27,7 +27,6 @@ public class DeviceService {
     @Autowired
     private IDeviceDAO deviceDAO;
 
-
     public Device findByDeviceId(String deviceId) {
         Map<String, Object> queryMap = new HashMap<>();
         queryMap.put("deviceId", deviceId);
@@ -105,6 +104,10 @@ public class DeviceService {
         return deviceDAO.findListByOnlineDevice(queryMap, onlineDeviceList);
     }
 
+    public List<Device> findOnlineList(Set<String> deviceIds) {
+        return findOnlineList(deviceIds, null);
+    }
+
     public List<Device> findOnlineList(Set<String> onlineDevIds, DeviceListForm form) {
         Map<String, Object> queryMap = new HashMap<>();
         queryMap.put("deviceIdList", onlineDevIds);
@@ -152,29 +155,62 @@ public class DeviceService {
 
     public DeviceCategoryVO getCategory(Set<String> deviceIds) {
 
+        DeviceCategoryVO vo = new DeviceCategoryVO();
         List<DeviceOneCategoryResultDTO> dto = deviceDAO.getResolutionCategory(deviceIds);
-        List<String> resolutions = new ArrayList<>();
         dto.forEach( d -> {
-            resolutions.add(d.getName());
+            vo.getResolution().add(d.getName());
         });
 
         dto = deviceDAO.getOSVersionCategory(deviceIds);
-        List<String> osVersions = new ArrayList<>();
         dto.forEach( d -> {
-            osVersions.add(d.getName());
+            vo.getOsVersion().add(d.getName());
         });
 
         dto = deviceDAO.getBrandCategory(deviceIds);
-        List<String> brands = new ArrayList<>();
         dto.forEach( d -> {
-            brands.add(d.getName());
+            vo.getBrand().add(d.getName());
         });
 
-        DeviceCategoryVO vo = new DeviceCategoryVO();
-        vo.setResolution(resolutions);
-        vo.setOsVersion(osVersions);
-        vo.setBrand(brands);
-
         return vo;
+    }
+
+    public List<Device> findCloudList(Set<String> deviceIds, String brand, String osVersion, String resolution, Boolean isAll) {
+        if(deviceIds == null || deviceIds.size() == 0) {
+            return new ArrayList<>();
+        }
+        Map<String, Object> queryMap = new HashMap<>();
+        queryMap.put("deviceIdList", deviceIds);
+        if(StringUtils.isNotBlank(brand)){
+            queryMap.put("brand", brand);
+        }
+        if(StringUtils.isNotBlank(osVersion)){
+            queryMap.put("osVersion", osVersion);
+        }
+        if(StringUtils.isNotBlank(resolution)){
+            String[] wh = resolution.split("x");
+            if(wh.length == 2) {
+                queryMap.put("width", wh[0].trim());
+                queryMap.put("height", wh[1].trim());
+            }
+        }
+        if(isAll != null && !isAll) {
+            // 只看空闲设备
+            queryMap.put("workStatus", DB.DeviceWorkStatus.FREE);
+            queryMap.put("debugStatus", DB.DeviceDebugStatus.FREE);
+        }
+        return deviceDAO.findOnlineList(queryMap);
+    }
+
+    public PageResult<Device> findCloudPage(Set<String> deviceIds, String brand, String osVersion, String resolution, Boolean isAll) {
+
+        return null;
+    }
+
+    public void debugging(String deviceId) {
+        deviceDAO.updateDebugStatus(deviceId, DB.DeviceDebugStatus.DEBUGGING);
+    }
+
+    public void debugFree(String deviceId) {
+        deviceDAO.updateDebugStatus(deviceId, DB.DeviceDebugStatus.FREE);
     }
 }

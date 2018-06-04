@@ -1,0 +1,1 @@
+package com.testwa.distest.server.web.device.vo;import lombok.Data;/** * @Program: distest * @Description: 设备请求解锁的结果 * @Author: wen * @Create: 2018-06-04 15:43 **/@Datapublic class DeviceUnLockResultVO {    private boolean isSuccess;    private String error;}

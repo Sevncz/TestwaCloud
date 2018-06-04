@@ -8,7 +8,7 @@ import com.google.protobuf.ByteString;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.cmd.MiniCmd;
 import com.testwa.distest.server.entity.Device;
-import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
+import com.testwa.distest.server.service.cache.mgr.DeviceLoginMgr;
 import com.testwa.distest.server.service.cache.mgr.SubscribeDeviceFuncMgr;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.rpc.cache.CacheUtil;
@@ -46,9 +46,7 @@ public class CommandHandler {
     private final static String web = "web";
 
     @Autowired
-    private DeviceSessionMgr deviceSessionMgr;
-    @Autowired
-    private PushCmdService pushCmdService;
+    private DeviceLoginMgr deviceSessionMgr;
     @Autowired
     private SubscribeDeviceFuncMgr subscribeMgr;
     @Autowired

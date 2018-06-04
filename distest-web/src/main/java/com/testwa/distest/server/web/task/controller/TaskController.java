@@ -4,12 +4,18 @@ import com.alibaba.fastjson.JSON;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.AuthorizedException;
+import com.testwa.core.base.exception.DeviceUnusableException;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.base.exception.TaskStartException;
 import com.testwa.core.base.vo.Result;
-import com.testwa.distest.server.entity.Device;
-import com.testwa.distest.server.entity.Task;
+import com.testwa.core.tools.SnowflakeIdWorker;
+import com.testwa.distest.common.util.WebUtil;
+import com.testwa.distest.server.entity.*;
+import com.testwa.distest.server.service.app.service.AppService;
+import com.testwa.distest.server.service.cache.mgr.DeviceLockMgr;
 import com.testwa.distest.server.service.task.form.*;
+import com.testwa.distest.server.service.testcase.service.TestcaseService;
+import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.app.validator.AppValidator;
 import com.testwa.distest.server.web.device.validator.DeviceValidatoer;
 import com.testwa.distest.server.web.task.execute.ExecuteMgr;
@@ -20,6 +26,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,6 +50,18 @@ public class TaskController extends BaseController {
     private DeviceValidatoer deviceValidatoer;
     @Autowired
     private TaskValidatoer taskValidatoer;
+    @Autowired
+    private TestcaseService testcaseService;
+    @Autowired
+    private AppService appService;
+    @Value("${lock.work.expire}")
+    private Integer workExpireTime;
+    @Autowired
+    private SnowflakeIdWorker taskIdWorker;
+    @Autowired
+    private DeviceLockMgr deviceLockMgr;
+    @Autowired
+    private UserService userService;
 
 
     @ApiOperation(value="执行一个回归测试任务")
@@ -53,7 +72,17 @@ public class TaskController extends BaseController {
         deviceValidatoer.validateUsable(form.getDeviceIds());
         testcaseValidatoer.validateTestcaseExist(form.getTestcaseId());
         taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
-        Long taskCode = executeMgr.startHG(form);
+        String username = WebUtil.getCurrentUsername();
+        User user = userService.findByUsername(username);
+
+        for(String deviceId : form.getDeviceIds()) {
+            if(deviceLockMgr.isLocked(deviceId)) {
+                deviceLockMgr.updateLock(deviceId, workExpireTime);
+            }
+        }
+        Long taskCode = taskIdWorker.nextId();
+        Testcase tc = testcaseService.fetchOne(form.getTestcaseId());
+        executeMgr.startHG(form.getDeviceIds(), tc.getProjectId(), form.getTestcaseId(), form.getAppId(), tc.getCaseName(), taskCode);
         return ok(new TaskCodeVO(taskCode));
     }
 
@@ -64,7 +93,15 @@ public class TaskController extends BaseController {
         appValidator.validateAppExist(form.getAppId());
         deviceValidatoer.validateUsable(form.getDeviceIds());
         taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
-        Long taskCode = executeMgr.startJR(form);
+
+        Long taskCode = taskIdWorker.nextId();
+        App app = appService.findOne(form.getAppId());
+        try {
+
+            executeMgr.startJR(form.getDeviceIds(), app.getProjectId(), form.getAppId(), taskCode);
+        }catch (Exception e) {
+
+        }
         return ok(new TaskCodeVO(taskCode));
     }
 

@@ -6,8 +6,9 @@ import com.corundumstudio.socketio.annotation.OnDisconnect;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.distest.config.security.JwtTokenUtil;
 import com.testwa.distest.server.entity.User;
-import com.testwa.distest.server.service.cache.mgr.ClientSessionMgr;
-import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
+import com.testwa.distest.server.service.cache.mgr.DeviceLockMgr;
+import com.testwa.distest.server.service.cache.mgr.WebsocketLoginMgr;
+import com.testwa.distest.server.service.cache.mgr.DeviceLoginMgr;
 import com.testwa.distest.server.service.cache.mgr.SubscribeDeviceFuncMgr;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.user.service.AgentLoginLoggerService;
@@ -28,9 +29,9 @@ import org.springframework.stereotype.Component;
 public class WebConnectionHandler {
 
     @Autowired
-    private ClientSessionMgr clientSessionMgr;
+    private WebsocketLoginMgr clientSessionMgr;
     @Autowired
-    private DeviceSessionMgr deviceSessionMgr;
+    private DeviceLoginMgr deviceSessionMgr;
     @Autowired
     private PushCmdService pushCmdService;
     @Autowired
@@ -45,6 +46,8 @@ public class WebConnectionHandler {
     private UserService userService;
     @Autowired
     private AgentLoginLoggerService agentLoginLoggerService;
+    @Autowired
+    private DeviceLockMgr deviceLockMgr;
 
     @OnConnect
     @Async

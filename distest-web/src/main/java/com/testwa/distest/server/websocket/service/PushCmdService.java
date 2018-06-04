@@ -8,8 +8,8 @@ import com.testwa.core.cmd.KeyCode;
 import com.testwa.core.common.enums.Command;
 import com.testwa.core.cmd.MiniCmd;
 import com.testwa.core.cmd.RemoteRunCommand;
-import com.testwa.distest.server.service.cache.mgr.ClientSessionMgr;
-import com.testwa.distest.server.service.cache.mgr.DeviceSessionMgr;
+import com.testwa.distest.server.service.cache.mgr.WebsocketLoginMgr;
+import com.testwa.distest.server.service.cache.mgr.DeviceLoginMgr;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +25,9 @@ import java.util.UUID;
 public class PushCmdService {
 
     @Autowired
-    private DeviceSessionMgr deviceSessionMgr;
+    private DeviceLoginMgr deviceSessionMgr;
     @Autowired
-    private ClientSessionMgr clientSessionMgr;
+    private WebsocketLoginMgr clientSessionMgr;
 
     private final SocketIOServer server;
 

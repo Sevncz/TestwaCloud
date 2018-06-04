@@ -9,7 +9,7 @@ import java.util.Set;
 
 @Slf4j
 @Component
-public class DeviceSessionMgr {
+public class DeviceLoginMgr {
 
     // client 中 remoteClient 连接服务器
     private static final String ws_device_remoteClient = "ws.device.remoteClient.%s";

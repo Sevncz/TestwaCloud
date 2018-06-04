@@ -178,7 +178,7 @@ public class AuthController extends BaseController {
             throw new ParamsIsNullException("请输入密码");
         }
         if(!Validator.isPassword(form.getNewpassword())){
-            throw new ParamsFormatException("密码格式不正确，数字、字母、特殊字符占2种以，共6到16位");
+            throw new ParamsFormatException("密码格式不正确，数字、字母、特殊字符占2种以上，共6到16位");
         }
         String userCode = authMgr.checkForgetPwdCode(token);
         User user = userService.findByUserCode(userCode);
