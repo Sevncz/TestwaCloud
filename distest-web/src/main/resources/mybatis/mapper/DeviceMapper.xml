@@ -42,8 +42,8 @@
         VALUES
         (#{deviceId},#{phoneOS, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},
         #{onlineStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},
-        #{workStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},
         #{debugStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},
+        #{workStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},
         #{createTime},#{model},#{brand},#{cpuabi},#{sdk},#{width},#{height},#{osName},#{density},#{osVersion},#{host})
 
     </insert>

@@ -35,8 +35,6 @@ public class UserService {
     private SnowflakeIdWorker commonIdWorker;
     @Autowired
     private PasswordEncoder passwordEncoder;
-    @Autowired
-    private RedisCacheManager redisCacheMgr;
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public String save(User user) throws AccountAlreadyExistException, AccountException {
@@ -51,11 +49,6 @@ public class UserService {
         return userCode;
     }
 
-
-    /**
-     * 更新对象
-     * @param user
-     */
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public int update(User user) {
         return userDAO.update(user);
