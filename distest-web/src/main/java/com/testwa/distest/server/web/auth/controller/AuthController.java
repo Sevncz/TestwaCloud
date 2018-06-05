@@ -152,6 +152,18 @@ public class AuthController extends BaseController {
         return ok();
     }
 
+
+    @ApiOperation(value = "发送激活邮件")
+    @GetMapping(value = "/send/active/{username}")
+    public Result sendActiveMail(@PathVariable String username) throws ObjectNotExistsException, AccountActiveCodeHavaExpiredException, AccountException {
+        User user = userService.findByUsername(username);
+        if(user.getIsActive()) {
+            throw new AccountException("您的账号已激活过");
+        }
+        authMgr.sendActiveMail(user, user.getUserCode());
+        return ok();
+    }
+
     @ApiOperation(value = "发送忘记密码邮件")
     @GetMapping(value = "/forget/password/{email:.+}")
     public Result checkEmail(@PathVariable("email") String email) throws AccountNotFoundException {
