@@ -24,6 +24,7 @@ import com.testwa.distest.server.web.project.vo.ProjectVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -165,7 +166,9 @@ public class ProjectController extends BaseController {
         vo.setProject(projectVO);
         List<UserVO> userVOS = new ArrayList<>();
         members.forEach(m -> {
-            userVOS.add(buildVO(m, UserVO.class));
+            if(m != null && StringUtils.isNotBlank(m.getUsername())) {
+                userVOS.add(buildVO(m, UserVO.class));
+            }
         });
         vo.setProjectMembers(userVOS);
         return ok(vo);
