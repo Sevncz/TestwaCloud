@@ -1,68 +1,55 @@
 package com.testwa.distest.client.util;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.testwa.core.utils.Identities;
-import com.testwa.core.utils.TimeUtil;
-import com.testwa.core.utils.UUID;
-import com.testwa.distest.client.exception.DownloadFailException;
-import com.testwa.distest.client.model.UserInfo;
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.RequestEntity;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.httpclient.params.HttpMethodParams;
+import com.alibaba.fastjson.JSON;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.http.util.EntityUtils;
 
 import java.io.*;
-import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.Map;
 
 /**
  * Created by wen on 16/8/14.
  */
+@Slf4j
 public class Http {
-    private static final Logger log = LoggerFactory.getLogger(Http.class);
 
-    public static Integer post(String url, int timeout, String data) {
-        PostMethod method = null;
+    public static String post(String url, Object data) {
+        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
         try {
-            method = new PostMethod(url);
-            RequestEntity se = new StringRequestEntity(data, "application/json", "UTF-8");
-            method.setRequestEntity(se);
-            //使用系统提供的默认的恢复策略
-            method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler());
-            //设置超时的时间
-            method.getParams().setParameter(HttpMethodParams.SO_TIMEOUT, timeout);
-            HttpClient httpClient = new HttpClient();
-            int statusCode = httpClient.executeMethod(method);
-            //只要在获取源码中，服务器返回的不是200代码，则统一认为抓取源码失败，返回null。
-            if (statusCode != HttpStatus.SC_OK) {
-                return null;
-            }
-            return statusCode;
-        } catch (IllegalArgumentException | IOException e) {
-            e.printStackTrace();
-        }
 
+            HttpPost request = new HttpPost(url);
+            StringEntity params =new StringEntity(JSON.toJSONString(data));
+            request.addHeader("content-type", "application/json");
+            request.setEntity(params);
+            HttpResponse response = httpClient.execute(request);
+
+            if(response != null) {
+
+                int statusCode = response.getStatusLine().getStatusCode();
+                if(statusCode == 200) {
+                    HttpEntity entity = response.getEntity();
+                    return EntityUtils.toString(entity, "UTF-8");
+                }
+            }
+        }catch (Exception ex) {
+            log.error("POST to {} ERROR", url, ex);
+        } finally {
+            try {
+                httpClient.close();
+            } catch (IOException e) {
+
+            }
+        }
         return null;
     }
 

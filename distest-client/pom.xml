@@ -201,6 +201,13 @@
             <artifactId>ffmpeg-platform</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.squareup.okhttp</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>2.7.5</version>
+        </dependency>
+
+
     </dependencies>
 
     <build>

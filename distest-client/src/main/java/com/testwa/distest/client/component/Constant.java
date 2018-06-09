@@ -50,6 +50,10 @@ public class Constant {
     public static final String IOS_DEPLOY = "ios-deploy";
     public static final String IOS_DEPLOY_BIN = "ios-deploy";
 
+    public static final String APPIUM_LIB = "appium";
+    public static final String APPIUM_UI2 = "appium-uiautomator2-server.apk";
+    public static final String APPIUM_UI2_DEBUG = "appium-uiautomator2-server-debug-androidTest.apk";
+
 
     public static String getMinitouchBin(String abi, String bin) {
         return File.separator + "minitouch" + File.separator + abi + File.separator + bin;
@@ -83,6 +87,13 @@ public class Constant {
 
     public static String getIOSDeploy() {
         return IOS_DEPLOY + File.separator + IOS_DEPLOY_BIN;
+    }
+
+    public static String getAppiumUI2() {
+        return APPIUM_LIB + File.separator + APPIUM_UI2;
+    }
+    public static String getAppiumUI2Debug() {
+        return APPIUM_LIB + File.separator + APPIUM_UI2_DEBUG;
     }
 
 }
