@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.distest.client.android.DeviceManager;
+import com.testwa.distest.client.component.ADBCommandUtils;
 import com.testwa.distest.client.component.appium.utils.Config;
 import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.service.GrpcClientService;
@@ -51,11 +52,10 @@ public class EnvCheck implements CommandLineRunner {
     private Environment env;
     @Autowired
     private HttpService httpService;
-    @Autowired
-    private GrpcClientService gClientService;
 
     @Override
     public void run(String... strings) throws Exception {
+//        ADBCommandUtils.restart();
         AndroidHelper.getInstance();
         checkSupportEnv();
         checkAuth(username, password);

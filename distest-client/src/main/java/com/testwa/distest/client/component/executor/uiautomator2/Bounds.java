@@ -1,0 +1,1 @@
+package com.testwa.distest.client.component.executor.uiautomator2;import lombok.Data;/** * @Program: distest * @Description: * @Author: wen * @Create: 2018-06-11 15:43 **/@Datapublic class Bounds {    private int x;    private int y;    private int width;    private int hight;}
