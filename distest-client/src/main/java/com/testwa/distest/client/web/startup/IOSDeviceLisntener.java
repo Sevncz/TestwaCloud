@@ -30,8 +30,8 @@ public class IOSDeviceLisntener implements CommandLineRunner {
 
     @Override
     public void run(String... strings) {
-        Thread IOSDeviceInitialThread = new Thread(new IOSDeviceInitial());
-        IOSDeviceInitialThread.start();
+//        Thread IOSDeviceInitialThread = new Thread(new IOSDeviceInitial());
+//        IOSDeviceInitialThread.start();
     }
 
     class IOSDeviceInitial implements Runnable {

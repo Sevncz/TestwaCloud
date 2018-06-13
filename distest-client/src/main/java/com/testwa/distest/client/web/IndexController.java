@@ -45,7 +45,7 @@ public class IndexController {
         String testcaseId = appiumStepJson.getString("testcaseId");
         String sessionId = appiumStepJson.getString("sessionId");
         if(StringUtils.isNotBlank(taskId) && StringUtils.isNotBlank(scriptId) && StringUtils.isNotBlank(testcaseId) && StringUtils.isNotBlank(sessionId)){
-            // {"status":0,"value":null,"runtime":468,"cpurate":"22","memory":"100012","battery":null,
+            // {"getSource":0,"value":null,"runtime":468,"cpurate":"22","memory":"100012","battery":null,
             // "sessionId":"ace91834-73c7-4fc0-8a85-004caec5154d","deviceId":"b15d91f","testSuit":"3",
             // "testcaseId":"3","taskCode":"185","screenshotPath":"1527502356422.png",
             // "description":"No Driver found for this session, probably appium error, please restart appium!",
@@ -54,7 +54,7 @@ public class IndexController {
             if(StringUtils.isBlank(value)){
                 value = "null";
             }
-            Integer status = appiumStepJson.getInteger("status");
+            Integer status = appiumStepJson.getInteger("getSource");
             Long runtime = appiumStepJson.getLong("runtime");
             JSONObject command = appiumStepJson.getJSONObject("command");
             String action = command.getString("action");
