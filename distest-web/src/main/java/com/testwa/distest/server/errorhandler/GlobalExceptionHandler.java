@@ -14,18 +14,15 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.annotation.*;
 
-import javax.security.auth.login.AccountException;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
-@RestControllerAdvice
+@RestController
+@ControllerAdvice
 class GlobalExceptionHandler {
     /**
      * Internal server error message.
@@ -145,7 +142,7 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = ObjectAlreadyExistException.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Result handleObjectAlreadyExistExceptions(HttpServletRequest req, ObjectAlreadyExistException e) {
+    public Result handleObjectAlreadyExistExceptions(HttpServletRequest req, Exception e) {
         Result<String> r = new Result<>();
         r.setCode(ResultCode.CONFLICT.getValue());
         r.setType(ResultCode.CONFLICT.name());
@@ -211,19 +208,15 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = AccountException.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Result handleAccountExceptions(HttpServletRequest req, MethodArgumentNotValidException e) {
-        List<String> errors = e.getBindingResult().getFieldErrors().stream()
-                .map(this::buildMessage)
-                .collect(Collectors.toList());
+    public Result handleAccountExceptions(HttpServletRequest req, Exception e) {
         Result<String> r = new Result<>();
         r.setCode(ResultCode.ILLEGAL_OP.getValue());
         r.setType(ResultCode.ILLEGAL_OP.name());
-        r.setMessage(errors.toString());
+        r.setMessage(e.getMessage());
         r.setUrl(req.getRequestURI());
         log.error(e.getMessage());
         return r;
     }
-
 
     @ExceptionHandler(value = Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

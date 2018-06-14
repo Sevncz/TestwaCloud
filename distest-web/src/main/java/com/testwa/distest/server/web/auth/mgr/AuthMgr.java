@@ -50,10 +50,6 @@ public class AuthMgr {
     private MQService mqService;
 
     public JwtAuthenticationResponse login(String username, String password, String ip, String userAgent) throws BadCredentialsException, LoginInfoNotFoundException {
-        if(StringUtils.isEmpty(username) || StringUtils.isEmpty(password)){
-            throw new LoginInfoNotFoundException("登录信息不能为空");
-        }
-
         UsernamePasswordAuthenticationToken upToken = new UsernamePasswordAuthenticationToken(username, password);
         final Authentication authentication = authenticationManager.authenticate(upToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);

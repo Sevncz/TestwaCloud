@@ -65,12 +65,16 @@ public class AuthController extends BaseController {
     @ApiImplicitParam(name = "authenticationRequest", value = "JWT登录验证类", required = true, dataType = "JwtAuthenticationRequest")
     @PostMapping(value = "login")
     public Result createAuthenticationToken(@RequestBody JwtAuthenticationRequest authenticationRequest, HttpServletRequest request) throws AuthorizedException, LoginInfoNotFoundException, AccountNoActiveException {
+        if(StringUtils.isEmpty(authenticationRequest.getUsername()) || StringUtils.isEmpty(authenticationRequest.getPassword())){
+            throw new LoginInfoNotFoundException("登录信息不能为空");
+        }
         String ip;
         if (request.getHeader("x-forwarded-for") == null) {
             ip = request.getRemoteAddr();
         }else{
             ip = request.getHeader("x-forwarded-for");
         }
+        userValidator.validateUsernameExist(authenticationRequest.getUsername());
         String userAgent = request.getHeader("user-agent");
         userValidator.validateActive(authenticationRequest.getUsername());
         return ok(authMgr.login(authenticationRequest.getUsername(), authenticationRequest.getPassword(), ip, userAgent));
@@ -155,8 +159,11 @@ public class AuthController extends BaseController {
 
     @ApiOperation(value = "发送激活邮件")
     @GetMapping(value = "/send/active/{username}")
-    public Result sendActiveMail(@PathVariable String username) throws ObjectNotExistsException, AccountActiveCodeHavaExpiredException, AccountException {
+    public Result sendActiveMail(@PathVariable String username) {
         User user = userService.findByUsername(username);
+        if(user == null) {
+            throw new AccountException("账号不存在");
+        }
         if(user.getIsActive()) {
             throw new AccountException("您的账号已激活过");
         }
