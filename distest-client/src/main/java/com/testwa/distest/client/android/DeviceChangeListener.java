@@ -29,10 +29,10 @@ public class DeviceChangeListener implements AndroidDebugBridge.IDeviceChangeLis
     @Override
     public void deviceChanged(IDevice device, int changeMask) {
         if (device.isOnline()) {
-            log.info("设备 {} 状态变更： 在线 {}", device.getSerialNumber(), changeMask);
+            log.info("设备 {} 状态变更： 在线 {}", device.getName(), changeMask);
             online(device.getSerialNumber());
         } else {
-            log.info("设备 {} 状态变更： 离线 {}", device.getSerialNumber(), changeMask);
+            log.info("设备 {} 状态变更： 离线 {}", device.getName(), changeMask);
             offline(device.getSerialNumber());
         }
     }
