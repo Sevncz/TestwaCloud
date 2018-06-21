@@ -56,11 +56,11 @@ public class EnvCheck implements CommandLineRunner {
     @Override
     public void run(String... strings) throws Exception {
 //        ADBCommandUtils.restart();
+        Config.setEnv(env);
         AndroidHelper.getInstance();
         checkSupportEnv();
         checkAuth(username, password);
         checkTempDirPath();
-        Config.setEnv(env);
         startDeviceManager();
     }
 
