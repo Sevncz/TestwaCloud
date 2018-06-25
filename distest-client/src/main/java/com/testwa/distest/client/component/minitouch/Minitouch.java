@@ -5,18 +5,15 @@ import com.android.ddmlib.IDevice;
 import com.android.ddmlib.TimeoutException;
 import com.github.cosysoft.device.android.AndroidDevice;
 import com.github.cosysoft.device.exception.DeviceNotFoundException;
-import com.github.cosysoft.device.shell.AndroidSdk;
 import com.testwa.core.service.AdbDriverService;
 import com.testwa.core.service.MinitouchServiceBuilder;
 import com.testwa.distest.client.android.AdbForward;
 import com.testwa.distest.client.android.AndroidHelper;
-import com.testwa.distest.client.component.ADBCommandUtils;
 import com.testwa.distest.client.component.port.MinitouchPortProvider;
 import com.testwa.distest.client.component.Constant;
 import com.testwa.distest.client.exception.CommandFailureException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.openqa.selenium.os.CommandLine;
 
 import java.io.*;
 import java.net.Socket;
@@ -277,23 +274,6 @@ public class Minitouch {
      * 生成forward信息
      */
     private AdbForward generateForwardInfo() {
-//        AdbForward[] forwards = AndroidHelper.getInstance().getForwardList();
-        // serial_touch_number
-//        int maxNumber = 0;
-//        if (forwards.length > 0) {
-//            for (AdbForward forward : forwards) {
-//                if (forward.getSerialNumber().equals(device.getSerialNumber())) {
-//                    String l = forward.getLocalabstract();
-//                    String[] s = l.split("_");
-//                    if (s.length == 3) {
-//                        int n = Integer.parseInt(s[2]);
-//                        if (n > maxNumber) maxNumber = n;
-//                    }
-//                }
-//            }
-//        }
-//        maxNumber += 1;
-
         String forwardStr = String.format("%s_minitouch_%d", device.getSerialNumber(), Thread.currentThread().getId());
         int freePort = MinitouchPortProvider.pullPort();
         AdbForward forward = new AdbForward(device.getSerialNumber(), freePort, forwardStr);

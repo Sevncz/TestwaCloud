@@ -1,17 +1,14 @@
 package com.testwa.distest.client.component.minicap;
 
 import com.android.ddmlib.*;
-import com.android.ddmlib.TimeoutException;
 import com.github.cosysoft.device.android.AndroidDevice;
 import com.github.cosysoft.device.exception.DeviceNotFoundException;
 import com.testwa.core.service.AdbDriverService;
 import com.testwa.core.service.MinicapServiceBuilder;
 import com.testwa.core.utils.Identities;
-import com.testwa.distest.client.android.AdbForward;
-import com.testwa.core.utils.Common;
 
 import com.testwa.distest.client.android.AndroidHelper;
-import com.testwa.distest.client.component.ADBCommandUtils;
+import com.testwa.distest.client.android.ADBCommandUtils;
 import com.testwa.distest.client.component.port.MinicapPortProvider;
 import com.testwa.distest.client.component.Constant;
 import lombok.extern.slf4j.Slf4j;
@@ -19,11 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import sun.misc.BASE64Decoder;
 
 import java.io.*;
-import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.*;
 
 /**
@@ -154,7 +147,7 @@ public class AMinicapServer extends MinicapServer{
                 .whithArgs(args)
                 .build();
         service.start();
-        int tryTime = 50;
+        int tryTime = 20;
         while(tryTime > 0) {
             try {
                 TimeUnit.SECONDS.sleep(1);

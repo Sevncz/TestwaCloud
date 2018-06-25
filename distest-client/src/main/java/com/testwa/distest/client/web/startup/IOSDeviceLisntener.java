@@ -83,7 +83,7 @@ public class IOSDeviceLisntener implements CommandLineRunner {
                 d.setDeviceId(uuid);
                 d.setModel(extraInfoList[1]);
                 d.setCpuabi(extraInfoList[3]);
-                grpcClientService.initDevice(d);
+                grpcClientService.initAndroidDevice(d);
             }
         }
     }
