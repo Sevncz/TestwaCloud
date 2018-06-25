@@ -104,6 +104,8 @@ public class WebConnectionHandler {
         }else if("browser".equals(type)){
             // 浏览器连接断开
             log.debug("browser disconnect");
+            // 清理资源
+
         }
     }
 

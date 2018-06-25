@@ -116,6 +116,29 @@
         </trim>
     </select>
 
+    <select id="searchCloudList" parameterType="java.util.HashMap" resultMap="BaseResultMap" >
+        SELECT id, deviceId, phoneOS, updateTime, model, brand, cpuabi, sdk, width, height, osName, density, host, lastUserId, 1 AS onlineStatus, workStatus, debugStatus, osVersion
+        FROM device
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            <if test="deviceId != null">and deviceId = #{deviceId}</if>
+            <if test="deviceIdList != null">
+                and deviceId in <foreach item="devId" index="index" collection="deviceIdList" open="(" separator="," close=")">#{devId} </foreach>
+            </if>
+            <if test="phoneOS != null">and phoneOS = #{phoneOS}</if>
+            <if test="onlineStatus != null">and onlineStatus = #{onlineStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
+            <if test="workStatus != null">and workStatus = #{workStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
+            <if test="debugStatus != null">and debugStatus = #{debugStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
+            <if test="brand != null">
+                and
+                (model LIKE CONCAT('%', #{brand}, '%') or brand LIKE CONCAT('%', #{brand}, '%'))
+            </if>
+            <if test="lastUserId != null">and lastUserId = #{lastUserId}</if>
+            <if test="width != null">and width = #{width}</if>
+            <if test="height != null">and height = #{height}</if>
+            <if test="osVersion != null">and osVersion = #{osVersion}</if>
+        </trim>
+    </select>
+
     <select id="findListByOnlineDevice" resultMap="BaseResultMap" >
         SELECT id, deviceId, phoneOS, updateTime, model, brand, cpuabi, sdk, width, height, osName, density, host, lastUserId, osVersion, workStatus,
         <if test="onlineDeviceList != null and onlineDeviceList.size > 0">

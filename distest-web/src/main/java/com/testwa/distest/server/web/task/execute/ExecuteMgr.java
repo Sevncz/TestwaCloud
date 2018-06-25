@@ -1,14 +1,12 @@
 package com.testwa.distest.server.web.task.execute;
 
 import com.alibaba.fastjson.JSON;
-import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.cmd.AppInfo;
 import com.testwa.core.cmd.RemoteRunCommand;
 import com.testwa.core.cmd.RemoteTestcaseContent;
 import com.testwa.core.cmd.ScriptInfo;
-import com.testwa.core.tools.SnowflakeIdWorker;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.entity.*;
@@ -23,6 +21,7 @@ import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.service.testcase.service.TestcaseService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
+import com.testwa.distest.server.web.task.vo.TaskStartResultVO;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.push.Message;
 import lombok.extern.slf4j.Slf4j;
@@ -74,8 +73,13 @@ public class ExecuteMgr {
      *@Author: wen
      *@Date: 2018/6/4
      */
-    public void startHG(List<String> deviceIds, Long projectId, Long testcaseId, Long appId, String caseName, Long taskCode) throws ObjectNotExistsException {
-        start(deviceIds, projectId, testcaseId, appId, caseName, DB.TaskType.HG, taskCode);
+    public TaskStartResultVO startHG(List<String> deviceIds, Long projectId, Long testcaseId, Long appId, String caseName, Long taskCode) throws ObjectNotExistsException {
+        return start(deviceIds, projectId, testcaseId, appId, caseName, DB.TaskType.HG, taskCode);
+    }
+
+    public TaskStartResultVO startHG(List<String> useableDevices, Long projectId, Long appId, List<Long> scriptIds, Long taskCode) {
+        Testcase testcase = testcaseService.saveTestcaseByScriptIds(projectId, scriptIds);
+        return startHG(useableDevices, projectId, testcase.getId(), appId, testcase.getCaseName(), taskCode);
     }
 
     /**
@@ -85,11 +89,13 @@ public class ExecuteMgr {
      *@Author: wen
      *@Date: 2018/6/4
      */
-    public void startJR(List<String> deviceIds, Long projectId, Long appId, Long taskCode) throws ObjectNotExistsException {
-        start(deviceIds, projectId, null, appId, "兼容测试", DB.TaskType.JR, taskCode);
+    public TaskStartResultVO startJR(List<String> deviceIds, Long projectId, Long appId, Long taskCode) throws ObjectNotExistsException {
+
+        return start(deviceIds, projectId, null, appId, "兼容测试", DB.TaskType.JR, taskCode);
     }
 
-    private Long start(List<String> deviceIds, Long projectId, Long testcaseId, Long appId, String taskName, DB.TaskType taskType, Long taskCode) throws ObjectNotExistsException {
+    private TaskStartResultVO start(List<String> deviceIds, Long projectId, Long testcaseId, Long appId, String taskName, DB.TaskType taskType, Long taskCode) throws ObjectNotExistsException {
+        TaskStartResultVO result = new TaskStartResultVO();
         // 记录task的执行信息
         App app = appService.findOne(appId);
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
@@ -130,12 +136,6 @@ public class ExecuteMgr {
             task.setTestcaseJson(JSON.toJSONString(alltestcase));
         }
         task.setTaskName(taskName);
-        List<Device> alldevice = deviceService.findAll(deviceIds);
-        task.setDevicesJson(JSON.toJSONString(alldevice));
-        task.setCreateBy(user.getId());
-        task.setCreateTime(new Date());
-        task.setEnabled(true);
-        taskService.save(task);
 
         // 启动任务
         for (String key : deviceIds) {
@@ -150,7 +150,6 @@ public class ExecuteMgr {
             taskDevice.setProjectId(app.getProjectId());
             taskDeviceService.save(taskDevice);
 
-//            Device d = deviceService.findByDeviceId(key);
             RemoteRunCommand cmd = new RemoteRunCommand();
             AppInfo appInfo = new AppInfo();
             BeanUtils.copyProperties(app, appInfo);
@@ -160,21 +159,31 @@ public class ExecuteMgr {
             cmd.setTestcaseList(cases);
             cmd.setTaskCode(taskCode);
             StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(key);
+
+            Device d = deviceService.findByDeviceId(key);
             if(observer != null ){
                 if(taskType.equals(DB.TaskType.HG)) {
                     Message message = Message.newBuilder().setTopicName(Message.Topic.TASK_START).setStatus("OK").setMessage(ByteString.copyFromUtf8(JSON.toJSONString(cmd))).build();
                     observer.onNext(message);
+                    result.addRunningDevice(d);
                 }else if(taskType.equals(DB.TaskType.JR)) {
                     Message message = Message.newBuilder().setTopicName(Message.Topic.JR_TASK_START).setStatus("OK").setMessage(ByteString.copyFromUtf8(JSON.toJSONString(cmd))).build();
                     observer.onNext(message);
+                    result.addRunningDevice(d);
                 }
             }else{
-                log.error("设备{}还未准备好", key);
+                result.addUnableDevice(d);
+                log.error("设备 {} - {} 还未准备好", d.getDeviceId(), d.getModel());
                 throw new ObjectNotExistsException("设备" + key + "还未准备好");
             }
 
             deviceService.work(key);
         }
+        task.setCreateBy(user.getId());
+        task.setCreateTime(new Date());
+        task.setEnabled(true);
+        task.setDevicesJson(JSON.toJSONString(result.getRunningDevices()));
+        taskService.save(task);
 
 
         int initialDelay = 0;
@@ -214,8 +223,7 @@ public class ExecuteMgr {
             }
         }, initialDelay, period, TimeUnit.SECONDS);
         futures.put(taskCode, future);
-
-        return taskCode;
+        return result;
     }
 
 
@@ -263,5 +271,4 @@ public class ExecuteMgr {
         DecimalFormat df = new DecimalFormat("0.00");//格式化小数
         return df.format(num);
     }
-
 }

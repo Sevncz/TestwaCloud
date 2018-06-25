@@ -1,1 +1,0 @@
-package com.testwa.distest.server.web.task.vo;import lombok.AllArgsConstructor;import lombok.Data;/** * @Program: distest * @Description: * @Author: wen * @Create: 2018-05-29 21:07 **/@Data@AllArgsConstructorpublic class TaskCodeVO {    private Long taskCode;}

@@ -3,24 +3,25 @@ package com.testwa.distest.server.web.task.controller;
 import com.alibaba.fastjson.JSON;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
-import com.testwa.core.base.exception.AuthorizedException;
-import com.testwa.core.base.exception.DeviceUnusableException;
-import com.testwa.core.base.exception.ObjectNotExistsException;
-import com.testwa.core.base.exception.TaskStartException;
+import com.testwa.core.base.exception.*;
 import com.testwa.core.base.vo.Result;
 import com.testwa.core.tools.SnowflakeIdWorker;
+import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.cache.mgr.DeviceLockMgr;
+import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.task.form.*;
 import com.testwa.distest.server.service.testcase.service.TestcaseService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.app.validator.AppValidator;
+import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
 import com.testwa.distest.server.web.device.validator.DeviceValidatoer;
+import com.testwa.distest.server.web.script.validator.ScriptValidator;
 import com.testwa.distest.server.web.task.execute.ExecuteMgr;
 import com.testwa.distest.server.web.task.validator.TaskValidatoer;
-import com.testwa.distest.server.web.task.vo.TaskCodeVO;
+import com.testwa.distest.server.web.task.vo.TaskStartResultVO;
 import com.testwa.distest.server.web.testcase.validator.TestcaseValidatoer;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -29,8 +30,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Created by wen on 24/10/2017.
@@ -51,6 +56,8 @@ public class TaskController extends BaseController {
     @Autowired
     private TaskValidatoer taskValidatoer;
     @Autowired
+    private ScriptValidator scriptValidator;
+    @Autowired
     private TestcaseService testcaseService;
     @Autowired
     private AppService appService;
@@ -62,6 +69,10 @@ public class TaskController extends BaseController {
     private DeviceLockMgr deviceLockMgr;
     @Autowired
     private UserService userService;
+    @Autowired
+    private DeviceAuthMgr deviceAuthMgr;
+    @Autowired
+    private DeviceService deviceService;
 
 
     @ApiOperation(value="执行一个回归测试任务")
@@ -69,40 +80,118 @@ public class TaskController extends BaseController {
     @PostMapping(value = "/run")
     public Result run(@RequestBody TaskNewByCaseAndStartForm form) throws ObjectNotExistsException, AuthorizedException, TaskStartException {
         appValidator.validateAppExist(form.getAppId());
-        deviceValidatoer.validateUsable(form.getDeviceIds());
         testcaseValidatoer.validateTestcaseExist(form.getTestcaseId());
         taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
-        String username = WebUtil.getCurrentUsername();
-        User user = userService.findByUsername(username);
 
-        for(String deviceId : form.getDeviceIds()) {
-            if(deviceLockMgr.isLocked(deviceId)) {
-                deviceLockMgr.updateLock(deviceId, workExpireTime);
+        User user = userService.findByUsername(WebUtil.getCurrentUsername());
+
+        Set<String> onlineDeviceIdList = deviceAuthMgr.allOnlineDevices();
+        List<Device> deviceList = deviceService.findAll(form.getDeviceIds());
+        List<Device> unableDevices = new ArrayList<>();
+        List<String> unableDeviceIds = new ArrayList<>();
+        for(Device device : deviceList) {
+            if(!onlineDeviceIdList.contains(device.getDeviceId())){
+                unableDevices.add(device);
+                unableDeviceIds.add(device.getDeviceId());
+            } else if (!DB.DeviceWorkStatus.FREE.equals(device.getWorkStatus()) || !DB.DeviceDebugStatus.FREE.equals(device.getDebugStatus())) {
+                unableDevices.add(device);
+                unableDeviceIds.add(device.getDeviceId());
             }
         }
+        List<String> useableList = form.getDeviceIds().stream().filter(item -> !unableDeviceIds.contains(item)).collect(toList());
+        TaskStartResultVO vo = new TaskStartResultVO();
+        if(useableList.size() == 0) {
+            vo.addUnableDevice(unableDevices);
+            return ok(vo);
+        }
+        for(String deviceId : useableList) {
+            deviceLockMgr.lock(deviceId, user.getUserCode(), workExpireTime);
+        }
         Long taskCode = taskIdWorker.nextId();
+        App app = appService.findOne(form.getAppId());
         Testcase tc = testcaseService.fetchOne(form.getTestcaseId());
-        executeMgr.startHG(form.getDeviceIds(), tc.getProjectId(), form.getTestcaseId(), form.getAppId(), tc.getCaseName(), taskCode);
-        return ok(new TaskCodeVO(taskCode));
+        vo = executeMgr.startHG(useableList, app.getProjectId(), tc.getId(), form.getAppId(), tc.getCaseName(), taskCode);
+        vo.setTaskCode(taskCode);
+        vo.addUnableDevice(unableDevices);
+        return ok(vo);
+    }
+
+    @ApiOperation(value="执行一个回归测试任务")
+    @ResponseBody
+    @PostMapping(value = "/run/hg/scripts")
+    public Result run(@RequestBody TaskNewStartByScriptsForm form) throws ObjectNotExistsException, AuthorizedException, TaskStartException {
+        appValidator.validateAppExist(form.getAppId());
+        if(form.getScriptIds() == null || form.getScriptIds().size() == 0) {
+            throw new ParamsIsNullException("参数错误，脚本为空");
+        }
+        scriptValidator.validateScriptsExist(form.getScriptIds());
+
+        taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
+
+        User user = userService.findByUsername(WebUtil.getCurrentUsername());
+
+        Set<String> onlineDeviceIdList = deviceAuthMgr.allOnlineDevices();
+        List<Device> deviceList = deviceService.findAll(form.getDeviceIds());
+        List<Device> unableDevices = new ArrayList<>();
+        List<String> unableDeviceIds = new ArrayList<>();
+        for(Device device : deviceList) {
+            if(!onlineDeviceIdList.contains(device.getDeviceId())){
+                unableDevices.add(device);
+                unableDeviceIds.add(device.getDeviceId());
+            } else if (!DB.DeviceWorkStatus.FREE.equals(device.getWorkStatus()) || !DB.DeviceDebugStatus.FREE.equals(device.getDebugStatus())) {
+                unableDevices.add(device);
+                unableDeviceIds.add(device.getDeviceId());
+            }
+        }
+        List<String> useableList = form.getDeviceIds().stream().filter(item -> !unableDeviceIds.contains(item)).collect(toList());
+        TaskStartResultVO vo = new TaskStartResultVO();
+        if(useableList.size() == 0) {
+            vo.addUnableDevice(unableDevices);
+            return ok(vo);
+        }
+        for(String deviceId : useableList) {
+            deviceLockMgr.lock(deviceId, user.getUserCode(), workExpireTime);
+        }
+        Long taskCode = taskIdWorker.nextId();
+        App app = appService.findOne(form.getAppId());
+        vo = executeMgr.startHG(useableList, app.getProjectId(), form.getAppId(), form.getScriptIds(), taskCode);
+        vo.setTaskCode(taskCode);
+        vo.addUnableDevice(unableDevices);
+        return ok(vo);
     }
 
     @ApiOperation(value="执行一个兼容测试任务")
     @ResponseBody
     @PostMapping(value = "/run/jr")
-    public Result runJR(@RequestBody TaskNewStartJRForm form) throws ObjectNotExistsException, AuthorizedException, TaskStartException {
+    public Result runJR(@RequestBody TaskNewStartJRForm form) {
         appValidator.validateAppExist(form.getAppId());
-        deviceValidatoer.validateUsable(form.getDeviceIds());
         taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
 
+        User user = userService.findByUsername(WebUtil.getCurrentUsername());
+
+        Set<String> onlineDeviceIdList = deviceAuthMgr.allOnlineDevices();
+        List<Device> deviceList = deviceService.findAll(form.getDeviceIds());
+        List<Device> unableDevices = new ArrayList<>();
+        List<String> unableDeviceIds = new ArrayList<>();
+        for(Device device : deviceList) {
+            if(!onlineDeviceIdList.contains(device.getDeviceId())){
+                unableDevices.add(device);
+                unableDeviceIds.add(device.getDeviceId());
+            } else if (!DB.DeviceWorkStatus.FREE.equals(device.getWorkStatus()) || !DB.DeviceDebugStatus.FREE.equals(device.getDebugStatus())) {
+                unableDevices.add(device);
+                unableDeviceIds.add(device.getDeviceId());
+            }
+        }
+        List<String> useableList = form.getDeviceIds().stream().filter(item -> !unableDeviceIds.contains(item)).collect(toList());
+        for(String deviceId : useableList) {
+            deviceLockMgr.lock(deviceId, user.getUserCode(), workExpireTime);
+        }
         Long taskCode = taskIdWorker.nextId();
         App app = appService.findOne(form.getAppId());
-        try {
-
-            executeMgr.startJR(form.getDeviceIds(), app.getProjectId(), form.getAppId(), taskCode);
-        }catch (Exception e) {
-
-        }
-        return ok(new TaskCodeVO(taskCode));
+        TaskStartResultVO vo = executeMgr.startJR(useableList, app.getProjectId(), form.getAppId(), taskCode);
+        vo.setTaskCode(taskCode);
+        vo.addUnableDevice(unableDevices);
+        return ok(vo);
     }
 
 
@@ -113,7 +202,7 @@ public class TaskController extends BaseController {
         Task task = taskValidatoer.validateTaskExist(form.getTaskCode());
         if(form.getDeviceIds() != null && form.getDeviceIds().size() > 0 ){
             List<Device> taskDevices = task.getDevices();
-            List<Device> notInTaskDevice = taskDevices.stream().filter(device -> !form.getDeviceIds().contains(device.getDeviceId())).collect(Collectors.toList());
+            List<Device> notInTaskDevice = taskDevices.stream().filter(device -> !form.getDeviceIds().contains(device.getDeviceId())).collect(toList());
             if (notInTaskDevice != null && notInTaskDevice.size() > 0) {
                 throw new ObjectNotExistsException(String.format("设备 %s 不在该任务中", JSON.toJSON(notInTaskDevice)));
             }

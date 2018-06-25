@@ -89,4 +89,9 @@ public class DeviceDAO extends BaseDAO<Device, Long>  implements IDeviceDAO{
     public void updateDebugStatus(String deviceId, DB.DeviceDebugStatus status) {
         deviceMapper.updateDebugStatus(deviceId, status);
     }
+
+    @Override
+    public List<Device> searchCloudList(Map<String, Object> queryMap) {
+        return deviceMapper.searchCloudList(queryMap);
+    }
 }

@@ -41,4 +41,6 @@ public interface DeviceMapper extends BaseMapper<Device, Long> {
     List<DeviceOneCategoryResultDTO> getOSVersionCategory(@Param("deviceIds") Set<String> deviceIds);
 
     void updateDebugStatus(@Param("deviceId")String deviceId, @Param("status") DB.DeviceDebugStatus status);
+
+    List<Device> searchCloudList(Map<String,Object> queryMap);
 }

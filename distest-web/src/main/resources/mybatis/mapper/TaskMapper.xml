@@ -27,6 +27,8 @@
         <include refid="Base_Column_List" />
         FROM task
         WHERE id = #{key}
+        and
+        enabled = 1
     </select>
 
     <select id="findBy" parameterType="com.testwa.distest.server.entity.Task" resultMap="BaseResultMap" >

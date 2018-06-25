@@ -5,13 +5,16 @@ import com.github.pagehelper.PageInfo;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Device;
+import com.testwa.distest.server.entity.IOSDeviceDict;
 import com.testwa.distest.server.service.device.dao.IDeviceDAO;
+import com.testwa.distest.server.service.device.dao.IIOSDeviceDictDAO;
 import com.testwa.distest.server.service.device.dto.DeviceOneCategoryResultDTO;
 import com.testwa.distest.server.service.device.form.DeviceListForm;
 import com.testwa.distest.server.web.device.vo.DeviceCategoryVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -26,6 +29,8 @@ public class DeviceService {
 
     @Autowired
     private IDeviceDAO deviceDAO;
+    @Autowired
+    private IIOSDeviceDictDAO iosDeviceDictDAO;
 
     public Device findByDeviceId(String deviceId) {
         Map<String, Object> queryMap = new HashMap<>();
@@ -201,6 +206,33 @@ public class DeviceService {
         return deviceDAO.findOnlineList(queryMap);
     }
 
+    public List<Device> searchCloudList(Set<String> deviceIds, String brand, String osVersion, String resolution, Boolean isAll) {
+        if(deviceIds == null || deviceIds.size() == 0) {
+            return new ArrayList<>();
+        }
+        Map<String, Object> queryMap = new HashMap<>();
+        queryMap.put("deviceIdList", deviceIds);
+        if(StringUtils.isNotBlank(brand)){
+            queryMap.put("brand", brand);
+        }
+        if(StringUtils.isNotBlank(osVersion)){
+            queryMap.put("osVersion", osVersion);
+        }
+        if(StringUtils.isNotBlank(resolution)){
+            String[] wh = resolution.split("x");
+            if(wh.length == 2) {
+                queryMap.put("width", wh[0].trim());
+                queryMap.put("height", wh[1].trim());
+            }
+        }
+        if(isAll != null && !isAll) {
+            // 只看空闲设备
+            queryMap.put("workStatus", DB.DeviceWorkStatus.FREE);
+            queryMap.put("debugStatus", DB.DeviceDebugStatus.FREE);
+        }
+        return deviceDAO.searchCloudList(queryMap);
+    }
+
     public PageResult<Device> findCloudPage(Set<String> deviceIds, String brand, String osVersion, String resolution, Boolean isAll) {
 
         return null;
@@ -212,5 +244,10 @@ public class DeviceService {
 
     public void debugFree(String deviceId) {
         deviceDAO.updateDebugStatus(deviceId, DB.DeviceDebugStatus.FREE);
+    }
+
+    @Cacheable("ios_dict")
+    public IOSDeviceDict getIOSDict(String productType) {
+        return iosDeviceDictDAO.findByProductType(productType);
     }
 }

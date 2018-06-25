@@ -74,6 +74,21 @@ public class TestcaseService {
         return testcaseId;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public Testcase saveTestcaseByScriptIds(Long projectId, List<Long> scriptIds) {
+        User user = userService.findByUsername(WebUtil.getCurrentUsername());
+        Testcase testcase = new Testcase();
+        testcase.setCaseName(String.format("案例-%s", TimeUtil.getTimestampForFile()));
+        testcase.setProjectId(projectId);
+        testcase.setCreateBy(user.getId());
+        testcase.setCreateTime(new Date());
+        testcase.setEnabled(true);
+        long testcaseId = testcaseDAO.insert(testcase);
+        saveTestcaseScript(scriptIds, testcaseId);
+        testcase.setId(testcaseId);
+        return testcase;
+    }
+
     /**
      * 保存兼容测试测试案例
      * @param projectId

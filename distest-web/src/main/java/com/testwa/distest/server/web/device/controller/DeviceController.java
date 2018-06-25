@@ -51,8 +51,6 @@ public class DeviceController extends BaseController {
     @Autowired
     private DeviceService deviceService;
     @Autowired
-    private DeviceAuthService deviceAuthService;
-    @Autowired
     private DeviceAuthMgr deviceAuthMgr;
     @Autowired
     private DeviceValidatoer deviceValidatoer;
@@ -60,68 +58,6 @@ public class DeviceController extends BaseController {
     private DeviceLockMgr deviceLockMgr;
     @Value("${lock.debug.expire}")
     private Integer debugExpireTime;
-
-    /**
-     * 可见在线设备分页列表
-     * @param form
-     * @return
-     */
-    @ApiOperation(value="查看用户可见的在线设备分页列表")
-    @ApiImplicitParam(name = "form", value = "分页查询列表", required = true, dataType = "DeviceListForm")
-    @ResponseBody
-    @GetMapping(value = "/enable/page")
-    public Result enablePage(@Valid DeviceListForm form) throws ObjectNotExistsException, AuthorizedException {
-        Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
-        if(deviceIds.size() == 0 ){
-            return ok(new PageResult<>(Arrays.asList(), 0));
-        }
-        PageResult<Device> devicePR = deviceService.findOnlinePage(deviceIds, form);
-        return ok(devicePR);
-    }
-
-    /**
-     * 可见在线设备列表
-     * @param form
-     * @return
-     */
-    @ApiOperation(value="查看用户可见的在线设备列表", notes = "设备目前所有人均可见")
-    @ResponseBody
-    @GetMapping(value = "/enable/list")
-    public Result enableList(@Valid DeviceListForm form) throws AccountException, ObjectNotExistsException, AuthorizedException {
-        Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
-        if(deviceIds.size() == 0 ){
-            return ok(Arrays.asList());
-        }
-        List<Device> deviceList = deviceService.findOnlineList(deviceIds, form);
-        return ok(deviceList);
-    }
-
-    /**
-     * 所有设备分页列表
-     * @param form
-     * @return
-     */
-    @ApiOperation(value="查看所有设备分页列表")
-    @ResponseBody
-    @GetMapping(value = "/all/page")
-    public Result allPage(@Valid DeviceListForm form) throws ObjectNotExistsException, AuthorizedException {
-        Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
-        PageResult<Device> devicePR = deviceService.findByPage(deviceIds, form);
-        return ok(devicePR);
-    }
-    /**
-     * 所有设备列表
-     * @param form
-     * @return
-     */
-    @ApiOperation(value="所有设备列表")
-    @ResponseBody
-    @GetMapping(value = "/all/list")
-    public Result allList(@Valid DeviceListForm form) throws ObjectNotExistsException, AuthorizedException {
-        Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
-        List<Device> devices = deviceService.findList(deviceIds, form);
-        return ok(devices);
-    }
 
     /**
      * 云端设备列表
@@ -137,29 +73,18 @@ public class DeviceController extends BaseController {
         return ok(devices);
     }
 
-    @ApiOperation(value="查看登录用户自己的在线设备，获得包括设备权限和用户信息")
+    /**
+     * 云端设备模糊查询列表
+     * @param form
+     * @return
+     */
+    @ApiOperation(value="云端设备模糊查询列表")
     @ResponseBody
-    @GetMapping(value = "/my/list")
-    public Result myList() {
+    @GetMapping(value = "/cloud/search")
+    public Result enableSearch(@Valid DeviceSearchForm form) throws ObjectNotExistsException, AuthorizedException {
         Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
-        User user = userService.findByUsername(getCurrentUsername());
-        List<Device> deviceList = deviceService.fetchList(deviceIds, user.getId());
-        return ok(deviceList);
-    }
-
-
-    @ApiOperation(value="把自己的设备分享给其他人", notes = "暂时所有设备都可见，可不使用")
-    @ResponseBody
-    @PostMapping(value = "/share/to/other")
-    public Result shareToOther(@RequestBody DeviceAuthNewForm form) throws ObjectNotExistsException {
-        //  校验设备是否在线
-        deviceValidatoer.validateOnline(form.getDeviceId());
-        User currentUser = userService.findByUsername(getCurrentUsername());
-        //  校验设备是否是用户自己的设备
-        deviceValidatoer.validateDeviceBelongUser(form.getDeviceId(), currentUser.getId());
-        //  保存到数据库
-        deviceAuthService.insert(form, currentUser.getId());
-        return ok();
+        List<Device> devices = deviceService. searchCloudList(deviceIds, form.getBrand(), form.getOsVersion(), form.getResolution(), form.getIsAll());
+        return ok(devices);
     }
 
     @ApiOperation(value="在线Android设备的分类，各个维度", notes = "")
