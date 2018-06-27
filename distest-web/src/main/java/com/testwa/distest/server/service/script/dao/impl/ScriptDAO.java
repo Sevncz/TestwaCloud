@@ -31,11 +31,6 @@ public class ScriptDAO extends BaseDAO<Script, Long> implements IScriptDAO {
     }
 
     @Override
-    public List<Script> findByFromProject(Map<String, Object> params) {
-        return mapper.findByFromProject(params);
-    }
-
-    @Override
     public List<Script> findAllInProject(List<Long> keys, Long projectId) {
         return mapper.findList(keys, projectId, null);
     }

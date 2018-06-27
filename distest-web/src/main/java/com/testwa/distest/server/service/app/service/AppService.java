@@ -10,11 +10,12 @@ import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.util.AppUtil;
 import com.testwa.distest.config.DisFileProperties;
 import com.testwa.distest.server.entity.App;
+import com.testwa.distest.server.entity.AppInfo;
 import com.testwa.distest.server.entity.Project;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.app.dao.IAppDAO;
+import com.testwa.distest.server.service.app.dao.IAppInfoDAO;
 import com.testwa.distest.server.service.app.form.AppListForm;
-import com.testwa.distest.server.service.app.form.AppNewForm;
 import com.testwa.distest.server.service.app.form.AppUpdateForm;
 import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.service.user.service.UserService;
@@ -27,7 +28,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import sun.misc.BASE64Encoder;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -47,6 +51,8 @@ import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 public class AppService {
     @Autowired
     private IAppDAO appDAO;
+    @Autowired
+    private IAppInfoDAO appInfoDAO;
     @Autowired
     private ProjectService projectService;
     @Autowired
@@ -166,12 +172,14 @@ public class AppService {
         String size = uploadfile.getSize() + "";
         String md5 = IOUtil.fileMD5(filepath.toString());
         List<App> appList = findByMd5InProject(md5, projectId);
-        AppNewForm form = new AppNewForm();
-        form.setProjectId(projectId);
+        App app;
         if(appList == null || appList.size() == 0){
-            return saveFile(filename, aliasName, filepath.toString(), dirName, size, type, md5, form);
+            app = saveFile(filename, aliasName, filepath.toString(), dirName, size, type, md5, projectId);
+        }else{
+            app = appList.get(0);
         }
-        return appList.get(0);
+        saveOrUpdateAppInfo(projectId, app);
+        return app;
     }
 
     private List<App> findByMd5InProject(String md5, Long projectId) {
@@ -183,7 +191,7 @@ public class AppService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public App upload(MultipartFile uploadfile, AppNewForm form) throws IOException {
+    public App upload(MultipartFile uploadfile, Long projectId) throws IOException {
 
         String filename = uploadfile.getOriginalFilename();
         String aliasName = PinYinTool.getPingYin(filename);
@@ -197,10 +205,13 @@ public class AppService {
 
         String size = uploadfile.getSize() + "";
         String md5 = IOUtil.fileMD5(filepath.toString());
-        return saveFile(filename, aliasName, filepath.toString(), dirName, size, type, md5, form);
+        App app = saveFile(filename, aliasName, filepath.toString(), dirName, size, type, md5, projectId);
+        saveOrUpdateAppInfo(projectId, app);
+        return app;
 
     }
-    private App saveFile(String filename, String aliasName, String filepath, String dirName, String size, String type, String md5, AppNewForm form) throws IOException {
+
+    private App saveFile(String filename, String aliasName, String filepath, String dirName, String size, String type, String md5, Long projectId) throws IOException {
         App app = new App();
 
         String relativePath = dirName + File.separator + aliasName;
@@ -222,7 +233,8 @@ public class AppService {
                     String iconName = androidApp.getIcon();
                     if(StringUtils.isNotEmpty(iconName)){
                         AppUtil.extractFileFromApk(filepath, iconName, iconPath);
-                        app.setIcon(dirName + File.separator + "icon.png");
+                        String icon = dirName + File.separator + "icon.png";
+                        app.setIcon(icon);
                     }
                 } catch (Exception e) {
                     log.error("android 图标文件解析失败：", e);
@@ -247,9 +259,8 @@ public class AppService {
         app.setCreateTime(new Date());
         app.setSize(size);
         app.setMd5(md5);
-        if(form != null){
-            app.setProjectId(form.getProjectId());
-            app.setDescription(form.getDescription());
+        if(projectId != null){
+            app.setProjectId(projectId);
             app.setEnabled(true);
         }
         User currentUser = userService.findByUsername(getCurrentUsername());
@@ -257,6 +268,35 @@ public class AppService {
         long appId = appDAO.insert(app);
         app.setId(appId);
         return app;
+    }
+
+    private void saveOrUpdateAppInfo(Long projectId, App app) {
+        if(projectId == null) {
+            return;
+        }
+        AppInfo appInfo = appInfoDAO.findOne(projectId, null, app.getPackageName());
+        if(appInfo == null) {
+            appInfo = new AppInfo();
+            appInfo.setName(app.getDisplayName());
+            appInfo.setPackageName(app.getPackageName());
+            appInfo.setProjectId(app.getProjectId());
+            appInfo.setLatestUploadTime(new Date());
+            appInfo.setLatestAppId(app.getId());
+            appInfo.setCreateTime(new Date());
+            appInfo.setCreateBy(app.getCreateBy());
+            appInfo.setPlatform(app.getPlatform());
+            appInfo.setEnabled(true);
+            appInfoDAO.insert(appInfo);
+        }else{
+            appInfo.setName(app.getDisplayName());
+            appInfo.setLatestAppId(app.getId());
+            appInfo.setLatestUploadTime(new Date());
+            appInfo.setUpdateTime(new Date());
+            appInfo.setUpdateBy(app.getCreateBy());
+            appInfo.setPlatform(app.getPlatform());
+            appInfo.setEnabled(true);
+            appInfoDAO.update(appInfo);
+        }
     }
 
     private void getIpaInfo(App app, String filePath, String dirName) {
@@ -303,32 +343,27 @@ public class AppService {
         return pr;
     }
 
-    public PageResult<App> findPage(AppListForm queryForm){
+    public PageResult<App> findPage(Long projectId, AppListForm queryForm){
         //分页处理
         PageHelper.startPage(queryForm.getPageNo(), queryForm.getPageSize());
         PageHelper.orderBy(queryForm.getOrderBy() + " " + queryForm.getOrder());
-        App query = new App();
-        query.setProjectId(queryForm.getProjectId());
-        query.setDisplayName(queryForm.getAppName());
-        List<App> appList = appDAO.findBy(query);
+        List<App> appList = findList(projectId, queryForm);
         PageInfo info = new PageInfo(appList);
         PageResult<App> pr = new PageResult<>(info.getList(), info.getTotal());
         return pr;
     }
 
-//    public List<App> findForCurrentUser(List<String> projectIds, String appName) {
-//        List<Criteria> andCriteria = new ArrayList<>();
-//        if(StringUtils.isNotEmpty(appName)){
-//            andCriteria.add(Criteria.where("name").regex(appName));
-//        }
-//        andCriteria.add(Criteria.where("projectId").in(projectIds));
-//        andCriteria.add(Criteria.where("disableAll").is(false));
-//
-//        Query query = buildQueryByCriteria(andCriteria, null);
-//
-//        return appDAO.findForCurrentUser(query);
-//
-//    }
+    public List<App> findList(Long projectId, AppListForm queryForm){
+        App query = new App();
+        query.setProjectId(projectId);
+        if(StringUtils.isNotBlank(queryForm.getAppName())) {
+            query.setDisplayName(queryForm.getAppName());
+        }
+        if(StringUtils.isNotBlank(queryForm.getPackageName())) {
+            query.setPackageName(queryForm.getPackageName());
+        }
+        return appDAO.findBy(query);
+    }
 
     public AppVO getAppVO(Long appId) {
         AppVO appVO = new AppVO();
@@ -350,45 +385,7 @@ public class AppService {
         return appDAO.findAll(entityIds);
     }
 
-    /**
-     * 获得用户自己可见的app分页列表
-     * @param queryForm
-     * @return
-     */
-    public PageResult<App> findPageForCurrentUser(AppListForm queryForm){
-        //分页处理
-        Map<String, Object> params = buildProjectParamsForCurrentUser(queryForm);
-        PageHelper.startPage(queryForm.getPageNo(), queryForm.getPageSize());
-        PageHelper.orderBy(queryForm.getOrderBy() + " " + queryForm.getOrder());
-        List<App> appList = appDAO.findByFromProject(params);
-        PageInfo<App> info = new PageInfo(appList);
-        PageResult<App> pr = new PageResult<>(info.getList(), info.getTotal());
-        return pr;
-    }
-
-    /**
-     * 获得用户自己可见的app列表
-     * @param queryForm
-     * @return
-     */
-    public List<App> findForCurrentUser(AppListForm queryForm){
-        Map<String, Object> params = buildProjectParamsForCurrentUser(queryForm);
-        List<App> appList = appDAO.findByFromProject(params);
-        return appList;
-    }
-
-    private Map<String, Object> buildProjectParamsForCurrentUser(AppListForm queryForm){
-        List<Project> projects = projectService.findAllByUserList(getCurrentUsername());
-        Map<String, Object> params = new HashMap<>();
-        if(StringUtils.isNotEmpty(queryForm.getAppName())){
-            params.put("displayName", queryForm.getAppName());
-        }
-        if(queryForm.getProjectId() != null){
-            params.put("projectId", queryForm.getProjectId());
-        }
-        if(projects != null & projects.size() > 0){
-            params.put("projects", projects);
-        }
-        return params;
+    public List<App> getAllVersions(AppInfo appInfo) {
+        return appDAO.getAllVersion(appInfo.getPackageName(), appInfo.getProjectId());
     }
 }

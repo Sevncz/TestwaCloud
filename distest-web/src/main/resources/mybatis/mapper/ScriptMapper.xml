@@ -11,6 +11,7 @@
         <result column="ln" property="ln" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
         <result column="path" property="path" jdbcType="VARCHAR" />
         <result column="md5" property="md5" jdbcType="VARCHAR" />
+        <result column="appPackage" property="appPackage" jdbcType="VARCHAR" />
         <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="createTime" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="updateBy" property="updateBy" jdbcType="BIGINT"/>
@@ -31,13 +32,14 @@
     </resultMap>
 
     <sql id="Base_Column_List" >
-        id, scriptName, aliasName, size, tag, description, ln, path, md5, updateTime, createTime, updateBy, createBy, enabled
+        id, scriptName, aliasName, size, appPackage, tag, description, ln, path, md5, updateTime, createTime, updateBy, createBy, enabled
     </sql>
     <select id="findOne" parameterType="com.testwa.distest.server.entity.Script" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />
         FROM script
         WHERE id = #{key}
+        and enabled = 1
     </select>
     <select id="findOneInProject" resultMap="BaseResultMap" >
         SELECT
@@ -72,6 +74,7 @@
             <if test="createBy != null">and createBy = #{createBy}</if>
             <if test="projectId != null">and projectId = #{projectId}</if>
             <if test="scriptName != null">and scriptName = #{scriptName}</if>
+            <if test="appPackage != null">and appPackage = #{appPackage}</if>
             <if test="md5 != null">and md5 = #{md5}</if>
         </trim>
     </select>
@@ -99,6 +102,7 @@
     <select id="countBy" parameterType="com.testwa.distest.server.entity.Script" resultType="long">
         SELECT count(1) c FROM script
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            enabled = 1
             <if test="enabled != null">and enabled = #{enabled}</if>
             <if test="createBy != null">and createBy = #{createBy}</if>
             <if test="projectId != null">and projectId = #{projectId}</if>

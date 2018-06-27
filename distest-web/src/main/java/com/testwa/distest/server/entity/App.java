@@ -16,7 +16,6 @@ public class App extends ProjectBaseEntity {
     private String fileName;
     @JsonIgnore
     private String fileAliasName;
-    @JsonIgnore
     private String path;
     // 上传创建者
     private String md5;

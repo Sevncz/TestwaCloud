@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -39,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 
@@ -49,7 +51,7 @@ import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 @Service
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 public class ScriptService {
-
+    private static final String REG_ANDROID_PACKAGE = "[a-zA-Z]+[0-9a-zA-Z_]*(\\.[a-zA-Z]+[0-9a-zA-Z_]*)*";
     @Autowired
     private IScriptDAO scriptDAO;
     @Autowired
@@ -76,6 +78,13 @@ public class ScriptService {
         }
     }
 
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public void uploadMulti(List<MultipartFile> uploadfiles, Long projectId) throws IOException {
+        for(MultipartFile f : uploadfiles){
+            upload(f, projectId);
+        }
+    }
+
     /**
      * 只上传脚本文件
      * @param uploadfile
@@ -84,36 +93,19 @@ public class ScriptService {
      */
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public Script upload(MultipartFile uploadfile) throws IOException {
-
-        String filename = uploadfile.getOriginalFilename();
-        String aliasName = PinYinTool.getPingYin(filename);
-        String dirName = Identities.uuid2();
-        Path dir = Paths.get(disFileProperties.getScript(), dirName);
-        if (!Files.exists(dir)) {
-            Files.createDirectories(dir);
-        }
-        Path filepath = Paths.get(dir.toString(), aliasName);
-        Files.copy(uploadfile.getInputStream(), filepath, StandardCopyOption.REPLACE_EXISTING);
-        String md5 = IOUtil.fileMD5(filepath.toString());
-
-        String type = filename.substring(filename.lastIndexOf(".") + 1);
-
-        String size = uploadfile.getSize() + "";
-        String relativePath = dirName + File.separator + aliasName;
-        Script script = saveScript(filename, aliasName, md5, relativePath, size, type, null);
-        return script;
+        return upload(uploadfile, null);
     }
 
     /**
-     * 上传文件+记录更新
+     * 上传到项目中
      * @param uploadfile
-     * @param form
+     * @param projectId
      * @return
      * @throws IOException
      */
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public Script upload(MultipartFile uploadfile, ScriptNewForm form) throws IOException {
-
+    public Script upload(MultipartFile uploadfile, Long projectId) throws IOException {
+        // 解析文件
         String filename = uploadfile.getOriginalFilename();
         String aliasName = PinYinTool.getPingYin(filename);
         String dirName = Identities.uuid2();
@@ -129,18 +121,27 @@ public class ScriptService {
 
         String size = uploadfile.getSize() + "";
         String relativePath = dirName + File.separator + aliasName;
-        Script script = saveScript(filename, aliasName, md5, relativePath, size, type, form);
-        return script;
-    }
 
-
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public Script saveScript(String filename, String aliasName, String md5, String relativePath, String size, String type, ScriptNewForm form) {
+        // 保存至数据库
         Script script = new Script();
 
         switch (type.toLowerCase()){
             case "py":
                 script.setLn(DB.ScriptLN.PYTHON);
+                // 解析basepackage
+                try (Stream<String> stream = Files.lines(filepath, StandardCharsets.UTF_8)) {
+                    stream.forEach( l -> {
+                        if(StringUtils.isBlank(script.getAppPackage())){
+                            if(l.contains("appPackage")) {
+                                // desired_caps['appPackage'] ='com.orion.xiaoya.speakerclient'
+                                String appPackage = resovlePyPacakge(l);
+                                script.setAppPackage(appPackage);
+                            }
+                        }
+                    });
+                } catch (IOException e1) {
+                    log.error("read error file", e1);
+                }
                 break;
             case "java":
                 script.setLn(DB.ScriptLN.JAVA);
@@ -150,6 +151,9 @@ public class ScriptService {
                 break;
             case "js":
                 script.setLn(DB.ScriptLN.JS);
+                break;
+            case "php":
+                script.setLn(DB.ScriptLN.PHP);
                 break;
             default:
                 script.setLn(DB.ScriptLN.UNKNOWN);
@@ -164,16 +168,26 @@ public class ScriptService {
         script.setAliasName(aliasName);
         script.setSize(size);
         script.setMd5(md5);
-        if(form != null){
-            script.setProjectId(form.getProjectId());
-            script.setTag(form.getTag());
-            script.setDescription(form.getDescription());
-            script.setEnabled(true);
-        }
+        script.setProjectId(projectId);
+        script.setEnabled(true);
         Long scriptId = scriptDAO.insert(script);
         script.setId(scriptId);
         return script;
     }
+
+    public String resovlePyPacakge(String text) {
+        String[] items = text.split("=");
+        if(items.length == 2) {
+            String basepackage = items[1];
+            Pattern r = Pattern.compile(REG_ANDROID_PACKAGE);
+            Matcher matcher = r.matcher(basepackage);
+            if (matcher.find()) {
+                return matcher.group(0);
+            }
+        }
+        return null;
+    }
+
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void update(ScriptUpdateForm form) {
@@ -222,12 +236,12 @@ public class ScriptService {
 
         String path = disFileProperties.getScript() + File.separator + script.getPath();
         try {
-            // 删除app文件
+            // 删除文件
             Files.deleteIfExists(Paths.get(path));
-            // 删除app文件的文件夹
+            // 删除文件的文件夹
             Files.deleteIfExists(Paths.get(path).getParent());
         } catch (IOException e) {
-            log.error("delete app file error", e);
+            log.error("delete script file error", e);
         }
         // 删除记录
         delete(entityId);
@@ -238,58 +252,30 @@ public class ScriptService {
         entityIds.forEach(this::deleteScript);
     }
 
-    public PageResult<Script> findPage(ScriptListForm queryForm) {
 
+    public PageResult<Script> findPage(Long projectId, ScriptListForm queryForm) {
         PageHelper.startPage(queryForm.getPageNo(), queryForm.getPageSize());
         PageHelper.orderBy(queryForm.getOrderBy() + " " + queryForm.getOrder());
-        List<Script> scriptList = find(queryForm);
+        List<Script> scriptList = findList(projectId, queryForm);
         PageInfo<Script> info = new PageInfo(scriptList);
         PageResult<Script> pr = new PageResult<>(info.getList(), info.getTotal());
         return pr;
     }
 
-    public List<Script> find(ScriptListForm queryForm) {
+    public List<Script> findList(Long projectId, ScriptListForm queryForm) {
         Script script = new Script();
-        script.setScriptName(queryForm.getScriptName());
-        script.setProjectId(queryForm.getProjectId());
-        script.setLn(DB.ScriptLN.valueOf(queryForm.getLn()));
+        if(StringUtils.isNotBlank(queryForm.getScriptName())) {
+            script.setScriptName(queryForm.getScriptName());
+        }
+        if(queryForm.getLn() != null) {
+            script.setLn(DB.ScriptLN.valueOf(queryForm.getLn()));
+        }
+        if(queryForm.getPackageName() != null) {
+            script.setAppPackage(queryForm.getPackageName());
+        }
+        script.setProjectId(projectId);
         List<Script> scriptList = scriptDAO.findBy(script);
         return scriptList;
-    }
-
-    public PageResult<Script> findPageForCurrentUser(ScriptListForm queryForm) {
-
-        Map<String, Object> params = buildProjectParamsForCurrentUser(queryForm);
-        PageHelper.startPage(queryForm.getPageNo(), queryForm.getPageSize());
-        PageHelper.orderBy(queryForm.getOrderBy() + " " + queryForm.getOrder());
-        List<Script> scriptList = scriptDAO.findByFromProject(params);
-        PageInfo<Script> info = new PageInfo(scriptList);
-        PageResult<Script> pr = new PageResult<>(info.getList(), info.getTotal());
-        return pr;
-    }
-
-    public List<Script> findForCurrentUser(ScriptListForm queryForm) {
-        Map<String, Object> params = buildProjectParamsForCurrentUser(queryForm);
-        List<Script> scriptList = scriptDAO.findByFromProject(params);
-        return scriptList;
-    }
-
-    private Map<String, Object> buildProjectParamsForCurrentUser(ScriptListForm queryForm){
-        List<Project> projects = projectService.findAllByUserList(getCurrentUsername());
-        Map<String, Object> params = new HashMap<>();
-        if(StringUtils.isNotEmpty(queryForm.getScriptName())){
-            params.put("scriptName", queryForm.getScriptName());
-        }
-        if(queryForm.getProjectId() != null){
-            params.put("projectId", queryForm.getProjectId());
-        }
-        if(queryForm.getLn() != null){
-            params.put("ln", queryForm.getLn());
-        }
-        if(projects != null & projects.size() > 0){
-            params.put("projects", projects);
-        }
-        return params;
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)

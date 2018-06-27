@@ -15,6 +15,6 @@ import javax.validation.constraints.NotNull;
 )
 @Data
 public class AppListForm extends RequestListBase {
-    private Long projectId;
     private String appName;
+    private String packageName;
 }

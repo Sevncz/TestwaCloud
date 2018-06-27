@@ -56,12 +56,12 @@ public class TestwaAndroidApp extends DefaultAndroidApp {
         UTF8CommonExecs executable = new UTF8CommonExecs(line);
         String output = "";
         try {
+            executable.setTimeout(10 * 1000L);
             executable.exec();
             output = executable.getOutput();
         } catch (IOException e) {
-            output = e.getCause().getMessage();
+            output = executable.getOutput();
         }
-        log.debug("aapt output ======= {}", output);
         return output;
     }
 
@@ -121,7 +121,6 @@ public class TestwaAndroidApp extends DefaultAndroidApp {
                     String regex = "application: label=\'(.*?)\' icon=\'(.*?)\'";
                     this.displayName = this.extractApkDetails(regex);
                 }
-                log.info("this.displayName ======== {}", this.displayName);
             } catch (ShellCommandException var2) {
                 throw new RuntimeException("The application icon of the apk " + this.apkFile.getName() + " cannot be extracted.");
             }

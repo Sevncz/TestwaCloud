@@ -10,10 +10,12 @@ import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.common.validator.FileUploadValidator;
 import com.testwa.distest.server.entity.App;
+import com.testwa.distest.server.entity.AppInfo;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.app.form.AppInstallForm;
 import com.testwa.distest.server.service.app.form.AppListForm;
 import com.testwa.distest.server.service.app.form.AppUpdateForm;
+import com.testwa.distest.server.service.app.service.AppInfoService;
 import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.app.mgr.InstallMgr;
@@ -39,9 +41,13 @@ import java.util.List;
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/app")
 public class AppController extends BaseController {
+    private static final String[] allowExtName = {".apk", ".ipa", ".zip"};;
+    private static final long fileSize = 1024 * 1024 * 400;  // 100k
 
     @Autowired
     private AppService appService;
+    @Autowired
+    private AppInfoService appInfoService;
     @Autowired
     private UserService userService;
     @Autowired
@@ -60,8 +66,6 @@ public class AppController extends BaseController {
         //
         // 校验
         //
-        long fileSize = 1024 * 1024 * 400;
-        String[] allowExtName = {".apk", ".ipa", ".zip"};
         fileUploadValidator.validateFile(appfile, fileSize, allowExtName);
 
         App app = appService.upload(appfile);
@@ -76,8 +80,6 @@ public class AppController extends BaseController {
         //
         // 校验
         //
-        long fileSize = 1024 * 1024 * 400;
-        String[] allowExtName = {".apk", ".ipa", ".zip"};
         fileUploadValidator.validateFile(appfile, fileSize, allowExtName);
         projectValidator.validateProjectExist(projectId);
 
@@ -96,54 +98,6 @@ public class AppController extends BaseController {
         projectValidator.validateUserIsProjectMember(form.getProjectId(), user.getId());
         appService.appendInfo(form);
         return ok();
-    }
-
-    @ApiOperation(value="删除多个应用", notes="")
-    @ResponseBody
-    @PostMapping(value = "/delete/all")
-    public Result deleteAll(@RequestBody DeleteAllForm del) throws ParamsIsNullException {
-        if(del.getEntityIds() == null && del.getEntityIds().size() == 0){
-            throw new ParamsIsNullException("参数不能为空");
-        }
-        appService.deleteApp(del.getEntityIds());
-        return ok();
-    }
-
-    @ApiOperation(value="删除一个应用", notes="")
-    @ResponseBody
-    @PostMapping(value = "/delete/one")
-    public Result deleteOne(@RequestBody DeleteOneForm del) throws ParamsIsNullException {
-        if( del.getEntityId() == null ){
-            throw new ParamsIsNullException("参数不能为空");
-        }
-        appService.deleteApp(del.getEntityId());
-        return ok();
-    }
-
-    @ApiOperation(value="用户所有可见的app分页列表", notes="")
-    @ResponseBody
-    @GetMapping(value = "/page")
-    public Result page(@Valid AppListForm queryForm) throws AuthorizedException {
-        if(queryForm.getProjectId() != null){
-            User user = userService.findByUsername(WebUtil.getCurrentUsername());
-            projectValidator.validateUserIsProjectMember(queryForm.getProjectId(), user.getId());
-        }
-        PageResult<App> appPR = appService.findPageForCurrentUser(queryForm);
-        PageResult<AppVO> pr = buildVOPageResult(appPR, AppVO.class);
-        return ok(pr);
-    }
-
-    @ApiOperation(value="用户所有可见的app列表", notes="")
-    @ResponseBody
-    @GetMapping(value = "/list")
-    public Result list(@Valid AppListForm queryForm) throws AuthorizedException {
-        if(queryForm.getProjectId() != null){
-            User user = userService.findByUsername(WebUtil.getCurrentUsername());
-            projectValidator.validateUserIsProjectMember(queryForm.getProjectId(), user.getId());
-        }
-        List<App> apps = appService.findForCurrentUser(queryForm);
-        List<AppVO> vos = buildVOs(apps, AppVO.class);
-        return ok(vos);
     }
 
     @ApiOperation(value="安装应用", notes="")
@@ -168,6 +122,66 @@ public class AppController extends BaseController {
         appValidator.validateAppExist(appInstallForm.getAppId());
         installMgr.uninstall(appInstallForm);
         return ok();
+    }
+
+    @ApiOperation(value="app分页列表", notes="")
+    @ResponseBody
+    @GetMapping(value = "/{projectId}/page")
+    public Result page(@PathVariable Long projectId, @Valid AppListForm queryForm) {
+        User user = userService.findByUsername(WebUtil.getCurrentUsername());
+        projectValidator.validateUserIsProjectMember(projectId, user.getId());
+        PageResult<AppInfo> pr = appInfoService.findPage(projectId, queryForm);
+        return ok(pr);
+    }
+
+    @ApiOperation(value="app列表", notes="")
+    @ResponseBody
+    @GetMapping(value = "/{projectId}/list")
+    public Result list(@PathVariable Long projectId, @Valid AppListForm queryForm) {
+        User user = userService.findByUsername(WebUtil.getCurrentUsername());
+        projectValidator.validateUserIsProjectMember(projectId, user.getId());
+        List<AppInfo> apps = appInfoService.findList(projectId, queryForm);
+        return ok(apps);
+    }
+
+    @ApiOperation(value="查询一个App", notes="")
+    @ResponseBody
+    @GetMapping(value = "/{projectId}/one/{query:.+}")
+    public Result queryOne(@PathVariable("projectId") Long projectId, @PathVariable("query") String query) {
+        projectValidator.validateProjectExist(projectId);
+        AppInfo appInfo = appInfoService.getByQuery(projectId, query);
+        return ok(appInfo);
+    }
+
+    @ApiOperation(value="删除多个应用", notes="")
+    @ResponseBody
+    @PostMapping(value = "/delete/all")
+    public Result deleteAll(@RequestBody DeleteAllForm del) throws ParamsIsNullException {
+        if(del.getEntityIds() == null && del.getEntityIds().size() == 0){
+            throw new ParamsIsNullException("参数不能为空");
+        }
+        appInfoService.deleteAll(del.getEntityIds());
+        return ok();
+    }
+
+    @ApiOperation(value="删除一个应用", notes="")
+    @ResponseBody
+    @PostMapping(value = "/delete/one")
+    public Result deleteOne(@RequestBody DeleteOneForm del) throws ParamsIsNullException {
+        if( del.getEntityId() == null ){
+            throw new ParamsIsNullException("参数不能为空");
+        }
+        appInfoService.delete(del.getEntityId());
+        return ok();
+    }
+
+    @ApiOperation(value="该app所有上传的版本", notes="")
+    @ResponseBody
+    @GetMapping(value = "/{appinfoId}/version/list")
+    public Result versionList(@PathVariable("appinfoId") Long appinfoId) {
+        AppInfo appInfo = appValidator.validateAppInfoExist(appinfoId);
+        List<App> apps = appService.getAllVersions(appInfo);
+        return ok(apps);
     }
 
 }

@@ -21,4 +21,8 @@ public interface IAppDAO extends IBaseDAO<App, Long> {
     App findOneInProject(Long entityId, Long projectId);
 
     Long countBy(App query);
+
+    void disableAll(String packageName, Long projectId);
+
+    List<App> getAllVersion(String packageName, Long projectId);
 }

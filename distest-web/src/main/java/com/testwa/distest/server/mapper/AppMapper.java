@@ -22,4 +22,12 @@ public interface AppMapper extends BaseMapper<App, Long> {
     App findOneInProject(@Param("key") Long entityId, @Param("projectId") Long projectId);
 
     Long countBy(App entity);
+
+    void disable(Long entityId);
+
+    void disableAll(List<Long> entityIds);
+
+    void disableAllBy(@Param("packageName") String packageName, @Param("projectId") Long projectId);
+
+    List<App> getAllVersion(@Param("packageName") String packageName, @Param("projectId") Long projectId);
 }

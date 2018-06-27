@@ -45,4 +45,14 @@ public class AppDAO extends BaseDAO<App, Long> implements IAppDAO {
         return mapper.countBy(query);
     }
 
+    @Override
+    public void disableAll(String packageName, Long projectId) {
+        mapper.disableAllBy(packageName, projectId);
+    }
+
+    @Override
+    public List<App> getAllVersion(String packageName, Long projectId) {
+        return mapper.getAllVersion(packageName, projectId);
+    }
+
 }

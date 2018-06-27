@@ -53,6 +53,7 @@
             <if test="createBy != null">and createBy = #{createBy}</if>
             <if test="projectId != null">and projectId = #{projectId}</if>
             <if test="md5 != null">and md5 = #{md5}</if>
+            <if test="packageName != null">and packageName = #{packageName}</if>
         </trim>
     </select>
 
@@ -83,26 +84,37 @@
         </if>
     </select>
 
-    <select id="findByFromProject" parameterType="java.util.Map" resultMap="BaseResultMap" >
-        SELECT
-        <include refid="Base_Column_List" />
-        FROM app
-        WHERE enabled = 1
-        AND projectId in
-        <foreach item="item" index="index" collection="params.projects" open="(" separator="," close=")">#{item.id} </foreach>
-        <if test="params.fileName != null">and fileName LIKE CONCAT('%', #{params.fileName}, '%')</if>
-        <if test="params.displayName != null">and displayName LIKE CONCAT('%', #{params.displayName}, '%')</if>
-        <if test="params.createBy != null">and createBy = #{params.createBy}</if>
-        <if test="params.projectId != null">and projectId = #{params.projectId}</if>
-    </select>
-
     <select id="countBy" parameterType="com.testwa.distest.server.entity.App" resultType="long">
         SELECT count(1) c FROM app
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
-            <if test="enabled != null">and enabled = #{enabled}</if>
+            enabled = 1
             <if test="createBy != null">and createBy = #{createBy}</if>
             <if test="projectId != null">and projectId = #{projectId}</if>
         </trim>
     </select>
+
+    <select id="getAllVersion" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM app
+        WHERE enabled = 1 and packageName = #{packageName} and projectId = #{projectId}
+    </select>
+
+    <update id="disable" >
+        update app
+        set enabled = 0
+        where id = #{entityId}
+    </update>
+    <update id="disableAll" parameterType="java.util.List">
+        update app
+        set enabled = 0
+        where id in
+        <foreach item="item" index="index" collection="entityIds" open="(" separator="," close=")">#{item} </foreach>
+    </update>
+    <update id="disableAllBy">
+        update app
+        set enabled = 0
+        where packageName = #{packageName} and projectId = #{projectId}
+    </update>
 
 </mapper>

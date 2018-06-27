@@ -12,7 +12,7 @@ import java.util.Set;
 public class SubscribeMessageMgr {
 
     /** 任务进度 key 前缀 **/
-    private static final String taskAction = "subscribe.factory.methodDesc.";
+    private static final String taskAction = "subscribe.worker.methodDesc.";
     /** 过期时间 秒 **/
     private static final Integer taskActionExpiration = 60 * 60;
 

@@ -12,7 +12,7 @@ import lombok.Data;
 )
 @Data
 public class ScriptListForm extends RequestListBase {
-    private Long projectId;
     private String scriptName;
+    private String packageName;
     private Integer ln;
 }

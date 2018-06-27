@@ -2,6 +2,8 @@ package com.testwa.distest.server.web.app.validator;
 
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.distest.server.entity.App;
+import com.testwa.distest.server.entity.AppInfo;
+import com.testwa.distest.server.service.app.service.AppInfoService;
 import com.testwa.distest.server.service.app.service.AppService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,6 +18,8 @@ public class AppValidator {
 
     @Autowired
     private AppService appService;
+    @Autowired
+    private AppInfoService appInfoService;
 
     public void validateAppsExist(List<Long> entityIds) throws ObjectNotExistsException {
         List<App> entityList = appService.findAll(entityIds);
@@ -38,4 +42,11 @@ public class AppValidator {
         }
     }
 
+    public AppInfo validateAppInfoExist(Long entityId) {
+        AppInfo entity = appInfoService.findOne(entityId);
+        if(entity == null){
+            throw new ObjectNotExistsException("App不存在");
+        }
+        return entity;
+    }
 }

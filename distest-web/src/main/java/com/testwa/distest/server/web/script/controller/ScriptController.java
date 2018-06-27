@@ -43,6 +43,8 @@ import java.util.*;
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/script")
 public class ScriptController extends BaseController {
+    private static final String[] allowExtName = {".java", ".js", ".py", ".rb"};
+    private static final long fileSize = 1024 * 100;  // 100k
     @Autowired
     private ScriptService scriptService;
     @Autowired
@@ -59,18 +61,14 @@ public class ScriptController extends BaseController {
     @ApiOperation(value="上传脚本", notes="")
     @ResponseBody
     @PostMapping(value = "/upload")
-    public Result upload(@RequestParam("scriptfile") MultipartFile uploadfile) throws ParamsIsNullException, ParamsFormatException, IOException {
+    public Result upload(@RequestParam("file") MultipartFile uploadfile) throws ParamsIsNullException, ParamsFormatException, IOException {
         //
         // 校验
         //
-        long fileSize = 1024 * 100;  // 100k
-        String[] allowExtName = {".java", ".js", ".py", ".rb"};  // 这里必须是有序数组，字母顺序
         fileUploadValidator.validateFile(uploadfile, fileSize, allowExtName);
 
         Script script = scriptService.upload(uploadfile);
-        ScriptVO vo = new ScriptVO();
-        BeanUtils.copyProperties(script, vo);
-        return ok(vo);
+        return ok(script);
     }
 
     /**
@@ -84,14 +82,46 @@ public class ScriptController extends BaseController {
     @ApiOperation(value="上传多个脚本", notes="暂时还不用")
     @ResponseBody
     @PostMapping(value = "/upload/multi")
-    public Result uploadMulti(@RequestParam("file") List<MultipartFile> uploadfiles) throws IOException, ParamsIsNullException, ParamsFormatException {
+    public Result uploadMulti(@RequestParam("files") List<MultipartFile> uploadfiles) throws IOException, ParamsIsNullException, ParamsFormatException {
         //
         // 校验
         //
-        long fileSize = 1024 * 1024 * 400;
-        String[] allowExtName = {".java", ".js", ".py", ".rb"};  // 这里必须是有序数组，字母顺序
         fileUploadValidator.validateFiles(uploadfiles, fileSize, allowExtName);
         scriptService.uploadMulti(uploadfiles);
+        return ok();
+    }
+
+    @ApiOperation(value="上传脚本", notes="")
+    @ResponseBody
+    @PostMapping(value = "/{projectId}/upload")
+    public Result upload(@PathVariable Long projectId, @RequestParam("file") MultipartFile uploadfile) throws ParamsIsNullException, ParamsFormatException, IOException {
+        //
+        // 校验
+        //
+        projectValidator.validateProjectExist(projectId);
+        fileUploadValidator.validateFile(uploadfile, fileSize, allowExtName);
+        Script script = scriptService.upload(uploadfile, projectId);
+        return ok(script);
+    }
+
+    /**
+     * 可以上传一组脚本形成案例，暂时还不用
+     * @param uploadfiles
+     * @return
+     * @throws IOException
+     * @throws ParamsIsNullException
+     * @throws ParamsFormatException
+     */
+    @ApiOperation(value="上传多个脚本", notes="暂时还不用")
+    @ResponseBody
+    @PostMapping(value = "/{projectId}/upload/multi")
+    public Result uploadMulti(@PathVariable Long projectId, @RequestParam("files") List<MultipartFile> uploadfiles) throws IOException, ParamsIsNullException, ParamsFormatException {
+        //
+        // 校验
+        //
+        projectValidator.validateProjectExist(projectId);
+        fileUploadValidator.validateFiles(uploadfiles, fileSize, allowExtName);
+        scriptService.uploadMulti(uploadfiles, projectId);
         return ok();
     }
 
@@ -111,20 +141,18 @@ public class ScriptController extends BaseController {
     @ResponseBody
     @PostMapping(value = "/delete")
     public Result delete(@RequestBody @Valid DeleteAllForm form) {
-
         scriptService.deleteScript(form.getEntityIds());
         return ok();
     }
 
     @ApiOperation(value="脚本分页列表", notes="")
     @ResponseBody
-    @GetMapping(value = "/page")
-    public Result page(@Valid ScriptListForm queryForm) throws AuthorizedException {
-        if(queryForm.getProjectId() != null){
-            User user = userService.findByUsername(WebUtil.getCurrentUsername());
-            projectValidator.validateUserIsProjectMember(queryForm.getProjectId(), user.getId());
-        }
-        PageResult<Script> scriptPageResult = scriptService.findPageForCurrentUser(queryForm);
+    @GetMapping(value = "/{projectId}/page")
+    public Result page(@PathVariable Long projectId, @Valid ScriptListForm queryForm) throws AuthorizedException {
+        projectValidator.validateProjectExist(projectId);
+        User user = userService.findByUsername(WebUtil.getCurrentUsername());
+        projectValidator.validateUserIsProjectMember(projectId, user.getId());
+        PageResult<Script> scriptPageResult = scriptService.findPage(projectId, queryForm);
         List<ScriptVO> vos = buildVOs(scriptPageResult.getPages(), ScriptVO.class);
         PageResult<ScriptVO> pr = new PageResult<>(vos, scriptPageResult.getTotal());
         return ok(pr);
@@ -132,16 +160,16 @@ public class ScriptController extends BaseController {
 
     @ApiOperation(value="脚本列表", notes="")
     @ResponseBody
-    @GetMapping(value = "/list")
-    public Result list(@Valid ScriptListForm queryForm) throws AuthorizedException {
-        if(queryForm.getProjectId() != null){
-            User user = userService.findByUsername(WebUtil.getCurrentUsername());
-            projectValidator.validateUserIsProjectMember(queryForm.getProjectId(), user.getId());
-        }
-        List<Script> scriptList = scriptService.findForCurrentUser(queryForm);
+    @GetMapping(value = "/{projectId}/list")
+    public Result list(@PathVariable Long projectId, @Valid ScriptListForm queryForm) throws AuthorizedException {
+        projectValidator.validateProjectExist(projectId);
+        User user = userService.findByUsername(WebUtil.getCurrentUsername());
+        projectValidator.validateUserIsProjectMember(projectId, user.getId());
+        List<Script> scriptList = scriptService.findList(projectId, queryForm);
         List<ScriptVO> vos = buildVOs(scriptList, ScriptVO.class);
         return ok(vos);
     }
+
 
     @ApiOperation(value="获得脚本内容", notes="")
     @ResponseBody

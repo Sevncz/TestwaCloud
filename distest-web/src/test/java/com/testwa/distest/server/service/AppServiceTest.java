@@ -46,11 +46,7 @@ public class AppServiceTest {
     public void testUpload() throws IOException {
         FileInputStream inputFile = new FileInputStream( "/Users/wen/Documents/testwa/testapp/ContactManager.apk");
         MockMultipartFile file = new MockMultipartFile("file", "ContactManager.apk", "multipart/form-data", inputFile);
-        AppNewForm form = new AppNewForm();
-        form.setDescription("hhhhh");
-        form.setProjectId(4l);
-        form.setVersion("1.0");
-        appService.upload(file, form);
+        appService.upload(file, 15L);
     }
 
     @Test
@@ -91,32 +87,12 @@ public class AppServiceTest {
         page.setPageNo(1);
         page.setPageSize(10);
         form.setPage(page);
-        appService.findPage(form);
+        appService.findPage(15L, form);
     }
 
     @Test
     public void testFindByProjectId(){
         appService.findByProjectId(4l);
-    }
-
-    @Test
-    @WithMockUser(username = "xiaoming", authorities = { "ADMIN", "USER" })
-    public void testFindPageForCurrentUser() throws ParamsIsNullException {
-        AppListForm form = new AppListForm();
-        form.setAppName("ContactManager.apk");
-        RequestListBase.Page page = form.getPage();
-        page.setPageNo(3);
-        page.setPageSize(10);
-        form.setPage(page);
-        appService.findPageForCurrentUser(form);
-    }
-
-    @Test
-    @WithMockUser(username = "xiaoming", authorities = { "ADMIN", "USER" })
-    public void testFindForCurrentUser(){
-        AppListForm form = new AppListForm();
-        form.setAppName("ContactManager.apk");
-        appService.findForCurrentUser(form);
     }
 
     @Test

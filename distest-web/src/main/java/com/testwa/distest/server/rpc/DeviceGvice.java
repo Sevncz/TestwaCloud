@@ -16,6 +16,7 @@ import io.rpc.testwa.device.*;
 import lombok.extern.slf4j.Slf4j;
 import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 
 import java.text.DecimalFormat;
 import java.util.List;
@@ -178,6 +179,7 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     }
 
 
+    @Async
     @Override
     public void screen(ScreenCaptureRequest request, StreamObserver<CommonReply> responseObserver) {
         String serial = request.getSerial();
