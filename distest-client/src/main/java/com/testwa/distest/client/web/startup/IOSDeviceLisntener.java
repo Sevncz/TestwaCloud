@@ -69,7 +69,7 @@ public class IOSDeviceLisntener implements CommandLineRunner {
      */
     private void parseIOSDeviceInfo(String output) {
         /**
-         * [main] INFO com.testwa.distest.client.factory.CronScheduled - [....] Waiting up to 5 seconds for iOS device to be connected
+         * [main] INFO com.testwa.distest.client.worker.CronScheduled - [....] Waiting up to 5 seconds for iOS device to be connected
          * [....] Found 62dbafcdf99e337d14515b67d869b3ec4941a00a (N61AP, iPhone 6 (GSM), iphoneos, arm64) a.k.a. 'iSevncz' connected through USB.
          */
         String[] lines = output.split("\n");

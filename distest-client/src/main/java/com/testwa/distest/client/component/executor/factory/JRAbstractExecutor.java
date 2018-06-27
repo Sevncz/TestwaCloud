@@ -1,1 +1,0 @@
-package com.testwa.distest.client.component.executor.factory;/** * @Program: distest * @Description: 兼容测试抽象类 * @Author: wen * @Create: 2018-05-15 14:32 **/public abstract class JRAbstractExecutor extends AbstractExecutor {}
