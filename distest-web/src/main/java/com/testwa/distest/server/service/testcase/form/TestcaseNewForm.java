@@ -12,14 +12,10 @@ import java.util.List;
 @Data
 public class TestcaseNewForm extends RequestFormBase {
 
-    @NotNull
     public String name;
     public String description;
-    @NotNull
-    public Long projectId;
-    @NotNull
     public List<Long> scriptIds;
-    @NotNull
     private String tag;
+    private Long appInfoId;
 
 }

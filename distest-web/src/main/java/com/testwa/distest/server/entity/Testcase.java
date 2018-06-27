@@ -21,6 +21,9 @@ public class Testcase extends ProjectBaseEntity {
     private String tag;
     private String caseName;
     private String description;
+    private Long appInfoId;
+    private String packageName;
+    private String appName;
 
     @Column(value="scripts", ignore=true)
     private List<TestcaseDetail> testcaseDetails;

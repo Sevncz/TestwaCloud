@@ -11,6 +11,7 @@ import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.base.form.DeleteAllForm;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.common.util.WebUtil;
+import com.testwa.distest.server.entity.AppInfo;
 import com.testwa.distest.server.entity.Testcase;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.testcase.form.TestcaseNewForm;
@@ -18,6 +19,7 @@ import com.testwa.distest.server.service.testcase.form.TestcaseListForm;
 import com.testwa.distest.server.service.testcase.form.TestcaseUpdateForm;
 import com.testwa.distest.server.service.testcase.service.TestcaseService;
 import com.testwa.distest.server.service.user.service.UserService;
+import com.testwa.distest.server.web.app.validator.AppValidator;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
 import com.testwa.distest.server.web.script.validator.ScriptValidator;
 import com.testwa.distest.server.web.testcase.validator.TestcaseValidatoer;
@@ -48,26 +50,36 @@ public class TestcaseController extends BaseController {
     private ProjectValidator projectValidator;
     @Autowired
     private ScriptValidator scriptValidator;
+    @Autowired
+    private AppValidator appValidator;
 
     @ResponseBody
-    @PostMapping(value = "/save")
-    public Result save(@Valid @RequestBody TestcaseNewForm form) throws ObjectNotExistsException, AccountException, AuthorizedException {
-        log.info(form.toString());
-        scriptValidator.validateScriptsInProject(form.getScriptIds(), form.getProjectId());
-        projectValidator.validateProjectExist(form.getProjectId());
-        User user = userService.findByUsername(WebUtil.getCurrentUsername());
-        projectValidator.validateUserIsProjectMember(form.getProjectId(), user.getId());
+    @PostMapping(value = "/{projectId}/save")
+    public Result save(@PathVariable Long projectId, @Valid @RequestBody TestcaseNewForm form) throws ObjectNotExistsException, AccountException, AuthorizedException {
+        projectValidator.validateProjectExist(projectId);
 
-        testcaseService.saveHGTestcase(form);
+        scriptValidator.validateScriptsInProject(form.getScriptIds(), projectId);
+
+        AppInfo appInfo = appValidator.validateAppInfoExist(form.getAppInfoId());
+        scriptValidator.validateScriptBelongApp(form.getScriptIds(), appInfo.getPackageName());
+
+        User user = userService.findByUsername(WebUtil.getCurrentUsername());
+        projectValidator.validateUserIsProjectMember(projectId, user.getId());
+
+        testcaseService.saveHGTestcase(projectId, appInfo, form);
         return ok();
     }
 
     @ResponseBody
     @PostMapping(value = "/modify")
     public Result modify(@Valid @RequestBody TestcaseUpdateForm form) throws ObjectNotExistsException {
-        log.info(form.toString());
-        scriptValidator.validateScriptsInProject(form.getScriptIds(), form.getProjectId());
-        testcaseValidatoer.validateTestcaseExist(form.getTestcaseId());
+        Testcase testcase = testcaseValidatoer.validateTestcaseExist(form.getTestcaseId());
+
+        scriptValidator.validateScriptsInProject(form.getScriptIds(), testcase.getProjectId());
+
+        AppInfo appInfo = appValidator.validateAppInfoExist(form.getAppInfoId());
+        scriptValidator.validateScriptBelongApp(form.getScriptIds(), appInfo.getPackageName());
+
         testcaseService.update(form);
         return ok();
     }

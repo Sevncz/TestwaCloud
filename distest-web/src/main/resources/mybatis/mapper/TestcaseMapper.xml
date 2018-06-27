@@ -6,6 +6,9 @@
         <result column="tag" property="tag" jdbcType="VARCHAR" />
         <result column="caseName" property="caseName" jdbcType="VARCHAR" />
         <result column="projectId" property="projectId" jdbcType="BIGINT" />
+        <result column="appInfoId" property="appInfoId" jdbcType="BIGINT" />
+        <result column="packageName" property="packageName" jdbcType="VARCHAR" />
+        <result column="appName" property="appName" jdbcType="VARCHAR" />
         <result column="description" property="description" jdbcType="VARCHAR" />
         <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="createTime" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
@@ -38,7 +41,7 @@
     </resultMap>
 
     <sql id="Base_Column_List" >
-        id, caseName, tag, projectId, description, createBy, updateTime, createTime, updateBy, enabled
+        id, caseName, tag, projectId, description, createBy, updateTime, createTime, updateBy, enabled, appInfoId, appName, packageName
     </sql>
 
     <select id="findBy" parameterType="com.testwa.distest.server.entity.Testcase" resultMap="BaseResultMap" >
@@ -50,6 +53,8 @@
             <if test="createBy != null">and createBy = #{createBy}</if>
             <if test="projectId != null">and projectId = #{projectId}</if>
             <if test="caseName != null">and caseName = #{caseName}</if>
+            <if test="appInfoId != null">and appInfoId = #{appInfoId}</if>
+            <if test="packageName != null">and packageName = #{packageName}</if>
         </trim>
     </select>
 

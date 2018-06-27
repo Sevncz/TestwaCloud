@@ -279,7 +279,7 @@ public class PushCmdService {
 
     /**
      *@Description: 指定设备安装指定app
-     *@Param: [deviceId, appId]
+     *@Param: [deviceId, appInfoId]
      *@Return: void
      *@Author: wen
      *@Date: 2018/4/9

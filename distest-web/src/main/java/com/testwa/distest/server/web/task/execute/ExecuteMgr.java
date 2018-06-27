@@ -68,23 +68,23 @@ public class ExecuteMgr {
 
     /**
      *@Description: 开始执行一个回归测试任务
-     *@Param: [deviceIds, projectId, testcaseId, appId, caseName, taskCode]
+     *@Param: [deviceIds, projectId, testcaseId, appInfoId, caseName, taskCode]
      *@Return: void
      *@Author: wen
      *@Date: 2018/6/4
      */
-    public TaskStartResultVO startHG(List<String> deviceIds, Long projectId, Long testcaseId, Long appId, String caseName, Long taskCode) throws ObjectNotExistsException {
-        return start(deviceIds, projectId, testcaseId, appId, caseName, DB.TaskType.HG, taskCode);
+    public TaskStartResultVO startHG(List<String> useableDevices, App app, List<Long> scriptIds, Long taskCode) {
+        Testcase testcase = testcaseService.saveTestcaseByScriptIds(app, scriptIds);
+        return startHG(useableDevices, app, testcase.getId(), testcase.getCaseName(), taskCode);
     }
 
-    public TaskStartResultVO startHG(List<String> useableDevices, Long projectId, Long appId, List<Long> scriptIds, Long taskCode) {
-        Testcase testcase = testcaseService.saveTestcaseByScriptIds(projectId, scriptIds);
-        return startHG(useableDevices, projectId, testcase.getId(), appId, testcase.getCaseName(), taskCode);
+    public TaskStartResultVO startHG(List<String> deviceIds, App app, Long testcaseId, String caseName, Long taskCode) throws ObjectNotExistsException {
+        return start(deviceIds, app.getProjectId(), testcaseId, app.getId(), caseName, DB.TaskType.HG, taskCode);
     }
 
     /**
      *@Description: 开始执行一个兼容测试任务
-     *@Param: [deviceIds, projectId, appId, taskCode]
+     *@Param: [deviceIds, projectId, appInfoId, taskCode]
      *@Return: void
      *@Author: wen
      *@Date: 2018/6/4

@@ -4,10 +4,10 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.Joiner;
 import com.testwa.core.utils.TimeUtil;
-import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.server.entity.*;
+import com.testwa.distest.server.service.app.service.AppInfoService;
 import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.service.script.service.ScriptService;
 import com.testwa.distest.server.service.testcase.dao.ITestcaseDAO;
@@ -45,17 +45,21 @@ public class TestcaseService {
     @Autowired
     private ScriptService scriptService;
     @Autowired
+    private AppInfoService appInfoService;
+    @Autowired
     private ProjectService projectService;
     @Autowired
     private UserService userService;
 
     /**
      * 保存回归测试测试案例
+     * @param projectId
+     * @param appInfo
      * @param form
      * @return
      */
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public long saveHGTestcase(TestcaseNewForm form) {
+    public long saveHGTestcase(Long projectId, AppInfo appInfo, TestcaseNewForm form) {
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         Testcase testcase = new Testcase();
         if(StringUtils.isNotEmpty(form.getName())){
@@ -64,9 +68,12 @@ public class TestcaseService {
             testcase.setCaseName(String.format("案例-%s", TimeUtil.getTimestampForFile()));
         }
         testcase.setDescription(form.getDescription());
-        testcase.setProjectId(form.getProjectId());
-        testcase.setCreateBy(user.getId());
+        testcase.setProjectId(projectId);
         testcase.setTag(form.getTag());
+        testcase.setAppInfoId(appInfo.getId());
+        testcase.setPackageName(appInfo.getPackageName());
+        testcase.setAppName(appInfo.getName());
+        testcase.setCreateBy(user.getId());
         testcase.setCreateTime(new Date());
         testcase.setEnabled(true);
         long testcaseId = testcaseDAO.insert(testcase);
@@ -75,45 +82,21 @@ public class TestcaseService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public Testcase saveTestcaseByScriptIds(Long projectId, List<Long> scriptIds) {
+    public Testcase saveTestcaseByScriptIds(App app, List<Long> scriptIds) {
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
+        AppInfo appInfo = appInfoService.getByPackage(app.getProjectId(), app.getPackageName());
         Testcase testcase = new Testcase();
         testcase.setCaseName(String.format("案例-%s", TimeUtil.getTimestampForFile()));
-        testcase.setProjectId(projectId);
+        testcase.setProjectId(app.getProjectId());
+        testcase.setAppInfoId(appInfo.getId());
+        testcase.setPackageName(appInfo.getPackageName());
+        testcase.setAppName(appInfo.getName());
         testcase.setCreateBy(user.getId());
         testcase.setCreateTime(new Date());
         testcase.setEnabled(true);
         long testcaseId = testcaseDAO.insert(testcase);
         saveTestcaseScript(scriptIds, testcaseId);
         testcase.setId(testcaseId);
-        return testcase;
-    }
-
-    /**
-     * 保存兼容测试测试案例
-     * @param projectId
-     * @param scriptId
-     * @return
-     */
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public Long saveJRTestcase(Long projectId, Long scriptId){
-        Testcase testcase = getJRTestcase(projectId);
-        long testcaseId = testcaseDAO.insert(testcase);
-        List<Long> scriptIds = new ArrayList<>();
-        scriptIds.add(scriptId);
-        saveTestcaseScript(scriptIds, testcaseId);
-        return testcaseId;
-    }
-
-    public Testcase getJRTestcase(Long projectId) {
-        Testcase testcase = new Testcase();
-        testcase.setCaseName("兼容测试");
-        testcase.setDescription("兼容测试");
-        testcase.setProjectId(projectId);
-        testcase.setCreateBy(0l);
-        testcase.setTag("兼容");
-        testcase.setEnabled(true);
-        testcase.setCreateTime(new Date());
         return testcase;
     }
 
@@ -290,13 +273,4 @@ public class TestcaseService {
         return params;
     }
 
-    public List<Testcase> fetchScriptAllBySceneOrder(Long sceneId) {
-
-        return testcaseDAO.fetchScriptAllBySceneOrder(sceneId);
-    }
-
-    public List<Testcase> findSysJR(Long projectId) {
-        Testcase JRcase = getJRTestcase(projectId);
-        return testcaseDAO.findBy(JRcase);
-    }
 }

@@ -1,8 +1,10 @@
 package com.testwa.distest.server.web.script.validator;
 
 import com.testwa.core.base.exception.ObjectNotExistsException;
+import com.testwa.core.base.exception.ParamsException;
 import com.testwa.distest.server.entity.Script;
 import com.testwa.distest.server.service.script.service.ScriptService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -32,7 +34,7 @@ public class ScriptValidator {
         Set<Long> scriptSet = new HashSet<>();
         scriptSet.addAll(scriptIds);
         if(scriptSet.size() != scriptList.size()){
-            throw new ObjectNotExistsException("脚本不存在");
+            throw new ObjectNotExistsException("非本项目中脚本无法使用");
         }
         return scriptList;
     }
@@ -54,4 +56,14 @@ public class ScriptValidator {
     }
 
 
+    public void validateScriptBelongApp(List<Long> scriptIds, String packageName) {
+        List<Script> scriptList = scriptService.findAll(scriptIds);
+        for(Script script : scriptList) {
+            if(StringUtils.isNotBlank(script.getAppPackage())){
+                if(!packageName.equals(script.getAppPackage())) {
+                    throw new ParamsException("脚本和App不匹配");
+                }
+            }
+        }
+    }
 }

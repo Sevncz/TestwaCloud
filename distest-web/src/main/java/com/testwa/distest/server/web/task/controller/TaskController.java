@@ -110,7 +110,7 @@ public class TaskController extends BaseController {
         Long taskCode = taskIdWorker.nextId();
         App app = appService.findOne(form.getAppId());
         Testcase tc = testcaseService.fetchOne(form.getTestcaseId());
-        vo = executeMgr.startHG(useableList, app.getProjectId(), tc.getId(), form.getAppId(), tc.getCaseName(), taskCode);
+        vo = executeMgr.startHG(useableList, app, tc.getId(), tc.getCaseName(), taskCode);
         vo.setTaskCode(taskCode);
         vo.addUnableDevice(unableDevices);
         return ok(vo);
@@ -127,6 +127,10 @@ public class TaskController extends BaseController {
         scriptValidator.validateScriptsExist(form.getScriptIds());
 
         taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
+
+        App app = appService.findOne(form.getAppId());
+
+        scriptValidator.validateScriptBelongApp(form.getScriptIds(), app.getPackageName());
 
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
 
@@ -153,8 +157,7 @@ public class TaskController extends BaseController {
             deviceLockMgr.lock(deviceId, user.getUserCode(), workExpireTime);
         }
         Long taskCode = taskIdWorker.nextId();
-        App app = appService.findOne(form.getAppId());
-        vo = executeMgr.startHG(useableList, app.getProjectId(), form.getAppId(), form.getScriptIds(), taskCode);
+        vo = executeMgr.startHG(useableList, app, form.getScriptIds(), taskCode);
         vo.setTaskCode(taskCode);
         vo.addUnableDevice(unableDevices);
         return ok(vo);
