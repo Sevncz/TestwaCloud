@@ -98,6 +98,7 @@
         <include refid="Base_Column_List" />
         FROM app
         WHERE enabled = 1 and packageName = #{packageName} and projectId = #{projectId}
+        order by updateTime desc
     </select>
 
     <update id="disable" >

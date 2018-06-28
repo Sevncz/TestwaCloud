@@ -8,6 +8,7 @@ import com.testwa.distest.common.android.AndroidOSInfo;
 import com.testwa.distest.common.android.TestwaAndroidApp;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.util.AppUtil;
+import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.config.DisFileProperties;
 import com.testwa.distest.server.entity.App;
 import com.testwa.distest.server.entity.AppInfo;
@@ -177,6 +178,11 @@ public class AppService {
             app = saveFile(filename, aliasName, filepath.toString(), dirName, size, type, md5, projectId);
         }else{
             app = appList.get(0);
+            app.setCreateTime(new Date());
+            String username = WebUtil.getCurrentUsername();
+            User user = userService.findByUsername(username);
+            app.setUpdateBy(user.getId());
+            appDAO.update(app);
         }
         saveOrUpdateAppInfo(projectId, app);
         return app;

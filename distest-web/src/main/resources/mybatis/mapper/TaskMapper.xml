@@ -19,7 +19,7 @@
     </resultMap>
 
     <sql id="Base_Column_List" >
-        id,taskCode,projectId,createTime,createBy,endTime,devicesJson,appJson,testcaseJson,scriptJson,taskType,taskName,appInfoId
+        id,taskCode,projectId,createTime,createBy,endTime,devicesJson,appJson,testcaseJson,scriptJson,taskType,taskName,appId
     </sql>
 
     <select id="findOne" parameterType="com.testwa.distest.server.entity.Task" resultMap="BaseResultMap" >
@@ -39,7 +39,7 @@
             enabled = 1
             <if test="createBy != null">and createBy = #{createBy}</if>
             <if test="projectId != null">and projectId = #{projectId}</if>
-            <if test="appInfoId != null">and appInfoId = #{appInfoId}</if>
+            <if test="appId != null">and appId = #{appId}</if>
             <if test="taskCode != null">and taskCode = #{taskCode}</if>
         </trim>
     </select>
@@ -63,7 +63,7 @@
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             enabled = 1
             <if test="projectId != null">and projectId = #{projectId}</if>
-            <if test="appInfoId != null">and appInfoId = #{appInfoId}</if>
+            <if test="appId != null">and appId = #{appId}</if>
             <if test="taskType != null">and taskType = #{taskType, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
         </trim>
     </select>
