@@ -13,8 +13,6 @@ public interface ScriptMapper extends BaseMapper<Script, Long> {
 
 	List<Script> findBy(Script entity);
 
-    List<Script> findByFromProject(@Param("params") Map<String, Object> params);
-
     List<Script> findByFromTestcase(Long TestcaseId);
 
     List<Script> findList(@Param("keys") List<Long> keys, @Param("projectId") Long projectId, @Param("orderBy") String orderBy);
@@ -24,4 +22,8 @@ public interface ScriptMapper extends BaseMapper<Script, Long> {
     Script findOneInProject(@Param("key") Long entityId, @Param("projectId") Long projectId);
 
     Long countBy(Script entity);
+
+    void disable(@Param("key") Long entityId);
+
+    void disableAll(@Param("keys") List<Long> entityIds);
 }

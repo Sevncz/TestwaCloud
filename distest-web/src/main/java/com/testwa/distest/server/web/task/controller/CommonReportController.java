@@ -4,7 +4,7 @@ import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.AuthorizedException;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.base.exception.ParamsIsNullException;
-import com.testwa.core.base.form.DeleteAllForm;
+import com.testwa.core.base.form.IDListForm;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.base.vo.Result;
 import com.testwa.distest.common.enums.DB;
@@ -113,7 +113,7 @@ public class CommonReportController extends BaseController {
     @ApiOperation(value="删除报告", notes="")
     @ResponseBody
     @PostMapping(value = "/delete")
-    public Result delete(@RequestBody @Valid DeleteAllForm form) {
+    public Result delete(@RequestBody @Valid IDListForm form) {
         taskService.disableAll(form.getEntityIds());
         return ok();
     }

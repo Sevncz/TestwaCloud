@@ -20,12 +20,14 @@
             <result column="create_username" property="username"/>
             <result column="create_email" property="email"/>
             <result column="create_phone" property="mobile"/>
+            <result column="create_userCode" property="userCode"/>
         </association>
         <association property="updateUser" javaType="com.testwa.distest.server.entity.User">
             <id column="update_id" property="id"/>
             <result column="update_username" property="username"/>
             <result column="update_email" property="email"/>
             <result column="update_phone" property="mobile"/>
+            <result column="update_userCode" property="userCode"/>
         </association>
         <collection property="testcaseDetails" ofType="com.testwa.distest.server.entity.TestcaseDetail">
             <id column="detail_id" property="id"/>
@@ -36,6 +38,12 @@
                 <id column="script_id" property="id"/>
                 <result column="scriptName" property="scriptName"/>
                 <result column="description" property="description"/>
+                <result column="appPackage" property="appPackage"/>
+                <result column="size" property="size"/>
+                <result column="path" property="path"/>
+                <result column="projectId" property="projectId"/>
+                <result column="createTime" property="createTime"/>
+                <result column="ln" property="ln" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
             </association>
         </collection>
     </resultMap>
@@ -52,7 +60,7 @@
             enabled = 1
             <if test="createBy != null">and createBy = #{createBy}</if>
             <if test="projectId != null">and projectId = #{projectId}</if>
-            <if test="caseName != null">and caseName = #{caseName}</if>
+            <if test="caseName != null">and caseName LIKE CONCAT('%', #{caseName}, '%')</if>
             <if test="appInfoId != null">and appInfoId = #{appInfoId}</if>
             <if test="packageName != null">and packageName = #{packageName}</if>
         </trim>
@@ -67,16 +75,17 @@
 
     <select id="fetchOne" parameterType="com.testwa.distest.server.entity.Testcase" resultMap="BaseResultMap" >
         SELECT
-        t.id, t.caseName, t.tag, t.projectId, t.description, t.updateTime, t.createTime,
-        u.id as create_id, u.username as create_username, u.email as create_email, u.mobile as create_phone,
-        u1.id as update_id, u1.username as update_username, u1.email as update_email, u1.mobile as update_phone,
-        d.id as detail_id, d.scriptId, d.testcaseId, d.seq, s.id as script_id, s.scriptName, s.description
+        t.*,
+        u.id as create_id, u.username as create_username, u.email as create_email, u.mobile as create_phone, u.userCode as create_userCode,
+        u1.id as update_id, u1.username as update_username, u1.email as update_email, u1.mobile as update_phone, u1.userCode as update_userCode,
+        d.id as detail_id, d.scriptId, d.testcaseId, d.seq,
+        s.id as script_id, s.*
         FROM testcase t
         LEFT JOIN user u on t.createBy=u.id
         LEFT JOIN user u1 on t.updateBy=u1.id
         LEFT JOIN testcase_detail d on t.id=d.testcaseId
         LEFT JOIN script s on d.scriptId=s.id
-        WHERE t.id = #{testcaseId}
+        WHERE t.enabled = 1 and t.id = #{testcaseId}
     </select>
 
     <select id="findList" parameterType="com.testwa.distest.server.entity.Testcase" resultMap="BaseResultMap" >
@@ -92,18 +101,6 @@
         <if test="orderBy != null">
             order by ${orderBy}
         </if>
-    </select>
-
-    <select id="findByFromProject" parameterType="java.util.Map" resultMap="BaseResultMap" >
-        SELECT
-        <include refid="Base_Column_List" />
-        FROM testcase
-        WHERE enabled = 1
-        AND projectId in
-        <foreach item="item" index="index" collection="params.projects" open="(" separator="," close=")">#{item.id} </foreach>
-        <if test="params.caseName != null">and caseName LIKE CONCAT('%', #{params.caseName}, '%')</if>
-        <if test="params.createBy != null">and createBy = #{params.createBy}</if>
-        <if test="params.projectId != null">and projectId = #{params.projectId}</if>
     </select>
 
     <select id="findAllOrder" resultMap="BaseResultMap" >
@@ -126,20 +123,20 @@
         </trim>
     </select>
 
-
-    <select id="fetchScriptAllBySceneOrder" parameterType="com.testwa.distest.server.entity.Testcase" resultMap="BaseResultMap" >
+    <select id="fetchContainsScripts" resultMap="BaseResultMap" >
         SELECT
-        t.id, t.caseName, t.tag, t.projectId, t.description, t.updateTime, t.createTime,
-        u.id as create_id, u.username as create_username, u.email as create_email, u.mobile as create_phone,
-        u1.id as update_id, u1.username as update_username, u1.email as update_email, u1.mobile as update_phone,
-        d.id as detail_id, d.seq, s.id as script_id, s.scriptName, s.description
+        t.*,
+        u.id as create_id, u.username as create_username, u.email as create_email, u.mobile as create_phone, u.userCode as create_userCode,
+        u1.id as update_id, u1.username as update_username, u1.email as update_email, u1.mobile as update_phone, u1.userCode as update_userCode,
+        d.id as detail_id, d.scriptId, d.testcaseId, d.seq,
+        s.id as script_id, s.*
         FROM testcase t
         LEFT JOIN user u on t.createBy=u.id
         LEFT JOIN user u1 on t.updateBy=u1.id
         LEFT JOIN testcase_detail d on t.id=d.testcaseId
         LEFT JOIN script s on d.scriptId=s.id
-        LEFT JOIN taskscene_detail scene_d on t.id=scene_d.testcaseId
-        WHERE scene_d.tasksceneId = #{sceneId}
+        WHERE t.enabled = 1
+        AND d.scriptId IN <foreach item="id" index="index" collection="scriptIds" open="(" separator="," close=")">#{id} </foreach>
     </select>
 
 </mapper>

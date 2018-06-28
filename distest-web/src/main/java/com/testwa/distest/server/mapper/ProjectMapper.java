@@ -21,4 +21,8 @@ public interface ProjectMapper extends BaseMapper<Project, Long> {
     Project findOne(Long projectId);
 
     List<Project> findAllOrder(@Param("projectIds") List<Long> projectIds, @Param("order") String order);
+
+    void disable(@Param("key") Long projectId);
+
+    void disableAll(@Param("keys") List<Long> projectId);
 }

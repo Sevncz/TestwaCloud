@@ -82,9 +82,8 @@ public class ProjectService {
      * @return
      */
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public int delete(Long projectId) {
-        projectMemberService.delAllMembers(projectId);
-        return projectDAO.delete(projectId);
+    public void delete(Long projectId) {
+        projectDAO.disable(projectId);
     }
 
     /**
@@ -93,11 +92,8 @@ public class ProjectService {
      * @return
      */
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public int deleteAll(List<Long> projectIds) {
-        projectIds.forEach( id -> {
-            projectMemberService.delAllMembers(id);
-        });
-        return projectDAO.delete(projectIds);
+    public void delete(List<Long> projectIds) {
+        projectDAO.disableAll(projectIds);
     }
 
     public List<Project> findAll() {
@@ -122,6 +118,7 @@ public class ProjectService {
     public List<Project> findAll(List<Long> projectIds) {
         return projectDAO.findAll(projectIds);
     }
+
     public List<Project> findByProjectOrder(List<Long> projectIds) {
         StringBuffer orderSb = new StringBuffer();
         orderSb.append("field(id,");
@@ -142,22 +139,6 @@ public class ProjectService {
         return viewMgr.getRecentViewProject(username);
     }
 
-    public ProjectStatis getProjectStats(String projectId, User user) {
-        // get available device count
-//        Integer devices = remoteClientService.getDeviceByUserIdAndProjectId(user.getId(), projectId).size();
-        // apps
-//        Integer apps = appService.getCountAppByProjectId(projectId);
-        // scripts
-//        Integer scripts = scriptService.getCountScriptByProjectId(projectId);
-        // cases
-//        Integer cases = testcaseService.getCountCaseByProjectId(projectId);
-        // tasks
-//        Integer tasks = taskService.getCountTaskByProjectId(projectId);
-        // todo: reports
-//        Integer reports =
-//        return new ProjectStats(devices, apps, scripts, cases, tasks, 0);
-        return null;
-    }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public Project save(ProjectNewForm form) throws AuthorizedException, ParamsException {
@@ -248,17 +229,11 @@ public class ProjectService {
     }
 
 
-    public PageResult<Project> findByPage(ProjectListForm pageForm) {
+    public PageResult<Project> findPage(ProjectListForm pageForm) {
         Project query = new Project();
         query.setProjectName(pageForm.getProjectName());
         //分页处理
         PageHelper.startPage(pageForm.getPageNo(), pageForm.getPageSize());
-        if(StringUtils.isBlank(pageForm.getOrderBy()) ){
-            pageForm.getPage().setOrderBy("id");
-        }
-        if(StringUtils.isBlank(pageForm.getOrder()) ){
-            pageForm.getPage().setOrder("desc");
-        }
         PageHelper.orderBy(pageForm.getOrderBy() + " " + pageForm.getOrder());
         List<Project> projectList = projectDAO.findBy(query);
         PageInfo<Project> info = new PageInfo(projectList);

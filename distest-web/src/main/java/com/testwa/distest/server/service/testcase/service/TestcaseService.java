@@ -93,7 +93,7 @@ public class TestcaseService {
         testcase.setAppName(appInfo.getName());
         testcase.setCreateBy(user.getId());
         testcase.setCreateTime(new Date());
-        testcase.setEnabled(true);
+        testcase.setEnabled(scriptIds.size() > 1);
         long testcaseId = testcaseDAO.insert(testcase);
         saveTestcaseScript(scriptIds, testcaseId);
         testcase.setId(testcaseId);
@@ -211,23 +211,28 @@ public class TestcaseService {
     }
 
 
-    public PageResult<Testcase> findPage(TestcaseListForm pageForm) {
+    public PageResult<Testcase> findPage(Long projectId, TestcaseListForm pageForm) {
         //分页处理
         PageHelper.startPage(pageForm.getPageNo(), pageForm.getPageSize());
-        PageHelper.orderBy(pageForm.getOrderBy() + " " + pageForm.getOrder());
-        List<Testcase> testcaseList = find(pageForm);
+        List<Testcase> testcaseList = findList(projectId, pageForm);
         PageInfo<Testcase> info = new PageInfo(testcaseList);
         PageResult<Testcase> pr = new PageResult<>(info.getList(), info.getTotal());
         return pr;
     }
 
-    public List<Testcase> find(TestcaseListForm queryForm) {
+    public List<Testcase> findList(Long projectId, TestcaseListForm queryForm) {
+        PageHelper.orderBy(queryForm.getOrderBy() + " " + queryForm.getOrder());
         Testcase testcase = new Testcase();
-        testcase.setCaseName(queryForm.getCaseName());
-        testcase.setProjectId(queryForm.getProjectId());
-        List<Testcase> testcaseList = testcaseDAO.findBy(testcase);
-        return testcaseList;
+        if(StringUtils.isNotBlank(queryForm.getCaseName())){
+            testcase.setCaseName(queryForm.getCaseName());
+        }
+        if(StringUtils.isNotBlank(queryForm.getPackageName())){
+            testcase.setPackageName(queryForm.getPackageName());
+        }
+        testcase.setProjectId(projectId);
+        return testcaseDAO.findBy(testcase);
     }
+
 
     public List<Testcase> findAll(List<Long> entityIds) {
         return testcaseDAO.findAll(entityIds);
@@ -236,41 +241,12 @@ public class TestcaseService {
     public Testcase findOne(Long entityId) {
         return testcaseDAO.findOne(entityId);
     }
+
     public Testcase fetchOne(Long entityId) {
         return testcaseDAO.fetchOne(entityId);
     }
 
-    public PageResult<Testcase> findPageForCurrentUser(TestcaseListForm pageForm) {
-        Map<String, Object> params = buildProjectParamsForCurrentUser(pageForm);
-        //分页处理
-        PageHelper.startPage(pageForm.getPageNo(), pageForm.getPageSize());
-        PageHelper.orderBy(pageForm.getOrderBy() + " " + pageForm.getOrder());
-
-        List<Testcase> testcaseList = testcaseDAO.findByFromProject(params);
-        PageInfo<Testcase> info = new PageInfo(testcaseList);
-        PageResult<Testcase> pr = new PageResult<>(info.getList(), info.getTotal());
-        return pr;
+    public List<Testcase> findByScripts(List<Long> scriptIds) {
+        return testcaseDAO.fetchContainsScripts(scriptIds);
     }
-
-    public List<Testcase> findForCurrentUser(TestcaseListForm queryForm) {
-        Map<String, Object> params = buildProjectParamsForCurrentUser(queryForm);
-        List<Testcase> testcaseList = testcaseDAO.findByFromProject(params);
-        return testcaseList;
-    }
-
-    private Map<String, Object> buildProjectParamsForCurrentUser(TestcaseListForm queryForm){
-        List<Project> projects = projectService.findAllByUserList(getCurrentUsername());
-        Map<String, Object> params = new HashMap<>();
-        if(queryForm.getProjectId() != null){
-            params.put("projectId", queryForm.getProjectId());
-        }
-        if(StringUtils.isNotEmpty(queryForm.getCaseName())){
-            params.put("caseName", queryForm.getCaseName());
-        }
-        if(projects != null){
-            params.put("projects", projects);
-        }
-        return params;
-    }
-
 }

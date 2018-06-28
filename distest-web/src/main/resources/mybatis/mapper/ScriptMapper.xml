@@ -73,22 +73,10 @@
             enabled = 1
             <if test="createBy != null">and createBy = #{createBy}</if>
             <if test="projectId != null">and projectId = #{projectId}</if>
-            <if test="scriptName != null">and scriptName = #{scriptName}</if>
+            <if test="scriptName != null">and scriptName LIKE CONCAT('%', #{scriptName}, '%')</if>
             <if test="appPackage != null">and appPackage = #{appPackage}</if>
             <if test="md5 != null">and md5 = #{md5}</if>
         </trim>
-    </select>
-
-    <select id="findByFromProject" parameterType="java.util.Map" resultMap="BaseResultMap" >
-        SELECT
-        <include refid="Base_Column_List" />
-        FROM script
-        WHERE enabled = 1
-        AND projectId in
-        <foreach item="item" index="index" collection="params.projects" open="(" separator="," close=")">#{item.id} </foreach>
-        <if test="params.scriptName != null">and scriptName LIKE CONCAT('%', #{params.scriptName}, '%')</if>
-        <if test="params.userId != null">and userId = #{params.userId}</if>
-        <if test="params.projectId != null">and projectId = #{params.projectId}</if>
     </select>
 
     <select id="findByFromTestcase" parameterType="Long" resultMap="BaseResultMap" >
@@ -108,5 +96,17 @@
             <if test="projectId != null">and projectId = #{projectId}</if>
         </trim>
     </select>
+
+    <update id="disable" >
+        update script
+        set enabled = 0
+        where id = #{key}
+    </update>
+    <update id="disableAll" parameterType="java.util.List">
+        update script
+        set enabled = 0
+        where id in
+        <foreach item="item" index="index" collection="keys" open="(" separator="," close=")">#{item} </foreach>
+    </update>
 
 </mapper>

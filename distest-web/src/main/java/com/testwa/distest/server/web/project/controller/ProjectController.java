@@ -3,8 +3,8 @@ package com.testwa.distest.server.web.project.controller;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.*;
-import com.testwa.core.base.form.DeleteAllForm;
-import com.testwa.core.base.form.DeleteOneForm;
+import com.testwa.core.base.form.IDListForm;
+import com.testwa.core.base.form.IDForm;
 import com.testwa.core.base.vo.Result;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.core.base.vo.PageResult;
@@ -90,11 +90,11 @@ public class ProjectController extends BaseController {
     @ApiOperation(value="删除多个项目", notes="")
     @ResponseBody
     @PostMapping(value = "/delete/all")
-    public Result deleteAll(@RequestBody @Valid DeleteAllForm form) throws ParamsIsNullException {
+    public Result deleteAll(@RequestBody @Valid IDListForm form) throws ParamsIsNullException {
         if(form.getEntityIds() == null && form.getEntityIds().size() == 0){
             throw new ParamsIsNullException("参数不能为空");
         }
-        projectService.deleteAll(form.getEntityIds());
+        projectService.delete(form.getEntityIds());
         return ok();
     }
 
@@ -102,7 +102,7 @@ public class ProjectController extends BaseController {
     @ApiOperation(value="删除一个项目", notes="")
     @ResponseBody
     @PostMapping(value = "/delete/one")
-    public Result deleteOne(@RequestBody @Valid DeleteOneForm form) throws ParamsIsNullException {
+    public Result deleteOne(@RequestBody @Valid IDForm form) throws ParamsIsNullException {
         if(form.getEntityId() == null){
             throw new ParamsIsNullException("参数不能为空");
         }

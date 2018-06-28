@@ -43,26 +43,7 @@ public class TestcaseServiceTest {
         page.setPageNo(1);
         page.setPageSize(10);
         form.setPage(page);
-        testcaseService.findPage(form);
-    }
-
-    @Test
-    @WithMockUser(username = "xiaoming", authorities = { "ADMIN", "USER" })
-    public void testFindPageForCurrentUser(){
-        TestcaseListForm form = new TestcaseListForm();
-        RequestListBase.Page page = form.getPage();
-        page.setPageNo(1);
-        page.setPageSize(10);
-        form.setPage(page);
-        testcaseService.findPageForCurrentUser(form);
-    }
-
-    @Test
-    @WithMockUser(username = "xiaoming", authorities = { "ADMIN", "USER" })
-    public void testFindForCurrentUser(){
-        TestcaseListForm form = new TestcaseListForm();
-        form.setProjectId(4l);
-        testcaseService.findForCurrentUser(form);
+        testcaseService.findPage(15L, form);
     }
 
     @Test

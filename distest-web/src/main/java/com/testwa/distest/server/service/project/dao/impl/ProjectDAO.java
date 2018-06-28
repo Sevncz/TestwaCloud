@@ -48,4 +48,14 @@ public class ProjectDAO extends BaseDAO<Project, Long> implements IProjectDAO {
         return projectMapper.findAllOrder(projectIds, order);
     }
 
+    @Override
+    public void disableAll(List<Long> projectIds) {
+        projectMapper.disableAll(projectIds);
+    }
+
+    @Override
+    public void disable(Long projectId) {
+        projectMapper.disable(projectId);
+    }
+
 }

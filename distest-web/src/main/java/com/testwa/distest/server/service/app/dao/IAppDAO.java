@@ -16,8 +16,6 @@ public interface IAppDAO extends IBaseDAO<App, Long> {
 
     List<App> findAll(List<Long> keys);
 
-    List<App> findByFromProject(Map<String, Object> params);
-
     App findOneInProject(Long entityId, Long projectId);
 
     Long countBy(App query);

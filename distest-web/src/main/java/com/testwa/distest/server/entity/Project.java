@@ -13,14 +13,10 @@ import java.util.Date;
  */
 @Data
 @TableName("project")
-public class Project extends BaseEntity {
+public class Project extends ProjectBaseEntity {
 
     private String projectName;
     private String description;
-    private Date createTime;
-    private Date updateTime;
-    private Long createBy;
-    private Long updateBy;
 
     @Column(value = "createUser", ignore = true)
     private User createUser;

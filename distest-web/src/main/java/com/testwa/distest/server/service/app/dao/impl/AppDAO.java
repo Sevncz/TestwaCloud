@@ -31,11 +31,6 @@ public class AppDAO extends BaseDAO<App, Long> implements IAppDAO {
     }
 
     @Override
-    public List<App> findByFromProject(Map<String, Object> params) {
-        return mapper.findByFromProject(params);
-    }
-
-    @Override
     public App findOneInProject(Long entityId, Long projectId) {
         return mapper.findOneInProject(entityId, projectId);
     }

@@ -5,10 +5,11 @@
         <id column="id" property="id" jdbcType="BIGINT" />
         <result column="projectName" property="projectName" jdbcType="VARCHAR" />
         <result column="description" property="description" jdbcType="VARCHAR" />
-        <result column="createTime" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
-        <result column="createBy" property="createBy" jdbcType="BIGINT" />
-        <result column="updateBy" property="updateBy" jdbcType="BIGINT" />
+        <result column="createTime" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+        <result column="updateBy" property="updateBy" jdbcType="BIGINT"/>
+        <result column="createBy" property="createBy" jdbcType="BIGINT"/>
+        <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
         <association property="createUser" javaType="com.testwa.distest.server.entity.User">
             <id column="user_id" property="id"/>
             <result column="username" property="username"/>
@@ -18,57 +19,66 @@
     </resultMap>
 
     <sql id="Base_Column_List" >
-        id, projectName, description, createTime, updateTime, createBy, updateBy
+        id, projectName, description, createTime, updateTime, createBy, updateBy, enabled
     </sql>
 
     <select id="findOne" parameterType="com.testwa.distest.server.entity.Project" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />
         FROM project
-        WHERE id = #{key}
+        WHERE enabled = 1 AND id = #{key}
     </select>
     <select id="fetchOne" parameterType="com.testwa.distest.server.entity.Project" resultMap="BaseResultMap" >
         SELECT
         project.id, project.projectName, project.description, project.createTime, project.updateTime, project.createBy, project.updateBy, user.id as user_id, user.username, user.email
         FROM project LEFT JOIN user on project.createBy=user.id
-        WHERE project.id = #{projectId}
+        WHERE project.enabled = 1 AND project.id = #{projectId}
     </select>
 
     <select id="findBy" parameterType="com.testwa.distest.server.entity.Project" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />
         FROM project
-        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        WHERE enabled = 1
             <if test="projectName != null">and projectName = #{projectName}</if>
             <if test="createBy != null">and createBy = #{createBy}</if>
-        </trim>
     </select>
 
     <select id="findAllByUser" parameterType="java.util.Map" resultMap="BaseResultMap" >
         SELECT
         project.id, project.projectName, project.description, project.createTime, project.updateTime, project.createBy, project.updateBy, user.id as user_id, user.username, user.email
         FROM project LEFT JOIN user on project.createBy=user.id
-        <trim prefix="WHERE" prefixOverrides="AND |OR ">
-            project.id in (select pm.projectId from project_member pm where pm.memberId = #{userId})
+        WHERE project.enabled = 1
+        AND project.id in (select pm.projectId from project_member pm where pm.memberId = #{userId})
             <if test="projectName != null">and project.projectName = #{projectName}</if>
-        </trim>
     </select>
 
     <select id="countBy" parameterType="com.testwa.distest.server.entity.Project" resultType="long" >
         SELECT count(1) c
         FROM project
-        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+        WHERE enabled = 1
             <if test="projectName != null">and projectName = #{projectName}</if>
             <if test="createBy != null">and createBy = #{createBy}</if>
-        </trim>
     </select>
 
     <select id="findAllOrder" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />
         FROM project
-        WHERE id IN
+        WHERE enabled = 1
+        AND id IN
         <foreach item="item" index="index" collection="projectIds" open="(" separator="," close=")">#{item} </foreach>
         ORDER BY ${order}
     </select>
+    <update id="disable" >
+        update project
+        set enabled = 0
+        where id = #{key}
+    </update>
+    <update id="disableAll" parameterType="java.util.List">
+        update project
+        set enabled = 0
+        where id in
+        <foreach item="item" index="index" collection="keys" open="(" separator="," close=")">#{item} </foreach>
+    </update>
 </mapper>

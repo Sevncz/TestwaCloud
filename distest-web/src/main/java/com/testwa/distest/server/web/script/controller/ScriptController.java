@@ -2,31 +2,26 @@ package com.testwa.distest.server.web.script.controller;
 
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
-import com.testwa.core.base.exception.AuthorizedException;
-import com.testwa.core.base.exception.ObjectNotExistsException;
-import com.testwa.core.base.exception.ParamsFormatException;
-import com.testwa.core.base.exception.ParamsIsNullException;
-import com.testwa.core.base.form.DeleteAllForm;
+import com.testwa.core.base.exception.*;
+import com.testwa.core.base.form.IDListForm;
 import com.testwa.core.base.vo.Result;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.common.validator.FileUploadValidator;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.server.entity.Script;
+import com.testwa.distest.server.entity.Testcase;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.script.form.ScriptContentForm;
 import com.testwa.distest.server.service.script.form.ScriptListForm;
 import com.testwa.distest.server.service.script.form.ScriptUpdateForm;
 import com.testwa.distest.server.service.script.service.ScriptService;
+import com.testwa.distest.server.service.testcase.service.TestcaseService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
 import com.testwa.distest.server.web.script.validator.ScriptValidator;
-import com.testwa.distest.server.web.script.vo.ScriptVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -57,6 +52,8 @@ public class ScriptController extends BaseController {
     private ProjectValidator projectValidator;
     @Autowired
     private FileUploadValidator fileUploadValidator;
+    @Autowired
+    private TestcaseService testcaseService;
 
     @ApiOperation(value="上传脚本", notes="")
     @ResponseBody
@@ -140,8 +137,16 @@ public class ScriptController extends BaseController {
     @ApiOperation(value="删除脚本", notes="")
     @ResponseBody
     @PostMapping(value = "/delete")
-    public Result delete(@RequestBody @Valid DeleteAllForm form) {
-        scriptService.deleteScript(form.getEntityIds());
+    public Result delete(@RequestBody @Valid IDListForm form) {
+        // 检查脚本是否已被组合为测试集
+        if(form.getEntityIds() != null && form.getEntityIds().size() == 0) {
+            return ok();
+        }
+        List<Testcase> testcases = testcaseService.findByScripts(form.getEntityIds());
+        if(testcases != null && testcases.size() > 0) {
+            throw new ObjectAlreadyExistException("脚本已经存在测试集，无法删除");
+        }
+        scriptService.delete(form.getEntityIds());
         return ok();
     }
 
@@ -152,9 +157,7 @@ public class ScriptController extends BaseController {
         projectValidator.validateProjectExist(projectId);
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         projectValidator.validateUserIsProjectMember(projectId, user.getId());
-        PageResult<Script> scriptPageResult = scriptService.findPage(projectId, queryForm);
-        List<ScriptVO> vos = buildVOs(scriptPageResult.getPages(), ScriptVO.class);
-        PageResult<ScriptVO> pr = new PageResult<>(vos, scriptPageResult.getTotal());
+        PageResult<Script> pr = scriptService.findPage(projectId, queryForm);
         return ok(pr);
     }
 
@@ -166,10 +169,8 @@ public class ScriptController extends BaseController {
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         projectValidator.validateUserIsProjectMember(projectId, user.getId());
         List<Script> scriptList = scriptService.findList(projectId, queryForm);
-        List<ScriptVO> vos = buildVOs(scriptList, ScriptVO.class);
-        return ok(vos);
+        return ok(scriptList);
     }
-
 
     @ApiOperation(value="获得脚本内容", notes="")
     @ResponseBody

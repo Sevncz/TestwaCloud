@@ -13,6 +13,4 @@ public interface ExecutionTaskMapper extends BaseMapper<Task, Long> {
 
 	List<Task> findBy(Task entity);
 
-    List<Task> findByFromProject(@Param("params") Map<String, Object> params);
-
 }

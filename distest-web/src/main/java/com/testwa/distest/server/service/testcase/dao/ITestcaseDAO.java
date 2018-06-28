@@ -21,9 +21,7 @@ public interface ITestcaseDAO extends IBaseDAO<Testcase, Long> {
 
     List<Testcase> findAll(List<Long> keys);
 
-    List<Testcase> findByFromProject(Map<String, Object> params);
-
     Testcase fetchOne(Long testcaseId);
 
-    List<Testcase> fetchScriptAllBySceneOrder(Long sceneId);
+    List<Testcase> fetchContainsScripts(List<Long> scriptIds);
 }

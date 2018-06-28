@@ -1,11 +1,11 @@
 package com.testwa.distest.server.web.app.controller;
 
-import com.testwa.core.base.form.DeleteOneForm;
+import com.testwa.core.base.form.IDForm;
 import com.testwa.core.base.vo.Result;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.*;
-import com.testwa.core.base.form.DeleteAllForm;
+import com.testwa.core.base.form.IDListForm;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.common.validator.FileUploadValidator;
@@ -128,6 +128,7 @@ public class AppController extends BaseController {
     @ResponseBody
     @GetMapping(value = "/{projectId}/page")
     public Result page(@PathVariable Long projectId, @Valid AppListForm queryForm) {
+        projectValidator.validateProjectExist(projectId);
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         projectValidator.validateUserIsProjectMember(projectId, user.getId());
         PageResult<AppInfo> pr = appInfoService.findPage(projectId, queryForm);
@@ -138,6 +139,7 @@ public class AppController extends BaseController {
     @ResponseBody
     @GetMapping(value = "/{projectId}/list")
     public Result list(@PathVariable Long projectId, @Valid AppListForm queryForm) {
+        projectValidator.validateProjectExist(projectId);
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         projectValidator.validateUserIsProjectMember(projectId, user.getId());
         List<AppInfo> apps = appInfoService.findList(projectId, queryForm);
@@ -156,7 +158,7 @@ public class AppController extends BaseController {
     @ApiOperation(value="删除多个应用", notes="")
     @ResponseBody
     @PostMapping(value = "/delete/all")
-    public Result deleteAll(@RequestBody DeleteAllForm del) throws ParamsIsNullException {
+    public Result deleteAll(@RequestBody IDListForm del) throws ParamsIsNullException {
         if(del.getEntityIds() == null && del.getEntityIds().size() == 0){
             throw new ParamsIsNullException("参数不能为空");
         }
@@ -167,7 +169,7 @@ public class AppController extends BaseController {
     @ApiOperation(value="删除一个应用", notes="")
     @ResponseBody
     @PostMapping(value = "/delete/one")
-    public Result deleteOne(@RequestBody DeleteOneForm del) throws ParamsIsNullException {
+    public Result deleteOne(@RequestBody IDForm del) throws ParamsIsNullException {
         if( del.getEntityId() == null ){
             throw new ParamsIsNullException("参数不能为空");
         }

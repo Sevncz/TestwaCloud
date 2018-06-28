@@ -48,8 +48,8 @@
         FROM app
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             enabled = 1
-            <if test="fileName != null">and fileName = #{fileName}</if>
-            <if test="displayName != null">and fileName = #{displayName}</if>
+            <if test="fileName != null">and fileName LIKE CONCAT('%', #{fileName}, '%')</if>
+            <if test="displayName != null">and displayName LIKE CONCAT('%', #{displayName}, '%')</if>
             <if test="createBy != null">and createBy = #{createBy}</if>
             <if test="projectId != null">and projectId = #{projectId}</if>
             <if test="md5 != null">and md5 = #{md5}</if>

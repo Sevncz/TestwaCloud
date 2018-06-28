@@ -21,6 +21,8 @@ public class TestcaseVO {
     private String description;
     private DB.TaskType exeMode;
 
+    private String packageName;
+
     private Date createTime;
     private Date updateTime;
 

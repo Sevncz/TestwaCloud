@@ -218,44 +218,16 @@ public class ScriptService {
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void delete(List<Long> entityIds) {
-        scriptDAO.delete(entityIds);
+        scriptDAO.disableAll(entityIds);
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void delete(Long entityId) {
-        scriptDAO.delete(entityId);
+        scriptDAO.disable(entityId);
     }
-
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public void deleteScript(Long entityId) {
-
-        Script script = findOne(entityId);
-        if (script == null){
-            return;
-        }
-
-        String path = disFileProperties.getScript() + File.separator + script.getPath();
-        try {
-            // 删除文件
-            Files.deleteIfExists(Paths.get(path));
-            // 删除文件的文件夹
-            Files.deleteIfExists(Paths.get(path).getParent());
-        } catch (IOException e) {
-            log.error("delete script file error", e);
-        }
-        // 删除记录
-        delete(entityId);
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public void deleteScript(List<Long> entityIds) {
-        entityIds.forEach(this::deleteScript);
-    }
-
 
     public PageResult<Script> findPage(Long projectId, ScriptListForm queryForm) {
         PageHelper.startPage(queryForm.getPageNo(), queryForm.getPageSize());
-        PageHelper.orderBy(queryForm.getOrderBy() + " " + queryForm.getOrder());
         List<Script> scriptList = findList(projectId, queryForm);
         PageInfo<Script> info = new PageInfo(scriptList);
         PageResult<Script> pr = new PageResult<>(info.getList(), info.getTotal());
@@ -263,19 +235,19 @@ public class ScriptService {
     }
 
     public List<Script> findList(Long projectId, ScriptListForm queryForm) {
+        PageHelper.orderBy(queryForm.getOrderBy() + " " + queryForm.getOrder());
         Script script = new Script();
+        script.setProjectId(projectId);
         if(StringUtils.isNotBlank(queryForm.getScriptName())) {
             script.setScriptName(queryForm.getScriptName());
         }
         if(queryForm.getLn() != null) {
             script.setLn(DB.ScriptLN.valueOf(queryForm.getLn()));
         }
-        if(queryForm.getPackageName() != null) {
+        if(StringUtils.isNotBlank(queryForm.getPackageName())) {
             script.setAppPackage(queryForm.getPackageName());
         }
-        script.setProjectId(projectId);
-        List<Script> scriptList = scriptDAO.findBy(script);
-        return scriptList;
+        return scriptDAO.findBy(script);
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)

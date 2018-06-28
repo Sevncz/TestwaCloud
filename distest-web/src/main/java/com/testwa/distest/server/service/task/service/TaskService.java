@@ -30,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
 import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
 
 /**
  * Created by wen on 24/10/2017.
@@ -45,15 +44,9 @@ public class TaskService {
     @Autowired
     private ProjectService projectService;
     @Autowired
-    private ProcedureStatisRepository procedureStatisRepository;
-    @Autowired
     private AppiumRunningLogRepository procedureInfoRepository;
     @Autowired
     private StepRepository stepRepository;
-    @Autowired
-    private PerformanceRepository performanceRepository;
-    @Autowired
-    private MethodRunningLogRepository executorLogInfoRepository;
     @Autowired
     private TaskDeviceService taskDeviceService;
     @Autowired

@@ -41,7 +41,7 @@
         FROM app_info t1 left join app t2 on t1.latestAppId = t2.id
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             t1.enabled = 1
-            <if test="name != null">and t1.name = #{name}</if>
+            <if test="name != null">and t1.name LIKE CONCAT('%', #{name}, '%')</if>
             <if test="packageName != null">and t1.packageName = #{packageName}</if>
             <if test="projectId != null">and t1.projectId = #{projectId}</if>
         </trim>
@@ -102,6 +102,7 @@
         set enabled = 0
         where id = #{entityId}
     </update>
+
     <update id="disableAll" >
         update app_info
         set enabled = 0

@@ -55,8 +55,6 @@ public class AppService {
     @Autowired
     private IAppInfoDAO appInfoDAO;
     @Autowired
-    private ProjectService projectService;
-    @Autowired
     private UserService userService;
     @Autowired
     private DisFileProperties disFileProperties;
@@ -352,7 +350,6 @@ public class AppService {
     public PageResult<App> findPage(Long projectId, AppListForm queryForm){
         //分页处理
         PageHelper.startPage(queryForm.getPageNo(), queryForm.getPageSize());
-        PageHelper.orderBy(queryForm.getOrderBy() + " " + queryForm.getOrder());
         List<App> appList = findList(projectId, queryForm);
         PageInfo info = new PageInfo(appList);
         PageResult<App> pr = new PageResult<>(info.getList(), info.getTotal());
@@ -360,6 +357,7 @@ public class AppService {
     }
 
     public List<App> findList(Long projectId, AppListForm queryForm){
+        PageHelper.orderBy(queryForm.getOrderBy() + " " + queryForm.getOrder());
         App query = new App();
         query.setProjectId(projectId);
         if(StringUtils.isNotBlank(queryForm.getAppName())) {

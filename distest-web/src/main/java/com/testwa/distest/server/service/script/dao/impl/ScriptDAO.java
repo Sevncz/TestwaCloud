@@ -45,4 +45,15 @@ public class ScriptDAO extends BaseDAO<Script, Long> implements IScriptDAO {
         return mapper.countBy(query);
     }
 
+    @Override
+    public void disable(Long entityId) {
+        mapper.disable(entityId);
+    }
+
+    @Override
+    public void disableAll(List<Long> entityIds) {
+        mapper.disableAll(entityIds);
+
+    }
+
 }

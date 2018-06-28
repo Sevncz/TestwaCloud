@@ -57,7 +57,7 @@ public class ProjectServiceTest {
         page.setPageNo(3);
         page.setPageSize(10);
         form.setPage(page);
-        PageResult<Project> projects = projectService.findByPage(form);
+        PageResult<Project> projects = projectService.findPage(form);
     }
     @Test
     @WithMockUser(username = "xiaoming", authorities = { "ADMIN", "USER" })
@@ -82,7 +82,7 @@ public class ProjectServiceTest {
         projects.forEach(p -> {
             ids.add(p.getId());
         });
-        projectService.deleteAll(ids);
+        projectService.delete(ids);
     }
 
     @Test

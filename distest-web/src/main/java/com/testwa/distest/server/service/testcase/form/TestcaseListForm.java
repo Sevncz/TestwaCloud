@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 public class TestcaseListForm extends RequestListBase {
 
-    private Long projectId;
     private String caseName;
+    private String packageName;
 
 }

@@ -22,7 +22,6 @@ public class TestcaseDAO extends BaseDAO<Testcase, Long> implements ITestcaseDAO
 
     @Override
     public long countBy(Testcase query) {
-
         return mapper.countBy(query);
     }
 
@@ -42,18 +41,13 @@ public class TestcaseDAO extends BaseDAO<Testcase, Long> implements ITestcaseDAO
     }
 
     @Override
-    public List<Testcase> findByFromProject(Map<String, Object> params) {
-        return mapper.findByFromProject(params);
-    }
-
-    @Override
     public Testcase fetchOne(Long testcaseId) {
         return mapper.fetchOne(testcaseId);
     }
 
     @Override
-    public List<Testcase> fetchScriptAllBySceneOrder(Long sceneId) {
-        return  mapper.fetchScriptAllBySceneOrder(sceneId);
+    public List<Testcase> fetchContainsScripts(List<Long> scriptIds) {
+        return mapper.fetchContainsScripts(scriptIds);
     }
 
 
