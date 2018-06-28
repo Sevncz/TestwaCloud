@@ -48,9 +48,10 @@ public class CronScheduled {
     @Scheduled(cron = "0/5 * * * * ?")
     public void iOSInit() {
         String osName = System.getProperty("os.name");
+
         if(osName.toLowerCase().startsWith("mac")) {
             List<String> udids = IOSDeviceUtil.getUDID();
-
+            log.debug("udids {}", udids.toString());
             udids.forEach(udid -> {
                 try {
                     iosOnline.add(udid);
@@ -66,6 +67,7 @@ public class CronScheduled {
     public void iOSClear() {
         iosOnline.forEach(udid -> {
             if(!IOSDeviceUtil.isOnline(udid)){
+                log.warn("iOS 设备 {} 离线", udid);
                 iosOnline.remove(udid);
                 DeviceClientCache.remove(udid);
             }
