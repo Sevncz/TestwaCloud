@@ -1,5 +1,6 @@
 package com.testwa.distest.server.service.task.dao.impl;
 
+import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Task;
 import com.testwa.core.base.dao.impl.BaseDAO;
 import com.testwa.distest.server.mapper.TaskMapper;
@@ -37,8 +38,8 @@ public class TaskDAO extends BaseDAO<Task, Long> implements ITaskDAO {
     }
 
     @Override
-    public void updateEndTime(Long taskCode, Date endTime) {
-        mapper.updateEndTime(taskCode, endTime);
+    public void finish(Long taskCode, Date endTime, DB.TaskStatus status) {
+        mapper.finish(taskCode, endTime, status);
     }
 
     @Override

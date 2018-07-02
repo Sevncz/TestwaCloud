@@ -93,7 +93,7 @@ public class TestcaseService {
         testcase.setAppName(appInfo.getName());
         testcase.setCreateBy(user.getId());
         testcase.setCreateTime(new Date());
-        testcase.setEnabled(scriptIds.size() > 1);
+        testcase.setEnabled(true);
         long testcaseId = testcaseDAO.insert(testcase);
         saveTestcaseScript(scriptIds, testcaseId);
         testcase.setId(testcaseId);

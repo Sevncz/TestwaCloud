@@ -36,6 +36,7 @@ public class Task extends ProjectBaseEntity {
     private Date endTime;
     private Integer outTime;
     private Long taskCode;
+    private DB.TaskStatus status;
 
     @Column(value="deviceStatusStatis", ignore=true)
     private Map<String, Integer> deviceStatusStatis;

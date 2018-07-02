@@ -5,6 +5,7 @@ import com.github.pagehelper.PageInfo;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.testwa.core.base.vo.PageResult;
+import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.mongo.model.*;
 import com.testwa.distest.server.mongo.repository.*;
@@ -163,9 +164,15 @@ public class TaskService {
 
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public void updateEndTime(Long taskCode) {
+    public void complete(Long taskCode) {
         Date endTime = new Date();
-        taskDAO.updateEndTime(taskCode, endTime);
+        taskDAO.finish(taskCode, endTime, DB.TaskStatus.COMPLETE);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public void timeout(Long taskCode) {
+        Date endTime = new Date();
+        taskDAO.finish(taskCode, endTime, DB.TaskStatus.TIMEOUT);
     }
 
 
@@ -233,7 +240,13 @@ public class TaskService {
     public Map<String, String> getDeviceNameMap(List<Device> deviceList) {
         Map<String, String> deviceMap = new HashMap<>();
         deviceList.forEach( d -> {
-            deviceMap.put(d.getDeviceId(), d.getModel().contains(d.getBrand()) ? d.getModel() : d.getBrand() + " " + d.getModel());
+            String name;
+            if(StringUtils.isBlank(d.getModel())) {
+                name = d.getBrand();
+            }else{
+                name = d.getModel().contains(d.getBrand()) ? d.getModel() : d.getBrand() + " " + d.getModel();
+            }
+            deviceMap.put(d.getDeviceId(), name);
         });
         return deviceMap;
     }

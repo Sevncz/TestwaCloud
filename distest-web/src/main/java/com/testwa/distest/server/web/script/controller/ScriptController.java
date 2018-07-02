@@ -68,14 +68,6 @@ public class ScriptController extends BaseController {
         return ok(script);
     }
 
-    /**
-     * 可以上传一组脚本形成案例，暂时还不用
-     * @param uploadfiles
-     * @return
-     * @throws IOException
-     * @throws ParamsIsNullException
-     * @throws ParamsFormatException
-     */
     @ApiOperation(value="上传多个脚本", notes="暂时还不用")
     @ResponseBody
     @PostMapping(value = "/upload/multi")
@@ -101,15 +93,7 @@ public class ScriptController extends BaseController {
         return ok(script);
     }
 
-    /**
-     * 可以上传一组脚本形成案例，暂时还不用
-     * @param uploadfiles
-     * @return
-     * @throws IOException
-     * @throws ParamsIsNullException
-     * @throws ParamsFormatException
-     */
-    @ApiOperation(value="上传多个脚本", notes="暂时还不用")
+    @ApiOperation(value="上传多个脚本")
     @ResponseBody
     @PostMapping(value = "/{projectId}/upload/multi")
     public Result uploadMulti(@PathVariable Long projectId, @RequestParam("files") List<MultipartFile> uploadfiles) throws IOException, ParamsIsNullException, ParamsFormatException {
@@ -119,6 +103,20 @@ public class ScriptController extends BaseController {
         projectValidator.validateProjectExist(projectId);
         fileUploadValidator.validateFiles(uploadfiles, fileSize, allowExtName);
         scriptService.uploadMulti(uploadfiles, projectId);
+        return ok();
+    }
+
+    @ApiOperation(value="上传的同时直接组成案例", notes="暂时还不用")
+    @ResponseBody
+    @PostMapping(value = "/{projectId}/upload/case")
+    public Result uploadCase(@PathVariable Long projectId, @RequestParam("files") List<MultipartFile> uploadfiles) throws IOException, ParamsIsNullException, ParamsFormatException {
+        //
+        // 校验
+        //
+        projectValidator.validateProjectExist(projectId);
+        fileUploadValidator.validateFiles(uploadfiles, fileSize, allowExtName);
+        scriptService.uploadMulti(uploadfiles, projectId);
+        //TODO 保存为案例
         return ok();
     }
 

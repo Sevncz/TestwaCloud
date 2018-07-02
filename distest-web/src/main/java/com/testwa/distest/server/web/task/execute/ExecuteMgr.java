@@ -75,7 +75,11 @@ public class ExecuteMgr {
      */
     public TaskStartResultVO startHG(List<String> useableDevices, App app, List<Long> scriptIds, Long taskCode) {
         Testcase testcase = testcaseService.saveTestcaseByScriptIds(app, scriptIds);
-        return startHG(useableDevices, app, testcase.getId(), testcase.getCaseName(), taskCode);
+        TaskStartResultVO vo = startHG(useableDevices, app, testcase.getId(), testcase.getCaseName(), taskCode);
+        if(scriptIds.size() == 1) {
+            testcaseService.delete(testcase.getId());
+        }
+        return vo;
     }
 
     public TaskStartResultVO startHG(List<String> deviceIds, App app, Long testcaseId, String caseName, Long taskCode) throws ObjectNotExistsException {
@@ -132,9 +136,9 @@ public class ExecuteMgr {
 
             allscript.addAll(caseAllScript);
             alltestcase.add(c);
-            task.setScriptJson(JSON.toJSONString(allscript));
-            task.setTestcaseJson(JSON.toJSONString(alltestcase));
         }
+        task.setScriptJson(JSON.toJSONString(allscript));
+        task.setTestcaseJson(JSON.toJSONString(alltestcase));
         task.setTaskName(taskName);
 
         // 启动任务
@@ -183,6 +187,7 @@ public class ExecuteMgr {
         task.setCreateTime(new Date());
         task.setEnabled(true);
         task.setDevicesJson(JSON.toJSONString(result.getRunningDevices()));
+        task.setStatus(DB.TaskStatus.RUNNING);
         taskService.save(task);
 
 
@@ -211,12 +216,15 @@ public class ExecuteMgr {
                     DateTime now = new DateTime();
                     Duration d = new Duration(startTime, now);
                     if(d.getStandardMinutes() > 30){
-                        runningCount = 0;
+                        context.publishEvent(new TaskOverEvent(this, taskCode, true));
+                        Future future = futures.get(taskCode);
+                        if (future != null) future.cancel(true);
+                        return;
                     }
                 }
 
                 if(runningCount <= 0) {
-                    context.publishEvent(new TaskOverEvent(this, taskCode));
+                    context.publishEvent(new TaskOverEvent(this, taskCode, false));
                     Future future = futures.get(taskCode);
                     if (future != null) future.cancel(true);
                 }

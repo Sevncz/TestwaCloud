@@ -11,6 +11,7 @@
         <result column="createBy" property="createBy" jdbcType="BIGINT"/>
         <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
         <result column="endTime" property="endTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+        <result column="status" property="status" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
         <result column="devicesJson" property="devicesJson" jdbcType="VARCHAR" javaType="String"/>
         <result column="appJson" property="appJson" jdbcType="VARCHAR" javaType="String"/>
         <result column="testcaseJson" property="testcaseJson" jdbcType="VARCHAR" javaType="String"/>
@@ -19,7 +20,7 @@
     </resultMap>
 
     <sql id="Base_Column_List" >
-        id,taskCode,projectId,createTime,createBy,endTime,devicesJson,appJson,testcaseJson,scriptJson,taskType,taskName,appId
+        id,taskCode,projectId,createTime,createBy,endTime,devicesJson,appJson,testcaseJson,scriptJson,taskType,taskName,appId,status
     </sql>
 
     <select id="findOne" parameterType="com.testwa.distest.server.entity.Task" resultMap="BaseResultMap" >
@@ -75,11 +76,12 @@
         WHERE taskCode = #{taskCode} and enabled = 1
     </select>
 
-    <update id="updateEndTime" >
+    <update id="finish" >
         update task
-        set endTime = #{endTime}
+        set endTime = #{endTime}, status = #{status, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}
         where taskCode = #{taskCode}
     </update>
+
     <update id="disable" >
         update task
         set enabled = 0

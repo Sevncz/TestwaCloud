@@ -10,10 +10,12 @@ import org.springframework.context.ApplicationEvent;
 public class TaskOverEvent extends ApplicationEvent {
 
     private Long taskCode;
+    private boolean timeout;
 
-    public TaskOverEvent(Object source, Long taskCode) {
+    public TaskOverEvent(Object source, Long taskCode, boolean timeout) {
         super(source);
         this.taskCode = taskCode;
+        this.timeout = timeout;
     }
 
 }

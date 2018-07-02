@@ -6,17 +6,16 @@ import com.testwa.distest.config.security.JwtTokenUtil;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.cache.mgr.SubscribeDeviceFuncMgr;
+import com.testwa.distest.server.service.cache.queue.ScreenStreamQueue;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
 import com.testwa.distest.server.websocket.WSFuncEnum;
-import com.testwa.distest.server.websocket.service.PushCmdService;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.device.*;
 import lombok.extern.slf4j.Slf4j;
 import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 
 import java.text.DecimalFormat;
 import java.util.List;
@@ -44,7 +43,7 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
-    private PushCmdService pushCmdService;
+    private ScreenStreamQueue screenStreamQueue;
 
     @Override
     public void all(DevicesRequest request, StreamObserver<CommonReply> responseObserver) {
@@ -179,24 +178,10 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     }
 
 
-    @Async
     @Override
     public void screen(ScreenCaptureRequest request, StreamObserver<CommonReply> responseObserver) {
         String serial = request.getSerial();
-        Set<String> sessions = subscribeMgr.getSubscribes(serial, WSFuncEnum.SCREEN.getValue());
-        for(String sessionId : sessions){
-            SocketIOClient client = server.getClient(UUID.fromString(sessionId));
-            if(client != null){
-                byte[] data = request.getImg().toByteArray();
-                double i = (data.length / (1024.0));
-                log.debug("SCREEN REC: data length is {} KB", format.format(i));
-                client.sendEvent("minicap", data);
-            }else{
-                log.info("[screen] client is not found");
-                subscribeMgr.delSubscribe(serial, WSFuncEnum.SCREEN.getValue(), sessionId);
-            }
-        }
-
+        screenStreamQueue.push(serial, request.getImg());
         final CommonReply.Builder replyBuilder = CommonReply.newBuilder().setMessage("OK ");
         responseObserver.onNext(replyBuilder.build());
         responseObserver.onCompleted();

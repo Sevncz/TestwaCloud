@@ -1,6 +1,7 @@
 package com.testwa.distest.server.service.task.dao;
 
 import com.testwa.core.base.dao.IBaseDAO;
+import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Task;
 
 import java.util.Date;
@@ -18,9 +19,9 @@ public interface ITaskDAO extends IBaseDAO<Task, Long> {
 
     Long countBy(Task kq);
 
-    void updateEndTime(Long taskCode, Date endTime);
-
     Task findByCode(Long taskCode);
 
     void disableAll(List<Long> taskCodes);
+
+    void finish(Long taskCode, Date endTime, DB.TaskStatus status);
 }

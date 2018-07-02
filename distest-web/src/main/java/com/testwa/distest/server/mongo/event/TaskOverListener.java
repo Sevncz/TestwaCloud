@@ -44,7 +44,11 @@ public class TaskOverListener implements ApplicationListener<TaskOverEvent> {
         log.info("start...");
         Long taskCode = e.getTaskCode();
         log.info("........ update task info");
-        taskService.updateEndTime(taskCode);
+        if(e.isTimeout()) {
+            taskService.timeout(taskCode);
+        }else{
+            taskService.complete(taskCode);
+        }
         // 根据前端需求开始统计报告
         Task task = taskService.findByCode(taskCode);
 

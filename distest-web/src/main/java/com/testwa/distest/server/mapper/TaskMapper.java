@@ -1,6 +1,7 @@
 package com.testwa.distest.server.mapper;
 
 import com.testwa.core.base.mapper.BaseMapper;
+import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Task;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -20,7 +21,7 @@ public interface TaskMapper extends BaseMapper<Task, Long> {
 
     Long countBy(Task query);
 
-    void updateEndTime(@Param("taskCode") Long taskCode, @Param("endTime") Date endTime);
+    void finish(@Param("taskCode") Long taskCode, @Param("endTime") Date endTime, @Param("status")DB.TaskStatus status);
 
     Task findByCode(Long taskCode);
 

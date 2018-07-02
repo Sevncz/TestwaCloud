@@ -164,7 +164,8 @@ public final class DB {
         RUNNING(1, "正在运行"),
         COMPLETE(2, "已完成"),
         CANCEL(3, "取消"),
-        ERROR(4, "异常");
+        ERROR(4, "异常"),
+        TIMEOUT(5, "超时");
         private int value;
         private String desc;
         TaskStatus(int value, String desc){
@@ -187,6 +188,7 @@ public final class DB {
                 case 2: se = COMPLETE;break;
                 case 3: se = CANCEL;break;
                 case 4: se = ERROR;break;
+                case 5: se = TIMEOUT;break;
                 default: se = ERROR;
             }
             return se;

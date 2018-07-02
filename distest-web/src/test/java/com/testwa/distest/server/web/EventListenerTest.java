@@ -23,7 +23,7 @@ public class EventListenerTest {
     @WithAnonymousUser
     public void testSendGameOverEvent(){
 
-        context.publishEvent(new TaskOverEvent(this, 31l));
+        context.publishEvent(new TaskOverEvent(this, 31l, false));
     }
 
 }
