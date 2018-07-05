@@ -9,6 +9,7 @@ import com.testwa.core.service.AdbDriverService;
 import com.testwa.core.service.MinitouchServiceBuilder;
 import com.testwa.distest.client.android.AdbForward;
 import com.testwa.distest.client.android.AndroidHelper;
+import com.testwa.distest.client.component.appium.utils.Config;
 import com.testwa.distest.client.component.port.MinitouchPortProvider;
 import com.testwa.distest.client.component.Constant;
 import com.testwa.distest.client.exception.CommandFailureException;
@@ -81,9 +82,9 @@ public class Minitouch {
         AndroidHelper.getInstance().executeShellCommand(iDevice, "chmod 777 " + Constant.MINITOUCH_DIR + "/" + BIN);
     }
 
-    public Minitouch(String serialNumber, String resourcesPath) {
+    public Minitouch(String serialNumber) {
         this.executor = Executors.newScheduledThreadPool(5);
-        this.resourcesPath = resourcesPath;
+        this.resourcesPath = Config.getString("distest.agent.resources");
         int install = 5;
         while (install > 0) {
             try {
