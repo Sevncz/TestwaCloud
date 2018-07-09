@@ -1,7 +1,6 @@
 package com.testwa.distest.server.web.task.controller;
 
 import com.testwa.core.base.controller.BaseController;
-import com.testwa.core.base.exception.AuthorizedException;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.base.exception.ParamsIsNullException;
 import com.testwa.core.base.form.IDListForm;
@@ -30,6 +29,7 @@ import com.testwa.distest.server.web.task.execute.ReportMgr;
 import com.testwa.distest.server.web.task.validator.StepValidatoer;
 import com.testwa.distest.server.web.task.validator.TaskValidatoer;
 import com.testwa.distest.server.web.task.vo.*;
+import com.testwa.distest.server.web.task.vo.TaskPassInfoVO;
 import com.testwa.distest.server.web.task.vo.echart.EchartDoubleLine;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -70,6 +70,31 @@ public class CommonReportController extends BaseController {
     @Autowired
     private ReportMgr reportMgr;
 
+    @ApiOperation(value="任务分页列表", notes="")
+    @ResponseBody
+    @GetMapping(value = "/{projectId}/page")
+    public Result page(@PathVariable Long projectId, @Valid TaskListForm pageForm) {
+        projectValidator.validateProjectExist(projectId);
+        User user = userService.findByUsername(WebUtil.getCurrentUsername());
+        projectValidator.validateUserIsProjectMember(projectId, user.getId());
+        PageResult<Task> taskPR = taskService.findPage(projectId, pageForm);
+
+        return ok(taskPR);
+    }
+
+    @ApiOperation(value="已完成任务分页列表", notes="")
+    @ResponseBody
+    @GetMapping(value = "/finish/{projectId}/page")
+    public Result finishPage(@PathVariable Long projectId, @Valid TaskListForm pageForm) {
+        projectValidator.validateProjectExist(projectId);
+        User user = userService.findByUsername(WebUtil.getCurrentUsername());
+        projectValidator.validateUserIsProjectMember(projectId, user.getId());
+        PageResult<Task> taskPR = taskService.findFinishPage(projectId, pageForm);
+
+        return ok(taskPR);
+    }
+
+
     @ApiOperation(value="任务基本信息")
     @ResponseBody
     @GetMapping(value = "/task/{taskCode}")
@@ -81,34 +106,6 @@ public class CommonReportController extends BaseController {
         return ok(result);
     }
 
-    @ApiOperation(value="登录用户可见的任务分页列表", notes="")
-    @ResponseBody
-    @GetMapping(value = "/page")
-    public Result page(@Valid TaskListForm pageForm) {
-        User user = userService.findByUsername(WebUtil.getCurrentUsername());
-        if(pageForm.getProjectId() != null) {
-            projectValidator.validateUserIsProjectMember(pageForm.getProjectId(), user.getId());
-        }else{
-            projectValidator.validateUserInAnyProject(WebUtil.getCurrentUsername());
-        }
-        PageResult<Task> taskPR = taskService.findPageForCurrentUser(pageForm);
-
-        return ok(taskPR);
-    }
-
-    @ApiOperation(value="登录用户执行的任务列表", notes="")
-    @ResponseBody
-    @GetMapping(value = "/my/page")
-    public Result myTaskPage(@Valid TaskListForm pageForm) throws AuthorizedException {
-
-        User user = userService.findByUsername(WebUtil.getCurrentUsername());
-        if(pageForm.getProjectId() != null){
-            projectValidator.validateUserIsProjectMember(pageForm.getProjectId(), user.getId());
-        }
-
-        PageResult<Task> taskPR = taskService.findPageForCreateUser(pageForm, user.getId());
-        return ok(taskPR);
-    }
 
     @ApiOperation(value="删除报告", notes="")
     @ResponseBody
@@ -283,7 +280,7 @@ public class CommonReportController extends BaseController {
             throw new ParamsIsNullException("参数不能为空");
         }
         Task task = taskValidatoer.validateTaskExist(taskCode);
-        PerformanceDeviceOverviewVO vo = reportMgr.getPerformanceOverview(task, deviceId);
+        PerformanceDeviceOverviewVO vo = reportMgr.getPerformanceOverview(task.getTaskCode(), deviceId);
         return ok(vo);
     }
 
@@ -362,6 +359,16 @@ public class CommonReportController extends BaseController {
         Task task = taskValidatoer.validateTaskExist(taskCode);
         List<CrashLog> crashLogs = crashLogService.findBy(taskCode, deviceId);
         return ok(crashLogs);
+    }
+
+
+    @ApiOperation(value="测试通过情况")
+    @ResponseBody
+    @GetMapping(value = "/passinfo/{taskCode}")
+    public Result passInfo(@PathVariable Long taskCode) throws ObjectNotExistsException {
+        Task task = taskValidatoer.validateTaskExist(taskCode);
+        TaskPassInfoVO vo = reportMgr.getPassInfo(task);
+        return ok(vo);
     }
 
 }

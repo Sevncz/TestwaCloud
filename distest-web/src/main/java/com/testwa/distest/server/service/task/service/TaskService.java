@@ -98,63 +98,61 @@ public class TaskService {
         return result;
     }
 
-    /**
-     * 获得当前登录用户可见的所有任务列表
-     * @param pageForm
-     * @return
-     */
-    public PageResult<Task> findPageForCurrentUser(TaskListForm pageForm) {
 
-        Map<String, Object> params = buildQueryParams(pageForm);
+    public PageResult<Task> findPage(Long projectId, TaskListForm pageForm) {
         //分页处理
         PageHelper.startPage(pageForm.getPageNo(), pageForm.getPageSize());
-        PageHelper.orderBy(pageForm.getOrderBy() + " " + pageForm.getOrder());
-        List<Task> entityList = taskDAO.findByFromProject(params);
-        entityList.forEach(entity -> {
-            List<TaskDeviceStatusStatis> tds = taskDeviceService.countTaskDeviceStatus(entity.getId());
-            entity.setDeviceStatusStatis(tds);
-        });
+        List<Task> entityList = findList(projectId, pageForm);
         PageInfo<Task> info = new PageInfo(entityList);
         PageResult<Task> pr = new PageResult<>(info.getList(), info.getTotal());
         return pr;
     }
 
-    private Map<String, Object> buildQueryParams(TaskListForm queryForm) {
-        List<Project> projects = projectService.findAllByUserList(getCurrentUsername());
-        Map<String, Object> params = new HashMap<>();
-        if(queryForm.getProjectId() != null){
-            params.put("projectId", queryForm.getProjectId());
-        }
-        if(StringUtils.isNotEmpty(queryForm.getTaskName())){
-            params.put("taskName", queryForm.getTaskName());
-        }
-        if(projects != null){
-            params.put("projects", projects);
-        }
-        return params;
-    }
-
-
-    /**
-     * 获得当前登录用户可见的所有任务列表
-     * @param pageForm
-     * @return
-     */
-    public PageResult<Task> findPageForCreateUser(TaskListForm pageForm, Long userId) {
-
-        Map<String, Object> params = buildQueryParams(pageForm);
-        params.put("createBy", userId);
+    public PageResult<Task> findFinishPage(Long projectId, TaskListForm pageForm) {
         //分页处理
         PageHelper.startPage(pageForm.getPageNo(), pageForm.getPageSize());
-        PageHelper.orderBy(pageForm.getOrderBy() + " " + pageForm.getOrder());
-        List<Task> entityList = taskDAO.findByFromProject(params);
+        List<Task> entityList = findFinishList(projectId, pageForm);
+        PageInfo<Task> info = new PageInfo(entityList);
+        PageResult<Task> pr = new PageResult<>(info.getList(), info.getTotal());
+        return pr;
+    }
+
+    public List<Task> findList(Long projectId, TaskListForm queryForm) {
+        PageHelper.orderBy(queryForm.getOrderBy() + " " + queryForm.getOrder());
+        Task query = new Task();
+        query.setProjectId(projectId);
+        if (StringUtils.isNotBlank(queryForm.getTaskName())) {
+            query.setTaskName(queryForm.getTaskName());
+        }
+        if (queryForm.getAppId() != null) {
+            query.setAppId(queryForm.getAppId());
+        }
+        List<Task> entityList = taskDAO.findBy(query);
+
         entityList.forEach(entity -> {
             List<TaskDeviceStatusStatis> tds = taskDeviceService.countTaskDeviceStatus(entity.getId());
             entity.setDeviceStatusStatis(tds);
         });
-        PageInfo<Task> info = new PageInfo(entityList);
-        PageResult<Task> pr = new PageResult<>(info.getList(), info.getTotal());
-        return pr;
+        return entityList;
+    }
+
+    public List<Task> findFinishList(Long projectId, TaskListForm queryForm) {
+        PageHelper.orderBy(queryForm.getOrderBy() + " " + queryForm.getOrder());
+        Task query = new Task();
+        query.setProjectId(projectId);
+        if (StringUtils.isNotBlank(queryForm.getTaskName())) {
+            query.setTaskName(queryForm.getTaskName());
+        }
+        if (queryForm.getAppId() != null) {
+            query.setAppId(queryForm.getAppId());
+        }
+        List<Task> entityList = taskDAO.findFinishBy(query);
+
+        entityList.forEach(entity -> {
+            List<TaskDeviceStatusStatis> tds = taskDeviceService.countTaskDeviceStatus(entity.getId());
+            entity.setDeviceStatusStatis(tds);
+        });
+        return entityList;
     }
 
     public List<Script> findScriptListInTask(ScriptListForm form) {

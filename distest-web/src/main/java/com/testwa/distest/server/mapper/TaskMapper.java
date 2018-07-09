@@ -15,8 +15,6 @@ public interface TaskMapper extends BaseMapper<Task, Long> {
 
 	List<Task> findBy(Task entity);
 
-    List<Task> findByFromProject(@Param("params") Map<String, Object> params);
-
     Task findOne(Long key);
 
     Long countBy(Task query);
@@ -26,4 +24,6 @@ public interface TaskMapper extends BaseMapper<Task, Long> {
     Task findByCode(Long taskCode);
 
     void disableAll(@Param("taskCodes") List<Long> taskCodes);
+
+    List<Task> findFinishBy(Task query);
 }

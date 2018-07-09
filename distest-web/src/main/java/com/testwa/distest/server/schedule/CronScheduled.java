@@ -103,7 +103,7 @@ public class CronScheduled {
                     observer.onNext(message);
                 }catch (Exception e) {
                     deviceAuthMgr.offline(d);
-                    log.error("通信失败 {}", d, e);
+                    log.warn("通信失败 {} {}", d, e.getMessage());
                 }
             }
         });

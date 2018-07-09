@@ -13,9 +13,8 @@ import java.util.Map;
  */
 public interface ITaskDAO extends IBaseDAO<Task, Long> {
     List<Task> findBy(Task entity);
-    Task findOne(Long entityId);
 
-    List<Task> findByFromProject(Map<String, Object> params);
+    Task findOne(Long entityId);
 
     Long countBy(Task kq);
 
@@ -24,4 +23,6 @@ public interface ITaskDAO extends IBaseDAO<Task, Long> {
     void disableAll(List<Long> taskCodes);
 
     void finish(Long taskCode, Date endTime, DB.TaskStatus status);
+
+    List<Task> findFinishBy(Task query);
 }

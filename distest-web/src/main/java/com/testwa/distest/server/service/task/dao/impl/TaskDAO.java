@@ -28,11 +28,6 @@ public class TaskDAO extends BaseDAO<Task, Long> implements ITaskDAO {
     }
 
     @Override
-    public List<Task> findByFromProject(Map<String, Object> params) {
-        return mapper.findByFromProject(params);
-    }
-
-    @Override
     public Long countBy(Task query) {
         return mapper.countBy(query);
     }
@@ -40,6 +35,11 @@ public class TaskDAO extends BaseDAO<Task, Long> implements ITaskDAO {
     @Override
     public void finish(Long taskCode, Date endTime, DB.TaskStatus status) {
         mapper.finish(taskCode, endTime, status);
+    }
+
+    @Override
+    public List<Task> findFinishBy(Task query) {
+        return mapper.findFinishBy(query);
     }
 
     @Override

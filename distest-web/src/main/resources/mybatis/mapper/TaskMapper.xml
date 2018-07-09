@@ -42,21 +42,23 @@
             <if test="projectId != null">and projectId = #{projectId}</if>
             <if test="appId != null">and appId = #{appId}</if>
             <if test="taskCode != null">and taskCode = #{taskCode}</if>
+            <if test="taskName != null">and taskName LIKE CONCAT('%', #{taskName}, '%')</if>
         </trim>
     </select>
 
-    <select id="findByFromProject" parameterType="java.util.Map" resultMap="BaseResultMap" >
+    <select id="findFinishBy" parameterType="com.testwa.distest.server.entity.Task" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />
         FROM task
-        WHERE enabled = 1
-        <if test="params.projects != null">
-            AND projectId in
-            <foreach item="item" index="index" collection="params.projects" open="(" separator="," close=")">#{item.id} </foreach>
-        </if>
-        <if test="params.createBy != null">and createBy = #{params.createBy}</if>
-        <if test="params.projectId != null">and projectId = #{params.projectId}</if>
-        <if test="params.taskName != null">and taskName LIKE CONCAT('%', #{params.taskName}, '%')</if>
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            enabled = 1
+            and status != 0 and status != 1
+            <if test="createBy != null">and createBy = #{createBy}</if>
+            <if test="projectId != null">and projectId = #{projectId}</if>
+            <if test="appId != null">and appId = #{appId}</if>
+            <if test="taskCode != null">and taskCode = #{taskCode}</if>
+            <if test="taskName != null">and taskName LIKE CONCAT('%', #{taskName}, '%')</if>
+        </trim>
     </select>
 
     <select id="countBy" resultType="long">

@@ -6,7 +6,7 @@ import com.testwa.distest.config.security.JwtTokenUtil;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.cache.mgr.SubscribeDeviceFuncMgr;
-import com.testwa.distest.server.service.cache.queue.ScreenStreamQueue;
+import com.testwa.distest.server.service.cache.queue.ScreenProjectionQueue;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
@@ -43,7 +43,7 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
-    private ScreenStreamQueue screenStreamQueue;
+    private ScreenProjectionQueue screenStreamQueue;
 
     @Override
     public void all(DevicesRequest request, StreamObserver<CommonReply> responseObserver) {

@@ -52,7 +52,7 @@ var util = {
     isRotate: false,
     screenW: 1080,
     screenH: 1920,
-    scala: 0.25,
+    scala: 0.5,
 }
 var BLANK_IMG =
   'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
@@ -60,10 +60,10 @@ var BLANK_IMG =
 var canvas = document.getElementById('phone-screen')
   , g = canvas.getContext('2d')
 var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjc0KwjAQhN9lzgnENN0mfRUpsk33ENFa8gOC-O5GvHgbZr6ZeaG0FTN4u6cdCq1IvqQN86QQs3CVrk-jHacpWHKDJ4USH4dgPi8K8jx-sTfekFNIXP_5Tuy83r4jNTdRuNbU3wZvRxM9aRtD0I6N6NUNQTMJc292g_D-AAAA__8.Ev3FUTXbwPaiBVqi078pZbVGjX7mynBWbI1JXqyKuW4";
-var socket = io('http://127.0.0.1:9092?type=browser&token=' + token);
+var socket = io('http://cloud.test.testwa.com:9092?type=browser&token=' + token);
 
-var deviceId = '8f45336f66ff83bb61fce2aa57a33b695e5878db';
-// var deviceId = '8c2b6aee';
+// var deviceId = '8f45336f66ff83bb61fce2aa57a33b695e5878db';
+var deviceId = '8c2b6aee';
 
 socket.on('connect', function(){
     util.serverConnected = true
@@ -75,22 +75,20 @@ socket.on('devices', function(message){
     util.screenH = parseFloat(device.height)
 });
 socket.on('minicap', function(message){
-  var blob = new Blob([message], {type: 'image/jpeg'})
+    var blob = new Blob([message], {type: 'image/jpeg'})
   var URL = window.URL || window.webkitURL
   var img = new Image()
+    img.src = URL.createObjectURL(blob);
   img.onload = function() {
-    console.log(img.width, img.height)
-    canvas.width = img.width
-    canvas.height = img.height
-    g.drawImage(img, 0, 0)
+    canvas.width = img.width * util.scala
+    canvas.height = img.height * util.scala
+    g.drawImage(img, 0, 0, img.width * util.scala, img.height * util.scala)
     img.onload = null
     img.src = BLANK_IMG
     img = null
     u = null
     blob = null
   }
-  var u = URL.createObjectURL(blob)
-  img.src = u
 });
 socket.on('disconnect', function(){
     util.serverConnected = false;
@@ -236,7 +234,6 @@ canvas.onmousemove = function (event) {
         return;
     }
     var pos = getXAndY(canvas, event);
-
     sendMove(pos.x, pos.y, util.isRotate);
 };
 
