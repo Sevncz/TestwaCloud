@@ -14,30 +14,11 @@ public class Common {
         return byte2;
     }
 
-    public static byte[] mergeArray(byte[] a1, byte[] a2) {
-        byte[] arr = Arrays.copyOf(a1, a1.length + a2.length);
-        System.arraycopy(a2, 0, arr, a1.length, a2.length);
-        return arr;
+    public static byte[] mergeArray(byte[] byte_1, byte[] byte_2) {
+        byte[] byte_3 = new byte[byte_1.length + byte_2.length];
+        System.arraycopy(byte_1, 0, byte_3, 0, byte_1.length);
+        System.arraycopy(byte_2, 0, byte_3, byte_1.length, byte_2.length);
+        return byte_3;
     }
 
-    /**
-     * 获取闲置端口号
-     * @return
-     */
-    public static int getFreePort() {
-        ServerSocket tmp;
-        int i = 10000;
-        for(; i <= 65535; i++){
-            try{
-                tmp = new ServerSocket(i);
-                tmp.close();
-                tmp = null;
-                return i;
-            }
-            catch(Exception e4){
-                continue;
-            }
-        }
-        return -1;
-    }
 }

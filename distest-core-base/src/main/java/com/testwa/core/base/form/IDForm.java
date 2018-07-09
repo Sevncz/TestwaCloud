@@ -5,7 +5,7 @@ import lombok.Data;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class DeleteOneForm extends RequestFormBase{
+public class IDForm extends RequestFormBase{
     @NotNull
     public Long entityId;
 }

@@ -6,7 +6,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
-public class DeleteAllForm extends RequestFormBase{
+public class IDListForm extends RequestFormBase{
     @NotNull
     private List<Long> entityIds;
 }

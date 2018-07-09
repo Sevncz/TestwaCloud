@@ -667,11 +667,11 @@ public class RedisCacheManager {
         return null;
     }
 
-    public boolean ltrim(final String key, final int start, final int end) throws Exception {
+    public boolean ltrim(final String key, final int start, final int end) {
         List<RedisClient> clients = this.getAliveClients(key);
         if (isAtLeastOneAvailable(clients)) {
             this.execute(new BaseRedisCallBack<Object>() {
-                public Object doOperation(RedisClient client) throws Exception {
+                public Object doOperation(RedisClient client){
                     return client.ltrim(key, start, end);
                 }
 
@@ -688,7 +688,7 @@ public class RedisCacheManager {
         List<RedisClient> clients = this.getAliveClients(key);
         if (isAtLeastOneAvailable(clients)) {
             return this.execute(new BaseRedisCallBack<List<?>>() {
-                public List<?> doOperation(RedisClient client) throws Exception {
+                public List<?> doOperation(RedisClient client){
                     return client.lrange(key, start, end, cls);
                 }
 
