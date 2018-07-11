@@ -1,1 +1,1 @@
-package com.testwa.distest.client.component.executor;public interface TestTaskListener {    void screen();    void click(String cmd);}
+package com.testwa.distest.client.component.executor;public interface TestTaskListener {    /**     * 测试完成     */    void taskFinish();}
