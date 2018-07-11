@@ -3,10 +3,10 @@ package com.testwa.distest.server.mongo.event;
 import com.testwa.core.shell.UTF8CommonExecs;
 import com.testwa.distest.config.DisFileProperties;
 import com.testwa.distest.server.entity.App;
-import com.testwa.distest.server.entity.LoggerFile;
+import com.testwa.distest.server.entity.LogFile;
 import com.testwa.distest.server.entity.Task;
 import com.testwa.distest.server.mongo.model.CrashLog;
-import com.testwa.distest.server.service.task.service.LoggerFileService;
+import com.testwa.distest.server.service.task.service.LogFileService;
 import com.testwa.distest.server.service.task.service.TaskService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.exec.CommandLine;
@@ -51,7 +51,7 @@ public class LogcatAnalysisListener implements ApplicationListener<LogcatAnalysi
     @Autowired
     private MongoOperations mongoTemplate;
     @Autowired
-    private LoggerFileService loggerFileService;
+    private LogFileService loggerFileService;
     @Autowired
     private DisFileProperties disFileProperties;
     @Autowired
@@ -64,7 +64,7 @@ public class LogcatAnalysisListener implements ApplicationListener<LogcatAnalysi
         executorService.execute(() -> {
 
             log.info("logcat analysis start...");
-            LoggerFile loggerFile = loggerFileService.findOne(e.getTaskCode(), e.getDeviceId());
+            LogFile loggerFile = loggerFileService.findOne(e.getTaskCode(), e.getDeviceId());
             Path logcatPath = Paths.get(disFileProperties.getLogcat(), loggerFile.buildPath());
             if(!Files.exists(logcatPath)){
                 log.error("logcat file not found, {}", logcatPath.toString());

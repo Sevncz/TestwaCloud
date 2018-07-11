@@ -1,19 +1,19 @@
 package com.testwa.distest.server.service.task.dao.impl;
 
 import com.testwa.core.base.dao.impl.BaseDAO;
-import com.testwa.distest.server.entity.LoggerFile;
-import com.testwa.distest.server.mapper.LoggerFileMapper;
-import com.testwa.distest.server.service.task.dao.ILoggerFileDAO;
+import com.testwa.distest.server.entity.LogFile;
+import com.testwa.distest.server.mapper.LogFileMapper;
+import com.testwa.distest.server.service.task.dao.ILogFileDAO;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
 import java.util.List;
 
 @Repository
-public class LoggerFileDAO extends BaseDAO<LoggerFile, Long> implements ILoggerFileDAO {
+public class LogFileDAO extends BaseDAO<LogFile, Long> implements ILogFileDAO {
 
     @Resource
-    private LoggerFileMapper mapper;
+    private LogFileMapper mapper;
 
     @Override
     public int removeFromTask(Long taskId) {
@@ -21,14 +21,14 @@ public class LoggerFileDAO extends BaseDAO<LoggerFile, Long> implements ILoggerF
     }
 
     @Override
-    public List<LoggerFile> findAll(Long taskId) {
-        LoggerFile query = new LoggerFile();
+    public List<LogFile> findAll(Long taskId) {
+        LogFile query = new LogFile();
         query.setTaskCode(taskId);
         return mapper.fildAll(query);
     }
 
     @Override
-    public LoggerFile findOne(Long taskId, String deviceId) {
+    public LogFile findOne(Long taskId, String deviceId) {
         return mapper.findOne(taskId, deviceId);
     }
 

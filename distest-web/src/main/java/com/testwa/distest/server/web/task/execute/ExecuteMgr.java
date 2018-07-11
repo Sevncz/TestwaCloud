@@ -12,6 +12,7 @@ import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.mongo.event.TaskOverEvent;
 import com.testwa.distest.server.service.app.service.AppService;
+import com.testwa.distest.server.service.device.service.DeviceLogService;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.rpc.cache.CacheUtil;
 import com.testwa.distest.server.service.script.service.ScriptService;
@@ -61,6 +62,8 @@ public class ExecuteMgr {
     private ScriptService scriptService;
     @Autowired
     private ApplicationContext context;
+    @Autowired
+    private DeviceLogService deviceLogService;
 
     // 暂定同时支持100个任务并发
     private final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(100);
@@ -141,6 +144,7 @@ public class ExecuteMgr {
         task.setTestcaseJson(JSON.toJSONString(alltestcase));
         task.setTaskName(taskName);
 
+        Map<String, DeviceLog> deviceLogMap = new HashMap<>();
         // 启动任务
         for (String key : deviceIds) {
             TaskDevice taskDevice = new TaskDevice();
@@ -167,10 +171,16 @@ public class ExecuteMgr {
             Device d = deviceService.findByDeviceId(key);
             if(observer != null ){
                 if(taskType.equals(DB.TaskType.HG)) {
+                    final DeviceLog devLog = new DeviceLog(key, DB.DeviceLogType.HG);
+                    devLog.setUserCode(user.getUserCode());
+                    deviceLogMap.put(key, devLog);
                     Message message = Message.newBuilder().setTopicName(Message.Topic.TASK_START).setStatus("OK").setMessage(ByteString.copyFromUtf8(JSON.toJSONString(cmd))).build();
                     observer.onNext(message);
                     result.addRunningDevice(d);
                 }else if(taskType.equals(DB.TaskType.JR)) {
+                    final DeviceLog devLog = new DeviceLog(key, DB.DeviceLogType.JR);
+                    devLog.setUserCode(user.getUserCode());
+                    deviceLogMap.put(key, devLog);
                     Message message = Message.newBuilder().setTopicName(Message.Topic.JR_TASK_START).setStatus("OK").setMessage(ByteString.copyFromUtf8(JSON.toJSONString(cmd))).build();
                     observer.onNext(message);
                     result.addRunningDevice(d);

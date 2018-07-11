@@ -4,6 +4,7 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.annotation.SpringAnnotationScanner;
 import com.testwa.distest.server.mongo.repository.Impl.CommonMongoRepositoryImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -40,7 +41,7 @@ public class DistestWebApplication extends AsyncConfigurerSupport {
 		executor.setCorePoolSize(1000);
 		executor.setMaxPoolSize(1000);
 		executor.setQueueCapacity(500);
-		executor.setThreadNamePrefix("ServerLookup-");
+		executor.setThreadNamePrefix("DT-web-");
 		executor.initialize();
 		return executor;
 	}
@@ -49,7 +50,11 @@ public class DistestWebApplication extends AsyncConfigurerSupport {
 		SpringApplication.run(DistestWebApplication.class, args);
 
         String androidHome = System.getenv("ANDROID_HOME");
-        log.info("androidHome: {}", androidHome);
+        if(StringUtils.isBlank(androidHome)){
+        	log.warn("ANDROID_HOME not found");
+		}else{
+			log.info("androidHome: {}", androidHome);
+		}
 	}
 
 }

@@ -11,8 +11,8 @@ import java.util.Date;
  * Created by wen on 2016/10/16.
  */
 @Data
-@TableName("agent_login_logger")
-public class AgentLoginLogger extends BaseEntity {
+@TableName("agent_login_log")
+public class AgentLoginLog extends BaseEntity {
 
     private String username;
     private String mac;

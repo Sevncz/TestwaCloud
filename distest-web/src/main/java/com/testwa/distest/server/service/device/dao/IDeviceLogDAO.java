@@ -1,0 +1,1 @@
+package com.testwa.distest.server.service.device.dao;import com.testwa.core.base.dao.IBaseDAO;import com.testwa.distest.server.entity.DeviceLog;/** * @Program: distest * @Description: 设备使用日志 DAO * @Author: wen * @Create: 2018-07-11 11:12 **/public interface IDeviceLogDAO extends IBaseDAO<DeviceLog, Long> {}

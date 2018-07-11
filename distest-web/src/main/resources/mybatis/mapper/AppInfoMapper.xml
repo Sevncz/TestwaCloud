@@ -37,7 +37,7 @@
     </sql>
 
     <select id="findBy" parameterType="com.testwa.distest.server.entity.AppInfo" resultMap="BaseResultMap" >
-        SELECT t1.*, t2.*
+        SELECT t1.*, t2.id as latest_id, t2.*
         FROM app_info t1 left join app t2 on t1.latestAppId = t2.id
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             t1.enabled = 1
@@ -48,7 +48,7 @@
     </select>
 
     <select id="findPage" resultMap="BaseResultMap" >
-        SELECT t1.*, t2.*
+        SELECT t1.*, t2.id as latest_id, t2.*
         FROM app_info t1 left join app t2 on t1.latestAppId = t2.id
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             t1.enabled = 1
@@ -64,14 +64,14 @@
     </select>
 
     <select id="findOne" parameterType="com.testwa.distest.server.entity.AppInfo" resultMap="BaseResultMap" >
-        SELECT t1.*, t2.*
+        SELECT t1.*, t2.id as latest_id, t2.*
         FROM app_info t1 left join app t2 on t1.latestAppId = t2.id
         WHERE t1.id = #{key}
         and t1.enabled = 1
     </select>
 
     <select id="findOneInProject" resultMap="BaseResultMap" >
-        SELECT t1.*, t2.*
+        SELECT t1.*, t2.id as latest_id, t2.*
         FROM app_info t1 left join app t2 on t1.latestAppId = t2.id
         WHERE t1.id = #{key}
         and t1.projectId = #{projectId}
@@ -79,7 +79,7 @@
     </select>
 
     <select id="findList" parameterType="com.testwa.distest.server.entity.AppInfo" resultMap="BaseResultMap" >
-        SELECT t1.*, t2.*
+        SELECT t1.*, t2.id as latest_id, t2.*
         FROM app_info t1 left join app t2 on t1.latestAppId = t2.id
         WHERE t1.enabled = 1
         <if test="keys != null">

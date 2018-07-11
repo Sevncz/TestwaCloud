@@ -3,13 +3,16 @@ package com.testwa.distest.server.mongo.event;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.testwa.distest.common.enums.DB;
-import com.testwa.distest.server.entity.Task;
-import com.testwa.distest.server.entity.Script;
+import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.mongo.model.AppiumRunningLog;
 import com.testwa.distest.server.mongo.model.ProcedureStatis;
 import com.testwa.distest.server.mongo.service.AppiumRunningLogService;
+import com.testwa.distest.server.service.cache.mgr.DeviceLockMgr;
+import com.testwa.distest.server.service.device.service.DeviceLogService;
 import com.testwa.distest.server.service.device.service.DeviceService;
+import com.testwa.distest.server.service.task.service.TaskDeviceService;
 import com.testwa.distest.server.service.task.service.TaskService;
+import com.testwa.distest.server.service.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -37,11 +40,18 @@ public class TaskOverListener implements ApplicationListener<TaskOverEvent> {
     private TaskService taskService;
     @Autowired
     private DeviceService deviceService;
+    @Autowired
+    private TaskDeviceService taskDeviceService;
+    @Autowired
+    private DeviceLogService deviceLogService;
+    @Autowired
+    private DeviceLockMgr deviceLockMgr;
+    @Autowired
+    private UserService userService;
 
     @Async
     @Override
     public void onApplicationEvent(TaskOverEvent e) {
-        log.info("start...");
         Long taskCode = e.getTaskCode();
         log.info("........ update task info");
         if(e.isTimeout()) {
@@ -49,18 +59,32 @@ public class TaskOverListener implements ApplicationListener<TaskOverEvent> {
         }else{
             taskService.complete(taskCode);
         }
-        // 根据前端需求开始统计报告
+        // 根据需求开始统计报告
         Task task = taskService.findByCode(taskCode);
 
         task.getDevices().forEach(d -> {
             deviceService.release(d.getDeviceId());
         });
 
+        DB.DeviceLogType logType = DB.DeviceLogType.HG;
         if(DB.TaskType.HG.equals(task.getTaskType())){
             hgtaskStatis(task);
+            logType = DB.DeviceLogType.HG;
         }
         if(DB.TaskType.JR.equals(task.getTaskType())){
+            logType = DB.DeviceLogType.JR;
+        }
+        User user = userService.findOne(task.getCreateBy());
+        List<TaskDevice> tds = taskDeviceService.findByTaskCode(taskCode);
+        for(TaskDevice taskDevice : tds) {
+            DeviceLog dl = new DeviceLog(taskDevice.getDeviceId(), logType);
+            dl.setRunning(false);
+            dl.setStartTime(taskDevice.getCreateTime().getTime());
+            dl.setEndTime(taskDevice.getEndTime().getTime());
+            dl.setUserCode(user.getUserCode());
+            deviceLogService.insert(dl);
 
+            deviceLockMgr.releaseForce(taskDevice.getDeviceId());
         }
     }
 

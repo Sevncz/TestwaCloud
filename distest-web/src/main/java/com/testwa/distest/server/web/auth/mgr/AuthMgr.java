@@ -6,7 +6,7 @@ import com.testwa.core.base.exception.*;
 import com.testwa.distest.config.security.JwtAuthenticationResponse;
 import com.testwa.distest.config.security.JwtTokenUtil;
 import com.testwa.distest.config.security.JwtUser;
-import com.testwa.distest.server.entity.AgentLoginLogger;
+import com.testwa.distest.server.entity.AgentLoginLog;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.mq.MQService;
 import com.testwa.distest.server.service.user.service.AgentLoginLoggerService;
@@ -79,7 +79,7 @@ public class AuthMgr {
                 String[] agents = userAgent.split("/");
 
                 String agentInfo = agents[2];
-                AgentLoginLogger lal = JSON.parseObject(agentInfo, AgentLoginLogger.class);
+                AgentLoginLog lal = JSON.parseObject(agentInfo, AgentLoginLog.class);
                 lal.setUsername(username);
                 lal.setClientVersion(agents[1]);
                 lal.setLoginTime(new Date());

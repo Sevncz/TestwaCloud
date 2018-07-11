@@ -5,7 +5,7 @@ import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.config.DisFileProperties;
 import com.testwa.distest.config.security.JwtTokenUtil;
 import com.testwa.distest.server.entity.AppiumFile;
-import com.testwa.distest.server.entity.LoggerFile;
+import com.testwa.distest.server.entity.LogFile;
 import com.testwa.distest.server.entity.TaskDevice;
 import com.testwa.distest.server.mongo.event.LogcatAnalysisEvent;
 import com.testwa.distest.server.mongo.model.MethodRunningLog;
@@ -16,7 +16,7 @@ import com.testwa.distest.server.mongo.service.MethodRunningLogService;
 import com.testwa.distest.server.mongo.service.StepService;
 import com.testwa.distest.server.mongo.service.TaskLoggerService;
 import com.testwa.distest.server.service.task.service.AppiumFileService;
-import com.testwa.distest.server.service.task.service.LoggerFileService;
+import com.testwa.distest.server.service.task.service.LogFileService;
 import com.testwa.distest.server.service.task.service.TaskDeviceService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.task.execute.PerformanceRedisMgr;
@@ -51,7 +51,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     @Autowired
     private AppiumFileService appiumFileService;
     @Autowired
-    private LoggerFileService loggerFileService;
+    private LogFileService loggerFileService;
     @Autowired
     private UserService userService;
     @Autowired
@@ -144,12 +144,12 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
                 deviceId = request.getDeviceId();
                 taskCode = request.getTaskCode();
 
-                LoggerFile file = new LoggerFile();
+                LogFile file = new LogFile();
                 file.setFilename(name);
                 file.setTaskCode(taskCode);
                 file.setDeviceId(deviceId);
                 file.setCreateTime(new Date());
-                LoggerFile oldFile = loggerFileService.findOne(taskCode, deviceId);
+                LogFile oldFile = loggerFileService.findOne(taskCode, deviceId);
                 if(oldFile == null){
                     loggerFileService.save(file);
                 }

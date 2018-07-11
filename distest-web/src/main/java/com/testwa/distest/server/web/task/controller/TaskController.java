@@ -41,7 +41,7 @@ import static java.util.stream.Collectors.toList;
  * Created by wen on 24/10/2017.
  */
 @Slf4j
-@Api("任务执行相关api，第二版")
+@Api("任务执行相关api")
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/task")
 public class TaskController extends BaseController {
@@ -186,13 +186,20 @@ public class TaskController extends BaseController {
             }
         }
         List<String> useableList = form.getDeviceIds().stream().filter(item -> !unableDeviceIds.contains(item)).collect(toList());
-        for(String deviceId : useableList) {
-            deviceLockMgr.lock(deviceId, user.getUserCode(), workExpireTime);
+        TaskStartResultVO vo;
+        if(useableList.size() == 0) {
+            log.error("兼容测试执行失败：没有可用的设备");
+            vo = new TaskStartResultVO();
+
+        }else{
+            for(String deviceId : useableList) {
+                deviceLockMgr.lock(deviceId, user.getUserCode(), workExpireTime);
+            }
+            Long taskCode = taskIdWorker.nextId();
+            App app = appService.findOne(form.getAppId());
+            vo = executeMgr.startJR(useableList, app.getProjectId(), form.getAppId(), taskCode);
+            vo.setTaskCode(taskCode);
         }
-        Long taskCode = taskIdWorker.nextId();
-        App app = appService.findOne(form.getAppId());
-        TaskStartResultVO vo = executeMgr.startJR(useableList, app.getProjectId(), form.getAppId(), taskCode);
-        vo.setTaskCode(taskCode);
         vo.addUnableDevice(unableDevices);
         return ok(vo);
     }

@@ -10,8 +10,8 @@ import java.util.Date;
  * Created by wen on 12/08/2017.
  */
 @Data
-@TableName("logger_file")
-public class LoggerFile extends BaseEntity {
+@TableName("log_file")
+public class LogFile extends BaseEntity {
 
     private Long taskCode;
     private String deviceId;

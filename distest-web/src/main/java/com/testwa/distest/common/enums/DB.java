@@ -271,13 +271,17 @@ public final class DB {
     public enum TaskType implements ValueEnum {
         HG(1, "回归测试"),
         JR(2, "兼容测试"),
-        GN(3, "功能测试");
+        YL(3, "压力测试"),
+        BL(4, "遍历测试");
+
         private int value;
         private String desc;
+
         TaskType(int value, String desc){
             this.value = value;
             this.desc = desc;
         }
+
         @JsonValue
         public int getValue() {
             return value;
@@ -290,8 +294,46 @@ public final class DB {
             switch (value) {
                 case 1: tt = HG;break;
                 case 2: tt = JR;break;
-                case 3: tt = GN;break;
+                case 3: tt = YL;break;
+                case 4: tt = BL;break;
                 default: tt = HG;
+            }
+            return tt;
+        }
+    }
+
+    public enum DeviceLogType implements ValueEnum {
+        DEBUG(0, "设备调试"),
+        HG(1, "回归测试"),
+        JR(2, "兼容测试"),
+        YL(3, "压力测试"),
+        BL(4, "遍历测试");
+
+        private int value;
+        private String desc;
+
+        DeviceLogType(int value, String desc){
+            this.value = value;
+            this.desc = desc;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        @JsonValue
+        public String getDesc() {
+            return desc;
+        }
+        public static DeviceLogType valueOf(int value) {
+            DeviceLogType tt = DEBUG;
+            switch (value) {
+                case 0: tt = DEBUG;break;
+                case 1: tt = HG;break;
+                case 2: tt = JR;break;
+                case 3: tt = YL;break;
+                case 4: tt = BL;break;
+                default: tt = DEBUG;
             }
             return tt;
         }

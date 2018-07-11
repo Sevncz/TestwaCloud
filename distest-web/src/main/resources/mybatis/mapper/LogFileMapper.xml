@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.testwa.distest.server.mapper.LoggerFileMapper" >
-    <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.LoggerFile" >
+<mapper namespace="com.testwa.distest.server.mapper.LogFileMapper" >
+    <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.LogFile" >
         <id column="id" property="id" jdbcType="BIGINT" />
         <result column="deviceId" property="deviceId" jdbcType="VARCHAR" />
         <result column="filename" property="filename" jdbcType="VARCHAR" />
@@ -10,16 +10,16 @@
     </resultMap>
 
     <delete id="removeFromTask" >
-        DELETE FROM logger_file
+        DELETE FROM log_file
         WHERE taskCode = #{taskCode}
     </delete>
     <select id="findOne" resultMap="BaseResultMap" >
-        SELECT * FROM logger_file
+        SELECT * FROM log_file
         WHERE taskCode = #{taskCode}
         and deviceId = #{deviceId}
     </select>
-    <select id="fildAll" parameterType="com.testwa.distest.server.entity.LoggerFile" resultMap="BaseResultMap" >
-        SELECT * FROM logger_file
+    <select id="fildAll" parameterType="com.testwa.distest.server.entity.LogFile" resultMap="BaseResultMap" >
+        SELECT * FROM log_file
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             <if test="taskCode != null">and taskCode = #{taskCode}</if>
             <if test="deviceId != null">and deviceId = #{deviceId}</if>
