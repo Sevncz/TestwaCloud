@@ -6,7 +6,7 @@ package com.testwa.core.base.exception;
 public class TaskStartException extends RuntimeException {
 
     public TaskStartException(String message){
-
+        super(message);
     }
 
     public TaskStartException(String message, Throwable t){
