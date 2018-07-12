@@ -146,7 +146,7 @@ public class MinicapAndroidServer extends Thread implements Closeable {
             try {
                 // run minicap server
                 String command = getCommand();
-                log.info("拉起Minicap服务 command: {}", command);
+                log.info("拉起 Minicap 服务 command: {}", command);
                 device.executeShellCommand(command, new IShellOutputReceiver() {
                     @Override
                     public void addOutput(byte[] bytes, int i, int i1) {
@@ -171,7 +171,7 @@ public class MinicapAndroidServer extends Thread implements Closeable {
                     }
                 }, Integer.MAX_VALUE, TimeUnit.DAYS);
             } catch (Exception e) {
-                log.warn("Minicap服务运行异常, {}", e.getMessage());
+                log.warn("{} Minicap 服务运行异常, {}", device.getSerialNumber(), e.getMessage());
             }
         }
         try {
