@@ -23,10 +23,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class DistestClientApplication extends AsyncConfigurerSupport {
 
     public static void main(String[] args) {
-        MinicapPortProvider.init(PortConfig.screenPortStart, PortConfig.screenPortEnd);
-        MinitouchPortProvider.init(PortConfig.touchPortStart, PortConfig.touchPortEnd);
-        ApkPortProvider.init(PortConfig.apkPortStart, PortConfig.apkPortEnd);
-        AppiumPortProvider.init(PortConfig.appiumPortStart, PortConfig.appiumPortEnd);
 
         SpringApplication.run(DistestClientApplication.class, args);
     }

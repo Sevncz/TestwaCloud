@@ -15,7 +15,7 @@
 <script>
 
 var socket = io('http://localhost:9092?type=browser');
-var deviceId = 'b15d91f';
+var deviceId = '8c2b6aee';
 socket.on('connect', function(){});
 socket.on('logcat', function(message){
     var content = $("#content").val()
@@ -37,7 +37,7 @@ function subLogcat() {
     console.log("subLogcat")
     var params = {
         deviceId: deviceId,
-        content: ""
+        content: "*:E"
     }
     socket.emit("sub_logcat", JSON.stringify(params))
 }

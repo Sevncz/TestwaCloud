@@ -5,6 +5,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.distest.client.android.DeviceManager;
 import com.testwa.distest.client.component.appium.utils.Config;
+import com.testwa.distest.client.component.port.ApkPortProvider;
+import com.testwa.distest.client.component.port.AppiumPortProvider;
+import com.testwa.distest.client.component.port.MinicapPortProvider;
+import com.testwa.distest.client.component.port.MinitouchPortProvider;
+import com.testwa.distest.client.config.PortConfig;
 import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.service.HttpService;
 import com.testwa.distest.client.component.Constant;
@@ -53,6 +58,10 @@ public class EnvCheck implements CommandLineRunner {
 
     @Override
     public void run(String... strings) throws Exception {
+        MinicapPortProvider.init(PortConfig.screenPortStart, PortConfig.screenPortEnd);
+        MinitouchPortProvider.init(PortConfig.touchPortStart, PortConfig.touchPortEnd);
+        ApkPortProvider.init(PortConfig.apkPortStart, PortConfig.apkPortEnd);
+        AppiumPortProvider.init(PortConfig.appiumPortStart, PortConfig.appiumPortEnd);
 //        ADBCommandUtils.restart();
         Config.setEnv(env);
         AndroidHelper.getInstance();

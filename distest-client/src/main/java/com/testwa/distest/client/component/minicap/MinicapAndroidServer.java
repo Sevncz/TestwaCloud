@@ -154,7 +154,7 @@ public class MinicapAndroidServer extends Thread implements Closeable {
                         String[] split = ret.split("\n");
                         for (String line : split) {
                             if (StringUtils.isNotEmpty(line)) {
-                                log.info(line.trim());
+                                log.info("----minicap----{}", line.trim());
                             }
                         }
                     }

@@ -1,1 +1,0 @@
-package com.testwa.distest.client.component.logcat;/** * Created by wen on 2018/3/11. */public interface LogcatListener {    // Logcat启动完毕后    void onStartup(Logcat logcat, boolean success);    // Logcat关闭后    void onClose(Logcat logcat);    // 读取到logcat信息    public void onLog(Logcat logcat, byte[] data);}

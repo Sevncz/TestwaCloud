@@ -123,18 +123,13 @@ public class CommandHandler {
             client.sendEvent("error", "坐标不能为空");
             return;
         }
-        if(subscribeMgr.isSubscribes(deviceId, WSFuncEnum.SCREEN.getValue(), client.getSessionId().toString())){
-//            pushCmdService.pushTouchData(deviceId, touch);
-
-            StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
-            if(observer != null ){
-                Message message = Message.newBuilder().setTopicName(Message.Topic.TOUCH).setStatus("OK").setMessage(ByteString.copyFromUtf8(touch)).build();
-                observer.onNext(message);
-            }else{
-                client.sendEvent("error", "设备还未准备好");
-            }
+        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
+        if(observer != null ){
+            Message message = Message.newBuilder().setTopicName(Message.Topic.TOUCH).setStatus("OK").setMessage(ByteString.copyFromUtf8(touch)).build();
+            observer.onNext(message);
+        }else{
+            client.sendEvent("error", "设备还未准备好");
         }
-
     }
 
     @OnEvent(value = input)
@@ -148,16 +143,12 @@ public class CommandHandler {
             client.sendEvent("error", "请输入内容");
             return;
         }
-        if(subscribeMgr.isSubscribes(deviceId, WSFuncEnum.SCREEN.getValue(), client.getSessionId().toString())){
-//            pushCmdService.pushInputText(deviceId, input);
-
-            StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
-            if(observer != null ){
-                Message message = Message.newBuilder().setTopicName(Message.Topic.INPUT).setStatus("OK").setMessage(ByteString.copyFromUtf8(input)).build();
-                observer.onNext(message);
-            }else{
-                client.sendEvent("error", "设备还未准备好");
-            }
+        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
+        if(observer != null ){
+            Message message = Message.newBuilder().setTopicName(Message.Topic.INPUT).setStatus("OK").setMessage(ByteString.copyFromUtf8(input)).build();
+            observer.onNext(message);
+        }else{
+            client.sendEvent("error", "设备还未准备好");
         }
 
     }
@@ -165,32 +156,25 @@ public class CommandHandler {
     @OnEvent(value = home)
     public void onHome(SocketIOClient client, String deviceId, AckRequest ackRequest) throws ObjectNotExistsException {
         if (isIllegalDeviceId(client, deviceId)) return;
-        if(subscribeMgr.isSubscribes(deviceId, WSFuncEnum.SCREEN.getValue(), client.getSessionId().toString())) {
-//            pushCmdService.pushHome(deviceId);
-
-            StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
-            if(observer != null ){
-                Message message = Message.newBuilder().setTopicName(Message.Topic.HOME).setStatus("OK").setMessage(ByteString.copyFromUtf8("home")).build();
-                observer.onNext(message);
-            }else{
-                client.sendEvent("error", "设备还未准备好");
-            }
+        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
+        if(observer != null ){
+            Message message = Message.newBuilder().setTopicName(Message.Topic.HOME).setStatus("OK").setMessage(ByteString.copyFromUtf8("home")).build();
+            observer.onNext(message);
+        }else{
+            client.sendEvent("error", "设备还未准备好");
         }
 
     }
     @OnEvent(value = back)
     public void onBack(SocketIOClient client, String deviceId, AckRequest ackRequest) throws ObjectNotExistsException {
         if (isIllegalDeviceId(client, deviceId)) return;
-        if(subscribeMgr.isSubscribes(deviceId, WSFuncEnum.SCREEN.getValue(), client.getSessionId().toString())) {
-//            pushCmdService.pushBack(deviceId);
 
-            StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
-            if(observer != null ){
-                Message message = Message.newBuilder().setTopicName(Message.Topic.BACK).setStatus("OK").setMessage(ByteString.copyFromUtf8("back")).build();
-                observer.onNext(message);
-            }else{
-                client.sendEvent("error", "设备还未准备好");
-            }
+        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
+        if(observer != null ){
+            Message message = Message.newBuilder().setTopicName(Message.Topic.BACK).setStatus("OK").setMessage(ByteString.copyFromUtf8("back")).build();
+            observer.onNext(message);
+        }else{
+            client.sendEvent("error", "设备还未准备好");
         }
 
     }
@@ -198,31 +182,24 @@ public class CommandHandler {
     @OnEvent(value = menu)
     public void onMenu(SocketIOClient client, String deviceId, AckRequest ackRequest) throws ObjectNotExistsException {
         if (isIllegalDeviceId(client, deviceId)) return;
-        if(subscribeMgr.isSubscribes(deviceId, WSFuncEnum.SCREEN.getValue(), client.getSessionId().toString())) {
-//            pushCmdService.pushMenu(deviceId);
-            StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
-            if(observer != null ){
-                Message message = Message.newBuilder().setTopicName(Message.Topic.MENU).setStatus("OK").setMessage(ByteString.copyFromUtf8("menu")).build();
-                observer.onNext(message);
-            }else{
-                client.sendEvent("error", "设备还未准备好");
-            }
+        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
+        if(observer != null ){
+            Message message = Message.newBuilder().setTopicName(Message.Topic.MENU).setStatus("OK").setMessage(ByteString.copyFromUtf8("menu")).build();
+            observer.onNext(message);
+        }else{
+            client.sendEvent("error", "设备还未准备好");
         }
-
     }
 
     @OnEvent(value = del)
     public void onDel(SocketIOClient client, String deviceId, AckRequest ackRequest) throws ObjectNotExistsException {
         if (isIllegalDeviceId(client, deviceId)) return;
-        if(subscribeMgr.isSubscribes(deviceId, WSFuncEnum.SCREEN.getValue(), client.getSessionId().toString())) {
-//            pushCmdService.pushDel(deviceId);
-            StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
-            if(observer != null ){
-                Message message = Message.newBuilder().setTopicName(Message.Topic.DEL).setStatus("OK").setMessage(ByteString.copyFromUtf8("delete")).build();
-                observer.onNext(message);
-            }else{
-                client.sendEvent("error", "设备还未准备好");
-            }
+        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
+        if(observer != null ){
+            Message message = Message.newBuilder().setTopicName(Message.Topic.DEL).setStatus("OK").setMessage(ByteString.copyFromUtf8("delete")).build();
+            observer.onNext(message);
+        }else{
+            client.sendEvent("error", "设备还未准备好");
         }
     }
 

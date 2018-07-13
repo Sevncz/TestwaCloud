@@ -6,6 +6,7 @@ import com.testwa.distest.config.security.JwtTokenUtil;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.cache.mgr.SubscribeDeviceFuncMgr;
+import com.testwa.distest.server.service.cache.queue.LogQueue;
 import com.testwa.distest.server.service.cache.queue.ScreenProjectionQueue;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.user.service.UserService;
@@ -44,6 +45,8 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
     private ScreenProjectionQueue screenStreamQueue;
+    @Autowired
+    private LogQueue logQueue;
 
     @Override
     public void all(DevicesRequest request, StreamObserver<CommonReply> responseObserver) {
@@ -158,20 +161,7 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     @Override
     public void logcat(LogcatRequest request, StreamObserver<CommonReply> responseObserver) {
         String serial = request.getSerial();
-        Set<String> sessions = subscribeMgr.getSubscribes(serial, WSFuncEnum.LOGCAT.getValue());
-        byte[] data = request.getContent().toByteArray();
-        for(String sessionId : sessions){
-            SocketIOClient client = server.getClient(UUID.fromString(sessionId));
-            if(client != null){
-                String ds = new String(data);
-                ds = ds.replace("\0", "");
-                client.sendEvent("logcat", ds.trim());
-            }else{
-                log.info("[logcat] client is not found");
-                subscribeMgr.delSubscribe(serial, WSFuncEnum.LOGCAT.getValue(), sessionId);
-            }
-        }
-
+        logQueue.push(serial, request.getContent());
         final CommonReply.Builder replyBuilder = CommonReply.newBuilder().setMessage("OK ");
         responseObserver.onNext(replyBuilder.build());
         responseObserver.onCompleted();

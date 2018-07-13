@@ -1,0 +1,1 @@
+package com.testwa.distest.client.component.logcat;/** * Created by wen on 2018/3/11. */public interface LogListener {    // 读取到logcat信息    public void onLog(byte[] bytes);}

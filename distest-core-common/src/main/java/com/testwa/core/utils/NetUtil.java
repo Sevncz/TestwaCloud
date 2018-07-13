@@ -32,7 +32,7 @@ public class NetUtil {
 			bindPort("0.0.0.0", port);
 			return true;
 		} catch (IOException e) {
-			logger.error("检测端口:" + port + " 被占用");
+			logger.warn("检测端口:" + port + " 被占用");
 		}
 		return false;
 	}
