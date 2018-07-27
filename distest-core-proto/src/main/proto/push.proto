@@ -80,6 +80,7 @@ message Message {
         SCREEN_START = 23;
         DEL = 24;
         JR_TASK_START = 25;
+        CRAWLER_TASK_START = 26;
     }
 	Topic topicName = 1;
 	string status = 2;
