@@ -1,32 +1,17 @@
 package com.testwa.distest.client.component.minitouch;
 
-import com.android.ddmlib.AdbCommandRejectedException;
 import com.android.ddmlib.IDevice;
 import com.android.ddmlib.IShellOutputReceiver;
-import com.android.ddmlib.TimeoutException;
-import com.github.cosysoft.device.android.AndroidDevice;
-import com.github.cosysoft.device.exception.DeviceNotFoundException;
-import com.testwa.core.service.AdbDriverService;
-import com.testwa.core.service.MinitouchServiceBuilder;
 import com.testwa.distest.client.android.ADBCommandUtils;
-import com.testwa.distest.client.android.AdbForward;
 import com.testwa.distest.client.android.AndroidHelper;
-import com.testwa.distest.client.component.Constant;
 import com.testwa.distest.client.component.appium.utils.Config;
 import com.testwa.distest.client.component.port.MinitouchPortProvider;
-import com.testwa.distest.client.exception.CommandFailureException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
-import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 

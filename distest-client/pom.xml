@@ -91,6 +91,19 @@
             </exclusions>
         </dependency>
 
+        <!--<dependency>-->
+            <!--<groupId>org.seleniumhq.selenium</groupId>-->
+            <!--<artifactId>selenium-java</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.seleniumhq.selenium</groupId>-->
+            <!--<artifactId>selenium-support</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.seleniumhq.selenium</groupId>-->
+            <!--<artifactId>selenium-api</artifactId>-->
+        <!--</dependency>-->
+
         <dependency>
             <groupId>io.appium</groupId>
             <artifactId>java-client</artifactId>
@@ -209,13 +222,29 @@
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
-            <version>3.10.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.testerhome</groupId>
+            <artifactId>appcrawler</artifactId>
+            <version>2.2.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/resources/lib/appcrawler-2.2.0.jar</systemPath>
+        </dependency>
 
     </dependencies>
 
     <build>
+        <resources>
+            <!-- 这种方式可以将JAR包引入，还不清楚原因，待研究 -->
+            <resource>
+                <targetPath>lib/</targetPath>
+                <directory>lib/</directory>
+                <includes>
+                    <include>**/appcrawler-2.1.2.jar</include>
+                </includes>
+            </resource>
+        </resources>
         <extensions>
             <extension>
                 <groupId>kr.motd.maven</groupId>
