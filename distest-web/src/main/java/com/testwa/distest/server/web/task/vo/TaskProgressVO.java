@@ -1,5 +1,6 @@
 package com.testwa.distest.server.web.task.vo;
 
+import com.testwa.distest.common.enums.DB;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -15,4 +16,5 @@ public class TaskProgressVO {
     List<String> deviceNameList = new ArrayList<>();
     List<String> pointList = new ArrayList<>();
 
+    DB.TaskStatus status;
 }

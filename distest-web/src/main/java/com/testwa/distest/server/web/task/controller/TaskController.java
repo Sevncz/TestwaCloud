@@ -10,13 +10,14 @@ import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.service.app.service.AppService;
-import com.testwa.distest.server.service.cache.mgr.DeviceLockMgr;
+import com.testwa.distest.server.service.cache.mgr.DeviceLockCache;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.task.form.*;
 import com.testwa.distest.server.service.testcase.service.TestcaseService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.app.validator.AppValidator;
 import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
+import com.testwa.distest.server.web.device.mgr.DeviceLockMgr;
 import com.testwa.distest.server.web.device.validator.DeviceValidatoer;
 import com.testwa.distest.server.web.script.validator.ScriptValidator;
 import com.testwa.distest.server.web.task.execute.ExecuteMgr;
@@ -33,7 +34,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -105,7 +105,7 @@ public class TaskController extends BaseController {
             return ok(vo);
         }
         for(String deviceId : useableList) {
-            deviceLockMgr.lock(deviceId, user.getUserCode(), workExpireTime);
+            deviceLockMgr.workLock(deviceId, user.getUserCode(), workExpireTime);
         }
         Long taskCode = taskIdWorker.nextId();
         App app = appService.findOne(form.getAppId());
@@ -154,7 +154,7 @@ public class TaskController extends BaseController {
             return ok(vo);
         }
         for(String deviceId : useableList) {
-            deviceLockMgr.lock(deviceId, user.getUserCode(), workExpireTime);
+            deviceLockMgr.workLock(deviceId, user.getUserCode(), workExpireTime);
         }
         Long taskCode = taskIdWorker.nextId();
         vo = executeMgr.startHG(useableList, app, form.getScriptIds(), taskCode);
@@ -193,11 +193,52 @@ public class TaskController extends BaseController {
 
         }else{
             for(String deviceId : useableList) {
-                deviceLockMgr.lock(deviceId, user.getUserCode(), workExpireTime);
+                deviceLockMgr.workLock(deviceId, user.getUserCode(), workExpireTime);
             }
             Long taskCode = taskIdWorker.nextId();
             App app = appService.findOne(form.getAppId());
             vo = executeMgr.startJR(useableList, app.getProjectId(), form.getAppId(), taskCode);
+            vo.setTaskCode(taskCode);
+        }
+        vo.addUnableDevice(unableDevices);
+        return ok(vo);
+    }
+
+    @ApiOperation(value="执行一个遍历测试任务")
+    @ResponseBody
+    @PostMapping(value = "/run/crawler")
+    public Result runCrawler(@RequestBody TaskNewStartJRForm form) {
+        appValidator.validateAppExist(form.getAppId());
+        taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
+
+        User user = userService.findByUsername(WebUtil.getCurrentUsername());
+
+        Set<String> onlineDeviceIdList = deviceAuthMgr.allOnlineDevices();
+        List<Device> deviceList = deviceService.findAll(form.getDeviceIds());
+        List<Device> unableDevices = new ArrayList<>();
+        List<String> unableDeviceIds = new ArrayList<>();
+        for(Device device : deviceList) {
+            if(!onlineDeviceIdList.contains(device.getDeviceId())){
+                unableDevices.add(device);
+                unableDeviceIds.add(device.getDeviceId());
+            } else if (!DB.DeviceWorkStatus.FREE.equals(device.getWorkStatus()) || !DB.DeviceDebugStatus.FREE.equals(device.getDebugStatus())) {
+                unableDevices.add(device);
+                unableDeviceIds.add(device.getDeviceId());
+            }
+        }
+        List<String> useableList = form.getDeviceIds().stream().filter(item -> !unableDeviceIds.contains(item)).collect(toList());
+        TaskStartResultVO vo;
+        if(useableList.size() == 0) {
+            log.error("遍历测试执行失败：没有可用的设备");
+            vo = new TaskStartResultVO();
+
+        }else{
+            for(String deviceId : useableList) {
+                deviceLockMgr.workLock(deviceId, user.getUserCode(), workExpireTime);
+            }
+            Long taskCode = taskIdWorker.nextId();
+            App app = appService.findOne(form.getAppId());
+            vo = executeMgr.startCrawler(useableList, app.getProjectId(), form.getAppId(), taskCode);
             vo.setTaskCode(taskCode);
         }
         vo.addUnableDevice(unableDevices);

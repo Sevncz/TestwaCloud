@@ -6,7 +6,7 @@ import com.corundumstudio.socketio.annotation.OnDisconnect;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.distest.config.security.JwtTokenUtil;
 import com.testwa.distest.server.entity.User;
-import com.testwa.distest.server.service.cache.mgr.DeviceLockMgr;
+import com.testwa.distest.server.service.cache.mgr.DeviceLockCache;
 import com.testwa.distest.server.service.cache.mgr.WebsocketLoginMgr;
 import com.testwa.distest.server.service.cache.mgr.DeviceLoginMgr;
 import com.testwa.distest.server.service.cache.mgr.SubscribeDeviceFuncMgr;
@@ -47,7 +47,7 @@ public class WebConnectionHandler {
     @Autowired
     private AgentLoginLoggerService agentLoginLoggerService;
     @Autowired
-    private DeviceLockMgr deviceLockMgr;
+    private DeviceLockCache deviceLockMgr;
 
     @OnConnect
     @Async

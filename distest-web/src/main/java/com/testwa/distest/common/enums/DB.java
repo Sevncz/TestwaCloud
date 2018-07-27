@@ -272,7 +272,7 @@ public final class DB {
         HG(1, "回归测试"),
         JR(2, "兼容测试"),
         YL(3, "压力测试"),
-        BL(4, "遍历测试");
+        CRAWLER(4, "遍历测试");
 
         private int value;
         private String desc;
@@ -295,7 +295,7 @@ public final class DB {
                 case 1: tt = HG;break;
                 case 2: tt = JR;break;
                 case 3: tt = YL;break;
-                case 4: tt = BL;break;
+                case 4: tt = CRAWLER;break;
                 default: tt = HG;
             }
             return tt;
@@ -307,7 +307,7 @@ public final class DB {
         HG(1, "回归测试"),
         JR(2, "兼容测试"),
         YL(3, "压力测试"),
-        BL(4, "遍历测试");
+        CRAWLER(4, "遍历测试");
 
         private int value;
         private String desc;
@@ -332,7 +332,7 @@ public final class DB {
                 case 1: tt = HG;break;
                 case 2: tt = JR;break;
                 case 3: tt = YL;break;
-                case 4: tt = BL;break;
+                case 4: tt = CRAWLER;break;
                 default: tt = DEBUG;
             }
             return tt;

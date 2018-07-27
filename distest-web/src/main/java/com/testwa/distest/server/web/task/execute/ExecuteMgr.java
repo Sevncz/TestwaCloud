@@ -22,6 +22,7 @@ import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.service.testcase.service.TestcaseService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
+import com.testwa.distest.server.web.device.mgr.DeviceLockMgr;
 import com.testwa.distest.server.web.task.vo.TaskStartResultVO;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.push.Message;
@@ -64,6 +65,8 @@ public class ExecuteMgr {
     private ApplicationContext context;
     @Autowired
     private DeviceLogService deviceLogService;
+    @Autowired
+    private DeviceLockMgr deviceLockMgr;
 
     // 暂定同时支持100个任务并发
     private final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(100);
@@ -97,8 +100,18 @@ public class ExecuteMgr {
      *@Date: 2018/6/4
      */
     public TaskStartResultVO startJR(List<String> deviceIds, Long projectId, Long appId, Long taskCode) throws ObjectNotExistsException {
-
         return start(deviceIds, projectId, null, appId, "兼容测试", DB.TaskType.JR, taskCode);
+    }
+
+    /**
+     *@Description: 开始执行一个遍历测试任务
+     *@Param: [useableList, projectId, appId, taskCode]
+     *@Return: com.testwa.distest.server.web.task.vo.TaskStartResultVO
+     *@Author: wen
+     *@Date: 2018/7/26
+     */
+    public TaskStartResultVO startCrawler(List<String> deviceIds, Long projectId, Long appId, Long taskCode) {
+        return start(deviceIds, projectId, null, appId, "遍历测试", DB.TaskType.CRAWLER, taskCode);
     }
 
     private TaskStartResultVO start(List<String> deviceIds, Long projectId, Long testcaseId, Long appId, String taskName, DB.TaskType taskType, Long taskCode) throws ObjectNotExistsException {
@@ -184,6 +197,13 @@ public class ExecuteMgr {
                     Message message = Message.newBuilder().setTopicName(Message.Topic.JR_TASK_START).setStatus("OK").setMessage(ByteString.copyFromUtf8(JSON.toJSONString(cmd))).build();
                     observer.onNext(message);
                     result.addRunningDevice(d);
+                }else if(taskType.equals(DB.TaskType.CRAWLER)) {
+                    final DeviceLog devLog = new DeviceLog(key, DB.DeviceLogType.CRAWLER);
+                    devLog.setUserCode(user.getUserCode());
+                    deviceLogMap.put(key, devLog);
+                    Message message = Message.newBuilder().setTopicName(Message.Topic.CRAWLER_TASK_START).setStatus("OK").setMessage(ByteString.copyFromUtf8(JSON.toJSONString(cmd))).build();
+                    observer.onNext(message);
+                    result.addRunningDevice(d);
                 }
             }else{
                 result.addUnableDevice(d);
@@ -214,10 +234,12 @@ public class ExecuteMgr {
                     if(!DB.TaskStatus.RUNNING.equals(taskDevice.getStatus())
                             && !DB.TaskStatus.NOT_EXECUTE.equals(taskDevice.getStatus())) {
                         runningCount--;
+                        deviceLockMgr.workRelease(taskDevice.getDeviceId());
                     }
                     String deviceId = taskDevice.getDeviceId();
                     if(!deviceAuthMgr.isOnline(deviceId)){
                         runningCount--;
+                        deviceLockMgr.workRelease(taskDevice.getDeviceId());
                     }
                 }
                 if(runningCount > 0){
@@ -289,4 +311,5 @@ public class ExecuteMgr {
         DecimalFormat df = new DecimalFormat("0.00");//格式化小数
         return df.format(num);
     }
+
 }

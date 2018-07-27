@@ -7,12 +7,13 @@ import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.mongo.model.AppiumRunningLog;
 import com.testwa.distest.server.mongo.model.ProcedureStatis;
 import com.testwa.distest.server.mongo.service.AppiumRunningLogService;
-import com.testwa.distest.server.service.cache.mgr.DeviceLockMgr;
+import com.testwa.distest.server.service.cache.mgr.DeviceLockCache;
 import com.testwa.distest.server.service.device.service.DeviceLogService;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.task.service.TaskDeviceService;
 import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.service.user.service.UserService;
+import com.testwa.distest.server.web.device.mgr.DeviceLockMgr;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -45,8 +46,6 @@ public class TaskOverListener implements ApplicationListener<TaskOverEvent> {
     @Autowired
     private DeviceLogService deviceLogService;
     @Autowired
-    private DeviceLockMgr deviceLockMgr;
-    @Autowired
     private UserService userService;
 
     @Async
@@ -62,9 +61,9 @@ public class TaskOverListener implements ApplicationListener<TaskOverEvent> {
         // 根据需求开始统计报告
         Task task = taskService.findByCode(taskCode);
 
-        task.getDevices().forEach(d -> {
-            deviceService.release(d.getDeviceId());
-        });
+//        task.getDevices().forEach(d -> {
+//            deviceService.release(d.getDeviceId());
+//        });
 
         DB.DeviceLogType logType = DB.DeviceLogType.HG;
         if(DB.TaskType.HG.equals(task.getTaskType())){
@@ -84,7 +83,13 @@ public class TaskOverListener implements ApplicationListener<TaskOverEvent> {
             dl.setUserCode(user.getUserCode());
             deviceLogService.insert(dl);
 
-            deviceLockMgr.releaseForce(taskDevice.getDeviceId());
+            if(DB.TaskStatus.RUNNING.equals(taskDevice.getStatus())) {
+                taskDevice.setStatus(DB.TaskStatus.TIMEOUT);
+                taskDevice.setEndTime(new Date());
+                taskDevice.setErrorMsg("超时");
+                taskDeviceService.update(taskDevice);
+            }
+
         }
     }
 

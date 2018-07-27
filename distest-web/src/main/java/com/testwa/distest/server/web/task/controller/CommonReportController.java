@@ -36,7 +36,10 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -201,8 +204,9 @@ public class CommonReportController extends BaseController {
         if(taskCode == null){
             throw new ParamsIsNullException("参数不能为空");
         }
-        taskValidatoer.validateTaskExist(taskCode);
+        Task task = taskValidatoer.validateTaskExist(taskCode);
         TaskProgressVO result = reportMgr.getProgress(taskCode);
+        result.setStatus(task.getStatus());
         return ok(result);
     }
 

@@ -3,17 +3,11 @@ package com.testwa.distest.server.web.device.controller;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.*;
-import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.base.vo.Result;
-import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.entity.Device;
-import com.testwa.distest.server.entity.User;
-import com.testwa.distest.server.service.cache.mgr.DeviceLockMgr;
-import com.testwa.distest.server.service.device.form.DeviceAuthNewForm;
+import com.testwa.distest.server.service.cache.mgr.DeviceLockCache;
 import com.testwa.distest.server.service.device.form.DeviceBatchCheckForm;
-import com.testwa.distest.server.service.device.form.DeviceListForm;
 import com.testwa.distest.server.service.device.form.DeviceSearchForm;
-import com.testwa.distest.server.service.device.service.DeviceAuthService;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
@@ -23,7 +17,6 @@ import com.testwa.distest.server.web.device.vo.DeviceCategoryVO;
 import com.testwa.distest.server.web.device.vo.DeviceLockResultVO;
 import com.testwa.distest.server.web.device.vo.DeviceUnLockResultVO;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -32,11 +25,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-
-import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 
 /**
  * Created by wen on 7/30/16.
@@ -55,7 +45,7 @@ public class DeviceController extends BaseController {
     @Autowired
     private DeviceValidatoer deviceValidatoer;
     @Autowired
-    private DeviceLockMgr deviceLockMgr;
+    private DeviceLockCache deviceLockMgr;
     @Value("${lock.debug.expire}")
     private Integer debugExpireTime;
 
@@ -137,16 +127,16 @@ public class DeviceController extends BaseController {
         if(StringUtils.isBlank(deviceId)) {
             throw new ParamsIsNullException("设备ID不能为空");
         }
-        deviceValidatoer.validateUsable(deviceId);
-
-        String username = WebUtil.getCurrentUsername();
-        User user = userService.findByUsername(username);
-        boolean islock = deviceLockMgr.lock(deviceId, user.getUserCode(), debugExpireTime);
-
-        deviceService.debugging(deviceId);
+//        deviceValidatoer.validateUsable(deviceId);
+//
+//        String username = WebUtil.getCurrentUsername();
+//        User user = userService.findByUsername(username);
+//        boolean islock = deviceLockMgr.lock(deviceId, user.getUserCode(), debugExpireTime);
+//
+//        deviceService.debugging(deviceId);
 
         DeviceLockResultVO vo = new DeviceLockResultVO();
-        vo.setSuccess(islock);
+        vo.setSuccess(true);
         return ok(vo);
     }
 
@@ -157,14 +147,14 @@ public class DeviceController extends BaseController {
         if(StringUtils.isBlank(deviceId)) {
             throw new ParamsIsNullException("设备ID不能为空");
         }
-        deviceValidatoer.validateUsable(deviceId);
-
-        int selectTime = 120; // 2分钟选择设备的时间
-        String username = WebUtil.getCurrentUsername();
-        User user = userService.findByUsername(username);
-        boolean islock = deviceLockMgr.lock(deviceId, user.getUserCode(), selectTime);
+//        deviceValidatoer.validateUsable(deviceId);
+//
+//        int selectTime = 120; // 2分钟选择设备的时间
+//        String username = WebUtil.getCurrentUsername();
+//        User user = userService.findByUsername(username);
+//        boolean islock = deviceLockMgr.lock(deviceId, user.getUserCode(), selectTime);
         DeviceLockResultVO vo = new DeviceLockResultVO();
-        vo.setSuccess(islock);
+        vo.setSuccess(true);
         return ok(vo);
     }
 
@@ -175,17 +165,19 @@ public class DeviceController extends BaseController {
         if(StringUtils.isBlank(deviceId)) {
             throw new ParamsIsNullException("设备ID不能为空");
         }
-        String username = WebUtil.getCurrentUsername();
-        User user = userService.findByUsername(username);
-        boolean isSuccess = deviceLockMgr.release(deviceId, user.getUserCode());
+//        String username = WebUtil.getCurrentUsername();
+//        User user = userService.findByUsername(username);
+//        boolean isSuccess = deviceLockMgr.release(deviceId, user.getUserCode());
         DeviceUnLockResultVO vo = new DeviceUnLockResultVO();
-        vo.setSuccess(isSuccess);
-        if(!isSuccess) {
-            vo.setError("用户不匹配，无法解锁");
-        }else {
-            deviceService.debugFree(deviceId);
-            vo.setError("解锁成功");
-        }
+//        vo.setSuccess(isSuccess);
+//        if(!isSuccess) {
+//            vo.setError("用户不匹配，无法解锁");
+//        }else {
+//            deviceService.debugFree(deviceId);
+//            vo.setError("解锁成功");
+//        }
+        deviceService.debugFree(deviceId);
+        vo.setError("解锁成功");
         return ok(vo);
     }
 
