@@ -165,3 +165,26 @@ enum ExecutorAction {
     complete = 6;
     stop = 7;
 }
+
+message CrawlerConfigRequest {
+    repeated string blackList = 1;
+    repeated string whiteList = 2;
+
+    repeated string urlBlackList = 3;
+    repeated string urlWhiteList = 4;
+
+    repeated string firstList = 5;
+    repeated string lastList = 6;
+
+    repeated TriggerActionRequest triggerActionList = 7;
+
+    int32 maxDepth = 8;
+
+    repeated string backButton = 9;
+}
+
+message TriggerActionRequest {
+    string action = 1;
+    string xpath = 2;
+    int32 times = 3;
+}
