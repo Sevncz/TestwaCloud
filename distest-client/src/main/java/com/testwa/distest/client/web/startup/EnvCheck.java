@@ -212,11 +212,17 @@ public class EnvCheck implements CommandLineRunner {
         if (!localVideoDir.exists()) {
             localVideoDir.mkdirs();
         }
+        File localCrawlerOutDir = new File(Constant.localCrawlerOutPath);
+        if (!localCrawlerOutDir.exists()) {
+            localCrawlerOutDir.mkdirs();
+        }
 
         log.info("App: {}", Constant.localAppPath);
         log.info("Logcat: {}", Constant.localLogcatPath);
         log.info("Screen: {}", Constant.localScreenshotPath);
         log.info("Script: {}", Constant.localScriptPath);
+        log.info("Video: {}", Constant.localVideoPath);
+        log.info("Crawler: {}", Constant.localCrawlerOutPath);
     }
 
     private void startDeviceManager() {

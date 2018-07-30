@@ -11,10 +11,6 @@ import java.nio.file.Paths;
 @Slf4j
 public class Constant {
 
-    public static final String MINITOUCH_BIN = "minitouch";
-    public static final String MINITOUCH_NOPIE = "minitouch-nopie";
-    public static final String MINITOUCH_DIR = "/data/local/tmp/minitouch-devel";
-
     public static final String KEYBOARD_SERVICE_APK = "keyboardservice-debug.apk";
 
     public static final String MAXIM_BIN = "maxim";
@@ -30,6 +26,7 @@ public class Constant {
 	public static final String localLogcatPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "logcat").toString();
 
     public static final String localVideoPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "video").toString();
+    public static final String localCrawlerOutPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "crawler").toString();
 
     // ios-deploy
     public static final String IOS_DEPLOY = "ios-deploy";
@@ -38,16 +35,6 @@ public class Constant {
     public static final String APPIUM_LIB = "appium";
     public static final String APPIUM_UI2 = "appium-uiautomator2-server.apk";
     public static final String APPIUM_UI2_DEBUG = "appium-uiautomator2-server-debug-androidTest.apk";
-
-
-    public static String getMinitouchBin(String abi, String bin) {
-        return File.separator + "minitouch" + File.separator + abi + File.separator + bin;
-    }
-
-    public static File getTmpFile(String fileName) {
-        Path tmpPath = Paths.get(AGENT_TMP_DIR, fileName);
-        return tmpPath.toFile();
-    }
 
 
     public static String getKeyboardService() {
