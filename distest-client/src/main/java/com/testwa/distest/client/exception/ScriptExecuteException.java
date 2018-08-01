@@ -1,1 +1,0 @@
-package com.testwa.distest.client.exception;public class ScriptExecuteException extends Exception{    public ScriptExecuteException(){    }    public ScriptExecuteException(String message){        super(message);    }}
