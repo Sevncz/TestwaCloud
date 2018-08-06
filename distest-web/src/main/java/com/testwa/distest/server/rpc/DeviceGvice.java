@@ -161,7 +161,9 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     @Override
     public void logcat(LogcatRequest request, StreamObserver<CommonReply> responseObserver) {
         String serial = request.getSerial();
-        logQueue.push(serial, request.getContent());
+        request.getMessagesList().forEach(m -> {
+            logQueue.push(serial, m.toByteArray());
+        });
         final CommonReply.Builder replyBuilder = CommonReply.newBuilder().setMessage("OK ");
         responseObserver.onNext(replyBuilder.build());
         responseObserver.onCompleted();

@@ -138,4 +138,5 @@ public class AppInfoService {
         }
         return appInfoDAO.getByName(projectId, query);
     }
+
 }

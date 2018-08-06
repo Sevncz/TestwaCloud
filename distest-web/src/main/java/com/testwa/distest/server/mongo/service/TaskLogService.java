@@ -10,28 +10,28 @@ import org.springframework.stereotype.Service;
  * Created by wen on 16/9/7.
  */
 @Service
-public class TaskLoggerService extends BaseService {
+public class TaskLogService extends BaseService {
 
     @Autowired
-    private TaskLogRepository taskLoggerRepository;
+    private TaskLogRepository taskLogRepository;
 
     @Autowired
     private MongoTemplate mongoTemplate;
 
     public void save(TaskLog entity){
-        taskLoggerRepository.save(entity);
+        taskLogRepository.save(entity);
     }
 
     public void deleteBy(String entityId){
-        taskLoggerRepository.delete(entityId);
+        taskLogRepository.delete(entityId);
     }
 
-    public void deleteBy(Long taskId){
-        taskLoggerRepository.deleteByTaskCode(taskId);
+    public void deleteBy(Long taskCode){
+        taskLogRepository.deleteByTaskCode(taskCode);
     }
 
-    public TaskLog findOneByTaskId(Long taskId){
-        return taskLoggerRepository.findByTaskCode(taskId);
+    public TaskLog findOneByTaskCode(Long taskCode){
+        return taskLogRepository.findByTaskCode(taskCode);
     }
 
 }

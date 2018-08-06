@@ -9,6 +9,9 @@ import com.testwa.core.tools.SnowflakeIdWorker;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.entity.*;
+import com.testwa.distest.server.mongo.model.TaskParams;
+import com.testwa.distest.server.mongo.service.TaskParamsService;
+import com.testwa.distest.server.service.app.service.AppInfoService;
 import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.cache.mgr.DeviceLockCache;
 import com.testwa.distest.server.service.device.service.DeviceService;
@@ -31,9 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 
@@ -61,6 +62,8 @@ public class TaskController extends BaseController {
     private TestcaseService testcaseService;
     @Autowired
     private AppService appService;
+    @Autowired
+    private AppInfoService appInfoService;
     @Value("${lock.work.expire}")
     private Integer workExpireTime;
     @Autowired
@@ -73,6 +76,8 @@ public class TaskController extends BaseController {
     private DeviceAuthMgr deviceAuthMgr;
     @Autowired
     private DeviceService deviceService;
+    @Autowired
+    private TaskParamsService taskParamsService;
 
 
     @ApiOperation(value="执行一个回归测试任务")
@@ -207,7 +212,7 @@ public class TaskController extends BaseController {
     @ApiOperation(value="执行一个遍历测试任务")
     @ResponseBody
     @PostMapping(value = "/run/crawler")
-    public Result runCrawler(@RequestBody TaskNewStartJRForm form) {
+    public Result runCrawler(@RequestBody TaskNewStartCrawlerForm form) {
         appValidator.validateAppExist(form.getAppId());
         taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
 
@@ -240,6 +245,34 @@ public class TaskController extends BaseController {
             App app = appService.findOne(form.getAppId());
             vo = executeMgr.startCrawler(useableList, app.getProjectId(), form.getAppId(), taskCode);
             vo.setTaskCode(taskCode);
+
+
+            // 保存参数
+            Map<String, Object> config = new HashMap<String, Object>(){
+                {
+                    if(form.getBlackList() != null) put("blackList", form.getBlackList());
+                    if(form.getWhiteList() != null) put("whiteList", form.getWhiteList());
+                    if(form.getUrlBlackList() != null) put("urlBlackList", form.getUrlBlackList());
+                    if(form.getUrlWhiteList() != null) put("urlWhiteList", form.getUrlWhiteList());
+                    if(form.getFirstList() != null) put("firstList", form.getFirstList());
+                    if(form.getLastList() != null) put("lastList", form.getLastList());
+                    if(form.getBackButton() != null) put("backButton", form.getBackButton());
+                    if(form.getMaxDepth() != null) put("maxDepth", form.getMaxDepth());
+                    if(form.getTrigger() != null) put("trigger", form.getTrigger());
+                }
+            };
+
+            TaskParams params = new TaskParams();
+            params.setTaskCode(taskCode);
+            params.setParams(config);
+            AppInfo appInfo = appInfoService.getByPackage(app.getProjectId(), app.getPackageName());
+            if(appInfo != null) {
+                params.setAppInfoId(appInfo.getId() + "");
+                params.setAppDisplayName(appInfo.getName());
+                params.setAppPackageName(appInfo.getPackageName());
+            }
+            taskParamsService.save(params);
+
         }
         vo.addUnableDevice(unableDevices);
         return ok(vo);

@@ -48,7 +48,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint, Se
             if(StringUtils.isBlank(username)) {
                 r.setCode(ResultCode.EXPRIED_TOKEN.getValue());
                 r.setMessage("非法的TOKEN");
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setStatus(HttpServletResponse.SC_OK);
                 response.getWriter().println(JSON.toJSON(r));
                 response.getWriter().flush();
                 return;
@@ -58,7 +58,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint, Se
             if(!user.getIsActive()) {
                 r.setCode(ResultCode.ACCOUNT_NOT_ACTIVED.getValue());
                 r.setMessage("账号未激活");
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setStatus(HttpServletResponse.SC_OK);
                 response.getWriter().println(JSON.toJSON(r));
                 response.getWriter().flush();
                 return;
@@ -67,7 +67,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint, Se
         }
         r.setCode(ResultCode.NO_LOGIN.getValue());
         r.setMessage("TOKEN为空");
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setStatus(HttpServletResponse.SC_OK);
         response.getWriter().println(JSON.toJSON(r));
         response.getWriter().flush();
     }

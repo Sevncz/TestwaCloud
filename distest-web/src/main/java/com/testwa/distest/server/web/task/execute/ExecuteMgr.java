@@ -11,6 +11,8 @@ import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.mongo.event.TaskOverEvent;
+import com.testwa.distest.server.mongo.model.TaskParams;
+import com.testwa.distest.server.mongo.service.TaskParamsService;
 import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.device.service.DeviceLogService;
 import com.testwa.distest.server.service.device.service.DeviceService;

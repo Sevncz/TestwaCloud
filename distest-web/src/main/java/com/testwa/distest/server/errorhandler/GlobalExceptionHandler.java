@@ -45,7 +45,7 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(value = ExpiredJwtException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public Result handleExpiredJwtExceptions(HttpServletRequest req, Exception e) {
         Result<String> r = new Result<>();
@@ -57,7 +57,7 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(value = SignatureException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public Result handleSignatureExceptions(HttpServletRequest req, Exception e) {
         Result<String> r = new Result<>();
@@ -69,7 +69,7 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(value = AuthorizedException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public Result handleAuthorizedExceptions(HttpServletRequest req, Exception e) {
         Result<String> r = new Result<>();
@@ -81,7 +81,7 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(value = LoginInfoNotFoundException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public Result handleLoginInfoNotFoundExceptions(HttpServletRequest req, Exception e) {
         Result<String> r = new Result<>();
@@ -219,7 +219,7 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(value = Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public Result handleOtherExceptions(HttpServletRequest req, Exception e) {
         log.error("Unknow error", e);

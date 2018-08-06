@@ -18,4 +18,9 @@ public class ProjectVO {
 
     private UserVO createUser;
 
+    private Long appNum = 0L;
+    private Long scriptNum = 0L;
+    private Long testcaseNum = 0L;
+    private Long reportNum = 0L;
+
 }

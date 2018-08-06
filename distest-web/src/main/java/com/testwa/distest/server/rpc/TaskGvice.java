@@ -14,7 +14,7 @@ import com.testwa.distest.server.mongo.model.Step;
 import com.testwa.distest.server.mongo.model.TaskLog;
 import com.testwa.distest.server.mongo.service.MethodRunningLogService;
 import com.testwa.distest.server.mongo.service.StepService;
-import com.testwa.distest.server.mongo.service.TaskLoggerService;
+import com.testwa.distest.server.mongo.service.TaskLogService;
 import com.testwa.distest.server.service.task.service.AppiumFileService;
 import com.testwa.distest.server.service.task.service.LogFileService;
 import com.testwa.distest.server.service.task.service.TaskDeviceService;
@@ -69,7 +69,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     @Autowired
     private MessageNotifyService messageNotifyService;
     @Autowired
-    private TaskLoggerService taskLoggerService;
+    private TaskLogService taskLoggerService;
     @Autowired
     private StepService stepService;
 

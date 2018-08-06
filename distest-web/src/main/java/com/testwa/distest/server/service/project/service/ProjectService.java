@@ -260,7 +260,7 @@ public class ProjectService {
         Long testcase = testcaseDAO.countBy(tq);
         Task kq = new Task();
         kq.setProjectId(projectId);
-//        kq.setEnabled(true);
+        kq.setEnabled(true);
         Long task = taskDAO.countBy(kq);
 
         Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();

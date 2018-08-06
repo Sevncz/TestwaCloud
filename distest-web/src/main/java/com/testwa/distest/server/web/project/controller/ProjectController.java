@@ -20,6 +20,7 @@ import com.testwa.distest.server.web.auth.validator.UserValidator;
 import com.testwa.distest.server.web.auth.vo.UserVO;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
 import com.testwa.distest.server.web.project.vo.ProjectDetailVO;
+import com.testwa.distest.server.web.project.vo.ProjectStatis;
 import com.testwa.distest.server.web.project.vo.ProjectVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -118,11 +119,16 @@ public class ProjectController extends BaseController {
         List<Project> projects = projectPR.getPages();
         List<ProjectVO> vos = new ArrayList<>();
         for (Project p : projects) {
+            ProjectStatis ps = projectService.statis(p.getId());
             ProjectVO vo = new ProjectVO();
             BeanUtils.copyProperties(p, vo);
             UserVO userVO = new UserVO();
             BeanUtils.copyProperties(p.getCreateUser(), userVO);
             vo.setCreateUser(userVO);
+            vo.setAppNum(ps.getApp());
+            vo.setScriptNum(ps.getScript());
+            vo.setTestcaseNum(ps.getTestcase());
+            vo.setReportNum(ps.getTask());
             vos.add(vo);
         }
         PageResult<ProjectVO> pr = new PageResult<>(vos, projectPR.getTotal());

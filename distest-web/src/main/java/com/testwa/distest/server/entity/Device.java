@@ -45,4 +45,14 @@ public class Device extends BaseEntity {
     private String model; // 型号  Nexus 6
     private String brand; // 品牌 google
 
+    private Boolean stfagentInstall;
+    private Boolean appiumserverInstall;
+    private Boolean appiumserverdebugInstall;
+    private Boolean keyboardserviceInstall;
+
+    private Boolean settingsInstall;
+    private Boolean unlockInstall;
+    private Boolean unicodeIMEInstall;
+    private Boolean selendroidInstall;
+
 }

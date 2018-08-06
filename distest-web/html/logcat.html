@@ -19,28 +19,35 @@ var deviceId = '8c2b6aee';
 socket.on('connect', function(){});
 socket.on('logcat', function(message){
     var content = $("#content").val()
-    content = content + message
+    var j = JSON.parse(message)
+    content = content + j.level
     $("#content").val(content);
-    console.log(message)
+    // console.log(message)
 });
 socket.on('disconnect', function(){});
 
 $("#sub").click(function () {
-    subLogcat();
+    var filter_params = {
+        deviceId: deviceId,
+        filter: {
+            tag: "",
+            pid: "",
+            level: "W",
+            message: ""
+        }
+    }
+    subLogcat(filter_params);
 });
 
 $("#wait").click(function () {
     waitLogcat();
 });
 
-function subLogcat() {
+function subLogcat(filter_params) {
     console.log("subLogcat")
-    var params = {
-        deviceId: deviceId,
-        content: "*:E"
-    }
-    socket.emit("sub_logcat", JSON.stringify(params))
+    socket.emit("sub_logcat", JSON.stringify(filter_params))
 }
+
 function waitLogcat() {
     console.log("wait")
     socket.emit("wait_logcat", deviceId)
