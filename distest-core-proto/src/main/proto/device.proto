@@ -99,7 +99,8 @@ message CommonReply {
 }
 
 message LogcatRequest {
-    bytes content = 1;
+    // bytes content = 1;
+    repeated LogcatMessageRequest messages = 1;
     string serial = 2;
 }
 
@@ -139,4 +140,15 @@ message RemoteClientStartRequest {
 enum DeviceType {
     ANDROID = 0;
     IOS = 1;
+}
+
+
+message LogcatMessageRequest {
+    string data = 1;
+    string time = 2;
+    string pid = 3;
+    string thread = 4;
+    string level = 5;
+    string tag = 6;
+    string message = 7;
 }

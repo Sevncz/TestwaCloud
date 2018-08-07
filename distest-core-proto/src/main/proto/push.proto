@@ -39,6 +39,15 @@ message ClientInfo {
     string host = 12; // vpba27.mtv.corp.google.com
     string userFlag = 13;
 
+    bool sftagentInstall = 14;
+    bool appiumUiautomator2ServerInstall = 15;
+    bool appiumUiautomator2DebugInstall = 16;
+    bool keyboardserviceInstall = 17;
+    bool settingsInstall = 18;
+    bool unlockInstall = 19;
+    bool unicodeIMEInstall = 20;
+    bool selendroidInstall = 21;
+
 }
 
 message Status {
