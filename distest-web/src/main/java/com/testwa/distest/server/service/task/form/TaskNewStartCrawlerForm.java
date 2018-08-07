@@ -7,6 +7,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by wen on 24/10/2017.
@@ -34,15 +35,7 @@ public class TaskNewStartCrawlerForm extends RequestFormBase {
     private List<String> firstList;
     private List<String> lastList;
     private List<String> backButton;
-    private TriggerAction trigger;
+    private List<Map<String, Object>> trigger;
     private Integer maxDepth;
-
-
-    @Data
-    private class TriggerAction {
-        private String action;
-        private String xpath;
-        private String times;
-    }
 
 }
