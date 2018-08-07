@@ -62,6 +62,7 @@
         <spring-cloud.version>Camden.SR5</spring-cloud.version>
         <jedis.version>2.9.0</jedis.version>
         <lombok.version>1.16.18</lombok.version>
+        <selenium.version>3.12.0</selenium.version>
     </properties>
 
     <dependencyManagement>
@@ -258,16 +259,11 @@
                 <version>0.9.3</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.seleniumhq.selenium</groupId>
-                <artifactId>selenium-java</artifactId>
-                <version>3.8.1</version>
-            </dependency>
 
             <dependency>
                 <groupId>io.appium</groupId>
                 <artifactId>java-client</artifactId>
-                <version>5.0.4</version>
+                <version>6.1.0</version>
             </dependency>
 
             <dependency>
