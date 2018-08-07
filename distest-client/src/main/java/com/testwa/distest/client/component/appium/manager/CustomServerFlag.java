@@ -11,6 +11,8 @@ public enum CustomServerFlag implements ServerArgument {
     INSTALL_APP("--installapp"),
     SCREEN_PATH("--screenpath"),
     FOR_PORTAL("--portal"),
+    PORT("--port"),
+    UNLOCK_TYPE("--unlockType"),
     SET_DEVICE("-U"),
     NO_RESET("--no-reset");
 

@@ -38,9 +38,13 @@ public class IndexController {
     @ResponseBody
     public String action(HttpServletRequest request) {
         String urlInfo = parseInputStreamFormUrlToJson(request);
+        if(StringUtils.isBlank(urlInfo) || !urlInfo.contains("executionTaskId")) {
+            log.warn("appium 。。。。。。。。。。");
+            return "error";
+        }
         grpcClientService.procedureInfoUpload(urlInfo);
         JSONObject appiumStepJson = JSON.parseObject(urlInfo);
-        String taskId = appiumStepJson.getString("taskCode");
+        String taskId = appiumStepJson.getString("executionTaskId");
         String scriptId = appiumStepJson.getString("testSuit");
         String testcaseId = appiumStepJson.getString("testcaseId");
         String sessionId = appiumStepJson.getString("sessionId");

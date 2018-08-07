@@ -244,6 +244,14 @@
                     <include>**/appcrawler-2.1.2.jar</include>
                 </includes>
             </resource>
+            <!-- 解决 @Value 报错的问题 -->
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
         </resources>
         <extensions>
             <extension>
