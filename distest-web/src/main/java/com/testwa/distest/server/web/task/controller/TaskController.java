@@ -246,7 +246,6 @@ public class TaskController extends BaseController {
             vo = executeMgr.startCrawler(useableList, app.getProjectId(), form.getAppId(), taskCode);
             vo.setTaskCode(taskCode);
 
-
             // 保存参数
             Map<String, Object> config = new HashMap<String, Object>(){
                 {
