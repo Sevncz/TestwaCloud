@@ -1,6 +1,7 @@
 package com.testwa.distest.client.component.appium.pool;
 
 import com.testwa.distest.client.component.appium.manager.AppiumManager;
+import com.testwa.distest.client.component.appium.manager.CustomAppiumManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
@@ -10,35 +11,35 @@ import org.apache.commons.pool2.impl.DefaultPooledObject;
  * Created by wen on 13/08/2017.
  */
 @Slf4j
-public class AppiumManagerFactory extends BasePooledObjectFactory<AppiumManager> {
+public class CustomAppiumManagerFactory extends BasePooledObjectFactory<CustomAppiumManager> {
     private String nodePath;
     private String appiumPath;
     private String clientWebUrl;
 
-    public AppiumManagerFactory(String nodePath, String appiumPath, String clientWebUrl) {
+    public CustomAppiumManagerFactory(String nodePath, String appiumPath, String clientWebUrl) {
         this.nodePath = nodePath;
         this.appiumPath = appiumPath;
         this.clientWebUrl = clientWebUrl;
     }
 
     @Override
-    public AppiumManager create() throws Exception {
+    public CustomAppiumManager create() throws Exception {
         log.info("Appium manager create");
-        return new AppiumManager(this.nodePath, this.appiumPath, this.clientWebUrl);
+        return new CustomAppiumManager(this.nodePath, this.appiumPath, this.clientWebUrl);
     }
 
     @Override
-    public PooledObject<AppiumManager> wrap(AppiumManager executor) {
+    public PooledObject<CustomAppiumManager> wrap(CustomAppiumManager executor) {
         return new DefaultPooledObject<>(executor);
     }
 
     @Override
-    public void activateObject(PooledObject<AppiumManager> p) throws Exception {
+    public void activateObject(PooledObject<CustomAppiumManager> p) throws Exception {
 
     }
 
     @Override
-    public void passivateObject(PooledObject<AppiumManager> pooledObject) throws Exception {
+    public void passivateObject(PooledObject<CustomAppiumManager> pooledObject) throws Exception {
 
         pooledObject.getObject().reset();
     }
@@ -48,7 +49,7 @@ public class AppiumManagerFactory extends BasePooledObjectFactory<AppiumManager>
      * @param pooledObject
      */
     @Override
-    public void destroyObject(PooledObject<AppiumManager> pooledObject) {
+    public void destroyObject(PooledObject<CustomAppiumManager> pooledObject) {
         log.info("Appium manager destory");
         pooledObject.getObject().destory();
         pooledObject.markAbandoned();
@@ -61,7 +62,7 @@ public class AppiumManagerFactory extends BasePooledObjectFactory<AppiumManager>
      * @return
      */
     @Override
-    public boolean validateObject(PooledObject<AppiumManager> p) {
+    public boolean validateObject(PooledObject<CustomAppiumManager> p) {
         if (p.getObject() != null) {
             if (p.getObject().appiumIsRunning()) {
                 return true;

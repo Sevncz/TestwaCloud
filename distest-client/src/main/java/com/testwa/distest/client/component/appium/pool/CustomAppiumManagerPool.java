@@ -1,6 +1,7 @@
 package com.testwa.distest.client.component.appium.pool;
 
 import com.testwa.distest.client.component.appium.manager.AppiumManager;
+import com.testwa.distest.client.component.appium.manager.CustomAppiumManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
@@ -9,18 +10,18 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
  * Created by wen on 13/08/2017.
  */
 @Slf4j
-public class AppiumManagerPool {
-    private final GenericObjectPool<AppiumManager> pool;
+public class CustomAppiumManagerPool {
+    private final GenericObjectPool<CustomAppiumManager> pool;
 
 
     /**
      * @param config
      */
-    public AppiumManagerPool(String nodePath, String appiumPath, String clientWebUrl, GenericObjectPoolConfig config) {
-        pool = new GenericObjectPool<>(new AppiumManagerFactory(nodePath, appiumPath, clientWebUrl), config);
+    public CustomAppiumManagerPool(String nodePath, String appiumPath, String clientWebUrl, GenericObjectPoolConfig config) {
+        pool = new GenericObjectPool<>(new CustomAppiumManagerFactory(nodePath, appiumPath, clientWebUrl), config);
     }
 
-    public synchronized AppiumManager getManager() {
+    public synchronized CustomAppiumManager getManager() {
         try {
             return pool.borrowObject();
         } catch (Exception e) {
@@ -29,7 +30,7 @@ public class AppiumManagerPool {
         }
     }
 
-    public void release(AppiumManager o) {
+    public void release(CustomAppiumManager o) {
         pool.returnObject(o);
     }
 
