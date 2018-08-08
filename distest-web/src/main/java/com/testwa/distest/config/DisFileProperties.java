@@ -14,5 +14,6 @@ public class DisFileProperties {
     private String script;
     private String logcat;
     private String screeshot;
+    private String dist;
 
 }

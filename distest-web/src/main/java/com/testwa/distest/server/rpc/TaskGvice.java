@@ -430,6 +430,75 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
 
 
     @Override
+    public StreamObserver<FileUploadRequest> fileUpload(StreamObserver<CommonReply> responseObserver) {
+        return new StreamObserver<FileUploadRequest>() {
+            private BufferedOutputStream mBufferedOutputStream = null;
+            int mmCount = 0;
+            Path localFile;
+
+            @Override
+            public void onNext(FileUploadRequest request) {
+                log.debug("onNext count: " + mmCount);
+                mmCount++;
+
+                byte[] data = request.getData().toByteArray();
+                String name = request.getName();
+                long taskCode = request.getTaskCode();
+                String deviceId = request.getDeviceId();
+                String localPath = disFileProperties.getDist();
+                localFile = Paths.get(localPath, String.valueOf(taskCode), deviceId, name);
+                if(!Files.exists(localFile.getParent())){
+                    try {
+                        Files.createDirectories(localFile.getParent());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if(!Files.exists(localFile)){
+                    try {
+                        Files.createFile(localFile);
+                    } catch (IOException e) {
+                        log.error("Receive file, create error", e);
+                    }
+                }
+                try {
+                    if (mBufferedOutputStream == null) {
+                        mBufferedOutputStream = new BufferedOutputStream(new FileOutputStream(localFile.toFile()));
+                    }
+                    mBufferedOutputStream.write(data);
+                    mBufferedOutputStream.flush();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onError(Throwable t) {
+
+            }
+
+            @Override
+            public void onCompleted() {
+                responseObserver.onNext(CommonReply.newBuilder()
+                        .setStatus(mStatus)
+                        .setMessage(mMessage)
+                        .build());
+                responseObserver.onCompleted();
+                if (mBufferedOutputStream != null) {
+                    try {
+                        mBufferedOutputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        mBufferedOutputStream = null;
+                    }
+                }
+            }
+        };
+    }
+
+
+    @Override
     public void executorLogUpload(ExecutorLogRequest request, StreamObserver<CommonReply> responseObserver){
 
         String token = request.getToken();
