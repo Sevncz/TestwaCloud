@@ -18,6 +18,7 @@ service TaskService {
     rpc AppiumLogFileUpload (stream FileUploadRequest) returns ( CommonReply ) {}
     rpc ImgFileUpload (stream FileUploadRequest) returns ( CommonReply ) {}
     rpc ZipFileUpload (stream FileUploadRequest) returns ( CommonReply ) {}
+    rpc FileUpload (stream FileUploadRequest) returns ( CommonReply ) {}
 
     rpc appiumRunningLogUpload (AppiumRunningLogUploadRequest) returns ( CommonReply ) {}
 
