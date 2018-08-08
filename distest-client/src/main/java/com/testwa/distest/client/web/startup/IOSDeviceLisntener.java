@@ -9,6 +9,7 @@ import org.apache.commons.exec.CommandLine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -20,6 +21,7 @@ import java.util.concurrent.TimeUnit;
  * Created by wen on 16/9/4.
  */
 @Slf4j
+@Order(value=2)
 @Component
 public class IOSDeviceLisntener implements CommandLineRunner {
 

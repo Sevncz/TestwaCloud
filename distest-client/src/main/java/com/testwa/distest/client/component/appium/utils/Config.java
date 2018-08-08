@@ -104,7 +104,7 @@ public class Config {
         if(evn == null){
             evn = evn1;
         }else{
-            throw new RuntimeException("Environment has exits");
+//            throw new RuntimeException("Environment has exits");
         }
     }
 
