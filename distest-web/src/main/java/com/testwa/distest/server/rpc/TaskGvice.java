@@ -1,5 +1,6 @@
 package com.testwa.distest.server.rpc;
 
+import com.alibaba.fastjson.JSON;
 import com.testwa.core.utils.ZipUtil;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.config.DisFileProperties;
@@ -8,13 +9,11 @@ import com.testwa.distest.server.entity.AppiumFile;
 import com.testwa.distest.server.entity.LogFile;
 import com.testwa.distest.server.entity.TaskDevice;
 import com.testwa.distest.server.mongo.event.LogcatAnalysisEvent;
-import com.testwa.distest.server.mongo.model.MethodRunningLog;
-import com.testwa.distest.server.mongo.model.Performance;
-import com.testwa.distest.server.mongo.model.Step;
-import com.testwa.distest.server.mongo.model.TaskLog;
+import com.testwa.distest.server.mongo.model.*;
 import com.testwa.distest.server.mongo.service.MethodRunningLogService;
 import com.testwa.distest.server.mongo.service.StepService;
 import com.testwa.distest.server.mongo.service.TaskLogService;
+import com.testwa.distest.server.mongo.service.TaskParamsService;
 import com.testwa.distest.server.service.task.service.AppiumFileService;
 import com.testwa.distest.server.service.task.service.LogFileService;
 import com.testwa.distest.server.service.task.service.TaskDeviceService;
@@ -36,6 +35,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Created by wen on 09/09/2017.
@@ -53,10 +53,6 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     @Autowired
     private LogFileService loggerFileService;
     @Autowired
-    private UserService userService;
-    @Autowired
-    private JwtTokenUtil jwtTokenUtil;
-    @Autowired
     private ApplicationContext context;
     @Autowired
     private ProcedureRedisMgr procedureRedisMgr;
@@ -72,6 +68,8 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     private TaskLogService taskLoggerService;
     @Autowired
     private StepService stepService;
+    @Autowired
+    private TaskParamsService taskParamsService;
 
     @Override
     public void gameover(GameOverRequest request, StreamObserver<CommonReply> responseObserver) {
@@ -620,4 +618,17 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
         responseObserver.onCompleted();
     }
 
+    @Override
+    public void taskConfig(TaskCodeRequest request, StreamObserver<CommonReply> responseObserver) {
+        TaskParams params = taskParamsService.findOneByTaskCode(request.getTaskCode());
+        if(params != null) {
+            Map<String, Object> config = params.getParams();
+            final CommonReply replyBuilder = CommonReply.newBuilder().setStatus(1).setMessage(JSON.toJSONString(config)).build();
+            responseObserver.onNext(replyBuilder);
+        }else{
+            final CommonReply replyBuilder = CommonReply.newBuilder().setStatus(0).setMessage("FAIL ").build();
+            responseObserver.onNext(replyBuilder);
+        }
+        responseObserver.onCompleted();
+    }
 }

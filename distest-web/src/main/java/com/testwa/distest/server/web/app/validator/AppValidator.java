@@ -38,7 +38,7 @@ public class AppValidator {
     public void validateAppInPorject(Long entityId, Long projectId) throws ObjectNotExistsException {
         App entity = appService.findOneInProject(entityId, projectId);
         if(entity == null){
-            throw new ObjectNotExistsException("App不存在");
+            throw new ObjectNotExistsException("App不在该项目中");
         }
     }
 

@@ -126,6 +126,7 @@ public class TaskController extends BaseController {
     @PostMapping(value = "/run/hg/scripts")
     public Result run(@RequestBody TaskNewStartByScriptsForm form) throws ObjectNotExistsException, AuthorizedException, TaskStartException {
         appValidator.validateAppExist(form.getAppId());
+        appValidator.validateAppInPorject(form.getAppId(), form.getProjectId());
         if(form.getScriptIds() == null || form.getScriptIds().size() == 0) {
             throw new ParamsIsNullException("参数错误，脚本为空");
         }
@@ -173,6 +174,7 @@ public class TaskController extends BaseController {
     @PostMapping(value = "/run/jr")
     public Result runJR(@RequestBody TaskNewStartJRForm form) {
         appValidator.validateAppExist(form.getAppId());
+        appValidator.validateAppInPorject(form.getAppId(), form.getProjectId());
         taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
 
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
@@ -214,6 +216,7 @@ public class TaskController extends BaseController {
     @PostMapping(value = "/run/crawler")
     public Result runCrawler(@RequestBody TaskNewStartCrawlerForm form) {
         appValidator.validateAppExist(form.getAppId());
+        appValidator.validateAppInPorject(form.getAppId(), form.getProjectId());
         taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
 
         User user = userService.findByUsername(WebUtil.getCurrentUsername());

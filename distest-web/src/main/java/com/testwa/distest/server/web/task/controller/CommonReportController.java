@@ -3,6 +3,7 @@ package com.testwa.distest.server.web.task.controller;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.base.exception.ParamsIsNullException;
+import com.testwa.core.base.exception.ReportException;
 import com.testwa.core.base.form.IDListForm;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.base.vo.Result;
@@ -371,6 +372,9 @@ public class CommonReportController extends BaseController {
     @GetMapping(value = "/passinfo/{taskCode}")
     public Result passInfo(@PathVariable Long taskCode) throws ObjectNotExistsException {
         Task task = taskValidatoer.validateTaskExist(taskCode);
+        if(DB.TaskStatus.RUNNING.equals(task.getStatus())) {
+            throw new ReportException("任务还未完成");
+        }
         TaskPassInfoVO vo = reportMgr.getPassInfo(task);
         return ok(vo);
     }

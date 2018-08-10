@@ -218,6 +218,19 @@ class GlobalExceptionHandler {
         return r;
     }
 
+    @ExceptionHandler(value = ReportException.class)
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public Result handleReportExceptions(HttpServletRequest req, Exception e) {
+        Result<String> r = new Result<>();
+        r.setCode(ResultCode.ILLEGAL_OP.getValue());
+        r.setType(ResultCode.ILLEGAL_OP.name());
+        r.setMessage(e.getMessage());
+        r.setUrl(req.getRequestURI());
+        log.error(e.getMessage());
+        return r;
+    }
+
     @ExceptionHandler(value = Exception.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody

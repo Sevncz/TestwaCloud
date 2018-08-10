@@ -14,7 +14,7 @@
     <description>message server for distest</description>
 
     <properties>
-        <dist.dir>${project.build.directory}/dist</dist.dir>
+        <dist.dir>${project.build.directory}/base</dist.dir>
         <dist.project.id>${project.artifactId}</dist.project.id>
         <dist.project.name>Distest message server</dist.project.name>
         <dist.project.description>

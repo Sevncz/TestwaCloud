@@ -26,6 +26,8 @@ service TaskService {
     rpc savePerformance (PerformanceRequest) returns ( CommonReply ) {}
 
     rpc executorLogUpload (ExecutorLogRequest) returns ( CommonReply ) {}
+
+    rpc TaskConfig (TaskCodeRequest) returns ( CommonReply ) {}
 }
 
 message CommonReply {
@@ -188,4 +190,8 @@ message TriggerActionRequest {
     string action = 1;
     string xpath = 2;
     int32 times = 3;
+}
+
+message TaskCodeRequest {
+    int64 taskCode = 1;
 }
