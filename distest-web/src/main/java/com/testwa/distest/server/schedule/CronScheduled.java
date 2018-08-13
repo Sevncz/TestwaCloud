@@ -2,10 +2,14 @@ package com.testwa.distest.server.schedule;
 
 import com.alibaba.fastjson.JSON;
 import com.google.protobuf.ByteString;
+import com.testwa.distest.common.enums.DB;
+import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.mongo.model.Performance;
 import com.testwa.distest.server.mongo.model.AppiumRunningLog;
 import com.testwa.distest.server.rpc.cache.CacheUtil;
+import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
+import com.testwa.distest.server.web.device.mgr.DeviceLockMgr;
 import com.testwa.distest.server.web.task.execute.PerformanceRedisMgr;
 import com.testwa.distest.server.web.task.execute.ProcedureRedisMgr;
 import io.grpc.stub.StreamObserver;
@@ -33,10 +37,14 @@ public class CronScheduled {
     @Autowired
     private DeviceAuthMgr deviceAuthMgr;
     @Autowired
+    private DeviceLockMgr deviceLockMgr;
+    @Autowired
+    private DeviceService deviceService;
+    @Autowired
     private Environment env;
 
 
-    @Scheduled(cron = "0/10 * * * * ?")
+    @Scheduled(fixedDelay = 8000)
     public void saveRunningLog() {
         Long logSize = procedureRedisMgr.size();
         if(logSize == null || logSize == 0){
@@ -59,7 +67,7 @@ public class CronScheduled {
 
     }
 
-    @Scheduled(cron = "0/10 * * * * ?")
+    @Scheduled(fixedDelay = 8000)
     public void savePerformance() {
         Long logSize = performanceRedisMgr.size();
         if(logSize == null || logSize == 0){
@@ -88,7 +96,7 @@ public class CronScheduled {
      *@Author: wen
      *@Date: 2018/5/9
      */
-    @Scheduled(cron = "0/5 * * * * ?")
+    @Scheduled(fixedDelay = 3000)
     public void checkDeviceOnline(){
         Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
         log.debug("online device num: {}", deviceIds.size());
@@ -107,6 +115,32 @@ public class CronScheduled {
                 }
             }
         });
+    }
+
+    /**
+     *@Description: 清理过期的设备锁
+     *@Param: []
+     *@Return: void
+     *@Author: wen
+     *@Date: 2018/5/9
+     */
+    @Scheduled(fixedDelay = 10000)
+    public void cleanDeviceLock(){
+        List<String> lockDeviceIds = deviceLockMgr.getLockList();
+        List<Device> workDevices = deviceService.findAllInWrok();
+        if(workDevices != null && workDevices.size() > 0) {
+            workDevices.forEach( d -> {
+                if(!lockDeviceIds.contains(d.getDeviceId())) {
+                    log.info("Device [{}-{}-{}] not locked", d.getDeviceId(), d.getBrand(), d.getModel());
+                    if(!DB.DeviceWorkStatus.FREE.equals(d.getWorkStatus())){
+                        deviceLockMgr.workRelease(d.getDeviceId());
+                    }
+                    if(!DB.DeviceDebugStatus.FREE.equals(d.getDebugStatus())){
+                        deviceLockMgr.debugRelease(d.getDeviceId());
+                    }
+                }
+            });
+        }
     }
 //
 //    @Scheduled(cron = "0 1 * * * ?")

@@ -43,4 +43,6 @@ public interface DeviceMapper extends BaseMapper<Device, Long> {
     void updateDebugStatus(@Param("deviceId")String deviceId, @Param("status") DB.DeviceDebugStatus status);
 
     List<Device> searchCloudList(Map<String,Object> queryMap);
+
+    List<Device> findAllInWrok();
 }

@@ -254,4 +254,12 @@
         group by brand
     </select>
 
+    <select id="findAllInWrok" resultMap="BaseResultMap">
+        select *
+        from device
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            workStatus != 1 or debugStatus != 1
+        </trim>
+    </select>
+
 </mapper>

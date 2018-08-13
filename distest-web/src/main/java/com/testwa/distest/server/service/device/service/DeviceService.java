@@ -250,4 +250,15 @@ public class DeviceService {
     public IOSDeviceDict getIOSDict(String productType) {
         return iosDeviceDictDAO.findByProductType(productType);
     }
+
+    /**
+     *@Description: 获得所有在工作中的设备
+     *@Param: []
+     *@Return: java.util.List<com.testwa.distest.server.entity.Device>
+     *@Author: wen
+     *@Date: 2018/8/10
+     */
+    public List<Device> findAllInWrok() {
+        return deviceDAO.findAllInWrok();
+    }
 }

@@ -94,4 +94,9 @@ public class DeviceDAO extends BaseDAO<Device, Long>  implements IDeviceDAO{
     public List<Device> searchCloudList(Map<String, Object> queryMap) {
         return deviceMapper.searchCloudList(queryMap);
     }
+
+    @Override
+    public List<Device> findAllInWrok() {
+        return deviceMapper.findAllInWrok();
+    }
 }

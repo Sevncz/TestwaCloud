@@ -41,4 +41,6 @@ public interface IDeviceDAO extends IBaseDAO<Device, Long> {
     void updateDebugStatus(String deviceId, DB.DeviceDebugStatus status);
 
     List<Device> searchCloudList(Map<String,Object> queryMap);
+
+    List<Device> findAllInWrok();
 }
