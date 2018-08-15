@@ -143,6 +143,7 @@ message FileUploadRequest {
     int64 size = 6;
     string name = 7;
     string deviceId = 8;
+    string type = 9;
 }
 
 message ExecutorLogRequest {
