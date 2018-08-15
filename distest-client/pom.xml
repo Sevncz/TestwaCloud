@@ -241,7 +241,7 @@
                 <targetPath>lib/</targetPath>
                 <directory>lib/</directory>
                 <includes>
-                    <include>**/appcrawler-2.1.2.jar</include>
+                    <include>*.jar</include>
                 </includes>
             </resource>
             <!-- 解决 @Value 报错的问题 -->
@@ -249,7 +249,7 @@
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
                 <includes>
-                    <include>**/*.properties</include>
+                    <include>*.properties</include>
                 </includes>
             </resource>
         </resources>
@@ -264,6 +264,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <includeSystemScope>true</includeSystemScope>
+                </configuration>
             </plugin>
         </plugins>
     </build>
