@@ -441,10 +441,12 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
 
                 byte[] data = request.getData().toByteArray();
                 String name = request.getName();
+                String type = request.getType();
                 long taskCode = request.getTaskCode();
                 String deviceId = request.getDeviceId();
                 String localPath = disFileProperties.getDist();
-                localFile = Paths.get(localPath, String.valueOf(taskCode), deviceId, name);
+
+                localFile = Paths.get(localPath, String.valueOf(taskCode), deviceId, type, name);
                 if(!Files.exists(localFile.getParent())){
                     try {
                         Files.createDirectories(localFile.getParent());

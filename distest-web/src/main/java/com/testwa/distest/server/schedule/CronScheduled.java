@@ -23,6 +23,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
@@ -106,12 +107,24 @@ public class CronScheduled {
                 log.error("{} observer is null", d);
                 deviceAuthMgr.offline(d);
             }else{
-                try{
-                    Message message = Message.newBuilder().setTopicName(Message.Topic.ADB).setStatus("OK").setMessage(ByteString.copyFromUtf8("0")).build();
-                    observer.onNext(message);
-                }catch (Exception e) {
+                int tryTime = 5;
+                while(tryTime >= 0) {
+                    try{
+                        Message message = Message.newBuilder().setTopicName(Message.Topic.ADB).setStatus("OK").setMessage(ByteString.copyFromUtf8("0")).build();
+                        observer.onNext(message);
+                        break;
+                    }catch (Exception e) {
+                        tryTime--;
+                        try {
+                            TimeUnit.SECONDS.sleep(1000);
+                        } catch (InterruptedException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                }
+                if(tryTime <= 0) {
                     deviceAuthMgr.offline(d);
-                    log.warn("通信失败 {} {}", d, e.getMessage());
+                    log.warn("通信失败 {}", d);
                 }
             }
         });
