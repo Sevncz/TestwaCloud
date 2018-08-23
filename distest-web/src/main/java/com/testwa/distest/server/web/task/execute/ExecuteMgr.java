@@ -274,7 +274,6 @@ public class ExecuteMgr {
      * @param form
      */
     public void stop(TaskStopForm form) {
-        log.info(form.toString());
         User currentUser = userService.findByUsername(WebUtil.getCurrentUsername());
         Task task = taskService.findByCode(form.getTaskCode());
         taskService.update(task);

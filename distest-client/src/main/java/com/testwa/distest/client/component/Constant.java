@@ -25,6 +25,8 @@ public class Constant {
 	public static final String localScreenshotPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "screenshot").toString();
 	public static final String localLogcatPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "logcat").toString();
 
+	public static final String localActionScreenPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "action").toString();
+
     public static final String localVideoPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "video").toString();
     public static final String localCrawlerOutPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "crawler").toString();
 

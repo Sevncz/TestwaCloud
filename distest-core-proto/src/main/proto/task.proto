@@ -89,7 +89,7 @@ message StepRequest {
     string commadParams = 14;
     string value = 15;
     string sessionId = 16;
-
+    string imgBefore = 17;
 }
 
 message PerformanceRequest {

@@ -216,6 +216,10 @@ public class EnvCheck implements CommandLineRunner {
         if (!localCrawlerOutDir.exists()) {
             localCrawlerOutDir.mkdirs();
         }
+        File localActionScreenOutDir = new File(Constant.localActionScreenPath);
+        if (!localActionScreenOutDir.exists()) {
+            localActionScreenOutDir.mkdirs();
+        }
 
         log.info("App: {}", Constant.localAppPath);
         log.info("Logcat: {}", Constant.localLogcatPath);

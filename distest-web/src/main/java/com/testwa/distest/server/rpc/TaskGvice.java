@@ -578,6 +578,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
         step.setTaskCode(taskCode);
         step.setDump(dump);
         step.setImg(img);
+        step.setImgBefore(request.getImgBefore());
         step.setAction(request.getAction().name());
         step.setOrder(request.getAction().getNumber());
         step.setRuntime(request.getRuntime());

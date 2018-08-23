@@ -30,6 +30,9 @@ public class AgentInfo {
             this.host = "unknow";
         } catch (SocketException e) {
             this.mac = "unknow";
+        } catch (Exception e) {
+            this.host = "unknow";
+            this.mac = "unknow";
         }
         this.osName =  System.getProperty("os.name");
         this.osVersion =  System.getProperty("os.version");
