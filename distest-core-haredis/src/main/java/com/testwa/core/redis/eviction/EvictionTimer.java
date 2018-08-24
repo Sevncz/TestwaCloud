@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * EvictionTimer
  *
- * @author zhangxu04
+ * @author Wen
  */
 public class EvictionTimer {
 

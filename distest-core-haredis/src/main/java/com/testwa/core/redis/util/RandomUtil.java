@@ -8,7 +8,7 @@ import java.util.Random;
 /**
  * 随机数产生工具类
  *
- * @author zhangxu04
+ * @author Wen
  */
 public class RandomUtil {
 

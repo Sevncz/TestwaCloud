@@ -6,7 +6,7 @@ import redis.clients.jedis.Protocol;
 /**
  * Redis client 配置
  *
- * @author zhangxu04
+ * @author Wen
  */
 @Data
 public class RedisHAClientConfig {

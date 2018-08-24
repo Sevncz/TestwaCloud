@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Redis客户端调用回调接口
  *
- * @author Zhang Xu
+ * @author Wen
  */
 public interface RedisCallBack<T> {
 

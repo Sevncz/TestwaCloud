@@ -8,7 +8,7 @@ import java.util.Set;
 /**
  * Redis基本命令封装接口
  *
- * @author Zhang Xu
+ * @author Wen
  */
 public interface RedisOperation {
 

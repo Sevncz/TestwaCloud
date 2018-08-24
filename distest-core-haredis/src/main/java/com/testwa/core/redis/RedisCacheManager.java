@@ -80,7 +80,7 @@ import java.util.*;
  *     &lt;/bean&gt;
  * </pre>
  *
- * @author Zhang Xu
+ * @author Wen
  */
 public class RedisCacheManager {
 
