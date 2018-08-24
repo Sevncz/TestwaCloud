@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -44,7 +45,7 @@ public class CronScheduled {
     @Autowired
     private Environment env;
 
-
+    @Async
     @Scheduled(fixedDelay = 8000)
     public void saveRunningLog() {
         Long logSize = procedureRedisMgr.size();
@@ -68,6 +69,7 @@ public class CronScheduled {
 
     }
 
+    @Async
     @Scheduled(fixedDelay = 8000)
     public void savePerformance() {
         Long logSize = performanceRedisMgr.size();
@@ -97,11 +99,13 @@ public class CronScheduled {
      *@Author: wen
      *@Date: 2018/5/9
      */
+    @Async
     @Scheduled(fixedDelay = 3000)
     public void checkDeviceOnline(){
         Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
         log.debug("online device num: {}", deviceIds.size());
         deviceIds.forEach( d -> {
+            log.debug("Check StreamObserver deviceId {}", d);
             StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(d);
             if(observer == null){
                 log.error("{} observer is null", d);
@@ -116,7 +120,7 @@ public class CronScheduled {
                     }catch (Exception e) {
                         tryTime--;
                         try {
-                            TimeUnit.SECONDS.sleep(1000);
+                            TimeUnit.MILLISECONDS.sleep(200);
                         } catch (InterruptedException e1) {
                             e1.printStackTrace();
                         }
@@ -137,6 +141,7 @@ public class CronScheduled {
      *@Author: wen
      *@Date: 2018/5/9
      */
+    @Async
     @Scheduled(fixedDelay = 10000)
     public void cleanDeviceLock(){
         List<String> lockDeviceIds = deviceLockMgr.getLockList();

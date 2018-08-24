@@ -382,13 +382,13 @@ public class CommonReportController extends BaseController {
 
     @ApiOperation(value="启动的详细信息")
     @ResponseBody
-    @GetMapping(value = "/{taskCode}/launch/detail")
-    public Result launch(@PathVariable Long taskCode) throws ObjectNotExistsException {
+    @GetMapping(value = "/{taskCode}/launch/detail/{deviceId}")
+    public Result launch(@PathVariable Long taskCode, @PathVariable String deviceId) throws ObjectNotExistsException {
         Task task = taskValidatoer.validateTaskExist(taskCode);
         if(DB.TaskStatus.RUNNING.equals(task.getStatus())) {
             throw new ReportException("任务还未完成");
         }
-        Step step = stepService.getLaunchStepByTaskCode(taskCode);
+        Step step = stepService.getLaunchStep(taskCode, deviceId);
         return ok(step);
     }
 
