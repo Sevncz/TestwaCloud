@@ -107,7 +107,7 @@ public class MinitouchServer extends Thread implements Closeable {
             try {
                 // run minicap server
                 String command = getCommand();
-                log.info("拉起 Minitouch 服务 command: {}", command);
+                log.info("{} 拉起 Minitouch 服务 command: {}", device.getName(), command);
                 device.executeShellCommand(command, new IShellOutputReceiver() {
                     @Override
                     public void addOutput(byte[] bytes, int i, int i1) {
@@ -135,7 +135,7 @@ public class MinitouchServer extends Thread implements Closeable {
                     }
                 }, Integer.MAX_VALUE, TimeUnit.DAYS);
             } catch (Exception e) {
-                log.warn("{} MInitouch 服务运行异常, {}", device.getSerialNumber(), e.getMessage());
+                log.warn("{} Minitouch 服务运行异常, {}", device.getSerialNumber(), e.getMessage());
             }
         }
         try {

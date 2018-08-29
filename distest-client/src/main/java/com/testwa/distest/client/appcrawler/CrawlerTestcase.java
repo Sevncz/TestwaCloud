@@ -1,1 +1,0 @@
-package com.testwa.distest.client.appcrawler;import lombok.AllArgsConstructor;import lombok.Data;import java.util.List;/** * @Program: distest * @Description: * @Author: wen * @Create: 2018-07-23 11:06 **/@Data@AllArgsConstructorpublic class CrawlerTestcase {    private String name;    private List<CrawlerTestcaseStep> steps;}
