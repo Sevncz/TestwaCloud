@@ -65,6 +65,10 @@ public class LogcatAnalysisListener implements ApplicationListener<LogcatAnalysi
 
             log.info("logcat analysis start...");
             LogFile loggerFile = loggerFileService.findOne(e.getTaskCode(), e.getDeviceId());
+            if(loggerFile == null) {
+                log.error("{} {} logcat not found!", e.getDeviceId(), e.getTaskCode());
+                return;
+            }
             Path logcatPath = Paths.get(disFileProperties.getLogcat(), loggerFile.buildPath());
             if(!Files.exists(logcatPath)){
                 log.error("logcat file not found, {}", logcatPath.toString());

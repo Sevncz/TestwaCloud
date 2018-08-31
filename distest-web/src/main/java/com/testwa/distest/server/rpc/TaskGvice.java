@@ -444,6 +444,8 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
                 String type = request.getType();
                 long taskCode = request.getTaskCode();
                 String deviceId = request.getDeviceId();
+                int offset = request.getOffset();
+                int size = request.getSize();
                 String localPath = disFileProperties.getDist();
 
                 localFile = Paths.get(localPath, String.valueOf(taskCode), deviceId, type, name);
@@ -463,7 +465,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
                 }
                 try {
                     if (mBufferedOutputStream == null) {
-                        mBufferedOutputStream = new BufferedOutputStream(new FileOutputStream(localFile.toFile()));
+                        mBufferedOutputStream = new BufferedOutputStream(new FileOutputStream(localFile.toFile(), true));
                     }
                     mBufferedOutputStream.write(data);
                     mBufferedOutputStream.flush();

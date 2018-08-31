@@ -37,10 +37,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -137,11 +134,11 @@ public class CommonReportController extends BaseController {
         Long taskCode = form.getTaskCode();
         Task task = taskValidatoer.validateTaskExist(taskCode);
         if (DB.TaskType.HG.equals(task.getTaskType())) {
-            List<Step> HGList = stepService.findHGList(form);
-            return ok(HGList);
-        }else if (DB.TaskType.JR.equals(task.getTaskType())) {
-            List<Step> JRList = stepService.findJRList(form);
-            return ok(JRList);
+            List<Step> steps = stepService.listScriptAll(form);
+            return ok(steps);
+        }else if (DB.TaskType.JR.equals(task.getTaskType()) || DB.TaskType.CRAWLER.equals(task.getTaskType())) {
+            List<Step> steps = stepService.listTaskAll(form);
+            return ok(steps);
         }
         return ok();
     }

@@ -140,7 +140,7 @@ message FileUploadRequest {
     string token = 3;
     bytes data = 4;
     int32 offset = 5;
-    int64 size = 6;
+    int32 size = 6;
     string name = 7;
     string deviceId = 8;
     string type = 9;
