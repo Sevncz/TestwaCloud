@@ -26,4 +26,6 @@ public interface TaskDeviceMapper extends BaseMapper<Task, Long> {
     List<TaskDeviceStatusStatis> countTaskDeviceStatus(@Param("taskCode") Long taskId);
 
     void disableAll(@Param("taskCode") Long taskId);
+
+    void updateVideoPath(@Param("taskCode") Long taskCode, @Param("deviceId") String deviceId, @Param("videoPath") String videoPath);
 }

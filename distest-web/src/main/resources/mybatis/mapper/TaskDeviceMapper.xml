@@ -8,6 +8,7 @@
         <result column="deviceId" property="deviceId" jdbcType="VARCHAR" javaType="String"/>
         <result column="endTime" property="endTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="errorMsg" property="errorMsg" jdbcType="VARCHAR" javaType="String"/>
+        <result column="video" property="video" jdbcType="VARCHAR" javaType="String"/>
         <result column="taskType" property="taskType" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
 
         <result column="projectId" property="projectId" jdbcType="BIGINT"/>
@@ -23,7 +24,7 @@
     </resultMap>
 
     <sql id="Base_Column_List" >
-        id,status,taskCode,deviceId,createTime,createBy,projectId,endTime,errorMsg,taskType
+        id,status,taskCode,deviceId,createTime,createBy,projectId,endTime,errorMsg,taskType,video
     </sql>
 
     <select id="findOne" resultMap="BaseResultMap" >
@@ -79,6 +80,12 @@
         update task_device
         set enabled = 0
         where taskCode = #{taskCode}
+    </update>
+
+    <update id="updateVideoPath">
+        update task_device
+        set video = #{videoPath}
+        where taskCode = #{taskCode} and deviceId = #{deviceId}
     </update>
 
 </mapper>

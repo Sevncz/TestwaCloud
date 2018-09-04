@@ -24,4 +24,6 @@ public interface ITaskDeviceDAO extends IBaseDAO<TaskDevice, Long> {
     List<TaskDeviceStatusStatis> countTaskDeviceStatus(Long taskId);
 
     void disableAll(Long taskCode);
+
+    void updateVideoPath(long taskCode, String deviceId, String videoRelativePath);
 }

@@ -51,4 +51,9 @@ public class TaskDeviceDAO extends BaseDAO<TaskDevice, Long> implements ITaskDev
         mapper.disableAll(taskCode);
     }
 
+    @Override
+    public void updateVideoPath(long taskCode, String deviceId, String videoRelativePath) {
+        mapper.updateVideoPath(taskCode, deviceId, videoRelativePath);
+    }
+
 }

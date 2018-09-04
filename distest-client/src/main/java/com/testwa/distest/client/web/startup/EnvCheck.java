@@ -116,6 +116,8 @@ public class EnvCheck implements CommandLineRunner {
         if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
             System.exit(0);
         }
+        String uri = StringUtils.isBlank(applicationName) ? cloudWebUrl : cloudWebUrl + "/" + applicationName;
+        String loginUrl = String.format("%s/v1/auth/login", uri);
         FutureCallback cb = new FutureCallback<HttpResponse>() {
             @Override
             public void completed(HttpResponse response) {
@@ -136,7 +138,7 @@ public class EnvCheck implements CommandLineRunner {
                             UserInfo.username = username;
 
                         } else {
-                            log.error("login error {}", resultCode);
+                            log.error("登录{}失败，返回{}", loginUrl, content);
                             System.exit(0);
                         }
 
@@ -164,8 +166,7 @@ public class EnvCheck implements CommandLineRunner {
 
             }
         };
-        String uri = StringUtils.isBlank(applicationName) ? cloudWebUrl : cloudWebUrl + "/" + applicationName;
-        httpService.postJson(String.format("%s/v1/auth/login", uri), new User(username, password), cb);
+        httpService.postJson(loginUrl, new User(username, password), cb);
     }
 
     private class User {

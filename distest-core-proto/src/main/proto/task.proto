@@ -143,7 +143,11 @@ message FileUploadRequest {
     int32 size = 6;
     string name = 7;
     string deviceId = 8;
-    string type = 9;
+    Type type = 9;
+    enum Type {
+        video = 0;
+        crawler = 1;
+    }
 }
 
 message ExecutorLogRequest {

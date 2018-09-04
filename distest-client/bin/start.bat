@@ -1,1 +1,1 @@
-adb kill-serverjava -jar -server -Xmx1024m -Xms2048m distest-client-1.0-SNAPSHOT.jar --spring.config.location=application.properties --username=admin --password=admin
+adb kill-serverjava -jar -server -Xmx1024m -Xms1024m TestwaAgent.jar --spring.config.location=application.properties --username=admin --password=admin

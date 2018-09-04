@@ -35,7 +35,7 @@ resourcepath="/home/testwa/agent/resources"
 appiumapth="/home/testwa/agent/wappium/index.js"
 
 
-nohup java -jar -server -Xmx1024m -Xms2048m --spring.profiles.active=test distest-client-1.0-SNAPSHOT.jar --username=$username --password=$password --node.excute.path=$nodepath --distest.agent.resources=$resourcepath --appium.js.path=$appiumapth > /dev/null 2>&1 &
+nohup java -jar -server -Xmx1024m -Xms2048m --spring.profiles.active=test TestwaAgent.jar --username=$username --password=$password --node.excute.path=$nodepath --distest.agent.resources=$resourcepath --appium.js.path=$appiumapth > /dev/null 2>&1 &
 
 echo $! > tpid
 

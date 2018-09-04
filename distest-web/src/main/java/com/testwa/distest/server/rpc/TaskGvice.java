@@ -24,6 +24,7 @@ import com.testwa.distest.server.websocket.service.MessageNotifyService;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.task.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -436,19 +437,19 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
 
             @Override
             public void onNext(FileUploadRequest request) {
-                log.debug("onNext count: " + mmCount);
                 mmCount++;
 
                 byte[] data = request.getData().toByteArray();
                 String name = request.getName();
-                String type = request.getType();
+                FileUploadRequest.Type type = request.getType();
                 long taskCode = request.getTaskCode();
                 String deviceId = request.getDeviceId();
                 int offset = request.getOffset();
-                int size = request.getSize();
+                int kbSize = request.getSize();  // KB
                 String localPath = disFileProperties.getDist();
 
-                localFile = Paths.get(localPath, String.valueOf(taskCode), deviceId, type, name);
+                String fileRelativePath = Paths.get(String.valueOf(taskCode), deviceId, type.name(), name).toString();
+                localFile = Paths.get(localPath, fileRelativePath);
                 if(!Files.exists(localFile.getParent())){
                     try {
                         Files.createDirectories(localFile.getParent());
@@ -463,6 +464,14 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
                         log.error("Receive file, create error", e);
                     }
                 }
+
+                TaskDevice taskDevice = taskDeviceService.findOne(taskCode, deviceId);
+                if(taskDevice != null && FileUploadRequest.Type.video.equals(type)) {
+                    if(StringUtils.isBlank(taskDevice.getVideo())) {
+                        taskDeviceService.updateVideoPath(taskCode, deviceId, fileRelativePath);
+                    }
+                }
+
                 try {
                     if (mBufferedOutputStream == null) {
                         mBufferedOutputStream = new BufferedOutputStream(new FileOutputStream(localFile.toFile(), true));

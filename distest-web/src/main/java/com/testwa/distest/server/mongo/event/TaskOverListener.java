@@ -78,8 +78,14 @@ public class TaskOverListener implements ApplicationListener<TaskOverEvent> {
         for(TaskDevice taskDevice : tds) {
             DeviceLog dl = new DeviceLog(taskDevice.getDeviceId(), logType);
             dl.setRunning(false);
+            if(taskDevice.getCreateTime() == null) {
+                log.warn("设备任务 taskDevice createTime is null error {}", taskDevice.toString());
+                continue;
+            }
             dl.setStartTime(taskDevice.getCreateTime().getTime());
-            dl.setEndTime(taskDevice.getEndTime().getTime());
+            if(taskDevice.getEndTime() == null) {
+                dl.setEndTime(System.currentTimeMillis());
+            }
             dl.setUserCode(user.getUserCode());
             deviceLogService.insert(dl);
 

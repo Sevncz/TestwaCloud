@@ -1,5 +1,5 @@
 #!/bin/sh
-APP_NAME=agent-daemon-server-1.0-SNAPSHOT
+APP_NAME=TestwaAgent.jar
 
 tpid=`ps -ef|grep $APP_NAME|grep -v grep|grep -v kill|awk '{print $2}'`
 if [ ${tpid} ]; then

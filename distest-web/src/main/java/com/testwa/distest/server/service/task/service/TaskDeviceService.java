@@ -119,4 +119,17 @@ public class TaskDeviceService {
         taskDevice.setUpdateTime(new Date());
         taskDeviceDAO.update(taskDevice);
     }
+
+    /**
+     * @Description: 更新任务的视频文档位置
+     * @Param: [taskCode, deviceId, fileRelativePath]
+     * @Return: void
+     * @Author wen
+     * @Date 2018/9/4 11:53
+     */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public void updateVideoPath(long taskCode, String deviceId, String videoRelativePath) {
+
+        taskDeviceDAO.updateVideoPath(taskCode, deviceId, videoRelativePath);
+    }
 }

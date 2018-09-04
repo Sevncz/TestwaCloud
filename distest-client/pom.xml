@@ -10,10 +10,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>distest-client</artifactId>
+    <version>2.0</version>
     <packaging>jar</packaging>
     <description>client fo testwa</description>
 
     <properties>
+        <finalName>${project.artifactId}-${project.version}</finalName>
         <dist.dir>${project.build.directory}/dist</dist.dir>
         <dist.project.id>${project.artifactId}</dist.project.id>
         <dist.project.name>Distest client</dist.project.name>
@@ -21,8 +23,31 @@
             Distest client as a desk Service
         </dist.project.description>
         <dist.start.class>com.testwa.distest.client.DistestClientApplication</dist.start.class>
-        <dist.jmx.port>50201</dist.jmx.port>
     </properties>
+
+    <profiles>
+        <profile>
+            <id>mac</id>
+            <build>
+                <finalName>TestwaJar-mac</finalName>
+                <directory>dist/mac</directory>
+            </build>
+        </profile>
+        <profile>
+            <id>linux</id>
+            <build>
+                <finalName>TestwaJar-linux</finalName>
+                <directory>dist/linux</directory>
+            </build>
+        </profile>
+        <profile>
+            <id>win</id>
+            <build>
+                <finalName>TestwaJar-win</finalName>
+                <directory>dist/win</directory>
+            </build>
+        </profile>
+    </profiles>
 
     <dependencies>
         <dependency>
@@ -202,22 +227,22 @@
             <artifactId>lombok</artifactId>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.bytedeco</groupId>-->
-            <!--<artifactId>javacv-platform</artifactId>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.bytedeco</groupId>
-            <artifactId>javacv</artifactId>
+            <artifactId>javacv-platform</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.bytedeco.javacpp-presets</groupId>
-            <artifactId>opencv-platform</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.bytedeco.javacpp-presets</groupId>
-            <artifactId>ffmpeg-platform</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.bytedeco</groupId>-->
+            <!--<artifactId>javacv</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.bytedeco.javacpp-presets</groupId>-->
+            <!--<artifactId>opencv-platform</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.bytedeco.javacpp-presets</groupId>-->
+            <!--<artifactId>ffmpeg-platform</artifactId>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
