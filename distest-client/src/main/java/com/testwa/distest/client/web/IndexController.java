@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.service.GrpcClientService;
 import io.rpc.testwa.task.StepRequest;
+import io.rpc.testwa.task.StepRequestOrBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -58,7 +59,7 @@ public class IndexController {
             if(StringUtils.isBlank(value)){
                 value = "null";
             }
-            Integer status = appiumStepJson.getInteger("getSource");
+            Integer status = appiumStepJson.getInteger("status");
             Long runtime = appiumStepJson.getLong("runtime");
             JSONObject command = appiumStepJson.getJSONObject("command");
             String action = command.getString("action");
@@ -69,12 +70,10 @@ public class IndexController {
                 stepStatus = StepRequest.StepStatus.FAIL;
             }
             log.info(urlInfo);
-
-            StepRequest stepRequest = StepRequest.newBuilder()
-                    .setToken(UserInfo.token)
+            StepRequest.Builder builder = StepRequest.newBuilder();
+            builder.setToken(UserInfo.token)
                     .setTaskCode(Long.parseLong(taskId))
                     .setDeviceId(appiumStepJson.getString("deviceId"))
-                    .setImg(appiumStepJson.getString("screenshotPath"))
                     .setAction(StepRequest.StepAction.operation)
                     .setStatus(stepStatus)
                     .setRuntime(runtime)
@@ -82,11 +81,19 @@ public class IndexController {
                     .setTimestamp(System.currentTimeMillis())
                     .setTestcaseId(Long.parseLong(testcaseId))
                     .setScriptId(Long.parseLong(scriptId))
-                    .setCommadAction(action)
-                    .setCommadParams(params)
-                    .setSessionId(sessionId)
-                    .build();
-            grpcClientService.saveStep(stepRequest);
+                    .setSessionId(sessionId);
+
+            String screenPath = appiumStepJson.getString("screenshotPath");
+            if(StringUtils.isNotBlank(screenPath)) {
+                builder.setImg(screenPath);
+            }
+            if(StringUtils.isNotBlank(action)) {
+                builder.setCommadAction(action);
+            }
+            if(StringUtils.isNotBlank(params)) {
+                builder.setCommadParams(params);
+            }
+            grpcClientService.saveStep(builder.build());
         }
 
         return "ok";

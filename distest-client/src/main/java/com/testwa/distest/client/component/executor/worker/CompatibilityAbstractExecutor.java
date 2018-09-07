@@ -1,0 +1,1 @@
+package com.testwa.distest.client.component.executor.worker;/** * @Program: distest * @Description: 兼容测试抽象类 * @Author: wen * @Create: 2018-05-15 14:32 **/public abstract class CompatibilityAbstractExecutor extends AbstractExecutor {}
