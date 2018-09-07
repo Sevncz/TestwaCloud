@@ -269,9 +269,9 @@ public final class DB {
     }
 
     public enum TaskType implements ValueEnum {
-        HG(1, "回归测试"),
-        JR(2, "兼容测试"),
-        YL(3, "压力测试"),
+        FUNCTIONAL(1, "回归测试"),
+        COMPATIBILITY(2, "兼容测试"),
+        PRESSURE(3, "压力测试"),
         CRAWLER(4, "遍历测试");
 
         private int value;
@@ -290,13 +290,13 @@ public final class DB {
             return desc;
         }
         public static TaskType valueOf(int value) {
-            TaskType tt = HG;
+            TaskType tt = FUNCTIONAL;
             switch (value) {
-                case 1: tt = HG;break;
-                case 2: tt = JR;break;
-                case 3: tt = YL;break;
+                case 1: tt = FUNCTIONAL;break;
+                case 2: tt = COMPATIBILITY;break;
+                case 3: tt = PRESSURE;break;
                 case 4: tt = CRAWLER;break;
-                default: tt = HG;
+                default: tt = FUNCTIONAL;
             }
             return tt;
         }

@@ -133,10 +133,10 @@ public class CommonReportController extends BaseController {
     public Result stepList(@Valid StepListForm form) throws ParamsIsNullException {
         Long taskCode = form.getTaskCode();
         Task task = taskValidatoer.validateTaskExist(taskCode);
-        if (DB.TaskType.HG.equals(task.getTaskType())) {
+        if (DB.TaskType.FUNCTIONAL.equals(task.getTaskType())) {
             List<Step> steps = stepService.listScriptAll(form);
             return ok(steps);
-        }else if (DB.TaskType.JR.equals(task.getTaskType()) || DB.TaskType.CRAWLER.equals(task.getTaskType())) {
+        }else if (DB.TaskType.COMPATIBILITY.equals(task.getTaskType()) || DB.TaskType.CRAWLER.equals(task.getTaskType())) {
             List<Step> steps = stepService.listTaskAll(form);
             return ok(steps);
         }
@@ -149,10 +149,10 @@ public class CommonReportController extends BaseController {
     public Result stepPage(@Valid StepPageForm pageForm) throws ParamsIsNullException {
         Long taskCode = pageForm.getTaskCode();
         Task task = taskValidatoer.validateTaskExist(taskCode);
-        if (DB.TaskType.HG.equals(task.getTaskType())) {
+        if (DB.TaskType.FUNCTIONAL.equals(task.getTaskType())) {
             PageResult<Step> hgPage = stepService.findHGByPage(pageForm);
             return ok(hgPage);
-        }else if (DB.TaskType.JR.equals(task.getTaskType())) {
+        }else if (DB.TaskType.COMPATIBILITY.equals(task.getTaskType())) {
             PageResult<Step> jrPage = stepService.findJRByPage(pageForm);
             return ok(jrPage);
         }

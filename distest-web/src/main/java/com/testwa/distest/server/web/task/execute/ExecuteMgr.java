@@ -11,8 +11,6 @@ import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.mongo.event.TaskOverEvent;
-import com.testwa.distest.server.mongo.model.TaskParams;
-import com.testwa.distest.server.mongo.service.TaskParamsService;
 import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.device.service.DeviceLogService;
 import com.testwa.distest.server.service.device.service.DeviceService;
@@ -81,17 +79,17 @@ public class ExecuteMgr {
      *@Author: wen
      *@Date: 2018/6/4
      */
-    public TaskStartResultVO startHG(List<String> useableDevices, App app, List<Long> scriptIds, Long taskCode) {
+    public TaskStartResultVO startFunctionalTestTask(List<String> useableDevices, App app, List<Long> scriptIds, Long taskCode) {
         Testcase testcase = testcaseService.saveTestcaseByScriptIds(app, scriptIds);
-        TaskStartResultVO vo = startHG(useableDevices, app, testcase.getId(), testcase.getCaseName(), taskCode);
+        TaskStartResultVO vo = startFunctionalTestTask(useableDevices, app, testcase.getId(), testcase.getCaseName(), taskCode);
         if(scriptIds.size() == 1) {
             testcaseService.delete(testcase.getId());
         }
         return vo;
     }
 
-    public TaskStartResultVO startHG(List<String> deviceIds, App app, Long testcaseId, String caseName, Long taskCode) throws ObjectNotExistsException {
-        return start(deviceIds, app.getProjectId(), testcaseId, app.getId(), caseName, DB.TaskType.HG, taskCode);
+    public TaskStartResultVO startFunctionalTestTask(List<String> deviceIds, App app, Long testcaseId, String caseName, Long taskCode) throws ObjectNotExistsException {
+        return startTask(deviceIds, app.getProjectId(), testcaseId, app.getId(), caseName, DB.TaskType.FUNCTIONAL, taskCode);
     }
 
     /**
@@ -101,8 +99,8 @@ public class ExecuteMgr {
      *@Author: wen
      *@Date: 2018/6/4
      */
-    public TaskStartResultVO startJR(List<String> deviceIds, Long projectId, Long appId, Long taskCode) throws ObjectNotExistsException {
-        return start(deviceIds, projectId, null, appId, "兼容测试", DB.TaskType.JR, taskCode);
+    public TaskStartResultVO startCompabilityTestTask(List<String> deviceIds, Long projectId, Long appId, Long taskCode) throws ObjectNotExistsException {
+        return startTask(deviceIds, projectId, null, appId, "兼容测试", DB.TaskType.COMPATIBILITY, taskCode);
     }
 
     /**
@@ -112,11 +110,11 @@ public class ExecuteMgr {
      *@Author: wen
      *@Date: 2018/7/26
      */
-    public TaskStartResultVO startCrawler(List<String> deviceIds, Long projectId, Long appId, Long taskCode) {
-        return start(deviceIds, projectId, null, appId, "遍历测试", DB.TaskType.CRAWLER, taskCode);
+    public TaskStartResultVO startCrawlerTestTask(List<String> deviceIds, Long projectId, Long appId, Long taskCode) {
+        return startTask(deviceIds, projectId, null, appId, "遍历测试", DB.TaskType.CRAWLER, taskCode);
     }
 
-    private TaskStartResultVO start(List<String> deviceIds, Long projectId, Long testcaseId, Long appId, String taskName, DB.TaskType taskType, Long taskCode) throws ObjectNotExistsException {
+    private TaskStartResultVO startTask(List<String> deviceIds, Long projectId, Long testcaseId, Long appId, String taskName, DB.TaskType taskType, Long taskCode) throws ObjectNotExistsException {
         TaskStartResultVO result = new TaskStartResultVO();
         // 记录task的执行信息
         App app = appService.findOne(appId);
@@ -185,14 +183,14 @@ public class ExecuteMgr {
 
             Device d = deviceService.findByDeviceId(key);
             if(observer != null ){
-                if(taskType.equals(DB.TaskType.HG)) {
+                if(taskType.equals(DB.TaskType.FUNCTIONAL)) {
                     final DeviceLog devLog = new DeviceLog(key, DB.DeviceLogType.HG);
                     devLog.setUserCode(user.getUserCode());
                     deviceLogMap.put(key, devLog);
                     Message message = Message.newBuilder().setTopicName(Message.Topic.TASK_START).setStatus("OK").setMessage(ByteString.copyFromUtf8(JSON.toJSONString(cmd))).build();
                     observer.onNext(message);
                     result.addRunningDevice(d);
-                }else if(taskType.equals(DB.TaskType.JR)) {
+                }else if(taskType.equals(DB.TaskType.COMPATIBILITY)) {
                     final DeviceLog devLog = new DeviceLog(key, DB.DeviceLogType.JR);
                     devLog.setUserCode(user.getUserCode());
                     deviceLogMap.put(key, devLog);

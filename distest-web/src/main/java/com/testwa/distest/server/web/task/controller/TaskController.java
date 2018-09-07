@@ -13,7 +13,6 @@ import com.testwa.distest.server.mongo.model.TaskParams;
 import com.testwa.distest.server.mongo.service.TaskParamsService;
 import com.testwa.distest.server.service.app.service.AppInfoService;
 import com.testwa.distest.server.service.app.service.AppService;
-import com.testwa.distest.server.service.cache.mgr.DeviceLockCache;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.task.form.*;
 import com.testwa.distest.server.service.testcase.service.TestcaseService;
@@ -83,7 +82,7 @@ public class TaskController extends BaseController {
     @ApiOperation(value="执行一个回归测试任务")
     @ResponseBody
     @PostMapping(value = "/run")
-    public Result run(@RequestBody TaskNewByCaseAndStartForm form) throws ObjectNotExistsException, AuthorizedException, TaskStartException {
+    public Result runFunctionalTest(@RequestBody TaskNewByCaseAndStartForm form) throws ObjectNotExistsException, AuthorizedException, TaskStartException {
         appValidator.validateAppExist(form.getAppId());
         testcaseValidatoer.validateTestcaseExist(form.getTestcaseId());
         taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
@@ -115,7 +114,7 @@ public class TaskController extends BaseController {
         Long taskCode = taskIdWorker.nextId();
         App app = appService.findOne(form.getAppId());
         Testcase tc = testcaseService.fetchOne(form.getTestcaseId());
-        vo = executeMgr.startHG(useableList, app, tc.getId(), tc.getCaseName(), taskCode);
+        vo = executeMgr.startFunctionalTestTask(useableList, app, tc.getId(), tc.getCaseName(), taskCode);
         vo.setTaskCode(taskCode);
         vo.addUnableDevice(unableDevices);
         return ok(vo);
@@ -124,7 +123,7 @@ public class TaskController extends BaseController {
     @ApiOperation(value="执行一个回归测试任务")
     @ResponseBody
     @PostMapping(value = "/run/hg/scripts")
-    public Result run(@RequestBody TaskNewStartByScriptsForm form) throws ObjectNotExistsException, AuthorizedException, TaskStartException {
+    public Result runFunctionalTest(@RequestBody TaskNewStartByScriptsForm form) throws ObjectNotExistsException, AuthorizedException, TaskStartException {
         appValidator.validateAppExist(form.getAppId());
         appValidator.validateAppInPorject(form.getAppId(), form.getProjectId());
         if(form.getScriptIds() == null || form.getScriptIds().size() == 0) {
@@ -163,7 +162,7 @@ public class TaskController extends BaseController {
             deviceLockMgr.workLock(deviceId, user.getUserCode(), workExpireTime);
         }
         Long taskCode = taskIdWorker.nextId();
-        vo = executeMgr.startHG(useableList, app, form.getScriptIds(), taskCode);
+        vo = executeMgr.startFunctionalTestTask(useableList, app, form.getScriptIds(), taskCode);
         vo.setTaskCode(taskCode);
         vo.addUnableDevice(unableDevices);
         return ok(vo);
@@ -172,7 +171,7 @@ public class TaskController extends BaseController {
     @ApiOperation(value="执行一个兼容测试任务")
     @ResponseBody
     @PostMapping(value = "/run/jr")
-    public Result runJR(@RequestBody TaskNewStartJRForm form) {
+    public Result runCompatibilityTest(@RequestBody TaskNewStartJRForm form) {
         appValidator.validateAppExist(form.getAppId());
         appValidator.validateAppInPorject(form.getAppId(), form.getProjectId());
         taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
@@ -204,7 +203,7 @@ public class TaskController extends BaseController {
             }
             Long taskCode = taskIdWorker.nextId();
             App app = appService.findOne(form.getAppId());
-            vo = executeMgr.startJR(useableList, app.getProjectId(), form.getAppId(), taskCode);
+            vo = executeMgr.startCompabilityTestTask(useableList, app.getProjectId(), form.getAppId(), taskCode);
             vo.setTaskCode(taskCode);
         }
         vo.addUnableDevice(unableDevices);
@@ -214,7 +213,7 @@ public class TaskController extends BaseController {
     @ApiOperation(value="执行一个遍历测试任务")
     @ResponseBody
     @PostMapping(value = "/run/crawler")
-    public Result runCrawler(@RequestBody TaskNewStartCrawlerForm form) {
+    public Result runCrawlerTest(@RequestBody TaskNewStartCrawlerForm form) {
         appValidator.validateAppExist(form.getAppId());
         appValidator.validateAppInPorject(form.getAppId(), form.getProjectId());
         taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
@@ -246,7 +245,7 @@ public class TaskController extends BaseController {
             }
             Long taskCode = taskIdWorker.nextId();
             App app = appService.findOne(form.getAppId());
-            vo = executeMgr.startCrawler(useableList, app.getProjectId(), form.getAppId(), taskCode);
+            vo = executeMgr.startCrawlerTestTask(useableList, app.getProjectId(), form.getAppId(), taskCode);
             vo.setTaskCode(taskCode);
 
             // 保存参数
