@@ -30,8 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
-
 /**
  * Created by wen on 24/10/2017.
  */
@@ -49,7 +47,7 @@ public class TaskService {
     @Autowired
     private StepRepository stepRepository;
     @Autowired
-    private TaskDeviceService taskDeviceService;
+    private SubTaskService subTaskService;
     @Autowired
     private MongoOperations mongoTemplate;
 
@@ -85,7 +83,7 @@ public class TaskService {
         // taskType
         result.put("taskType", task.getTaskType());
         // taskStatus
-        List<TaskDeviceStatusStatis> tds = taskDeviceService.countTaskDeviceStatus(task.getTaskCode());
+        List<TaskDeviceStatusStatis> tds = subTaskService.countTaskDeviceStatus(task.getTaskCode());
         task.setDeviceStatusStatis(tds);
         result.put("taskStatus", task.getDeviceStatusStatis());
         // app 基本情况
@@ -130,7 +128,7 @@ public class TaskService {
         List<Task> entityList = taskDAO.findBy(query);
 
         entityList.forEach(entity -> {
-            List<TaskDeviceStatusStatis> tds = taskDeviceService.countTaskDeviceStatus(entity.getId());
+            List<TaskDeviceStatusStatis> tds = subTaskService.countTaskDeviceStatus(entity.getId());
             entity.setDeviceStatusStatis(tds);
         });
         return entityList;
@@ -149,7 +147,7 @@ public class TaskService {
         List<Task> entityList = taskDAO.findFinishBy(query);
 
         entityList.forEach(entity -> {
-            List<TaskDeviceStatusStatis> tds = taskDeviceService.countTaskDeviceStatus(entity.getId());
+            List<TaskDeviceStatusStatis> tds = subTaskService.countTaskDeviceStatus(entity.getId());
             entity.setDeviceStatusStatis(tds);
         });
         return entityList;

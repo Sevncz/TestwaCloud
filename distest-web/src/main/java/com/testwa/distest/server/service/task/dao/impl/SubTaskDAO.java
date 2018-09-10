@@ -1,43 +1,42 @@
 package com.testwa.distest.server.service.task.dao.impl;
 
 import com.testwa.core.base.dao.impl.BaseDAO;
-import com.testwa.distest.server.entity.TaskDevice;
-import com.testwa.distest.server.mapper.TaskDeviceMapper;
-import com.testwa.distest.server.service.task.dao.ITaskDeviceDAO;
+import com.testwa.distest.server.entity.SubTask;
+import com.testwa.distest.server.mapper.SubTaskMapper;
+import com.testwa.distest.server.service.task.dao.ISubTaskDAO;
 import com.testwa.distest.server.service.task.dto.TaskDeviceStatusStatis;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.Map;
 
 @Repository
-public class TaskDeviceDAO extends BaseDAO<TaskDevice, Long> implements ITaskDeviceDAO {
+public class SubTaskDAO extends BaseDAO<SubTask, Long> implements ISubTaskDAO {
 
     @Resource
-    private TaskDeviceMapper mapper;
+    private SubTaskMapper mapper;
 
-    public List<TaskDevice> findBy(TaskDevice entity) {
+    public List<SubTask> findBy(SubTask entity) {
         return mapper.findBy(entity);
     }
 
     @Override
-    public TaskDevice findOne(Long entityId) {
+    public SubTask findOne(Long entityId) {
         return mapper.findOne(entityId);
     }
 
     @Override
-    public List<TaskDevice> findByTaskCode(Long taskCode) {
+    public List<SubTask> findByTaskCode(Long taskCode) {
         return mapper.findByTaskCode(taskCode);
     }
 
     @Override
-    public Long countBy(TaskDevice query) {
+    public Long countBy(SubTask query) {
         return mapper.countBy(query);
     }
 
     @Override
-    public TaskDevice findOne(Long taskCode, String deviceId) {
+    public SubTask findOne(Long taskCode, String deviceId) {
         return mapper.findOneByTaskCodeAndDeviceId(taskCode, deviceId);
     }
 

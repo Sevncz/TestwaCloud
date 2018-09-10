@@ -3,8 +3,8 @@ package com.testwa.distest.server.service;
 import com.alibaba.fastjson.JSON;
 import com.testwa.distest.DistestWebApplication;
 import com.testwa.distest.server.entity.Task;
-import com.testwa.distest.server.entity.TaskDevice;
-import com.testwa.distest.server.service.task.service.TaskDeviceService;
+import com.testwa.distest.server.entity.SubTask;
+import com.testwa.distest.server.service.task.service.SubTaskService;
 import com.testwa.distest.server.service.task.service.TaskService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -25,7 +25,7 @@ public class TaskServiceTest {
     @Autowired
     private TaskService taskService;
     @Autowired
-    private TaskDeviceService taskDeviceService;
+    private SubTaskService subTaskService;
 
 
     @Test
@@ -40,11 +40,11 @@ public class TaskServiceTest {
     }
     @Test
     public void testDeleteTaskDeviceByTaskId(){
-        taskDeviceService.deleteTaskDevice(10466432571670528L);
+        subTaskService.deleteTaskDevice(10466432571670528L);
     }
     @Test
     public void testFindByTaskCode(){
-        List<TaskDevice> tds = taskDeviceService.findByTaskCode(10466432571670528L);
+        List<SubTask> tds = subTaskService.findByTaskCode(10466432571670528L);
         log.info(JSON.toJSONString(tds));
     }
 }

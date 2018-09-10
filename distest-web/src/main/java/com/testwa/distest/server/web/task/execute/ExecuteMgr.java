@@ -17,7 +17,7 @@ import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.rpc.cache.CacheUtil;
 import com.testwa.distest.server.service.script.service.ScriptService;
 import com.testwa.distest.server.service.task.form.*;
-import com.testwa.distest.server.service.task.service.TaskDeviceService;
+import com.testwa.distest.server.service.task.service.SubTaskService;
 import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.service.testcase.service.TestcaseService;
 import com.testwa.distest.server.service.user.service.UserService;
@@ -54,7 +54,7 @@ public class ExecuteMgr {
     @Autowired
     private TaskService taskService;
     @Autowired
-    private TaskDeviceService taskDeviceService;
+    private SubTaskService subTaskService;
     @Autowired
     private DeviceAuthMgr deviceAuthMgr;
     @Autowired
@@ -160,16 +160,16 @@ public class ExecuteMgr {
         Map<String, DeviceLog> deviceLogMap = new HashMap<>();
         // 启动任务
         for (String key : deviceIds) {
-            TaskDevice taskDevice = new TaskDevice();
-            taskDevice.setStatus(DB.TaskStatus.RUNNING);
-            taskDevice.setDeviceId(key);
-            taskDevice.setTaskCode(taskCode);
-            taskDevice.setTaskType(task.getTaskType());
-            taskDevice.setCreateTime(new Date());
-            taskDevice.setCreateBy(user.getId());
-            taskDevice.setEnabled(true);
-            taskDevice.setProjectId(app.getProjectId());
-            taskDeviceService.save(taskDevice);
+            SubTask subTask = new SubTask();
+            subTask.setStatus(DB.TaskStatus.RUNNING);
+            subTask.setDeviceId(key);
+            subTask.setTaskCode(taskCode);
+            subTask.setTaskType(task.getTaskType());
+            subTask.setCreateTime(new Date());
+            subTask.setCreateBy(user.getId());
+            subTask.setEnabled(true);
+            subTask.setProjectId(app.getProjectId());
+            subTaskService.save(subTask);
 
             RemoteRunCommand cmd = new RemoteRunCommand();
             AppInfo appInfo = new AppInfo();
@@ -229,8 +229,8 @@ public class ExecuteMgr {
                 log.info("........ get task {} info", taskCode);
                 Task t = taskService.findByCode(taskCode);
                 int runningCount = t.getDevices().size();
-                List<TaskDevice> tds = taskDeviceService.findByTaskCode(taskCode);
-                for(TaskDevice taskDevice : tds){
+                List<SubTask> tds = subTaskService.findByTaskCode(taskCode);
+                for(SubTask taskDevice : tds){
                     if(!DB.TaskStatus.RUNNING.equals(taskDevice.getStatus())
                             && !DB.TaskStatus.NOT_EXECUTE.equals(taskDevice.getStatus())) {
                         runningCount--;
@@ -300,7 +300,7 @@ public class ExecuteMgr {
             log.error("设备还未准备好");
         }
 
-        taskDeviceService.cancelOneTask(device.getDeviceId(), taskCode, updateBy);
+        subTaskService.cancelOneTask(device.getDeviceId(), taskCode, updateBy);
         deviceService.release(device.getDeviceId());
     }
 

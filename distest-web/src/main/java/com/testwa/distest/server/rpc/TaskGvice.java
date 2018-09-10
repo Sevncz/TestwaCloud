@@ -4,10 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.testwa.core.utils.ZipUtil;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.config.DisFileProperties;
-import com.testwa.distest.config.security.JwtTokenUtil;
 import com.testwa.distest.server.entity.AppiumFile;
 import com.testwa.distest.server.entity.LogFile;
-import com.testwa.distest.server.entity.TaskDevice;
+import com.testwa.distest.server.entity.SubTask;
 import com.testwa.distest.server.mongo.event.LogcatAnalysisEvent;
 import com.testwa.distest.server.mongo.model.*;
 import com.testwa.distest.server.mongo.service.MethodRunningLogService;
@@ -16,8 +15,7 @@ import com.testwa.distest.server.mongo.service.TaskLogService;
 import com.testwa.distest.server.mongo.service.TaskParamsService;
 import com.testwa.distest.server.service.task.service.AppiumFileService;
 import com.testwa.distest.server.service.task.service.LogFileService;
-import com.testwa.distest.server.service.task.service.TaskDeviceService;
-import com.testwa.distest.server.service.user.service.UserService;
+import com.testwa.distest.server.service.task.service.SubTaskService;
 import com.testwa.distest.server.web.task.execute.PerformanceRedisMgr;
 import com.testwa.distest.server.web.task.execute.ProcedureRedisMgr;
 import com.testwa.distest.server.websocket.service.MessageNotifyService;
@@ -48,7 +46,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     private String mMessage = "";
 
     @Autowired
-    private TaskDeviceService taskDeviceService;
+    private SubTaskService subTaskService;
     @Autowired
     private AppiumFileService appiumFileService;
     @Autowired
@@ -79,12 +77,12 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
         String errorMessage = request.getErrorMessage();
         String deviceId = request.getDeviceId();
 
-        TaskDevice taskDevice = taskDeviceService.findOne(taskCode, deviceId);
-        if(taskDevice != null){
-            taskDevice.setErrorMsg(errorMessage);
-            taskDevice.setStatus(DB.TaskStatus.ERROR);
-            taskDevice.setEndTime(new Date(timestamp));
-            taskDeviceService.update(taskDevice);
+        SubTask subTask = subTaskService.findOne(taskCode, deviceId);
+        if(subTask != null){
+            subTask.setErrorMsg(errorMessage);
+            subTask.setStatus(DB.TaskStatus.ERROR);
+            subTask.setEndTime(new Date(timestamp));
+            subTaskService.update(subTask);
         }else{
             log.error("exeTask info not format. {}", request.toString());
         }
@@ -98,13 +96,13 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
         Long exeId = request.getTaskCode();
         Long timestamp = request.getTimestamp();
         String deviceId = request.getDeviceId();
-        TaskDevice taskDevice = taskDeviceService.findOne(exeId, deviceId);
-        if(taskDevice != null){
-            if(DB.TaskStatus.RUNNING.equals(taskDevice.getStatus())){
-                taskDevice.setStatus(DB.TaskStatus.COMPLETE);
+        SubTask subTask = subTaskService.findOne(exeId, deviceId);
+        if(subTask != null){
+            if(DB.TaskStatus.RUNNING.equals(subTask.getStatus())){
+                subTask.setStatus(DB.TaskStatus.COMPLETE);
             }
-            taskDevice.setEndTime(new Date(timestamp));
-            taskDeviceService.update(taskDevice);
+            subTask.setEndTime(new Date(timestamp));
+            subTaskService.update(subTask);
         }else{
             log.error("exeTask info not format. {}", request.toString());
         }
@@ -465,10 +463,10 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
                     }
                 }
 
-                TaskDevice taskDevice = taskDeviceService.findOne(taskCode, deviceId);
-                if(taskDevice != null && FileUploadRequest.Type.video.equals(type)) {
-                    if(StringUtils.isBlank(taskDevice.getVideo())) {
-                        taskDeviceService.updateVideoPath(taskCode, deviceId, fileRelativePath);
+                SubTask subTask = subTaskService.findOne(taskCode, deviceId);
+                if(subTask != null && FileUploadRequest.Type.video.equals(type)) {
+                    if(StringUtils.isBlank(subTask.getVideo())) {
+                        subTaskService.updateVideoPath(taskCode, deviceId, fileRelativePath);
                     }
                 }
 

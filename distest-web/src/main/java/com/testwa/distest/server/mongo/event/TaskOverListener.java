@@ -9,7 +9,7 @@ import com.testwa.distest.server.mongo.model.ProcedureStatis;
 import com.testwa.distest.server.mongo.service.AppiumRunningLogService;
 import com.testwa.distest.server.service.device.service.DeviceLogService;
 import com.testwa.distest.server.service.device.service.DeviceService;
-import com.testwa.distest.server.service.task.service.TaskDeviceService;
+import com.testwa.distest.server.service.task.service.SubTaskService;
 import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.service.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +40,7 @@ public class TaskOverListener implements ApplicationListener<TaskOverEvent> {
     @Autowired
     private DeviceService deviceService;
     @Autowired
-    private TaskDeviceService taskDeviceService;
+    private SubTaskService subTaskService;
     @Autowired
     private DeviceLogService deviceLogService;
     @Autowired
@@ -72,26 +72,26 @@ public class TaskOverListener implements ApplicationListener<TaskOverEvent> {
             logType = DB.DeviceLogType.JR;
         }
         User user = userService.findOne(task.getCreateBy());
-        List<TaskDevice> tds = taskDeviceService.findByTaskCode(taskCode);
-        for(TaskDevice taskDevice : tds) {
-            DeviceLog dl = new DeviceLog(taskDevice.getDeviceId(), logType);
+        List<SubTask> tds = subTaskService.findByTaskCode(taskCode);
+        for(SubTask subTask : tds) {
+            DeviceLog dl = new DeviceLog(subTask.getDeviceId(), logType);
             dl.setRunning(false);
-            if(taskDevice.getCreateTime() == null) {
-                log.warn("设备任务 taskDevice createTime is null error {}", taskDevice.toString());
+            if(subTask.getCreateTime() == null) {
+                log.warn("设备任务 subTask createTime is null error {}", subTask.toString());
                 continue;
             }
-            dl.setStartTime(taskDevice.getCreateTime().getTime());
-            if(taskDevice.getEndTime() == null) {
+            dl.setStartTime(subTask.getCreateTime().getTime());
+            if(subTask.getEndTime() == null) {
                 dl.setEndTime(System.currentTimeMillis());
             }
             dl.setUserCode(user.getUserCode());
             deviceLogService.insert(dl);
 
-            if(DB.TaskStatus.RUNNING.equals(taskDevice.getStatus())) {
-                taskDevice.setStatus(DB.TaskStatus.TIMEOUT);
-                taskDevice.setEndTime(new Date());
-                taskDevice.setErrorMsg("超时");
-                taskDeviceService.update(taskDevice);
+            if(DB.TaskStatus.RUNNING.equals(subTask.getStatus())) {
+                subTask.setStatus(DB.TaskStatus.TIMEOUT);
+                subTask.setEndTime(new Date());
+                subTask.setErrorMsg("超时");
+                subTaskService.update(subTask);
             }
 
         }

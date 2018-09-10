@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.testwa.distest.server.mapper.TaskDeviceMapper" >
-    <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.TaskDevice" >
+<mapper namespace="com.testwa.distest.server.mapper.SubTaskMapper" >
+    <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.SubTask" >
         <id column="id" property="id" jdbcType="BIGINT" />
         <result column="status" property="status" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
         <result column="taskCode" property="taskCode" jdbcType="BIGINT"/>
@@ -30,21 +30,21 @@
     <select id="findOne" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />
-        FROM task_device
+        FROM sub_task
         WHERE enabled = 1 AND id = #{key}
     </select>
 
     <select id="findOneByTaskCodeAndDeviceId" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />
-        FROM task_device
+        FROM sub_task
         WHERE enabled = 1 AND taskCode = #{taskCode} and deviceId = #{deviceId}
     </select>
 
-    <select id="findBy" parameterType="com.testwa.distest.server.entity.TaskDevice" resultMap="BaseResultMap" >
+    <select id="findBy" parameterType="com.testwa.distest.server.entity.SubTask" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />
-        FROM task_device
+        FROM sub_task
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             enabled = 1
             <if test="createBy != null">and createBy = #{createBy}</if>
@@ -53,16 +53,16 @@
         </trim>
     </select>
 
-    <select id="findByTaskCode" parameterType="com.testwa.distest.server.entity.TaskDevice" resultMap="BaseResultMap" >
+    <select id="findByTaskCode" parameterType="com.testwa.distest.server.entity.SubTask" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />
-        FROM task_device
+        FROM sub_task
         WHERE enabled = 1 AND taskCode = #{taskCode}
         order by status, endTime
     </select>
 
     <select id="countBy" resultType="long">
-        SELECT count(1) c FROM task_device
+        SELECT count(1) c FROM sub_task
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             enabled = 1
             <if test="status != null">and status = #{status, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
@@ -71,19 +71,19 @@
 
     <select id="countTaskDeviceStatus" resultMap="StatisResultMap">
         SELECT count(1) as count, status as taskStatus
-        FROM task_device
+        FROM sub_task
         where taskCode = #{taskCode} AND enabled = 1
         group by status
     </select>
 
     <update id="disableAll">
-        update task_device
+        update sub_task
         set enabled = 0
         where taskCode = #{taskCode}
     </update>
 
     <update id="updateVideoPath">
-        update task_device
+        update sub_task
         set video = #{videoPath}
         where taskCode = #{taskCode} and deviceId = #{deviceId}
     </update>

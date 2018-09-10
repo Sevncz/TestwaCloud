@@ -1,25 +1,24 @@
 package com.testwa.distest.server.service.task.dao;
 
 import com.testwa.core.base.dao.IBaseDAO;
-import com.testwa.distest.server.entity.TaskDevice;
+import com.testwa.distest.server.entity.SubTask;
 import com.testwa.distest.server.service.task.dto.TaskDeviceStatusStatis;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by wen on 19/10/2017.
  */
-public interface ITaskDeviceDAO extends IBaseDAO<TaskDevice, Long> {
-    List<TaskDevice> findBy(TaskDevice entity);
+public interface ISubTaskDAO extends IBaseDAO<SubTask, Long> {
+    List<SubTask> findBy(SubTask entity);
 
-    TaskDevice findOne(Long entityId);
+    SubTask findOne(Long entityId);
 
-    List<TaskDevice> findByTaskCode(Long taskCode);
+    List<SubTask> findByTaskCode(Long taskCode);
 
-    Long countBy(TaskDevice kq);
+    Long countBy(SubTask kq);
 
-    TaskDevice findOne(Long taskCode, String deviceId);
+    SubTask findOne(Long taskCode, String deviceId);
 
     List<TaskDeviceStatusStatis> countTaskDeviceStatus(Long taskId);
 

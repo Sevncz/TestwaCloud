@@ -9,11 +9,8 @@ import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.base.vo.Result;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.util.WebUtil;
-import com.testwa.distest.server.entity.AppiumFile;
-import com.testwa.distest.server.entity.Script;
-import com.testwa.distest.server.entity.Task;
+import com.testwa.distest.server.entity.*;
 import com.testwa.core.base.constant.WebConstants;
-import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.mongo.model.CrashLog;
 import com.testwa.distest.server.mongo.model.Step;
 import com.testwa.distest.server.mongo.service.CrashLogService;
@@ -23,6 +20,7 @@ import com.testwa.distest.server.service.task.form.StepListForm;
 import com.testwa.distest.server.service.task.form.StepPageForm;
 import com.testwa.distest.server.service.task.form.TaskListForm;
 import com.testwa.distest.server.service.task.service.AppiumFileService;
+import com.testwa.distest.server.service.task.service.SubTaskService;
 import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
@@ -54,6 +52,8 @@ public class CommonReportController extends BaseController {
 
     @Autowired
     private TaskService taskService;
+    @Autowired
+    private SubTaskService subTaskService;
     @Autowired
     private AppiumFileService appiumFileService;
     @Autowired
@@ -387,6 +387,19 @@ public class CommonReportController extends BaseController {
         }
         Step step = stepService.getLaunchStep(taskCode, deviceId);
         return ok(step);
+    }
+
+
+    @ApiOperation(value="设备执行任务的信息")
+    @ResponseBody
+    @GetMapping(value = "/{taskCode}/subTask/info/{deviceId}")
+    public Result subTask(@PathVariable Long taskCode, @PathVariable String deviceId) throws ObjectNotExistsException {
+        Task task = taskValidatoer.validateTaskExist(taskCode);
+        if(DB.TaskStatus.RUNNING.equals(task.getStatus())) {
+            throw new ReportException("任务还未完成");
+        }
+        SubTask subTask = subTaskService.findOne(taskCode, deviceId);
+        return ok(subTask);
     }
 
 }

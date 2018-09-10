@@ -4,7 +4,7 @@ import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.mongo.model.AppiumRunningLog;
 import com.testwa.distest.server.mongo.repository.AppiumRunningLogRepository;
-import com.testwa.distest.server.service.task.dao.ITaskDeviceDAO;
+import com.testwa.distest.server.service.task.dao.ISubTaskDAO;
 import com.testwa.distest.server.service.task.dto.TaskDeviceStatusStatis;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,29 +21,29 @@ import java.util.List;
 @Slf4j
 @Service
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
-public class TaskDeviceService {
+public class SubTaskService {
 
     @Autowired
-    private ITaskDeviceDAO taskDeviceDAO;
+    private ISubTaskDAO taskDeviceDAO;
     @Autowired
     private AppiumRunningLogRepository procedureInfoRepository;
 
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public long save(TaskDevice entity) {
+    public long save(SubTask entity) {
         return taskDeviceDAO.insert(entity);
     }
 
-    public TaskDevice findOne(Long entityId) {
+    public SubTask findOne(Long entityId) {
         return taskDeviceDAO.findOne(entityId);
     }
 
-    public List<TaskDevice> findAll(List<Long> entityIds) {
+    public List<SubTask> findAll(List<Long> entityIds) {
         return taskDeviceDAO.findAll(entityIds);
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public void update(TaskDevice entity) {
+    public void update(SubTask entity) {
         taskDeviceDAO.update(entity);
     }
 
@@ -61,34 +61,34 @@ public class TaskDeviceService {
         taskDeviceDAO.disableAll(taskCode);
     }
 
-    public List<TaskDevice> getRunningtaskDevice(Long projectId, Long userId) {
-        TaskDevice query = new TaskDevice();
+    public List<SubTask> getRunningtaskDevice(Long projectId, Long userId) {
+        SubTask query = new SubTask();
         query.setStatus(DB.TaskStatus.RUNNING);
         query.setProjectId(projectId);
         query.setCreateBy(userId);
         return taskDeviceDAO.findBy(query);
     }
 
-    public List<TaskDevice> getRecentFinishedRunningTask(Long projectId, Long userId) {
-        TaskDevice query = new TaskDevice();
+    public List<SubTask> getRecentFinishedRunningTask(Long projectId, Long userId) {
+        SubTask query = new SubTask();
         query.setStatus(DB.TaskStatus.COMPLETE);
         query.setProjectId(projectId);
         query.setCreateBy(userId);
         return taskDeviceDAO.findBy(query);
     }
 
-    public TaskDevice findOne(Long taskCode, String deviceId) {
+    public SubTask findOne(Long taskCode, String deviceId) {
         return taskDeviceDAO.findOne(taskCode, deviceId);
     }
 
     /**
      *@Description: 按状态顺序返回
      *@Param: [taskCode]
-     *@Return: java.util.List<com.testwa.distest.server.entity.TaskDevice>
+     *@Return: java.util.List<com.testwa.distest.server.entity.SubTask>
      *@Author: wen
      *@Date: 2018/5/3
      */
-    public List<TaskDevice> findByTaskCode(Long taskCode) {
+    public List<SubTask> findByTaskCode(Long taskCode) {
         return taskDeviceDAO.findByTaskCode(taskCode);
     }
 
@@ -112,12 +112,12 @@ public class TaskDeviceService {
      */
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void cancelOneTask(String deviceId, Long taskId, Long userId) {
-        TaskDevice taskDevice = taskDeviceDAO.findOne(taskId, deviceId);
-        taskDevice.setEndTime(new Date());
-        taskDevice.setStatus(DB.TaskStatus.CANCEL);
-        taskDevice.setUpdateBy(userId);
-        taskDevice.setUpdateTime(new Date());
-        taskDeviceDAO.update(taskDevice);
+        SubTask subTask = taskDeviceDAO.findOne(taskId, deviceId);
+        subTask.setEndTime(new Date());
+        subTask.setStatus(DB.TaskStatus.CANCEL);
+        subTask.setUpdateBy(userId);
+        subTask.setUpdateTime(new Date());
+        taskDeviceDAO.update(subTask);
     }
 
     /**
