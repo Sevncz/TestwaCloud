@@ -12,6 +12,8 @@ import java.util.Map;
 public interface IScriptDAO extends IBaseDAO<Script, Long> {
     List<Script> findBy(Script entity);
 
+    List<Script> findBy(Script script, Long startTime, Long endTime);
+
     Script findOne(Long key);
 
     List<Script> findAll(List<Long> keys);

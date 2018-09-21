@@ -46,18 +46,20 @@
         </trim>
     </select>
 
-    <select id="findFinishBy" parameterType="com.testwa.distest.server.entity.Task" resultMap="BaseResultMap" >
+    <select id="findFinishBy" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />
         FROM task
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             enabled = 1
             and status != 0 and status != 1
-            <if test="createBy != null">and createBy = #{createBy}</if>
-            <if test="projectId != null">and projectId = #{projectId}</if>
-            <if test="appId != null">and appId = #{appId}</if>
-            <if test="taskCode != null">and taskCode = #{taskCode}</if>
-            <if test="taskName != null">and taskName LIKE CONCAT('%', #{taskName}, '%')</if>
+            <if test="query.createBy != null">and createBy = #{query.createBy}</if>
+            <if test="query.projectId != null">and projectId = #{query.projectId}</if>
+            <if test="query.appId != null">and appId = #{query.appId}</if>
+            <if test="query.taskCode != null">and taskCode = #{query.taskCode}</if>
+            <if test="query.taskName != null">and taskName LIKE CONCAT('%', #{query.taskName}, '%')</if>
+            <if test="startTime != null">and createTime &gt;= from_unixtime(#{startTime})</if>
+            <if test="endTime != null">and createTime &lt;= from_unixtime(#{endTime})</if>
         </trim>
     </select>
 
@@ -89,10 +91,31 @@
         set enabled = 0
         where taskCode = #{taskCode}
     </update>
+
     <update id="disableAll" >
         update task
         set enabled = 0
         where taskCode in
         <foreach item="item" index="index" collection="taskCodes" open="(" separator="," close=")">#{item} </foreach>
     </update>
+
+    <select id="countAppTest" resultType="com.testwa.distest.server.service.task.dto.CountAppTestStatisDTO">
+        select count(*) as count, appId, taskType
+        from task
+        where enabled = 1 and projectId = #{projectId}
+        <if test="startTime != null">and createTime &gt;= from_unixtime(#{startTime})</if>
+        <if test="endTime != null">and createTime &lt;= from_unixtime(#{endTime})</if>
+        group by appId, taskType
+        order by appId
+    </select>
+
+    <select id="countMemberTest" resultType="com.testwa.distest.server.service.task.dto.CountMemberTestStatisDTO">
+        select count(*) as count, createBy as memberId, taskType
+        from task
+        where enabled = 1 and projectId = #{projectId}
+        <if test="startTime != null">and createTime &gt;= from_unixtime(#{startTime})</if>
+        <if test="endTime != null">and createTime &lt;= from_unixtime(#{endTime})</if>
+        group by createBy, taskType
+        order by createBy
+    </select>
 </mapper>

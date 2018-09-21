@@ -126,4 +126,8 @@ public class UserService {
         String newHashPwd = passwordEncoder.encode(newpassword);
         userDAO.resetPwd(userCode, newHashPwd);
     }
+
+    public List<User> findAll(List<Long> entityIds) {
+        return userDAO.findAll(entityIds);
+    }
 }

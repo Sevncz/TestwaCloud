@@ -65,17 +65,19 @@
         </if>
     </select>
 
-    <select id="findBy" parameterType="com.testwa.distest.server.entity.Script" resultMap="BaseResultMap" >
+    <select id="findBy" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />
         FROM script
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             enabled = 1
-            <if test="createBy != null">and createBy = #{createBy}</if>
-            <if test="projectId != null">and projectId = #{projectId}</if>
-            <if test="scriptName != null">and scriptName LIKE CONCAT('%', #{scriptName}, '%')</if>
-            <if test="appPackage != null">and appPackage = #{appPackage}</if>
-            <if test="md5 != null">and md5 = #{md5}</if>
+            <if test="entity.createBy != null">and createBy = #{entity.createBy}</if>
+            <if test="entity.projectId != null">and projectId = #{entity.projectId}</if>
+            <if test="entity.scriptName != null">and scriptName LIKE CONCAT('%', #{entity.scriptName}, '%')</if>
+            <if test="entity.appPackage != null">and appPackage = #{entity.appPackage}</if>
+            <if test="entity.md5 != null">and md5 = #{entity.md5}</if>
+            <if test="startTime != null">and createTime &gt;= from_unixtime(#{startTime})</if>
+            <if test="endTime != null">and createTime &lt;= from_unixtime(#{endTime})</if>
         </trim>
     </select>
 

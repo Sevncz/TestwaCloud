@@ -11,6 +11,8 @@ import com.testwa.distest.server.mongo.model.*;
 import com.testwa.distest.server.mongo.repository.*;
 import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.service.task.dao.ITaskDAO;
+import com.testwa.distest.server.service.task.dto.CountAppTestStatisDTO;
+import com.testwa.distest.server.service.task.dto.CountMemberTestStatisDTO;
 import com.testwa.distest.server.service.task.dto.TaskDeviceStatusStatis;
 import com.testwa.distest.server.service.task.form.ScriptListForm;
 import com.testwa.distest.server.service.task.form.TaskListForm;
@@ -126,6 +128,30 @@ public class TaskService {
             query.setAppId(queryForm.getAppId());
         }
         List<Task> entityList = taskDAO.findBy(query);
+
+        entityList.forEach(entity -> {
+            List<TaskDeviceStatusStatis> tds = subTaskService.countTaskDeviceStatus(entity.getId());
+            entity.setDeviceStatusStatis(tds);
+        });
+        return entityList;
+    }
+
+    public List<Task> findFinishList(Long projectId) {
+        return findFinishList(projectId, new TaskListForm());
+    }
+
+
+    public List<Task> findFinishList(Long projectId, Long startTime, Long endTime, TaskListForm queryForm) {
+        PageHelper.orderBy(queryForm.getOrderBy() + " " + queryForm.getOrder());
+        Task query = new Task();
+        query.setProjectId(projectId);
+        if (StringUtils.isNotBlank(queryForm.getTaskName())) {
+            query.setTaskName(queryForm.getTaskName());
+        }
+        if (queryForm.getAppId() != null) {
+            query.setAppId(queryForm.getAppId());
+        }
+        List<Task> entityList = taskDAO.findFinishBy(query, startTime, endTime);
 
         entityList.forEach(entity -> {
             List<TaskDeviceStatusStatis> tds = subTaskService.countTaskDeviceStatus(entity.getId());
@@ -414,4 +440,11 @@ public class TaskService {
         return getResult(agg, Performance.getCollectionName());
     }
 
+    public List<CountAppTestStatisDTO> countAppTest(Long projectId, Long startTime, Long endTime) {
+        return taskDAO.countAppTest(projectId, startTime, endTime);
+    }
+
+    public List<CountMemberTestStatisDTO> countMemberTest(Long projectId, Long startTime, Long endTime) {
+        return taskDAO.countMemberTest(projectId, startTime, endTime);
+    }
 }

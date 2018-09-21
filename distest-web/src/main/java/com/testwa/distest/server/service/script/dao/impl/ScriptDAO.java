@@ -16,8 +16,13 @@ public class ScriptDAO extends BaseDAO<Script, Long> implements IScriptDAO {
     @Resource
     private ScriptMapper mapper;
 
-    public List<Script> findBy(Script app) {
-        return mapper.findBy(app);
+    public List<Script> findBy(Script script) {
+        return mapper.findBy(script, null, null);
+    }
+
+    @Override
+    public List<Script> findBy(Script script, Long startTime, Long endTime) {
+        return mapper.findBy(script, startTime, endTime);
     }
 
     @Override

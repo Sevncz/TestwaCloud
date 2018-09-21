@@ -251,15 +251,14 @@ public class TaskController extends BaseController {
             // 保存参数
             Map<String, Object> config = new HashMap<String, Object>(){
                 {
-                    if(form.getBlackList() != null) put("blackList", form.getBlackList());
-                    if(form.getWhiteList() != null) put("whiteList", form.getWhiteList());
-                    if(form.getUrlBlackList() != null) put("urlBlackList", form.getUrlBlackList());
-                    if(form.getUrlWhiteList() != null) put("urlWhiteList", form.getUrlWhiteList());
-                    if(form.getFirstList() != null) put("firstList", form.getFirstList());
-                    if(form.getLastList() != null) put("lastList", form.getLastList());
-                    if(form.getBackButton() != null) put("backButton", form.getBackButton());
                     if(form.getMaxDepth() != null) put("maxDepth", form.getMaxDepth());
-                    if(form.getTrigger() != null) put("trigger", form.getTrigger());
+                    if(form.getInputClassList() != null) put("inputClassList", form.getInputClassList());
+                    if(form.getInputTextList() != null) put("inputTextList", form.getInputTextList());
+                    if(form.getItemBlackList() != null) put("itemBlackList", form.getItemBlackList());
+                    if(form.getItemWhiteList() != null) put("itemWhiteList", form.getItemWhiteList());
+                    if(form.getRunningTimeMinutes() != null) put("runningTimeMin", form.getRunningTimeMinutes());
+                    if(form.getBackKeyTriggerList() != null) put("backKeyTriggerList", form.getBackKeyTriggerList());
+                    if(form.getLoginElementAndroid() != null) put("loginElementAndroid", form.getLoginElementAndroid());
                 }
             };
 

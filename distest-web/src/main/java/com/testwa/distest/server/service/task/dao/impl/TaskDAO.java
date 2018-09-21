@@ -5,6 +5,8 @@ import com.testwa.distest.server.entity.Task;
 import com.testwa.core.base.dao.impl.BaseDAO;
 import com.testwa.distest.server.mapper.TaskMapper;
 import com.testwa.distest.server.service.task.dao.ITaskDAO;
+import com.testwa.distest.server.service.task.dto.CountAppTestStatisDTO;
+import com.testwa.distest.server.service.task.dto.CountMemberTestStatisDTO;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
@@ -39,7 +41,22 @@ public class TaskDAO extends BaseDAO<Task, Long> implements ITaskDAO {
 
     @Override
     public List<Task> findFinishBy(Task query) {
-        return mapper.findFinishBy(query);
+        return mapper.findFinishBy(query, null, null);
+    }
+
+    @Override
+    public List<Task> findFinishBy(Task query, Long startTime, Long endTime) {
+        return mapper.findFinishBy(query, startTime, endTime);
+    }
+
+    @Override
+    public List<CountAppTestStatisDTO> countAppTest(Long projectId, Long startTime, Long endTime) {
+        return mapper.countAppTest(projectId, startTime, endTime);
+    }
+
+    @Override
+    public List<CountMemberTestStatisDTO> countMemberTest(Long projectId, Long startTime, Long endTime) {
+        return mapper.countMemberTest(projectId, startTime, endTime);
     }
 
     @Override

@@ -3,6 +3,7 @@
 <mapper namespace="com.testwa.distest.server.mapper.DeviceLogMapper" >
     <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.DeviceLog" >
         <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="projectId" property="projectId" jdbcType="BIGINT" />
         <result column="deviceId" property="deviceId" jdbcType="VARCHAR" />
         <result column="userCode" property="userCode" jdbcType="VARCHAR" />
         <result column="logType" property="logType" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
@@ -11,5 +12,24 @@
         <result column="endTime" property="endTime" jdbcType="BIGINT"/>
 
     </resultMap>
+
+    <sql id="Base_Column_List" >
+        id, projectId, deviceId, userCode, logType, running, startTime, endTime
+    </sql>
+
+
+    <select id="sumDebugTime" resultType="long" >
+        SELECT sum(endTime - startTime)
+        FROM device_log
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            endTime > 0
+            and userCode in
+            <foreach item="item" index="index" collection="members" open="(" separator="," close=")">#{item.userCode} </foreach>
+            <if test="projectId != null">and projectId = #{projectId}</if>
+            <if test="startTime != null">and startTime &gt;= #{startTime}</if>
+            <if test="endTime != null">and endTime &lt;= #{endTime}</if>
+        </trim>
+    </select>
+
 
 </mapper>

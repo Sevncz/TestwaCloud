@@ -6,12 +6,11 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Map;
 
 @Repository
 public interface ScriptMapper extends BaseMapper<Script, Long> {
 
-	List<Script> findBy(Script entity);
+	List<Script> findBy(@Param("entity") Script entity, @Param("startTime") Long startTime, @Param("endTime") Long endTime);
 
     List<Script> findByFromTestcase(Long TestcaseId);
 
