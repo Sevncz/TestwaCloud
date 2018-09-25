@@ -136,7 +136,9 @@ public class ProjectStatisController extends BaseController {
             result.add(resultMap);
         });
 
-        return ok(result);
+        PageResult<Object> resultPR = new PageResult<Object>(result, dynamicVOPageResult.getTotal());
+
+        return ok(resultPR);
     }
 
 

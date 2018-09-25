@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 public class ProjectStatisMultiBarVO {
     // 名称列表
-    private List<String> legnd;
+    private List<String> legend;
     private List<TestCountSeries> series;
 
     public void add(TestCountSeries testCountSeries) {

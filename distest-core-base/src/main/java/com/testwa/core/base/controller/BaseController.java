@@ -8,6 +8,8 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +17,17 @@ import java.util.List;
 public class BaseController implements ApplicationContextAware {
 
     protected ApplicationContext context;
+    private static final String RELEASE_DATE ="2018-01-01";
+
+    private static final long MIN_TIMESTAMP;
+
+    static {
+        try {
+            MIN_TIMESTAMP = new SimpleDateFormat("yyyy-MM-dd").parse(RELEASE_DATE).getTime();
+        } catch (ParseException e) {
+            throw new AssertionError(e);
+        }
+    }
 
     public void setApplicationContext(ApplicationContext arg0) throws BeansException {
         this.context = arg0;
@@ -89,6 +102,10 @@ public class BaseController implements ApplicationContextAware {
             e.printStackTrace();
         }
         return vo;
+    }
+
+    public final boolean validTimestamp(long ts) {
+        return ts >= MIN_TIMESTAMP && ts <= System.currentTimeMillis();
     }
 
 }

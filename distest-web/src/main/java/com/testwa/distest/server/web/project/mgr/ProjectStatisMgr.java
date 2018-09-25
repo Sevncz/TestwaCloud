@@ -129,7 +129,7 @@ public class ProjectStatisMgr {
 
             });
 
-            appCountVO.setLegnd(appNames);
+            appCountVO.setLegend(appNames);
         }
         return appCountVO;
     }
@@ -178,7 +178,7 @@ public class ProjectStatisMgr {
 
             });
 
-            memberCountVO.setLegnd(userNames);
+            memberCountVO.setLegend(userNames);
         }
         return memberCountVO;
     }
