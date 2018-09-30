@@ -1,6 +1,8 @@
 package com.testwa.distest.server.web.project.mgr;
 
 
+import com.testwa.core.base.constraint.validation.PageOrderValidator;
+import com.testwa.core.base.form.RequestListBase;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.App;
@@ -14,10 +16,12 @@ import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.service.script.form.ScriptListForm;
 import com.testwa.distest.server.service.script.service.ScriptService;
 import com.testwa.distest.server.service.task.dto.CountAppTestStatisDTO;
+import com.testwa.distest.server.service.task.dto.CountElapsedTimeStatisDTO;
 import com.testwa.distest.server.service.task.dto.CountMemberTestStatisDTO;
 import com.testwa.distest.server.service.task.form.TaskListForm;
 import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.service.user.service.UserService;
+import com.testwa.distest.server.web.project.vo.ProjectStatisElapsedTimeLineVO;
 import com.testwa.distest.server.web.project.vo.ProjectStatisMultiBarVO;
 import com.testwa.distest.server.web.project.vo.ProjectStatisTestInfoVO;
 import com.testwa.distest.server.web.project.vo.ProjectTestDynamicVO;
@@ -95,8 +99,13 @@ public class ProjectStatisMgr {
      */
     public ProjectStatisMultiBarVO statisAppTestCountForEveryTestType(Long projectId, Long startTime, Long endTime) {
         ProjectStatisMultiBarVO appCountVO = new ProjectStatisMultiBarVO();
+        appCountVO.init();
 
         List<CountAppTestStatisDTO> countAppTestStatisList = taskService.countAppTest(projectId, startTime, endTime);
+
+        if(countAppTestStatisList.size() == 0) {
+            return appCountVO;
+        }
 
         Set<Long> appIds = new HashSet<>();
         Set<Integer> testTypes = new HashSet<>();
@@ -144,8 +153,13 @@ public class ProjectStatisMgr {
     public ProjectStatisMultiBarVO statisMemberTestCountForEveryTestType(Long projectId, Long startTime, Long endTime) {
 
         ProjectStatisMultiBarVO memberCountVO = new ProjectStatisMultiBarVO();
+        memberCountVO.init();
 
         List<CountMemberTestStatisDTO> countMemberTestStatisList = taskService.countMemberTest(projectId, startTime, endTime);
+        if(countMemberTestStatisList.size() == 0) {
+            return memberCountVO;
+        }
+
 
         Set<Long> memberIds = new HashSet<>();
         Set<Integer> testTypes = new HashSet<>();
@@ -184,6 +198,10 @@ public class ProjectStatisMgr {
     }
 
     public PageResult<ProjectTestDynamicVO> dynamicTestPage(Long projectId, Long startTime, Long endTime, TaskListForm taskListForm) {
+        RequestListBase.Page page = taskListForm.getPage();
+        page.setOrder(PageOrderValidator.DESC);
+        page.setOrderBy("createTime");
+        taskListForm.setPage(page);
 
         PageResult<Task> taskPageResult = taskService.findPage(projectId, taskListForm);
 
@@ -203,5 +221,39 @@ public class ProjectStatisMgr {
 
         PageResult<ProjectTestDynamicVO> dynamicVOPageResult = new PageResult(dynamicVOs, taskPageResult.getTotal());
         return dynamicVOPageResult;
+    }
+
+    public ProjectStatisElapsedTimeLineVO countElapsedTimeByDay(Long projectId, Long startTime, Long endTime) {
+        ProjectStatisElapsedTimeLineVO elapsedTimeLineVO = new ProjectStatisElapsedTimeLineVO();
+        List<CountElapsedTimeStatisDTO> countElapsedTimeDaysList = taskService.countElapsedTimeByDay(projectId, startTime, endTime);
+        if(countElapsedTimeDaysList != null) {
+            countElapsedTimeDaysList.forEach( dto -> {
+                if(dto != null) {
+                    elapsedTimeLineVO.add(dto.getSecond(), dto.getDay());
+                }
+            });
+        }
+        return elapsedTimeLineVO;
+    }
+
+    public Map<String, ProjectStatisElapsedTimeLineVO> countElapsedTimeForMember(Long projectId, Long startTime, Long endTime) {
+        Map<String, ProjectStatisElapsedTimeLineVO> lines = new HashMap<>();
+        List<User> members = projectMemberService.findAllMembers(projectId);
+        if(members.size() >= 1) {
+            for(User member : members) {
+                List<CountElapsedTimeStatisDTO> countElapsedTimeDaysList = taskService.countElapsedTimeByDay(projectId, member.getId(), startTime, endTime);
+                if(countElapsedTimeDaysList != null) {
+                    ProjectStatisElapsedTimeLineVO vo = new ProjectStatisElapsedTimeLineVO();
+                    countElapsedTimeDaysList.forEach( dto -> {
+                        if(dto != null) {
+                            vo.add(dto.getSecond(), dto.getDay());
+                        }
+
+                    });
+                    lines.put(member.getUsername(), vo);
+                }
+            }
+        }
+        return lines;
     }
 }

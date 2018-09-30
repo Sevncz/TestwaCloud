@@ -20,6 +20,7 @@ import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.app.mgr.InstallMgr;
 import com.testwa.distest.server.web.app.validator.AppValidator;
+import com.testwa.distest.server.web.app.vo.AppInfoVersionsDetailVO;
 import com.testwa.distest.server.web.app.vo.AppVO;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
 import io.swagger.annotations.Api;
@@ -32,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by wen on 20/10/2017.
@@ -146,13 +148,26 @@ public class AppController extends BaseController {
         return ok(apps);
     }
 
-    @ApiOperation(value="查询一个App", notes="")
+    @ApiOperation(value="搜索一个App", notes="")
     @ResponseBody
     @GetMapping(value = "/{projectId}/one/{query:.+}")
     public Result queryOne(@PathVariable("projectId") Long projectId, @PathVariable("query") String query) {
         projectValidator.validateProjectExist(projectId);
         AppInfo appInfo = appInfoService.getByQuery(projectId, query);
         return ok(appInfo);
+    }
+
+    @ApiOperation(value="获取一个App的详情", notes="")
+    @ResponseBody
+    @GetMapping(value = "/{projectId}/detail/{appInfoId}")
+    public Result getDetail(@PathVariable("projectId") Long projectId, @PathVariable("appInfoId") Long appInfoId) {
+        projectValidator.validateProjectExist(projectId);
+        AppInfo appInfo = appInfoService.findOne(appInfoId);
+        List<App> apps = appService.getAllVersions(appInfo);
+        AppInfoVersionsDetailVO vo = new AppInfoVersionsDetailVO();
+        vo.setAppInfo(appInfo);
+        vo.setVersions(apps);
+        return ok(vo);
     }
 
     @ApiOperation(value="删除多个应用", notes="")

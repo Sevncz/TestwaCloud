@@ -1,11 +1,13 @@
 package com.testwa.distest.server.web.project.vo;
 
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@ToString
 public class ProjectStatisMultiBarVO {
     // 名称列表
     private List<String> legend;
@@ -16,6 +18,11 @@ public class ProjectStatisMultiBarVO {
             series = new ArrayList<>();
         }
         series.add(testCountSeries);
+    }
+
+    public void init() {
+        legend = new ArrayList<>();
+        series = new ArrayList<>();
     }
 
     @Data

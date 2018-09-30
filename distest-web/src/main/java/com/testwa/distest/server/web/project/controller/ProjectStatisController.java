@@ -3,6 +3,7 @@ package com.testwa.distest.server.web.project.controller;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.ParamsFormatException;
+import com.testwa.core.base.util.ComparatorReverseDate;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.base.vo.Result;
 import com.testwa.distest.common.util.WebUtil;
@@ -12,10 +13,7 @@ import com.testwa.distest.server.service.task.form.TaskListForm;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.project.mgr.ProjectStatisMgr;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
-import com.testwa.distest.server.web.project.vo.ProjectStatis;
-import com.testwa.distest.server.web.project.vo.ProjectStatisMultiBarVO;
-import com.testwa.distest.server.web.project.vo.ProjectStatisTestInfoVO;
-import com.testwa.distest.server.web.project.vo.ProjectTestDynamicVO;
+import com.testwa.distest.server.web.project.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -79,7 +77,7 @@ public class ProjectStatisController extends BaseController {
         }
     }
 
-    @ApiOperation(value="项目测试基本统计信息，包括测试市场，测试次数，调试市场，上传脚本数量")
+    @ApiOperation(value="测试基本统计信息，包括测试市场，测试次数，调试市场，上传脚本数量")
     @ResponseBody
     @GetMapping(value = "/{projectId}/test/info")
     public Result testInfo(@PathVariable Long projectId, @RequestParam(value="startTime" ,required=false) Long startTime, @RequestParam(value="endTime" ,required=false) Long endTime){
@@ -113,7 +111,7 @@ public class ProjectStatisController extends BaseController {
         return ok(memberCountVO);
     }
 
-    @ApiOperation(value="项目测试动态")
+    @ApiOperation(value="测试动态")
     @ResponseBody
     @GetMapping(value = "/{projectId}/dynamic")
     public Result dynamic(@PathVariable Long projectId, @RequestParam(value="startTime" ,required=false) Long startTime, @RequestParam(value="endTime" ,required=false) Long endTime, TaskListForm taskListForm){
@@ -121,17 +119,24 @@ public class ProjectStatisController extends BaseController {
 
         PageResult<ProjectTestDynamicVO> dynamicVOPageResult = projectStatisMgr.dynamicTestPage(projectId, startTime, endTime, taskListForm);
 
+        // 转换格式，将list转成前台需要的格式
         List<ProjectTestDynamicVO> projectTestDynamicVOs = dynamicVOPageResult.getPages();
-        Map<String, List<ProjectTestDynamicVO>> groupByTime = projectTestDynamicVOs.stream().collect(Collectors.groupingBy( vo -> new DateTime(vo.getTime()).toString("yyyy-MM-dd")));
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd");
+        Map<Date, List<ProjectTestDynamicVO>> groupByTime = projectTestDynamicVOs.stream().collect(Collectors.groupingBy( projectTestDynamicVO -> {
+            String dayString = new DateTime(projectTestDynamicVO.getTime()).toString("yyyy-MM-dd");
+            DateTime dayTime = formatter.parseDateTime(dayString);
+            return dayTime.toDate();
+        }));
 
         List result = new ArrayList();
-        Set<String> timeGroupSet = groupByTime.keySet();
-        List<String> timeGroupList = new ArrayList<>(timeGroupSet);
-        Collections.reverse(timeGroupList);
+        Set<Date> timeGroupSet = groupByTime.keySet();
+        List<Date> timeGroupList = new ArrayList<>(timeGroupSet);
+        ComparatorReverseDate c = new ComparatorReverseDate();
+        timeGroupList.sort(c);
         timeGroupList.forEach( t -> {
             List<ProjectTestDynamicVO> pvo = groupByTime.get(t);
             Map<String, Object> resultMap = new HashMap<>();
-            resultMap.put("date", t);
+            resultMap.put("date", new DateTime(t.getTime()).toString("yyyy-MM-dd"));
             resultMap.put("data", pvo);
             result.add(resultMap);
         });
@@ -139,6 +144,20 @@ public class ProjectStatisController extends BaseController {
         PageResult<Object> resultPR = new PageResult<Object>(result, dynamicVOPageResult.getTotal());
 
         return ok(resultPR);
+    }
+
+    @ApiOperation(value="测试耗时统计")
+    @ResponseBody
+    @GetMapping(value = "/{projectId}/elapsed/time")
+    public Result elapsedTime(@PathVariable Long projectId, @RequestParam(value="startTime" ,required=false) Long startTime, @RequestParam(value="endTime" ,required=false) Long endTime){
+        checkProjectTestStatisParams(projectId, startTime, endTime);
+
+        ProjectStatisElapsedTimeLineVO elapsedTimeDaysVO = projectStatisMgr.countElapsedTimeByDay(projectId, startTime, endTime);
+        Map<String, ProjectStatisElapsedTimeLineVO> elapsedTimeMembersMap = projectStatisMgr.countElapsedTimeForMember(projectId, startTime, endTime);
+
+        ProjectStatisElapsedTimeVO resultVO = new ProjectStatisElapsedTimeVO(elapsedTimeDaysVO, elapsedTimeMembersMap);
+
+        return ok(resultVO);
     }
 
 

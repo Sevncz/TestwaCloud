@@ -6,6 +6,7 @@ import com.testwa.core.base.dao.impl.BaseDAO;
 import com.testwa.distest.server.mapper.TaskMapper;
 import com.testwa.distest.server.service.task.dao.ITaskDAO;
 import com.testwa.distest.server.service.task.dto.CountAppTestStatisDTO;
+import com.testwa.distest.server.service.task.dto.CountElapsedTimeStatisDTO;
 import com.testwa.distest.server.service.task.dto.CountMemberTestStatisDTO;
 import org.springframework.stereotype.Repository;
 
@@ -57,6 +58,16 @@ public class TaskDAO extends BaseDAO<Task, Long> implements ITaskDAO {
     @Override
     public List<CountMemberTestStatisDTO> countMemberTest(Long projectId, Long startTime, Long endTime) {
         return mapper.countMemberTest(projectId, startTime, endTime);
+    }
+
+    @Override
+    public List<CountElapsedTimeStatisDTO> countElapsedTimeByDay(Long projectId, Long startTime, Long endTime) {
+        return mapper.countElapsedTimeByDay(projectId, null, startTime, endTime);
+    }
+
+    @Override
+    public List<CountElapsedTimeStatisDTO> countElapsedTimeByDay(Long projectId, Long userId, Long startTime, Long endTime) {
+        return mapper.countElapsedTimeByDay(projectId, userId, startTime, endTime);
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.testwa.core.base.mapper.BaseMapper;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Task;
 import com.testwa.distest.server.service.task.dto.CountAppTestStatisDTO;
+import com.testwa.distest.server.service.task.dto.CountElapsedTimeStatisDTO;
 import com.testwa.distest.server.service.task.dto.CountMemberTestStatisDTO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -32,4 +33,6 @@ public interface TaskMapper extends BaseMapper<Task, Long> {
     List<CountAppTestStatisDTO> countAppTest(@Param("projectId") Long projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime);
 
     List<CountMemberTestStatisDTO> countMemberTest(@Param("projectId") Long projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime);
+
+    List<CountElapsedTimeStatisDTO> countElapsedTimeByDay(@Param("projectId") Long projectId, @Param("userId") Long userId, @Param("startTime") Long startTime, @Param("endTime") Long endTime);
 }

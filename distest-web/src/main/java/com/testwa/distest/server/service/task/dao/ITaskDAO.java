@@ -4,6 +4,7 @@ import com.testwa.core.base.dao.IBaseDAO;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Task;
 import com.testwa.distest.server.service.task.dto.CountAppTestStatisDTO;
+import com.testwa.distest.server.service.task.dto.CountElapsedTimeStatisDTO;
 import com.testwa.distest.server.service.task.dto.CountMemberTestStatisDTO;
 
 import java.util.Date;
@@ -33,4 +34,8 @@ public interface ITaskDAO extends IBaseDAO<Task, Long> {
     List<CountAppTestStatisDTO> countAppTest(Long projectId, Long startTime, Long endTime);
 
     List<CountMemberTestStatisDTO> countMemberTest(Long projectId, Long startTime, Long endTime);
+
+    List<CountElapsedTimeStatisDTO> countElapsedTimeByDay(Long projectId, Long startTime, Long endTime);
+
+    List<CountElapsedTimeStatisDTO> countElapsedTimeByDay(Long projectId, Long userId, Long startTime, Long endTime);
 }

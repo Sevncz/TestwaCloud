@@ -118,4 +118,17 @@
         group by createBy, taskType
         order by createBy
     </select>
+
+    <select id="countElapsedTimeByDay" resultType="com.testwa.distest.server.service.task.dto.CountElapsedTimeStatisDTO">
+        select UNIX_TIMESTAMP(endTime) - UNIX_TIMESTAMP(createTime) as second, DATE_FORMAT( createTime, "%Y-%m-%d" ) as day
+        from task
+        where enabled = 1 and endTime is not null
+        <if test="startTime != null">and createTime &gt;= from_unixtime(#{startTime})</if>
+        <if test="endTime != null">and createTime &lt;= from_unixtime(#{endTime})</if>
+        <if test="projectId != null">and projectId = #{projectId}</if>
+        <if test="userId != null">and createBy = #{userId}</if>
+        GROUP BY DATE_FORMAT( createTime, "%Y-%m-%d" )
+        order by createTime
+    </select>
+
 </mapper>

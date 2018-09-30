@@ -1,10 +1,12 @@
 package com.testwa.distest.server.web.project.vo;
 
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.Date;
 
 @Data
+@ToString
 public class ProjectTestDynamicVO {
 
     private String appName;

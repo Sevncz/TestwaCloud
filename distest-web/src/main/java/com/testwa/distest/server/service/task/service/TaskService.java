@@ -12,6 +12,7 @@ import com.testwa.distest.server.mongo.repository.*;
 import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.service.task.dao.ITaskDAO;
 import com.testwa.distest.server.service.task.dto.CountAppTestStatisDTO;
+import com.testwa.distest.server.service.task.dto.CountElapsedTimeStatisDTO;
 import com.testwa.distest.server.service.task.dto.CountMemberTestStatisDTO;
 import com.testwa.distest.server.service.task.dto.TaskDeviceStatusStatis;
 import com.testwa.distest.server.service.task.form.ScriptListForm;
@@ -446,5 +447,13 @@ public class TaskService {
 
     public List<CountMemberTestStatisDTO> countMemberTest(Long projectId, Long startTime, Long endTime) {
         return taskDAO.countMemberTest(projectId, startTime, endTime);
+    }
+
+    public List<CountElapsedTimeStatisDTO> countElapsedTimeByDay(Long projectId, Long startTime, Long endTime) {
+        return taskDAO.countElapsedTimeByDay(projectId, startTime, endTime);
+    }
+
+    public List<CountElapsedTimeStatisDTO> countElapsedTimeByDay(Long projectId, Long userId, Long startTime, Long endTime) {
+        return taskDAO.countElapsedTimeByDay(projectId, userId, startTime, endTime);
     }
 }

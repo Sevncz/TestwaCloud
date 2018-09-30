@@ -128,6 +128,7 @@ public class UserService {
     }
 
     public List<User> findAll(List<Long> entityIds) {
+        assert entityIds.size() == 0;
         return userDAO.findAll(entityIds);
     }
 }
