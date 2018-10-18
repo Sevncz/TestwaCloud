@@ -2,7 +2,7 @@ package com.testwa.distest.server.service.device.service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.testwa.core.base.vo.PageResult;
+import com.testwa.core.base.vo.PageResultVO;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.IOSDeviceDict;
@@ -73,7 +73,7 @@ public class DeviceService {
      * @param pageForm
      * @return
      */
-    public PageResult<Device> findByPage(Set<String> onlineDeviceList, DeviceListForm pageForm) {
+    public PageResultVO<Device> findByPage(Set<String> onlineDeviceList, DeviceListForm pageForm) {
         Map<String, Object> queryMap = new HashMap<>();
         queryMap.put("brand", pageForm.getBrand());
         queryMap.put("model", pageForm.getModel());
@@ -90,7 +90,7 @@ public class DeviceService {
         PageHelper.orderBy(pageForm.getOrderBy() + " " + pageForm.getOrder());
         List<Device> deviceList = deviceDAO.findListByOnlineDevice(queryMap, onlineDeviceList);
         PageInfo<Device> info = new PageInfo(deviceList);
-        PageResult<Device> pr = new PageResult<>(info.getList(), info.getTotal());
+        PageResultVO<Device> pr = new PageResultVO<>(info.getList(), info.getTotal());
         return pr;
     }
 
@@ -127,7 +127,7 @@ public class DeviceService {
         return deviceDAO.findOnlineList(queryMap);
     }
 
-    public PageResult<Device> findOnlinePage(Set<String> onlineDevIds, DeviceListForm pageForm) {
+    public PageResultVO<Device> findOnlinePage(Set<String> onlineDevIds, DeviceListForm pageForm) {
         //分页处理
         PageHelper.startPage(pageForm.getPageNo(), pageForm.getPageSize());
         if(StringUtils.isBlank(pageForm.getOrderBy()) ){
@@ -139,7 +139,7 @@ public class DeviceService {
         PageHelper.orderBy(pageForm.getOrderBy() + " " + pageForm.getOrder());
         List<Device> deviceList = findOnlineList(onlineDevIds, pageForm);
         PageInfo<Device> info = new PageInfo(deviceList);
-        PageResult<Device> pr = new PageResult<>(info.getList(), info.getTotal());
+        PageResultVO<Device> pr = new PageResultVO<>(info.getList(), info.getTotal());
         return pr;
     }
 
@@ -233,7 +233,7 @@ public class DeviceService {
         return deviceDAO.searchCloudList(queryMap);
     }
 
-    public PageResult<Device> findCloudPage(Set<String> deviceIds, String brand, String osVersion, String resolution, Boolean isAll) {
+    public PageResultVO<Device> findCloudPage(Set<String> deviceIds, String brand, String osVersion, String resolution, Boolean isAll) {
 
         return null;
     }

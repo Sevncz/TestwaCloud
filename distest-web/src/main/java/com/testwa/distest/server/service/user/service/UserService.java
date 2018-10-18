@@ -9,8 +9,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.testwa.core.base.exception.AccountAlreadyExistException;
 import com.testwa.core.base.exception.AccountException;
-import com.testwa.core.base.vo.PageResult;
-import com.testwa.core.redis.RedisCacheManager;
+import com.testwa.core.base.vo.PageResultVO;
 import com.testwa.core.tools.SnowflakeIdWorker;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.user.dao.IUserDAO;
@@ -96,12 +95,12 @@ public class UserService {
         return userDAO.count();
     }
 
-    public PageResult<User> findByPage(User user, int page, int rows){
+    public PageResultVO<User> findByPage(User user, int page, int rows){
         //分页处理
         PageHelper.startPage(page, rows);
         List<User> userList = userDAO.findBy(user);
         PageInfo info = new PageInfo(userList);
-        PageResult<User> pr = new PageResult<>(info.getList(), info.getTotal());
+        PageResultVO<User> pr = new PageResultVO<>(info.getList(), info.getTotal());
         return pr;
     }
 

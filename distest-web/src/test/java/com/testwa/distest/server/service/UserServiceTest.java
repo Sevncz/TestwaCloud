@@ -4,7 +4,7 @@ import com.testwa.core.base.exception.AccountAlreadyExistException;
 import com.testwa.core.base.exception.AccountException;
 import com.testwa.distest.DistestWebApplication;
 import com.testwa.distest.common.enums.DB;
-import com.testwa.core.base.vo.PageResult;
+import com.testwa.core.base.vo.PageResultVO;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.user.service.UserService;
 import org.junit.Assert;
@@ -92,7 +92,7 @@ public class UserServiceTest {
     @Test
     public void testFindByPage(){
         User user = new User();
-        PageResult<User> pr = userService.findByPage(user, 1, 10);
+        PageResultVO<User> pr = userService.findByPage(user, 1, 10);
         System.out.println(pr.getTotal());
     }
 

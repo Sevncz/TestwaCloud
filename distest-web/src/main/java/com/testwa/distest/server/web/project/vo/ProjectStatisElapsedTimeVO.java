@@ -16,6 +16,8 @@ import java.util.Map;
 public class ProjectStatisElapsedTimeVO {
 
     private ProjectStatisElapsedTimeLineVO all;
-    private Map<String, ProjectStatisElapsedTimeLineVO> members;
+    private List<ProjectStatisMemberElapsedTimeVO> members;
+
+
 
 }

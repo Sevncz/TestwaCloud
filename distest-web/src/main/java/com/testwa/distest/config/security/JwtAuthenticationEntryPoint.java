@@ -2,10 +2,9 @@ package com.testwa.distest.config.security;
 
 import com.alibaba.fastjson.JSON;
 import com.testwa.core.base.constant.ResultCode;
-import com.testwa.core.base.vo.Result;
+import com.testwa.core.base.vo.ResultVO;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.user.service.UserService;
-import io.jsonwebtoken.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,7 +40,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint, Se
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json");
         String token = request.getHeader(tokenHeader);
-        Result<String> r = new Result<>();
+        ResultVO<String> r = new ResultVO<>();
         if(StringUtils.isNotEmpty(token)){
 
             String username = jwtTokenUtil.getUsernameFromToken(token);

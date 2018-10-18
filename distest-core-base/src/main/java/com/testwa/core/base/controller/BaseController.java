@@ -1,8 +1,8 @@
 package com.testwa.core.base.controller;
 
-import com.testwa.core.base.vo.Result;
+import com.testwa.core.base.vo.ResultVO;
 import com.testwa.core.base.constant.ResultCode;
-import com.testwa.core.base.vo.PageResult;
+import com.testwa.core.base.vo.PageResultVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -39,8 +39,8 @@ public class BaseController implements ApplicationContextAware {
      * @param message
      * @return
      */
-    public Result<String> fail(ResultCode code, String message) {
-        Result<String> r = new Result<>();
+    public ResultVO<String> fail(ResultCode code, String message) {
+        ResultVO<String> r = new ResultVO<>();
         r.setCode(code.getValue());
         r.setType(code.name());
         r.setMessage(message);
@@ -51,8 +51,8 @@ public class BaseController implements ApplicationContextAware {
      * 返回成功，不带数据
      * @return
      */
-    public Result<String> ok() {
-        Result<String> r = new Result<>();
+    public ResultVO<String> ok() {
+        ResultVO<String> r = new ResultVO<>();
         r.setCode(ResultCode.SUCCESS.getValue());
         r.setType(ResultCode.SUCCESS.name());
         r.setMessage("ok");
@@ -64,8 +64,8 @@ public class BaseController implements ApplicationContextAware {
      * @param data
      * @return
      */
-    public Result<Object> ok(Object data) {
-        Result<Object> r = new Result<>();
+    public ResultVO<Object> ok(Object data) {
+        ResultVO<Object> r = new ResultVO<>();
         r.setCode(ResultCode.SUCCESS.getValue());
         r.setType(ResultCode.SUCCESS.name());
         if(data != null){
@@ -76,9 +76,9 @@ public class BaseController implements ApplicationContextAware {
     }
 
 
-    protected <T, E> PageResult<E> buildVOPageResult(PageResult<T> entityPR, Class<E> vo) {
+    protected <T, E> PageResultVO<E> buildVOPageResult(PageResultVO<T> entityPR, Class<E> vo) {
         List<E> vos = buildVOs(entityPR.getPages(), vo);
-        PageResult<E> pr = new PageResult<>(vos, entityPR.getTotal());
+        PageResultVO<E> pr = new PageResultVO<>(vos, entityPR.getTotal());
         return pr;
     }
 

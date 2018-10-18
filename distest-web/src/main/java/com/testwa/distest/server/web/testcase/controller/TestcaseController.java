@@ -2,16 +2,15 @@ package com.testwa.distest.server.web.testcase.controller;
 
 import com.testwa.core.base.exception.*;
 import com.testwa.core.base.form.IDForm;
-import com.testwa.core.base.vo.Result;
+import com.testwa.core.base.vo.ResultVO;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.form.IDListForm;
-import com.testwa.core.base.vo.PageResult;
+import com.testwa.core.base.vo.PageResultVO;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.entity.AppInfo;
 import com.testwa.distest.server.entity.Testcase;
 import com.testwa.distest.server.entity.User;
-import com.testwa.distest.server.service.script.form.ScriptListForm;
 import com.testwa.distest.server.service.testcase.form.TestcaseNewForm;
 import com.testwa.distest.server.service.testcase.form.TestcaseListForm;
 import com.testwa.distest.server.service.testcase.form.TestcaseUpdateForm;
@@ -55,7 +54,7 @@ public class TestcaseController extends BaseController {
 
     @ResponseBody
     @PostMapping(value = "/{projectId}/save")
-    public Result save(@PathVariable Long projectId, @Valid @RequestBody TestcaseNewForm form) throws ObjectNotExistsException, AccountException, AuthorizedException {
+    public ResultVO save(@PathVariable Long projectId, @Valid @RequestBody TestcaseNewForm form) throws ObjectNotExistsException, AccountException, AuthorizedException {
         projectValidator.validateProjectExist(projectId);
 
         scriptValidator.validateScriptsInProject(form.getScriptIds(), projectId);
@@ -72,7 +71,7 @@ public class TestcaseController extends BaseController {
 
     @ResponseBody
     @PostMapping(value = "/modify")
-    public Result modify(@Valid @RequestBody TestcaseUpdateForm form) throws ObjectNotExistsException {
+    public ResultVO modify(@Valid @RequestBody TestcaseUpdateForm form) throws ObjectNotExistsException {
         Testcase testcase = testcaseValidatoer.validateTestcaseExist(form.getTestcaseId());
 
         scriptValidator.validateScriptsInProject(form.getScriptIds(), testcase.getProjectId());
@@ -86,7 +85,7 @@ public class TestcaseController extends BaseController {
 
     @ResponseBody
     @PostMapping(value = "/delete/all")
-    public Result deleteAll(@Valid @RequestBody IDListForm form) throws ParamsIsNullException {
+    public ResultVO deleteAll(@Valid @RequestBody IDListForm form) throws ParamsIsNullException {
         if(form.getEntityIds() == null && form.getEntityIds().size() == 0){
             throw new ParamsIsNullException("参数不能为空");
         }
@@ -96,7 +95,7 @@ public class TestcaseController extends BaseController {
 
     @ResponseBody
     @PostMapping(value = "/delete/one")
-    public Result deleteOne(@Valid @RequestBody IDForm form) throws ParamsIsNullException {
+    public ResultVO deleteOne(@Valid @RequestBody IDForm form) throws ParamsIsNullException {
         if(form.getEntityId() == null){
             throw new ParamsIsNullException("参数不能为空");
         }
@@ -106,7 +105,7 @@ public class TestcaseController extends BaseController {
 
     @ResponseBody
     @GetMapping(value = "/detail/{caseId}")
-    public Result detail(@PathVariable Long caseId){
+    public ResultVO detail(@PathVariable Long caseId){
         testcaseValidatoer.validateTestcaseExist(caseId);
         TestcaseVO testcaseVO = testcaseService.getTestcaseVO(caseId);
         return ok(testcaseVO);
@@ -114,7 +113,7 @@ public class TestcaseController extends BaseController {
 
     @ResponseBody
     @GetMapping(value = "/{projectId}/list")
-    public Result list(@PathVariable Long projectId, @Valid TestcaseListForm listForm) throws ObjectNotExistsException, AccountException {
+    public ResultVO list(@PathVariable Long projectId, @Valid TestcaseListForm listForm) throws ObjectNotExistsException, AccountException {
         projectValidator.validateProjectExist(projectId);
         List<Testcase> testcases = testcaseService.findList(projectId, listForm);
         List<TestcaseVO> vos = buildVOs(testcases, TestcaseVO.class);
@@ -123,16 +122,16 @@ public class TestcaseController extends BaseController {
 
     @ResponseBody
     @GetMapping(value = "/{projectId}/page")
-    public Result page(@PathVariable Long projectId, @Valid TestcaseListForm pageForm) throws ObjectNotExistsException, AccountException {
+    public ResultVO page(@PathVariable Long projectId, @Valid TestcaseListForm pageForm) throws ObjectNotExistsException, AccountException {
         projectValidator.validateProjectExist(projectId);
-        PageResult<Testcase> testcasePR = testcaseService.findPage(projectId, pageForm);
-        PageResult<TestcaseVO> pr = buildVOPageResult(testcasePR, TestcaseVO.class);
+        PageResultVO<Testcase> testcasePR = testcaseService.findPage(projectId, pageForm);
+        PageResultVO<TestcaseVO> pr = buildVOPageResult(testcasePR, TestcaseVO.class);
         return ok(pr);
     }
 
     @ResponseBody
     @GetMapping(value = "/{projectId}/list/scripts/{scriptIds}")
-    public Result listByScripts(@PathVariable Long projectId, @PathVariable String scriptIds) throws ObjectNotExistsException, AccountException {
+    public ResultVO listByScripts(@PathVariable Long projectId, @PathVariable String scriptIds) throws ObjectNotExistsException, AccountException {
         if(StringUtils.isBlank(scriptIds)) {
             return ok();
         }

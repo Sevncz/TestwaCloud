@@ -20,4 +20,14 @@ public class DeviceLogDAO extends BaseDAO<DeviceLog, Long>  implements IDeviceLo
     public Long sumDebugTime(List<User> members, Long startTime, Long endTime) {
         return mapper.sumDebugTime(members, null, startTime, endTime);
     }
+
+    @Override
+    public Long sumDebugTimeByUserCode(String userCode, Long startTime, Long endTime) {
+        return mapper.sumDebugTimeByUserCode(userCode, startTime, endTime);
+    }
+
+    @Override
+    public Long sumJobTimeByUserCode(String userCode, Long startTime, Long endTime) {
+        return mapper.sumJobTimeByUserCode(userCode, startTime, endTime);
+    }
 }

@@ -4,12 +4,11 @@ import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.base.exception.ParamsIsNullException;
-import com.testwa.core.base.vo.Result;
+import com.testwa.core.base.vo.ResultVO;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.user.form.UserQueryForm;
 import com.testwa.distest.server.service.user.service.UserService;
-import com.testwa.distest.server.web.auth.mgr.AuthMgr;
 import com.testwa.distest.server.web.auth.vo.UserInfoVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -35,7 +34,7 @@ public class UserController extends BaseController{
     @ApiOperation(value="查询用户", notes = "")
     @ResponseBody
     @GetMapping(value = "/query")
-    public Result query(UserQueryForm form) throws ObjectNotExistsException, ParamsIsNullException {
+    public ResultVO query(UserQueryForm form) throws ObjectNotExistsException, ParamsIsNullException {
 
         if(StringUtils.isEmpty(form.getUsername())){
             throw new ParamsIsNullException("查询参数不能为空");
@@ -49,7 +48,7 @@ public class UserController extends BaseController{
     @ApiOperation(value="当前用户的基本信息", notes = "")
     @ResponseBody
     @GetMapping(value = "/baseinfo")
-    public Result baseInfo() {
+    public ResultVO baseInfo() {
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         UserInfoVO vo = buildVO(user, UserInfoVO.class);
         return ok(vo);

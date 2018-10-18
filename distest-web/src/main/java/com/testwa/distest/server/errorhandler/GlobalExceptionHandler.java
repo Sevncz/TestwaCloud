@@ -2,7 +2,7 @@ package com.testwa.distest.server.errorhandler;
 
 import com.testwa.core.base.constant.ResultCode;
 import com.testwa.core.base.exception.*;
-import com.testwa.core.base.vo.Result;
+import com.testwa.core.base.vo.ResultVO;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.SignatureException;
 import lombok.extern.slf4j.Slf4j;
@@ -35,8 +35,8 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = BadCredentialsException.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Result handleBadCredentialsExceptions(HttpServletRequest req, Exception e) {
-        Result<String> r = new Result<>();
+    public ResultVO handleBadCredentialsExceptions(HttpServletRequest req, Exception e) {
+        ResultVO<String> r = new ResultVO<>();
         r.setCode(ResultCode.NO_AUTH.getValue());
         r.setType(ResultCode.NO_AUTH.name());
         r.setMessage("用户名密码错误");
@@ -47,8 +47,8 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = ExpiredJwtException.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Result handleExpiredJwtExceptions(HttpServletRequest req, Exception e) {
-        Result<String> r = new Result<>();
+    public ResultVO handleExpiredJwtExceptions(HttpServletRequest req, Exception e) {
+        ResultVO<String> r = new ResultVO<>();
         r.setCode(ResultCode.EXPRIED_TOKEN.getValue());
         r.setType(ResultCode.EXPRIED_TOKEN.name());
         r.setMessage("Token已过期");
@@ -59,8 +59,8 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = SignatureException.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Result handleSignatureExceptions(HttpServletRequest req, Exception e) {
-        Result<String> r = new Result<>();
+    public ResultVO handleSignatureExceptions(HttpServletRequest req, Exception e) {
+        ResultVO<String> r = new ResultVO<>();
         r.setCode(ResultCode.ILLEGAL_TOKEN.getValue());
         r.setType(ResultCode.ILLEGAL_TOKEN.name());
         r.setMessage("非法Token");
@@ -71,8 +71,8 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = AuthorizedException.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Result handleAuthorizedExceptions(HttpServletRequest req, Exception e) {
-        Result<String> r = new Result<>();
+    public ResultVO handleAuthorizedExceptions(HttpServletRequest req, Exception e) {
+        ResultVO<String> r = new ResultVO<>();
         r.setCode(ResultCode.NO_AUTH.getValue());
         r.setType(ResultCode.NO_AUTH.name());
         r.setMessage(e.getMessage());
@@ -83,8 +83,8 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = LoginInfoNotFoundException.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Result handleLoginInfoNotFoundExceptions(HttpServletRequest req, Exception e) {
-        Result<String> r = new Result<>();
+    public ResultVO handleLoginInfoNotFoundExceptions(HttpServletRequest req, Exception e) {
+        ResultVO<String> r = new ResultVO<>();
         r.setCode(ResultCode.NO_LOGIN.getValue());
         r.setType(ResultCode.NO_LOGIN.name());
         r.setMessage(e.getMessage());
@@ -95,8 +95,8 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = AccountActiveCodeHavaExpiredException.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Result handleAccountNoActiveException(HttpServletRequest req, Exception e) {
-        Result<String> r = new Result<>();
+    public ResultVO handleAccountNoActiveException(HttpServletRequest req, Exception e) {
+        ResultVO<String> r = new ResultVO<>();
         r.setCode(ResultCode.ACTIVE_EXPIRED.getValue());
         r.setType(ResultCode.ACTIVE_EXPIRED.name());
         r.setMessage(e.getMessage());
@@ -106,8 +106,8 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = AccountNoActiveException.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Result handleAAccountNoActiveException(HttpServletRequest req, Exception e) {
-        Result<String> r = new Result<>();
+    public ResultVO handleAAccountNoActiveException(HttpServletRequest req, Exception e) {
+        ResultVO<String> r = new ResultVO<>();
         r.setCode(ResultCode.ACCOUNT_NOT_ACTIVED.getValue());
         r.setType(ResultCode.ACCOUNT_NOT_ACTIVED.name());
         r.setMessage(e.getMessage());
@@ -118,8 +118,8 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = ParamsException.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Result handleParamsExceptions(HttpServletRequest req, Exception e) {
-        Result<String> r = new Result<>();
+    public ResultVO handleParamsExceptions(HttpServletRequest req, Exception e) {
+        ResultVO<String> r = new ResultVO<>();
         r.setCode(ResultCode.PARAM_ERROR.getValue());
         r.setType(ResultCode.PARAM_ERROR.name());
         r.setMessage(e.getMessage());
@@ -130,8 +130,8 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = ObjectNotExistsException.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Result handleObjectNotFoundExceptions(HttpServletRequest req, Exception e) {
-        Result<String> r = new Result<>();
+    public ResultVO handleObjectNotFoundExceptions(HttpServletRequest req, Exception e) {
+        ResultVO<String> r = new ResultVO<>();
         r.setCode(ResultCode.NOT_FOUND.getValue());
         r.setType(ResultCode.NOT_FOUND.name());
         r.setMessage(e.getMessage());
@@ -142,8 +142,8 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = ObjectAlreadyExistException.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Result handleObjectAlreadyExistExceptions(HttpServletRequest req, Exception e) {
-        Result<String> r = new Result<>();
+    public ResultVO handleObjectAlreadyExistExceptions(HttpServletRequest req, Exception e) {
+        ResultVO<String> r = new ResultVO<>();
         r.setCode(ResultCode.CONFLICT.getValue());
         r.setType(ResultCode.CONFLICT.name());
         r.setMessage(e.getMessage());
@@ -153,8 +153,8 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(value = DeviceUnusableException.class)
     @ResponseBody
-    public Result handleDeviceNotActiveExceptions(HttpServletRequest req, Exception e) {
-        Result<String> r = new Result<>();
+    public ResultVO handleDeviceNotActiveExceptions(HttpServletRequest req, Exception e) {
+        ResultVO<String> r = new ResultVO<>();
         r.setCode(ResultCode.DEVICE_UNUSABLE.getValue());
         r.setType(ResultCode.DEVICE_UNUSABLE.name());
         r.setMessage(e.getMessage());
@@ -165,8 +165,8 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = DBException.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Result handleDBExceptions(HttpServletRequest req, Exception e) {
-        Result<String> r = new Result<>();
+    public ResultVO handleDBExceptions(HttpServletRequest req, Exception e) {
+        ResultVO<String> r = new ResultVO<>();
         r.setCode(ResultCode.SERVER_ERROR.getValue());
         r.setType(ResultCode.SERVER_ERROR.name());
         r.setMessage(ERR_INTERNAL_SERVER_ERROR);
@@ -179,8 +179,8 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Result handleHttpMessageNotReadableExceptions(HttpServletRequest req, Exception e) {
-        Result<String> r = new Result<>();
+    public ResultVO handleHttpMessageNotReadableExceptions(HttpServletRequest req, Exception e) {
+        ResultVO<String> r = new ResultVO<>();
         r.setCode(ResultCode.PARAM_ERROR.getValue());
         r.setType(ResultCode.PARAM_ERROR.name());
         r.setMessage("请求格式错误");
@@ -192,11 +192,11 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Result handleMethodArgumentNotValidExceptions(HttpServletRequest req, MethodArgumentNotValidException e) {
+    public ResultVO handleMethodArgumentNotValidExceptions(HttpServletRequest req, MethodArgumentNotValidException e) {
         List<String> errors = e.getBindingResult().getFieldErrors().stream()
                 .map(this::buildMessage)
                 .collect(Collectors.toList());
-        Result<String> r = new Result<>();
+        ResultVO<String> r = new ResultVO<>();
         r.setCode(ResultCode.PARAM_ERROR.getValue());
         r.setType(ResultCode.ILLEGAL_PARAM.name());
         r.setMessage(errors.toString());
@@ -208,8 +208,8 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = AccountException.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Result handleAccountExceptions(HttpServletRequest req, Exception e) {
-        Result<String> r = new Result<>();
+    public ResultVO handleAccountExceptions(HttpServletRequest req, Exception e) {
+        ResultVO<String> r = new ResultVO<>();
         r.setCode(ResultCode.ILLEGAL_OP.getValue());
         r.setType(ResultCode.ILLEGAL_OP.name());
         r.setMessage(e.getMessage());
@@ -221,8 +221,8 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = ReportException.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Result handleReportExceptions(HttpServletRequest req, Exception e) {
-        Result<String> r = new Result<>();
+    public ResultVO handleReportExceptions(HttpServletRequest req, Exception e) {
+        ResultVO<String> r = new ResultVO<>();
         r.setCode(ResultCode.ILLEGAL_OP.getValue());
         r.setType(ResultCode.ILLEGAL_OP.name());
         r.setMessage(e.getMessage());
@@ -234,9 +234,9 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = Exception.class)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public Result handleOtherExceptions(HttpServletRequest req, Exception e) {
+    public ResultVO handleOtherExceptions(HttpServletRequest req, Exception e) {
         log.error("Unknow error", e);
-        Result<String> r = new Result<>();
+        ResultVO<String> r = new ResultVO<>();
         r.setCode(ResultCode.SERVER_ERROR.getValue());
         r.setType(ResultCode.SERVER_ERROR.name());
         r.setMessage(ERR_INTERNAL_SERVER_ERROR);

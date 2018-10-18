@@ -1,6 +1,6 @@
 package com.testwa.distest.quartz.service;
 
-import com.testwa.core.base.vo.PageResult;
+import com.testwa.core.base.vo.PageResultVO;
 import com.testwa.distest.quartz.TaskInfoVo;
 import com.testwa.distest.quartz.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
@@ -29,8 +29,8 @@ public class JobService {
      *
      * @return
      */
-    public PageResult<TaskInfoVo> list(int page, int size) {
-        PageResult<TaskInfoVo> resultVO = null;
+    public PageResultVO<TaskInfoVo> list(int page, int size) {
+        PageResultVO<TaskInfoVo> resultVO = null;
         try {
             List<TaskInfoVo> list = new ArrayList<>();
             for (String groupJob : scheduler.getJobGroupNames()) {
@@ -60,7 +60,7 @@ public class JobService {
                     }
                 }
             }
-            resultVO = new PageResult<TaskInfoVo>(list.stream().skip((page - 1) * size).limit(size).collect(Collectors.toList()), list.size());
+            resultVO = new PageResultVO<TaskInfoVo>(list.stream().skip((page - 1) * size).limit(size).collect(Collectors.toList()), list.size());
 
         } catch (SchedulerException e) {
             log.error("分页查询定时任务失败，page={},size={},e={}", page, size, e);

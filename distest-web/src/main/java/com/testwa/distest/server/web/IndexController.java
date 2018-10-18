@@ -1,7 +1,7 @@
 package com.testwa.distest.server.web;
 
 import com.google.protobuf.ByteString;
-import com.testwa.core.base.vo.Result;
+import com.testwa.core.base.vo.ResultVO;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.distest.server.rpc.cache.CacheUtil;
 import io.grpc.stub.StreamObserver;
@@ -32,13 +32,13 @@ public class IndexController extends BaseController {
 
     @ResponseBody
     @RequestMapping(value = "/env")
-    Result evn() {
+    ResultVO evn() {
         return ok();
     }
 
     @ResponseBody
     @RequestMapping(value = "/push")
-    Result push() {
+    ResultVO push() {
         Set<String> ids = CacheUtil.topicCache.getClientId("worker");
         String topic = "worker";
         ids.forEach( id -> {

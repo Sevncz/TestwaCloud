@@ -4,13 +4,10 @@ import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.AuthorizedException;
 import com.testwa.core.base.exception.ObjectNotExistsException;
-import com.testwa.core.base.vo.PageResult;
-import com.testwa.core.base.vo.Result;
-import com.testwa.distest.server.entity.Device;
+import com.testwa.core.base.vo.ResultVO;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.device.form.DeviceAuthNewForm;
 import com.testwa.distest.server.service.device.form.DeviceAuthRemoveForm;
-import com.testwa.distest.server.service.device.form.DeviceListForm;
 import com.testwa.distest.server.service.device.service.DeviceAuthService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.auth.validator.UserValidator;
@@ -23,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.security.auth.login.AccountNotFoundException;
 import javax.validation.Valid;
-import java.util.Set;
 
 import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 
@@ -51,7 +47,7 @@ public class DeviceAuthConfigController extends BaseController{
     @ApiOperation(value="配置设备的可用用户", notes = "只能管理自己的设备")
     @ResponseBody
     @RequestMapping(value = "/save", method = RequestMethod.GET)
-    public Result save(@RequestBody @Valid DeviceAuthNewForm form) throws ObjectNotExistsException, AuthorizedException, AccountNotFoundException {
+    public ResultVO save(@RequestBody @Valid DeviceAuthNewForm form) throws ObjectNotExistsException, AuthorizedException, AccountNotFoundException {
         deviceValidatoer.validateOnline(form.getDeviceId());
         deviceValidatoer.validateDeviceExist(form.getDeviceId());
         userValidator.validateUserIdsExist(form.getUserIds());
@@ -68,7 +64,7 @@ public class DeviceAuthConfigController extends BaseController{
     @ApiOperation(value="配置设备的可用用户", notes = "只能管理自己的设备")
     @ResponseBody
     @RequestMapping(value = "/remove", method = RequestMethod.GET)
-    public Result remove(@RequestBody @Valid DeviceAuthRemoveForm form) throws ObjectNotExistsException, AuthorizedException, AccountNotFoundException {
+    public ResultVO remove(@RequestBody @Valid DeviceAuthRemoveForm form) throws ObjectNotExistsException, AuthorizedException, AccountNotFoundException {
         deviceValidatoer.validateOnline(form.getDeviceId());
         deviceValidatoer.validateDeviceExist(form.getDeviceId());
         userValidator.validateUserIdsExist(form.getUserIds());

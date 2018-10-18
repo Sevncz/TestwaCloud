@@ -3,7 +3,7 @@ package com.testwa.distest.server.web.device.controller;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.*;
-import com.testwa.core.base.vo.Result;
+import com.testwa.core.base.vo.ResultVO;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.service.cache.mgr.DeviceLockCache;
 import com.testwa.distest.server.service.device.form.DeviceBatchCheckForm;
@@ -57,7 +57,7 @@ public class DeviceController extends BaseController {
     @ApiOperation(value="云端设备列表")
     @ResponseBody
     @GetMapping(value = "/cloud/list")
-    public Result cloudList(@Valid DeviceSearchForm form) throws ObjectNotExistsException, AuthorizedException {
+    public ResultVO cloudList(@Valid DeviceSearchForm form) throws ObjectNotExistsException, AuthorizedException {
         Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
         List<Device> devices = deviceService.findCloudList(deviceIds, form.getBrand(), form.getOsVersion(), form.getResolution(), form.getIsAll());
         return ok(devices);
@@ -71,7 +71,7 @@ public class DeviceController extends BaseController {
     @ApiOperation(value="云端设备模糊查询列表")
     @ResponseBody
     @GetMapping(value = "/cloud/search")
-    public Result enableSearch(@Valid DeviceSearchForm form) throws ObjectNotExistsException, AuthorizedException {
+    public ResultVO enableSearch(@Valid DeviceSearchForm form) throws ObjectNotExistsException, AuthorizedException {
         Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
         List<Device> devices = deviceService. searchCloudList(deviceIds, form.getBrand(), form.getOsVersion(), form.getResolution(), form.getIsAll());
         return ok(devices);
@@ -80,7 +80,7 @@ public class DeviceController extends BaseController {
     @ApiOperation(value="在线Android设备的分类，各个维度", notes = "")
     @ResponseBody
     @GetMapping(value = "/category/android")
-    public Result category() throws ObjectNotExistsException {
+    public ResultVO category() throws ObjectNotExistsException {
         Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
         DeviceCategoryVO vo = new DeviceCategoryVO();
         if(deviceIds != null && deviceIds.size() > 0) {
@@ -94,7 +94,7 @@ public class DeviceController extends BaseController {
     @ApiOperation(value="检查设备是否可用", notes = "")
     @ResponseBody
     @PostMapping(value = "/check/usable")
-    public Result checkUsable(@RequestBody DeviceBatchCheckForm form) throws ObjectNotExistsException {
+    public ResultVO checkUsable(@RequestBody DeviceBatchCheckForm form) throws ObjectNotExistsException {
         if(form.getDeviceIds() == null || form.getDeviceIds().size() == 0) {
             return ok();
         }
@@ -123,7 +123,7 @@ public class DeviceController extends BaseController {
     @ApiOperation(value="锁定设备", notes = "")
     @ResponseBody
     @PostMapping(value = "/lock/debug/{deviceId}")
-    public Result lockDebug(@PathVariable String deviceId) throws ObjectNotExistsException {
+    public ResultVO lockDebug(@PathVariable String deviceId) throws ObjectNotExistsException {
         if(StringUtils.isBlank(deviceId)) {
             throw new ParamsIsNullException("设备ID不能为空");
         }
@@ -143,7 +143,7 @@ public class DeviceController extends BaseController {
     @ApiOperation(value="选择的时候锁定设备", notes = "")
     @ResponseBody
     @PostMapping(value = "/lock/select/{deviceId}")
-    public Result lockSelect(@PathVariable String deviceId) throws ObjectNotExistsException {
+    public ResultVO lockSelect(@PathVariable String deviceId) throws ObjectNotExistsException {
         if(StringUtils.isBlank(deviceId)) {
             throw new ParamsIsNullException("设备ID不能为空");
         }
@@ -161,7 +161,7 @@ public class DeviceController extends BaseController {
     @ApiOperation(value="解除锁定设备", notes = "")
     @ResponseBody
     @PostMapping(value = "/unlock/{deviceId}")
-    public Result unlock(@PathVariable String deviceId) throws ObjectNotExistsException {
+    public ResultVO unlock(@PathVariable String deviceId) throws ObjectNotExistsException {
         if(StringUtils.isBlank(deviceId)) {
             throw new ParamsIsNullException("设备ID不能为空");
         }

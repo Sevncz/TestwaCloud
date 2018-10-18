@@ -1,7 +1,7 @@
 package com.testwa.distest.server.service;
 
 import com.testwa.core.base.form.RequestListBase;
-import com.testwa.core.base.vo.PageResult;
+import com.testwa.core.base.vo.PageResultVO;
 import com.testwa.distest.DistestWebApplication;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Device;
@@ -68,7 +68,7 @@ public class DeviceServiceTest {
         page.setPageNo(1);
         page.setPageSize(10);
         form.setPage(page);
-        PageResult<Device> devices = deviceService.findByPage(new HashSet<>(Arrays.asList("123456", "223456", "323456")), form);
+        PageResultVO<Device> devices = deviceService.findByPage(new HashSet<>(Arrays.asList("123456", "223456", "323456")), form);
         log.info(devices.getPages().toString());
     }
 

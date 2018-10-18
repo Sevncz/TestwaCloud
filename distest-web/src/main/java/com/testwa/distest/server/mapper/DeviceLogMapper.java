@@ -13,4 +13,8 @@ import java.util.List;
 public interface DeviceLogMapper extends BaseMapper<DeviceLog, Long> {
 
     Long sumDebugTime(@Param("members") List<User> members, @Param("projectId") Long projectId, @Param("startTime") Long startTime, @Param("endTime") Long endTime);
+
+    Long sumJobTimeByUserCode(@Param("userCode") String userCode, @Param("startTime") Long startTime, @Param("endTime") Long endTime);
+
+    Long sumDebugTimeByUserCode(@Param("userCode") String userCode, @Param("startTime") Long startTime, @Param("endTime") Long endTime);
 }

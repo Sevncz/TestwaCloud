@@ -6,7 +6,7 @@ import lombok.Data;
  * Created by wen on 2016/11/19.
  */
 @Data
-public class Result<T> {
+public class ResultVO<T> {
 
     private Integer code;
     private String type;

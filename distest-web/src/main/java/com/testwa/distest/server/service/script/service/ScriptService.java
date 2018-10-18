@@ -7,14 +7,12 @@ import com.testwa.core.utils.Identities;
 import com.testwa.core.utils.PinYinTool;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.config.DisFileProperties;
-import com.testwa.distest.server.entity.Project;
-import com.testwa.core.base.vo.PageResult;
+import com.testwa.core.base.vo.PageResultVO;
 import com.testwa.distest.server.entity.Script;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.service.script.dao.IScriptDAO;
 import com.testwa.distest.server.service.script.form.ScriptListForm;
-import com.testwa.distest.server.service.script.form.ScriptNewForm;
 import com.testwa.distest.server.service.script.form.ScriptUpdateForm;
 import com.testwa.distest.server.service.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +24,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -35,9 +32,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -226,11 +221,11 @@ public class ScriptService {
         scriptDAO.disable(entityId);
     }
 
-    public PageResult<Script> findPage(Long projectId, ScriptListForm queryForm) {
+    public PageResultVO<Script> findPage(Long projectId, ScriptListForm queryForm) {
         PageHelper.startPage(queryForm.getPageNo(), queryForm.getPageSize());
         List<Script> scriptList = findList(projectId, queryForm);
         PageInfo<Script> info = new PageInfo(scriptList);
-        PageResult<Script> pr = new PageResult<>(info.getList(), info.getTotal());
+        PageResultVO<Script> pr = new PageResultVO<>(info.getList(), info.getTotal());
         return pr;
     }
 

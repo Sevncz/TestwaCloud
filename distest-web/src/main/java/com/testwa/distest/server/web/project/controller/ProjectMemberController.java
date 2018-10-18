@@ -3,7 +3,7 @@ package com.testwa.distest.server.web.project.controller;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.*;
-import com.testwa.core.base.vo.Result;
+import com.testwa.core.base.vo.ResultVO;
 import com.testwa.distest.server.entity.ProjectMember;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.project.form.MembersModifyForm;
@@ -51,7 +51,7 @@ public class ProjectMemberController extends BaseController {
     @ApiOperation(value="添加项目成员", notes = "")
     @ResponseBody
     @PostMapping(value = "/add/all")
-    public Result addMembers(@RequestBody @Valid MembersModifyForm form) throws AccountNotFoundException, ObjectNotExistsException, AuthorizedException, ParamsException {
+    public ResultVO addMembers(@RequestBody @Valid MembersModifyForm form) throws AccountNotFoundException, ObjectNotExistsException, AuthorizedException, ParamsException {
         projectValidator.validateProjectExist(form.getProjectId());
         if(form.getUsernames() != null && form.getUsernames().size() > 0){
             userValidator.validateUsernamesExist(form.getUsernames());
@@ -63,7 +63,7 @@ public class ProjectMemberController extends BaseController {
     @ApiOperation(value="删除项目成员", notes = "")
     @ResponseBody
     @PostMapping(value = "/remove/all")
-    public Result removeMembers(@RequestBody @Valid MembersModifyForm form) throws ObjectNotExistsException, ParamsIsNullException {
+    public ResultVO removeMembers(@RequestBody @Valid MembersModifyForm form) throws ObjectNotExistsException, ParamsIsNullException {
 
         if(form.getUsernames() == null && form.getUsernames().size() == 0){
             throw new ParamsIsNullException("参数不能为空");
@@ -77,7 +77,7 @@ public class ProjectMemberController extends BaseController {
     @ApiOperation(value="获得项目的成员列表", notes = "")
     @ResponseBody
     @GetMapping(value = "/{projectId}")
-    public Result members(@PathVariable Long projectId) throws ObjectNotExistsException {
+    public ResultVO members(@PathVariable Long projectId) throws ObjectNotExistsException {
         projectValidator.validateProjectExist(projectId);
 
         List<User> users = projectMemberService.findAllMembers(projectId);
@@ -89,7 +89,7 @@ public class ProjectMemberController extends BaseController {
     @ApiOperation(value="查询用户，区分是否在项目中", notes = "")
     @ResponseBody
     @GetMapping(value = "/query")
-    public Result queryMember(MembersQueryForm form) throws ObjectNotExistsException {
+    public ResultVO queryMember(MembersQueryForm form) throws ObjectNotExistsException {
         projectValidator.validateProjectExist(form.getProjectId());
         Map<String, List<UserVO>> result = projectMemberService.queryMembersAndFlagIsInProject(form.getProjectId(), form.getUsername(), form.getEmail(), form.getPhone());
         return ok(result);
@@ -99,7 +99,7 @@ public class ProjectMemberController extends BaseController {
     @ApiOperation(value="获得当前用户在某个项目中的角色", notes = "")
     @ResponseBody
     @GetMapping(value = "/role")
-    public Result projectRole(@RequestParam(value = "projectId")Long projectId) throws AccountException, DBException, AuthorizedException, ObjectNotExistsException {
+    public ResultVO projectRole(@RequestParam(value = "projectId")Long projectId) throws AccountException, DBException, AuthorizedException, ObjectNotExistsException {
         projectValidator.validateProjectExist(projectId);
         User user = userService.findByUsername(getCurrentUsername());
         projectValidator.validateUserIsProjectMember(projectId, user.getId());

@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.*;
-import com.testwa.core.base.vo.Result;
+import com.testwa.core.base.vo.ResultVO;
 import com.testwa.core.tools.SnowflakeIdWorker;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.util.WebUtil;
@@ -82,7 +82,7 @@ public class TaskController extends BaseController {
     @ApiOperation(value="执行一个回归测试任务")
     @ResponseBody
     @PostMapping(value = "/run")
-    public Result runFunctionalTest(@RequestBody TaskNewByCaseAndStartForm form) throws ObjectNotExistsException, AuthorizedException, TaskStartException {
+    public ResultVO runFunctionalTest(@RequestBody TaskNewByCaseAndStartForm form) throws ObjectNotExistsException, AuthorizedException, TaskStartException {
         appValidator.validateAppExist(form.getAppId());
         testcaseValidatoer.validateTestcaseExist(form.getTestcaseId());
         taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
@@ -123,7 +123,7 @@ public class TaskController extends BaseController {
     @ApiOperation(value="执行一个回归测试任务")
     @ResponseBody
     @PostMapping(value = "/run/hg/scripts")
-    public Result runFunctionalTest(@RequestBody TaskNewStartByScriptsForm form) throws ObjectNotExistsException, AuthorizedException, TaskStartException {
+    public ResultVO runFunctionalTest(@RequestBody TaskNewStartByScriptsForm form) throws ObjectNotExistsException, AuthorizedException, TaskStartException {
         appValidator.validateAppExist(form.getAppId());
         appValidator.validateAppInPorject(form.getAppId(), form.getProjectId());
         if(form.getScriptIds() == null || form.getScriptIds().size() == 0) {
@@ -171,7 +171,7 @@ public class TaskController extends BaseController {
     @ApiOperation(value="执行一个兼容测试任务")
     @ResponseBody
     @PostMapping(value = "/run/jr")
-    public Result runCompatibilityTest(@RequestBody TaskNewStartJRForm form) {
+    public ResultVO runCompatibilityTest(@RequestBody TaskNewStartJRForm form) {
         appValidator.validateAppExist(form.getAppId());
         appValidator.validateAppInPorject(form.getAppId(), form.getProjectId());
         taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
@@ -213,7 +213,7 @@ public class TaskController extends BaseController {
     @ApiOperation(value="执行一个遍历测试任务")
     @ResponseBody
     @PostMapping(value = "/run/crawler")
-    public Result runCrawlerTest(@RequestBody TaskNewStartCrawlerForm form) {
+    public ResultVO runCrawlerTest(@RequestBody TaskNewStartCrawlerForm form) {
         appValidator.validateAppExist(form.getAppId());
         appValidator.validateAppInPorject(form.getAppId(), form.getProjectId());
         taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
@@ -282,7 +282,7 @@ public class TaskController extends BaseController {
     @ApiOperation(value="停止一个设备任务")
     @ResponseBody
     @PostMapping(value = "/stop")
-    public Result stop(@RequestBody TaskStopForm form) throws ObjectNotExistsException {
+    public ResultVO stop(@RequestBody TaskStopForm form) throws ObjectNotExistsException {
         Task task = taskValidatoer.validateTaskExist(form.getTaskCode());
         if(form.getDeviceIds() != null && form.getDeviceIds().size() > 0 ){
             List<Device> taskDevices = task.getDevices();

@@ -4,10 +4,10 @@ import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.*;
 import com.testwa.core.base.form.IDListForm;
-import com.testwa.core.base.vo.Result;
+import com.testwa.core.base.vo.ResultVO;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.common.validator.FileUploadValidator;
-import com.testwa.core.base.vo.PageResult;
+import com.testwa.core.base.vo.PageResultVO;
 import com.testwa.distest.server.entity.Script;
 import com.testwa.distest.server.entity.Testcase;
 import com.testwa.distest.server.entity.User;
@@ -58,7 +58,7 @@ public class ScriptController extends BaseController {
     @ApiOperation(value="上传脚本", notes="")
     @ResponseBody
     @PostMapping(value = "/upload")
-    public Result upload(@RequestParam("file") MultipartFile uploadfile) throws ParamsIsNullException, ParamsFormatException, IOException {
+    public ResultVO upload(@RequestParam("file") MultipartFile uploadfile) throws ParamsIsNullException, ParamsFormatException, IOException {
         //
         // 校验
         //
@@ -71,7 +71,7 @@ public class ScriptController extends BaseController {
     @ApiOperation(value="上传多个脚本", notes="暂时还不用")
     @ResponseBody
     @PostMapping(value = "/upload/multi")
-    public Result uploadMulti(@RequestParam("files") List<MultipartFile> uploadfiles) throws IOException, ParamsIsNullException, ParamsFormatException {
+    public ResultVO uploadMulti(@RequestParam("files") List<MultipartFile> uploadfiles) throws IOException, ParamsIsNullException, ParamsFormatException {
         //
         // 校验
         //
@@ -83,7 +83,7 @@ public class ScriptController extends BaseController {
     @ApiOperation(value="上传脚本", notes="")
     @ResponseBody
     @PostMapping(value = "/{projectId}/upload")
-    public Result upload(@PathVariable Long projectId, @RequestParam("file") MultipartFile uploadfile) throws ParamsIsNullException, ParamsFormatException, IOException {
+    public ResultVO upload(@PathVariable Long projectId, @RequestParam("file") MultipartFile uploadfile) throws ParamsIsNullException, ParamsFormatException, IOException {
         //
         // 校验
         //
@@ -96,7 +96,7 @@ public class ScriptController extends BaseController {
     @ApiOperation(value="上传多个脚本")
     @ResponseBody
     @PostMapping(value = "/{projectId}/upload/multi")
-    public Result uploadMulti(@PathVariable Long projectId, @RequestParam("files") List<MultipartFile> uploadfiles) throws IOException, ParamsIsNullException, ParamsFormatException {
+    public ResultVO uploadMulti(@PathVariable Long projectId, @RequestParam("files") List<MultipartFile> uploadfiles) throws IOException, ParamsIsNullException, ParamsFormatException {
         //
         // 校验
         //
@@ -109,7 +109,7 @@ public class ScriptController extends BaseController {
     @ApiOperation(value="上传的同时直接组成案例", notes="暂时还不用")
     @ResponseBody
     @PostMapping(value = "/{projectId}/upload/case")
-    public Result uploadCase(@PathVariable Long projectId, @RequestParam("files") List<MultipartFile> uploadfiles) throws IOException, ParamsIsNullException, ParamsFormatException {
+    public ResultVO uploadCase(@PathVariable Long projectId, @RequestParam("files") List<MultipartFile> uploadfiles) throws IOException, ParamsIsNullException, ParamsFormatException {
         //
         // 校验
         //
@@ -123,7 +123,7 @@ public class ScriptController extends BaseController {
     @ApiOperation(value="补充脚本信息", notes="")
     @ResponseBody
     @PostMapping(value = "/append")
-    public Result appendInfo(@RequestBody @Valid ScriptUpdateForm form) throws ObjectNotExistsException, AuthorizedException {
+    public ResultVO appendInfo(@RequestBody @Valid ScriptUpdateForm form) throws ObjectNotExistsException, AuthorizedException {
         scriptValidator.validateScriptExist(form.getScriptId());
         projectValidator.validateProjectExist(form.getProjectId());
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
@@ -135,7 +135,7 @@ public class ScriptController extends BaseController {
     @ApiOperation(value="删除脚本", notes="")
     @ResponseBody
     @PostMapping(value = "/delete")
-    public Result delete(@RequestBody @Valid IDListForm form) {
+    public ResultVO delete(@RequestBody @Valid IDListForm form) {
         // 检查脚本是否已被组合为测试集
         if(form.getEntityIds() != null && form.getEntityIds().size() == 0) {
             return ok();
@@ -151,18 +151,18 @@ public class ScriptController extends BaseController {
     @ApiOperation(value="脚本分页列表", notes="")
     @ResponseBody
     @GetMapping(value = "/{projectId}/page")
-    public Result page(@PathVariable Long projectId, @Valid ScriptListForm queryForm) throws AuthorizedException {
+    public ResultVO page(@PathVariable Long projectId, @Valid ScriptListForm queryForm) throws AuthorizedException {
         projectValidator.validateProjectExist(projectId);
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         projectValidator.validateUserIsProjectMember(projectId, user.getId());
-        PageResult<Script> pr = scriptService.findPage(projectId, queryForm);
+        PageResultVO<Script> pr = scriptService.findPage(projectId, queryForm);
         return ok(pr);
     }
 
     @ApiOperation(value="脚本列表", notes="")
     @ResponseBody
     @GetMapping(value = "/{projectId}/list")
-    public Result list(@PathVariable Long projectId, @Valid ScriptListForm queryForm) throws AuthorizedException {
+    public ResultVO list(@PathVariable Long projectId, @Valid ScriptListForm queryForm) throws AuthorizedException {
         projectValidator.validateProjectExist(projectId);
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         projectValidator.validateUserIsProjectMember(projectId, user.getId());
@@ -173,7 +173,7 @@ public class ScriptController extends BaseController {
     @ApiOperation(value="获得脚本内容", notes="")
     @ResponseBody
     @GetMapping(value = "/read/{scriptId}")
-    public Result read(@PathVariable Long scriptId) throws IOException, ObjectNotExistsException {
+    public ResultVO read(@PathVariable Long scriptId) throws IOException, ObjectNotExistsException {
         validator.validateScriptExist(scriptId);
         String content = scriptService.getContent(scriptId);
         return ok(content);
@@ -182,7 +182,7 @@ public class ScriptController extends BaseController {
     @ApiOperation(value="修改脚本内容", notes="")
     @ResponseBody
     @PostMapping(value = {"/write/{scriptId}"})
-    public Result write(@PathVariable Long scriptId, @RequestBody ScriptContentForm form) throws IOException, ObjectNotExistsException {
+    public ResultVO write(@PathVariable Long scriptId, @RequestBody ScriptContentForm form) throws IOException, ObjectNotExistsException {
         validator.validateScriptExist(scriptId);
         scriptService.modifyContent(scriptId, form.getContent());
         return ok();

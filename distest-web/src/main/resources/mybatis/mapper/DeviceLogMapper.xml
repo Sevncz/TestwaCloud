@@ -23,9 +23,34 @@
         FROM device_log
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             endTime > 0
+            and logType = 0
             and userCode in
             <foreach item="item" index="index" collection="members" open="(" separator="," close=")">#{item.userCode} </foreach>
             <if test="projectId != null">and projectId = #{projectId}</if>
+            <if test="startTime != null">and startTime &gt;= #{startTime}</if>
+            <if test="endTime != null">and endTime &lt;= #{endTime}</if>
+        </trim>
+    </select>
+
+    <select id="sumJobTimeByUserCode" resultType="long" >
+        SELECT sum(endTime - startTime)
+        FROM device_log
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            endTime > 0
+            and userCode = #{userCode}
+            and logType != 0
+            <if test="startTime != null">and startTime &gt;= #{startTime}</if>
+            <if test="endTime != null">and endTime &lt;= #{endTime}</if>
+        </trim>
+    </select>
+
+    <select id="sumDebugTimeByUserCode" resultType="long" >
+        SELECT sum(endTime - startTime)
+        FROM device_log
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            endTime > 0
+            and userCode = #{userCode}
+            and logType = 0
             <if test="startTime != null">and startTime &gt;= #{startTime}</if>
             <if test="endTime != null">and endTime &lt;= #{endTime}</if>
         </trim>

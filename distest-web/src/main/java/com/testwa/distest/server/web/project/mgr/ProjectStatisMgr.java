@@ -3,7 +3,7 @@ package com.testwa.distest.server.web.project.mgr;
 
 import com.testwa.core.base.constraint.validation.PageOrderValidator;
 import com.testwa.core.base.form.RequestListBase;
-import com.testwa.core.base.vo.PageResult;
+import com.testwa.core.base.vo.PageResultVO;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.App;
 import com.testwa.distest.server.entity.Script;
@@ -197,13 +197,13 @@ public class ProjectStatisMgr {
         return memberCountVO;
     }
 
-    public PageResult<ProjectTestDynamicVO> dynamicTestPage(Long projectId, Long startTime, Long endTime, TaskListForm taskListForm) {
+    public PageResultVO<ProjectTestDynamicVO> dynamicTestPage(Long projectId, Long startTime, Long endTime, TaskListForm taskListForm) {
         RequestListBase.Page page = taskListForm.getPage();
         page.setOrder(PageOrderValidator.DESC);
         page.setOrderBy("createTime");
         taskListForm.setPage(page);
 
-        PageResult<Task> taskPageResult = taskService.findPage(projectId, taskListForm);
+        PageResultVO<Task> taskPageResult = taskService.findPage(projectId, taskListForm);
 
         List<Task> taskList = taskPageResult.getPages();
 
@@ -219,7 +219,7 @@ public class ProjectStatisMgr {
             return vo;
         }).collect(Collectors.toList());
 
-        PageResult<ProjectTestDynamicVO> dynamicVOPageResult = new PageResult(dynamicVOs, taskPageResult.getTotal());
+        PageResultVO<ProjectTestDynamicVO> dynamicVOPageResult = new PageResultVO(dynamicVOs, taskPageResult.getTotal());
         return dynamicVOPageResult;
     }
 

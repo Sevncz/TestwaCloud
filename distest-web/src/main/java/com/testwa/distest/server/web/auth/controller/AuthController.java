@@ -6,9 +6,9 @@ import cn.apiclub.captcha.gimpy.FishEyeGimpyRenderer;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.*;
+import com.testwa.core.base.vo.ResultVO;
 import com.testwa.core.utils.Identities;
 import com.testwa.core.utils.Validator;
-import com.testwa.core.base.vo.Result;
 import com.testwa.distest.config.security.JwtAuthenticationRequest;
 import com.testwa.distest.config.security.JwtAuthenticationResponse;
 import com.testwa.distest.server.entity.User;
@@ -64,7 +64,7 @@ public class AuthController extends BaseController {
     @ApiOperation(value = "登录")
     @ApiImplicitParam(name = "authenticationRequest", value = "JWT登录验证类", required = true, dataType = "JwtAuthenticationRequest")
     @PostMapping(value = "login")
-    public Result createAuthenticationToken(@RequestBody JwtAuthenticationRequest authenticationRequest, HttpServletRequest request) throws AuthorizedException, LoginInfoNotFoundException, AccountNoActiveException {
+    public ResultVO createAuthenticationToken(@RequestBody JwtAuthenticationRequest authenticationRequest, HttpServletRequest request) throws AuthorizedException, LoginInfoNotFoundException, AccountNoActiveException {
         if(StringUtils.isEmpty(authenticationRequest.getUsername()) || StringUtils.isEmpty(authenticationRequest.getPassword())){
             throw new LoginInfoNotFoundException("登录信息不能为空");
         }
@@ -84,7 +84,7 @@ public class AuthController extends BaseController {
     @ApiOperation(value = "刷新Token")
     @ApiImplicitParam(name = "request", value = "请求信息（带有tokenHeader）", required = true, dataType = "HttpServletRequest")
     @GetMapping(value = "/refresh")
-    public Result refreshAndGetAuthenticationToken(HttpServletRequest request) throws LoginInfoNotFoundException {
+    public ResultVO refreshAndGetAuthenticationToken(HttpServletRequest request) throws LoginInfoNotFoundException {
         String token = request.getHeader(tokenHeader);
         JwtAuthenticationResponse response = authMgr.refresh(token);
         return ok(response);
@@ -93,7 +93,7 @@ public class AuthController extends BaseController {
     @ApiOperation(value = "注册")
     @ApiImplicitParam(name = "form", value = "注册form", required = true, dataType = "RegisterForm")
     @PostMapping(value = "/register")
-    public Result register(@Valid @RequestBody final RegisterForm form)
+    public ResultVO register(@Valid @RequestBody final RegisterForm form)
             throws ParamsFormatException, AccountException, ObjectAlreadyExistException {
         // 校验邮箱
         if(StringUtils.isBlank(form.getEmail())) {
@@ -124,7 +124,7 @@ public class AuthController extends BaseController {
     }
 
     @RequestMapping(value = "/verify/username/{username}", method= RequestMethod.GET)
-    public Result checkUsername(@PathVariable String username) throws AccountAlreadyExistException, ParamsFormatException {
+    public ResultVO checkUsername(@PathVariable String username) throws AccountAlreadyExistException, ParamsFormatException {
         // 校验用户名
         if(!Validator.isUsername(username)){
             throw new ParamsFormatException("用户名格式不正确");
@@ -137,7 +137,7 @@ public class AuthController extends BaseController {
     }
 
     @RequestMapping(value = "/verify/email/{email:.+}", method= RequestMethod.GET)
-    public Result verifyEmail(@PathVariable String email) throws ParamsFormatException, AccountAlreadyExistException {
+    public ResultVO verifyEmail(@PathVariable String email) throws ParamsFormatException, AccountAlreadyExistException {
         // 校验邮箱
         if(!Validator.isEmail(email)){
             throw new ParamsFormatException("邮箱格式不正确");
@@ -151,7 +151,7 @@ public class AuthController extends BaseController {
 
     @ApiOperation(value = "激活")
     @GetMapping(value = "/active/{token:.+}")
-    public Result active(@PathVariable("token") String token) throws ObjectNotExistsException,  AccountActiveCodeHavaExpiredException{
+    public ResultVO active(@PathVariable("token") String token) throws ObjectNotExistsException,  AccountActiveCodeHavaExpiredException{
         authMgr.active(token);
         return ok();
     }
@@ -159,7 +159,7 @@ public class AuthController extends BaseController {
 
     @ApiOperation(value = "发送激活邮件")
     @GetMapping(value = "/send/active/{username}")
-    public Result sendActiveMail(@PathVariable String username) {
+    public ResultVO sendActiveMail(@PathVariable String username) {
         User user = userService.findByUsername(username);
         if(user == null) {
             throw new AccountException("账号不存在");
@@ -173,7 +173,7 @@ public class AuthController extends BaseController {
 
     @ApiOperation(value = "发送忘记密码邮件")
     @GetMapping(value = "/forget/password/{email:.+}")
-    public Result checkEmail(@PathVariable("email") String email) throws AccountNotFoundException {
+    public ResultVO checkEmail(@PathVariable("email") String email) throws AccountNotFoundException {
         if(StringUtils.isBlank(email)) {
             throw new ParamsIsNullException("邮箱不能为空");
         }
@@ -190,7 +190,7 @@ public class AuthController extends BaseController {
 
     @ApiOperation(value = "密码重置")
     @PostMapping(value = "/reset/password/{token:.+}")
-    public Result resetPwd(@PathVariable("token") String token, @RequestBody ResetPasswordForm form) throws AccountNotFoundException {
+    public ResultVO resetPwd(@PathVariable("token") String token, @RequestBody ResetPasswordForm form) throws AccountNotFoundException {
         if(StringUtils.isBlank(token)) {
             throw new ParamsIsNullException("非法的请求链接");
         }
@@ -234,8 +234,8 @@ public class AuthController extends BaseController {
 
 
     @PostMapping(value = "/logout")
-    public Result logout(HttpServletRequest request,
-                         HttpServletResponse response){
+    public ResultVO logout(HttpServletRequest request,
+                           HttpServletResponse response){
         redisLoginMgr.logout(getCurrentUsername());
         return ok();
     }

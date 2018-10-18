@@ -1,7 +1,7 @@
 package com.testwa.distest.server.mongo.service;
 
 import com.testwa.core.base.exception.ParamsIsNullException;
-import com.testwa.core.base.vo.PageResult;
+import com.testwa.core.base.vo.PageResultVO;
 import com.testwa.distest.server.mongo.model.AppiumRunningLog;
 import com.testwa.distest.server.mongo.model.ProcedureStatis;
 import com.testwa.distest.server.mongo.repository.AppiumRunningLogRepository;
@@ -85,7 +85,7 @@ public class AppiumRunningLogService extends BaseService {
         return procedureInfoRepository.findByTaskCodeOrderByTimestampAsc(taskCode);
     }
 
-    public PageResult<AppiumRunningLog> findByPage(StepPageForm form) {
+    public PageResultVO<AppiumRunningLog> findByPage(StepPageForm form) {
         if(form.getScriptId() == null){
             throw new ParamsIsNullException("ScriptId is null");
         }
@@ -105,7 +105,7 @@ public class AppiumRunningLogService extends BaseService {
         Sort sort = new Sort(Sort.Direction.ASC, sortField);
         PageRequest pageRequest = new PageRequest(pageNum, rows, sort);
         Page<AppiumRunningLog> page = procedureInfoRepository.find(query, pageRequest);
-        PageResult<AppiumRunningLog> result = new PageResult<>(page.getContent(), page.getTotalElements());
+        PageResultVO<AppiumRunningLog> result = new PageResultVO<>(page.getContent(), page.getTotalElements());
         return result;
     }
 

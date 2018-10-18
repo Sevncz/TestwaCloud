@@ -40,7 +40,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <slf4j.version>1.7.25</slf4j.version>
         <json.version>20141113</json.version>
-        <quartz.version>2.2.1</quartz.version>
+        <quartz.version>2.3.0</quartz.version>
         <netty-socketio.version>1.7.13</netty-socketio.version>
         <socket.io-client.version>0.8.3</socket.io-client.version>
         <okhttp.version>3.7.0</okhttp.version>
@@ -48,8 +48,8 @@
         <grpc.version>1.9.0</grpc.version>
         <protobuf-java.version>3.5.1</protobuf-java.version>
         <protobuf-java-format.version>1.4</protobuf-java-format.version>
-        <quartz.version>2.2.1</quartz.version>
-        <quartz-mongodb.version>2.0.0</quartz-mongodb.version>
+
+
         <mongodb.version>3.3.0</mongodb.version>
         <fastjson.version>1.2.31</fastjson.version>
         <ffmpeg.version>0.6.1</ffmpeg.version>
@@ -291,6 +291,16 @@
 
             <!-- quartz -->
             <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context-support</artifactId>
+                <version>4.3.9.RELEASE</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-tx</artifactId>
+                <version>4.3.9.RELEASE</version>
+            </dependency>
+            <dependency>
                 <groupId>org.quartz-scheduler</groupId>
                 <artifactId>quartz</artifactId>
                 <version>${quartz.version}</version>
@@ -300,11 +310,11 @@
                 <artifactId>quartz-jobs</artifactId>
                 <version>${quartz.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.novemberain</groupId>
-                <artifactId>quartz-mongodb</artifactId>
-                <version>${quartz-mongodb.version}</version>
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>com.novemberain</groupId>-->
+                <!--<artifactId>quartz-mongodb</artifactId>-->
+                <!--<version>${quartz-mongodb.version}</version>-->
+            <!--</dependency>-->
 
 
             <!-- token -->
