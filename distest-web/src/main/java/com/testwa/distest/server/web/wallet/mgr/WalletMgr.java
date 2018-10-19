@@ -18,7 +18,7 @@ public class WalletMgr {
     @Autowired
     private UserService userService;
 
-    public Long sumUseDeviceTimeByUser(String username) {
+    public Long totalEquipmentDuration(String username) {
         User user = userService.findByUsername(username);
         Long debugTime = deviceLogService.sumDebugTime(user);
         Long jobTime = deviceLogService.sumJobTime(user);
