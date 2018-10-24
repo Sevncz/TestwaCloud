@@ -1,4 +1,4 @@
-package com.testwa.distest.quartz;
+package com.testwa.distest.quartz.job;
 
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.DisallowConcurrentExecution;

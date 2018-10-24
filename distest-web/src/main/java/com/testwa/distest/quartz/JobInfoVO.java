@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-public class TaskInfoVo {
+public class JobInfoVO {
 
     private String jobName;
     private String jobGroup;

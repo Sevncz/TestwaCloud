@@ -304,10 +304,11 @@ public final class DB {
 
     public enum DeviceLogType implements ValueEnum {
         DEBUG(0, "设备调试"),
-        HG(1, "回归测试"),
-        JR(2, "兼容测试"),
-        YL(3, "压力测试"),
-        CRAWLER(4, "遍历测试");
+        LOGCAT(1, "设备调试"),
+        HG(11, "回归测试"),
+        JR(12, "兼容测试"),
+        YL(13, "压力测试"),
+        CRAWLER(14, "遍历测试");
 
         private int value;
         private String desc;

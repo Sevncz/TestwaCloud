@@ -1,4 +1,4 @@
-package com.testwa.distest.quartz;
+package com.testwa.distest.quartz.job;
 
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;

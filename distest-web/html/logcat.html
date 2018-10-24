@@ -14,8 +14,9 @@
 <script src="js/encoding.js"></script>
 <script>
 
-var socket = io('http://localhost:9092?type=browser');
-var deviceId = '8c2b6aee';
+var token = 'eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjN0KAiEQRt9lrhWcdNXZV4kl_JkFo7ZlVQiid8_opsvzncP3gtojzBDyvWwgoFc-LiWPxQ1KB4fGg3Ay6uQIPTqFAmp67AzzeRHAz_2ntXLkhyuh_fej2EK8fU_a0VnAtZXxTo599EpLj5qkyWxk1IgyGTu51VuytML7AwAA__8.E5e5IiQtCTZW-svMrno3dqHhXmqLv1FAbzUxicUOYZs';
+var socket = io('http://localhost:9092?type=browser&token=' + token);
+var deviceId = '4205dccb';
 socket.on('connect', function(){});
 socket.on('logcat', function(message){
     var content = $("#content").val()

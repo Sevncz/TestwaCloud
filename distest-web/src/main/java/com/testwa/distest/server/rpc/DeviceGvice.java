@@ -122,7 +122,7 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
 //    @Override
 //    public void connect(ConnectedRequest request, StreamObserver<CommonReply> responseObserver) {
 //        log.info("device {} connected", request.getDeviceId());
-//        String username = jwtTokenUtil.getUsernameFromToken(request.getToken());
+//        String username = jwtTokenUtil.getUsernameFromToken(request.getUserCode());
 //        User user = userService.findByUsername(username);
 //        Device device = new Device();
 //        device.setBrand(request.getBrand());
@@ -137,7 +137,7 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
 //        device.setSdk(request.getSdk());
 //        device.setWidth(request.getWidth());
 //        device.setLastUserId(user.getId());
-//        device.setLastUserToken(request.getToken());
+//        device.setLastUserToken(request.getUserCode());
 //        device.setPhoneOS(DB.PhoneOS.ANDROID);
 //        // 连接上来的设备设置为在线状态
 //        device.setOnlineStatus(DB.PhoneOnlineStatus.ONLINE);

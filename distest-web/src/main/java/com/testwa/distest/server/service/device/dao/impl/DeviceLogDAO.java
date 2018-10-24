@@ -17,6 +17,11 @@ public class DeviceLogDAO extends BaseDAO<DeviceLog, Long>  implements IDeviceLo
     private DeviceLogMapper mapper;
 
     @Override
+    public DeviceLog findOne(Long key) {
+        return mapper.findOne(key);
+    }
+
+    @Override
     public Long sumDebugTime(List<User> members, Long startTime, Long endTime) {
         return mapper.sumDebugTime(members, null, startTime, endTime);
     }

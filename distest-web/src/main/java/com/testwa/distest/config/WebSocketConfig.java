@@ -3,6 +3,7 @@ package com.testwa.distest.config;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.testwa.distest.config.security.JwtTokenUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,9 +28,9 @@ public class WebSocketConfig {
         config.setAuthorizationListener(handshakeData -> {
             String token = handshakeData.getSingleUrlParam("token");
             log.debug("websocket token: {}, url: {}", token, handshakeData.getUrl());
-            String username = jwtTokenUtil.getUsernameFromToken(token);
+            String userCode = jwtTokenUtil.getUserCodeFromToken(token);
 //            return StringUtils.isNotEmpty(username);
-            return true;
+            return StringUtils.isNotEmpty(userCode);
         });
         return new SocketIOServer(config);
     }

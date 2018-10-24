@@ -74,7 +74,8 @@ public class TaskOverListener implements ApplicationListener<TaskOverEvent> {
         User user = userService.findOne(task.getCreateBy());
         List<SubTask> tds = subTaskService.findByTaskCode(taskCode);
         for(SubTask subTask : tds) {
-            DeviceLog dl = new DeviceLog(subTask.getDeviceId(), logType);
+            DeviceLog dl = new DeviceLog();
+            dl.setLogType(logType);
             dl.setRunning(false);
             if(subTask.getCreateTime() == null) {
                 log.warn("设备任务 subTask createTime is null error {}", subTask.toString());
@@ -83,8 +84,12 @@ public class TaskOverListener implements ApplicationListener<TaskOverEvent> {
             dl.setStartTime(subTask.getCreateTime().getTime());
             if(subTask.getEndTime() == null) {
                 dl.setEndTime(System.currentTimeMillis());
+            }else{
+                dl.setEndTime(subTask.getEndTime().getTime());
             }
+            dl.setProjectId(subTask.getProjectId());
             dl.setUserCode(user.getUserCode());
+            dl.setDeviceId(subTask.getDeviceId());
             deviceLogService.insert(dl);
 
             if(DB.TaskStatus.RUNNING.equals(subTask.getStatus())) {

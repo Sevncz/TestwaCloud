@@ -3,12 +3,17 @@ package com.testwa.distest.server.web.task.execute;
 import com.alibaba.fastjson.JSON;
 import com.google.protobuf.ByteString;
 import com.testwa.core.base.exception.ObjectNotExistsException;
+import com.testwa.core.base.util.CronDateUtils;
 import com.testwa.core.cmd.AppInfo;
 import com.testwa.core.cmd.RemoteRunCommand;
 import com.testwa.core.cmd.RemoteTestcaseContent;
 import com.testwa.core.cmd.ScriptInfo;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.util.WebUtil;
+import com.testwa.distest.quartz.exception.BusinessException;
+import com.testwa.distest.quartz.job.DebugJobDataMap;
+import com.testwa.distest.quartz.job.ExecuteJobDataMap;
+import com.testwa.distest.quartz.service.JobService;
 import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.mongo.event.TaskOverEvent;
 import com.testwa.distest.server.service.app.service.AppService;
@@ -44,6 +49,8 @@ import java.util.concurrent.*;
 @Component
 @Slf4j
 public class ExecuteMgr {
+    private final static String JOB_EXECUTE_NAME = "com.testwa.distest.quartz.job.TaskExecuteJob";
+    private final static String JOB_GROUP = "EXECUTE";
 
     @Autowired
     private UserService userService;
@@ -67,6 +74,8 @@ public class ExecuteMgr {
     private DeviceLogService deviceLogService;
     @Autowired
     private DeviceLockMgr deviceLockMgr;
+    @Autowired
+    private JobService jobService;
 
     // 暂定同时支持100个任务并发
     private final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(100);
@@ -157,7 +166,6 @@ public class ExecuteMgr {
         task.setTestcaseJson(JSON.toJSONString(alltestcase));
         task.setTaskName(taskName);
 
-        Map<String, DeviceLog> deviceLogMap = new HashMap<>();
         // 启动任务
         for (String key : deviceIds) {
             SubTask subTask = new SubTask();
@@ -184,23 +192,14 @@ public class ExecuteMgr {
             Device d = deviceService.findByDeviceId(key);
             if(observer != null ){
                 if(taskType.equals(DB.TaskType.FUNCTIONAL)) {
-                    final DeviceLog devLog = new DeviceLog(key, DB.DeviceLogType.HG);
-                    devLog.setUserCode(user.getUserCode());
-                    deviceLogMap.put(key, devLog);
                     Message message = Message.newBuilder().setTopicName(Message.Topic.TASK_START).setStatus("OK").setMessage(ByteString.copyFromUtf8(JSON.toJSONString(cmd))).build();
                     observer.onNext(message);
                     result.addRunningDevice(d);
                 }else if(taskType.equals(DB.TaskType.COMPATIBILITY)) {
-                    final DeviceLog devLog = new DeviceLog(key, DB.DeviceLogType.JR);
-                    devLog.setUserCode(user.getUserCode());
-                    deviceLogMap.put(key, devLog);
                     Message message = Message.newBuilder().setTopicName(Message.Topic.JR_TASK_START).setStatus("OK").setMessage(ByteString.copyFromUtf8(JSON.toJSONString(cmd))).build();
                     observer.onNext(message);
                     result.addRunningDevice(d);
                 }else if(taskType.equals(DB.TaskType.CRAWLER)) {
-                    final DeviceLog devLog = new DeviceLog(key, DB.DeviceLogType.CRAWLER);
-                    devLog.setUserCode(user.getUserCode());
-                    deviceLogMap.put(key, devLog);
                     Message message = Message.newBuilder().setTopicName(Message.Topic.CRAWLER_TASK_START).setStatus("OK").setMessage(ByteString.copyFromUtf8(JSON.toJSONString(cmd))).build();
                     observer.onNext(message);
                     result.addRunningDevice(d);
@@ -221,48 +220,17 @@ public class ExecuteMgr {
         taskService.save(task);
 
 
-        int initialDelay = 0;
-        int period = 10;
-        Future future = scheduledExecutor.scheduleWithFixedDelay(new Runnable() {
-            @Override
-            public void run() {
-                log.info("........ get task {} info", taskCode);
-                Task t = taskService.findByCode(taskCode);
-                int runningCount = t.getDevices().size();
-                List<SubTask> tds = subTaskService.findByTaskCode(taskCode);
-                for(SubTask taskDevice : tds){
-                    if(!DB.TaskStatus.RUNNING.equals(taskDevice.getStatus())
-                            && !DB.TaskStatus.NOT_EXECUTE.equals(taskDevice.getStatus())) {
-                        runningCount--;
-                        deviceLockMgr.workRelease(taskDevice.getDeviceId());
-                    }
-                    String deviceId = taskDevice.getDeviceId();
-                    if(!deviceAuthMgr.isOnline(deviceId)){
-                        runningCount--;
-                        deviceLockMgr.workRelease(taskDevice.getDeviceId());
-                    }
-                }
-                if(runningCount > 0){
-                    // 检查超时，超过30分钟自动关闭
-                    DateTime startTime = new DateTime(t.getCreateTime());
-                    DateTime now = new DateTime();
-                    Duration d = new Duration(startTime, now);
-                    if(d.getStandardMinutes() > 30){
-                        context.publishEvent(new TaskOverEvent(this, taskCode, true));
-                        Future future = futures.get(taskCode);
-                        if (future != null) future.cancel(true);
-                        return;
-                    }
-                }
+        // 执行任务所需要的参数
+        ExecuteJobDataMap params = new ExecuteJobDataMap();
+        params.setTaskCode(taskCode);
 
-                if(runningCount <= 0) {
-                    context.publishEvent(new TaskOverEvent(this, taskCode, false));
-                    Future future = futures.get(taskCode);
-                    if (future != null) future.cancel(true);
-                }
-            }
-        }, initialDelay, period, TimeUnit.SECONDS);
-        futures.put(taskCode, future);
+        DateTime now = new DateTime();
+        String cron = CronDateUtils.getCron(now.plusSeconds(2).toDate());
+        try {
+            jobService.addJob(JOB_EXECUTE_NAME, String.valueOf(taskCode), cron,  "执行测试任务" + taskCode, JSON.toJSONString(params));
+        } catch (BusinessException e) {
+            e.printStackTrace();
+        }
         return result;
     }
 
@@ -287,6 +255,11 @@ public class ExecuteMgr {
             for (Device d : deviceList) {
                 stopDeviceTask(d, form.getTaskCode(), currentUser.getId());
             }
+        }
+        try {
+            jobService.interrupt(JOB_EXECUTE_NAME, String.valueOf(form.getTaskCode()));
+        } catch (BusinessException e) {
+            e.printStackTrace();
         }
     }
 

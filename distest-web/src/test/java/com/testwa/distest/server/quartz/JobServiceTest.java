@@ -2,7 +2,7 @@ package com.testwa.distest.server.quartz;
 
 import com.testwa.core.base.vo.PageResultVO;
 import com.testwa.distest.DistestWebApplication;
-import com.testwa.distest.quartz.TaskInfoVo;
+import com.testwa.distest.quartz.JobInfoVO;
 import com.testwa.distest.quartz.exception.BusinessException;
 import com.testwa.distest.quartz.service.JobService;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +28,7 @@ public class JobServiceTest {
     @WithMockUser(username = "admin", authorities = { "ADMIN", "USER" })
     public void testAddJob(){
         try {
-            jobService.addJob("com.testwa.distest.quartz.TestJob", "test", "*/10 * * * * ?", "测试一下");
+            jobService.addJob("com.testwa.distest.quartz.job.TestJob", "test", "*/10 * * * * ?", "测试一下");
         } catch (BusinessException e) {
             e.printStackTrace();
         }
@@ -38,7 +38,7 @@ public class JobServiceTest {
     @Test
     @WithMockUser(username = "admin", authorities = { "ADMIN", "USER" })
     public void testList(){
-        PageResultVO<TaskInfoVo> vos = jobService.list(1, 10);
+        PageResultVO<JobInfoVO> vos = jobService.list(1, 10);
         vos.getPages().forEach(task -> {
             log.info(task.toString());
         });
@@ -49,7 +49,18 @@ public class JobServiceTest {
     @WithMockUser(username = "admin", authorities = { "ADMIN", "USER" })
     public void testTrigger(){
         try {
-            jobService.trigger("com.testwa.distest.quartz.TestJob", "test");
+            jobService.trigger("com.testwa.distest.quartz.job.TestJob", "test");
+        } catch (BusinessException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    @Test
+    @WithMockUser(username = "admin", authorities = { "ADMIN", "USER" })
+    public void testDelete(){
+        try {
+            jobService.delete("com.testwa.distest.quartz.job.EquipmentDebugRecordJob", "Debug");
         } catch (BusinessException e) {
             e.printStackTrace();
         }

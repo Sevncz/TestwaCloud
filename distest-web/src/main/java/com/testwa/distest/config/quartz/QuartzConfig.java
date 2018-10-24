@@ -9,19 +9,6 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
 import javax.sql.DataSource;
 
-/**
- * <p>Quartz配置</p>
- * <PRE>
- * <BR>    修改记录
- * <BR>-----------------------------------------------
- * <BR>    修改日期         修改人          修改内容
- * </PRE>
- *
- * @author zl
- * @version 1.0
- * @date Created in 2017/12/16 15:33
- * @copyright: Copyright (c) founders
- */
 @Configuration
 public class QuartzConfig {
 

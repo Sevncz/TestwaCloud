@@ -154,48 +154,11 @@ public class CronScheduled {
                         deviceLockMgr.workRelease(d.getDeviceId());
                     }
                     if(!DB.DeviceDebugStatus.FREE.equals(d.getDebugStatus())){
-                        deviceLockMgr.debugRelease(d.getDeviceId());
+                        deviceLockMgr.debugReleaseForce(d.getDeviceId());
                     }
                 }
             });
         }
     }
-//
-//    @Scheduled(cron = "0 1 * * * ?")
-//    public void cleanTemp(){
-//
-//        Path tempPath = Paths.get(System.getProperty("java.io.tmpdir"), env.getProperty("server.context-path").replace("/", ""));
-//        if(Files.exists(tempPath)){
-//            try {
-//                Files.walkFileTree(tempPath, new FileVisitor<Path>() {
-//                    @Override
-//                    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-//                        return FileVisitResult.CONTINUE;
-//                    }
-//
-//                    @Override
-//                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-//                        Files.delete(file);
-//                        return FileVisitResult.CONTINUE;
-//                    }
-//
-//                    @Override
-//                    public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-//                        log.error("delete files error ", file.toString(), exc);
-//                        return FileVisitResult.CONTINUE;
-//                    }
-//
-//                    @Override
-//                    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-//                        Files.delete(dir);
-//                        return FileVisitResult.CONTINUE;
-//                    }
-//                });
-//            } catch (IOException e) {
-//                log.error("delete file error ", tempPath.toString(), e);
-//            }
-//        }
-//
-//    }
 
 }

@@ -83,6 +83,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
             subTask.setStatus(DB.TaskStatus.ERROR);
             subTask.setEndTime(new Date(timestamp));
             subTaskService.update(subTask);
+            log.info("任务" + taskCode + "已执行失败");
         }else{
             log.error("exeTask info not format. {}", request.toString());
         }
@@ -93,16 +94,17 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
 
     @Override
     public void missionComplete(MissionCompleteRequest request, StreamObserver<CommonReply> responseObserver) {
-        Long exeId = request.getTaskCode();
+        Long taskCode = request.getTaskCode();
         Long timestamp = request.getTimestamp();
         String deviceId = request.getDeviceId();
-        SubTask subTask = subTaskService.findOne(exeId, deviceId);
+        SubTask subTask = subTaskService.findOne(taskCode, deviceId);
         if(subTask != null){
             if(DB.TaskStatus.RUNNING.equals(subTask.getStatus())){
                 subTask.setStatus(DB.TaskStatus.COMPLETE);
             }
             subTask.setEndTime(new Date(timestamp));
             subTaskService.update(subTask);
+            log.info("任务" + taskCode + "已执行完成");
         }else{
             log.error("exeTask info not format. {}", request.toString());
         }

@@ -50,6 +50,7 @@ public class MinicapAndroidServer extends Thread implements Closeable {
     private int quality = 100;
     /** 是否运行 */
     private AtomicBoolean isRunning = new AtomicBoolean(false);
+    private AtomicBoolean isReady = new AtomicBoolean(false);
     /** 是否重启 */
     private AtomicBoolean restart = new AtomicBoolean(false);
 
@@ -70,9 +71,14 @@ public class MinicapAndroidServer extends Thread implements Closeable {
         return this.isRunning.get();
     }
 
+    public boolean isReady() {
+        return this.isReady.get();
+    }
+
     @Override
     public void close() {
         this.isRunning.set(false);
+        this.isReady.set(false);
         this.restart.set(true);
     }
 
@@ -154,6 +160,9 @@ public class MinicapAndroidServer extends Thread implements Closeable {
                         String[] split = ret.split("\n");
                         for (String line : split) {
                             if (StringUtils.isNotEmpty(line)) {
+                                if(!isReady.get()) {
+                                    isReady.set(true);
+                                }
                                 log.info("----minicap----{}", line.trim());
                             }
                         }
@@ -180,6 +189,7 @@ public class MinicapAndroidServer extends Thread implements Closeable {
             log.error("移除端口转发失败. port: {}", e, port);
         }
         this.isRunning.set(false);
+        this.isReady.set(false);
         if(this.port != null) {
             MinicapPortProvider.pushPort(this.port);
         }

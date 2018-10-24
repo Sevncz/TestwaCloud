@@ -17,6 +17,12 @@
         id, projectId, deviceId, userCode, logType, running, startTime, endTime
     </sql>
 
+    <select id="findOne" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM device_log
+        WHERE id = #{key}
+    </select>
 
     <select id="sumDebugTime" resultType="long" >
         SELECT sum(endTime - startTime)
@@ -39,6 +45,7 @@
             endTime > 0
             and userCode = #{userCode}
             and logType != 0
+            and logType != 1
             <if test="startTime != null">and startTime &gt;= #{startTime}</if>
             <if test="endTime != null">and endTime &lt;= #{endTime}</if>
         </trim>
