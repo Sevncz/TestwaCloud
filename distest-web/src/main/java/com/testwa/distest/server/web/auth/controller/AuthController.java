@@ -123,7 +123,7 @@ public class AuthController extends BaseController {
         return ok();
     }
 
-    @RequestMapping(value = "/verify/username/{username}", method= RequestMethod.GET)
+    @GetMapping(value = "/verify/username/{username}")
     public ResultVO checkUsername(@PathVariable String username) throws AccountAlreadyExistException, ParamsFormatException {
         // 校验用户名
         if(!Validator.isUsername(username)){
@@ -136,7 +136,7 @@ public class AuthController extends BaseController {
         return ok();
     }
 
-    @RequestMapping(value = "/verify/email/{email:.+}", method= RequestMethod.GET)
+    @GetMapping(value = "/verify/email/{email:.+}")
     public ResultVO verifyEmail(@PathVariable String email) throws ParamsFormatException, AccountAlreadyExistException {
         // 校验邮箱
         if(!Validator.isEmail(email)){

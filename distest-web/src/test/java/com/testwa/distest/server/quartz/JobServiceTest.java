@@ -60,7 +60,7 @@ public class JobServiceTest {
     @WithMockUser(username = "admin", authorities = { "ADMIN", "USER" })
     public void testDelete(){
         try {
-            jobService.delete("com.testwa.distest.quartz.job.EquipmentDebugRecordJob", "Debug");
+            jobService.delete("com.testwa.distest.quartz.TestJob", "test");
         } catch (BusinessException e) {
             e.printStackTrace();
         }

@@ -5,9 +5,6 @@ package com.testwa.core.base.exception;
  */
 public class ParamsFormatException extends ParamsException {
 
-    public ParamsFormatException(){
-    }
-
     public ParamsFormatException(String message){
         super(message);
     }

@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = DistestWebApplication.class)
-@TestPropertySource(locations="classpath:application-test.properties")
+@TestPropertySource(locations="classpath:application-dev.properties")
 public class AccountControllerTest {
 
     private MockMvc mvc;
@@ -59,6 +59,26 @@ public class AccountControllerTest {
         String requestJson = JSON.toJSONString(params);
         RequestBuilder request = null;
         request = post("/account/login/")
+                .contentType(APPLICATION_JSON_UTF8)
+                .content(requestJson);
+        mvc.perform(request)
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+    }
+
+    @Test
+    @WithAnonymousUser
+    public void testRegister() throws Exception {
+        Map<String, Object> params = new HashMap<>();
+        params.put("username", "ceshiyoujian");
+        params.put("password", "123456!");
+        params.put("email", "wen0112@live.c");
+        String requestJson = JSON.toJSONString(params);
+        RequestBuilder request = null;
+        request = post("/account/register/")
                 .contentType(APPLICATION_JSON_UTF8)
                 .content(requestJson);
         mvc.perform(request)

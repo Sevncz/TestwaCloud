@@ -57,7 +57,7 @@ public class JobService {
                     }
                 }
             }
-            resultVO = new PageResultVO<JobInfoVO>(list.stream().skip((page - 1) * size).limit(size).collect(Collectors.toList()), list.size());
+            resultVO = new PageResultVO<JobInfoVO>(list.stream().skip((page > 1 ? page - 1 : 0) * size).limit(size).collect(Collectors.toList()), list.size());
 
         } catch (SchedulerException e) {
             log.error("分页查询定时任务失败，page={},size={},e={}", page, size, e);
@@ -229,7 +229,7 @@ public class JobService {
      * @param jobName
      * @param jobGroup
      */
-    public void delete(String jobName, String jobGroup) throws BusinessException {
+    public void unschedule(String jobName, String jobGroup) throws BusinessException {
         try {
             log.info("删除jobName={},jobGroup={}", jobName, jobGroup);
             TriggerKey triggerKey = TriggerKey.triggerKey(jobName, jobGroup);
@@ -237,6 +237,24 @@ public class JobService {
                 scheduler.pauseTrigger(triggerKey);
                 scheduler.unscheduleJob(triggerKey);
             }
+        } catch (SchedulerException e) {
+            log.error("删除job失败, jobName={},jobGroup={},e={}", jobName, jobGroup, e);
+            throw new BusinessException(e.getMessage());
+        }
+    }
+
+
+    /**
+     * 删除
+     *
+     * @param jobName
+     * @param jobGroup
+     */
+    public void delete(String jobName, String jobGroup) throws BusinessException {
+        try {
+            log.info("删除jobName={},jobGroup={}", jobName, jobGroup);
+            JobKey jobKey = new JobKey(jobName, jobGroup);
+            scheduler.deleteJob(jobKey);
         } catch (SchedulerException e) {
             log.error("删除job失败, jobName={},jobGroup={},e={}", jobName, jobGroup, e);
             throw new BusinessException(e.getMessage());

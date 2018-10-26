@@ -74,6 +74,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     public void gameover(GameOverRequest request, StreamObserver<CommonReply> responseObserver) {
         Long taskCode = request.getTaskCode();
         Long timestamp = request.getTimestamp();
+        log.info("Game over! {}", taskCode);
         String errorMessage = request.getErrorMessage();
         String deviceId = request.getDeviceId();
 
@@ -96,6 +97,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     public void missionComplete(MissionCompleteRequest request, StreamObserver<CommonReply> responseObserver) {
         Long taskCode = request.getTaskCode();
         Long timestamp = request.getTimestamp();
+        log.info("Mission complete! {}", taskCode);
         String deviceId = request.getDeviceId();
         SubTask subTask = subTaskService.findOne(taskCode, deviceId);
         if(subTask != null){

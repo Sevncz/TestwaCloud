@@ -5,10 +5,6 @@ package com.testwa.core.base.exception;
  */
 public class ParamsException extends RuntimeException {
 
-    public ParamsException(){
-        super();
-    }
-
     public ParamsException(String message){
         super(message);
     }
