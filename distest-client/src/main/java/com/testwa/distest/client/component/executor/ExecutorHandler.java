@@ -1,1 +1,0 @@
-package com.testwa.distest.client.component.executor;import com.testwa.distest.client.component.executor.worker.AbstractExecutor;public class ExecutorHandler extends AbstractExecutorHandler {    @Override    public void handleRequest(AbstractExecutor executor) {        executor.start();    }}
