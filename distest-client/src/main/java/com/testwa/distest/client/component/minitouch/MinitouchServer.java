@@ -77,7 +77,7 @@ public class MinitouchServer extends Thread implements Closeable {
     public synchronized void start() {
         if (this.isRunning.get()) {
             throw new IllegalStateException("Minicap服务已运行");
-        } else {
+        }else{
             this.isRunning.set(true);
         }
         try {
@@ -95,6 +95,7 @@ public class MinitouchServer extends Thread implements Closeable {
             this.port = MinitouchPortProvider.pullPort();
             device.createForward(port, AB_NAME, IDevice.DeviceUnixSocketNamespace.ABSTRACT);
             log.info("端口转发 tcp:{} localabstract:minicap", port);
+
         } catch (Exception e) {
             throw new IllegalStateException("Minicap服务启动失败");
         }

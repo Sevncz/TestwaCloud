@@ -1,12 +1,10 @@
 package com.testwa.distest.client.component.minicap;
 
 import com.android.ddmlib.*;
-import com.testwa.core.shell.UTF8CommonExecs;
 
 import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.distest.client.android.ADBCommandUtils;
 import com.testwa.distest.client.android.PhysicalSize;
-import com.testwa.distest.client.component.Constant;
 import com.testwa.distest.client.component.appium.utils.Config;
 import com.testwa.distest.client.component.port.MinicapPortProvider;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +29,8 @@ public class MinicapAndroidServer extends Thread implements Closeable {
     private static final String MINICAP_NOPIE_TMP_DIR = ANDROID_TMP_DIR + "minicap-nopie";
     /** minicap.so 临时存放目录 */
     private static final String MINICAP_SO_TMP_DIR = ANDROID_TMP_DIR + "minicap.so";
+    /** 文件权限 */
+    private static final String MODE = "777";
 
     /** cpu abi */
     private String abi;
@@ -117,29 +117,31 @@ public class MinicapAndroidServer extends Thread implements Closeable {
     public synchronized void start() {
         if (this.isRunning.get()) {
             throw new IllegalStateException("Minicap服务已运行");
-        } else {
+        }else{
             this.isRunning.set(true);
         }
         try {
             // push minicap
             String minicapPath = getMinicapPath().toString();
             log.info("推送文件 local: {}, remote: {}", minicapPath, MINICAP_TMP_DIR);
-            ADBCommandUtils.pushFile(device.getSerialNumber(), getResource(minicapPath), MINICAP_TMP_DIR, "777");
+            ADBCommandUtils.pushFile(device.getSerialNumber(), getResource(minicapPath), MINICAP_TMP_DIR, MODE);
 
             // push minicap-nopie
             String minicapNopiePath = getMinicapNopiePath().toString();
             log.info("推送文件 local: {}, remote: {}", minicapNopiePath, MINICAP_NOPIE_TMP_DIR);
-            ADBCommandUtils.pushFile(device.getSerialNumber(), getResource(minicapNopiePath), MINICAP_NOPIE_TMP_DIR, "777");
+            ADBCommandUtils.pushFile(device.getSerialNumber(), getResource(minicapNopiePath), MINICAP_NOPIE_TMP_DIR, MODE);
 
             // push minicap.so
             String minicapSoPath = getMinicapSoPath().toString();
             log.info("推送文件 local: {}, remote: {}", minicapSoPath, MINICAP_SO_TMP_DIR);
-            ADBCommandUtils.pushFile(device.getSerialNumber(), getResource(minicapSoPath), MINICAP_SO_TMP_DIR, "777");
+            ADBCommandUtils.pushFile(device.getSerialNumber(), getResource(minicapSoPath), MINICAP_SO_TMP_DIR, MODE);
 
             // forward port
             this.port = MinicapPortProvider.pullPort();
             device.createForward(port, "minicap", IDevice.DeviceUnixSocketNamespace.ABSTRACT);
             log.info("端口转发 tcp:{} localabstract:minicap", port);
+
+
         } catch (Exception e) {
             throw new IllegalStateException("Minicap服务启动失败");
         }
@@ -193,7 +195,7 @@ public class MinicapAndroidServer extends Thread implements Closeable {
         if(this.port != null) {
             MinicapPortProvider.pushPort(this.port);
         }
-        log.info("Minicap服务已关闭");
+        log.info("Minicap服务结束");
     }
 
     private String getResource(String name) {
