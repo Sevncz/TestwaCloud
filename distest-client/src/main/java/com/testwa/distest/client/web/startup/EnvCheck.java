@@ -68,7 +68,6 @@ public class EnvCheck implements CommandLineRunner {
         checkSupportEnv();
         checkAuth(username, password);
         checkTempDirPath();
-        startDeviceManager();
     }
 
     /**
@@ -137,6 +136,7 @@ public class EnvCheck implements CommandLineRunner {
                             UserInfo.token = token;
                             UserInfo.username = username;
 
+                            startDeviceManager();
                         } else {
                             log.error("登录{}失败，返回{}", loginUrl, content);
                             System.exit(0);
