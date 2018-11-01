@@ -50,6 +50,11 @@ public class UserDAO extends BaseDAO<User, Long> implements IUserDAO {
     }
 
     @Override
+    public List<User> findByUserCodes(List<String> userCodes) {
+        return userMapper.findByUserCodeList(userCodes);
+    }
+
+    @Override
     public User getByUsername(String username) {
         return userMapper.getByUsername(username);
     }

@@ -19,7 +19,7 @@ import com.testwa.distest.server.service.script.dao.IScriptDAO;
 import com.testwa.distest.server.service.task.dao.ITaskDAO;
 import com.testwa.distest.server.service.testcase.dao.ITestcaseDAO;
 import com.testwa.distest.server.service.user.service.UserService;
-import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
+import com.testwa.distest.server.web.device.mgr.DeviceOnlineMgr;
 import com.testwa.distest.server.web.project.vo.ProjectStatis;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -57,7 +57,7 @@ public class ProjectService {
     @Autowired
     private IDeviceDAO deviceDAO;
     @Autowired
-    private DeviceAuthMgr deviceAuthMgr;
+    private DeviceOnlineMgr deviceOnlineMgr;
     @Autowired
     private DeviceService deviceService;
 
@@ -261,7 +261,7 @@ public class ProjectService {
         kq.setEnabled(true);
         Long task = taskDAO.countBy(kq);
 
-        Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
+        Set<String> deviceIds = deviceOnlineMgr.allOnlineDevices();
         int device = deviceIds.size();
         return new ProjectStatis(app, script, testcase, task, (long) device);
     }

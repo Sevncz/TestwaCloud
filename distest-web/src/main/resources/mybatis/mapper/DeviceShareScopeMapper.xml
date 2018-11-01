@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.testwa.distest.server.mapper.DeviceShareScopeMapper" >
+    <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.DeviceShareScope" >
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="device_id" property="deviceId" jdbcType="VARCHAR" />
+        <result column="share_scope" property="shareScope" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+        <result column="create_by" property="createBy" jdbcType="BIGINT" />
+    </resultMap>
+
+    <select id="findOneByDeviceIdAndCreateBy" resultMap="BaseResultMap" >
+        SELECT * FROM device_share_scope
+        where device_id = #{deviceId} and create_by = #{userId}
+    </select>
+    <update id="updateScope" >
+        update device_share_scope
+        set share_scope = #{scope, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}
+        where device_id = #{deviceId}
+        and create_by = #{createBy}
+    </update>
+</mapper>

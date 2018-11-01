@@ -82,7 +82,6 @@ public class DeviceServiceTest {
     public void testFetchList(){
         List<Device> deviceList = deviceService.fetchList(new HashSet<>(),3l);
         for(Device d : deviceList){
-            log.info(d.getDeviceAuths().toString());
             log.info(d.toString());
         }
     }

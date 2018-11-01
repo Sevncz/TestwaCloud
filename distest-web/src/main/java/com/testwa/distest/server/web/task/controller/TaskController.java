@@ -18,7 +18,7 @@ import com.testwa.distest.server.service.task.form.*;
 import com.testwa.distest.server.service.testcase.service.TestcaseService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.app.validator.AppValidator;
-import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
+import com.testwa.distest.server.web.device.mgr.DeviceOnlineMgr;
 import com.testwa.distest.server.web.device.mgr.DeviceLockMgr;
 import com.testwa.distest.server.web.device.validator.DeviceValidatoer;
 import com.testwa.distest.server.web.script.validator.ScriptValidator;
@@ -72,7 +72,7 @@ public class TaskController extends BaseController {
     @Autowired
     private UserService userService;
     @Autowired
-    private DeviceAuthMgr deviceAuthMgr;
+    private DeviceOnlineMgr deviceOnlineMgr;
     @Autowired
     private DeviceService deviceService;
     @Autowired
@@ -89,7 +89,7 @@ public class TaskController extends BaseController {
 
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
 
-        Set<String> onlineDeviceIdList = deviceAuthMgr.allOnlineDevices();
+        Set<String> onlineDeviceIdList = deviceOnlineMgr.allOnlineDevices();
         List<Device> deviceList = deviceService.findAll(form.getDeviceIds());
         List<Device> unableDevices = new ArrayList<>();
         List<String> unableDeviceIds = new ArrayList<>();
@@ -139,7 +139,7 @@ public class TaskController extends BaseController {
 
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
 
-        Set<String> onlineDeviceIdList = deviceAuthMgr.allOnlineDevices();
+        Set<String> onlineDeviceIdList = deviceOnlineMgr.allOnlineDevices();
         List<Device> deviceList = deviceService.findAll(form.getDeviceIds());
         List<Device> unableDevices = new ArrayList<>();
         List<String> unableDeviceIds = new ArrayList<>();
@@ -178,7 +178,7 @@ public class TaskController extends BaseController {
 
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
 
-        Set<String> onlineDeviceIdList = deviceAuthMgr.allOnlineDevices();
+        Set<String> onlineDeviceIdList = deviceOnlineMgr.allOnlineDevices();
         List<Device> deviceList = deviceService.findAll(form.getDeviceIds());
         List<Device> unableDevices = new ArrayList<>();
         List<String> unableDeviceIds = new ArrayList<>();
@@ -220,7 +220,7 @@ public class TaskController extends BaseController {
 
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
 
-        Set<String> onlineDeviceIdList = deviceAuthMgr.allOnlineDevices();
+        Set<String> onlineDeviceIdList = deviceOnlineMgr.allOnlineDevices();
         List<Device> deviceList = deviceService.findAll(form.getDeviceIds());
         List<Device> unableDevices = new ArrayList<>();
         List<String> unableDeviceIds = new ArrayList<>();

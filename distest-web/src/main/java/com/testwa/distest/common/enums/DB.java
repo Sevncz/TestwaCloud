@@ -367,14 +367,15 @@ public final class DB {
         }
     }
 
-    public enum ShareScopeEnum implements ValueEnum {
 
-        Self(0, "Self"), User(1, "User"), Project(2, "Project"), All(100, "All");
+
+    public enum DeviceShareScopeEnum implements ValueEnum {
+        Private(0, "私有的"), Protected(1, "部分公开的"), Public(2, "公开的");
 
         private int value;
         private String desc;
 
-        ShareScopeEnum(int value, String desc) {
+        DeviceShareScopeEnum(int value, String desc) {
             this.value = value;
             this.desc = desc;
         }
@@ -394,8 +395,8 @@ public final class DB {
             if(StringUtils.isBlank(name)){
                 return false;
             }
-            ShareScopeEnum[] season = values();
-            for(ShareScopeEnum s : season){
+            DeviceShareScopeEnum[] season = values();
+            for(DeviceShareScopeEnum s : season){
                 if(s.name().equals(name)){
                     return true;
                 }
@@ -404,23 +405,87 @@ public final class DB {
             return false;
         }
 
-        public static ShareScopeEnum fromValue(int value)
+        public static DeviceShareScopeEnum fromValue(int value)
                 throws IllegalArgumentException {
             try {
-                return ShareScopeEnum.values()[value];
+                return DeviceShareScopeEnum.values()[value];
             } catch(ArrayIndexOutOfBoundsException e) {
                 throw new IllegalArgumentException("Unknown enum value :"+ value);
             }
         }
 
-        public static List<ShareScopeEnum> lteScope(Integer scope) {
-            List<ShareScopeEnum> l = new ArrayList<>();
+        public static List<DeviceShareScopeEnum> lteScope(Integer scope) {
+            List<DeviceShareScopeEnum> l = new ArrayList<>();
             switch (fromValue(scope)){
-                case Self:
-                    if(Self.getValue() <= scope){
-                        l.add(Self);
+                case Private:
+                    if(Private.getValue() <= scope){
+                        l.add(Private);
                     }
                     break;
+                case Protected:
+                    if(Protected.getValue() <= scope){
+                        l.add(Protected);
+                    }
+                    break;
+                case Public:
+                    if(Public.getValue() <= scope){
+                        l.add(Public);
+                    }
+                    break;
+            }
+            return l;
+        }
+    }
+
+    public enum DeviceShareScopeTypeEnum implements ValueEnum {
+
+        User(0, "User"), Project(1, "Project");
+
+        private int value;
+        private String desc;
+
+        DeviceShareScopeTypeEnum(int value, String desc) {
+            this.value = value;
+            this.desc = desc;
+        }
+
+        public int getValue() {
+            return value;
+        }
+        public String getDesc() {
+            return desc;
+        }
+
+        public void setValue(int value) {
+            this.value = value;
+        }
+
+        public static boolean contains(String name){
+            if(StringUtils.isBlank(name)){
+                return false;
+            }
+            DeviceShareScopeTypeEnum[] season = values();
+            for(DeviceShareScopeTypeEnum s : season){
+                if(s.name().equals(name)){
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static DeviceShareScopeTypeEnum fromValue(int value)
+                throws IllegalArgumentException {
+            try {
+                return DeviceShareScopeTypeEnum.values()[value];
+            } catch(ArrayIndexOutOfBoundsException e) {
+                throw new IllegalArgumentException("Unknown enum value :"+ value);
+            }
+        }
+
+        public static List<DeviceShareScopeTypeEnum> lteScope(Integer scope) {
+            List<DeviceShareScopeTypeEnum> l = new ArrayList<>();
+            switch (fromValue(scope)){
                 case User:
                     if(User.getValue() <= scope){
                         l.add(User);
@@ -429,11 +494,6 @@ public final class DB {
                 case Project:
                     if(Project.getValue() <= scope){
                         l.add(Project);
-                    }
-                    break;
-                case All:
-                    if(All.getValue() <= scope){
-                        l.add(All);
                     }
                     break;
             }

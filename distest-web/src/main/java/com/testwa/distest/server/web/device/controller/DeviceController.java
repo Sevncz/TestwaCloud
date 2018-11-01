@@ -5,12 +5,13 @@ import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.*;
 import com.testwa.core.base.vo.ResultVO;
 import com.testwa.distest.server.entity.Device;
+import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.cache.mgr.DeviceLockCache;
 import com.testwa.distest.server.service.device.form.DeviceBatchCheckForm;
 import com.testwa.distest.server.service.device.form.DeviceSearchForm;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.user.service.UserService;
-import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
+import com.testwa.distest.server.web.device.mgr.DeviceOnlineMgr;
 import com.testwa.distest.server.web.device.validator.DeviceValidatoer;
 import com.testwa.distest.server.web.device.vo.CheckDeviceResultVO;
 import com.testwa.distest.server.web.device.vo.DeviceCategoryVO;
@@ -28,6 +29,8 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.Set;
 
+import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
+
 /**
  * Created by wen on 7/30/16.
  */
@@ -41,7 +44,7 @@ public class DeviceController extends BaseController {
     @Autowired
     private DeviceService deviceService;
     @Autowired
-    private DeviceAuthMgr deviceAuthMgr;
+    private DeviceOnlineMgr deviceOnlineMgr;
     @Autowired
     private DeviceValidatoer deviceValidatoer;
     @Autowired
@@ -58,8 +61,42 @@ public class DeviceController extends BaseController {
     @ResponseBody
     @GetMapping(value = "/cloud/list")
     public ResultVO cloudList(@Valid DeviceSearchForm form) throws ObjectNotExistsException, AuthorizedException {
-        Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
+        Set<String> deviceIds = deviceOnlineMgr.allOnlineDevices();
         List<Device> devices = deviceService.findCloudList(deviceIds, form.getBrand(), form.getOsVersion(), form.getResolution(), form.getIsAll());
+        return ok(devices);
+    }
+
+    /**
+     * 我的设备列表
+     * @param form
+     * @return
+     */
+    @ApiOperation(value="我的设备列表")
+    @ResponseBody
+    @GetMapping(value = "/private/list")
+    public ResultVO myList(@Valid DeviceSearchForm form) throws ObjectNotExistsException, AuthorizedException {
+        Set<String> deviceIds = deviceOnlineMgr.allOnlineDevices();
+
+        User user = userService.findByUsername(getCurrentUsername());
+
+        List<Device> devices = deviceService.findUserList(deviceIds, user.getId(), form.getBrand(), form.getOsVersion(), form.getResolution(), form.getIsAll());
+        return ok(devices);
+    }
+
+    /**
+     * 分享给我的设备列表
+     * @param form
+     * @return
+     */
+    @ApiOperation(value="分享给我的设备列表")
+    @ResponseBody
+    @GetMapping(value = "/share/list")
+    public ResultVO shareList(@Valid DeviceSearchForm form) throws ObjectNotExistsException, AuthorizedException {
+        Set<String> deviceIds = deviceOnlineMgr.allOnlineDevices();
+
+        User user = userService.findByUsername(getCurrentUsername());
+
+        List<Device> devices = deviceService.findShareToUserList(deviceIds, user.getId(), form.getBrand(), form.getOsVersion(), form.getResolution(), form.getIsAll());
         return ok(devices);
     }
 
@@ -72,8 +109,23 @@ public class DeviceController extends BaseController {
     @ResponseBody
     @GetMapping(value = "/cloud/search")
     public ResultVO enableSearch(@Valid DeviceSearchForm form) throws ObjectNotExistsException, AuthorizedException {
-        Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
+        Set<String> deviceIds = deviceOnlineMgr.allOnlineDevices();
         List<Device> devices = deviceService. searchCloudList(deviceIds, form.getBrand(), form.getOsVersion(), form.getResolution(), form.getIsAll());
+        return ok(devices);
+    }
+
+    /**
+     * 个人设备模糊查询列表
+     * @param form
+     * @return
+     */
+    @ApiOperation(value="个人设备模糊查询列表")
+    @ResponseBody
+    @GetMapping(value = "/private/search")
+    public ResultVO myEnableSearch(@Valid DeviceSearchForm form) throws ObjectNotExistsException, AuthorizedException {
+        Set<String> deviceIds = deviceOnlineMgr.allOnlineDevices();
+        User user = userService.findByUsername(getCurrentUsername());
+        List<Device> devices = deviceService. searchUserList(deviceIds, user.getId(), form.getBrand(), form.getOsVersion(), form.getResolution(), form.getIsAll());
         return ok(devices);
     }
 
@@ -81,7 +133,7 @@ public class DeviceController extends BaseController {
     @ResponseBody
     @GetMapping(value = "/category/android")
     public ResultVO category() throws ObjectNotExistsException {
-        Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
+        Set<String> deviceIds = deviceOnlineMgr.allOnlineDevices();
         DeviceCategoryVO vo = new DeviceCategoryVO();
         if(deviceIds != null && deviceIds.size() > 0) {
             vo = deviceService.getCategory(deviceIds);

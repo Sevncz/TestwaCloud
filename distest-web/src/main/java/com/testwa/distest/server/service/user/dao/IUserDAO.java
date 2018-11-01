@@ -23,6 +23,8 @@ public interface IUserDAO extends IBaseDAO<User, Long> {
 
     User getByCode(String userCode);
 
+    List<User> findByUserCodes(List<String> userCodes);
+
     User getByUsername(String username);
 
     User getByEmail(String email);
@@ -30,4 +32,5 @@ public interface IUserDAO extends IBaseDAO<User, Long> {
     void updateActiveToTrue(String userCode);
 
     void resetPwd(String userCode, String newHashPwd);
+
 }

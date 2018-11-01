@@ -5,7 +5,7 @@ import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.service.device.service.DeviceService;
-import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
+import com.testwa.distest.server.web.device.mgr.DeviceOnlineMgr;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -19,12 +19,12 @@ import java.util.Set;
 public class DeviceValidatoer {
 
     @Autowired
-    private DeviceAuthMgr deviceAuthMgr;
+    private DeviceOnlineMgr deviceOnlineMgr;
     @Autowired
     private DeviceService deviceService;
 
     public void validateOnline(List<String> deviceIds) throws ObjectNotExistsException {
-        Set<String> onlineDeviceIdList = deviceAuthMgr.allOnlineDevices();
+        Set<String> onlineDeviceIdList = deviceOnlineMgr.allOnlineDevices();
         for(String d : deviceIds){
 
             if(!onlineDeviceIdList.contains(d)){
@@ -33,7 +33,7 @@ public class DeviceValidatoer {
         }
     }
     public void validateOnline(String deviceId) throws ObjectNotExistsException {
-        Set<String> onlineDeviceIdList = deviceAuthMgr.allOnlineDevices();
+        Set<String> onlineDeviceIdList = deviceOnlineMgr.allOnlineDevices();
         if(!onlineDeviceIdList.contains(deviceId)){
             throw new DeviceUnusableException("设备不在线");
         }
@@ -69,7 +69,7 @@ public class DeviceValidatoer {
      *@Date: 2018/5/29
      */
     public void validateUsable(List<String> deviceIds) throws DeviceUnusableException {
-        Set<String> onlineDeviceIdList = deviceAuthMgr.allOnlineDevices();
+        Set<String> onlineDeviceIdList = deviceOnlineMgr.allOnlineDevices();
         List<Device> deviceList = deviceService.findAll(deviceIds);
         for(Device device : deviceList) {
             if(!onlineDeviceIdList.contains(device.getDeviceId())){
@@ -82,7 +82,7 @@ public class DeviceValidatoer {
     }
 
     public void validateUsable(String deviceId)  throws DeviceUnusableException, ObjectNotExistsException {
-        Set<String> onlineDeviceIdList = deviceAuthMgr.allOnlineDevices();
+        Set<String> onlineDeviceIdList = deviceOnlineMgr.allOnlineDevices();
         if(!onlineDeviceIdList.contains(deviceId)){
             throw new DeviceUnusableException("设备不在线");
         } else {

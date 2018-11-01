@@ -1,4 +1,4 @@
-package com.testwa.distest.server.web.device.auth;
+package com.testwa.distest.server.web.device.mgr;
 
 import com.testwa.core.redis.RedisCacheManager;
 import com.testwa.distest.common.enums.DB;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 @Component
-public class DeviceAuthMgr {
+public class DeviceOnlineMgr {
 
     private static final String ONLINE = "devices.online";
 

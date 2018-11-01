@@ -99,4 +99,14 @@ public class DeviceDAO extends BaseDAO<Device, Long>  implements IDeviceDAO{
     public List<Device> findAllInWrok() {
         return deviceMapper.findAllInWrok();
     }
+
+    @Override
+    public List<Device> findOnlineAndPublicDeviceList(Map<String, Object> queryMap) {
+        return deviceMapper.findOnlineAndPublicDeviceList(queryMap);
+    }
+
+    @Override
+    public List<Device> searchOnlineAndPublicDeviceList(Map<String, Object> queryMap) {
+        return deviceMapper.searchOnlineAndPublicDeviceList(queryMap);
+    }
 }

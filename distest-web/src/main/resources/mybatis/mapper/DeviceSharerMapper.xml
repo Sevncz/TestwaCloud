@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.testwa.distest.server.mapper.DeviceSharerMapper" >
+    <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.DeviceSharer" >
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="device_id" property="deviceId" jdbcType="VARCHAR" />
+        <result column="from_user_id" property="fromUserId" jdbcType="BIGINT" />
+        <result column="sharer_id" property="sharerId" jdbcType="BIGINT" />
+        <result column="start_time" property="startTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+        <result column="end_time" property="endTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+        <result column="share_scope_type" property="shareScopeType" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
+    </resultMap>
+
+    <select id="findShareUserIn" resultMap="BaseResultMap" >
+        SELECT * FROM device_sharer
+        where device_id = #{deviceId}
+            and from_user_id = #{ownerId}
+            and sharer_id = #{toUserId}
+    </select>
+
+    <select id="findShareToUserList" resultMap="BaseResultMap" >
+        select t1.*
+        from device_sharer t1, device t2
+        where t1.device_id = t2.deviceId
+        and t1.from_user_id = t2.lastUserId
+        and t2.onlineStatus = 1
+        and t1.share_scope_type = 0
+        and t1.sharer_id = #{toUserId}
+        and device_id in <foreach item="devId" index="index" collection="inDeviceList" open="(" separator="," close=")">#{devId} </foreach>
+    </select>
+
+    <select id="findDeviceScopeUserList" resultType="com.testwa.distest.server.service.device.dto.DeviceSharerDTO" >
+        SELECT t.id as shareId, t.start_time as startTime, t.end_time as endTime, u.id as userId, u.username as username
+        FROM device_sharer t left join user u on t.sharer_id = u.id
+        where t.device_id = #{deviceId}
+            and t.from_user_id = #{ownerId}
+    </select>
+
+
+</mapper>

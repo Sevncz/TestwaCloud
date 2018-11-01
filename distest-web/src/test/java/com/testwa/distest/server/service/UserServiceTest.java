@@ -34,9 +34,9 @@ public class UserServiceTest {
     public void testInsert() throws AccountException, AccountAlreadyExistException {
         long countBefore =userService.count();
         User user = new User();
-        user.setUsername("aaa1");
-        user.setPassword("123456");
-        user.setEmail("aaa1@testwa.com");
+        user.setUsername("wen01");
+        user.setPassword("12345^");
+        user.setEmail("admin1@testwa.com");
         user.setSex(DB.Sex.MALE);
         String code = userService.save(user);
         System.out.println(code);

@@ -5,6 +5,8 @@ import com.github.pagehelper.PageInfo;
 import com.testwa.core.base.vo.PageResultVO;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Device;
+import com.testwa.distest.server.entity.DeviceShareScope;
+import com.testwa.distest.server.entity.DeviceSharer;
 import com.testwa.distest.server.entity.IOSDeviceDict;
 import com.testwa.distest.server.service.device.dao.IDeviceDAO;
 import com.testwa.distest.server.service.device.dao.IIOSDeviceDictDAO;
@@ -18,6 +20,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -31,6 +34,10 @@ public class DeviceService {
     private IDeviceDAO deviceDAO;
     @Autowired
     private IIOSDeviceDictDAO iosDeviceDictDAO;
+    @Autowired
+    private DeviceSharerService deviceSharerService;
+    @Autowired
+    private DeviceShareScopeService deviceShareScopeService;
 
     public Device findByDeviceId(String deviceId) {
         Map<String, Object> queryMap = new HashMap<>();
@@ -183,6 +190,7 @@ public class DeviceService {
         if(deviceIds == null || deviceIds.size() == 0) {
             return new ArrayList<>();
         }
+
         Map<String, Object> queryMap = new HashMap<>();
         queryMap.put("deviceIdList", deviceIds);
         if(StringUtils.isNotBlank(brand)){
@@ -203,7 +211,7 @@ public class DeviceService {
             queryMap.put("workStatus", DB.DeviceWorkStatus.FREE);
             queryMap.put("debugStatus", DB.DeviceDebugStatus.FREE);
         }
-        return deviceDAO.findOnlineList(queryMap);
+        return deviceDAO.findOnlineAndPublicDeviceList(queryMap);
     }
 
     public List<Device> searchCloudList(Set<String> deviceIds, String brand, String osVersion, String resolution, Boolean isAll) {
@@ -230,12 +238,128 @@ public class DeviceService {
             queryMap.put("workStatus", DB.DeviceWorkStatus.FREE);
             queryMap.put("debugStatus", DB.DeviceDebugStatus.FREE);
         }
-        return deviceDAO.searchCloudList(queryMap);
+        return deviceDAO.searchOnlineAndPublicDeviceList(queryMap);
     }
 
+    /**
+     * @Description: 云端设备分页列表
+     * @Param: [deviceIds, brand, osVersion, resolution, isAll]
+     * @Return: com.testwa.core.base.vo.PageResultVO<com.testwa.distest.server.entity.Device>
+     * @Author wen
+     * @Date 2018/10/30 17:49
+     */
     public PageResultVO<Device> findCloudPage(Set<String> deviceIds, String brand, String osVersion, String resolution, Boolean isAll) {
 
         return null;
+    }
+
+    /**
+     * @Description: 查询用户的设备列表
+     * @Param: [deviceIds, userId, brand, osVersion, resolution, isAll]
+     * @Return: java.util.List<com.testwa.distest.server.entity.Device>
+     * @Author wen
+     * @Date 2018/10/30 17:45
+     */
+    public List<Device> findUserList(Set<String> deviceIds, Long userId, String brand, String osVersion, String resolution, Boolean isAll) {
+        if(deviceIds == null || deviceIds.size() == 0) {
+            return new ArrayList<>();
+        }
+        Map<String, Object> queryMap = new HashMap<>();
+        queryMap.put("deviceIdList", deviceIds);
+        queryMap.put("lastUserId", userId);
+        if(StringUtils.isNotBlank(brand)){
+            queryMap.put("brand", brand);
+        }
+        if(StringUtils.isNotBlank(osVersion)){
+            queryMap.put("osVersion", osVersion);
+        }
+        if(StringUtils.isNotBlank(resolution)){
+            String[] wh = resolution.split("x");
+            if(wh.length == 2) {
+                queryMap.put("width", wh[0].trim());
+                queryMap.put("height", wh[1].trim());
+            }
+        }
+        if(isAll != null && !isAll) {
+            // 只看空闲设备
+            queryMap.put("workStatus", DB.DeviceWorkStatus.FREE);
+            queryMap.put("debugStatus", DB.DeviceDebugStatus.FREE);
+        }
+        return deviceDAO.findOnlineList(queryMap);
+    }
+
+    public List<Device> searchUserList(Set<String> deviceIds, Long userId, String brand, String osVersion, String resolution, Boolean isAll) {
+        if(deviceIds == null || deviceIds.size() == 0) {
+            return new ArrayList<>();
+        }
+        Map<String, Object> queryMap = new HashMap<>();
+        queryMap.put("deviceIdList", deviceIds);
+        queryMap.put("lastUserId", userId);
+        if(StringUtils.isNotBlank(brand)){
+            queryMap.put("brand", brand);
+        }
+        if(StringUtils.isNotBlank(osVersion)){
+            queryMap.put("osVersion", osVersion);
+        }
+        if(StringUtils.isNotBlank(resolution)){
+            String[] wh = resolution.split("x");
+            if(wh.length == 2) {
+                queryMap.put("width", wh[0].trim());
+                queryMap.put("height", wh[1].trim());
+            }
+        }
+        if(isAll != null && !isAll) {
+            // 只看空闲设备
+            queryMap.put("workStatus", DB.DeviceWorkStatus.FREE);
+            queryMap.put("debugStatus", DB.DeviceDebugStatus.FREE);
+        }
+        return deviceDAO.searchCloudList(queryMap);
+    }
+
+    /**
+     * @Description: 查询分享给我的设备列表
+     * @Param: [deviceIds, userId, brand, osVersion, resolution, isAll]
+     * @Return: java.util.List<com.testwa.distest.server.entity.Device>
+     * @Author wen
+     * @Date 2018/10/30 17:45
+     */
+    public List<Device> findShareToUserList(Set<String> onlineDeviceList, Long userId, String brand, String osVersion, String resolution, Boolean isAll) {
+        if(onlineDeviceList == null || onlineDeviceList.size() == 0) {
+            return new ArrayList<>();
+        }
+
+        List<DeviceSharer> deviceSharerList = deviceSharerService.findShareToUserList(onlineDeviceList, userId);
+
+        List<String> deviceIds = deviceSharerList.stream().map(DeviceSharer::getDeviceId).collect(Collectors.toList());
+
+        Map<String, Object> queryMap = new HashMap<>();
+        if(deviceIds.size() > 1) {
+            queryMap.put("deviceIdList", deviceIds);
+        }
+
+        if(deviceIds.size() == 1) {
+            queryMap.put("deviceId", deviceIds.get(0));
+        }
+
+        if(StringUtils.isNotBlank(brand)){
+            queryMap.put("brand", brand);
+        }
+        if(StringUtils.isNotBlank(osVersion)){
+            queryMap.put("osVersion", osVersion);
+        }
+        if(StringUtils.isNotBlank(resolution)){
+            String[] wh = resolution.split("x");
+            if(wh.length == 2) {
+                queryMap.put("width", wh[0].trim());
+                queryMap.put("height", wh[1].trim());
+            }
+        }
+        if(isAll != null && !isAll) {
+            // 只看空闲设备
+            queryMap.put("workStatus", DB.DeviceWorkStatus.FREE);
+            queryMap.put("debugStatus", DB.DeviceDebugStatus.FREE);
+        }
+        return deviceDAO.findOnlineList(queryMap);
     }
 
     public void debugging(String deviceId) {
@@ -261,4 +385,5 @@ public class DeviceService {
     public List<Device> findAllInWrok() {
         return deviceDAO.findAllInWrok();
     }
+
 }

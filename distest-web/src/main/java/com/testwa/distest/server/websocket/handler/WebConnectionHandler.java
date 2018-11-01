@@ -13,7 +13,7 @@ import com.testwa.distest.server.service.cache.mgr.SubscribeDeviceFuncMgr;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.user.service.AgentLoginLoggerService;
 import com.testwa.distest.server.service.user.service.UserService;
-import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
+import com.testwa.distest.server.web.device.mgr.DeviceOnlineMgr;
 import com.testwa.distest.server.websocket.service.PushCmdService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -35,7 +35,7 @@ public class WebConnectionHandler {
     @Autowired
     private PushCmdService pushCmdService;
     @Autowired
-    private DeviceAuthMgr deviceAuthMgr;
+    private DeviceOnlineMgr deviceOnlineMgr;
     @Autowired
     private DeviceService deviceService;
     @Autowired
@@ -84,7 +84,7 @@ public class WebConnectionHandler {
             // 设备连接断开
             String serial = client.getHandshakeData().getSingleUrlParam("serial");
             deviceSessionMgr.logout(serial);
-            deviceAuthMgr.offline(serial);
+            deviceOnlineMgr.offline(serial);
 
         }else if("client".equals(type)){
             // 客户端连接断开

@@ -32,8 +32,6 @@ public class Device extends BaseEntity {
     @JsonIgnore
     private String lastUserToken;
 
-    private List<DeviceAuth> deviceAuths;
-
     private String cpuabi; // android:armeabi-v7a   iphone: arm64
     private String sdk; // 23
     private String width;

@@ -75,6 +75,10 @@ public class UserService {
         return userDAO.getByCode(userCode);
     }
 
+    public List<User> findByUserCodes(List<String> userCodes) {
+        return userDAO.findByUserCodes(userCodes);
+    }
+
     public List<User> findByUsernames(List<String> usernames) {
         List<User> users = userDAO.findByUsernames(usernames);
         if(users.size() == 0){

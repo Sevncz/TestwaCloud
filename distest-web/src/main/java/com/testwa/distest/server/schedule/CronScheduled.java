@@ -8,7 +8,7 @@ import com.testwa.distest.server.mongo.model.Performance;
 import com.testwa.distest.server.mongo.model.AppiumRunningLog;
 import com.testwa.distest.server.rpc.cache.CacheUtil;
 import com.testwa.distest.server.service.device.service.DeviceService;
-import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
+import com.testwa.distest.server.web.device.mgr.DeviceOnlineMgr;
 import com.testwa.distest.server.web.device.mgr.DeviceLockMgr;
 import com.testwa.distest.server.web.task.execute.PerformanceRedisMgr;
 import com.testwa.distest.server.web.task.execute.ProcedureRedisMgr;
@@ -37,7 +37,7 @@ public class CronScheduled {
     @Autowired
     private MongoTemplate mongoTemplate;
     @Autowired
-    private DeviceAuthMgr deviceAuthMgr;
+    private DeviceOnlineMgr deviceOnlineMgr;
     @Autowired
     private DeviceLockMgr deviceLockMgr;
     @Autowired
@@ -102,14 +102,14 @@ public class CronScheduled {
     @Async
     @Scheduled(fixedDelay = 3000)
     public void checkDeviceOnline(){
-        Set<String> deviceIds = deviceAuthMgr.allOnlineDevices();
+        Set<String> deviceIds = deviceOnlineMgr.allOnlineDevices();
         log.debug("online device num: {}", deviceIds.size());
         deviceIds.forEach( d -> {
             log.debug("Check StreamObserver deviceId {}", d);
             StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(d);
             if(observer == null){
                 log.error("{} observer is null", d);
-                deviceAuthMgr.offline(d);
+                deviceOnlineMgr.offline(d);
             }else{
                 int tryTime = 5;
                 while(tryTime >= 0) {
@@ -127,7 +127,7 @@ public class CronScheduled {
                     }
                 }
                 if(tryTime <= 0) {
-                    deviceAuthMgr.offline(d);
+                    deviceOnlineMgr.offline(d);
                     log.warn("通信失败 {}", d);
                 }
             }

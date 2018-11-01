@@ -24,6 +24,8 @@ public interface UserMapper extends BaseMapper<User, Long> {
 
     User getByCode(String userCode);
 
+    List<User> findByUserCodeList(List<String> userCodeList);
+
 	void updateActiveToTrue(String userCode);
 
     User getByUsername(String username);

@@ -69,9 +69,17 @@ public class UserValidator {
             throw new ObjectNotExistsException("用户不存在");
         }
     }
+
     public void validateUserIdsExist(List<Long> userIds) throws AccountNotFoundException {
         List<User> users = userService.findByUserIds(userIds);
         if(users == null || userIds.size() != users.size()){
+            throw new AccountNotFoundException("用户不存在");
+        }
+    }
+
+    public void validateUserCodesExist(List<String> userCodes) throws AccountNotFoundException {
+        List<User> users = userService.findByUserCodes(userCodes);
+        if(users == null || userCodes.size() != users.size()){
             throw new AccountNotFoundException("用户不存在");
         }
     }

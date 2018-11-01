@@ -80,6 +80,16 @@
             <foreach item="email" index="index" collection="list" open="(" separator="," close=")">#{email} </foreach>
         </trim>
     </select>
+    <select id="findByCodeList" parameterType="java.util.ArrayList" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM user
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            and enabled = 1
+            and userCode in
+            <foreach item="userCode" index="index" collection="list" open="(" separator="," close=")">#{userCode} </foreach>
+        </trim>
+    </select>
 
     <select id="query" parameterType="com.testwa.distest.server.entity.User" resultMap="BaseResultMap" >
         SELECT

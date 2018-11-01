@@ -1,6 +1,5 @@
 package com.testwa.distest.server.rpc;
 
-import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.testwa.distest.config.security.JwtTokenUtil;
 import com.testwa.distest.server.entity.Device;
@@ -10,8 +9,7 @@ import com.testwa.distest.server.service.cache.queue.LogQueue;
 import com.testwa.distest.server.service.cache.queue.ScreenProjectionQueue;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.user.service.UserService;
-import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
-import com.testwa.distest.server.websocket.WSFuncEnum;
+import com.testwa.distest.server.web.device.mgr.DeviceOnlineMgr;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.device.*;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.text.DecimalFormat;
 import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 
 /**
  * Created by wen on 2017/06/09.
@@ -34,7 +30,7 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     @Autowired
     private SocketIOServer server;
     @Autowired
-    private DeviceAuthMgr deviceAuthMgr;
+    private DeviceOnlineMgr deviceOnlineMgr;
     @Autowired
     private DeviceService deviceService;
     @Autowired
@@ -88,7 +84,7 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     @Override
     public void disconnect(DeviceStatusChangeRequest request, StreamObserver<CommonReply> responseObserver) {
         log.info("device {} disconnect", request.getDeviceId());
-        deviceAuthMgr.offline(request.getDeviceId());
+        deviceOnlineMgr.offline(request.getDeviceId());
         final CommonReply.Builder replyBuilder = CommonReply.newBuilder().setMessage("OK ");
         responseObserver.onNext(replyBuilder.build());
         responseObserver.onCompleted();
@@ -97,7 +93,7 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     @Override
     public void offline(DeviceStatusChangeRequest request, StreamObserver<CommonReply> responseObserver) {
         log.info("device {} offline", request.getDeviceId());
-        deviceAuthMgr.offline(request.getDeviceId());
+        deviceOnlineMgr.offline(request.getDeviceId());
         final CommonReply.Builder replyBuilder = CommonReply.newBuilder().setMessage("OK ");
         responseObserver.onNext(replyBuilder.build());
         responseObserver.onCompleted();
@@ -106,7 +102,7 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     @Override
     public void online(DeviceStatusChangeRequest request, StreamObserver<CommonReply> responseObserver) {
         log.info("device {} online", request.getDeviceId());
-        deviceAuthMgr.online(request.getDeviceId());
+        deviceOnlineMgr.online(request.getDeviceId());
         final CommonReply.Builder replyBuilder = CommonReply.newBuilder().setMessage("OK ");
         responseObserver.onNext(replyBuilder.build());
         responseObserver.onCompleted();

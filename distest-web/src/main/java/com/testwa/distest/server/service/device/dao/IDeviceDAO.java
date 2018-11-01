@@ -43,4 +43,8 @@ public interface IDeviceDAO extends IBaseDAO<Device, Long> {
     List<Device> searchCloudList(Map<String,Object> queryMap);
 
     List<Device> findAllInWrok();
+
+    List<Device> findOnlineAndPublicDeviceList(Map<String, Object> queryMap);
+
+    List<Device> searchOnlineAndPublicDeviceList(Map<String, Object> queryMap);
 }

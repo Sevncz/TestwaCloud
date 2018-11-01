@@ -11,13 +11,10 @@ import com.testwa.core.cmd.ScriptInfo;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.quartz.exception.BusinessException;
-import com.testwa.distest.quartz.job.DebugJobDataMap;
 import com.testwa.distest.quartz.job.ExecuteJobDataMap;
 import com.testwa.distest.quartz.service.JobService;
 import com.testwa.distest.server.entity.*;
-import com.testwa.distest.server.mongo.event.TaskOverEvent;
 import com.testwa.distest.server.service.app.service.AppService;
-import com.testwa.distest.server.service.device.service.DeviceLogService;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.rpc.cache.CacheUtil;
 import com.testwa.distest.server.service.script.service.ScriptService;
@@ -26,22 +23,17 @@ import com.testwa.distest.server.service.task.service.SubTaskService;
 import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.service.testcase.service.TestcaseService;
 import com.testwa.distest.server.service.user.service.UserService;
-import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
-import com.testwa.distest.server.web.device.mgr.DeviceLockMgr;
 import com.testwa.distest.server.web.task.vo.TaskStartResultVO;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.push.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
-import org.joda.time.Duration;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.text.DecimalFormat;
 import java.util.*;
-import java.util.concurrent.*;
 
 /**
  * Created by wen on 25/10/2017.
@@ -63,23 +55,11 @@ public class ExecuteMgr {
     @Autowired
     private SubTaskService subTaskService;
     @Autowired
-    private DeviceAuthMgr deviceAuthMgr;
-    @Autowired
     private DeviceService deviceService;
     @Autowired
     private ScriptService scriptService;
     @Autowired
-    private ApplicationContext context;
-    @Autowired
-    private DeviceLogService deviceLogService;
-    @Autowired
-    private DeviceLockMgr deviceLockMgr;
-    @Autowired
     private JobService jobService;
-
-    // 暂定同时支持100个任务并发
-    private final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(100);
-    private final ConcurrentHashMap<Long, Future> futures = new ConcurrentHashMap<>();
 
     /**
      *@Description: 开始执行一个回归测试任务
@@ -227,7 +207,7 @@ public class ExecuteMgr {
         DateTime now = new DateTime();
         String cron = CronDateUtils.getCron(now.plusSeconds(2).toDate());
         try {
-            jobService.addJob(JOB_EXECUTE_NAME, String.valueOf(taskCode), cron,  "执行测试任务" + taskCode, JSON.toJSONString(params));
+            jobService.addJob(JOB_EXECUTE_NAME, String.valueOf(taskCode), cron,  task.getTaskType().getDesc() + "，任务ID：" + taskCode, JSON.toJSONString(params));
         } catch (BusinessException e) {
             e.printStackTrace();
         }

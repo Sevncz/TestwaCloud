@@ -5,10 +5,9 @@ import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.SubTask;
 import com.testwa.distest.server.entity.Task;
 import com.testwa.distest.server.mongo.event.TaskOverEvent;
-import com.testwa.distest.server.service.device.service.DeviceLogService;
 import com.testwa.distest.server.service.task.service.SubTaskService;
 import com.testwa.distest.server.service.task.service.TaskService;
-import com.testwa.distest.server.web.device.auth.DeviceAuthMgr;
+import com.testwa.distest.server.web.device.mgr.DeviceOnlineMgr;
 import com.testwa.distest.server.web.device.mgr.DeviceLockMgr;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
@@ -19,7 +18,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.concurrent.Future;
 
 
 @Slf4j
@@ -29,11 +27,9 @@ public class TaskExecuteJob implements BaseJob, InterruptableJob {
     private boolean _interrupted = false;
 
     @Autowired
-    private DeviceLogService deviceLogService;
-    @Autowired
     private DeviceLockMgr deviceLockMgr;
     @Autowired
-    private DeviceAuthMgr deviceAuthMgr;
+    private DeviceOnlineMgr deviceOnlineMgr;
     @Autowired
     private TaskService taskService;
     @Autowired
@@ -60,7 +56,7 @@ public class TaskExecuteJob implements BaseJob, InterruptableJob {
                     deviceLockMgr.workRelease(taskDevice.getDeviceId());
                 }
                 String deviceId = taskDevice.getDeviceId();
-                if(!deviceAuthMgr.isOnline(deviceId)){
+                if(!deviceOnlineMgr.isOnline(deviceId)){
                     runningCount--;
                     deviceLockMgr.workRelease(taskDevice.getDeviceId());
                 }
