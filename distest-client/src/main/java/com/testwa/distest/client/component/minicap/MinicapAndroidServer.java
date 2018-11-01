@@ -57,6 +57,8 @@ public class MinicapAndroidServer extends Thread implements Closeable {
     /** resource 文件夹目录 */
     private String resourcePath;
 
+    private int retry = 10;
+
     public MinicapAndroidServer(String deviceId) {
         super("minicap-server");
         this.resourcePath = Config.getString("distest.agent.resources");
@@ -151,6 +153,12 @@ public class MinicapAndroidServer extends Thread implements Closeable {
     @Override
     public void run() {
         while (this.isRunning.get()) {
+            retry--;
+            if(retry < 0) {
+                restart.set(false);
+                log.warn("重试次数太多，minicap启动失败");
+                break;
+            }
             try {
                 // run minicap server
                 String command = getCommand();
