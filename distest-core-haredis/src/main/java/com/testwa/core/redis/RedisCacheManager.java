@@ -238,6 +238,40 @@ public class RedisCacheManager {
         return cacheName;
     }
 
+    public String putString(final Object key, final Integer expiration, final String value) {
+        List<RedisClient> clients = this.getAliveClients(key);
+        String cacheName = null;
+        if (isAtLeastOneAvailable(clients)) {
+            cacheName = clients.get(0).getCacheName();
+            this.execute(new BaseRedisCallBack<String>() {
+                public String doOperation(RedisClient client) throws Exception {
+                    return client.setString(key.toString(), value, expiration);
+                }
+
+                public String getOptionType() {
+                    return "PUT";
+                }
+            }, clients, key, false);
+        }
+        return cacheName;
+    }
+
+    public String getString(final String key) {
+        List<RedisClient> clients = this.getAliveClients(key);
+        if (isAtLeastOneAvailable(clients)) {
+            return this.execute(new BaseRedisCallBack<String>() {
+                public String doOperation(RedisClient client) throws Exception {
+                    return client.getString(key);
+                }
+
+                public String getOptionType() {
+                    return "GET";
+                }
+            }, clients, key, true);
+        }
+        return null;
+    }
+
     public Object get(final Object key) {
         List<RedisClient> clients = this.getAliveClients(key);
         if (isAtLeastOneAvailable(clients)) {
@@ -745,6 +779,22 @@ public class RedisCacheManager {
 
                 public String getOptionType() {
                     return "incr";
+                }
+            }, clients, key, false);
+        }
+        return 0L;
+    }
+
+    public Long decr(final String key) {
+        List<RedisClient> clients = this.getAliveClients(key);
+        if (isAtLeastOneAvailable(clients)) {
+            return this.execute(new BaseRedisCallBack<Long>() {
+                public Long doOperation(RedisClient client) throws Exception {
+                    return client.decr(key);
+                }
+
+                public String getOptionType() {
+                    return "decr";
                 }
             }, clients, key, false);
         }

@@ -1095,12 +1095,28 @@ public class RedisClient implements RedisOperation {
         Jedis jedis = null;
         try {
             jedis = this.jedisPool.getResource();
-            // long begin = System.currentTimeMillis();
             data = jedis.incr(SafeEncoder.encode(key));
-            // long end = System.currentTimeMillis();
-            // LOG.info("getValueFromCache spends: " + (end - begin) + " millionseconds.");
         } catch (Exception e) {
-            // do jedis.quit() and jedis.disconnect()
+            if (jedis != null) {
+                jedis.close();
+            }
+            throw e;
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+
+        return data;
+    }
+
+    public Long decr(String key) throws Exception {
+        Long data = null;
+        Jedis jedis = null;
+        try {
+            jedis = this.jedisPool.getResource();
+            data = jedis.decr(SafeEncoder.encode(key));
+        } catch (Exception e) {
             if (jedis != null) {
                 jedis.close();
             }
@@ -1119,12 +1135,8 @@ public class RedisClient implements RedisOperation {
         Jedis jedis = null;
         try {
             jedis = this.jedisPool.getResource();
-            // long begin = System.currentTimeMillis();
             data = jedis.incrBy(key, integer);
-            // long end = System.currentTimeMillis();
-            // LOG.info("getValueFromCache spends: " + (end - begin) + " millionseconds.");
         } catch (Exception e) {
-            // do jedis.quit() and jedis.disconnect()
             if (jedis != null) {
                 jedis.close();
             }
@@ -1142,12 +1154,8 @@ public class RedisClient implements RedisOperation {
         Jedis jedis = null;
         try {
             jedis = this.jedisPool.getResource();
-            // long begin = System.currentTimeMillis();
             data = jedis.zadd(key, score, member);
-            // long end = System.currentTimeMillis();
-            // LOG.info("getValueFromCache spends: " + (end - begin) + " millionseconds.");
         } catch (Exception e) {
-            // do jedis.quit() and jedis.disconnect()
             if (jedis != null) {
                 jedis.close();
             }
@@ -1164,12 +1172,8 @@ public class RedisClient implements RedisOperation {
         Jedis jedis = null;
         try {
             jedis = this.jedisPool.getResource();
-            // long begin = System.currentTimeMillis();
             data = jedis.zcard(key);
-            // long end = System.currentTimeMillis();
-            // LOG.info("getValueFromCache spends: " + (end - begin) + " millionseconds.");
         } catch (Exception e) {
-            // do jedis.quit() and jedis.disconnect()
             if (jedis != null) {
                 jedis.close();
             }
@@ -1435,5 +1439,55 @@ public class RedisClient implements RedisOperation {
 
     public int getTimeout() {
         return timeout;
+    }
+
+
+    public String setString(String key, String value, Integer expiration) throws Exception {
+        String result = "";
+        Jedis jedis = null;
+        try {
+            jedis = this.jedisPool.getResource();
+
+            long begin = System.currentTimeMillis();
+            if (expiration > 0) {
+                result = jedis.setex(key, expiration, value);
+            } else {
+                result = jedis.set(key, value);
+            }
+            long end = System.currentTimeMillis();
+            logger.info("set key:" + key + ", spends: " + (end - begin) + "ms");
+            return result;
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            if (jedis != null) {
+                jedis.close();
+            }
+            throw e;
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+
+    }
+
+    public String getString(String key) throws Exception {
+        String result = "";
+        Jedis jedis = null;
+        try {
+            jedis = this.jedisPool.getResource();
+            result = jedis.get(key);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            if (jedis != null) {
+                jedis.close();
+            }
+            throw e;
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+        return result;
     }
 }
