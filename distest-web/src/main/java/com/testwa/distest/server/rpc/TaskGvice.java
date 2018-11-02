@@ -13,9 +13,11 @@ import com.testwa.distest.server.mongo.service.MethodRunningLogService;
 import com.testwa.distest.server.mongo.service.StepService;
 import com.testwa.distest.server.mongo.service.TaskLogService;
 import com.testwa.distest.server.mongo.service.TaskParamsService;
+import com.testwa.distest.server.service.cache.mgr.TaskCountMgr;
 import com.testwa.distest.server.service.task.service.AppiumFileService;
 import com.testwa.distest.server.service.task.service.LogFileService;
 import com.testwa.distest.server.service.task.service.SubTaskService;
+import com.testwa.distest.server.web.device.mgr.DeviceLockMgr;
 import com.testwa.distest.server.web.task.execute.PerformanceRedisMgr;
 import com.testwa.distest.server.web.task.execute.ProcedureRedisMgr;
 import com.testwa.distest.server.websocket.service.MessageNotifyService;
@@ -69,6 +71,10 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     private StepService stepService;
     @Autowired
     private TaskParamsService taskParamsService;
+    @Autowired
+    private TaskCountMgr taskCountMgr;
+    @Autowired
+    private DeviceLockMgr deviceLockMgr;
 
     @Override
     public void gameover(GameOverRequest request, StreamObserver<CommonReply> responseObserver) {
@@ -88,6 +94,8 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
         }else{
             log.error("exeTask info not format. {}", request.toString());
         }
+        taskCountMgr.decrSubTaskCount(taskCode);
+        deviceLockMgr.workRelease(deviceId);
         final CommonReply replyBuilder = CommonReply.newBuilder().setMessage("OK ").build();
         responseObserver.onNext(replyBuilder);
         responseObserver.onCompleted();
@@ -110,6 +118,8 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
         }else{
             log.error("exeTask info not format. {}", request.toString());
         }
+        taskCountMgr.decrSubTaskCount(taskCode);
+        deviceLockMgr.workRelease(deviceId);
         final CommonReply replyBuilder = CommonReply.newBuilder().setMessage("OK ").build();
         responseObserver.onNext(replyBuilder);
         responseObserver.onCompleted();

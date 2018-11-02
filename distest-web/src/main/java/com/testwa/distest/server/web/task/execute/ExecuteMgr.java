@@ -15,6 +15,7 @@ import com.testwa.distest.quartz.job.ExecuteJobDataMap;
 import com.testwa.distest.quartz.service.JobService;
 import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.service.app.service.AppService;
+import com.testwa.distest.server.service.cache.mgr.TaskCountMgr;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.rpc.cache.CacheUtil;
 import com.testwa.distest.server.service.script.service.ScriptService;
@@ -42,7 +43,6 @@ import java.util.*;
 @Slf4j
 public class ExecuteMgr {
     private final static String JOB_EXECUTE_NAME = "com.testwa.distest.quartz.job.TaskExecuteJob";
-    private final static String JOB_GROUP = "EXECUTE";
 
     @Autowired
     private UserService userService;
@@ -60,6 +60,8 @@ public class ExecuteMgr {
     private ScriptService scriptService;
     @Autowired
     private JobService jobService;
+    @Autowired
+    private TaskCountMgr taskCountMgr;
 
     /**
      *@Description: 开始执行一个回归测试任务
@@ -148,16 +150,6 @@ public class ExecuteMgr {
 
         // 启动任务
         for (String key : deviceIds) {
-            SubTask subTask = new SubTask();
-            subTask.setStatus(DB.TaskStatus.RUNNING);
-            subTask.setDeviceId(key);
-            subTask.setTaskCode(taskCode);
-            subTask.setTaskType(task.getTaskType());
-            subTask.setCreateTime(new Date());
-            subTask.setCreateBy(user.getId());
-            subTask.setEnabled(true);
-            subTask.setProjectId(app.getProjectId());
-            subTaskService.save(subTask);
 
             RemoteRunCommand cmd = new RemoteRunCommand();
             AppInfo appInfo = new AppInfo();
@@ -190,7 +182,18 @@ public class ExecuteMgr {
                 throw new ObjectNotExistsException("设备" + key + "还未准备好");
             }
 
+            SubTask subTask = new SubTask();
+            subTask.setStatus(DB.TaskStatus.RUNNING);
+            subTask.setDeviceId(key);
+            subTask.setTaskCode(taskCode);
+            subTask.setTaskType(task.getTaskType());
+            subTask.setCreateTime(new Date());
+            subTask.setCreateBy(user.getId());
+            subTask.setEnabled(true);
+            subTask.setProjectId(app.getProjectId());
+            subTaskService.save(subTask);
             deviceService.work(key);
+            taskCountMgr.incrSubTaskCount(taskCode);
         }
         task.setCreateBy(user.getId());
         task.setCreateTime(new Date());

@@ -5,6 +5,7 @@ import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.SubTask;
 import com.testwa.distest.server.entity.Task;
 import com.testwa.distest.server.mongo.event.TaskOverEvent;
+import com.testwa.distest.server.service.cache.mgr.TaskCountMgr;
 import com.testwa.distest.server.service.task.service.SubTaskService;
 import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.web.device.mgr.DeviceOnlineMgr;
@@ -36,6 +37,8 @@ public class TaskExecuteJob implements BaseJob, InterruptableJob {
     private SubTaskService subTaskService;
     @Autowired
     private ApplicationContext applicationContext;
+    @Autowired
+    private TaskCountMgr taskCountMgr;
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
@@ -46,36 +49,25 @@ public class TaskExecuteJob implements BaseJob, InterruptableJob {
         Long taskCode = params.getTaskCode();
 
         Task t = taskService.findByCode(taskCode);
-        int runningCount = t.getDevices().size();
+        boolean timeout = false;
         while(!_interrupted) {
-            List<SubTask> tds = subTaskService.findByTaskCode(taskCode);
-            for(SubTask taskDevice : tds){
-                if(!DB.TaskStatus.RUNNING.equals(taskDevice.getStatus())
-                        && !DB.TaskStatus.NOT_EXECUTE.equals(taskDevice.getStatus())) {
-                    runningCount--;
-                    deviceLockMgr.workRelease(taskDevice.getDeviceId());
-                }
-                String deviceId = taskDevice.getDeviceId();
-                if(!deviceOnlineMgr.isOnline(deviceId)){
-                    runningCount--;
-                    deviceLockMgr.workRelease(taskDevice.getDeviceId());
-                }
-            }
-            if(runningCount > 0){
+            Integer taskCount = taskCountMgr.getSubTaskCount(taskCode);
+            if(taskCount > 0){
                 // 检查超时，超过30分钟自动关闭
                 DateTime startTime = new DateTime(t.getCreateTime());
                 DateTime now = new DateTime();
                 Duration d = new Duration(startTime, now);
                 if(d.getStandardMinutes() > 30){
+                    timeout = true;
                     break;
                 }
             }
 
-            if(runningCount <= 0) {
+            if(taskCount <= 0) {
                 break;
             }
         }
-        applicationContext.publishEvent(new TaskOverEvent(this, taskCode, false));
+        applicationContext.publishEvent(new TaskOverEvent(this, taskCode, timeout));
 
     }
 

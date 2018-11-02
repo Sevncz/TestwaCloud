@@ -12,6 +12,7 @@ import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.task.service.SubTaskService;
 import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.service.user.service.UserService;
+import com.testwa.distest.server.web.device.mgr.DeviceLockMgr;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -45,6 +46,8 @@ public class TaskOverListener implements ApplicationListener<TaskOverEvent> {
     private DeviceLogService deviceLogService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private DeviceLockMgr deviceLockMgr;
 
     @Async
     @Override
@@ -93,9 +96,15 @@ public class TaskOverListener implements ApplicationListener<TaskOverEvent> {
             deviceLogService.insert(dl);
 
             if(DB.TaskStatus.RUNNING.equals(subTask.getStatus())) {
-                subTask.setStatus(DB.TaskStatus.TIMEOUT);
-                subTask.setEndTime(new Date());
-                subTask.setErrorMsg("超时");
+                if(e.isTimeout()) {
+                    subTask.setStatus(DB.TaskStatus.TIMEOUT);
+                    subTask.setEndTime(new Date());
+                    subTask.setErrorMsg("超时");
+                    deviceLockMgr.workRelease(subTask.getDeviceId());
+                } else {
+                    subTask.setStatus(DB.TaskStatus.COMPLETE);
+                    subTask.setEndTime(new Date());
+                }
                 subTaskService.update(subTask);
             }
 

@@ -6,6 +6,7 @@ import com.testwa.distest.server.mongo.model.AppiumRunningLog;
 import com.testwa.distest.server.mongo.repository.AppiumRunningLogRepository;
 import com.testwa.distest.server.service.task.dao.ISubTaskDAO;
 import com.testwa.distest.server.service.task.dto.TaskDeviceStatusStatis;
+import com.testwa.distest.server.web.device.mgr.DeviceLockMgr;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,32 +25,31 @@ import java.util.List;
 public class SubTaskService {
 
     @Autowired
-    private ISubTaskDAO taskDeviceDAO;
+    private ISubTaskDAO subTaskDAO;
     @Autowired
     private AppiumRunningLogRepository procedureInfoRepository;
 
-
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public long save(SubTask entity) {
-        return taskDeviceDAO.insert(entity);
+        return subTaskDAO.insert(entity);
     }
 
     public SubTask findOne(Long entityId) {
-        return taskDeviceDAO.findOne(entityId);
+        return subTaskDAO.findOne(entityId);
     }
 
     public List<SubTask> findAll(List<Long> entityIds) {
-        return taskDeviceDAO.findAll(entityIds);
+        return subTaskDAO.findAll(entityIds);
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void update(SubTask entity) {
-        taskDeviceDAO.update(entity);
+        subTaskDAO.update(entity);
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void deleteTaskDevice(List<Long> entityIds) {
-        taskDeviceDAO.delete(entityIds);
+        subTaskDAO.delete(entityIds);
         entityIds.forEach( id -> {
             List<AppiumRunningLog> infos = procedureInfoRepository.findByTaskCodeOrderByTimestampAsc(id);
             procedureInfoRepository.delete(infos);
@@ -58,7 +58,7 @@ public class SubTaskService {
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void deleteTaskDevice(Long taskCode) {
-        taskDeviceDAO.disableAll(taskCode);
+        subTaskDAO.disableAll(taskCode);
     }
 
     public List<SubTask> getRunningtaskDevice(Long projectId, Long userId) {
@@ -66,7 +66,7 @@ public class SubTaskService {
         query.setStatus(DB.TaskStatus.RUNNING);
         query.setProjectId(projectId);
         query.setCreateBy(userId);
-        return taskDeviceDAO.findBy(query);
+        return subTaskDAO.findBy(query);
     }
 
     public List<SubTask> getRecentFinishedRunningTask(Long projectId, Long userId) {
@@ -74,11 +74,11 @@ public class SubTaskService {
         query.setStatus(DB.TaskStatus.COMPLETE);
         query.setProjectId(projectId);
         query.setCreateBy(userId);
-        return taskDeviceDAO.findBy(query);
+        return subTaskDAO.findBy(query);
     }
 
     public SubTask findOne(Long taskCode, String deviceId) {
-        return taskDeviceDAO.findOne(taskCode, deviceId);
+        return subTaskDAO.findOne(taskCode, deviceId);
     }
 
     /**
@@ -89,7 +89,7 @@ public class SubTaskService {
      *@Date: 2018/5/3
      */
     public List<SubTask> findByTaskCode(Long taskCode) {
-        return taskDeviceDAO.findByTaskCode(taskCode);
+        return subTaskDAO.findByTaskCode(taskCode);
     }
 
     /**
@@ -100,7 +100,7 @@ public class SubTaskService {
      *@Date: 2018/5/3
      */
     public List<TaskDeviceStatusStatis> countTaskDeviceStatus(Long taskCode) {
-        return taskDeviceDAO.countTaskDeviceStatus(taskCode);
+        return subTaskDAO.countTaskDeviceStatus(taskCode);
     }
 
     /**
@@ -112,12 +112,12 @@ public class SubTaskService {
      */
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void cancelOneTask(String deviceId, Long taskId, Long userId) {
-        SubTask subTask = taskDeviceDAO.findOne(taskId, deviceId);
+        SubTask subTask = subTaskDAO.findOne(taskId, deviceId);
         subTask.setEndTime(new Date());
         subTask.setStatus(DB.TaskStatus.CANCEL);
         subTask.setUpdateBy(userId);
         subTask.setUpdateTime(new Date());
-        taskDeviceDAO.update(subTask);
+        subTaskDAO.update(subTask);
     }
 
     /**
@@ -130,6 +130,6 @@ public class SubTaskService {
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void updateVideoPath(long taskCode, String deviceId, String videoRelativePath) {
 
-        taskDeviceDAO.updateVideoPath(taskCode, deviceId, videoRelativePath);
+        subTaskDAO.updateVideoPath(taskCode, deviceId, videoRelativePath);
     }
 }
