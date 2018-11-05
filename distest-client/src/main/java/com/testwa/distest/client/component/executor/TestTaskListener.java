@@ -1,1 +1,0 @@
-package com.testwa.distest.client.component.executor;public interface TestTaskListener {    /**     * 测试完成     */    void taskFinish();    byte[] takeFrame();    String getVideoFile();}

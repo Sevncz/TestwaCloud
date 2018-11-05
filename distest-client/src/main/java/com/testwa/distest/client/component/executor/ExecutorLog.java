@@ -1,1 +1,0 @@
-package com.testwa.distest.client.component.executor;import io.rpc.testwa.task.ExecutorAction;import java.lang.annotation.*;@Retention(RetentionPolicy.RUNTIME)@Target({ElementType.FIELD, ElementType.METHOD})public @interface ExecutorLog {    ExecutorAction action();}

@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.distest.client.android.DeviceManager;
 import com.testwa.distest.client.component.appium.utils.Config;
+import com.testwa.distest.client.component.executor.task.TaskDispatcher;
 import com.testwa.distest.client.component.port.ApkPortProvider;
 import com.testwa.distest.client.component.port.AppiumPortProvider;
 import com.testwa.distest.client.component.port.MinicapPortProvider;
@@ -68,6 +69,7 @@ public class EnvCheck implements CommandLineRunner {
         checkSupportEnv();
         checkAuth(username, password);
         checkTempDirPath();
+        TaskDispatcher.getInstance();
     }
 
     /**
