@@ -329,8 +329,11 @@ public class DeviceService {
         if(onlineDeviceList == null || onlineDeviceList.size() == 0) {
             return new ArrayList<>();
         }
-
+        // 获得分享给用户userId的DeviceSharer列表
         List<DeviceSharer> deviceSharerList = deviceSharerService.findShareToUserList(onlineDeviceList, userId);
+        if(deviceSharerList.isEmpty()) {
+            return Collections.emptyList();
+        }
 
         List<String> deviceIds = deviceSharerList.stream().map(DeviceSharer::getDeviceId).collect(Collectors.toList());
 

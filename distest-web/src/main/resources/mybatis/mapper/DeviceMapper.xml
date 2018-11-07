@@ -189,7 +189,6 @@
         FROM device t1 left join device_share_scope t2 on t1.deviceId = t2.device_id
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             t2.share_scope = 2
-            and t1.lastUserId = t2.create_by
             <if test="deviceId != null">and t1.deviceId = #{deviceId}</if>
             <if test="deviceIdList != null">
                 and t1.deviceId in <foreach item="devId" index="index" collection="deviceIdList" open="(" separator="," close=")">#{devId} </foreach>
@@ -215,7 +214,6 @@
         FROM device t1 left join device_share_scope t2 on t1.deviceId = t2.device_id
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             t2.share_scope = 2
-            and t1.lastUserId = t2.create_by
             <if test="deviceId != null">and t1.deviceId = #{deviceId}</if>
             <if test="deviceIdList != null">
                 and t1.deviceId in <foreach item="devId" index="index" collection="deviceIdList" open="(" separator="," close=")">#{devId} </foreach>
