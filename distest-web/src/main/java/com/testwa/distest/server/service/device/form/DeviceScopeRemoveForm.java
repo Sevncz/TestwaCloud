@@ -8,11 +8,11 @@ import java.util.Date;
 import java.util.List;
 
 
-@ApiModel(value = "DeviceScopeShareToUserForm",
-        description = "设备分享对象"
+@ApiModel(value = "DeviceScopeRemoveForm",
+        description = "移除一个设备分享对象"
 )
 @Data
 public class DeviceScopeRemoveForm extends RequestFormBase {
-    private List<Long> scopeIdList;
-
+    private String deviceId;
+    private Long userId;
 }

@@ -57,7 +57,7 @@ public class ProjectMemberService {
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void delete(Long projectId, Long memberId) {
-        projectMemberDAO.delete(projectId, memberId);
+        projectMemberDAO.deleteMember(projectId, memberId);
 
     }
 
@@ -93,17 +93,17 @@ public class ProjectMemberService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public void delMembers(MembersModifyForm form) {
-
-        Project project = projectService.findOne(form.getProjectId());
-        List<User> members = userService.findByUsernames(form.getUsernames());
-        if(members != null){
-            List<Long> memberIds = new ArrayList<>();
-            members.forEach(m -> {
-                memberIds.add(m.getId());
-            });
-
-            projectMemberDAO.deleteMembersFromProject(project.getId(), memberIds);
+    public void deleteMemberList(Project project, Set<Long> memberIds) {
+        memberIds.remove(project.getCreateBy());
+        if(memberIds.isEmpty()) {
+            return;
+        }
+        if(memberIds.size() == 1) {
+            List<Long> memberList = new ArrayList<>(memberIds);
+            int deleteNum = projectMemberDAO.deleteMember(project.getId(), memberList.get(0));
+            log.info("Delete from members {}", deleteNum);
+        }else{
+            projectMemberDAO.deleteMemberList(project.getId(), memberIds);
         }
     }
 
@@ -178,6 +178,6 @@ public class ProjectMemberService {
     }
 
     public int delAllMembers(Long projectId) {
-        return projectMemberDAO.delete(projectId, null);
+        return projectMemberDAO.deleteMember(projectId, null);
     }
 }

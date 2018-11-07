@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Repository
 public interface ProjectMemberMapper extends BaseMapper<ProjectMember, Long> {
@@ -17,9 +18,9 @@ public interface ProjectMemberMapper extends BaseMapper<ProjectMember, Long> {
     List<ProjectMember> findByProjectIdAndMembers(@Param("projectId") Long projectId, @Param("memberIds") List<Long> memberIds);
     ProjectMember findByProjectIdAndMember(@Param("projectId") Long projectId, @Param("memberId") Long memberId);
 
-    int deleteMembersFromProject(@Param("params") Map<String, Object> params);
+    int deleteMemberList(@Param("projectId") Long projectId, @Param("memberIds") Set<Long> memberIds);
 
-    int deleteMemberFromProject(ProjectMember query);
+    int deleteMember(@Param("projectId") Long projectId, @Param("memberId") Long memberId);
 
     List<User> findMembersFromProject(@Param("params") Map<String, Object> params);
 

@@ -13,4 +13,6 @@ public interface IDeviceSharerDAO extends IBaseDAO<DeviceSharer, Long> {
     List<DeviceSharer> findShareToUserList(Set<String> inDeviceList, Long userId);
 
     List<DeviceSharerDTO> findDeviceScopeUserList(String deviceId, Long userId);
+
+    void removeOne(String deviceId, Long shareId, Long ownerId);
 }

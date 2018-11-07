@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 
 @ApiModel(value = "DeviceScopeShareToUserForm",
@@ -14,7 +15,8 @@ import java.util.List;
 @Data
 public class DeviceScopeShareToUserForm extends RequestFormBase {
     private String deviceId;
-    private List<Long> toUserIdList;
+    private Set<Long> addUserId;
+    private Set<Long> removeUserId;
 
     private Long startTime;
     private Long endTime;

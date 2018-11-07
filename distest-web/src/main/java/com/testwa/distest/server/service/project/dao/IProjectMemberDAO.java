@@ -6,6 +6,7 @@ import com.testwa.distest.server.entity.User;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by wen on 19/10/2017.
@@ -15,11 +16,12 @@ public interface IProjectMemberDAO extends IBaseDAO<ProjectMember, Long> {
     void mergeInsert(List<ProjectMember> projectMembers);
 
     List<ProjectMember> findByProjectIdAndMembers(Long projectId, List<Long> memberIds);
+
     ProjectMember findByProjectIdAndMember(Long projectId, Long memberId);
 
-    int deleteMembersFromProject(Long id, List<Long> memberIds);
+    int deleteMemberList(Long projectId, Set<Long> memberIds);
 
-    int delete(Long projectId, Long memberId);
+    int deleteMember(Long projectId, Long memberId);
 
     List<User> findMembersFromProject(Long projectId);
 

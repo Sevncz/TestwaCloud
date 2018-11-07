@@ -103,16 +103,6 @@ public class ProjectService {
         return projectDAO.findOne(projectId);
     }
 
-    /**
-     * fetch user for project
-     * @param projectId
-     * @return
-     */
-    public Project fetchOne(Long projectId) {
-        return projectDAO.fetchOne(projectId);
-    }
-
-
     public List<Project> findAll(List<Long> projectIds) {
         return projectDAO.findAll(projectIds);
     }
@@ -139,18 +129,14 @@ public class ProjectService {
 
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public Project save(ProjectNewForm form) throws AuthorizedException, ParamsException {
-
-        User currentUser = userService.findByUsername(WebUtil.getCurrentUsername());
-
+    public Project save(ProjectNewForm form, User createUser) throws AuthorizedException, ParamsException {
         Project project = new Project();
         project.setProjectName(form.getProjectName());
         project.setDescription(form.getDescription());
-        project.setCreateBy(currentUser.getId());
+        project.setCreateBy(createUser.getId());
         // 保存项目的同时保存owner
         Long projectId = this.insert(project);
         project.setId(projectId);
-        project.setCreateUser(currentUser);
         // 保存成员
         MembersModifyForm membersModifyForm = new MembersModifyForm();
         membersModifyForm.setProjectId(projectId);
@@ -170,24 +156,19 @@ public class ProjectService {
         project.setUpdateBy(currentUser.getId());
         projectDAO.update(project);
 
-        project.setCreateUser(currentUser);
-
         List<User> members = projectMemberService.findAllMembers(project.getId());
-        List<String> needDelMember = new ArrayList<>();
+        List<Long> needDelMember = new ArrayList<>();
         List<String> noNeedAddMember = new ArrayList<>();
 
         members.forEach(m -> {
             if(!form.getMembers().contains(m.getUsername())){
-                needDelMember.add(m.getUsername());
+                needDelMember.add(m.getId());
             }else{
                 noNeedAddMember.add(m.getUsername());
             }
         });
         if(needDelMember.size() > 0){
-            MembersModifyForm delform = new MembersModifyForm();
-            delform.setProjectId(project.getId());
-            delform.setUsernames(needDelMember);
-            projectMemberService.delMembers(delform);
+            projectMemberService.deleteMemberList(project, new HashSet<>(needDelMember));
         }
 
         MembersModifyForm membersModifyForm = new MembersModifyForm();

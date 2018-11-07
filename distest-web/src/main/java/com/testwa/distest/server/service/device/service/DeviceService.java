@@ -11,10 +11,12 @@ import com.testwa.distest.server.entity.IOSDeviceDict;
 import com.testwa.distest.server.service.device.dao.IDeviceDAO;
 import com.testwa.distest.server.service.device.dao.IIOSDeviceDictDAO;
 import com.testwa.distest.server.service.device.dto.DeviceOneCategoryResultDTO;
+import com.testwa.distest.server.service.device.dto.PrivateDeviceDTO;
 import com.testwa.distest.server.service.device.form.DeviceListForm;
 import com.testwa.distest.server.web.device.vo.DeviceCategoryVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -260,7 +262,7 @@ public class DeviceService {
      * @Author wen
      * @Date 2018/10/30 17:45
      */
-    public List<Device> findUserList(Set<String> deviceIds, Long userId, String brand, String osVersion, String resolution, Boolean isAll) {
+    public List<PrivateDeviceDTO> findPrivateList(Set<String> deviceIds, Long userId, String brand, String osVersion, String resolution, Boolean isAll) {
         if(deviceIds == null || deviceIds.size() == 0) {
             return new ArrayList<>();
         }
@@ -285,10 +287,10 @@ public class DeviceService {
             queryMap.put("workStatus", DB.DeviceWorkStatus.FREE);
             queryMap.put("debugStatus", DB.DeviceDebugStatus.FREE);
         }
-        return deviceDAO.findOnlineList(queryMap);
+        return deviceDAO.findPrivateList(queryMap);
     }
 
-    public List<Device> searchUserList(Set<String> deviceIds, Long userId, String brand, String osVersion, String resolution, Boolean isAll) {
+    public List<PrivateDeviceDTO> searchPrivateList(Set<String> deviceIds, Long userId, String brand, String osVersion, String resolution, Boolean isAll) {
         if(deviceIds == null || deviceIds.size() == 0) {
             return new ArrayList<>();
         }
@@ -313,7 +315,7 @@ public class DeviceService {
             queryMap.put("workStatus", DB.DeviceWorkStatus.FREE);
             queryMap.put("debugStatus", DB.DeviceDebugStatus.FREE);
         }
-        return deviceDAO.searchCloudList(queryMap);
+        return deviceDAO.searchPrivateList(queryMap);
     }
 
     /**

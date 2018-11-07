@@ -17,4 +17,6 @@ public interface DeviceSharerMapper extends BaseMapper<DeviceSharer, Long> {
     List<DeviceSharer> findShareToUserList(@Param("inDeviceList") Set<String> inDeviceList, @Param("toUserId") Long toUserId);
 
     List<DeviceSharerDTO> findDeviceScopeUserList(@Param("deviceId") String deviceId, @Param("ownerId") Long ownerId);
+
+    void removeOne(@Param("deviceId") String deviceId, @Param("shareId") Long shareId, @Param("ownerId") Long ownerId);
 }

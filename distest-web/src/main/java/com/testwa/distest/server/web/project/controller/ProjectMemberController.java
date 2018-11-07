@@ -1,9 +1,11 @@
 package com.testwa.distest.server.web.project.controller;
 
+import com.testwa.core.base.constant.ResultCode;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.*;
 import com.testwa.core.base.vo.ResultVO;
+import com.testwa.distest.server.entity.Project;
 import com.testwa.distest.server.entity.ProjectMember;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.project.form.MembersModifyForm;
@@ -26,6 +28,8 @@ import javax.validation.Valid;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 
@@ -51,7 +55,7 @@ public class ProjectMemberController extends BaseController {
     @ApiOperation(value="添加项目成员", notes = "")
     @ResponseBody
     @PostMapping(value = "/add/all")
-    public ResultVO addMembers(@RequestBody @Valid MembersModifyForm form) throws AccountNotFoundException, ObjectNotExistsException, AuthorizedException, ParamsException {
+    public ResultVO addMembers(@RequestBody @Valid MembersModifyForm form) throws ObjectNotExistsException, AuthorizedException, ParamsException, AccountNotFoundException {
         projectValidator.validateProjectExist(form.getProjectId());
         if(form.getUsernames() != null && form.getUsernames().size() > 0){
             userValidator.validateUsernamesExist(form.getUsernames());
@@ -65,12 +69,21 @@ public class ProjectMemberController extends BaseController {
     @PostMapping(value = "/remove/all")
     public ResultVO removeMembers(@RequestBody @Valid MembersModifyForm form) throws ObjectNotExistsException, ParamsIsNullException {
 
-        if(form.getUsernames() == null && form.getUsernames().size() == 0){
-            throw new ParamsIsNullException("参数不能为空");
+        if(form.getUsernames() == null || form.getUsernames().isEmpty()){
+            return ok();
         }
-        projectValidator.validateProjectExist(form.getProjectId());
+        Project project = projectValidator.validateProjectExist(form.getProjectId());
+        List<User> members = userService.findByUsernames(form.getUsernames());
+        Set<Long> memberIds = members.stream().map(User::getId).collect(Collectors.toSet());
 
-        projectMemberService.delMembers(form);
+        if(memberIds.contains(project.getCreateBy())) {
+            User user = userService.findOne(project.getCreateBy());
+            return fail(ResultCode.ILLEGAL_OP, "无法删除" + user.getUsername());
+        }
+        memberIds.forEach(memberId -> {
+            projectValidator.validateUserIsProjectMember(form.getProjectId(), memberId);
+        });
+        projectMemberService.deleteMemberList(project, memberIds);
         return ok();
     }
 

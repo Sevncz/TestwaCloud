@@ -10,11 +10,6 @@
         <result column="updateBy" property="updateBy" jdbcType="BIGINT"/>
         <result column="createBy" property="createBy" jdbcType="BIGINT"/>
         <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
-        <association property="createUser" javaType="com.testwa.distest.server.entity.User">
-            <id column="user_id" property="id"/>
-            <result column="username" property="username"/>
-            <result column="email" property="email"/>
-        </association>
 
     </resultMap>
 
@@ -27,12 +22,6 @@
         <include refid="Base_Column_List" />
         FROM project
         WHERE enabled = 1 AND id = #{key}
-    </select>
-    <select id="fetchOne" parameterType="com.testwa.distest.server.entity.Project" resultMap="BaseResultMap" >
-        SELECT
-        project.id, project.projectName, project.description, project.createTime, project.updateTime, project.createBy, project.updateBy, user.id as user_id, user.username, user.email
-        FROM project LEFT JOIN user on project.createBy=user.id
-        WHERE project.enabled = 1 AND project.id = #{projectId}
     </select>
 
     <select id="findBy" parameterType="com.testwa.distest.server.entity.Project" resultMap="BaseResultMap" >

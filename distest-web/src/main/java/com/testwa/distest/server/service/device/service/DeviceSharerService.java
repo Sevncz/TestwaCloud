@@ -40,12 +40,22 @@ public class DeviceSharerService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public void insertList(String deviceId, Long ownerId, List<Long> toUserIds) {
-        if(toUserIds == null || toUserIds.size() == 0) {
+    public void insertList(String deviceId, Long ownerId, Set<Long> userIds) {
+        if(userIds == null || userIds.size() == 0) {
             return;
         }
-        toUserIds.forEach( id -> {
+        userIds.forEach( id -> {
             this.insert(deviceId, ownerId, id, DB.DeviceShareScopeTypeEnum.User);
+        });
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public void removeList(String deviceId, Long ownerId, Set<Long> userIds) {
+        if(userIds == null || userIds.size() == 0) {
+            return;
+        }
+        userIds.forEach( id -> {
+            this.removeOne(deviceId, id, ownerId);
         });
     }
 
@@ -63,6 +73,11 @@ public class DeviceSharerService {
         }else{
             deviceSharerDAO.delete(entitySet);
         }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public void removeOne(String deviceId, Long shareId, Long ownerId) {
+        deviceSharerDAO.removeOne(deviceId, shareId, ownerId);
     }
 
     /**
@@ -98,4 +113,5 @@ public class DeviceSharerService {
 
         return scopeUserVOList;
     }
+
 }

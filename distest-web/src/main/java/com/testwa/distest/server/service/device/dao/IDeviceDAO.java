@@ -4,6 +4,7 @@ import com.testwa.core.base.dao.IBaseDAO;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.service.device.dto.DeviceOneCategoryResultDTO;
+import com.testwa.distest.server.service.device.dto.PrivateDeviceDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -47,4 +48,7 @@ public interface IDeviceDAO extends IBaseDAO<Device, Long> {
     List<Device> findOnlineAndPublicDeviceList(Map<String, Object> queryMap);
 
     List<Device> searchOnlineAndPublicDeviceList(Map<String, Object> queryMap);
+
+    List<PrivateDeviceDTO> findPrivateList(Map<String, Object> queryMap);
+    List<PrivateDeviceDTO> searchPrivateList(Map<String, Object> queryMap);
 }

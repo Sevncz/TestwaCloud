@@ -31,4 +31,9 @@ public class DeviceSharerDAO extends BaseDAO<DeviceSharer, Long>  implements IDe
     public List<DeviceSharerDTO> findDeviceScopeUserList(String deviceId, Long userId) {
         return mapper.findDeviceScopeUserList(deviceId, userId);
     }
+
+    @Override
+    public void removeOne(String deviceId, Long shareId, Long ownerId) {
+        mapper.removeOne(deviceId, shareId, ownerId);
+    }
 }

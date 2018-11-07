@@ -75,15 +75,16 @@
         AND memberId = #{memberId}
     </select>
 
-    <delete id="deleteMembersFromProject" parameterType="java.util.Map">
+    <delete id="deleteMemberList" parameterType="java.util.Map">
         DELETE FROM project_member
-        where projectId = #{params.projectId}
+        where projectId = #{projectId}
+        AND projectRole != 0
         AND memberId IN
-        <foreach item="item" index="index" collection="params.members" open="(" separator="," close=")">
+        <foreach item="item" index="index" collection="memberIds" open="(" separator="," close=")">
             #{item}
         </foreach>
     </delete>
-    <delete id="deleteMemberFromProject" parameterType="com.testwa.distest.server.entity.ProjectMember">
+    <delete id="deleteMember">
         DELETE FROM project_member
         where projectId = #{projectId}
         <if test="memberId != null">

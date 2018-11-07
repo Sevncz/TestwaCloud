@@ -5,6 +5,7 @@ import com.testwa.core.utils.ZipUtil;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.config.DisFileProperties;
 import com.testwa.distest.server.entity.AppiumFile;
+import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.LogFile;
 import com.testwa.distest.server.entity.SubTask;
 import com.testwa.distest.server.mongo.event.LogcatAnalysisEvent;
@@ -14,6 +15,7 @@ import com.testwa.distest.server.mongo.service.StepService;
 import com.testwa.distest.server.mongo.service.TaskLogService;
 import com.testwa.distest.server.mongo.service.TaskParamsService;
 import com.testwa.distest.server.service.cache.mgr.TaskCountMgr;
+import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.task.service.AppiumFileService;
 import com.testwa.distest.server.service.task.service.LogFileService;
 import com.testwa.distest.server.service.task.service.SubTaskService;
@@ -75,24 +77,25 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     private TaskCountMgr taskCountMgr;
     @Autowired
     private DeviceLockMgr deviceLockMgr;
+    @Autowired
+    private DeviceService deviceService;
 
     @Override
     public void gameover(GameOverRequest request, StreamObserver<CommonReply> responseObserver) {
         Long taskCode = request.getTaskCode();
         Long timestamp = request.getTimestamp();
-        log.info("Game over! {}", taskCode);
         String errorMessage = request.getErrorMessage();
         String deviceId = request.getDeviceId();
-
+        Device device = deviceService.findByDeviceId(deviceId);
         SubTask subTask = subTaskService.findOne(taskCode, deviceId);
         if(subTask != null){
             subTask.setErrorMsg(errorMessage);
             subTask.setStatus(DB.TaskStatus.ERROR);
             subTask.setEndTime(new Date(timestamp));
             subTaskService.update(subTask);
-            log.info("任务" + taskCode + "已执行失败");
+            log.info("任务[{}] 设备[{} - {} - {}] 已执行失败", taskCode, device.getDeviceId(), device.getBrand(), device.getModel());
         }else{
-            log.error("exeTask info not format. {}", request.toString());
+            log.info("任务[{}] 设备[{} - {} - {}] 无法匹配, 404", taskCode, device.getDeviceId(), device.getBrand(), device.getModel());
         }
         taskCountMgr.decrSubTaskCount(taskCode);
         deviceLockMgr.workRelease(deviceId);
@@ -105,8 +108,8 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     public void missionComplete(MissionCompleteRequest request, StreamObserver<CommonReply> responseObserver) {
         Long taskCode = request.getTaskCode();
         Long timestamp = request.getTimestamp();
-        log.info("Mission complete! {}", taskCode);
         String deviceId = request.getDeviceId();
+        Device device = deviceService.findByDeviceId(deviceId);
         SubTask subTask = subTaskService.findOne(taskCode, deviceId);
         if(subTask != null){
             if(DB.TaskStatus.RUNNING.equals(subTask.getStatus())){
@@ -114,9 +117,9 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
             }
             subTask.setEndTime(new Date(timestamp));
             subTaskService.update(subTask);
-            log.info("任务" + taskCode + "已执行完成");
+            log.info("任务[{}] 设备[{} - {} - {}] 已执行完成", taskCode, device.getDeviceId(), device.getBrand(), device.getModel());
         }else{
-            log.error("exeTask info not format. {}", request.toString());
+            log.info("任务[{}] 设备[{} - {} - {}] 无法匹配, 404", taskCode, device.getDeviceId(), device.getBrand(), device.getModel());
         }
         taskCountMgr.decrSubTaskCount(taskCode);
         deviceLockMgr.workRelease(deviceId);

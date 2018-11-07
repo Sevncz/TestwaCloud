@@ -16,6 +16,7 @@ import com.testwa.distest.server.service.project.form.ProjectUpdateForm;
 import com.testwa.distest.server.service.project.service.ProjectMemberService;
 import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.service.project.service.ViewMgr;
+import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.auth.validator.UserValidator;
 import com.testwa.distest.server.web.auth.vo.UserVO;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
@@ -52,6 +53,8 @@ public class ProjectController extends BaseController {
     @Autowired
     private UserValidator userValidator;
     @Autowired
+    private UserService userService;
+    @Autowired
     private ViewMgr viewMgr;
 
     @ApiOperation(value="创建项目")
@@ -63,10 +66,11 @@ public class ProjectController extends BaseController {
             userValidator.validateUsernamesExist(form.getMembers());
         }
 
-        Project project = projectService.save(form);
+        User currentUser = userService.findByUsername(WebUtil.getCurrentUsername());
+        Project project = projectService.save(form, currentUser);
 
         ProjectVO vo = buildVO(project, ProjectVO.class);
-        UserVO userVO = buildVO(project.getCreateUser(), UserVO.class);
+        UserVO userVO = buildVO(currentUser, UserVO.class);
         vo.setCreateUser(userVO);
         return ok(vo);
     }
@@ -76,15 +80,16 @@ public class ProjectController extends BaseController {
     @PostMapping(value = "/update")
     public ResultVO update(@RequestBody @Valid ProjectUpdateForm form) throws ObjectNotExistsException, AuthorizedException, ParamsException {
         projectValidator.validateProjectExist(form.getProjectId());
-
         if(form.getMembers() != null){
             userValidator.validateUsernamesExist(form.getMembers());
         }
-
         Project project = projectService.update(form);
+        User createUser = userService.findOne(project.getCreateBy());
+
         ProjectVO vo = buildVO(project, ProjectVO.class);
-        UserVO userVO = buildVO(project.getCreateUser(), UserVO.class);
+        UserVO userVO = buildVO(createUser, UserVO.class);
         vo.setCreateUser(userVO);
+
         return ok(vo);
     }
 
@@ -120,11 +125,12 @@ public class ProjectController extends BaseController {
         List<Project> projects = projectPR.getPages();
         List<ProjectVO> vos = new ArrayList<>();
         for (Project p : projects) {
+            User createUser = userService.findOne(p.getCreateBy());
             ProjectStatis ps = projectService.statis(p.getId());
             ProjectVO vo = new ProjectVO();
             BeanUtils.copyProperties(p, vo);
             UserVO userVO = new UserVO();
-            BeanUtils.copyProperties(p.getCreateUser(), userVO);
+            BeanUtils.copyProperties(createUser, userVO);
             vo.setCreateUser(userVO);
             vo.setAppNum(ps.getApp());
             vo.setScriptNum(ps.getScript());
@@ -144,10 +150,11 @@ public class ProjectController extends BaseController {
         List<Project> projectsOfUser = projectService.findAllByUserList(WebUtil.getCurrentUsername());
         List<ProjectVO> vos = new ArrayList<>();
         for (Project p : projectsOfUser) {
+            User createUser = userService.findOne(p.getCreateBy());
             ProjectVO vo = new ProjectVO();
             BeanUtils.copyProperties(p, vo);
             UserVO userVO = new UserVO();
-            BeanUtils.copyProperties(p.getCreateUser(), userVO);
+            BeanUtils.copyProperties(createUser, userVO);
             vo.setCreateUser(userVO);
             vos.add(vo);
         }
@@ -159,16 +166,13 @@ public class ProjectController extends BaseController {
     @GetMapping(value = "/detail/{projectId}")
     public ResultVO detail(@PathVariable Long projectId) throws Exception {
         Project project = projectValidator.validateProjectExist(projectId);
-
         List<User> members = projectMemberService.findAllMembers(projectId);
-
         viewMgr.setRecentViewProject(projectId);
-
-        Project p = projectService.fetchOne(projectId);
+        User createUser = userService.findOne(project.getCreateBy());
         //  build vo
         ProjectDetailVO vo = new ProjectDetailVO();
-        ProjectVO projectVO = buildVO(p, ProjectVO.class);
-        UserVO userVO = buildVO(p.getCreateUser(), UserVO.class);
+        ProjectVO projectVO = buildVO(project, ProjectVO.class);
+        UserVO userVO = buildVO(createUser, UserVO.class);
         projectVO.setCreateUser(userVO);
         vo.setProject(projectVO);
         List<UserVO> userVOS = new ArrayList<>();

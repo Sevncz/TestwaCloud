@@ -4,22 +4,23 @@ import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.exception.*;
 import com.testwa.core.base.vo.ResultVO;
+import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.cache.mgr.DeviceLockCache;
+import com.testwa.distest.server.service.device.dto.PrivateDeviceDTO;
 import com.testwa.distest.server.service.device.form.DeviceBatchCheckForm;
 import com.testwa.distest.server.service.device.form.DeviceSearchForm;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.device.mgr.DeviceOnlineMgr;
 import com.testwa.distest.server.web.device.validator.DeviceValidatoer;
-import com.testwa.distest.server.web.device.vo.CheckDeviceResultVO;
-import com.testwa.distest.server.web.device.vo.DeviceCategoryVO;
-import com.testwa.distest.server.web.device.vo.DeviceLockResultVO;
-import com.testwa.distest.server.web.device.vo.DeviceUnLockResultVO;
+import com.testwa.distest.server.web.device.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.beanutils.ConvertUtils;
+import org.apache.commons.beanutils.Converter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -74,13 +75,21 @@ public class DeviceController extends BaseController {
     @ApiOperation(value="我的设备列表")
     @ResponseBody
     @GetMapping(value = "/private/list")
-    public ResultVO myList(@Valid DeviceSearchForm form) throws ObjectNotExistsException, AuthorizedException {
+    public ResultVO privateList(@Valid DeviceSearchForm form) throws ObjectNotExistsException, AuthorizedException {
         Set<String> deviceIds = deviceOnlineMgr.allOnlineDevices();
 
         User user = userService.findByUsername(getCurrentUsername());
+        List<PrivateDeviceDTO> privateDeviceDTOList = deviceService.findPrivateList(deviceIds, user.getId(), form.getBrand(), form.getOsVersion(), form.getResolution(), form.getIsAll());
+        // 枚举转换器，可根据需要添加
+        ConvertUtils.register(new Converter() {
+            @Override
+            public Object convert(Class type, Object o) {
+                return DB.PhoneOS.valueOf((Integer) o);
+            }
+        }, DB.PhoneOS.class);
+        List<PrivateDeviceVO> result = buildVOs(privateDeviceDTOList, PrivateDeviceVO.class);
 
-        List<Device> devices = deviceService.findUserList(deviceIds, user.getId(), form.getBrand(), form.getOsVersion(), form.getResolution(), form.getIsAll());
-        return ok(devices);
+        return ok(result);
     }
 
     /**
@@ -108,7 +117,7 @@ public class DeviceController extends BaseController {
     @ApiOperation(value="云端设备模糊查询列表")
     @ResponseBody
     @GetMapping(value = "/cloud/search")
-    public ResultVO enableSearch(@Valid DeviceSearchForm form) throws ObjectNotExistsException, AuthorizedException {
+    public ResultVO cloudSearch(@Valid DeviceSearchForm form) throws ObjectNotExistsException, AuthorizedException {
         Set<String> deviceIds = deviceOnlineMgr.allOnlineDevices();
         List<Device> devices = deviceService. searchCloudList(deviceIds, form.getBrand(), form.getOsVersion(), form.getResolution(), form.getIsAll());
         return ok(devices);
@@ -125,8 +134,16 @@ public class DeviceController extends BaseController {
     public ResultVO myEnableSearch(@Valid DeviceSearchForm form) throws ObjectNotExistsException, AuthorizedException {
         Set<String> deviceIds = deviceOnlineMgr.allOnlineDevices();
         User user = userService.findByUsername(getCurrentUsername());
-        List<Device> devices = deviceService. searchUserList(deviceIds, user.getId(), form.getBrand(), form.getOsVersion(), form.getResolution(), form.getIsAll());
-        return ok(devices);
+        List<PrivateDeviceDTO> privateDeviceDTOList = deviceService.searchPrivateList(deviceIds, user.getId(), form.getBrand(), form.getOsVersion(), form.getResolution(), form.getIsAll());
+        // 枚举转换器，可根据需要添加
+        ConvertUtils.register(new Converter() {
+            @Override
+            public Object convert(Class type, Object o) {
+                return DB.PhoneOS.valueOf((Integer) o);
+            }
+        }, DB.PhoneOS.class);
+        List<PrivateDeviceVO> result = buildVOs(privateDeviceDTOList, PrivateDeviceVO.class);
+        return ok(result);
     }
 
     @ApiOperation(value="在线Android设备的分类，各个维度", notes = "")

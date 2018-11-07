@@ -11,6 +11,7 @@ import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Repository
 public class ProjectMemberDAO extends BaseDAO<ProjectMember, Long> implements IProjectMemberDAO {
@@ -34,19 +35,13 @@ public class ProjectMemberDAO extends BaseDAO<ProjectMember, Long> implements IP
     }
 
     @Override
-    public int deleteMembersFromProject(Long projectId, List<Long> memberIds) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("projectId", projectId);
-        params.put("members", memberIds);
-        return mapper.deleteMembersFromProject(params);
+    public int deleteMemberList(Long projectId, Set<Long> memberIds) {
+        return mapper.deleteMemberList(projectId, memberIds);
     }
 
     @Override
-    public int delete(Long projectId, Long memberId) {
-        ProjectMember query = new ProjectMember();
-        query.setProjectId(projectId);
-        query.setMemberId(memberId);
-        return mapper.deleteMemberFromProject(query);
+    public int deleteMember(Long projectId, Long memberId) {
+        return mapper.deleteMember(projectId, memberId);
     }
 
     @Override

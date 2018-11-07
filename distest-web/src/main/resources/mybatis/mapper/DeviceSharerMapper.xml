@@ -37,5 +37,11 @@
             and t.from_user_id = #{ownerId}
     </select>
 
+    <delete id="removeOne">
+        delete from device_sharer
+        where device_id = #{deviceId}
+        and from_user_id = #{ownerId}
+        and sharer_id = #{shareId}
+    </delete>
 
 </mapper>

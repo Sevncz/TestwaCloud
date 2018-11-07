@@ -6,6 +6,7 @@ import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.mapper.DeviceMapper;
 import com.testwa.distest.server.service.device.dao.IDeviceDAO;
 import com.testwa.distest.server.service.device.dto.DeviceOneCategoryResultDTO;
+import com.testwa.distest.server.service.device.dto.PrivateDeviceDTO;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
@@ -108,5 +109,15 @@ public class DeviceDAO extends BaseDAO<Device, Long>  implements IDeviceDAO{
     @Override
     public List<Device> searchOnlineAndPublicDeviceList(Map<String, Object> queryMap) {
         return deviceMapper.searchOnlineAndPublicDeviceList(queryMap);
+    }
+
+    @Override
+    public List<PrivateDeviceDTO> findPrivateList(Map<String, Object> queryMap) {
+        return deviceMapper.findPrivateList(queryMap);
+    }
+
+    @Override
+    public List<PrivateDeviceDTO> searchPrivateList(Map<String, Object> queryMap) {
+        return deviceMapper.searchPrivateList(queryMap);
     }
 }

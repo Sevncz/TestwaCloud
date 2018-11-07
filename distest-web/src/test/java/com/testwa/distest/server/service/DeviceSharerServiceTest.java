@@ -11,6 +11,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 @Slf4j
@@ -31,7 +32,7 @@ public class DeviceSharerServiceTest {
         String deviceId = "4205dccb";
         Long ownerId = 17L;
 
-        deviceSharerService.insertList(deviceId, ownerId, toUserIds);
+        deviceSharerService.insertList(deviceId, ownerId, new HashSet<>(toUserIds));
     }
 
     @Test

@@ -30,7 +30,10 @@ import org.springframework.web.bind.annotation.*;
 import javax.security.auth.login.AccountNotFoundException;
 import javax.validation.Valid;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 
@@ -86,19 +89,34 @@ public class DeviceScopeConfigController extends BaseController{
     @PostMapping(value = "/shareTo/user")
     public ResultVO shareToUser(@RequestBody @Valid DeviceScopeShareToUserForm form) throws ObjectNotExistsException, AuthorizedException, AccountNotFoundException {
         Device device = deviceValidatoer.validateDeviceExist(form.getDeviceId());
-        if(form.getToUserIdList() == null || form.getToUserIdList().isEmpty()) {
-            return fail(ResultCode.PARAM_ERROR, "指定分享的用户列表不能为空");
+        if(form.getAddUserId() != null && !form.getAddUserId().isEmpty()) {
+            userValidator.validateUserIdsExist(new ArrayList<>(form.getAddUserId()));
         }
-        userValidator.validateUserIdsExist(form.getToUserIdList());
+        if(form.getRemoveUserId() != null && !form.getRemoveUserId().isEmpty()) {
+            userValidator.validateUserIdsExist(new ArrayList<>(form.getRemoveUserId()));
+        }
+        if(!form.getAddUserId().isEmpty() && !form.getRemoveUserId().isEmpty()) {
+            Set<Long> retainResult = new HashSet<>(form.getAddUserId());
+            retainResult.retainAll(form.getRemoveUserId());
+            if(!retainResult.isEmpty()) {
+                return fail(ResultCode.ILLEGAL_OP, "一个用户不能同时被添加和删除");
+            }
+        }
 
         User user = userService.findByUsername(getCurrentUsername());
         // 设备当前登录用户和网站登录用户一致
         if(!user.getId().equals(device.getLastUserId())) {
             return fail(ResultCode.ILLEGAL_OP, "该设备未连接您的客户端");
         }
+
+        if(form.getAddUserId().contains(user.getId()) || form.getRemoveUserId().contains(user.getId())) {
+            return fail(ResultCode.ILLEGAL_OP, "不能添加和删除自己");
+        }
+
         DeviceShareScope scope = deviceShareScopeService.findOneByDeviceIdAndCreateBy(form.getDeviceId(), user.getId());
         if(DB.DeviceShareScopeEnum.Protected.equals(scope.getShareScope())) {
-            deviceSharerService.insertList(form.getDeviceId(), user.getId(), form.getToUserIdList());
+            deviceSharerService.insertList(form.getDeviceId(), user.getId(), form.getAddUserId());
+            deviceSharerService.removeList(form.getDeviceId(), user.getId(), form.getRemoveUserId());
         }else{
             return fail(ResultCode.ILLEGAL_OP, "您无法分享给指定用户");
         }
@@ -115,11 +133,14 @@ public class DeviceScopeConfigController extends BaseController{
     @ResponseBody
     @PostMapping(value = "/remove/user")
     public ResultVO removeUser(@RequestBody @Valid DeviceScopeRemoveForm form) {
-        if(form.getScopeIdList() == null || form.getScopeIdList().isEmpty()) {
-            return fail(ResultCode.PARAM_ERROR, "参数不能为空");
+        Device device = deviceValidatoer.validateDeviceExist(form.getDeviceId());
+        User user = userService.findByUsername(getCurrentUsername());
+        // 设备当前登录用户和网站登录用户一致
+        if(!user.getId().equals(device.getLastUserId())) {
+            return fail(ResultCode.ILLEGAL_OP, "该设备未连接您的客户端");
         }
 
-        deviceSharerService.removeList(form.getScopeIdList());
+        deviceSharerService.removeOne(form.getDeviceId(), form.getUserId(), user.getId());
 
         return ok();
     }

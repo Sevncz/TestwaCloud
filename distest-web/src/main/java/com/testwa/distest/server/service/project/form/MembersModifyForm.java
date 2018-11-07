@@ -17,10 +17,6 @@ import java.util.List;
 @Data
 @ToString
 public class MembersModifyForm extends RequestFormBase{
-
-    @NotNull
     private Long projectId;
-
-    @NotNull
     private List<String> usernames;
 }

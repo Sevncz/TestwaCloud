@@ -4,6 +4,7 @@ import com.testwa.core.base.mapper.BaseMapper;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.service.device.dto.DeviceOneCategoryResultDTO;
+import com.testwa.distest.server.service.device.dto.PrivateDeviceDTO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -49,4 +50,7 @@ public interface DeviceMapper extends BaseMapper<Device, Long> {
     List<Device> findOnlineAndPublicDeviceList(Map<String, Object> queryMap);
 
     List<Device> searchOnlineAndPublicDeviceList(Map<String, Object> queryMap);
+
+    List<PrivateDeviceDTO> findPrivateList(Map<String, Object> queryMap);
+    List<PrivateDeviceDTO> searchPrivateList(Map<String, Object> queryMap);
 }
