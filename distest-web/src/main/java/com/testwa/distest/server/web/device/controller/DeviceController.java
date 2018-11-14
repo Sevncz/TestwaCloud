@@ -2,9 +2,10 @@ package com.testwa.distest.server.web.device.controller;
 
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
-import com.testwa.core.base.exception.*;
-import com.testwa.core.base.vo.ResultVO;
+import com.testwa.core.base.vo.Result;
 import com.testwa.distest.common.enums.DB;
+import com.testwa.distest.exception.BusinessException;
+import com.testwa.distest.exception.DeviceException;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.cache.mgr.DeviceLockCache;
@@ -21,9 +22,9 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.Converter;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -37,6 +38,7 @@ import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
  */
 @Slf4j
 @Api("设备相关api")
+@Validated
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/device")
 public class DeviceController extends BaseController {
@@ -61,10 +63,9 @@ public class DeviceController extends BaseController {
     @ApiOperation(value="云端设备列表")
     @ResponseBody
     @GetMapping(value = "/cloud/list")
-    public ResultVO cloudList(@Valid DeviceSearchForm form) throws ObjectNotExistsException, AuthorizedException {
+    public List<Device> cloudList(@Valid DeviceSearchForm form) {
         Set<String> deviceIds = deviceOnlineMgr.allOnlineDevices();
-        List<Device> devices = deviceService.findCloudList(deviceIds, form.getBrand(), form.getOsVersion(), form.getResolution(), form.getIsAll());
-        return ok(devices);
+        return deviceService.findCloudList(deviceIds, form.getBrand(), form.getOsVersion(), form.getResolution(), form.getIsAll());
     }
 
     /**
@@ -75,7 +76,7 @@ public class DeviceController extends BaseController {
     @ApiOperation(value="我的设备列表")
     @ResponseBody
     @GetMapping(value = "/private/list")
-    public ResultVO privateList(@Valid DeviceSearchForm form) throws ObjectNotExistsException, AuthorizedException {
+    public List<PrivateDeviceVO> privateList(@Valid DeviceSearchForm form) {
         Set<String> deviceIds = deviceOnlineMgr.allOnlineDevices();
 
         User user = userService.findByUsername(getCurrentUsername());
@@ -87,9 +88,7 @@ public class DeviceController extends BaseController {
                 return DB.PhoneOS.valueOf((Integer) o);
             }
         }, DB.PhoneOS.class);
-        List<PrivateDeviceVO> result = buildVOs(privateDeviceDTOList, PrivateDeviceVO.class);
-
-        return ok(result);
+        return buildVOs(privateDeviceDTOList, PrivateDeviceVO.class);
     }
 
     /**
@@ -100,13 +99,12 @@ public class DeviceController extends BaseController {
     @ApiOperation(value="分享给我的设备列表")
     @ResponseBody
     @GetMapping(value = "/share/list")
-    public ResultVO shareList(@Valid DeviceSearchForm form) throws ObjectNotExistsException, AuthorizedException {
+    public List<Device> shareList(@Valid DeviceSearchForm form) {
         Set<String> deviceIds = deviceOnlineMgr.allOnlineDevices();
 
         User user = userService.findByUsername(getCurrentUsername());
 
-        List<Device> devices = deviceService.findShareToUserList(deviceIds, user.getId(), form.getBrand(), form.getOsVersion(), form.getResolution(), form.getIsAll());
-        return ok(devices);
+        return deviceService.findShareToUserList(deviceIds, user.getId(), form.getBrand(), form.getOsVersion(), form.getResolution(), form.getIsAll());
     }
 
     /**
@@ -117,10 +115,9 @@ public class DeviceController extends BaseController {
     @ApiOperation(value="云端设备模糊查询列表")
     @ResponseBody
     @GetMapping(value = "/cloud/search")
-    public ResultVO cloudSearch(@Valid DeviceSearchForm form) throws ObjectNotExistsException, AuthorizedException {
+    public List<Device> cloudSearch(@Valid DeviceSearchForm form) {
         Set<String> deviceIds = deviceOnlineMgr.allOnlineDevices();
-        List<Device> devices = deviceService. searchCloudList(deviceIds, form.getBrand(), form.getOsVersion(), form.getResolution(), form.getIsAll());
-        return ok(devices);
+        return deviceService. searchCloudList(deviceIds, form.getBrand(), form.getOsVersion(), form.getResolution(), form.getIsAll());
     }
 
     /**
@@ -131,7 +128,7 @@ public class DeviceController extends BaseController {
     @ApiOperation(value="个人设备模糊查询列表")
     @ResponseBody
     @GetMapping(value = "/private/search")
-    public ResultVO myEnableSearch(@Valid DeviceSearchForm form) throws ObjectNotExistsException, AuthorizedException {
+    public List<PrivateDeviceVO> myEnableSearch(@Valid DeviceSearchForm form) {
         Set<String> deviceIds = deviceOnlineMgr.allOnlineDevices();
         User user = userService.findByUsername(getCurrentUsername());
         List<PrivateDeviceDTO> privateDeviceDTOList = deviceService.searchPrivateList(deviceIds, user.getId(), form.getBrand(), form.getOsVersion(), form.getResolution(), form.getIsAll());
@@ -142,30 +139,29 @@ public class DeviceController extends BaseController {
                 return DB.PhoneOS.valueOf((Integer) o);
             }
         }, DB.PhoneOS.class);
-        List<PrivateDeviceVO> result = buildVOs(privateDeviceDTOList, PrivateDeviceVO.class);
-        return ok(result);
+        return buildVOs(privateDeviceDTOList, PrivateDeviceVO.class);
     }
 
     @ApiOperation(value="在线Android设备的分类，各个维度", notes = "")
     @ResponseBody
     @GetMapping(value = "/category/android")
-    public ResultVO category() throws ObjectNotExistsException {
+    public DeviceCategoryVO category() {
         Set<String> deviceIds = deviceOnlineMgr.allOnlineDevices();
         DeviceCategoryVO vo = new DeviceCategoryVO();
-        if(deviceIds != null && deviceIds.size() > 0) {
+        if(deviceIds != null && !deviceIds.isEmpty()) {
             vo = deviceService.getCategory(deviceIds);
             List<Device> deviceList =  deviceService.findOnlineList(deviceIds);
             vo.setDeviceNum(deviceList.size());
         }
-        return ok(vo);
+        return vo;
     }
 
     @ApiOperation(value="检查设备是否可用", notes = "")
     @ResponseBody
     @PostMapping(value = "/check/usable")
-    public ResultVO checkUsable(@RequestBody DeviceBatchCheckForm form) throws ObjectNotExistsException {
-        if(form.getDeviceIds() == null || form.getDeviceIds().size() == 0) {
-            return ok();
+    public CheckDeviceResultVO checkUsable(@RequestBody @Valid DeviceBatchCheckForm form) {
+        if(form.getDeviceIds() == null || form.getDeviceIds().isEmpty()) {
+            return null;
         }
         List<String> deviceIds = form.getDeviceIds();
         CheckDeviceResultVO vo = new CheckDeviceResultVO();
@@ -178,7 +174,7 @@ public class DeviceController extends BaseController {
             }else{
                 try {
                     deviceValidatoer.validateUsable(deviceId);
-                }catch (DeviceUnusableException | ObjectNotExistsException e) {
+                }catch (DeviceException | BusinessException e) {
                     log.error("设备忙碌中 {}", deviceId, e);
                     Device unableDev = deviceService.findByDeviceId(deviceId);
                     vo.setStatus(false);
@@ -186,7 +182,35 @@ public class DeviceController extends BaseController {
                 }
             }
         }
-        return ok(vo);
+        return vo;
     }
 
+
+    @ApiOperation(value="锁定设备", notes = "")
+    @ResponseBody
+    @PostMapping(value = "/lock/debug/{deviceId}")
+    public DeviceLockResultVO lockDebug(@PathVariable String deviceId) {
+        DeviceLockResultVO vo = new DeviceLockResultVO();
+        vo.setSuccess(true);
+        return vo;
+    }
+
+    @ApiOperation(value="选择的时候锁定设备", notes = "")
+    @ResponseBody
+    @PostMapping(value = "/lock/select/{deviceId}")
+    public DeviceLockResultVO lockSelect(@PathVariable String deviceId) {
+        DeviceLockResultVO vo = new DeviceLockResultVO();
+        vo.setSuccess(true);
+        return vo;
+    }
+
+    @ApiOperation(value="解除锁定设备", notes = "")
+    @ResponseBody
+    @PostMapping(value = "/unlock/{deviceId}")
+    public DeviceUnLockResultVO unlock(@PathVariable String deviceId) {
+        DeviceUnLockResultVO vo = new DeviceUnLockResultVO();
+        deviceService.debugFree(deviceId);
+        vo.setError("解锁成功");
+        return vo;
+    }
 }

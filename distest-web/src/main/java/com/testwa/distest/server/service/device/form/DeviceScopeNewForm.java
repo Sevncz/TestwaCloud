@@ -15,6 +15,8 @@ import java.util.List;
 )
 @Data
 public class DeviceScopeNewForm extends RequestFormBase {
+    @NotEmpty
     private String deviceId;
+    @NotEmpty
     private Integer scope;
 }

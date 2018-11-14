@@ -1,6 +1,7 @@
 package com.testwa.distest.server.service.testcase.form;
 
 import lombok.Data;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 
@@ -10,7 +11,7 @@ import javax.validation.constraints.NotNull;
 @Data
 public class TestcaseUpdateForm extends TestcaseNewForm {
     
-    @NotNull
+    @NotEmpty
     public Long testcaseId;
 
 }

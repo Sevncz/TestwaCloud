@@ -12,7 +12,7 @@ import java.util.List;
  */
 @Data
 @AllArgsConstructor
-public class PageResultVO<T> {
+public class PageResult<T> {
     private List<T> pages = new ArrayList<>();
     private long total = 0;
 }

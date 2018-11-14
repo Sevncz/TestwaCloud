@@ -1,7 +1,10 @@
 package com.testwa.distest.server.service.project.service;
 
+import com.testwa.core.base.constant.ResultCode;
 import com.testwa.distest.common.enums.DB;
-import com.testwa.core.base.exception.*;
+import com.testwa.distest.exception.AuthorizedException;
+import com.testwa.distest.exception.BusinessException;
+import com.testwa.distest.exception.DBException;
 import com.testwa.distest.server.entity.Project;
 import com.testwa.distest.server.entity.ProjectMember;
 import com.testwa.distest.server.entity.User;
@@ -62,21 +65,21 @@ public class ProjectMemberService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public void addMembers(MembersModifyForm form) throws AuthorizedException, ParamsException {
-        if(form.getUsernames() == null || form.getUsernames().size() == 0){
+    public void addMembers(MembersModifyForm form) {
+        if(form.getUsernames() == null || form.getUsernames().isEmpty()){
             return;
         }
         Project project = projectService.findOne(form.getProjectId());
         User owner = userService.findByUsername(getCurrentUsername());
         if (!project.getCreateBy().equals(owner.getId())) {
             log.error("login auth not owner of the project, projectId: {}, currentUsername: {}", form.getProjectId(), getCurrentUsername());
-            throw new AuthorizedException("您不是项目所有者，无法添加项目成员");
+            throw new AuthorizedException(ResultCode.ILLEGAL_OP, "您不是项目所有者，无法添加项目成员");
         }
         List<User> members = userService.findByUsernames(form.getUsernames());
         // 检查是否有用户不在系统
         if(!(members != null && members.size() == form.getUsernames().size())){
             log.error("members size is {}, usernames size is {}", members != null?members.size():0, form.getUsernames().size());
-            throw new ParamsException("有成员不存在");
+            throw new BusinessException(ResultCode.CONFLICT, "有成员不存在");
         }
 
         List<ProjectMember> pms = new ArrayList<>();
@@ -163,16 +166,16 @@ public class ProjectMemberService {
 
 
 
-    public ProjectMember getProjectRole(Long projectId, Long userId) throws AccountException, DBException {
+    public ProjectMember getProjectRole(Long projectId, Long userId) throws DBException {
         ProjectMember query = new ProjectMember();
         query.setMemberId(userId);
         query.setProjectId(projectId);
         List<ProjectMember> result = projectMemberDAO.findBy(query);
-        if(result.size() == 0){
+        if(result.isEmpty()){
             return null;
         }
         if(result.size() > 1){
-            throw new DBException("DB ERROR: ProjectMember double key");
+            throw new DBException(ResultCode.SERVER_ERROR, "DB ERROR: ProjectMember double key");
         }
         return result.get(0);
     }

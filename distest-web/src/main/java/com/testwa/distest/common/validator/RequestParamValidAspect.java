@@ -1,6 +1,7 @@
 package com.testwa.distest.common.validator;
 
-import com.testwa.core.base.exception.ParamsFormatException;
+import com.testwa.core.base.constant.ResultCode;
+import com.testwa.distest.exception.BusinessException;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -37,7 +38,7 @@ public class RequestParamValidAspect {
 
     /* * 通过连接点切入 */
     @Before("soaServiceBefore()")
-    public void twiceAsOld1(JoinPoint point) throws ParamsFormatException {
+    public void twiceAsOld1(JoinPoint point) {
         //  获得切入目标对象
         Object target = point.getThis();
         // 获得切入方法参数
@@ -52,7 +53,7 @@ public class RequestParamValidAspect {
         while (violationIterator.hasNext()) {
             // 此处可以抛个异常提示用户参数输入格式不正确
             System.out.println("method check---------" + violationIterator.next().getMessage());
-            throw new ParamsFormatException("请求参数格式错误");
+            throw new BusinessException(ResultCode.INVALID_PARAM, "请求参数格式错误");
         }
 
         // 校验以java bean对象 为方法参数的 
@@ -63,7 +64,7 @@ public class RequestParamValidAspect {
                 while (violationIterator.hasNext()) {
                     // 此处可以抛个异常提示用户参数输入格式不正确
                     System.out.println("bean check-------" + violationIterator.next().getMessage());
-                    throw new ParamsFormatException("请求参数格式错误");
+                    throw new BusinessException(ResultCode.INVALID_PARAM, "请求参数格式错误");
                 }
             }
         }

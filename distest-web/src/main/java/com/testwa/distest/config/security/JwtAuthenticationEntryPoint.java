@@ -2,7 +2,7 @@ package com.testwa.distest.config.security;
 
 import com.alibaba.fastjson.JSON;
 import com.testwa.core.base.constant.ResultCode;
-import com.testwa.core.base.vo.ResultVO;
+import com.testwa.core.base.vo.Result;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.user.service.UserService;
 import org.apache.commons.lang3.StringUtils;
@@ -40,7 +40,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint, Se
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json");
         String token = request.getHeader(tokenHeader);
-        ResultVO<String> r = new ResultVO<>();
+        Result<String> r = new Result<>();
         if(StringUtils.isNotEmpty(token)){
 
             String username = jwtTokenUtil.getUsernameFromToken(token);

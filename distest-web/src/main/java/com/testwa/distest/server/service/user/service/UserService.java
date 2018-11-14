@@ -7,10 +7,9 @@ package com.testwa.distest.server.service.user.service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.testwa.core.base.exception.AccountAlreadyExistException;
-import com.testwa.core.base.exception.AccountException;
-import com.testwa.core.base.vo.PageResultVO;
+import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.tools.SnowflakeIdWorker;
+import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.user.dao.IUserDAO;
 import com.testwa.distest.server.service.user.form.UserQueryForm;
@@ -28,6 +27,7 @@ import java.util.*;
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 public class UserService {
     private static final String userCodePrefix = "U_";
+
     @Autowired
     private IUserDAO userDAO;
     @Autowired
@@ -36,7 +36,7 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public String save(User user) throws AccountAlreadyExistException, AccountException {
+    public String save(User user) {
         String userCode = userCodePrefix + commonIdWorker.nextId();
         user.setUserCode(userCode);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -81,8 +81,8 @@ public class UserService {
 
     public List<User> findByUsernames(List<String> usernames) {
         List<User> users = userDAO.findByUsernames(usernames);
-        if(users.size() == 0){
-            return null;
+        if(users.isEmpty()){
+            return Collections.emptyList();
         }
         return users;
     }
@@ -99,13 +99,12 @@ public class UserService {
         return userDAO.count();
     }
 
-    public PageResultVO<User> findByPage(User user, int page, int rows){
+    public PageResult<User> findByPage(User user, int page, int rows){
         //分页处理
         PageHelper.startPage(page, rows);
         List<User> userList = userDAO.findBy(user);
         PageInfo info = new PageInfo(userList);
-        PageResultVO<User> pr = new PageResultVO<>(info.getList(), info.getTotal());
-        return pr;
+        return new PageResult<>(info.getList(), info.getTotal());
     }
 
     /**
@@ -131,7 +130,14 @@ public class UserService {
     }
 
     public List<User> findAll(List<Long> entityIds) {
-        assert entityIds.size() == 0;
+        if(entityIds.isEmpty()) {
+            return Collections.emptyList();
+        }
         return userDAO.findAll(entityIds);
+    }
+
+    public User getCurrentUser() {
+        String username = WebUtil.getCurrentUsername();
+        return findByUsername(username);
     }
 }

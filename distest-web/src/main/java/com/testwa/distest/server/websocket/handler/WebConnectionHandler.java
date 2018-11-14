@@ -3,7 +3,6 @@ package com.testwa.distest.server.websocket.handler;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.annotation.OnConnect;
 import com.corundumstudio.socketio.annotation.OnDisconnect;
-import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.distest.config.security.JwtTokenUtil;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.cache.mgr.DeviceLockCache;
@@ -51,7 +50,7 @@ public class WebConnectionHandler {
 
     @OnConnect
     @Async
-    public void onConnect(SocketIOClient client) throws ObjectNotExistsException {
+    public void onConnect(SocketIOClient client) {
 
         String type = client.getHandshakeData().getSingleUrlParam("type");
         if("device".equals(type)){

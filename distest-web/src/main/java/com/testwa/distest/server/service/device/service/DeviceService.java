@@ -2,10 +2,9 @@ package com.testwa.distest.server.service.device.service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.testwa.core.base.vo.PageResultVO;
+import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Device;
-import com.testwa.distest.server.entity.DeviceShareScope;
 import com.testwa.distest.server.entity.DeviceSharer;
 import com.testwa.distest.server.entity.IOSDeviceDict;
 import com.testwa.distest.server.service.device.dao.IDeviceDAO;
@@ -16,7 +15,6 @@ import com.testwa.distest.server.service.device.form.DeviceListForm;
 import com.testwa.distest.server.web.device.vo.DeviceCategoryVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -82,7 +80,7 @@ public class DeviceService {
      * @param pageForm
      * @return
      */
-    public PageResultVO<Device> findByPage(Set<String> onlineDeviceList, DeviceListForm pageForm) {
+    public PageResult<Device> findByPage(Set<String> onlineDeviceList, DeviceListForm pageForm) {
         Map<String, Object> queryMap = new HashMap<>();
         queryMap.put("brand", pageForm.getBrand());
         queryMap.put("model", pageForm.getModel());
@@ -99,7 +97,7 @@ public class DeviceService {
         PageHelper.orderBy(pageForm.getOrderBy() + " " + pageForm.getOrder());
         List<Device> deviceList = deviceDAO.findListByOnlineDevice(queryMap, onlineDeviceList);
         PageInfo<Device> info = new PageInfo(deviceList);
-        PageResultVO<Device> pr = new PageResultVO<>(info.getList(), info.getTotal());
+        PageResult<Device> pr = new PageResult<>(info.getList(), info.getTotal());
         return pr;
     }
 
@@ -136,7 +134,7 @@ public class DeviceService {
         return deviceDAO.findOnlineList(queryMap);
     }
 
-    public PageResultVO<Device> findOnlinePage(Set<String> onlineDevIds, DeviceListForm pageForm) {
+    public PageResult<Device> findOnlinePage(Set<String> onlineDevIds, DeviceListForm pageForm) {
         //分页处理
         PageHelper.startPage(pageForm.getPageNo(), pageForm.getPageSize());
         if(StringUtils.isBlank(pageForm.getOrderBy()) ){
@@ -148,7 +146,7 @@ public class DeviceService {
         PageHelper.orderBy(pageForm.getOrderBy() + " " + pageForm.getOrder());
         List<Device> deviceList = findOnlineList(onlineDevIds, pageForm);
         PageInfo<Device> info = new PageInfo(deviceList);
-        PageResultVO<Device> pr = new PageResultVO<>(info.getList(), info.getTotal());
+        PageResult<Device> pr = new PageResult<>(info.getList(), info.getTotal());
         return pr;
     }
 
@@ -189,7 +187,7 @@ public class DeviceService {
     }
 
     public List<Device> findCloudList(Set<String> deviceIds, String brand, String osVersion, String resolution, Boolean isAll) {
-        if(deviceIds == null || deviceIds.size() == 0) {
+        if(deviceIds == null || deviceIds.isEmpty()) {
             return new ArrayList<>();
         }
 
@@ -246,11 +244,11 @@ public class DeviceService {
     /**
      * @Description: 云端设备分页列表
      * @Param: [deviceIds, brand, osVersion, resolution, isAll]
-     * @Return: com.testwa.core.base.vo.PageResultVO<com.testwa.distest.server.entity.Device>
+     * @Return: com.testwa.core.base.vo.PageResult<com.testwa.distest.server.entity.Device>
      * @Author wen
      * @Date 2018/10/30 17:49
      */
-    public PageResultVO<Device> findCloudPage(Set<String> deviceIds, String brand, String osVersion, String resolution, Boolean isAll) {
+    public PageResult<Device> findCloudPage(Set<String> deviceIds, String brand, String osVersion, String resolution, Boolean isAll) {
 
         return null;
     }

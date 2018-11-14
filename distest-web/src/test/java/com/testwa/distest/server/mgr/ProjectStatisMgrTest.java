@@ -1,7 +1,7 @@
 package com.testwa.distest.server.mgr;
 
 
-import com.testwa.core.base.vo.PageResultVO;
+import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.DistestWebApplication;
 import com.testwa.distest.server.service.task.form.TaskListForm;
 import com.testwa.distest.server.web.project.mgr.ProjectStatisMgr;
@@ -77,7 +77,7 @@ public class ProjectStatisMgrTest {
         long startTime = lastDay.getTime() / 1000;
         long endTime = System.currentTimeMillis() / 1000;
         TaskListForm form = new TaskListForm();
-        PageResultVO<ProjectTestDynamicVO> voPageResult = projectStatisMgr.dynamicTestPage(projectId, startTime, endTime, form);
+        PageResult<ProjectTestDynamicVO> voPageResult = projectStatisMgr.dynamicTestPage(projectId, startTime, endTime, form);
         voPageResult.getPages().forEach( v -> {
             log.info("" + v.getTime());
         });

@@ -439,7 +439,7 @@ public final class DB {
 
     public enum DeviceShareScopeTypeEnum implements ValueEnum {
 
-        User(0, "User"), Project(1, "Project");
+        User(0, "CurrentUser"), Project(1, "Project");
 
         private int value;
         private String desc;

@@ -5,8 +5,6 @@
  */
 package com.testwa.distest.server.service.user.service;
 
-import com.testwa.core.base.exception.AccountAlreadyExistException;
-import com.testwa.core.base.exception.AccountException;
 import com.testwa.distest.server.entity.AgentLoginLog;
 import com.testwa.distest.server.service.user.dao.IAgentLoginLogDAO;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +25,7 @@ public class AgentLoginLoggerService {
 
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public long save(AgentLoginLog entity) throws AccountException, AccountAlreadyExistException {
+    public long save(AgentLoginLog entity) {
         return agentLoginLoggerDAO.insert(entity);
     }
 

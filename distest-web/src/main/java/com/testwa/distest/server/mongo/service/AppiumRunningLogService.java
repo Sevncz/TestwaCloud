@@ -1,14 +1,12 @@
 package com.testwa.distest.server.mongo.service;
 
-import com.testwa.core.base.exception.ParamsIsNullException;
-import com.testwa.core.base.vo.PageResultVO;
+import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.server.mongo.model.AppiumRunningLog;
 import com.testwa.distest.server.mongo.model.ProcedureStatis;
 import com.testwa.distest.server.mongo.repository.AppiumRunningLogRepository;
 import com.testwa.distest.server.mongo.repository.ProcedureStatisRepository;
 import com.testwa.distest.server.service.task.form.StepListForm;
 import com.testwa.distest.server.service.task.form.StepPageForm;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -85,16 +83,7 @@ public class AppiumRunningLogService extends BaseService {
         return procedureInfoRepository.findByTaskCodeOrderByTimestampAsc(taskCode);
     }
 
-    public PageResultVO<AppiumRunningLog> findByPage(StepPageForm form) {
-        if(form.getScriptId() == null){
-            throw new ParamsIsNullException("ScriptId is null");
-        }
-        if(form.getTaskCode() == null){
-            throw new ParamsIsNullException("TaskId is null");
-        }
-        if(StringUtils.isBlank(form.getDeviceId())){
-            throw new ParamsIsNullException("DeviceId is null");
-        }
+    public PageResult<AppiumRunningLog> findByPage(StepPageForm form) {
         Query query = new Query();
         query.addCriteria(Criteria.where("testSuit").is(form.getScriptId()));
         query.addCriteria(Criteria.where("taskCode").is(form.getTaskCode()));
@@ -105,20 +94,11 @@ public class AppiumRunningLogService extends BaseService {
         Sort sort = new Sort(Sort.Direction.ASC, sortField);
         PageRequest pageRequest = new PageRequest(pageNum, rows, sort);
         Page<AppiumRunningLog> page = procedureInfoRepository.find(query, pageRequest);
-        PageResultVO<AppiumRunningLog> result = new PageResultVO<>(page.getContent(), page.getTotalElements());
+        PageResult<AppiumRunningLog> result = new PageResult<>(page.getContent(), page.getTotalElements());
         return result;
     }
 
     public List<AppiumRunningLog> findList(StepListForm form) {
-        if(form.getScriptId() == null){
-            throw new ParamsIsNullException("ScriptId is null");
-        }
-        if(form.getTaskCode() == null){
-            throw new ParamsIsNullException("TaskId is null");
-        }
-        if(StringUtils.isBlank(form.getDeviceId())){
-            throw new ParamsIsNullException("DeviceId is null");
-        }
         Query query = new Query();
         query.addCriteria(Criteria.where("testSuit").is(form.getScriptId()));
         query.addCriteria(Criteria.where("taskCode").is(form.getTaskCode()));

@@ -2,6 +2,7 @@ package com.testwa.distest.server.service.testcase.form;
 
 import com.testwa.core.base.form.RequestFormBase;
 import lombok.Data;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -11,9 +12,10 @@ import java.util.List;
  */
 @Data
 public class TestcaseNewForm extends RequestFormBase {
-
+    @NotEmpty
     public String name;
     public String description;
+    @NotEmpty
     public List<Long> scriptIds;
     private String tag;
     private Long appInfoId;

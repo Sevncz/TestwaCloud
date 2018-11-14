@@ -16,10 +16,8 @@ import java.util.List;
 @Data
 public class TaskNewByCaseAndStartForm extends TaskNewByCaseForm {
 
-    @NotNull
     @NotEmpty
     private List<String> deviceIds;
-    @NotNull
     @NotEmpty
     private Long appId;
 

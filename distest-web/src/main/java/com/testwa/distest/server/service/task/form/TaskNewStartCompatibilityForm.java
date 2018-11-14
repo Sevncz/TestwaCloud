@@ -15,15 +15,12 @@ import java.util.List;
         description = "创建一个兼容测试任务"
 )
 @Data
-public class TaskNewStartJRForm extends RequestFormBase {
+public class TaskNewStartCompatibilityForm extends RequestFormBase {
 
-    @NotNull
     @NotEmpty
     private Long projectId;
-    @NotNull
     @NotEmpty
     private List<String> deviceIds;
-    @NotNull
     @NotEmpty
     private Long appId;
 

@@ -3,9 +3,7 @@ package com.testwa.distest.server.web.device.controller;
 import com.testwa.core.base.constant.ResultCode;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
-import com.testwa.core.base.exception.AuthorizedException;
-import com.testwa.core.base.exception.ObjectNotExistsException;
-import com.testwa.core.base.vo.ResultVO;
+import com.testwa.core.base.vo.Result;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.DeviceShareScope;
@@ -25,9 +23,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.security.auth.login.AccountNotFoundException;
 import javax.validation.Valid;
 
 import java.util.ArrayList;
@@ -39,6 +37,7 @@ import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 
 @Slf4j
 @Api("设备权限配置相关api")
+@Validated
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/deviceScope")
 public class DeviceScopeConfigController extends BaseController{
@@ -56,7 +55,6 @@ public class DeviceScopeConfigController extends BaseController{
     @Autowired
     private ProjectValidator projectValidator;
 
-
     /**
      * 配置设备分享范围
      * @param form
@@ -65,18 +63,18 @@ public class DeviceScopeConfigController extends BaseController{
     @ApiOperation(value="配置设备分享范围", notes = "只能管理自己的设备")
     @ResponseBody
     @PostMapping(value = "/config")
-    public ResultVO config(@RequestBody @Valid DeviceScopeNewForm form) throws ObjectNotExistsException, AuthorizedException, AccountNotFoundException {
+    public Result config(@RequestBody @Valid DeviceScopeNewForm form) {
         Device device = deviceValidatoer.validateDeviceExist(form.getDeviceId());
 
         User user = userService.findByUsername(getCurrentUsername());
         // 设备当前登录用户和网站登录用户一致
         if(!user.getId().equals(device.getLastUserId())) {
-            return fail(ResultCode.ILLEGAL_OP, "该设备未连接您的客户端");
+            return Result.error(ResultCode.ILLEGAL_OP, "该设备未连接您的客户端");
         }
 
         deviceShareScopeService.updateOrSave(form.getDeviceId(), user.getId(), form.getScope());
 
-        return ok();
+        return Result.success();
     }
 
     /**
@@ -87,7 +85,7 @@ public class DeviceScopeConfigController extends BaseController{
     @ApiOperation(value="配置设备分享的用户", notes = "只能管理自己的设备")
     @ResponseBody
     @PostMapping(value = "/shareTo/user")
-    public ResultVO shareToUser(@RequestBody @Valid DeviceScopeShareToUserForm form) throws ObjectNotExistsException, AuthorizedException, AccountNotFoundException {
+    public Result shareToUser(@RequestBody @Valid DeviceScopeShareToUserForm form) {
         Device device = deviceValidatoer.validateDeviceExist(form.getDeviceId());
         if(form.getAddUserId() != null && !form.getAddUserId().isEmpty()) {
             userValidator.validateUserIdsExist(new ArrayList<>(form.getAddUserId()));
@@ -99,18 +97,18 @@ public class DeviceScopeConfigController extends BaseController{
             Set<Long> retainResult = new HashSet<>(form.getAddUserId());
             retainResult.retainAll(form.getRemoveUserId());
             if(!retainResult.isEmpty()) {
-                return fail(ResultCode.ILLEGAL_OP, "一个用户不能同时被添加和删除");
+                return Result.error(ResultCode.ILLEGAL_OP, "一个用户不能同时被添加和删除");
             }
         }
 
         User user = userService.findByUsername(getCurrentUsername());
         // 设备当前登录用户和网站登录用户一致
         if(!user.getId().equals(device.getLastUserId())) {
-            return fail(ResultCode.ILLEGAL_OP, "该设备未连接您的客户端");
+            return Result.error(ResultCode.ILLEGAL_OP, "该设备未连接您的客户端");
         }
 
         if(form.getAddUserId().contains(user.getId()) || form.getRemoveUserId().contains(user.getId())) {
-            return fail(ResultCode.ILLEGAL_OP, "不能添加和删除自己");
+            return Result.error(ResultCode.ILLEGAL_OP, "不能添加和删除自己");
         }
 
         DeviceShareScope scope = deviceShareScopeService.findOneByDeviceIdAndCreateBy(form.getDeviceId(), user.getId());
@@ -118,10 +116,10 @@ public class DeviceScopeConfigController extends BaseController{
             deviceSharerService.insertList(form.getDeviceId(), user.getId(), form.getAddUserId());
             deviceSharerService.removeList(form.getDeviceId(), user.getId(), form.getRemoveUserId());
         }else{
-            return fail(ResultCode.ILLEGAL_OP, "您无法分享给指定用户");
+            return Result.error(ResultCode.ILLEGAL_OP, "您无法分享给指定用户");
         }
 
-        return ok();
+        return Result.success();
     }
 
     /**
@@ -132,17 +130,17 @@ public class DeviceScopeConfigController extends BaseController{
     @ApiOperation(value="移除设备分享的用户", notes = "只能管理自己的设备")
     @ResponseBody
     @PostMapping(value = "/remove/user")
-    public ResultVO removeUser(@RequestBody @Valid DeviceScopeRemoveForm form) {
+    public Result removeUser(@RequestBody @Valid DeviceScopeRemoveForm form) {
         Device device = deviceValidatoer.validateDeviceExist(form.getDeviceId());
         User user = userService.findByUsername(getCurrentUsername());
         // 设备当前登录用户和网站登录用户一致
         if(!user.getId().equals(device.getLastUserId())) {
-            return fail(ResultCode.ILLEGAL_OP, "该设备未连接您的客户端");
+            return Result.error(ResultCode.ILLEGAL_OP, "该设备未连接您的客户端");
         }
 
         deviceSharerService.removeOne(form.getDeviceId(), form.getUserId(), user.getId());
 
-        return ok();
+        return Result.success();
     }
 
     /**
@@ -153,13 +151,11 @@ public class DeviceScopeConfigController extends BaseController{
     @ApiOperation(value="设备分享的用户列表", notes = "只能管理自己的设备")
     @ResponseBody
     @GetMapping(value = "/{deviceId}/share/userlist")
-    public ResultVO shareList(@PathVariable String deviceId) {
+    public List shareList(@PathVariable String deviceId) {
 
         User user = userService.findByUsername(getCurrentUsername());
 
-        List<DeviceScopeUserVO> vos = deviceSharerService.findDeviceScopeUserList(deviceId, user.getId());
-
-        return ok(vos);
+        return deviceSharerService.findDeviceScopeUserList(deviceId, user.getId());
     }
 
     /**
@@ -170,16 +166,16 @@ public class DeviceScopeConfigController extends BaseController{
     @ApiOperation(value="配置设备分享的项目", notes = "只能管理自己的设备")
     @ResponseBody
     @PostMapping(value = "/shareTo/project")
-    public ResultVO shareToProject(@RequestBody @Valid DeviceScopeShareToProjectForm form) throws ObjectNotExistsException, AuthorizedException, AccountNotFoundException {
+    public Result shareToProject(@RequestBody @Valid DeviceScopeShareToProjectForm form) {
         deviceValidatoer.validateDeviceExist(form.getDeviceId());
         if(form.getToProjectIdList() == null || form.getToProjectIdList().isEmpty()) {
-            return fail(ResultCode.PARAM_ERROR, "指定分享的项目列表不能为空");
+            return Result.error(ResultCode.PARAM_ERROR, "指定分享的项目列表不能为空");
         }
         projectValidator.validateProjectExist(form.getToProjectIdList());
 
         User user = userService.findByUsername(getCurrentUsername());
 
-        return ok();
+        return Result.success();
     }
 
 }

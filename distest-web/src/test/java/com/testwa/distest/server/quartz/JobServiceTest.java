@@ -1,9 +1,9 @@
 package com.testwa.distest.server.quartz;
 
-import com.testwa.core.base.vo.PageResultVO;
+import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.DistestWebApplication;
 import com.testwa.distest.quartz.JobInfoVO;
-import com.testwa.distest.quartz.exception.BusinessException;
+import com.testwa.distest.exception.BusinessException;
 import com.testwa.distest.quartz.service.JobService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -38,7 +38,7 @@ public class JobServiceTest {
     @Test
     @WithMockUser(username = "admin", authorities = { "ADMIN", "USER" })
     public void testList(){
-        PageResultVO<JobInfoVO> vos = jobService.list(1, 10);
+        PageResult<JobInfoVO> vos = jobService.list(1, 10);
         vos.getPages().forEach(task -> {
             log.info(task.toString());
         });

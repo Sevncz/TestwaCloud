@@ -3,6 +3,7 @@ package com.testwa.distest.server.service.project.form;
 import com.testwa.core.base.form.RequestFormBase;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.List;
 )
 @Data
 public class ProjectNewForm extends RequestFormBase {
-    @NotNull
+    @NotEmpty
     private String projectName;
     private String description;
     private List<String> members;

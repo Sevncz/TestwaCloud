@@ -1,13 +1,14 @@
 package com.testwa.distest.server.web.testcase.controller;
 
-import com.testwa.core.base.exception.*;
+import com.testwa.core.base.constant.ResultCode;
 import com.testwa.core.base.form.IDForm;
-import com.testwa.core.base.vo.ResultVO;
+import com.testwa.core.base.vo.PageResult;
+import com.testwa.core.base.vo.Result;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.form.IDListForm;
-import com.testwa.core.base.vo.PageResultVO;
 import com.testwa.distest.common.util.WebUtil;
+import com.testwa.distest.exception.BusinessException;
 import com.testwa.distest.server.entity.AppInfo;
 import com.testwa.distest.server.entity.Testcase;
 import com.testwa.distest.server.entity.User;
@@ -23,8 +24,8 @@ import com.testwa.distest.server.web.testcase.validator.TestcaseValidatoer;
 import com.testwa.distest.server.web.testcase.vo.TestcaseVO;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -36,6 +37,7 @@ import java.util.List;
  */
 @Slf4j
 @Api("测试案例相关api")
+@Validated
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/case")
 public class TestcaseController extends BaseController {
@@ -54,7 +56,7 @@ public class TestcaseController extends BaseController {
 
     @ResponseBody
     @PostMapping(value = "/{projectId}/save")
-    public ResultVO save(@PathVariable Long projectId, @Valid @RequestBody TestcaseNewForm form) throws ObjectNotExistsException, AccountException, AuthorizedException {
+    public void save(@PathVariable Long projectId, @RequestBody @Valid TestcaseNewForm form) {
         projectValidator.validateProjectExist(projectId);
 
         scriptValidator.validateScriptsInProject(form.getScriptIds(), projectId);
@@ -66,12 +68,11 @@ public class TestcaseController extends BaseController {
         projectValidator.validateUserIsProjectMember(projectId, user.getId());
 
         testcaseService.saveHGTestcase(projectId, appInfo, form);
-        return ok();
     }
 
     @ResponseBody
     @PostMapping(value = "/modify")
-    public ResultVO modify(@Valid @RequestBody TestcaseUpdateForm form) throws ObjectNotExistsException {
+    public void modify(@RequestBody @Valid TestcaseUpdateForm form) {
         Testcase testcase = testcaseValidatoer.validateTestcaseExist(form.getTestcaseId());
 
         scriptValidator.validateScriptsInProject(form.getScriptIds(), testcase.getProjectId());
@@ -80,74 +81,58 @@ public class TestcaseController extends BaseController {
         scriptValidator.validateScriptBelongApp(form.getScriptIds(), appInfo.getPackageName());
 
         testcaseService.update(form);
-        return ok();
     }
 
     @ResponseBody
     @PostMapping(value = "/delete/all")
-    public ResultVO deleteAll(@Valid @RequestBody IDListForm form) throws ParamsIsNullException {
-        if(form.getEntityIds() == null && form.getEntityIds().size() == 0){
-            throw new ParamsIsNullException("参数不能为空");
-        }
+    public void deleteAll(@RequestBody @Valid IDListForm form) {
         testcaseService.delete(form.getEntityIds());
-        return ok();
     }
 
     @ResponseBody
     @PostMapping(value = "/delete/one")
-    public ResultVO deleteOne(@Valid @RequestBody IDForm form) throws ParamsIsNullException {
-        if(form.getEntityId() == null){
-            throw new ParamsIsNullException("参数不能为空");
-        }
+    public void deleteOne(@RequestBody @Valid IDForm form) {
         testcaseService.delete(form.getEntityId());
-        return ok();
     }
 
     @ResponseBody
     @GetMapping(value = "/detail/{caseId}")
-    public ResultVO detail(@PathVariable Long caseId){
+    public TestcaseVO detail(@PathVariable Long caseId){
         testcaseValidatoer.validateTestcaseExist(caseId);
-        TestcaseVO testcaseVO = testcaseService.getTestcaseVO(caseId);
-        return ok(testcaseVO);
+        return testcaseService.getTestcaseVO(caseId);
     }
 
     @ResponseBody
     @GetMapping(value = "/{projectId}/list")
-    public ResultVO list(@PathVariable Long projectId, @Valid TestcaseListForm listForm) throws ObjectNotExistsException, AccountException {
+    public List list(@PathVariable Long projectId, @Valid TestcaseListForm listForm) {
         projectValidator.validateProjectExist(projectId);
         List<Testcase> testcases = testcaseService.findList(projectId, listForm);
-        List<TestcaseVO> vos = buildVOs(testcases, TestcaseVO.class);
-        return ok(vos);
+        return buildVOs(testcases, TestcaseVO.class);
     }
 
     @ResponseBody
     @GetMapping(value = "/{projectId}/page")
-    public ResultVO page(@PathVariable Long projectId, @Valid TestcaseListForm pageForm) throws ObjectNotExistsException, AccountException {
+    public PageResult page(@PathVariable Long projectId, @Valid TestcaseListForm pageForm) {
         projectValidator.validateProjectExist(projectId);
-        PageResultVO<Testcase> testcasePR = testcaseService.findPage(projectId, pageForm);
-        PageResultVO<TestcaseVO> pr = buildVOPageResult(testcasePR, TestcaseVO.class);
-        return ok(pr);
+        PageResult<Testcase> testcasePR = testcaseService.findPage(projectId, pageForm);
+        return buildVOPageResult(testcasePR, TestcaseVO.class);
     }
 
     @ResponseBody
     @GetMapping(value = "/{projectId}/list/scripts/{scriptIds}")
-    public ResultVO listByScripts(@PathVariable Long projectId, @PathVariable String scriptIds) throws ObjectNotExistsException, AccountException {
-        if(StringUtils.isBlank(scriptIds)) {
-            return ok();
-        }
+    public List listByScripts(@PathVariable Long projectId, @PathVariable String scriptIds) {
         projectValidator.validateProjectExist(projectId);
         String[] s = scriptIds.split(",");
         List<Long> ids = new ArrayList<>();
         for(String id_str : s) {
             try {
-                Long id_long = Long.parseLong(id_str);
-                ids.add(id_long);
+                Long idLong = Long.parseLong(id_str);
+                ids.add(idLong);
             } catch (Exception e) {
-                throw new ParamsFormatException("参数格式错误");
+                throw new BusinessException(ResultCode.PARAM_ERROR, "参数格式错误");
             }
         }
-        List<Testcase> testcases = testcaseService.findByScripts(ids);
-        return ok(testcases);
+        return testcaseService.findByScripts(ids);
     }
 
 }

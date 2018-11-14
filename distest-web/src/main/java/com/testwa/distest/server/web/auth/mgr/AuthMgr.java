@@ -2,10 +2,11 @@ package com.testwa.distest.server.web.auth.mgr;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.net.InetAddresses;
-import com.testwa.core.base.exception.*;
+import com.testwa.core.base.constant.ResultCode;
 import com.testwa.distest.config.security.JwtAuthenticationResponse;
 import com.testwa.distest.config.security.JwtTokenUtil;
 import com.testwa.distest.config.security.JwtUser;
+import com.testwa.distest.exception.AccountException;
 import com.testwa.distest.server.entity.AgentLoginLog;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.mq.MQService;
@@ -49,7 +50,7 @@ public class AuthMgr {
     @Autowired
     private MQService mqService;
 
-    public JwtAuthenticationResponse login(String username, String password, String ip, String userAgent) throws BadCredentialsException, LoginInfoNotFoundException {
+    public JwtAuthenticationResponse login(String username, String password, String ip, String userAgent) {
         UsernamePasswordAuthenticationToken upToken = new UsernamePasswordAuthenticationToken(username, password);
         final Authentication authentication = authenticationManager.authenticate(upToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -94,7 +95,7 @@ public class AuthMgr {
         return new JwtAuthenticationResponse(access_token, refresh_token, access_token_expiration);
     }
 
-    public JwtAuthenticationResponse refresh(String token) throws LoginInfoNotFoundException {
+    public JwtAuthenticationResponse refresh(String token) {
         boolean isRefresh = jwtTokenUtil.isRefreshToken(token);
         if(isRefresh){
 
@@ -102,15 +103,15 @@ public class AuthMgr {
             JwtUser user = (JwtUser) userDetailsService.loadUserByUsername(username);
 
             if (jwtTokenUtil.canTokenBeRefreshed(token, user.getLastPasswordResetDate())) {
-                String access_token = jwtTokenUtil.refreshToken(token);
-                return new JwtAuthenticationResponse(access_token, token, access_token_expiration);
+                String accessToken = jwtTokenUtil.refreshToken(token);
+                return new JwtAuthenticationResponse(accessToken, token, access_token_expiration);
             }
         }
-        throw new LoginInfoNotFoundException("Refresh Token 错误");
+        throw new AccountException(ResultCode.ILLEGAL_TOKEN, "Refresh Token 错误");
     }
 
 
-    public String register(User user) throws AccountAlreadyExistException, AccountException {
+    public String register(User user) {
         String userCode = userService.save(user);
         sendActiveMail(user, userCode);
         return userCode;
@@ -131,18 +132,18 @@ public class AuthMgr {
      *@Author: wen
      *@Date: 2018/6/1
      */
-    public void active(String token) throws ObjectNotExistsException,  AccountActiveCodeHavaExpiredException{
+    public void active(String token) {
         String userCode = TokenGenerator.getUserCode(token);
         if(StringUtils.isBlank(userCode)) {
-            throw new AccountActiveCodeHavaExpiredException("激活链接已过期");
+            throw new AccountException(ResultCode.ACTIVE_EXPIRED, "激活链接已过期");
         }
         User user = userService.findByUserCode(userCode);
         if (user == null) {
             log.info("{} 激活失败，用户不存在", userCode);
-            throw new ObjectNotExistsException("激活失败，用户不存在");
+            throw new AccountException(ResultCode.CONFLICT, "激活失败，用户不存在");
         }else if(user.getIsActive()) {
             log.info("{} 激活失败，用户已激活", userCode);
-            throw new ObjectNotExistsException("激活失败，您已激活");
+            throw new AccountException(ResultCode.CONFLICT, "激活失败，您已激活");
         }else{
             userService.updateActiveToTrue(userCode);
         }
@@ -152,7 +153,7 @@ public class AuthMgr {
     public String checkForgetPwdCode(String token) {
         String userCode = TokenGenerator.getUserCode(token);
         if(StringUtils.isBlank(userCode)){
-            throw new AccountActiveCodeHavaExpiredException("非法的路径");
+            throw new AccountException(ResultCode.CONFLICT, "非法的路径");
         }
         return userCode;
     }

@@ -2,15 +2,17 @@ package com.testwa.distest.server.web.task.execute;
 
 import com.alibaba.fastjson.JSON;
 import com.google.protobuf.ByteString;
-import com.testwa.core.base.exception.ObjectNotExistsException;
+import com.testwa.core.base.constant.ResultCode;
 import com.testwa.core.base.util.CronDateUtils;
 import com.testwa.core.cmd.AppInfo;
 import com.testwa.core.cmd.RemoteRunCommand;
 import com.testwa.core.cmd.RemoteTestcaseContent;
 import com.testwa.core.cmd.ScriptInfo;
+import com.testwa.core.tools.SnowflakeIdWorker;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.util.WebUtil;
-import com.testwa.distest.quartz.exception.BusinessException;
+import com.testwa.distest.exception.BusinessException;
+import com.testwa.distest.exception.DeviceException;
 import com.testwa.distest.quartz.job.ExecuteJobDataMap;
 import com.testwa.distest.quartz.service.JobService;
 import com.testwa.distest.server.entity.*;
@@ -32,6 +34,8 @@ import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.DecimalFormat;
 import java.util.*;
@@ -41,6 +45,7 @@ import java.util.*;
  */
 @Component
 @Slf4j
+@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 public class ExecuteMgr {
     private final static String JOB_EXECUTE_NAME = "com.testwa.distest.quartz.job.TaskExecuteJob";
 
@@ -62,6 +67,8 @@ public class ExecuteMgr {
     private JobService jobService;
     @Autowired
     private TaskCountMgr taskCountMgr;
+    @Autowired
+    private SnowflakeIdWorker taskIdWorker;
 
     /**
      *@Description: 开始执行一个回归测试任务
@@ -70,17 +77,19 @@ public class ExecuteMgr {
      *@Author: wen
      *@Date: 2018/6/4
      */
-    public TaskStartResultVO startFunctionalTestTask(List<String> useableDevices, App app, List<Long> scriptIds, Long taskCode) {
+    @Transactional(rollbackFor = BusinessException.class, propagation = Propagation.REQUIRED, readOnly = false)
+    public TaskStartResultVO startFunctionalTestTask(List<String> useableDevices, App app, List<Long> scriptIds) {
         Testcase testcase = testcaseService.saveTestcaseByScriptIds(app, scriptIds);
-        TaskStartResultVO vo = startFunctionalTestTask(useableDevices, app, testcase.getId(), testcase.getCaseName(), taskCode);
+        TaskStartResultVO vo = startFunctionalTestTask(useableDevices, app, testcase.getId(), testcase.getCaseName());
         if(scriptIds.size() == 1) {
             testcaseService.delete(testcase.getId());
         }
         return vo;
     }
 
-    public TaskStartResultVO startFunctionalTestTask(List<String> deviceIds, App app, Long testcaseId, String caseName, Long taskCode) throws ObjectNotExistsException {
-        return startTask(deviceIds, app.getProjectId(), testcaseId, app.getId(), caseName, DB.TaskType.FUNCTIONAL, taskCode);
+    @Transactional(rollbackFor = BusinessException.class, propagation = Propagation.REQUIRED, readOnly = false)
+    public TaskStartResultVO startFunctionalTestTask(List<String> deviceIds, App app, Long testcaseId, String caseName) {
+        return startTask(deviceIds, app.getProjectId(), testcaseId, app.getId(), caseName, DB.TaskType.FUNCTIONAL);
     }
 
     /**
@@ -90,8 +99,9 @@ public class ExecuteMgr {
      *@Author: wen
      *@Date: 2018/6/4
      */
-    public TaskStartResultVO startCompabilityTestTask(List<String> deviceIds, Long projectId, Long appId, Long taskCode) throws ObjectNotExistsException {
-        return startTask(deviceIds, projectId, null, appId, "兼容测试", DB.TaskType.COMPATIBILITY, taskCode);
+    @Transactional(rollbackFor = BusinessException.class, propagation = Propagation.REQUIRED, readOnly = false)
+    public TaskStartResultVO startCompabilityTestTask(List<String> deviceIds, Long projectId, Long appId) {
+        return startTask(deviceIds, projectId, null, appId, "兼容测试", DB.TaskType.COMPATIBILITY);
     }
 
     /**
@@ -101,15 +111,18 @@ public class ExecuteMgr {
      *@Author: wen
      *@Date: 2018/7/26
      */
-    public TaskStartResultVO startCrawlerTestTask(List<String> deviceIds, Long projectId, Long appId, Long taskCode) {
-        return startTask(deviceIds, projectId, null, appId, "遍历测试", DB.TaskType.CRAWLER, taskCode);
+    @Transactional(rollbackFor = BusinessException.class, propagation = Propagation.REQUIRED, readOnly = false)
+    public TaskStartResultVO startCrawlerTestTask(List<String> deviceIds, Long projectId, Long appId) {
+        return startTask(deviceIds, projectId, null, appId, "遍历测试", DB.TaskType.CRAWLER);
     }
 
-    private TaskStartResultVO startTask(List<String> deviceIds, Long projectId, Long testcaseId, Long appId, String taskName, DB.TaskType taskType, Long taskCode) throws ObjectNotExistsException {
-        TaskStartResultVO result = new TaskStartResultVO();
+    private TaskStartResultVO startTask(List<String> deviceIds, Long projectId, Long testcaseId, Long appId, String taskName, DB.TaskType taskType) {
         // 记录task的执行信息
         App app = appService.findOne(appId);
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
+        Long taskCode = taskIdWorker.nextId();
+        TaskStartResultVO result = new TaskStartResultVO();
+        result.setTaskCode(taskCode);
         Task task = new Task();
         task.setTaskCode(taskCode);
         task.setTaskType(taskType);
@@ -179,7 +192,7 @@ public class ExecuteMgr {
             }else{
                 result.addUnableDevice(d);
                 log.error("设备 {} - {} 还未准备好", d.getDeviceId(), d.getModel());
-                throw new ObjectNotExistsException("设备" + key + "还未准备好");
+                throw new DeviceException(ResultCode.ILLEGAL_OP, "设备" + key + "还未准备好");
             }
 
             SubTask subTask = new SubTask();
@@ -209,11 +222,7 @@ public class ExecuteMgr {
 
         DateTime now = new DateTime();
         String cron = CronDateUtils.getCron(now.plusSeconds(2).toDate());
-        try {
-            jobService.addJob(JOB_EXECUTE_NAME, String.valueOf(taskCode), cron,  task.getTaskType().getDesc() + "，任务ID：" + taskCode, JSON.toJSONString(params));
-        } catch (BusinessException e) {
-            e.printStackTrace();
-        }
+        jobService.addJob(JOB_EXECUTE_NAME, String.valueOf(taskCode), cron,  task.getTaskType().getDesc() + "，任务ID：" + taskCode, JSON.toJSONString(params));
         return result;
     }
 
@@ -222,6 +231,7 @@ public class ExecuteMgr {
      * 停止任务
      * @param form
      */
+    @Transactional(rollbackFor = BusinessException.class, propagation = Propagation.REQUIRED, readOnly = false)
     public void stop(TaskStopForm form) {
         User currentUser = userService.findByUsername(WebUtil.getCurrentUsername());
         Task task = taskService.findByCode(form.getTaskCode());
@@ -239,11 +249,8 @@ public class ExecuteMgr {
                 stopDeviceTask(d, form.getTaskCode(), currentUser.getId());
             }
         }
-        try {
-            jobService.interrupt(JOB_EXECUTE_NAME, String.valueOf(form.getTaskCode()));
-        } catch (BusinessException e) {
-            e.printStackTrace();
-        }
+        jobService.interrupt(JOB_EXECUTE_NAME, String.valueOf(form.getTaskCode()));
+
     }
 
     private void stopDeviceTask(Device device, Long taskCode, Long updateBy) {

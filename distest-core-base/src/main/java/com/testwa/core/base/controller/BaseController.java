@@ -1,13 +1,14 @@
 package com.testwa.core.base.controller;
 
-import com.testwa.core.base.vo.ResultVO;
+import com.testwa.core.base.vo.PageResult;
+import com.testwa.core.base.vo.Result;
 import com.testwa.core.base.constant.ResultCode;
-import com.testwa.core.base.vo.PageResultVO;
-import org.springframework.beans.BeanUtils;
+import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,79 +30,33 @@ public class BaseController implements ApplicationContextAware {
         }
     }
 
-    public void setApplicationContext(ApplicationContext arg0) throws BeansException {
+    public void setApplicationContext(ApplicationContext arg0) {
         this.context = arg0;
     }
 
-    /**
-     * 返回失败
-     * @param code
-     * @param message
-     * @return
-     */
-    public ResultVO<String> fail(ResultCode code, String message) {
-        ResultVO<String> r = new ResultVO<>();
-        r.setCode(code.getValue());
-        r.setType(code.name());
-        r.setMessage(message);
-        return r;
-    }
-
-    /**
-     * 返回成功，不带数据
-     * @return
-     */
-    public ResultVO<String> ok() {
-        ResultVO<String> r = new ResultVO<>();
-        r.setCode(ResultCode.SUCCESS.getValue());
-        r.setType(ResultCode.SUCCESS.name());
-        r.setMessage("ok");
-        return r;
-    }
-
-    /**
-     * 返回成功，带数据
-     * @param data
-     * @return
-     */
-    public ResultVO<Object> ok(Object data) {
-        ResultVO<Object> r = new ResultVO<>();
-        r.setCode(ResultCode.SUCCESS.getValue());
-        r.setType(ResultCode.SUCCESS.name());
-        if(data != null){
-            r.setData(data);
-        }
-        r.setMessage("ok");
-        return r;
-    }
-
-
-    protected <T, E> PageResultVO<E> buildVOPageResult(PageResultVO<T> entityPR, Class<E> vo) {
+    protected <T, E> PageResult<E> buildVOPageResult(PageResult<T> entityPR, Class<E> vo) {
         List<E> vos = buildVOs(entityPR.getPages(), vo);
-        PageResultVO<E> pr = new PageResultVO<>(vos, entityPR.getTotal());
-        return pr;
+        return new PageResult<>(vos, entityPR.getTotal());
     }
 
     protected <T, E> List<E> buildVOs(List<T> entityList, Class<E> c) {
-        List<E> vos = new ArrayList<>();
+        List<E> result = new ArrayList<>();
         entityList.forEach(entity -> {
             E e = buildVO(entity, c);
-            vos.add(e);
+            result.add(e);
         });
-        return vos;
+        return result;
     }
 
     protected <T, E> E buildVO(T entity, Class<E> c) {
-        E vo = null;
+        E result = null;
         try {
-            vo = c.newInstance();
-            BeanUtils.copyProperties(entity, vo);
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
+            result = c.newInstance();
+            BeanUtils.copyProperties(result, entity);
+        } catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
             e.printStackTrace();
         }
-        return vo;
+        return result;
     }
 
     public final boolean validTimestamp(long ts) {

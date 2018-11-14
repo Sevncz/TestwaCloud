@@ -2,7 +2,7 @@ package com.testwa.distest.server.service.app.service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.testwa.core.base.vo.PageResultVO;
+import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.utils.*;
 import com.testwa.distest.common.android.AndroidOSInfo;
 import com.testwa.distest.common.android.TestwaAndroidApp;
@@ -333,21 +333,21 @@ public class AppService {
         return upload(uploadfile, null);
     }
 
-    public PageResultVO<App> findPage(App app, int page, int rows){
+    public PageResult<App> findPage(App app, int page, int rows){
         //分页处理
         PageHelper.startPage(page, rows);
         List<App> appList = appDAO.findBy(app);
         PageInfo info = new PageInfo(appList);
-        PageResultVO<App> pr = new PageResultVO<>(info.getList(), info.getTotal());
+        PageResult<App> pr = new PageResult<>(info.getList(), info.getTotal());
         return pr;
     }
 
-    public PageResultVO<App> findPage(Long projectId, AppListForm queryForm){
+    public PageResult<App> findPage(Long projectId, AppListForm queryForm){
         //分页处理
         PageHelper.startPage(queryForm.getPageNo(), queryForm.getPageSize());
         List<App> appList = findList(projectId, queryForm);
         PageInfo info = new PageInfo(appList);
-        PageResultVO<App> pr = new PageResultVO<>(info.getList(), info.getTotal());
+        PageResult<App> pr = new PageResult<>(info.getList(), info.getTotal());
         return pr;
     }
 

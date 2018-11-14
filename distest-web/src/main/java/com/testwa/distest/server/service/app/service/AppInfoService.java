@@ -1,6 +1,6 @@
 package com.testwa.distest.server.service.app.service;
 
-import com.testwa.core.base.vo.PageResultVO;
+import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.server.entity.AppInfo;
 import com.testwa.distest.server.service.app.dao.IAppDAO;
 import com.testwa.distest.server.service.app.dao.IAppInfoDAO;
@@ -66,7 +66,7 @@ public class AppInfoService {
         return appInfoDAO.findBy(query);
     }
 
-    public PageResultVO<AppInfo> findPage(Long projectId, AppListForm queryForm){
+    public PageResult<AppInfo> findPage(Long projectId, AppListForm queryForm){
         //分页处理
         AppInfo query = new AppInfo();
         query.setProjectId(projectId);
@@ -82,7 +82,7 @@ public class AppInfoService {
         }
         List<AppInfo> appList = appInfoDAO.findPage(query, queryForm.getOrderBy(), queryForm.getOrder(), offset, queryForm.getPageSize());
         Long total = appInfoDAO.countBy(query);
-        PageResultVO<AppInfo> pr = new PageResultVO<>(appList, total);
+        PageResult<AppInfo> pr = new PageResult<>(appList, total);
         return pr;
     }
 

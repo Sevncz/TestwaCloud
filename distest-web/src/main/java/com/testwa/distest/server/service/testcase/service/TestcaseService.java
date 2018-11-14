@@ -3,9 +3,9 @@ package com.testwa.distest.server.service.testcase.service;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.Joiner;
+import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.utils.TimeUtil;
 import com.testwa.distest.common.util.WebUtil;
-import com.testwa.core.base.vo.PageResultVO;
 import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.service.app.service.AppInfoService;
 import com.testwa.distest.server.service.project.service.ProjectService;
@@ -209,12 +209,12 @@ public class TestcaseService {
     }
 
 
-    public PageResultVO<Testcase> findPage(Long projectId, TestcaseListForm pageForm) {
+    public PageResult<Testcase> findPage(Long projectId, TestcaseListForm pageForm) {
         //分页处理
         PageHelper.startPage(pageForm.getPageNo(), pageForm.getPageSize());
         List<Testcase> testcaseList = findList(projectId, pageForm);
         PageInfo<Testcase> info = new PageInfo(testcaseList);
-        PageResultVO<Testcase> pr = new PageResultVO<>(info.getList(), info.getTotal());
+        PageResult<Testcase> pr = new PageResult<>(info.getList(), info.getTotal());
         return pr;
     }
 

@@ -1,7 +1,7 @@
 package com.testwa.distest.common.validator;
 
-import com.testwa.core.base.exception.ParamsFormatException;
-import com.testwa.core.base.exception.ParamsIsNullException;
+import com.testwa.core.base.constant.ResultCode;
+import com.testwa.distest.exception.BusinessException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,15 +25,15 @@ public class FileUploadValidator {
      * @param maxLength
      * @param allowExtName
      */
-    public void validateFile(MultipartFile file, long maxLength, String[] allowExtName) throws ParamsIsNullException, ParamsFormatException {
+    public void validateFile(MultipartFile file, long maxLength, String[] allowExtName) {
 
         if (file.isEmpty()) {
-            throw new ParamsIsNullException("您没有上传文件");
+            throw new BusinessException(ResultCode.INVALID_PARAM, "您没有上传文件");
         }
 
         // 文件大小
         if (file.getSize() < 0 || file.getSize() > maxLength) {
-            throw new ParamsFormatException("文件不允许超过" + String.valueOf(maxLength));
+            throw new BusinessException(ResultCode.INVALID_PARAM, "文件不允许超过" + String.valueOf(maxLength));
         }
 
         //
@@ -42,7 +42,7 @@ public class FileUploadValidator {
         String filename = file.getOriginalFilename();
 
         if (StringUtils.isBlank(filename)) {
-            throw new ParamsIsNullException("文件名不能为空");
+            throw new BusinessException(ResultCode.INVALID_PARAM, "文件名不能为空");
         }
 
         //
@@ -54,10 +54,10 @@ public class FileUploadValidator {
             String extName = filename.substring(filename.lastIndexOf(".")).toLowerCase();
             if (allowExtName == null || allowExtName.length == 0 || Arrays.binarySearch(allowExtName, extName) >= 0) {
             } else {
-                throw new ParamsFormatException("文件后缀不允许");
+                throw new BusinessException(ResultCode.INVALID_PARAM, "文件后缀不允许");
             }
         } else {
-            throw new ParamsFormatException("文件后缀不允许");
+            throw new BusinessException(ResultCode.INVALID_PARAM, "文件后缀不允许");
         }
     }
 

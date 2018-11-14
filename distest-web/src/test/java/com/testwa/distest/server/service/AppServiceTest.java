@@ -1,12 +1,10 @@
 package com.testwa.distest.server.service;
 
 
-import com.testwa.core.base.exception.ParamsIsNullException;
 import com.testwa.distest.DistestWebApplication;
 import com.testwa.core.base.form.RequestListBase;
 import com.testwa.distest.server.entity.App;
 import com.testwa.distest.server.service.app.form.AppListForm;
-import com.testwa.distest.server.service.app.form.AppNewForm;
 import com.testwa.distest.server.service.app.form.AppUpdateForm;
 import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.project.service.ProjectService;

@@ -18,8 +18,15 @@ public class WalletMgr {
     @Autowired
     private UserService userService;
 
-    public Long totalEquipmentDuration(String username) {
-        User user = userService.findByUsername(username);
+    private User user;
+
+    @Autowired
+    public WalletMgr setUser(User user) {
+        this.user = user;
+        return this;
+    }
+
+    public Long totalEquipmentDuration() {
         Long debugTime = deviceLogService.sumDebugTime(user);
         Long jobTime = deviceLogService.sumJobTime(user);
         return (debugTime + jobTime) / 1000;

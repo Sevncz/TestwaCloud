@@ -58,7 +58,6 @@ public class BaseDAO<T extends Entity,ID extends Serializable> implements IBaseD
 
     @Override
     public int delete(Serializable key) {
-
         Map<String, Object> map = new HashMap<>();
         map.put("__tableName__", tableName);
         map.put("__entityClass__",entityClass);
@@ -68,7 +67,9 @@ public class BaseDAO<T extends Entity,ID extends Serializable> implements IBaseD
 
     @Override
     public int delete(Collection<ID> keys) {
-
+        if(keys == null || keys.isEmpty()) {
+            return 0;
+        }
         Map<String, Object> map = new HashMap<>();
         map.put("__tableName__", tableName);
         map.put("__entityClass__",entityClass);
@@ -90,26 +91,39 @@ public class BaseDAO<T extends Entity,ID extends Serializable> implements IBaseD
             try {
                 f.setAccessible(true);
                 if(f.get(entity) != null){
-//                    fieldList.add(f.getName());
-                    if(f.getType().isEnum()){
-                        if(ValueEnum.class.isAssignableFrom(f.getType())){
-                            ValueEnum ve = ReflectUtil.resolveValueEnum(f.get(entity).toString(), (Class<ValueEnum>)f.getType());
-                            if(ve != null){
-                                data.put(f.getName(), ve.getValue());
-//                                valueList.add(ve.getValue());
+                    Column column = f.getAnnotation(Column.class);
+                    if(column == null){
+                        if(f.getType().isEnum()){
+                            if(ValueEnum.class.isAssignableFrom(f.getType())){
+                                ValueEnum ve = ReflectUtil.resolveValueEnum(f.get(entity).toString(), (Class<ValueEnum>)f.getType());
+                                if(ve != null){
+                                    data.put(f.getName(), ve.getValue());
+                                }else{
+                                    log.error("this value not in enum");
+                                }
                             }else{
-                                log.error("this value not in enum");
+                                log.error("this enum not match ValueEnum");
                             }
-                        }else{
-                            log.error("this enum not match ValueEnum");
-                        }
-                    }else{
-                        Column column = f.getAnnotation(Column.class);
-                        if(column == null || !column.ignore()){
-//                            valueList.add(f.get(entity));
+                        }else {
                             data.put(f.getName(), f.get(entity));
                         }
+                    }else if(!column.ignore()){
+                        if(f.getType().isEnum()){
+                            if(ValueEnum.class.isAssignableFrom(f.getType())){
+                                ValueEnum ve = ReflectUtil.resolveValueEnum(f.get(entity).toString(), (Class<ValueEnum>)f.getType());
+                                if(ve != null){
+                                    data.put(column.value(), ve.getValue());
+                                }else{
+                                    log.error("this value not in enum");
+                                }
+                            }else{
+                                log.error("this enum not match ValueEnum");
+                            }
+                        }else {
+                            data.put(column.value(), f.get(entity));
+                        }
                     }
+
                 }
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
@@ -134,23 +148,40 @@ public class BaseDAO<T extends Entity,ID extends Serializable> implements IBaseD
                 f.setAccessible(true);
                 if(f.get(entity) != null){
                     if(!"id".equals(f.getName())) {
-                        if(f.getType().isEnum()){
-                            if(ValueEnum.class.isAssignableFrom(f.getType())){
-                                ValueEnum ve = ReflectUtil.resolveValueEnum(f.get(entity).toString(), (Class<ValueEnum>)f.getType());
-                                if(ve != null){
-                                    subMap.put(f.getName(), ve.getValue());
-                                }else{
-                                    log.error("this value not in enum");
-                                }
-                            }else{
-
-                                log.error("this enum not match ValueEnum");
-                            }
-                        }else{
+                        if(f.get(entity) != null){
                             Column column = f.getAnnotation(Column.class);
-                            if(column == null || !column.ignore()){
-                                subMap.put(f.getName(), f.get(entity));
+                            if(column == null){
+                                if(f.getType().isEnum()){
+                                    if(ValueEnum.class.isAssignableFrom(f.getType())){
+                                        ValueEnum ve = ReflectUtil.resolveValueEnum(f.get(entity).toString(), (Class<ValueEnum>)f.getType());
+                                        if(ve != null){
+                                            subMap.put(f.getName(), ve.getValue());
+                                        }else{
+                                            log.error("this value not in enum");
+                                        }
+                                    }else{
+                                        log.error("this enum not match ValueEnum");
+                                    }
+                                }else {
+                                    subMap.put(f.getName(), f.get(entity));
+                                }
+                            }else if(!column.ignore()){
+                                if(f.getType().isEnum()){
+                                    if(ValueEnum.class.isAssignableFrom(f.getType())){
+                                        ValueEnum ve = ReflectUtil.resolveValueEnum(f.get(entity).toString(), (Class<ValueEnum>)f.getType());
+                                        if(ve != null){
+                                            subMap.put(column.value(), ve.getValue());
+                                        }else{
+                                            log.error("this value not in enum");
+                                        }
+                                    }else{
+                                        log.error("this enum not match ValueEnum");
+                                    }
+                                }else {
+                                    subMap.put(column.value(), f.get(entity));
+                                }
                             }
+
                         }
                     }
                 }

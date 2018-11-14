@@ -4,7 +4,7 @@ import com.testwa.distest.DistestWebApplication;
 import com.testwa.core.base.form.RequestListBase;
 import com.testwa.distest.server.entity.Project;
 import com.testwa.distest.server.entity.User;
-import com.testwa.core.base.vo.PageResultVO;
+import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.server.service.project.form.ProjectListForm;
 import com.testwa.distest.server.service.project.form.ProjectUpdateForm;
 import com.testwa.distest.server.service.project.service.ProjectService;
@@ -57,7 +57,7 @@ public class ProjectServiceTest {
         page.setPageNo(3);
         page.setPageSize(10);
         form.setPage(page);
-        PageResultVO<Project> projects = projectService.findPage(form);
+        PageResult<Project> projects = projectService.findPage(form);
     }
     @Test
     @WithMockUser(username = "xiaoming", authorities = { "ADMIN", "USER" })

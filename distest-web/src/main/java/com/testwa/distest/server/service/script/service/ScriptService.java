@@ -7,7 +7,7 @@ import com.testwa.core.utils.Identities;
 import com.testwa.core.utils.PinYinTool;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.config.DisFileProperties;
-import com.testwa.core.base.vo.PageResultVO;
+import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.server.entity.Script;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.project.service.ProjectService;
@@ -221,11 +221,11 @@ public class ScriptService {
         scriptDAO.disable(entityId);
     }
 
-    public PageResultVO<Script> findPage(Long projectId, ScriptListForm queryForm) {
+    public PageResult<Script> findPage(Long projectId, ScriptListForm queryForm) {
         PageHelper.startPage(queryForm.getPageNo(), queryForm.getPageSize());
         List<Script> scriptList = findList(projectId, queryForm);
         PageInfo<Script> info = new PageInfo(scriptList);
-        PageResultVO<Script> pr = new PageResultVO<>(info.getList(), info.getTotal());
+        PageResult<Script> pr = new PageResult<>(info.getList(), info.getTotal());
         return pr;
     }
 

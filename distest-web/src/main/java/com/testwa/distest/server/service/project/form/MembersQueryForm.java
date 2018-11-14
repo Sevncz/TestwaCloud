@@ -4,6 +4,7 @@ import com.testwa.core.base.form.RequestFormBase;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.ToString;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -18,7 +19,7 @@ import java.util.List;
 @ToString
 public class MembersQueryForm extends RequestFormBase{
 
-    @NotNull
+    @NotEmpty
     private Long projectId;
 
     private String username;

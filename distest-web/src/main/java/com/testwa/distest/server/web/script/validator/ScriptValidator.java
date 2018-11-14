@@ -1,7 +1,7 @@
 package com.testwa.distest.server.web.script.validator;
 
-import com.testwa.core.base.exception.ObjectNotExistsException;
-import com.testwa.core.base.exception.ParamsException;
+import com.testwa.core.base.constant.ResultCode;
+import com.testwa.distest.exception.BusinessException;
 import com.testwa.distest.server.entity.Script;
 import com.testwa.distest.server.service.script.service.ScriptService;
 import org.apache.commons.lang3.StringUtils;
@@ -22,35 +22,34 @@ public class ScriptValidator {
     private ScriptService scriptService;
 
 
-    public List<Script> validateScriptsExist(List<Long> scriptIds) throws ObjectNotExistsException {
+    public List<Script> validateScriptsExist(List<Long> scriptIds) {
         List<Script> scriptList = scriptService.findAll(scriptIds);
         if(scriptList == null || scriptList.size() != scriptIds.size()){
-            throw new ObjectNotExistsException("脚本不存在");
+            throw new BusinessException(ResultCode.NOT_FOUND, "脚本不存在");
         }
         return scriptList;
     }
-    public List<Script> validateScriptsInProject(List<Long> scriptIds, Long projectId) throws ObjectNotExistsException {
+    public List<Script> validateScriptsInProject(List<Long> scriptIds, Long projectId) {
         List<Script> scriptList = scriptService.findAllInProject(scriptIds, projectId);
-        Set<Long> scriptSet = new HashSet<>();
-        scriptSet.addAll(scriptIds);
+        Set<Long> scriptSet = new HashSet<>(scriptIds);
         if(scriptSet.size() != scriptList.size()){
-            throw new ObjectNotExistsException("非本项目中脚本无法使用");
+            throw new BusinessException(ResultCode.CONFLICT, "非本项目中脚本无法使用");
         }
         return scriptList;
     }
 
-    public Script validateScriptExist(Long scriptId) throws ObjectNotExistsException {
+    public Script validateScriptExist(Long scriptId) {
         Script entity = scriptService.findOne(scriptId);
         if(entity == null){
-            throw new ObjectNotExistsException("脚本不存在");
+            throw new BusinessException(ResultCode.NOT_FOUND, "脚本不存在");
         }
         return entity;
     }
 
-    public Script validateScriptInProject(Long scriptId, Long projectId) throws ObjectNotExistsException {
+    public Script validateScriptInProject(Long scriptId, Long projectId) {
         Script entity = scriptService.findOneInPorject(scriptId, projectId);
         if(entity == null){
-            throw new ObjectNotExistsException("脚本不存在");
+            throw new BusinessException(ResultCode.NOT_FOUND, "脚本不存在");
         }
         return entity;
     }
@@ -61,7 +60,7 @@ public class ScriptValidator {
         for(Script script : scriptList) {
             if(StringUtils.isNotBlank(script.getAppPackage())){
                 if(!packageName.equals(script.getAppPackage())) {
-                    throw new ParamsException("脚本和App不匹配");
+                    throw new BusinessException(ResultCode.CONFLICT, "脚本和App不匹配");
                 }
             }
         }

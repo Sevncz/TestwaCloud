@@ -1,6 +1,7 @@
 package com.testwa.distest.server.web.testcase.validator;
 
-import com.testwa.core.base.exception.ObjectNotExistsException;
+import com.testwa.core.base.constant.ResultCode;
+import com.testwa.distest.exception.BusinessException;
 import com.testwa.distest.server.entity.Testcase;
 import com.testwa.distest.server.service.testcase.service.TestcaseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,44 +21,43 @@ public class TestcaseValidatoer {
     private TestcaseService testcaseService;
 
 
-    public List<Testcase> validateTestcasesExist(List<Long> entityIds) throws ObjectNotExistsException {
+    public List<Testcase> validateTestcasesExist(List<Long> entityIds) {
         List<Testcase> entityList = testcaseService.findAll(entityIds);
         if(entityList == null || entityList.size() != entityIds.size()){
-            throw new ObjectNotExistsException("案例不存在");
+            throw new BusinessException(ResultCode.NOT_FOUND, "案例不存在");
         }
         return entityList;
     }
-    public List<Testcase> validateTestcasesInProject(List<Long> entityIds, Long projectId) throws ObjectNotExistsException {
+    public List<Testcase> validateTestcasesInProject(List<Long> entityIds, Long projectId) {
         List<Testcase> entityList = testcaseService.findAll(entityIds);
 
-        Set<Long> entitySet = new HashSet<>();
-        entitySet.addAll(entityIds);
+        Set<Long> entitySet = new HashSet<>(entityIds);
         if(entitySet.size() != entityList.size()){
-            throw new ObjectNotExistsException("案例不存在");
+            throw new BusinessException(ResultCode.NOT_FOUND, "案例不存在");
         }
         for(Testcase entity: entityList){
             if(!projectId.equals(entity.getProjectId())){
-                throw new ObjectNotExistsException("项目中不存在该案例");
+                throw new BusinessException(ResultCode.CONFLICT, "项目中不存在该案例");
             }
         }
         return entityList;
     }
 
-    public Testcase validateTestcaseExist(Long entityId) throws ObjectNotExistsException {
+    public Testcase validateTestcaseExist(Long entityId) {
         Testcase entity = testcaseService.findOne(entityId);
         if(entity == null){
-            throw new ObjectNotExistsException("案例不存在");
+            throw new BusinessException(ResultCode.NOT_FOUND, "案例不存在");
         }
         return entity;
     }
 
-    public Testcase validateTestcaseInProject(Long entityId, Long projectId) throws ObjectNotExistsException {
+    public Testcase validateTestcaseInProject(Long entityId, Long projectId) {
         Testcase entity = testcaseService.findOne(entityId);
         if(entity == null){
-            throw new ObjectNotExistsException("案例不存在");
+            throw new BusinessException(ResultCode.NOT_FOUND, "案例不存在");
         }
         if(!projectId.equals(entity.getProjectId())){
-            throw new ObjectNotExistsException("项目中不存在该案例");
+            throw new BusinessException(ResultCode.CONFLICT, "项目中不存在该案例");
         }
         return entity;
     }

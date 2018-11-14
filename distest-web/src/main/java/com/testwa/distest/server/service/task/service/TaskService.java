@@ -4,7 +4,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
-import com.testwa.core.base.vo.PageResultVO;
+import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.mongo.model.*;
@@ -100,21 +100,21 @@ public class TaskService {
     }
 
 
-    public PageResultVO<Task> findPage(Long projectId, TaskListForm pageForm) {
+    public PageResult<Task> findPage(Long projectId, TaskListForm pageForm) {
         //分页处理
         PageHelper.startPage(pageForm.getPageNo(), pageForm.getPageSize());
         List<Task> entityList = findList(projectId, pageForm);
         PageInfo<Task> info = new PageInfo(entityList);
-        PageResultVO<Task> pr = new PageResultVO<>(info.getList(), info.getTotal());
+        PageResult<Task> pr = new PageResult<>(info.getList(), info.getTotal());
         return pr;
     }
 
-    public PageResultVO<Task> findFinishPage(Long projectId, TaskListForm pageForm) {
+    public PageResult<Task> findFinishPage(Long projectId, TaskListForm pageForm) {
         //分页处理
         PageHelper.startPage(pageForm.getPageNo(), pageForm.getPageSize());
         List<Task> entityList = findFinishList(projectId, pageForm);
         PageInfo<Task> info = new PageInfo(entityList);
-        PageResultVO<Task> pr = new PageResultVO<>(info.getList(), info.getTotal());
+        PageResult<Task> pr = new PageResult<>(info.getList(), info.getTotal());
         return pr;
     }
 

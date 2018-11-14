@@ -3,7 +3,7 @@ package com.testwa.distest.server.web.project.mgr;
 
 import com.testwa.core.base.constraint.validation.PageOrderValidator;
 import com.testwa.core.base.form.RequestListBase;
-import com.testwa.core.base.vo.PageResultVO;
+import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.App;
 import com.testwa.distest.server.entity.Script;
@@ -103,7 +103,7 @@ public class ProjectStatisMgr {
 
         List<CountAppTestStatisDTO> countAppTestStatisList = taskService.countAppTest(projectId, startTime, endTime);
 
-        if(countAppTestStatisList.size() == 0) {
+        if(countAppTestStatisList.isEmpty()) {
             return appCountVO;
         }
 
@@ -117,8 +117,8 @@ public class ProjectStatisMgr {
 
         List<Long> appIdList = new ArrayList<>(appIds);
         List<App> apps = appService.findAll(appIdList);
-        if(apps.size() > 0) {
-            List<String> appNames = apps.stream().map(app -> app.getDisplayName()).collect(Collectors.toList());
+        if(!apps.isEmpty()) {
+            List<String> appNames = apps.stream().map(App::getDisplayName).collect(Collectors.toList());
 
             testTypes.forEach(testType -> {
                 ProjectStatisMultiBarVO.TestCountSeries series = new ProjectStatisMultiBarVO.TestCountSeries(apps.size());
@@ -156,7 +156,7 @@ public class ProjectStatisMgr {
         memberCountVO.init();
 
         List<CountMemberTestStatisDTO> countMemberTestStatisList = taskService.countMemberTest(projectId, startTime, endTime);
-        if(countMemberTestStatisList.size() == 0) {
+        if(countMemberTestStatisList.isEmpty()) {
             return memberCountVO;
         }
 
@@ -171,8 +171,8 @@ public class ProjectStatisMgr {
 
         List<Long> memberIdList = new ArrayList<>(memberIds);
         List<User> users = userService.findAll(memberIdList);
-        if(users.size() > 0) {
-            List<String> userNames = users.stream().map(user -> user.getUsername()).collect(Collectors.toList());
+        if(!users.isEmpty()) {
+            List<String> userNames = users.stream().map(User::getUsername).collect(Collectors.toList());
 
             testTypes.forEach(testType -> {
                 ProjectStatisMultiBarVO.TestCountSeries series = new ProjectStatisMultiBarVO.TestCountSeries(users.size());
@@ -197,13 +197,13 @@ public class ProjectStatisMgr {
         return memberCountVO;
     }
 
-    public PageResultVO<ProjectTestDynamicVO> dynamicTestPage(Long projectId, Long startTime, Long endTime, TaskListForm taskListForm) {
+    public PageResult<ProjectTestDynamicVO> dynamicTestPage(Long projectId, Long startTime, Long endTime, TaskListForm taskListForm) {
         RequestListBase.Page page = taskListForm.getPage();
         page.setOrder(PageOrderValidator.DESC);
         page.setOrderBy("createTime");
         taskListForm.setPage(page);
 
-        PageResultVO<Task> taskPageResult = taskService.findPage(projectId, taskListForm);
+        PageResult<Task> taskPageResult = taskService.findPage(projectId, taskListForm);
 
         List<Task> taskList = taskPageResult.getPages();
 
@@ -219,7 +219,7 @@ public class ProjectStatisMgr {
             return vo;
         }).collect(Collectors.toList());
 
-        PageResultVO<ProjectTestDynamicVO> dynamicVOPageResult = new PageResultVO(dynamicVOs, taskPageResult.getTotal());
+        PageResult<ProjectTestDynamicVO> dynamicVOPageResult = new PageResult(dynamicVOs, taskPageResult.getTotal());
         return dynamicVOPageResult;
     }
 
@@ -239,7 +239,7 @@ public class ProjectStatisMgr {
     public Map<String, ProjectStatisElapsedTimeLineVO> countElapsedTimeForMember(Long projectId, Long startTime, Long endTime) {
         Map<String, ProjectStatisElapsedTimeLineVO> lines = new HashMap<>();
         List<User> members = projectMemberService.findAllMembers(projectId);
-        if(members.size() >= 1) {
+        if(!members.isEmpty()) {
             for(User member : members) {
                 List<CountElapsedTimeStatisDTO> countElapsedTimeDaysList = taskService.countElapsedTimeByDay(projectId, member.getId(), startTime, endTime);
                 if(countElapsedTimeDaysList != null) {

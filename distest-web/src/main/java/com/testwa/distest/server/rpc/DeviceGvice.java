@@ -119,7 +119,7 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
 //    public void connect(ConnectedRequest request, StreamObserver<CommonReply> responseObserver) {
 //        log.info("device {} connected", request.getDeviceId());
 //        String username = jwtTokenUtil.getUsernameFromToken(request.getUserCode());
-//        User user = userService.findByUsername(username);
+//        CurrentUser user = userService.findByUsername(username);
 //        Device device = new Device();
 //        device.setBrand(request.getBrand());
 //        device.setCpuabi(request.getCpuabi());

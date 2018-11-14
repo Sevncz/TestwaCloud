@@ -1,13 +1,14 @@
 package com.testwa.distest.server.web.script.controller;
 
+import com.testwa.core.base.constant.ResultCode;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
-import com.testwa.core.base.exception.*;
 import com.testwa.core.base.form.IDListForm;
-import com.testwa.core.base.vo.ResultVO;
+import com.testwa.core.base.vo.Result;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.common.validator.FileUploadValidator;
-import com.testwa.core.base.vo.PageResultVO;
+import com.testwa.core.base.vo.PageResult;
+import com.testwa.distest.exception.BusinessException;
 import com.testwa.distest.server.entity.Script;
 import com.testwa.distest.server.entity.Testcase;
 import com.testwa.distest.server.entity.User;
@@ -23,6 +24,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,6 +37,7 @@ import java.util.*;
  */
 @Slf4j
 @Api("脚本相关api")
+@Validated
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/script")
 public class ScriptController extends BaseController {
@@ -58,58 +61,54 @@ public class ScriptController extends BaseController {
     @ApiOperation(value="上传脚本", notes="")
     @ResponseBody
     @PostMapping(value = "/upload")
-    public ResultVO upload(@RequestParam("file") MultipartFile uploadfile) throws ParamsIsNullException, ParamsFormatException, IOException {
+    public Script upload(@RequestParam("file") MultipartFile uploadfile) throws IOException {
         //
         // 校验
         //
         fileUploadValidator.validateFile(uploadfile, fileSize, allowExtName);
 
-        Script script = scriptService.upload(uploadfile);
-        return ok(script);
+        return scriptService.upload(uploadfile);
     }
 
     @ApiOperation(value="上传多个脚本", notes="暂时还不用")
     @ResponseBody
     @PostMapping(value = "/upload/multi")
-    public ResultVO uploadMulti(@RequestParam("files") List<MultipartFile> uploadfiles) throws IOException, ParamsIsNullException, ParamsFormatException {
+    public void uploadMulti(@RequestParam("files") List<MultipartFile> uploadfiles) throws IOException {
         //
         // 校验
         //
         fileUploadValidator.validateFiles(uploadfiles, fileSize, allowExtName);
         scriptService.uploadMulti(uploadfiles);
-        return ok();
     }
 
     @ApiOperation(value="上传脚本", notes="")
     @ResponseBody
     @PostMapping(value = "/{projectId}/upload")
-    public ResultVO upload(@PathVariable Long projectId, @RequestParam("file") MultipartFile uploadfile) throws ParamsIsNullException, ParamsFormatException, IOException {
+    public Script upload(@PathVariable Long projectId, @RequestParam("file") MultipartFile uploadfile) throws IOException {
         //
         // 校验
         //
         projectValidator.validateProjectExist(projectId);
         fileUploadValidator.validateFile(uploadfile, fileSize, allowExtName);
-        Script script = scriptService.upload(uploadfile, projectId);
-        return ok(script);
+        return scriptService.upload(uploadfile, projectId);
     }
 
     @ApiOperation(value="上传多个脚本")
     @ResponseBody
     @PostMapping(value = "/{projectId}/upload/multi")
-    public ResultVO uploadMulti(@PathVariable Long projectId, @RequestParam("files") List<MultipartFile> uploadfiles) throws IOException, ParamsIsNullException, ParamsFormatException {
+    public void uploadMulti(@PathVariable Long projectId, @RequestParam("files") List<MultipartFile> uploadfiles) throws IOException {
         //
         // 校验
         //
         projectValidator.validateProjectExist(projectId);
         fileUploadValidator.validateFiles(uploadfiles, fileSize, allowExtName);
         scriptService.uploadMulti(uploadfiles, projectId);
-        return ok();
     }
 
     @ApiOperation(value="上传的同时直接组成案例", notes="暂时还不用")
     @ResponseBody
     @PostMapping(value = "/{projectId}/upload/case")
-    public ResultVO uploadCase(@PathVariable Long projectId, @RequestParam("files") List<MultipartFile> uploadfiles) throws IOException, ParamsIsNullException, ParamsFormatException {
+    public void uploadCase(@PathVariable Long projectId, @RequestParam("files") List<MultipartFile> uploadfiles) throws IOException {
         //
         // 校验
         //
@@ -117,75 +116,64 @@ public class ScriptController extends BaseController {
         fileUploadValidator.validateFiles(uploadfiles, fileSize, allowExtName);
         scriptService.uploadMulti(uploadfiles, projectId);
         //TODO 保存为案例
-        return ok();
     }
 
     @ApiOperation(value="补充脚本信息", notes="")
     @ResponseBody
     @PostMapping(value = "/append")
-    public ResultVO appendInfo(@RequestBody @Valid ScriptUpdateForm form) throws ObjectNotExistsException, AuthorizedException {
+    public void appendInfo(@RequestBody @Valid ScriptUpdateForm form) {
         scriptValidator.validateScriptExist(form.getScriptId());
         projectValidator.validateProjectExist(form.getProjectId());
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         projectValidator.validateUserIsProjectMember(form.getProjectId(), user.getId());
         scriptService.appendInfo(form);
-        return ok();
     }
 
     @ApiOperation(value="删除脚本", notes="")
     @ResponseBody
     @PostMapping(value = "/delete")
-    public ResultVO delete(@RequestBody @Valid IDListForm form) {
-        // 检查脚本是否已被组合为测试集
-        if(form.getEntityIds() != null && form.getEntityIds().size() == 0) {
-            return ok();
-        }
+    public void delete(@RequestBody @Valid IDListForm form) {
         List<Testcase> testcases = testcaseService.findByScripts(form.getEntityIds());
-        if(testcases != null && testcases.size() > 0) {
-            throw new ObjectAlreadyExistException("脚本已经存在测试集，无法删除");
+        if(testcases != null && !testcases.isEmpty()) {
+            throw new BusinessException(ResultCode.CONFLICT, "脚本已经存在测试集，无法删除");
         }
         scriptService.delete(form.getEntityIds());
-        return ok();
     }
 
     @ApiOperation(value="脚本分页列表", notes="")
     @ResponseBody
     @GetMapping(value = "/{projectId}/page")
-    public ResultVO page(@PathVariable Long projectId, @Valid ScriptListForm queryForm) throws AuthorizedException {
+    public PageResult page(@PathVariable Long projectId, @Valid ScriptListForm queryForm) {
         projectValidator.validateProjectExist(projectId);
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         projectValidator.validateUserIsProjectMember(projectId, user.getId());
-        PageResultVO<Script> pr = scriptService.findPage(projectId, queryForm);
-        return ok(pr);
+        return scriptService.findPage(projectId, queryForm);
     }
 
     @ApiOperation(value="脚本列表", notes="")
     @ResponseBody
     @GetMapping(value = "/{projectId}/list")
-    public ResultVO list(@PathVariable Long projectId, @Valid ScriptListForm queryForm) throws AuthorizedException {
+    public List list(@PathVariable Long projectId, @Valid ScriptListForm queryForm) {
         projectValidator.validateProjectExist(projectId);
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         projectValidator.validateUserIsProjectMember(projectId, user.getId());
-        List<Script> scriptList = scriptService.findList(projectId, queryForm);
-        return ok(scriptList);
+        return scriptService.findList(projectId, queryForm);
     }
 
     @ApiOperation(value="获得脚本内容", notes="")
     @ResponseBody
     @GetMapping(value = "/read/{scriptId}")
-    public ResultVO read(@PathVariable Long scriptId) throws IOException, ObjectNotExistsException {
+    public String read(@PathVariable Long scriptId) throws IOException{
         validator.validateScriptExist(scriptId);
-        String content = scriptService.getContent(scriptId);
-        return ok(content);
+        return scriptService.getContent(scriptId);
     }
 
     @ApiOperation(value="修改脚本内容", notes="")
     @ResponseBody
     @PostMapping(value = {"/write/{scriptId}"})
-    public ResultVO write(@PathVariable Long scriptId, @RequestBody ScriptContentForm form) throws IOException, ObjectNotExistsException {
+    public void write(@PathVariable Long scriptId, @RequestBody ScriptContentForm form) throws IOException {
         validator.validateScriptExist(scriptId);
         scriptService.modifyContent(scriptId, form.getContent());
-        return ok();
     }
 
 

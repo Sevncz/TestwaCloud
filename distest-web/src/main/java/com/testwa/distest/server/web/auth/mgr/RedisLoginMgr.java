@@ -16,10 +16,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class RedisLoginMgr {
 
+    private static int captchaExpires = 3*60; //超时时间3min
     @Autowired
     private RedisCacheManager redisCacheMgr;
     @Value("${jwt.access_token.expiration}")
-    private Long access_token_expiration;
+    private Long accessTokenExpiration;
 
     private String getRedisKey(String username){
         return UserConstant.USER_KEY + username;
@@ -31,14 +32,12 @@ public class RedisLoginMgr {
      * @param accessToken
      */
     public void login(String username,  String accessToken){
-        redisCacheMgr.put(getRedisKey(username), access_token_expiration.intValue(), accessToken);
+        redisCacheMgr.put(getRedisKey(username), accessTokenExpiration.intValue(), accessToken);
     }
 
     public void logout(String username) {
         redisCacheMgr.remove(getRedisKey(username));
     }
-
-    private static int captchaExpires = 3*60; //超时时间3min
 
     public void loginCaptcha(String uuid, String answer) {
         redisCacheMgr.put(uuid, captchaExpires, answer);

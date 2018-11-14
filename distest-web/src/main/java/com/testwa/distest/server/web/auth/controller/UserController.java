@@ -2,9 +2,7 @@ package com.testwa.distest.server.web.auth.controller;
 
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
-import com.testwa.core.base.exception.ObjectNotExistsException;
-import com.testwa.core.base.exception.ParamsIsNullException;
-import com.testwa.core.base.vo.ResultVO;
+import com.testwa.core.base.vo.Result;
 import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.user.form.UserQueryForm;
@@ -13,10 +11,11 @@ import com.testwa.distest.server.web.auth.vo.UserInfoVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -24,6 +23,7 @@ import java.util.List;
  */
 @Slf4j
 @Api("用户管理相关api")
+@Validated
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/user")
 public class UserController extends BaseController{
@@ -34,24 +34,17 @@ public class UserController extends BaseController{
     @ApiOperation(value="查询用户", notes = "")
     @ResponseBody
     @GetMapping(value = "/query")
-    public ResultVO query(UserQueryForm form) throws ObjectNotExistsException, ParamsIsNullException {
+    public List<User> query(@RequestBody @Valid UserQueryForm form) {
 
-        if(StringUtils.isEmpty(form.getUsername())){
-            throw new ParamsIsNullException("查询参数不能为空");
-        }
-
-        List<User> userList = userService.queryUser(form);
-
-        return ok(userList);
+        return userService.queryUser(form);
     }
 
     @ApiOperation(value="当前用户的基本信息", notes = "")
     @ResponseBody
     @GetMapping(value = "/baseinfo")
-    public ResultVO baseInfo() {
+    public UserInfoVO baseInfo() {
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
-        UserInfoVO vo = buildVO(user, UserInfoVO.class);
-        return ok(vo);
+        return buildVO(user, UserInfoVO.class);
     }
 
 }

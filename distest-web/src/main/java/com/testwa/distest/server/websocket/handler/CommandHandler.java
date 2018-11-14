@@ -5,15 +5,12 @@ import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.annotation.OnEvent;
 import com.google.protobuf.ByteString;
-import com.testwa.core.base.exception.ObjectNotExistsException;
 import com.testwa.core.cmd.MiniCmd;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.service.cache.mgr.DeviceLoginMgr;
 import com.testwa.distest.server.service.cache.mgr.SubscribeDeviceFuncMgr;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.rpc.cache.CacheUtil;
-import com.testwa.distest.server.websocket.WSFuncEnum;
-import com.testwa.distest.server.websocket.service.PushCmdService;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.push.Message;
 import lombok.extern.slf4j.Slf4j;
@@ -113,7 +110,7 @@ public class CommandHandler {
 //    }
 
     @OnEvent(value = touch)
-    public void onTouch(SocketIOClient client, String data, AckRequest ackRequest) throws ObjectNotExistsException {
+    public void onTouch(SocketIOClient client, String data, AckRequest ackRequest) {
 
         Map params = JSON.parseObject(data, Map.class);
         String deviceId = (String) params.get("deviceId");
@@ -133,7 +130,7 @@ public class CommandHandler {
     }
 
     @OnEvent(value = input)
-    public void onInput(SocketIOClient client, String data, AckRequest ackRequest) throws ObjectNotExistsException {
+    public void onInput(SocketIOClient client, String data, AckRequest ackRequest) {
         Map params = JSON.parseObject(data, Map.class);
         String deviceId = (String) params.get("deviceId");
         if (isIllegalDeviceId(client, deviceId)) return;
@@ -154,7 +151,7 @@ public class CommandHandler {
     }
 
     @OnEvent(value = home)
-    public void onHome(SocketIOClient client, String deviceId, AckRequest ackRequest) throws ObjectNotExistsException {
+    public void onHome(SocketIOClient client, String deviceId, AckRequest ackRequest) {
         if (isIllegalDeviceId(client, deviceId)) return;
         StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
         if(observer != null ){
@@ -166,7 +163,7 @@ public class CommandHandler {
 
     }
     @OnEvent(value = back)
-    public void onBack(SocketIOClient client, String deviceId, AckRequest ackRequest) throws ObjectNotExistsException {
+    public void onBack(SocketIOClient client, String deviceId, AckRequest ackRequest) {
         if (isIllegalDeviceId(client, deviceId)) return;
 
         StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
@@ -180,7 +177,7 @@ public class CommandHandler {
     }
 
     @OnEvent(value = menu)
-    public void onMenu(SocketIOClient client, String deviceId, AckRequest ackRequest) throws ObjectNotExistsException {
+    public void onMenu(SocketIOClient client, String deviceId, AckRequest ackRequest) {
         if (isIllegalDeviceId(client, deviceId)) return;
         StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
         if(observer != null ){
@@ -192,7 +189,7 @@ public class CommandHandler {
     }
 
     @OnEvent(value = del)
-    public void onDel(SocketIOClient client, String deviceId, AckRequest ackRequest) throws ObjectNotExistsException {
+    public void onDel(SocketIOClient client, String deviceId, AckRequest ackRequest) {
         if (isIllegalDeviceId(client, deviceId)) return;
         StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
         if(observer != null ){
@@ -204,7 +201,7 @@ public class CommandHandler {
     }
 
     @OnEvent(value = getDevices)
-    public void onGetDevices(SocketIOClient client, String deviceId, AckRequest ackRequest) throws ObjectNotExistsException {
+    public void onGetDevices(SocketIOClient client, String deviceId, AckRequest ackRequest) {
         if (isIllegalDeviceId(client, deviceId)) return;
         Device deviceAndroid = deviceService.findByDeviceId(deviceId);
         client.sendEvent("devices", JSON.toJSON(deviceAndroid));
@@ -219,7 +216,7 @@ public class CommandHandler {
     }
 
     @OnEvent(value = shell)
-    public void onShell(SocketIOClient client, String data, AckRequest ackRequest) throws ObjectNotExistsException {
+    public void onShell(SocketIOClient client, String data, AckRequest ackRequest) {
         Map params = JSON.parseObject(data, Map.class);
         String deviceId = (String) params.get("deviceId");
         if (isIllegalDeviceId(client, deviceId)) return;
@@ -240,7 +237,7 @@ public class CommandHandler {
     }
 
     @OnEvent(value = web)
-    public void onWeb(SocketIOClient client, String data, AckRequest ackRequest) throws ObjectNotExistsException {
+    public void onWeb(SocketIOClient client, String data, AckRequest ackRequest) {
         Map params = JSON.parseObject(data, Map.class);
         String deviceId = (String) params.get("deviceId");
         if (isIllegalDeviceId(client, deviceId)) return;

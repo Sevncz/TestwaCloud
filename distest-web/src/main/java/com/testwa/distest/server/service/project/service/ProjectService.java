@@ -3,9 +3,8 @@ package com.testwa.distest.server.service.project.service;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.Joiner;
-import com.testwa.core.base.exception.*;
 import com.testwa.distest.common.util.WebUtil;
-import com.testwa.core.base.vo.PageResultVO;
+import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.service.app.dao.IAppDAO;
 import com.testwa.distest.server.service.device.dao.IDeviceDAO;
@@ -129,7 +128,7 @@ public class ProjectService {
 
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public Project save(ProjectNewForm form, User createUser) throws AuthorizedException, ParamsException {
+    public Project save(ProjectNewForm form, User createUser) {
         Project project = new Project();
         project.setProjectName(form.getProjectName());
         project.setDescription(form.getDescription());
@@ -146,7 +145,7 @@ public class ProjectService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public Project update(ProjectUpdateForm form) throws AuthorizedException, ParamsException {
+    public Project update(ProjectUpdateForm form) {
 
         User currentUser = userService.findByUsername(WebUtil.getCurrentUsername());
         Project project = projectDAO.findOne(form.getProjectId());
@@ -167,7 +166,7 @@ public class ProjectService {
                 noNeedAddMember.add(m.getUsername());
             }
         });
-        if(needDelMember.size() > 0){
+        if(!needDelMember.isEmpty()){
             projectMemberService.deleteMemberList(project, new HashSet<>(needDelMember));
         }
 
@@ -176,7 +175,7 @@ public class ProjectService {
         List<String> updateMemebers = form.getMembers();
         updateMemebers.removeAll(noNeedAddMember);
         membersModifyForm.setUsernames(updateMemebers);
-        if(updateMemebers.size() > 0){
+        if(!updateMemebers.isEmpty()){
             projectMemberService.addMembers(membersModifyForm);
         }
         return project;
@@ -190,7 +189,7 @@ public class ProjectService {
         return new ArrayList<>();
     }
 
-    public PageResultVO<Project> findAllByUserPage(ProjectListForm pageForm, String username) {
+    public PageResult<Project> findAllByUserPage(ProjectListForm pageForm, String username) {
         User user = userService.findByUsername(username);
         //分页处理
         PageHelper.startPage(pageForm.getPageNo(), pageForm.getPageSize());
@@ -203,12 +202,12 @@ public class ProjectService {
         PageHelper.orderBy(pageForm.getOrderBy() + " " + pageForm.getOrder());
         List<Project> projectList = projectDAO.findAllByUser(user.getId(), pageForm.getProjectName());
         PageInfo<Project> info = new PageInfo(projectList);
-        PageResultVO<Project> pr = new PageResultVO<>(info.getList(), info.getTotal());
+        PageResult<Project> pr = new PageResult<>(info.getList(), info.getTotal());
         return pr;
     }
 
 
-    public PageResultVO<Project> findPage(ProjectListForm pageForm) {
+    public PageResult<Project> findPage(ProjectListForm pageForm) {
         Project query = new Project();
         query.setProjectName(pageForm.getProjectName());
         //分页处理
@@ -216,7 +215,7 @@ public class ProjectService {
         PageHelper.orderBy(pageForm.getOrderBy() + " " + pageForm.getOrder());
         List<Project> projectList = projectDAO.findBy(query);
         PageInfo<Project> info = new PageInfo(projectList);
-        PageResultVO<Project> pr = new PageResultVO<>(info.getList(), info.getTotal());
+        PageResult<Project> pr = new PageResult<>(info.getList(), info.getTotal());
         return pr;
     }
 
