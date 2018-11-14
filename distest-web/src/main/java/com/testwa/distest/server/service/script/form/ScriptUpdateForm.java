@@ -2,7 +2,6 @@ package com.testwa.distest.server.service.script.form;
 
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 
@@ -14,7 +13,7 @@ import javax.validation.constraints.NotNull;
 )
 @Data
 public class ScriptUpdateForm extends ScriptNewForm{
-    @NotEmpty
+    @NotNull
     private Long scriptId;
 
     private String content;

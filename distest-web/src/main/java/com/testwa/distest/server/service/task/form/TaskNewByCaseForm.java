@@ -17,7 +17,7 @@ import java.util.List;
 @Data
 public class TaskNewByCaseForm extends RequestFormBase {
 
-    @NotEmpty
+    @NotNull
     private Long testcaseId;
     private String description;
 

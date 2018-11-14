@@ -18,16 +18,12 @@ import java.util.List;
 public class TaskStartByScriptForm extends RequestFormBase {
 
     @NotNull
-    @NotEmpty
-    private String appId;
-    @NotNull
+    private Long appId;
     @NotEmpty
     private List<String> scripts;
-    @NotNull
     @NotEmpty
     private List<String> devices;
     @NotNull
-    @NotEmpty
-    private String projectId;
+    private Long projectId;
 
 }

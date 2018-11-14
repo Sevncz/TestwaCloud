@@ -19,7 +19,7 @@ import java.util.List;
 @ToString
 public class MembersQueryForm extends RequestFormBase{
 
-    @NotEmpty
+    @NotNull
     private Long projectId;
 
     private String username;

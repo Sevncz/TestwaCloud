@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 
@@ -16,6 +17,6 @@ import java.util.List;
 public class DeviceScopeRemoveForm extends RequestFormBase {
     @NotEmpty
     private String deviceId;
-    @NotEmpty
+    @NotNull
     private Long userId;
 }

@@ -17,11 +17,11 @@ import java.util.List;
 @Data
 public class TaskNewStartCompatibilityForm extends RequestFormBase {
 
-    @NotEmpty
+    @NotNull
     private Long projectId;
     @NotEmpty
     private List<String> deviceIds;
-    @NotEmpty
+    @NotNull
     private Long appId;
 
 }

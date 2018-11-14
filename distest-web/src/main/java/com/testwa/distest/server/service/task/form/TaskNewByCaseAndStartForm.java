@@ -18,7 +18,7 @@ public class TaskNewByCaseAndStartForm extends TaskNewByCaseForm {
 
     @NotEmpty
     private List<String> deviceIds;
-    @NotEmpty
+    @NotNull
     private Long appId;
 
 }

@@ -3,7 +3,9 @@ package com.testwa.distest.server.service.task.form;
 import com.testwa.core.base.form.RequestFormBase;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
+import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
 
@@ -16,8 +18,11 @@ import java.util.Map;
 @Data
 public class TaskNewStartCrawlerForm extends RequestFormBase {
 
+    @NotNull
     private Long projectId;
+    @NotEmpty
     private List<String> deviceIds;
+    @NotNull
     private Long appId;
 
 //    private List<String> blackList;

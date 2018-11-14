@@ -77,7 +77,8 @@ public class TaskController extends BaseController {
     private DeviceService deviceService;
     @Autowired
     private TaskParamsService taskParamsService;
-
+    @Autowired
+    private User currentUser;
 
     @ApiOperation(value="执行一个回归测试任务")
     @ResponseBody
@@ -86,8 +87,6 @@ public class TaskController extends BaseController {
         appValidator.validateAppExist(form.getAppId());
         testcaseValidatoer.validateTestcaseExist(form.getTestcaseId());
         taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
-
-        User user = userService.findByUsername(WebUtil.getCurrentUsername());
 
         Set<String> onlineDeviceIdList = deviceOnlineMgr.allOnlineDevices();
         List<Device> deviceList = deviceService.findAll(form.getDeviceIds());
@@ -108,7 +107,7 @@ public class TaskController extends BaseController {
             return vo;
         }
         for(String deviceId : useableList) {
-            deviceLockMgr.workLock(deviceId, user.getUserCode(), workExpireTime);
+            deviceLockMgr.workLock(deviceId, currentUser.getUserCode(), workExpireTime);
         }
         App app = appService.findOne(form.getAppId());
         Testcase tc = testcaseService.fetchOne(form.getTestcaseId());
@@ -131,8 +130,6 @@ public class TaskController extends BaseController {
 
         scriptValidator.validateScriptBelongApp(form.getScriptIds(), app.getPackageName());
 
-        User user = userService.findByUsername(WebUtil.getCurrentUsername());
-
         Set<String> onlineDeviceIdList = deviceOnlineMgr.allOnlineDevices();
         List<Device> deviceList = deviceService.findAll(form.getDeviceIds());
         List<Device> unableDevices = new ArrayList<>();
@@ -152,7 +149,7 @@ public class TaskController extends BaseController {
             return vo;
         }
         for(String deviceId : useableList) {
-            deviceLockMgr.workLock(deviceId, user.getUserCode(), workExpireTime);
+            deviceLockMgr.workLock(deviceId, currentUser.getUserCode(), workExpireTime);
         }
         vo = executeMgr.startFunctionalTestTask(useableList, app, form.getScriptIds());
         vo.addUnableDevice(unableDevices);
@@ -166,8 +163,6 @@ public class TaskController extends BaseController {
         appValidator.validateAppExist(form.getAppId());
         appValidator.validateAppInPorject(form.getAppId(), form.getProjectId());
         taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
-
-        User user = userService.findByUsername(WebUtil.getCurrentUsername());
 
         Set<String> onlineDeviceIdList = deviceOnlineMgr.allOnlineDevices();
         List<Device> deviceList = deviceService.findAll(form.getDeviceIds());
@@ -189,7 +184,7 @@ public class TaskController extends BaseController {
 
         }else{
             for(String deviceId : useableList) {
-                deviceLockMgr.workLock(deviceId, user.getUserCode(), workExpireTime);
+                deviceLockMgr.workLock(deviceId, currentUser.getUserCode(), workExpireTime);
             }
             App app = appService.findOne(form.getAppId());
             vo = executeMgr.startCompabilityTestTask(useableList, app.getProjectId(), form.getAppId());
@@ -205,8 +200,6 @@ public class TaskController extends BaseController {
         appValidator.validateAppExist(form.getAppId());
         appValidator.validateAppInPorject(form.getAppId(), form.getProjectId());
         taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
-
-        User user = userService.findByUsername(WebUtil.getCurrentUsername());
 
         Set<String> onlineDeviceIdList = deviceOnlineMgr.allOnlineDevices();
         List<Device> deviceList = deviceService.findAll(form.getDeviceIds());
@@ -228,7 +221,7 @@ public class TaskController extends BaseController {
 
         }else{
             for(String deviceId : useableList) {
-                deviceLockMgr.workLock(deviceId, user.getUserCode(), workExpireTime);
+                deviceLockMgr.workLock(deviceId, currentUser.getUserCode(), workExpireTime);
             }
             App app = appService.findOne(form.getAppId());
             vo = executeMgr.startCrawlerTestTask(useableList, app.getProjectId(), form.getAppId());
