@@ -3,7 +3,6 @@ package com.testwa.distest.server.web.testcase.controller;
 import com.testwa.core.base.constant.ResultCode;
 import com.testwa.core.base.form.IDForm;
 import com.testwa.core.base.vo.PageResult;
-import com.testwa.core.base.vo.Result;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.form.IDListForm;
@@ -39,7 +38,7 @@ import java.util.List;
 @Api("测试案例相关api")
 @Validated
 @RestController
-@RequestMapping(path = WebConstants.API_PREFIX + "/case")
+@RequestMapping(path = WebConstants.API_PREFIX)
 public class TestcaseController extends BaseController {
     @Autowired
     private TestcaseService testcaseService;
@@ -55,8 +54,8 @@ public class TestcaseController extends BaseController {
     private AppValidator appValidator;
 
     @ResponseBody
-    @PostMapping(value = "/{projectId}/save")
-    public void save(@PathVariable Long projectId, @RequestBody @Valid TestcaseNewForm form) {
+    @PostMapping(value = "/project/{projectId}/saveCase")
+    public Long save(@PathVariable Long projectId, @RequestBody @Valid TestcaseNewForm form) {
         projectValidator.validateProjectExist(projectId);
 
         scriptValidator.validateScriptsInProject(form.getScriptIds(), projectId);
@@ -67,60 +66,61 @@ public class TestcaseController extends BaseController {
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         projectValidator.validateUserIsProjectMember(projectId, user.getId());
 
-        testcaseService.saveHGTestcase(projectId, appInfo, form);
+        return testcaseService.saveFunctionalTestcase(projectId, appInfo, form);
     }
 
     @ResponseBody
-    @PostMapping(value = "/modify")
+    @PostMapping(value = "/case/modify")
     public void modify(@RequestBody @Valid TestcaseUpdateForm form) {
         Testcase testcase = testcaseValidatoer.validateTestcaseExist(form.getTestcaseId());
 
         scriptValidator.validateScriptsInProject(form.getScriptIds(), testcase.getProjectId());
 
         AppInfo appInfo = appValidator.validateAppInfoExist(form.getAppInfoId());
+
         scriptValidator.validateScriptBelongApp(form.getScriptIds(), appInfo.getPackageName());
 
         testcaseService.update(form);
     }
 
     @ResponseBody
-    @PostMapping(value = "/delete/all")
+    @PostMapping(value = "/case/deleteAll")
     public void deleteAll(@RequestBody @Valid IDListForm form) {
         testcaseService.delete(form.getEntityIds());
     }
 
     @ResponseBody
-    @PostMapping(value = "/delete/one")
+    @PostMapping(value = "/case/deleteOne")
     public void deleteOne(@RequestBody @Valid IDForm form) {
         testcaseService.delete(form.getEntityId());
     }
 
     @ResponseBody
-    @GetMapping(value = "/detail/{caseId}")
+    @GetMapping(value = "/case/{caseId}/detail")
     public TestcaseVO detail(@PathVariable Long caseId){
         testcaseValidatoer.validateTestcaseExist(caseId);
         return testcaseService.getTestcaseVO(caseId);
     }
 
     @ResponseBody
-    @GetMapping(value = "/{projectId}/list")
-    public List list(@PathVariable Long projectId, @Valid TestcaseListForm listForm) {
+    @GetMapping(value = "/project/{projectId}/caseList")
+    public List caseList(@PathVariable Long projectId, @Valid TestcaseListForm listForm) {
         projectValidator.validateProjectExist(projectId);
         List<Testcase> testcases = testcaseService.findList(projectId, listForm);
         return buildVOs(testcases, TestcaseVO.class);
     }
 
     @ResponseBody
-    @GetMapping(value = "/{projectId}/page")
-    public PageResult page(@PathVariable Long projectId, @Valid TestcaseListForm pageForm) {
+    @GetMapping(value = "/project/{projectId}/casePage")
+    public PageResult casePage(@PathVariable Long projectId, @Valid TestcaseListForm pageForm) {
         projectValidator.validateProjectExist(projectId);
         PageResult<Testcase> testcasePR = testcaseService.findPage(projectId, pageForm);
         return buildVOPageResult(testcasePR, TestcaseVO.class);
     }
 
     @ResponseBody
-    @GetMapping(value = "/{projectId}/list/scripts/{scriptIds}")
-    public List listByScripts(@PathVariable Long projectId, @PathVariable String scriptIds) {
+    @GetMapping(value = "/project/{projectId}/caseListByScripts/{scriptIds}")
+    public List caseListByScript(@PathVariable Long projectId, @PathVariable String scriptIds) {
         projectValidator.validateProjectExist(projectId);
         String[] s = scriptIds.split(",");
         List<Long> ids = new ArrayList<>();

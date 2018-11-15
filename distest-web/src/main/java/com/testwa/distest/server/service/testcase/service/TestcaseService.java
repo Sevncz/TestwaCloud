@@ -57,7 +57,7 @@ public class TestcaseService {
      * @return
      */
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public long saveHGTestcase(Long projectId, AppInfo appInfo, TestcaseNewForm form) {
+    public long saveFunctionalTestcase(Long projectId, AppInfo appInfo, TestcaseNewForm form) {
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         Testcase testcase = new Testcase();
         if(StringUtils.isNotEmpty(form.getName())){

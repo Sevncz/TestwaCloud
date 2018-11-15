@@ -13,6 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @Api("应用统计相关api")
 @RestController
-@RequestMapping(path = WebConstants.API_PREFIX + "/app/statis")
+@RequestMapping(path = WebConstants.API_PREFIX)
 public class AppStatisController extends BaseController {
 }

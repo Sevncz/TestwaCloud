@@ -53,16 +53,14 @@ public class ProjectServiceTest {
     @Test
     public void testFindByPage(){
         ProjectListForm form = new ProjectListForm();
-        RequestListBase.Page page = form.getPage();
-        page.setPageNo(3);
-        page.setPageSize(10);
-        form.setPage(page);
+        form.setPageNo(3);
+        form.setPageSize(10);
         PageResult<Project> projects = projectService.findPage(form);
     }
     @Test
     @WithMockUser(username = "xiaoming", authorities = { "ADMIN", "USER" })
     public void testFindAllOfUserProject(){
-        List<Project> projects = projectService.findAllByUserList("xiaoming");
+        List<Project> projects = projectService.findAllByUserList(7L);
     }
 
     @Test
@@ -89,7 +87,7 @@ public class ProjectServiceTest {
     public void testGetProjectCountByUser(){
         User user = userService.findByUsername("xiaoming");
         long count = projectService.getProjectCountByOwner(user.getId());
-        List<Project> projects = projectService.findAllByUserList(user.getUsername());
+        List<Project> projects = projectService.findAllByUserList(7L);
         Assert.assertEquals(count, projects.size());
     }
 

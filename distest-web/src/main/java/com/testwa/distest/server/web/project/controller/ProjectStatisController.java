@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 @Api("项目统计相关api")
 @Validated
 @RestController
-@RequestMapping(path = WebConstants.API_PREFIX + "/project/statis")
+@RequestMapping(path = WebConstants.API_PREFIX + "/project")
 public class ProjectStatisController extends BaseController {
 
     @Autowired
@@ -50,7 +50,7 @@ public class ProjectStatisController extends BaseController {
 
     @ApiOperation(value="项目的基本统计信息")
     @ResponseBody
-    @GetMapping(value = "/baseinfo/{projectId}")
+    @GetMapping(value = "/{projectId}/baseInfo")
     public ProjectStatis baseInfo(@PathVariable Long projectId){
         projectValidator.validateProjectExist(projectId);
         String username = WebUtil.getCurrentUsername();
@@ -59,7 +59,7 @@ public class ProjectStatisController extends BaseController {
         return projectService.statis(projectId);
     }
 
-    protected void checkProjectTestStatisParams(@PathVariable Long projectId, @RequestParam(value="startTime" ,required=false) Long startTime, @RequestParam(value="endTime" ,required=false) Long endTime) {
+    private void checkProjectTestStatisParams(@PathVariable Long projectId, @RequestParam(value="startTime" ,required=false) Long startTime, @RequestParam(value="endTime" ,required=false) Long endTime) {
         projectValidator.validateProjectExist(projectId);
         String username = WebUtil.getCurrentUsername();
         User member = userService.findByUsername(username);
@@ -81,7 +81,7 @@ public class ProjectStatisController extends BaseController {
 
     @ApiOperation(value="测试基本统计信息，包括测试市场，测试次数，调试市场，上传脚本数量")
     @ResponseBody
-    @GetMapping(value = "/{projectId}/test/info")
+    @GetMapping(value = "/{projectId}/testInfo")
     public ProjectStatisTestInfoVO testInfo(@PathVariable Long projectId, @RequestParam(value="startTime" ,required=false) Long startTime, @RequestParam(value="endTime" ,required=false) Long endTime){
         checkProjectTestStatisParams(projectId, startTime, endTime);
 
@@ -91,7 +91,7 @@ public class ProjectStatisController extends BaseController {
 
     @ApiOperation(value="应用测试统计")
     @ResponseBody
-    @GetMapping(value = "/{projectId}/app/count")
+    @GetMapping(value = "/{projectId}/appCount")
     public ProjectStatisMultiBarVO appCount(@PathVariable Long projectId, @RequestParam(value="startTime" ,required=false) Long startTime, @RequestParam(value="endTime" ,required=false) Long endTime){
         checkProjectTestStatisParams(projectId, startTime, endTime);
 
@@ -100,8 +100,8 @@ public class ProjectStatisController extends BaseController {
 
     @ApiOperation(value="成员测试统计")
     @ResponseBody
-    @GetMapping(value = "/{projectId}/member/count")
-    public ProjectStatisMultiBarVO memberTimes(@PathVariable Long projectId, @RequestParam(value="startTime" ,required=false) Long startTime, @RequestParam(value="endTime" ,required=false) Long endTime){
+    @GetMapping(value = "/{projectId}/memberCount")
+    public ProjectStatisMultiBarVO memberCount(@PathVariable Long projectId, @RequestParam(value="startTime" ,required=false) Long startTime, @RequestParam(value="endTime" ,required=false) Long endTime){
         checkProjectTestStatisParams(projectId, startTime, endTime);
 
         return projectStatisMgr.statisMemberTestCountForEveryTestType(projectId, startTime, endTime);
@@ -109,8 +109,8 @@ public class ProjectStatisController extends BaseController {
 
     @ApiOperation(value="测试动态")
     @ResponseBody
-    @GetMapping(value = "/{projectId}/dynamic")
-    public PageResult dynamic(@PathVariable Long projectId, @RequestParam(value="startTime" ,required=false) Long startTime, @RequestParam(value="endTime" ,required=false) Long endTime, TaskListForm taskListForm){
+    @GetMapping(value = "/{projectId}/dynamicList")
+    public PageResult dynamicList(@PathVariable Long projectId, @RequestParam(value="startTime" ,required=false) Long startTime, @RequestParam(value="endTime" ,required=false) Long endTime, TaskListForm taskListForm){
         checkProjectTestStatisParams(projectId, startTime, endTime);
 
         PageResult<ProjectTestDynamicVO> dynamicVOPageResult = projectStatisMgr.dynamicTestPage(projectId, startTime, endTime, taskListForm);
@@ -142,7 +142,7 @@ public class ProjectStatisController extends BaseController {
 
     @ApiOperation(value="测试耗时统计")
     @ResponseBody
-    @GetMapping(value = "/{projectId}/elapsed/time")
+    @GetMapping(value = "/{projectId}/elapsedTime")
     public ProjectStatisElapsedTimeVO elapsedTime(@PathVariable Long projectId, @RequestParam(value="startTime" ,required=false) Long startTime, @RequestParam(value="endTime" ,required=false) Long endTime){
         checkProjectTestStatisParams(projectId, startTime, endTime);
 

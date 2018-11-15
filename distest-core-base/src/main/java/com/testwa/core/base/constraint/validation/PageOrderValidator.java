@@ -5,11 +5,6 @@ import com.testwa.core.base.constraint.PageOrderConstraint;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-
-/**
- * @author liaoqiqi
- * @version 2014-1-14
- */
 public class PageOrderValidator implements ConstraintValidator<PageOrderConstraint, String> {
 
     public static final String ASC = "asc";

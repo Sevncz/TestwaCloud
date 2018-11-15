@@ -21,7 +21,7 @@ public class RegisterForm extends RequestFormBase{
     @Pattern(regexp = Validator.REGEX_PASSWORD, message = "密码格式不正确，数字、字母、特殊字符占2种以上，共6到16位")
     private String password;
     @NotBlank(message = "email.empty")
-    @Email(message = "邮箱格式错误")
+    @Email(regexp = Validator.REGEX_EMAIL, message = "邮箱格式错误")
     private String email;
     @Pattern(regexp = Validator.REGEX_MOBILE, message = "手机号码格式错误")
     private String mobile;

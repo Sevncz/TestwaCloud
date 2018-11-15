@@ -81,10 +81,8 @@ public class AppServiceTest {
     public void testFindPage(){
         AppListForm form = new AppListForm();
         form.setAppName("ContactManager.apk");
-        RequestListBase.Page page = form.getPage();
-        page.setPageNo(1);
-        page.setPageSize(10);
-        form.setPage(page);
+        form.setPageNo(1);
+        form.setPageSize(10);
         appService.findPage(15L, form);
     }
 

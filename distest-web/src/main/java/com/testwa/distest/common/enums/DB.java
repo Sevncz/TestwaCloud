@@ -210,10 +210,10 @@ public final class DB {
             this.value = value;
             this.desc = desc;
         }
+        @JsonValue
         public int getValue() {
             return value;
         }
-        @JsonValue
         public String getDesc() {
             return desc;
         }

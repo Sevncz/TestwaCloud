@@ -57,10 +57,8 @@ public class ScriptServiceTest {
     @Test
     public void testFindPage(){
         ScriptListForm form = new ScriptListForm();
-        RequestListBase.Page page = form.getPage();
-        page.setPageNo(1);
-        page.setPageSize(10);
-        form.setPage(page);
+        form.setPageNo(1);
+        form.setPageSize(10);
         scriptService.findPage(15L, form);
     }
 

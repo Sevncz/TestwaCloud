@@ -41,7 +41,7 @@
     <select id="findBy" parameterType="com.testwa.distest.server.entity.ProjectMember" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />
-        FROM project
+        FROM project_member
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             <if test="projectId != null">and projectId = #{projectId}</if>
             <if test="memberId != null">and memberId = #{memberId}</if>

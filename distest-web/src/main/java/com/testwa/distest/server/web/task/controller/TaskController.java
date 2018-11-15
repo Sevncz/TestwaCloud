@@ -6,7 +6,6 @@ import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.vo.Result;
 import com.testwa.distest.common.enums.DB;
-import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.mongo.model.TaskParams;
 import com.testwa.distest.server.mongo.service.TaskParamsService;
@@ -15,7 +14,6 @@ import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.task.form.*;
 import com.testwa.distest.server.service.testcase.service.TestcaseService;
-import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.app.validator.AppValidator;
 import com.testwa.distest.server.web.device.mgr.DeviceOnlineMgr;
 import com.testwa.distest.server.web.device.mgr.DeviceLockMgr;
@@ -70,8 +68,6 @@ public class TaskController extends BaseController {
     @Autowired
     private DeviceLockMgr deviceLockMgr;
     @Autowired
-    private UserService userService;
-    @Autowired
     private DeviceOnlineMgr deviceOnlineMgr;
     @Autowired
     private DeviceService deviceService;
@@ -82,8 +78,8 @@ public class TaskController extends BaseController {
 
     @ApiOperation(value="执行一个回归测试任务")
     @ResponseBody
-    @PostMapping(value = "/run")
-    public TaskStartResultVO runFunctionalTest(@RequestBody @Valid TaskNewByCaseAndStartForm form) {
+    @PostMapping(value = "/run/functional/byCase")
+    public TaskStartResultVO runFunctionalByCase(@RequestBody @Valid TaskNewByCaseAndStartForm form) {
         appValidator.validateAppExist(form.getAppId());
         testcaseValidatoer.validateTestcaseExist(form.getTestcaseId());
         taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
@@ -118,8 +114,8 @@ public class TaskController extends BaseController {
 
     @ApiOperation(value="执行一个回归测试任务")
     @ResponseBody
-    @PostMapping(value = "/run/hg/scripts")
-    public TaskStartResultVO runFunctionalTest(@RequestBody @Valid TaskNewStartByScriptsForm form) {
+    @PostMapping(value = "/run/functional/byScripts")
+    public TaskStartResultVO runFunctionalByScripts(@RequestBody @Valid TaskNewStartByScriptsForm form) {
         appValidator.validateAppExist(form.getAppId());
         appValidator.validateAppInPorject(form.getAppId(), form.getProjectId());
         scriptValidator.validateScriptsExist(form.getScriptIds());
@@ -158,7 +154,7 @@ public class TaskController extends BaseController {
 
     @ApiOperation(value="执行一个兼容测试任务")
     @ResponseBody
-    @PostMapping(value = "/run/jr")
+    @PostMapping(value = "/run/compatibility")
     public TaskStartResultVO runCompatibilityTest(@RequestBody @Valid TaskNewStartCompatibilityForm form) {
         appValidator.validateAppExist(form.getAppId());
         appValidator.validateAppInPorject(form.getAppId(), form.getProjectId());
@@ -196,7 +192,7 @@ public class TaskController extends BaseController {
     @ApiOperation(value="执行一个遍历测试任务")
     @ResponseBody
     @PostMapping(value = "/run/crawler")
-    public TaskStartResultVO runCrawlerTest(@RequestBody TaskNewStartCrawlerForm form) {
+    public TaskStartResultVO runCrawlerTest(@RequestBody @Valid TaskNewStartCrawlerForm form) {
         appValidator.validateAppExist(form.getAppId());
         appValidator.validateAppInPorject(form.getAppId(), form.getProjectId());
         taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
@@ -273,7 +269,7 @@ public class TaskController extends BaseController {
     @ApiOperation(value="停止一个设备任务")
     @ResponseBody
     @PostMapping(value = "/stop")
-    public Result stop(@RequestBody TaskStopForm form) {
+    public Result stop(@RequestBody @Valid TaskStopForm form) {
         Task task = taskValidatoer.validateTaskExist(form.getTaskCode());
         if(form.getDeviceIds() != null && !form.getDeviceIds().isEmpty() ){
             List<Device> taskDevices = task.getDevices();

@@ -13,8 +13,6 @@ public class ProjectMemberVO {
 
     private Long projectId;
     private Long memberId;
-    private Long inviterId;
-    private Date createTime;
     private DB.ProjectRole projectRole;
 
 }

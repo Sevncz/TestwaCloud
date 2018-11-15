@@ -19,6 +19,5 @@ public class TaskStopForm extends RequestFormBase{
 
     @NotNull
     private Long taskCode;
-    @NotEmpty
     private List<String> deviceIds;
 }

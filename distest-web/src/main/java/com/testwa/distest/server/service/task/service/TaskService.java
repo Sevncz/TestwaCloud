@@ -180,12 +180,6 @@ public class TaskService {
         return entityList;
     }
 
-    public List<Script> findScriptListInTask(ScriptListForm form) {
-        Task task = taskDAO.findOne(form.getTaskCode());
-        return task.getScriptList();
-    }
-
-
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void complete(Long taskCode) {
         Date endTime = new Date();

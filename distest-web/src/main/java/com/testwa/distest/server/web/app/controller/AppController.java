@@ -40,7 +40,7 @@ import java.util.List;
 @Api("应用操作相关api")
 @Validated
 @RestController
-@RequestMapping(path = WebConstants.API_PREFIX + "/app")
+@RequestMapping(path = WebConstants.API_PREFIX)
 public class AppController extends BaseController {
     private static final String[] allowExtName = {".apk", ".ipa", ".zip"};;
     private static final long fileSize = 1024 * 1024 * 400;  // 100k
@@ -62,7 +62,7 @@ public class AppController extends BaseController {
 
     @ApiOperation(value="上传应用，不在项目中", notes="")
     @ResponseBody
-    @PostMapping(value="/upload", consumes = "multipart/form-data")
+    @PostMapping(value="/app/upload", consumes = "multipart/form-data")
     public AppVO upload(@RequestParam("appfile") MultipartFile appfile) throws IOException{
         //
         // 校验
@@ -75,7 +75,7 @@ public class AppController extends BaseController {
 
     @ApiOperation(value="上传应用", notes="")
     @ResponseBody
-    @PostMapping(value="/upload/only/{projectId}", consumes = "multipart/form-data")
+    @PostMapping(value="/project/{projectId}/app/uploadOnly", consumes = "multipart/form-data")
     public AppVO uploadOnly(@RequestParam("appfile") MultipartFile appfile, @PathVariable Long projectId) throws IOException {
         //
         // 校验
@@ -89,7 +89,7 @@ public class AppController extends BaseController {
 
     @ApiOperation(value="更新应用信息", notes="在upload之后调用，用于补充app的信息")
     @ResponseBody
-    @PostMapping(value = "/append")
+    @PostMapping(value = "/app/append")
     public void appendInfo(@Valid @RequestBody AppUpdateForm form) {
         appValidator.validateAppExist(form.getAppId());
         projectValidator.validateProjectExist(form.getProjectId());
@@ -100,7 +100,7 @@ public class AppController extends BaseController {
 
     @ApiOperation(value="安装应用", notes="")
     @ResponseBody
-    @PostMapping(value = "/install")
+    @PostMapping(value = "/app/install")
     public void install(@RequestBody @Valid AppInstallForm appInstallForm) {
         appValidator.validateAppExist(appInstallForm.getAppId());
         installMgr.install(appInstallForm);
@@ -108,7 +108,7 @@ public class AppController extends BaseController {
 
     @ApiOperation(value="卸载应用", notes="")
     @ResponseBody
-    @PostMapping(value = "/uninstall")
+    @PostMapping(value = "/app/uninstall")
     public void uninstall(@RequestBody @Valid AppInstallForm appInstallForm) {
         appValidator.validateAppExist(appInstallForm.getAppId());
         installMgr.uninstall(appInstallForm);
@@ -116,8 +116,8 @@ public class AppController extends BaseController {
 
     @ApiOperation(value="app分页列表", notes="")
     @ResponseBody
-    @GetMapping(value = "/{projectId}/page")
-    public PageResult page(@PathVariable Long projectId, @Valid AppListForm queryForm) {
+    @GetMapping(value = "/project/{projectId}/appPage")
+    public PageResult appPage(@PathVariable Long projectId, @Valid AppListForm queryForm) {
         projectValidator.validateProjectExist(projectId);
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         projectValidator.validateUserIsProjectMember(projectId, user.getId());
@@ -126,8 +126,8 @@ public class AppController extends BaseController {
 
     @ApiOperation(value="app列表", notes="")
     @ResponseBody
-    @GetMapping(value = "/{projectId}/list")
-    public List<AppInfo> list(@PathVariable Long projectId, @Valid AppListForm queryForm) {
+    @GetMapping(value = "/project/{projectId}/appList")
+    public List<AppInfo> appList(@PathVariable Long projectId, @Valid AppListForm queryForm) {
         projectValidator.validateProjectExist(projectId);
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         projectValidator.validateUserIsProjectMember(projectId, user.getId());
@@ -136,15 +136,15 @@ public class AppController extends BaseController {
 
     @ApiOperation(value="搜索一个App", notes="")
     @ResponseBody
-    @GetMapping(value = "/{projectId}/one/{query:.+}")
-    public AppInfo queryOne(@PathVariable("projectId") Long projectId, @PathVariable("query") String query) {
+    @GetMapping(value = "/project/{projectId}/searchOneApp/{query:.+}")
+    public AppInfo searchOneApp(@PathVariable("projectId") Long projectId, @PathVariable("query") String query) {
         projectValidator.validateProjectExist(projectId);
         return appInfoService.getByQuery(projectId, query);
     }
 
     @ApiOperation(value="获取一个App的详情", notes="")
     @ResponseBody
-    @GetMapping(value = "/{projectId}/detail/{appInfoId}")
+    @GetMapping(value = "/project/{projectId}/{appInfoId}/appDetail")
     public AppInfoVersionsDetailVO getDetail(@PathVariable("projectId") Long projectId, @PathVariable("appInfoId") Long appInfoId) {
         projectValidator.validateProjectExist(projectId);
         AppInfo appInfo = appInfoService.findOne(appInfoId);
@@ -157,21 +157,21 @@ public class AppController extends BaseController {
 
     @ApiOperation(value="删除多个应用", notes="")
     @ResponseBody
-    @PostMapping(value = "/delete/all")
+    @PostMapping(value = "/deleteAll")
     public void deleteAll(@RequestBody @Valid IDListForm del) {
         appInfoService.deleteAll(del.getEntityIds());
     }
 
     @ApiOperation(value="删除一个应用", notes="")
     @ResponseBody
-    @PostMapping(value = "/delete/one")
+    @PostMapping(value = "/deleteOne")
     public void deleteOne(@RequestBody @Valid IDForm del) {
         appInfoService.delete(del.getEntityId());
     }
 
     @ApiOperation(value="该app所有上传的版本", notes="")
     @ResponseBody
-    @GetMapping(value = "/{appinfoId}/version/list")
+    @GetMapping(value = "/app/{appinfoId}/versionList")
     public List<App> versionList(@PathVariable("appinfoId") Long appinfoId) {
         AppInfo appInfo = appValidator.validateAppInfoExist(appinfoId);
         return appService.getAllVersions(appInfo);

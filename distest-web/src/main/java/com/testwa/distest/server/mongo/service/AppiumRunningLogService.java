@@ -83,11 +83,11 @@ public class AppiumRunningLogService extends BaseService {
         return procedureInfoRepository.findByTaskCodeOrderByTimestampAsc(taskCode);
     }
 
-    public PageResult<AppiumRunningLog> findByPage(StepPageForm form) {
+    public PageResult<AppiumRunningLog> findByPage(Long taskCode, String deviceId, Long scriptId, StepPageForm form) {
         Query query = new Query();
-        query.addCriteria(Criteria.where("testSuit").is(form.getScriptId()));
-        query.addCriteria(Criteria.where("taskCode").is(form.getTaskCode()));
-        query.addCriteria(Criteria.where("deviceId").is(form.getDeviceId()));
+        query.addCriteria(Criteria.where("taskCode").is(taskCode));
+        query.addCriteria(Criteria.where("deviceId").is(deviceId));
+        query.addCriteria(Criteria.where("testSuit").is(scriptId));
         int pageNum = form.getPageNo();
         int rows = form.getPageSize();
         String sortField = "timestamp";
@@ -98,11 +98,11 @@ public class AppiumRunningLogService extends BaseService {
         return result;
     }
 
-    public List<AppiumRunningLog> findList(StepListForm form) {
+    public List<AppiumRunningLog> findList(Long taskCode, String deviceId, Long scriptId) {
         Query query = new Query();
-        query.addCriteria(Criteria.where("testSuit").is(form.getScriptId()));
-        query.addCriteria(Criteria.where("taskCode").is(form.getTaskCode()));
-        query.addCriteria(Criteria.where("deviceId").is(form.getDeviceId()));
+        query.addCriteria(Criteria.where("taskCode").is(taskCode));
+        query.addCriteria(Criteria.where("deviceId").is(deviceId));
+        query.addCriteria(Criteria.where("testSuit").is(scriptId));
         return procedureInfoRepository.find(query);
     }
 
@@ -118,7 +118,7 @@ public class AppiumRunningLogService extends BaseService {
         Sort sort = new Sort(Sort.Direction.ASC, field);
         query.with(sort);
         List<AppiumRunningLog> nextList = procedureInfoRepository.find(query);
-        if(nextList != null && nextList.size() >0){
+        if(nextList != null && !nextList.isEmpty()){
             return nextList.get(0);
         }
         return null;

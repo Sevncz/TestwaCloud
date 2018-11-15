@@ -41,7 +41,7 @@ import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 @Api("项目成员相关api")
 @Validated
 @RestController
-@RequestMapping(path = WebConstants.API_PREFIX + "/project/member")
+@RequestMapping(path = WebConstants.API_PREFIX + "/project")
 public class ProjectMemberController extends BaseController {
 
     @Autowired
@@ -52,10 +52,12 @@ public class ProjectMemberController extends BaseController {
     private ProjectMemberService projectMemberService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private User currentUser;
 
     @ApiOperation(value="添加项目成员", notes = "")
     @ResponseBody
-    @PostMapping(value = "/add/all")
+    @PostMapping(value = "/member/addAll")
     public void addMembers(@RequestBody @Valid MembersModifyForm form){
         projectValidator.validateProjectExist(form.getProjectId());
         userValidator.validateUsernamesExist(form.getUsernames());
@@ -64,7 +66,7 @@ public class ProjectMemberController extends BaseController {
 
     @ApiOperation(value="删除项目成员", notes = "")
     @ResponseBody
-    @PostMapping(value = "/remove/all")
+    @PostMapping(value = "/member/removeAll")
     public Result removeMembers(@RequestBody @Valid MembersModifyForm form) {
 
         Project project = projectValidator.validateProjectExist(form.getProjectId());
@@ -82,7 +84,7 @@ public class ProjectMemberController extends BaseController {
 
     @ApiOperation(value="获得项目的成员列表", notes = "")
     @ResponseBody
-    @GetMapping(value = "/{projectId}")
+    @GetMapping(value = "/{projectId}/members")
     public List members(@PathVariable Long projectId) {
         projectValidator.validateProjectExist(projectId);
         List<User> users = projectMemberService.findAllMembers(projectId);
@@ -92,7 +94,7 @@ public class ProjectMemberController extends BaseController {
 
     @ApiOperation(value="查询用户，区分是否在项目中", notes = "")
     @ResponseBody
-    @GetMapping(value = "/query")
+    @GetMapping(value = "/member/query")
     public Map queryMember(@Valid MembersQueryForm form) {
         projectValidator.validateProjectExist(form.getProjectId());
         return projectMemberService.queryMembersAndFlagIsInProject(form.getProjectId(), form.getUsername(), form.getEmail(), form.getPhone());
@@ -101,12 +103,11 @@ public class ProjectMemberController extends BaseController {
 
     @ApiOperation(value="获得当前用户在某个项目中的角色", notes = "")
     @ResponseBody
-    @GetMapping(value = "/role")
-    public ProjectMemberVO projectRole(@RequestParam(value = "projectId") Long projectId) {
+    @GetMapping(value = "/{projectId}/memberRole")
+    public ProjectMemberVO memberRole(@PathVariable(value = "projectId") Long projectId) {
         projectValidator.validateProjectExist(projectId);
-        User user = userService.findByUsername(getCurrentUsername());
-        projectValidator.validateUserIsProjectMember(projectId, user.getId());
-        ProjectMember pm = projectMemberService.getProjectRole(projectId, user.getId());
+        projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
+        ProjectMember pm = projectMemberService.getProjectRole(projectId, currentUser.getId());
         if (null == pm){
             throw new AuthorizedException(ResultCode.ILLEGAL_OP, "该用户不属于此项目");
         }

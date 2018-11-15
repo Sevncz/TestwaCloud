@@ -2,7 +2,6 @@ package com.testwa.distest.server.web.device.controller;
 
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
-import com.testwa.core.base.vo.Result;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.exception.BusinessException;
 import com.testwa.distest.exception.DeviceException;
@@ -185,20 +184,10 @@ public class DeviceController extends BaseController {
         return vo;
     }
 
-
     @ApiOperation(value="锁定设备", notes = "")
     @ResponseBody
-    @PostMapping(value = "/lock/debug/{deviceId}")
+    @PostMapping(value = "/{deviceId}/lock")
     public DeviceLockResultVO lockDebug(@PathVariable String deviceId) {
-        DeviceLockResultVO vo = new DeviceLockResultVO();
-        vo.setSuccess(true);
-        return vo;
-    }
-
-    @ApiOperation(value="选择的时候锁定设备", notes = "")
-    @ResponseBody
-    @PostMapping(value = "/lock/select/{deviceId}")
-    public DeviceLockResultVO lockSelect(@PathVariable String deviceId) {
         DeviceLockResultVO vo = new DeviceLockResultVO();
         vo.setSuccess(true);
         return vo;
@@ -206,7 +195,7 @@ public class DeviceController extends BaseController {
 
     @ApiOperation(value="解除锁定设备", notes = "")
     @ResponseBody
-    @PostMapping(value = "/unlock/{deviceId}")
+    @PostMapping(value = "/{deviceId}/unlock")
     public DeviceUnLockResultVO unlock(@PathVariable String deviceId) {
         DeviceUnLockResultVO vo = new DeviceUnLockResultVO();
         deviceService.debugFree(deviceId);

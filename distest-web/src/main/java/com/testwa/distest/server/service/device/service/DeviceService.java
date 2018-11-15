@@ -89,10 +89,10 @@ public class DeviceService {
         //分页处理
         PageHelper.startPage(pageForm.getPageNo(), pageForm.getPageSize());
         if(StringUtils.isBlank(pageForm.getOrderBy()) ){
-            pageForm.getPage().setOrderBy("id");
+            pageForm.setOrderBy("id");
         }
         if(StringUtils.isBlank(pageForm.getOrder()) ){
-            pageForm.getPage().setOrder("desc");
+            pageForm.setOrder("desc");
         }
         PageHelper.orderBy(pageForm.getOrderBy() + " " + pageForm.getOrder());
         List<Device> deviceList = deviceDAO.findListByOnlineDevice(queryMap, onlineDeviceList);
@@ -138,10 +138,10 @@ public class DeviceService {
         //分页处理
         PageHelper.startPage(pageForm.getPageNo(), pageForm.getPageSize());
         if(StringUtils.isBlank(pageForm.getOrderBy()) ){
-            pageForm.getPage().setOrderBy("id");
+            pageForm.setOrderBy("id");
         }
         if(StringUtils.isBlank(pageForm.getOrder()) ){
-            pageForm.getPage().setOrder("desc");
+            pageForm.setOrder("desc");
         }
         PageHelper.orderBy(pageForm.getOrderBy() + " " + pageForm.getOrder());
         List<Device> deviceList = findOnlineList(onlineDevIds, pageForm);

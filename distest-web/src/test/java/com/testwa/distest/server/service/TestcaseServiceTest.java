@@ -33,16 +33,14 @@ public class TestcaseServiceTest {
         form.setDescription("测试案例啊啊啊啊啊啊啊");
         form.setName("测试案例测试啊");
         form.setScriptIds(Arrays.asList(2l, 3l));
-//        testcaseService.saveHGTestcase(15L, appInfo, form);
+//        testcaseService.saveFunctionalTestcase(15L, appInfo, form);
     }
 
     @Test
     public void testFindPage(){
         TestcaseListForm form = new TestcaseListForm();
-        RequestListBase.Page page = form.getPage();
-        page.setPageNo(1);
-        page.setPageSize(10);
-        form.setPage(page);
+        form.setPageNo(1);
+        form.setPageSize(10);
         testcaseService.findPage(15L, form);
     }
 
@@ -74,7 +72,7 @@ public class TestcaseServiceTest {
         form.setDescription("测试案例啊啊啊啊啊啊啊");
         form.setName("测试案例测试啊");
         form.setScriptIds(Arrays.asList(2l, 3l, 1l));
-//        Long testcaseId = testcaseService.saveHGTestcase(15L, appInfo, form);
+//        Long testcaseId = testcaseService.saveFunctionalTestcase(15L, appInfo, form);
 
 //        testcaseService.delete(testcaseId);
     }

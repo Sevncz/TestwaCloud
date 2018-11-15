@@ -64,10 +64,8 @@ public class DeviceServiceTest {
     @Test
     public void testFindByPage(){
         DeviceListForm form = new DeviceListForm();
-        RequestListBase.Page page = form.getPage();
-        page.setPageNo(1);
-        page.setPageSize(10);
-        form.setPage(page);
+        form.setPageNo(1);
+        form.setPageSize(10);
         PageResult<Device> devices = deviceService.findByPage(new HashSet<>(Arrays.asList("123456", "223456", "323456")), form);
         log.info(devices.getPages().toString());
     }

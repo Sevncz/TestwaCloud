@@ -52,8 +52,8 @@ public class ProjectValidator {
      *@Author: wen
      *@Date: 2018/6/1
      */
-    public void validateUserInAnyProject(String username) {
-        List<Project> projectList = projectService.findAllByUserList(username);
+    public void validateUserInAnyProject(Long userId) {
+        List<Project> projectList = projectService.findAllByUserList(userId);
         if(projectList.isEmpty()){
             throw new BusinessException(ResultCode.ILLEGAL_OP, "该用户不在项目中");
         }

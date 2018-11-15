@@ -27,7 +27,6 @@ public class Result<T> {
      * 失败信息：用于前端 /api 调用者调试接口
      */
     private String message;
-    private String url;
 
     public static <T> Result<T> success(T result) {
         Result<T> response = new Result<>();

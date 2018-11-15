@@ -84,7 +84,7 @@ public class DeviceScopeConfigController extends BaseController{
      */
     @ApiOperation(value="配置设备分享的用户", notes = "只能管理自己的设备")
     @ResponseBody
-    @PostMapping(value = "/shareTo/user")
+    @PostMapping(value = "/shareToUser")
     public Result shareToUser(@RequestBody @Valid DeviceScopeShareToUserForm form) {
         Device device = deviceValidatoer.validateDeviceExist(form.getDeviceId());
         if(form.getAddUserId() != null && !form.getAddUserId().isEmpty()) {
@@ -129,7 +129,7 @@ public class DeviceScopeConfigController extends BaseController{
      */
     @ApiOperation(value="移除设备分享的用户", notes = "只能管理自己的设备")
     @ResponseBody
-    @PostMapping(value = "/remove/user")
+    @PostMapping(value = "/removeUser")
     public Result removeUser(@RequestBody @Valid DeviceScopeRemoveForm form) {
         Device device = deviceValidatoer.validateDeviceExist(form.getDeviceId());
         User user = userService.findByUsername(getCurrentUsername());
@@ -150,7 +150,7 @@ public class DeviceScopeConfigController extends BaseController{
      */
     @ApiOperation(value="设备分享的用户列表", notes = "只能管理自己的设备")
     @ResponseBody
-    @GetMapping(value = "/{deviceId}/share/userlist")
+    @GetMapping(value = "/{deviceId}/userList")
     public List shareList(@PathVariable String deviceId) {
 
         User user = userService.findByUsername(getCurrentUsername());
@@ -165,7 +165,7 @@ public class DeviceScopeConfigController extends BaseController{
      */
     @ApiOperation(value="配置设备分享的项目", notes = "只能管理自己的设备")
     @ResponseBody
-    @PostMapping(value = "/shareTo/project")
+    @PostMapping(value = "/shareToProject")
     public Result shareToProject(@RequestBody @Valid DeviceScopeShareToProjectForm form) {
         deviceValidatoer.validateDeviceExist(form.getDeviceId());
         if(form.getToProjectIdList() == null || form.getToProjectIdList().isEmpty()) {

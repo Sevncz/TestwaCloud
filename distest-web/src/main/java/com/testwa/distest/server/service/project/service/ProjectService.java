@@ -181,23 +181,21 @@ public class ProjectService {
         return project;
     }
 
-    public List<Project> findAllByUserList(String username) {
-        User user = userService.findByUsername(username);
-        if(user != null){
-            return projectDAO.findAllByUser(user.getId());
+    public List<Project> findAllByUserList(Long userId) {
+        if(userId != null){
+            return projectDAO.findAllByUser(userId);
         }
         return new ArrayList<>();
     }
 
-    public PageResult<Project> findAllByUserPage(ProjectListForm pageForm, String username) {
-        User user = userService.findByUsername(username);
+    public PageResult<Project> findAllByUserPage(ProjectListForm pageForm, User user) {
         //分页处理
         PageHelper.startPage(pageForm.getPageNo(), pageForm.getPageSize());
         if(StringUtils.isBlank(pageForm.getOrderBy()) ){
-            pageForm.getPage().setOrderBy("id");
+            pageForm.setOrderBy("id");
         }
         if(StringUtils.isBlank(pageForm.getOrder()) ){
-            pageForm.getPage().setOrder("desc");
+            pageForm.setOrder("desc");
         }
         PageHelper.orderBy(pageForm.getOrderBy() + " " + pageForm.getOrder());
         List<Project> projectList = projectDAO.findAllByUser(user.getId(), pageForm.getProjectName());

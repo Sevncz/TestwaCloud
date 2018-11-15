@@ -6,6 +6,7 @@ import com.testwa.core.base.constraint.validation.PageOrderValidator;
 import com.testwa.core.base.context.ThreadContext;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.validator.constraints.Range;
 
 import javax.validation.Valid;
 import java.io.Serializable;
@@ -15,102 +16,57 @@ import java.io.Serializable;
  */
 @Data
 public abstract class RequestListBase implements Serializable {
-//    @NotNull
-//    private Integer page;
-//    @NotNull
-//    private Integer size;
-//    @NotNull
-//    private String sortField;
-//    @NotNull
-//    private String sortOrder;
+    public static final String ORDER_TOKEN = ",";
 
-    @Valid
-    private Page page = new Page();
+    @Range(min = 0, max = 999)
+    private int pageNo = 0;
 
-    public Page getPage() {
-        return page;
-    }
+    @Range(min = 1, max = 9999)
+    private int pageSize = 10;
 
-    public void setPage(Page page) {
-        this.page = page;
+    private String orderBy = null;
+
+    @PageOrderConstraint
+    private String order = PageOrderValidator.DESC;
+
+    public boolean isAsc() {
+        return PageOrderValidator.ASC.equals(order);
     }
 
     public int getPageNo() {
-        return page.pageNo;
+        return pageNo;
+    }
+
+    public void setPageNo(int pageNo) {
+        this.pageNo = pageNo;
+        ThreadContext.putContext(FrontEndInterfaceConstant.PAGE_NO, pageNo);
     }
 
     public int getPageSize() {
-        return page.pageSize;
+        return pageSize;
+    }
+
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+        ThreadContext.putContext(FrontEndInterfaceConstant.PAGE_SIZE, pageSize);
+    }
+
+    public void setOrderBy(String orderBy) {
+        this.orderBy = orderBy;
+        ThreadContext.putContext(FrontEndInterfaceConstant.PAGE_ORDER_BY, orderBy);
+    }
+
+    public void setOrder(String order) {
+        this.order = order;
+        ThreadContext.putContext(FrontEndInterfaceConstant.PAGE_ORDER, order);
     }
 
     public String getOrderBy() {
-        return StringUtils.isBlank(page.orderBy)?"id":page.orderBy;
+        return StringUtils.isBlank(orderBy)?"id":orderBy;
     }
 
     public String getOrder() {
-        return StringUtils.isBlank(page.order)?"desc":page.order;
-    }
-
-    /**
-     * Page对象,通过ThreadContext存储FE传进来的参数数据
-     *
-     */
-    public class Page implements Serializable {
-
-        /**
-         *
-         */
-        private static final long serialVersionUID = -5120153163445183415L;
-
-        public static final String ORDER_TOKEN = ",";
-
-        private int pageNo = 0;
-        private int pageSize = 99999999;
-        private String orderBy = null;
-
-        @PageOrderConstraint
-        private String order = PageOrderValidator.DESC;
-
-        public boolean isAsc() {
-            return order.equals(PageOrderValidator.ASC);
-        }
-
-        public int getPageNo() {
-            return pageNo;
-        }
-
-        public void setPageNo(int pageNo) {
-            this.pageNo = pageNo;
-            ThreadContext.putContext(FrontEndInterfaceConstant.PAGE_NO, pageNo);
-        }
-
-        public int getPageSize() {
-            return pageSize;
-        }
-
-        public void setPageSize(int pageSize) {
-            this.pageSize = pageSize;
-            ThreadContext.putContext(FrontEndInterfaceConstant.PAGE_SIZE, pageSize);
-        }
-
-        public String getOrderBy() {
-            return orderBy;
-        }
-
-        public void setOrderBy(String orderBy) {
-            this.orderBy = orderBy;
-            ThreadContext.putContext(FrontEndInterfaceConstant.PAGE_ORDER_BY, orderBy);
-        }
-
-        public String getOrder() {
-            return order;
-        }
-
-        public void setOrder(String order) {
-            this.order = order;
-            ThreadContext.putContext(FrontEndInterfaceConstant.PAGE_ORDER, order);
-        }
-
+        return StringUtils.isBlank(order)?"desc":order;
     }
 
 

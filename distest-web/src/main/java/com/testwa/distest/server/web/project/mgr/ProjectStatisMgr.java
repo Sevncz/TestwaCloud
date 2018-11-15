@@ -198,10 +198,8 @@ public class ProjectStatisMgr {
     }
 
     public PageResult<ProjectTestDynamicVO> dynamicTestPage(Long projectId, Long startTime, Long endTime, TaskListForm taskListForm) {
-        RequestListBase.Page page = taskListForm.getPage();
-        page.setOrder(PageOrderValidator.DESC);
-        page.setOrderBy("createTime");
-        taskListForm.setPage(page);
+        taskListForm.setOrder(PageOrderValidator.DESC);
+        taskListForm.setOrderBy("createTime");
 
         PageResult<Task> taskPageResult = taskService.findPage(projectId, taskListForm);
 

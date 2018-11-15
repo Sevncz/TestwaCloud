@@ -39,7 +39,7 @@ import java.util.*;
 @Api("脚本相关api")
 @Validated
 @RestController
-@RequestMapping(path = WebConstants.API_PREFIX + "/script")
+@RequestMapping(path = WebConstants.API_PREFIX)
 public class ScriptController extends BaseController {
     private static final String[] allowExtName = {".java", ".js", ".py", ".rb"};
     private static final long fileSize = 1024 * 100;  // 100k
@@ -60,7 +60,7 @@ public class ScriptController extends BaseController {
 
     @ApiOperation(value="上传脚本", notes="")
     @ResponseBody
-    @PostMapping(value = "/upload")
+    @PostMapping(value = "/script/upload")
     public Script upload(@RequestParam("file") MultipartFile uploadfile) throws IOException {
         //
         // 校验
@@ -72,7 +72,7 @@ public class ScriptController extends BaseController {
 
     @ApiOperation(value="上传多个脚本", notes="暂时还不用")
     @ResponseBody
-    @PostMapping(value = "/upload/multi")
+    @PostMapping(value = "/script/multi/upload")
     public void uploadMulti(@RequestParam("files") List<MultipartFile> uploadfiles) throws IOException {
         //
         // 校验
@@ -83,7 +83,7 @@ public class ScriptController extends BaseController {
 
     @ApiOperation(value="上传脚本", notes="")
     @ResponseBody
-    @PostMapping(value = "/{projectId}/upload")
+    @PostMapping(value = "/project/{projectId}/script/upload")
     public Script upload(@PathVariable Long projectId, @RequestParam("file") MultipartFile uploadfile) throws IOException {
         //
         // 校验
@@ -95,7 +95,7 @@ public class ScriptController extends BaseController {
 
     @ApiOperation(value="上传多个脚本")
     @ResponseBody
-    @PostMapping(value = "/{projectId}/upload/multi")
+    @PostMapping(value = "/project/{projectId}/script/upload/multi")
     public void uploadMulti(@PathVariable Long projectId, @RequestParam("files") List<MultipartFile> uploadfiles) throws IOException {
         //
         // 校验
@@ -107,7 +107,7 @@ public class ScriptController extends BaseController {
 
     @ApiOperation(value="上传的同时直接组成案例", notes="暂时还不用")
     @ResponseBody
-    @PostMapping(value = "/{projectId}/upload/case")
+    @PostMapping(value = "/project/{projectId}/upload/case")
     public void uploadCase(@PathVariable Long projectId, @RequestParam("files") List<MultipartFile> uploadfiles) throws IOException {
         //
         // 校验
@@ -142,8 +142,8 @@ public class ScriptController extends BaseController {
 
     @ApiOperation(value="脚本分页列表", notes="")
     @ResponseBody
-    @GetMapping(value = "/{projectId}/page")
-    public PageResult page(@PathVariable Long projectId, @Valid ScriptListForm queryForm) {
+    @GetMapping(value = "/project/{projectId}/scriptPage")
+    public PageResult scriptPage(@PathVariable Long projectId, @Valid ScriptListForm queryForm) {
         projectValidator.validateProjectExist(projectId);
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         projectValidator.validateUserIsProjectMember(projectId, user.getId());
@@ -152,8 +152,8 @@ public class ScriptController extends BaseController {
 
     @ApiOperation(value="脚本列表", notes="")
     @ResponseBody
-    @GetMapping(value = "/{projectId}/list")
-    public List list(@PathVariable Long projectId, @Valid ScriptListForm queryForm) {
+    @GetMapping(value = "/project/{projectId}/scriptList")
+    public List scriptList(@PathVariable Long projectId, @Valid ScriptListForm queryForm) {
         projectValidator.validateProjectExist(projectId);
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
         projectValidator.validateUserIsProjectMember(projectId, user.getId());

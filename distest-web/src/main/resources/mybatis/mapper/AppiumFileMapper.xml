@@ -3,26 +3,26 @@
 <mapper namespace="com.testwa.distest.server.mapper.AppiumFileMapper" >
     <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.AppiumFile" >
         <id column="id" property="id" jdbcType="BIGINT" />
-        <result column="deviceId" property="deviceId" jdbcType="VARCHAR" />
+        <result column="device_id" property="deviceId" jdbcType="VARCHAR" />
         <result column="filename" property="filename" jdbcType="VARCHAR" />
-        <result column="taskCode" property="taskCode" jdbcType="BIGINT" />
-        <result column="createTime" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+        <result column="task_code" property="taskCode" jdbcType="BIGINT" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
     </resultMap>
 
     <delete id="removeFromTask" >
         DELETE FROM appium_file
-        WHERE taskCode = #{taskCode}
+        WHERE task_code = #{taskCode}
     </delete>
     <select id="findOne" resultMap="BaseResultMap" >
         SELECT * FROM appium_file
-        WHERE taskCode = #{taskCode}
-        and deviceId = #{deviceId}
+        WHERE task_code = #{taskCode}
+        and device_id = #{deviceId}
     </select>
     <select id="fildAll" parameterType="com.testwa.distest.server.entity.AppiumFile" resultMap="BaseResultMap" >
         SELECT * FROM appium_file
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
-            <if test="taskCode != null">and taskCode = #{taskCode}</if>
-            <if test="deviceId != null">and deviceId = #{deviceId}</if>
+            <if test="taskCode != null">and task_code = #{taskCode}</if>
+            <if test="deviceId != null">and device_id = #{deviceId}</if>
         </trim>
     </select>
 
