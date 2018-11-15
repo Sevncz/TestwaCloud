@@ -12,7 +12,6 @@ import com.testwa.core.utils.Validator;
 import com.testwa.distest.config.security.JwtAuthenticationRequest;
 import com.testwa.distest.config.security.JwtAuthenticationResponse;
 import com.testwa.distest.exception.AccountException;
-import com.testwa.distest.exception.BusinessException;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.user.form.RegisterForm;
 import com.testwa.distest.server.service.user.form.ResetPasswordForm;
@@ -51,8 +50,8 @@ import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX + "/auth")
 public class AuthController extends BaseController {
-    private static final int captchaW = 200;
-    private static final int captchaH = 60;
+    private static final int CAPTCHA_W = 200;
+    private static final int CAPTCHA_H = 60;
 
     @Value("${jwt.header}")
     private String tokenHeader;
@@ -90,8 +89,7 @@ public class AuthController extends BaseController {
     @GetMapping(value = "/refresh")
     public JwtAuthenticationResponse refreshAndGetAuthenticationToken(HttpServletRequest request) {
         String token = request.getHeader(tokenHeader);
-        JwtAuthenticationResponse response = authMgr.refresh(token);
-        return response;
+        return authMgr.refresh(token);
     }
 
     @ApiOperation(value = "注册")
@@ -190,7 +188,7 @@ public class AuthController extends BaseController {
     public @ResponseBody byte[] getCaptcha(@ApiIgnore HttpServletResponse response){
         //生成验证码
         String uuid = Identities.uuid();
-        Captcha captcha = new Captcha.Builder(captchaW, captchaH)
+        Captcha captcha = new Captcha.Builder(CAPTCHA_W, CAPTCHA_H)
                 .addText().addBackground(new GradiatedBackgroundProducer())
                 .gimp(new FishEyeGimpyRenderer())
                 .build();

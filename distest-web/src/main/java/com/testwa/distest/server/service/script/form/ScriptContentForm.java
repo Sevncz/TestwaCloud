@@ -3,6 +3,7 @@ package com.testwa.distest.server.service.script.form;
 import com.testwa.core.base.form.RequestFormBase;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
+import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
@@ -15,6 +16,6 @@ import javax.validation.constraints.NotNull;
 )
 @Data
 public class ScriptContentForm extends RequestFormBase{
-    @NotEmpty
+    @NotBlank
     private String content;
 }
