@@ -6,20 +6,20 @@
         <result column="username" property="username" jdbcType="VARCHAR" />
         <result column="host" property="host" jdbcType="VARCHAR" />
         <result column="mac" property="mac" jdbcType="VARCHAR" />
-        <result column="osName" property="osName" jdbcType="VARCHAR" />
-        <result column="osVersion" property="osVersion" jdbcType="VARCHAR" />
-        <result column="osArch" property="osArch" jdbcType="VARCHAR" />
-        <result column="javaVersion" property="javaVersion" jdbcType="VARCHAR" />
-        <result column="clientVersion" property="clientVersion" jdbcType="VARCHAR" />
+        <result column="os_name" property="osName" jdbcType="VARCHAR" />
+        <result column="os_version" property="osVersion" jdbcType="VARCHAR" />
+        <result column="os_arch" property="osArch" jdbcType="VARCHAR" />
+        <result column="java_version" property="javaVersion" jdbcType="VARCHAR" />
+        <result column="client_version" property="clientVersion" jdbcType="VARCHAR" />
         <result column="ip" property="ip" jdbcType="INTEGER" />
-        <result column="loginTime" property="loginTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
-        <result column="logoutTime" property="logoutTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+        <result column="login_time" property="loginTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+        <result column="logout_time" property="logoutTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
     </resultMap>
 
     <select id="findRecentLoginOne" resultMap="BaseResultMap" >
         SELECT * FROM agent_login_log
         WHERE username = #{username}
-        order by loginTime DESC limit 1
+        order by login_time DESC limit 1
     </select>
 
 </mapper>

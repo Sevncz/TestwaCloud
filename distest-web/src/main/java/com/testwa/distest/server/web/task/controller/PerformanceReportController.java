@@ -3,7 +3,7 @@ package com.testwa.distest.server.web.task.controller;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.distest.server.entity.Task;
-import com.testwa.distest.server.web.task.execute.ReportMgr;
+import com.testwa.distest.server.web.task.mgr.ReportMgr;
 import com.testwa.distest.server.web.task.validator.TaskValidatoer;
 import com.testwa.distest.server.web.task.vo.PerformanceDeviceOverviewVO;
 import com.testwa.distest.server.web.task.vo.PerformanceOverviewVO;

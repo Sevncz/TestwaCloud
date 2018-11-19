@@ -83,7 +83,8 @@ public class CommandHandler {
         MiniCmd cmd = new MiniCmd();
         cmd.setType("minicap");
         cmd.setRotate(rotate);
-        cmd.setScale(scale);
+        // 统一向720p缩放
+//        cmd.setScale(scale);
 //        pushCmdService.pushMinCmdStart(cmd, deviceId);
         StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
         if(observer != null){

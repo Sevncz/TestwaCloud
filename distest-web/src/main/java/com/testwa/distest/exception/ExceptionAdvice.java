@@ -10,14 +10,13 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Path;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @RestControllerAdvice
@@ -74,10 +73,28 @@ public class ExceptionAdvice{
         return Result.error(ResultCode.INVALID_PARAM, e.getMessage());
     }
 
+    /**
+     * 处理未捕获的runtimeException
+     * @param e
+     * @param request
+     * @return
+     */
     @ExceptionHandler(RuntimeException.class)
     protected Result handleRuntimeException(RuntimeException e, HttpServletRequest request) {
         logWithTemplate("RuntimeException", request, e);
         return Result.error(ResultCode.SERVER_ERROR, e.getMessage());
+    }
+
+    /**
+     * 处理404
+     * @param e
+     * @param request
+     * @return
+     */
+    @ExceptionHandler(NoHandlerFoundException.class)
+    protected Result handleNoHandlerFoundException(NoHandlerFoundException e, HttpServletRequest request) {
+        logWithTemplate("NoHandlerFoundException", request, e);
+        return Result.error(ResultCode.NO_API, e.getLocalizedMessage());
     }
 
     /**
@@ -88,6 +105,7 @@ public class ExceptionAdvice{
         log.info(HANDLE_EXCEPTION_TEMPLATE, e.getClass().getSimpleName(), request.getRequestURI(), e.getClass().getSimpleName());
         return Result.error(e.getCode(), e.getMessage());
     }
+
     private Result parseBindingResult(BindingResult bindingResult) {
         List<FieldError> errors = bindingResult.getFieldErrors();
         if (!errors.isEmpty()) {
@@ -102,6 +120,6 @@ public class ExceptionAdvice{
     }
 
     private void logWithTemplate(String exceptionName, HttpServletRequest request, Throwable e) {
-        log.info(HANDLE_EXCEPTION_TEMPLATE, exceptionName, request.getRequestURI(), e);
+        log.error(HANDLE_EXCEPTION_TEMPLATE, exceptionName, request.getRequestURI(), e);
     }
 }

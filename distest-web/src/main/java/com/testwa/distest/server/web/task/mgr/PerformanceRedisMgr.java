@@ -1,4 +1,4 @@
-package com.testwa.distest.server.web.task.execute;
+package com.testwa.distest.server.web.task.mgr;
 
 import com.alibaba.fastjson.JSON;
 import com.testwa.core.redis.RedisCacheManager;

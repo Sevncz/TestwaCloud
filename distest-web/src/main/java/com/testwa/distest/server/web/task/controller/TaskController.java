@@ -19,7 +19,7 @@ import com.testwa.distest.server.web.device.mgr.DeviceOnlineMgr;
 import com.testwa.distest.server.web.device.mgr.DeviceLockMgr;
 import com.testwa.distest.server.web.device.validator.DeviceValidatoer;
 import com.testwa.distest.server.web.script.validator.ScriptValidator;
-import com.testwa.distest.server.web.task.execute.ExecuteMgr;
+import com.testwa.distest.server.web.task.mgr.ExecuteMgr;
 import com.testwa.distest.server.web.task.validator.TaskValidatoer;
 import com.testwa.distest.server.web.task.vo.TaskStartResultVO;
 import com.testwa.distest.server.web.testcase.validator.TestcaseValidatoer;

@@ -1,31 +1,37 @@
-# distest-web
-分布式测试管理API模块
+# distest-web 开发文档
 
-## 依赖工具
-1. mongodb
-2. redis
-3. maven
-4. proto
-5. mysql
+## 主要技术及工具
+java版本：
+ - java 1.8
+ 
+第三方环境：
+ - android adb
+ - redis
+ - rabbitMQ
+ - mongodb
+ - python 2.7
 
-## 开发环境搭建
+技术组件：
+ - springboot
+ - spring security
+ - mybatis
+ - socketIO
+ - gRPC
+ - quartz
 
-- 如果系统找不到adb，请同时增加环境变量的配置:
-    ANDROID_HOME=/your/android/sdk/path/
+其他：
+ - fabric 
 
+## 配置修改
+application-dev.properties
 
-## api返回结果
-    {
-        "message": null,
-        "data": object or [object],
-        "code": 0,
-        "url": null
-    }
+## 启动
+IDEA启动配置
+ 1. 增加一个 springboot 配置
+ 2. 指定启动类：com.testwa.distest.DistestWebApplication
+ 3. 配置好启动参数：-Xmx512m -Xms512m --spring.profiles.active=dev
 
-### message说明
-    出现错误或者异常的时候，message会有错误信息，如果是未被逻辑捕获处理的系统异常，message则会放异常信息
-
-## 编译打包部署
-    sh deploy.sh
-
-
+## 打包及部署
+使用fabric进行自动化打包、部署：
+ 1. 进入distest项目根目录
+ 2. fab -f deploy.py go

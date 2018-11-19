@@ -1,4 +1,4 @@
-package com.testwa.distest.server.web.task.execute;
+package com.testwa.distest.server.web.task.mgr;
 
 import com.testwa.core.redis.RedisCacheManager;
 import org.springframework.beans.factory.annotation.Autowired;
