@@ -3,6 +3,7 @@ package com.testwa.distest.server.service.device.dao.impl;
 import com.testwa.core.base.dao.impl.BaseDAO;
 import com.testwa.distest.server.entity.IosDeviceDict;
 import com.testwa.distest.server.mapper.IosDeviceDictMapper;
+import com.testwa.distest.server.service.device.dao.IIosDeviceDictDAO;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;

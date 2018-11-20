@@ -1,9 +1,9 @@
 package com.testwa.distest.server.service.device.dao;
 
 import com.testwa.core.base.dao.IBaseDAO;
-import com.testwa.distest.server.entity.IOSDeviceDict;
+import com.testwa.distest.server.entity.IosDeviceDict;
 
+public interface IIosDeviceDictDAO extends IBaseDAO<IosDeviceDict, Long> {
 
-public interface IIOSDeviceDictDAO extends IBaseDAO<IOSDeviceDict, Long> {
-    IOSDeviceDict findByProductType(String productType);
+    IosDeviceDict findByProductType(String productType);
 }
