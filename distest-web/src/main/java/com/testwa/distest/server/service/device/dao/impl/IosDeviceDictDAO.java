@@ -14,7 +14,6 @@ public class IosDeviceDictDAO extends BaseDAO<IosDeviceDict, Long>  implements I
     @Resource
     private IosDeviceDictMapper mapper;
 
-
     @Override
     public IosDeviceDict findByProductType(String productType) {
         return mapper.findByProductType(productType);

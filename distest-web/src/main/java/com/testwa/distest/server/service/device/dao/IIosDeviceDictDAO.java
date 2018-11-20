@@ -5,5 +5,7 @@ import com.testwa.distest.server.entity.IosDeviceDict;
 
 
 public interface IIosDeviceDictDAO extends IBaseDAO<IosDeviceDict, Long> {
+
     IosDeviceDict findByProductType(String productType);
+
 }

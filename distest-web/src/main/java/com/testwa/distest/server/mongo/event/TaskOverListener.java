@@ -39,8 +39,6 @@ public class TaskOverListener implements ApplicationListener<TaskOverEvent> {
     @Autowired
     private TaskService taskService;
     @Autowired
-    private DeviceService deviceService;
-    @Autowired
     private SubTaskService subTaskService;
     @Autowired
     private DeviceLogService deviceLogService;
