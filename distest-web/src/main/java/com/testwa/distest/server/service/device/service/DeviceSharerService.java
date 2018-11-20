@@ -41,7 +41,7 @@ public class DeviceSharerService {
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void insertList(String deviceId, Long ownerId, Set<Long> userIds) {
-        if(userIds == null || userIds.size() == 0) {
+        if(userIds == null || userIds.isEmpty()) {
             return;
         }
         userIds.forEach( id -> {
@@ -51,7 +51,7 @@ public class DeviceSharerService {
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void removeList(String deviceId, Long ownerId, Set<Long> userIds) {
-        if(userIds == null || userIds.size() == 0) {
+        if(userIds == null || userIds.isEmpty()) {
             return;
         }
         userIds.forEach( id -> {
@@ -65,7 +65,7 @@ public class DeviceSharerService {
             return;
         }
         Set<Long> entitySet = new HashSet<>(entityIds);
-        if(entitySet.size() == 0) {
+        if(entitySet.isEmpty()) {
             return;
         }
         if(entitySet.size() == 1) {

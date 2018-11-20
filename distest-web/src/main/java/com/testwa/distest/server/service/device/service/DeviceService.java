@@ -6,9 +6,9 @@ import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.DeviceSharer;
-import com.testwa.distest.server.entity.IOSDeviceDict;
+import com.testwa.distest.server.entity.IosDeviceDict;
 import com.testwa.distest.server.service.device.dao.IDeviceDAO;
-import com.testwa.distest.server.service.device.dao.IIOSDeviceDictDAO;
+import com.testwa.distest.server.service.device.dao.IIosDeviceDictDAO;
 import com.testwa.distest.server.service.device.dto.DeviceOneCategoryResultDTO;
 import com.testwa.distest.server.service.device.dto.PrivateDeviceDTO;
 import com.testwa.distest.server.service.device.form.DeviceListForm;
@@ -33,7 +33,7 @@ public class DeviceService {
     @Autowired
     private IDeviceDAO deviceDAO;
     @Autowired
-    private IIOSDeviceDictDAO iosDeviceDictDAO;
+    private IIosDeviceDictDAO iosDeviceDictDAO;
     @Autowired
     private DeviceSharerService deviceSharerService;
     @Autowired
@@ -43,7 +43,7 @@ public class DeviceService {
         Map<String, Object> queryMap = new HashMap<>();
         queryMap.put("deviceId", deviceId);
         List<Device> list = deviceDAO.findOnlineList(queryMap);
-        if (list.size() > 0){
+        if (!list.isEmpty()){
             return list.get(0);
         }
         return null;
@@ -169,19 +169,13 @@ public class DeviceService {
 
         DeviceCategoryVO vo = new DeviceCategoryVO();
         List<DeviceOneCategoryResultDTO> dto = deviceDAO.getResolutionCategory(deviceIds);
-        dto.forEach( d -> {
-            vo.getResolution().add(d.getName());
-        });
+        dto.forEach( d -> vo.getResolution().add(d.getName()));
 
         dto = deviceDAO.getOSVersionCategory(deviceIds);
-        dto.forEach( d -> {
-            vo.getOsVersion().add(d.getName());
-        });
+        dto.forEach( d -> vo.getOsVersion().add(d.getName()));
 
         dto = deviceDAO.getBrandCategory(deviceIds);
-        dto.forEach( d -> {
-            vo.getBrand().add(d.getName());
-        });
+        dto.forEach( d -> vo.getBrand().add(d.getName()));
 
         return vo;
     }
@@ -215,7 +209,7 @@ public class DeviceService {
     }
 
     public List<Device> searchCloudList(Set<String> deviceIds, String brand, String osVersion, String resolution, Boolean isAll) {
-        if(deviceIds == null || deviceIds.size() == 0) {
+        if(deviceIds == null || deviceIds.isEmpty()) {
             return new ArrayList<>();
         }
         Map<String, Object> queryMap = new HashMap<>();
@@ -261,7 +255,7 @@ public class DeviceService {
      * @Date 2018/10/30 17:45
      */
     public List<PrivateDeviceDTO> findPrivateList(Set<String> deviceIds, Long userId, String brand, String osVersion, String resolution, Boolean isAll) {
-        if(deviceIds == null || deviceIds.size() == 0) {
+        if(deviceIds == null || deviceIds.isEmpty()) {
             return new ArrayList<>();
         }
         Map<String, Object> queryMap = new HashMap<>();
@@ -289,7 +283,7 @@ public class DeviceService {
     }
 
     public List<PrivateDeviceDTO> searchPrivateList(Set<String> deviceIds, Long userId, String brand, String osVersion, String resolution, Boolean isAll) {
-        if(deviceIds == null || deviceIds.size() == 0) {
+        if(deviceIds == null || deviceIds.isEmpty()) {
             return new ArrayList<>();
         }
         Map<String, Object> queryMap = new HashMap<>();
@@ -324,7 +318,7 @@ public class DeviceService {
      * @Date 2018/10/30 17:45
      */
     public List<Device> findShareToUserList(Set<String> onlineDeviceList, Long userId, String brand, String osVersion, String resolution, Boolean isAll) {
-        if(onlineDeviceList == null || onlineDeviceList.size() == 0) {
+        if(onlineDeviceList == null || onlineDeviceList.isEmpty()) {
             return new ArrayList<>();
         }
         // 获得分享给用户userId的DeviceSharer列表
@@ -374,7 +368,7 @@ public class DeviceService {
     }
 
     @Cacheable("ios_dict")
-    public IOSDeviceDict getIOSDict(String productType) {
+    public IosDeviceDict getIOSDict(String productType) {
         return iosDeviceDictDAO.findByProductType(productType);
     }
 

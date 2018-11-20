@@ -52,7 +52,7 @@ public class CommonReportController extends BaseController {
 
     @ApiOperation(value="任务分页列表", notes="")
     @ResponseBody
-    @GetMapping(value = "/project/{projectId}/reportPage")
+    @GetMapping(value = "/project/{projectId}/report/page")
     public PageResult page(@PathVariable Long projectId, @Valid TaskListForm pageForm) {
         projectValidator.validateProjectExist(projectId);
         User user = userService.findByUsername(WebUtil.getCurrentUsername());
@@ -63,7 +63,7 @@ public class CommonReportController extends BaseController {
 
     @ApiOperation(value="已完成任务分页列表", notes="")
     @ResponseBody
-    @GetMapping(value = "/project/{projectId}/finishedPage")
+    @GetMapping(value = "/project/{projectId}/report/finishedPage")
     public PageResult finishedPage(@PathVariable Long projectId, @Valid TaskListForm pageForm) {
         projectValidator.validateProjectExist(projectId);
         User user = userService.findByUsername(WebUtil.getCurrentUsername());

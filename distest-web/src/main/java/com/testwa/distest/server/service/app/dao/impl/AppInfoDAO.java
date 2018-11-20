@@ -55,7 +55,7 @@ public class AppInfoDAO extends BaseDAO<AppInfo, Long> implements IAppInfoDAO {
         }
         query.setProjectId(projectId);
         List<AppInfo> appInfos = mapper.findBy(query);
-        if(appInfos.size() > 0) {
+        if(!appInfos.isEmpty()) {
             return appInfos.get(0);
         }
         return null;

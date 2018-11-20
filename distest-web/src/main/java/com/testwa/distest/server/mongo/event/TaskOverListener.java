@@ -53,7 +53,7 @@ public class TaskOverListener implements ApplicationListener<TaskOverEvent> {
     @Override
     public void onApplicationEvent(TaskOverEvent e) {
         Long taskCode = e.getTaskCode();
-        log.info("........ update task info");
+        log.info("........ update task info {}", taskCode);
         if(e.isTimeout()) {
             taskService.timeout(taskCode);
         }else{
@@ -61,10 +61,6 @@ public class TaskOverListener implements ApplicationListener<TaskOverEvent> {
         }
         // 根据需求开始统计报告
         Task task = taskService.findByCode(taskCode);
-
-//        task.getDevices().forEach(d -> {
-//            deviceService.release(d.getDeviceId());
-//        });
 
         DB.DeviceLogType logType = DB.DeviceLogType.HG;
         if(DB.TaskType.FUNCTIONAL.equals(task.getTaskType())){
@@ -133,7 +129,7 @@ public class TaskOverListener implements ApplicationListener<TaskOverEvent> {
         for(Map s : sessions){
 
             List<AppiumRunningLog> l = procedureInfoService.findBySessionId((String) s.get("_id"));
-            if(l != null && l.size() > 0){
+            if(l != null && !l.isEmpty()){
                 AppiumRunningLog pi = l.get(0);
                 Integer scriptFailNum = d.getOrDefault(pi.getDeviceId(), 0);
                 if((Integer) s.get("count") > 0){
@@ -142,12 +138,11 @@ public class TaskOverListener implements ApplicationListener<TaskOverEvent> {
                 d.put(pi.getDeviceId(), scriptFailNum);
             }
         }
-        int finalScriptNum = scriptNum;
         d.forEach((k, v) -> {
             Map<String, Object> t = new HashMap<>();
             t.put("deviceId", k);
             t.put("fail", v);
-            t.put("success", finalScriptNum - v);
+            t.put("success", scriptNum - v);
             statusScripts.add(t);
         });
 

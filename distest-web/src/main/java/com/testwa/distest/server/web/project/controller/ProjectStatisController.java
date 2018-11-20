@@ -50,7 +50,7 @@ public class ProjectStatisController extends BaseController {
 
     @ApiOperation(value="项目的基本统计信息")
     @ResponseBody
-    @GetMapping(value = "/{projectId}/baseInfo")
+    @GetMapping(value = "/{projectId}/statis/baseInfo")
     public ProjectStatis baseInfo(@PathVariable Long projectId){
         projectValidator.validateProjectExist(projectId);
         String username = WebUtil.getCurrentUsername();
@@ -72,16 +72,14 @@ public class ProjectStatisController extends BaseController {
         }
 
         if(startTime != null && !validTimestamp(startTime*1000)) {
-            throw new BusinessException(ResultCode.ILLEGAL_PARAM, "开始时间格式错误");
+            throw new BusinessException(ResultCode.ILLEGAL_PARAM, "开始时间错误");
         }
-        if(endTime != null && !validTimestamp(endTime*1000)) {
-            throw new BusinessException(ResultCode.ILLEGAL_PARAM, "结束时间格式错误");
-        }
+
     }
 
     @ApiOperation(value="测试基本统计信息，包括测试市场，测试次数，调试市场，上传脚本数量")
     @ResponseBody
-    @GetMapping(value = "/{projectId}/testInfo")
+    @GetMapping(value = "/{projectId}/statis/testInfo")
     public ProjectStatisTestInfoVO testInfo(@PathVariable Long projectId, @RequestParam(value="startTime" ,required=false) Long startTime, @RequestParam(value="endTime" ,required=false) Long endTime){
         checkProjectTestStatisParams(projectId, startTime, endTime);
 
@@ -91,7 +89,7 @@ public class ProjectStatisController extends BaseController {
 
     @ApiOperation(value="应用测试统计")
     @ResponseBody
-    @GetMapping(value = "/{projectId}/appCount")
+    @GetMapping(value = "/{projectId}/statis/appCount")
     public ProjectStatisMultiBarVO appCount(@PathVariable Long projectId, @RequestParam(value="startTime" ,required=false) Long startTime, @RequestParam(value="endTime" ,required=false) Long endTime){
         checkProjectTestStatisParams(projectId, startTime, endTime);
 
@@ -100,11 +98,31 @@ public class ProjectStatisController extends BaseController {
 
     @ApiOperation(value="成员测试统计")
     @ResponseBody
-    @GetMapping(value = "/{projectId}/memberCount")
+    @GetMapping(value = "/{projectId}/statis/memberCount")
     public ProjectStatisMultiBarVO memberCount(@PathVariable Long projectId, @RequestParam(value="startTime" ,required=false) Long startTime, @RequestParam(value="endTime" ,required=false) Long endTime){
         checkProjectTestStatisParams(projectId, startTime, endTime);
 
         return projectStatisMgr.statisMemberTestCountForEveryTestType(projectId, startTime, endTime);
+    }
+
+    @ApiOperation(value="测试耗时统计")
+    @ResponseBody
+    @GetMapping(value = "/{projectId}/statis/elapsedTime")
+    public ProjectStatisElapsedTimeVO elapsedTime(@PathVariable Long projectId, @RequestParam(value="startTime" ,required=false) Long startTime, @RequestParam(value="endTime" ,required=false) Long endTime){
+        checkProjectTestStatisParams(projectId, startTime, endTime);
+
+        ProjectStatisElapsedTimeLineVO elapsedTimeDaysVO = projectStatisMgr.countElapsedTimeByDay(projectId, startTime, endTime);
+        Map<String, ProjectStatisElapsedTimeLineVO> elapsedTimeMembersMap = projectStatisMgr.countElapsedTimeForMember(projectId, startTime, endTime);
+
+        List<ProjectStatisMemberElapsedTimeVO> elapsedTimeMembersList = new ArrayList<>();
+        elapsedTimeMembersMap.forEach((username, list) -> {
+            ProjectStatisMemberElapsedTimeVO vo = new ProjectStatisMemberElapsedTimeVO();
+            vo.setUsername(username);
+            vo.setLines(list);
+            elapsedTimeMembersList.add(vo);
+        });
+
+        return new ProjectStatisElapsedTimeVO(elapsedTimeDaysVO, elapsedTimeMembersList);
     }
 
     @ApiOperation(value="测试动态")
@@ -139,27 +157,5 @@ public class ProjectStatisController extends BaseController {
 
         return new PageResult<>(result, dynamicVOPageResult.getTotal());
     }
-
-    @ApiOperation(value="测试耗时统计")
-    @ResponseBody
-    @GetMapping(value = "/{projectId}/elapsedTime")
-    public ProjectStatisElapsedTimeVO elapsedTime(@PathVariable Long projectId, @RequestParam(value="startTime" ,required=false) Long startTime, @RequestParam(value="endTime" ,required=false) Long endTime){
-        checkProjectTestStatisParams(projectId, startTime, endTime);
-
-        ProjectStatisElapsedTimeLineVO elapsedTimeDaysVO = projectStatisMgr.countElapsedTimeByDay(projectId, startTime, endTime);
-        Map<String, ProjectStatisElapsedTimeLineVO> elapsedTimeMembersMap = projectStatisMgr.countElapsedTimeForMember(projectId, startTime, endTime);
-
-        List<ProjectStatisMemberElapsedTimeVO> elapsedTimeMembersList = new ArrayList<>();
-        elapsedTimeMembersMap.forEach((username, list) -> {
-            ProjectStatisMemberElapsedTimeVO vo = new ProjectStatisMemberElapsedTimeVO();
-            vo.setUsername(username);
-            vo.setLines(list);
-            elapsedTimeMembersList.add(vo);
-        });
-
-        return new ProjectStatisElapsedTimeVO(elapsedTimeDaysVO, elapsedTimeMembersList);
-    }
-
-
 
 }

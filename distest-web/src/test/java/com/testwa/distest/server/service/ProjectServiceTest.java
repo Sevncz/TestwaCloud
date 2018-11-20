@@ -67,7 +67,7 @@ public class ProjectServiceTest {
     @WithMockUser(username = "xiaoming", authorities = { "ADMIN", "USER" })
     public void testDeleteOne(){
         List<Project> projects = projectService.findAll();
-        if(projects.size() > 0){
+        if(!projects.isEmpty()){
             projectService.delete(projects.get(0).getId());
         }
     }
@@ -107,7 +107,7 @@ public class ProjectServiceTest {
         try {
             ProjectUpdateForm form = new ProjectUpdateForm();
             List<Project> projects = projectService.findAll();
-            if(projects.size() > 0){
+            if(!projects.isEmpty()){
                 form.setProjectId(projects.get(0).getId());
                 form.setProjectName("hhhhha");
                 projectService.update(form);

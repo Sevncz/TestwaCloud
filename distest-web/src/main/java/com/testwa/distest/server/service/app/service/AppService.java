@@ -167,7 +167,7 @@ public class AppService {
         String md5 = IOUtil.fileMD5(filepath.toString());
         List<App> appList = findByMd5InProject(md5, projectId);
         App app;
-        if(appList == null || appList.size() == 0){
+        if(appList == null || appList.isEmpty()){
             app = saveFile(filename, aliasName, filepath.toString(), dirName, size, type, md5, projectId);
         }else{
             app = appList.get(0);

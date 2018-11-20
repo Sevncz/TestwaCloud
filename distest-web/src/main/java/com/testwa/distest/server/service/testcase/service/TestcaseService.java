@@ -41,11 +41,7 @@ public class TestcaseService {
     @Autowired
     private ITestcaseDetailDAO testcaseDetailDAO;
     @Autowired
-    private ScriptService scriptService;
-    @Autowired
     private AppInfoService appInfoService;
-    @Autowired
-    private ProjectService projectService;
     @Autowired
     private UserService userService;
 
@@ -144,7 +140,7 @@ public class TestcaseService {
         BeanUtils.copyProperties(testcase, testcaseVO);
         // get scriptVOs
         List<TestcaseDetail> details = testcase.getTestcaseDetails();
-        if(details != null && details.size() > 0){
+        if(details != null && !details.isEmpty()){
             Collections.sort(details);
             List<ScriptVO> scripts = new ArrayList<>();
             details.forEach( d -> {
@@ -194,12 +190,11 @@ public class TestcaseService {
      * @return
      */
     public List<Testcase> findByCaseOrder(List<Long> cases) {
-        StringBuffer orderSb = new StringBuffer();
+        StringBuilder orderSb = new StringBuilder();
         orderSb.append("field(id,");
         String order = Joiner.on(",").join(cases);
         orderSb.append(order).append(")");
-        List<Testcase> caseList = testcaseDAO.findAllOrder(cases, orderSb.toString());
-        return caseList;
+        return testcaseDAO.findAllOrder(cases, orderSb.toString());
     }
 
     public long countByProject(Long projectId) {
@@ -214,8 +209,7 @@ public class TestcaseService {
         PageHelper.startPage(pageForm.getPageNo(), pageForm.getPageSize());
         List<Testcase> testcaseList = findList(projectId, pageForm);
         PageInfo<Testcase> info = new PageInfo(testcaseList);
-        PageResult<Testcase> pr = new PageResult<>(info.getList(), info.getTotal());
-        return pr;
+        return new PageResult<>(info.getList(), info.getTotal());
     }
 
     public List<Testcase> findList(Long projectId, TestcaseListForm queryForm) {

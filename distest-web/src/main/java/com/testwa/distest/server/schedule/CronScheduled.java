@@ -42,8 +42,6 @@ public class CronScheduled {
     private DeviceLockMgr deviceLockMgr;
     @Autowired
     private DeviceService deviceService;
-    @Autowired
-    private Environment env;
 
     @Async
     @Scheduled(fixedDelay = 8000)
@@ -146,7 +144,7 @@ public class CronScheduled {
     public void cleanDeviceLock(){
         List<String> lockDeviceIds = deviceLockMgr.getLockList();
         List<Device> workDevices = deviceService.findAllInWrok();
-        if(workDevices != null && workDevices.size() > 0) {
+        if(workDevices != null && !workDevices.isEmpty()) {
             workDevices.forEach( d -> {
                 if(!lockDeviceIds.contains(d.getDeviceId())) {
                     log.info("Device [{}-{}-{}] not locked", d.getDeviceId(), d.getBrand(), d.getModel());

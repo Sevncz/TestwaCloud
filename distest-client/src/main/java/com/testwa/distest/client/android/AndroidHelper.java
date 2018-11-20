@@ -45,7 +45,7 @@ public class AndroidHelper {
 
     public AndroidDevice getFirstDevice() {
         TreeSet<AndroidDevice> devices = getAllDevices();
-        if (devices.size() > 0) {
+        if (!devices.isEmpty()) {
             return devices.first();
         }
         return null;

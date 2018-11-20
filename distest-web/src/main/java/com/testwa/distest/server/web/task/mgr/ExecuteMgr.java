@@ -238,7 +238,7 @@ public class ExecuteMgr {
         taskService.update(task);
         // 如果传了设备ID，那么停止这几个设备上的任务
         // 否则，停止所有设备上的任务
-        if(form.getDeviceIds() != null && form.getDeviceIds().size() > 0){
+        if(form.getDeviceIds() != null && !form.getDeviceIds().isEmpty()){
             for (String key : form.getDeviceIds()) {
                 Device d = deviceService.findByDeviceId(key);
                 stopDeviceTask(d, form.getTaskCode(), currentUser.getId());

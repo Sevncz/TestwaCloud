@@ -117,7 +117,7 @@ public class LogcatAnalysisListener implements ApplicationListener<LogcatAnalysi
             }
             final App appfinal = app;
             List<CrashLog> logs = analysisResult(outputLog.toString());
-            if(logs.size() > 0){
+            if(!logs.isEmpty()){
                 logs.forEach( i -> {
                     i.setTaskCode(e.getTaskCode());
                     i.setDeviceId(e.getDeviceId());

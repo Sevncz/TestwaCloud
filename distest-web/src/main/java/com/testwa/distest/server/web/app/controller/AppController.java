@@ -144,7 +144,7 @@ public class AppController extends BaseController {
 
     @ApiOperation(value="获取一个App的详情", notes="")
     @ResponseBody
-    @GetMapping(value = "/project/{projectId}/{appInfoId}/appDetail")
+    @GetMapping(value = "/project/{projectId}/app/{appInfoId}/appDetail")
     public AppInfoVersionsDetailVO getDetail(@PathVariable("projectId") Long projectId, @PathVariable("appInfoId") Long appInfoId) {
         projectValidator.validateProjectExist(projectId);
         AppInfo appInfo = appInfoService.findOne(appInfoId);

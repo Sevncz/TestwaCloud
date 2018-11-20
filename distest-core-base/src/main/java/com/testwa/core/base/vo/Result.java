@@ -63,11 +63,20 @@ public class Result<T> {
         return result;
     }
 
+    public static <T> Result<T> error(ResultCode code, T result) {
+        Result<T> response = new Result<>();
+        response.success = false;
+        response.code = code.getValue();
+        response.data = result;
+        return response;
+    }
+
     public static <T> Result<T> error(ResultCode code) {
         Result<T> result = new Result<>();
         result.success = false;
         result.code = code.getValue();
         return result;
     }
+
 
 }

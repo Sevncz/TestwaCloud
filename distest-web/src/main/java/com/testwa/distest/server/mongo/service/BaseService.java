@@ -22,13 +22,13 @@ public class BaseService {
         Query query = new Query();
         Criteria criteria = new Criteria();
 
-        if(andCriteria != null && andCriteria.size() > 0){
+        if(andCriteria != null && !andCriteria.isEmpty()){
             Criteria[] criteriaArr = new Criteria[andCriteria.size()];
             criteriaArr = andCriteria.toArray(criteriaArr);
             criteria.andOperator(criteriaArr);
         }
 
-        if(orCriteria != null && orCriteria.size() > 0){
+        if(orCriteria != null && !orCriteria.isEmpty()){
             Criteria[] criteriaArr = new Criteria[orCriteria.size()];
             criteriaArr = orCriteria.toArray(criteriaArr);
             criteria.orOperator(criteriaArr);
