@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 一般不会直接使用该类，BaseMapper 供在BaseDAO中使用
  * Created by wen on 19/10/2017.
  */
 @Mapper
@@ -34,6 +35,9 @@ public interface BaseMapper<T extends Entity, ID extends Serializable> {
 
     @SelectProvider(type = SqlProvider.class, method = "findList")
     List<T> find_list(Map<String, Object> params);
+
+    @SelectProvider(type = SqlProvider.class, method = "findBy")
+    List<T> find_by(Map<String, Object> params);
 
     @SelectProvider(type = SqlProvider.class, method = "count")
     long count(Map<String, Object> params);

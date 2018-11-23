@@ -51,6 +51,13 @@ public interface IBaseDAO <T extends Entity, ID extends Serializable> {
     List<T> findAll(Collection<ID> keys);
 
     /**
+     * 根据entity参数获取list
+     * @param entity
+     * @return
+     */
+    List<T> findBy(T entity);
+
+    /**
      * 根据主键获得一个对象
      * @param id
      * @return
