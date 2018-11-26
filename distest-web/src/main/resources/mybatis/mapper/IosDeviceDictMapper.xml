@@ -10,7 +10,7 @@
     </resultMap>
 
     <select id="findByProductType" resultMap="BaseResultMap" >
-        SELECT * FROM ios_device_dict
+        SELECT * FROM dis_ios_device_dict
         WHERE product_type = #{productType}
     </select>
 

@@ -413,28 +413,6 @@ public final class DB {
                 throw new IllegalArgumentException("Unknown enum value :"+ value);
             }
         }
-
-        public static List<DeviceShareScopeEnum> lteScope(Integer scope) {
-            List<DeviceShareScopeEnum> l = new ArrayList<>();
-            switch (fromValue(scope)){
-                case Private:
-                    if(Private.getValue() <= scope){
-                        l.add(Private);
-                    }
-                    break;
-                case Protected:
-                    if(Protected.getValue() <= scope){
-                        l.add(Protected);
-                    }
-                    break;
-                case Public:
-                    if(Public.getValue() <= scope){
-                        l.add(Public);
-                    }
-                    break;
-            }
-            return l;
-        }
     }
 
     public enum DeviceShareScopeTypeEnum implements ValueEnum {
@@ -482,22 +460,52 @@ public final class DB {
                 throw new IllegalArgumentException("Unknown enum value :"+ value);
             }
         }
+    }
 
-        public static List<DeviceShareScopeTypeEnum> lteScope(Integer scope) {
-            List<DeviceShareScopeTypeEnum> l = new ArrayList<>();
-            switch (fromValue(scope)){
-                case User:
-                    if(User.getValue() <= scope){
-                        l.add(User);
-                    }
-                    break;
-                case Project:
-                    if(Project.getValue() <= scope){
-                        l.add(Project);
-                    }
-                    break;
+    public enum IssueStateEnum implements ValueEnum  {
+        OPEN(0, "open", "开启"),
+        CLOSED(1, "closed", "关闭"),
+        REJECT(2, "rejected", "拒绝");
+
+        private int value;
+        private String name;
+        private String desc;
+
+        IssueStateEnum(int value, String name, String desc){
+            this.value = value;
+            this.name = name;
+            this.desc = desc;
+        }
+
+        public int getValue() {
+            return value;
+        }
+        @JsonValue
+        public String getName() {
+            return name;
+        }
+        public String getDesc() {
+            return desc;
+        }
+
+        public static IssueStateEnum valueOf(int value) {
+            IssueStateEnum status = null;
+            switch (value) {
+                case 0: status = OPEN;break;
+                case 1: status = CLOSED;break;
+                case 2: status = REJECT;break;
             }
-            return l;
+            return status;
+        }
+
+        public static IssueStateEnum nameOf(String name) {
+            IssueStateEnum status = null;
+            switch (name) {
+                case "open": status = OPEN;break;
+                case "closed": status = CLOSED;break;
+                case "rejected": status = REJECT;break;
+            }
+            return status;
         }
     }
 

@@ -121,7 +121,7 @@ public class ProjectController extends BaseController {
     @ResponseBody
     @GetMapping(value = "/page")
     public PageResult page(@Valid ProjectListForm form){
-        PageResult<Project> projectPR = projectService.findAllByUserPage(form, currentUser);
+        PageResult<Project> projectPR = projectService.pageByUser(form, currentUser);
         List<Project> projects = projectPR.getPages();
         List<ProjectVO> vos = new ArrayList<>();
         for (Project p : projects) {
@@ -146,7 +146,7 @@ public class ProjectController extends BaseController {
     @ResponseBody
     @GetMapping(value = "/list")
     public List list() {
-        List<Project> projectsOfUser = projectService.findAllByUserList(currentUser.getId());
+        List<Project> projectsOfUser = projectService.listByUser(currentUser.getId());
         List<ProjectVO> vos = new ArrayList<>();
         for (Project p : projectsOfUser) {
             User createUser = userService.findOne(p.getCreateBy());

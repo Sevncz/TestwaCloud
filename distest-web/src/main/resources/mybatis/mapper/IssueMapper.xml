@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.testwa.distest.server.mapper.IssueMapper" >
+    <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.Issue" >
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="project_id" property="projectId" jdbcType="BIGINT" />
+        <result column="label_id" property="labelId" jdbcType="BIGINT" />
+        <result column="assignee_id" property="assigneeId" jdbcType="BIGINT" />
+        <result column="author_id" property="authorId" jdbcType="BIGINT" />
+        <result column="title" property="title" jdbcType="VARCHAR" />
+        <result column="content" property="content" jdbcType="VARCHAR" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+        <result column="state" property="state" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler" />
+        <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
+    </resultMap>
+
+    <sql id="Base_Column_List" >
+        id, project_id, label_id, assignee_id, author_id, title, content, create_time, state
+    </sql>
+
+    <select id="findOne" parameterType="com.testwa.distest.server.entity.Issue" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM dis_issue
+        WHERE enabled = 1 AND id = #{issueId}
+    </select>
+
+    <select id="findBy" parameterType="com.testwa.distest.server.entity.Issue" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM dis_issue
+        WHERE enabled = 1
+        <if test="projectId != null">and project_id = #{projectId}</if>
+        <if test="assigneeId != null">and assignee_id = #{assigneeId}</if>
+        <if test="authorId != null">and author_id = #{authorId}</if>
+        <if test="state != null">and state = #{state, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
+    </select>
+
+</mapper>

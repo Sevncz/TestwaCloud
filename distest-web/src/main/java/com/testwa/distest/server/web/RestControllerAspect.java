@@ -36,7 +36,6 @@ public class RestControllerAspect {
         return this;
     }
 
-
     //RestController 注解标注的类和方法
     @Around("@within(org.springframework.web.bind.annotation.RestController) || @annotation(org.springframework.web.bind.annotation.RestController)")
     public Object apiLog(ProceedingJoinPoint point) throws Throwable {

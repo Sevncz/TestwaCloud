@@ -53,7 +53,7 @@ public class ProjectValidator {
      *@Date: 2018/6/1
      */
     public void validateUserInAnyProject(Long userId) {
-        List<Project> projectList = projectService.findAllByUserList(userId);
+        List<Project> projectList = projectService.listByUser(userId);
         if(projectList.isEmpty()){
             throw new BusinessException(ResultCode.ILLEGAL_OP, "该用户不在项目中");
         }

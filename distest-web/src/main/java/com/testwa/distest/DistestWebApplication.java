@@ -19,7 +19,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.Executor;
 
-//@EnableDiscoveryClient
 @Slf4j
 @SpringBootApplication
 @EnableMongoRepositories(repositoryBaseClass = CommonMongoRepositoryImpl.class, basePackages = {"com.testwa.distest.server.mongo.repository"})
@@ -49,12 +48,13 @@ public class DistestWebApplication extends AsyncConfigurerSupport {
 	public static void main(String[] args) {
 		SpringApplication.run(DistestWebApplication.class, args);
 
-        String androidHome = System.getenv("ANDROID_HOME");
-        if(StringUtils.isBlank(androidHome)){
-        	log.warn("ANDROID_HOME not found");
+		String androidHome = System.getenv("ANDROID_HOME");
+		if(StringUtils.isBlank(androidHome)){
+			log.warn("ANDROID_HOME not found");
 		}else{
 			log.info("androidHome: {}", androidHome);
 		}
 	}
 
 }
+//@EnableDiscoveryClient

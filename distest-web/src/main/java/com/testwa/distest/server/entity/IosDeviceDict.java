@@ -12,7 +12,7 @@ import lombok.Data;
  * @Create: 2018-06-25 15:58
  **/
 @Data
-@TableName("ios_device_dict")
+@TableName("dis_ios_device_dict")
 public class IosDeviceDict extends BaseEntity {
     @Column(value = "product_type")
     private String productType;

@@ -54,11 +54,7 @@ public class ProjectService {
     @Autowired
     private ProjectMemberService projectMemberService;
     @Autowired
-    private IDeviceDAO deviceDAO;
-    @Autowired
     private DeviceOnlineMgr deviceOnlineMgr;
-    @Autowired
-    private DeviceService deviceService;
 
     /**
      * 保存project，同时保存projectMember for owner
@@ -107,12 +103,11 @@ public class ProjectService {
     }
 
     public List<Project> findByProjectOrder(List<Long> projectIds) {
-        StringBuffer orderSb = new StringBuffer();
+        StringBuilder orderSb = new StringBuilder();
         orderSb.append("field(id,");
         String order = Joiner.on(",").join(projectIds);
         orderSb.append(order).append(")");
-        List<Project> projectList = projectDAO.findAllOrder(projectIds, orderSb.toString());
-        return projectList;
+        return projectDAO.findAllOrder(projectIds, orderSb.toString());
     }
 
 
@@ -181,14 +176,14 @@ public class ProjectService {
         return project;
     }
 
-    public List<Project> findAllByUserList(Long userId) {
+    public List<Project> listByUser(Long userId) {
         if(userId != null){
             return projectDAO.findAllByUser(userId);
         }
         return new ArrayList<>();
     }
 
-    public PageResult<Project> findAllByUserPage(ProjectListForm pageForm, User user) {
+    public PageResult<Project> pageByUser(ProjectListForm pageForm, User user) {
         //分页处理
         PageHelper.startPage(pageForm.getPageNo(), pageForm.getPageSize());
         if(StringUtils.isBlank(pageForm.getOrderBy()) ){
@@ -200,12 +195,11 @@ public class ProjectService {
         PageHelper.orderBy(pageForm.getOrderBy() + " " + pageForm.getOrder());
         List<Project> projectList = projectDAO.findAllByUser(user.getId(), pageForm.getProjectName());
         PageInfo<Project> info = new PageInfo(projectList);
-        PageResult<Project> pr = new PageResult<>(info.getList(), info.getTotal());
-        return pr;
+        return new PageResult<>(info.getList(), info.getTotal());
     }
 
 
-    public PageResult<Project> findPage(ProjectListForm pageForm) {
+    public PageResult<Project> page(ProjectListForm pageForm) {
         Project query = new Project();
         query.setProjectName(pageForm.getProjectName());
         //分页处理
