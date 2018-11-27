@@ -36,4 +36,16 @@
         <if test="state != null">and state = #{state, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
     </select>
 
+    <select id="search" resultMap="BaseResultMap" >
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM dis_issue
+        WHERE enabled = 1
+        <if test="query.projectId != null">and project_id = #{query.projectId}</if>
+        <if test="query.assigneeId != null">and assignee_id = #{query.assigneeId}</if>
+        <if test="query.authorId != null">and author_id = #{query.authorId}</if>
+        <if test="query.state != null">and state = #{query.state, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
+        <if test="search != null">and (title like CONCAT('%', #{search}, '%') or content like CONCAT('%', #{search}, '%'))</if>
+    </select>
+
 </mapper>

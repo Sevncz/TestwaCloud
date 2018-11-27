@@ -10,16 +10,16 @@
     </resultMap>
 
     <delete id="removeFromTask" >
-        DELETE FROM log_file
+        DELETE FROM dis_log_file
         WHERE task_code = #{taskCode}
     </delete>
     <select id="findOne" resultMap="BaseResultMap" >
-        SELECT * FROM log_file
+        SELECT * FROM dis_log_file
         WHERE task_code = #{taskCode}
         and device_id = #{deviceId}
     </select>
     <select id="fildAll" parameterType="com.testwa.distest.server.entity.LogFile" resultMap="BaseResultMap" >
-        SELECT * FROM log_file
+        SELECT * FROM dis_log_file
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             <if test="taskCode != null">and task_code = #{taskCode}</if>
             <if test="deviceId != null">and device_id = #{deviceId}</if>

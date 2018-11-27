@@ -2,11 +2,14 @@ package com.testwa.distest.server.service.issue.service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.testwa.core.base.vo.PageResult;
+import com.testwa.core.base.constant.ResultCode;
 import com.testwa.distest.common.enums.DB;
+import com.testwa.distest.exception.BusinessException;
 import com.testwa.distest.server.entity.Issue;
+import com.testwa.distest.server.entity.IssueLabel;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.issue.dao.IIssueDAO;
+import com.testwa.distest.server.service.issue.dao.IIssueLabelDAO;
 import com.testwa.distest.server.service.issue.form.IssueListForm;
 import com.testwa.distest.server.service.issue.form.IssueNewForm;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +35,8 @@ public class IssueService {
 
     @Autowired
     private IIssueDAO issueDAO;
+    @Autowired
+    private IIssueLabelDAO labelDAO;
     @Autowired
     private User currentUser;
 
@@ -72,18 +77,33 @@ public class IssueService {
             query.setAssigneeId(form.getAssigneeId());
         }
         if(StringUtils.isNotBlank(form.getLabelName())) {
-//            query.setAssigneeId(form.getAssigneeId());
+            IssueLabel labelQuery = new IssueLabel();
+            labelQuery.setEnabled(true);
+            labelQuery.setProjectId(projectId);
+            labelQuery.setName(form.getLabelName());
+            List<IssueLabel> labels = labelDAO.findBy(labelQuery);
+            if(labels.isEmpty()) {
+                throw new BusinessException(ResultCode.INVALID_PARAM, "不存在的标签名称");
+            }
+            IssueLabel label = labels.get(0);
+            query.setLabelId(label.getId());
         }
         if(StringUtils.isNotBlank(form.getState())) {
             DB.IssueStateEnum stateEnum = DB.IssueStateEnum.nameOf(form.getState());
-            if(stateEnum != null) {
-                query.setState(stateEnum);
+            if(stateEnum == null) {
+                throw new BusinessException(ResultCode.INVALID_PARAM, "不存在状态");
             }
+            query.setState(stateEnum);
         }
         //分页处理
         PageHelper.startPage(form.getPageNo(), form.getPageSize());
         PageHelper.orderBy(form.getOrderBy() + " " + form.getOrder());
-        List<Issue> issues = issueDAO.findBy(query);
+        List<Issue> issues;
+        if(StringUtils.isNotBlank(form.getIssueSearch())) {
+            issues = issueDAO.search(query, form.getIssueSearch());
+        }else{
+            issues = issueDAO.findBy(query);
+        }
         return new PageInfo(issues);
     }
 

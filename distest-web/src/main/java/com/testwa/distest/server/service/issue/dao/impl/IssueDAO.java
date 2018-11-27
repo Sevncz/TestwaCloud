@@ -40,4 +40,9 @@ public class IssueDAO extends BaseDAO<Issue, Long> implements IIssueDAO {
         updateIssue.setEnabled(false);
         super.update(updateIssue);
     }
+
+    @Override
+    public List<Issue> search(Issue query, String issueSearch) {
+        return mapper.search(query, issueSearch);
+    }
 }

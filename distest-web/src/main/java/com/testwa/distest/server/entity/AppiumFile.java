@@ -11,7 +11,7 @@ import java.util.Date;
  * Created by wen on 12/08/2017.
  */
 @Data
-@TableName("appium_file")
+@TableName("dis_appium_file")
 public class AppiumFile extends BaseEntity {
 
     @Column(value = "task_code")

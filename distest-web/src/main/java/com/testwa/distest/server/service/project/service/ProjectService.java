@@ -131,6 +131,8 @@ public class ProjectService {
         // 保存项目的同时保存owner
         Long projectId = this.insert(project);
         project.setId(projectId);
+        // 生成issue列表
+
         // 保存成员
         MembersModifyForm membersModifyForm = new MembersModifyForm();
         membersModifyForm.setProjectId(projectId);

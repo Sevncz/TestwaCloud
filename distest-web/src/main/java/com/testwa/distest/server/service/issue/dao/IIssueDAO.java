@@ -14,4 +14,6 @@ public interface IIssueDAO extends IBaseDAO<Issue, Long> {
     void updateState(Long issueId, DB.IssueStateEnum stateEnum);
 
     void delete(Long issueId);
+
+    List<Issue> search(Issue query, String issueSearch);
 }

@@ -17,7 +17,7 @@
     </resultMap>
 
     <select id="findRecentLoginOne" resultMap="BaseResultMap" >
-        SELECT * FROM agent_login_log
+        SELECT * FROM dis_agent_login_log
         WHERE username = #{username}
         order by login_time DESC limit 1
     </select>

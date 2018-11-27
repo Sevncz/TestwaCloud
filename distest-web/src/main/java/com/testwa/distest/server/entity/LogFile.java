@@ -11,7 +11,7 @@ import java.util.Date;
  * Created by wen on 12/08/2017.
  */
 @Data
-@TableName("log_file")
+@TableName("dis_log_file")
 public class LogFile extends BaseEntity {
 
     @Column(value = "task_code")

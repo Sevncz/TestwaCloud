@@ -12,7 +12,7 @@ import java.util.Date;
  * 设备使用分组
  */
 @Data
-@TableName("device_sharer")
+@TableName("dis_device_sharer")
 public class DeviceSharer extends BaseEntity {
 
     @Column(value = "device_id")

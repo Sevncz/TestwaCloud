@@ -10,11 +10,11 @@
     </resultMap>
 
     <select id="findOneByDeviceIdAndCreateBy" resultMap="BaseResultMap" >
-        SELECT * FROM device_share_scope
+        SELECT * FROM dis_device_share_scope
         where device_id = #{deviceId} and create_by = #{userId}
     </select>
     <update id="updateScope" >
-        update device_share_scope
+        update dis_device_share_scope
         set share_scope = #{scope, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}
         where device_id = #{deviceId}
         and create_by = #{createBy}

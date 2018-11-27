@@ -13,7 +13,7 @@
     </resultMap>
 
     <select id="findShareUserIn" resultMap="BaseResultMap" >
-        SELECT * FROM device_sharer
+        SELECT * FROM dis_device_sharer
         where device_id = #{deviceId}
             and from_user_id = #{ownerId}
             and sharer_id = #{toUserId}
@@ -21,7 +21,7 @@
 
     <select id="findShareToUserList" resultMap="BaseResultMap" >
         select t1.*
-        from device_sharer t1, device t2
+        from dis_device_sharer t1, device t2
         where t1.device_id = t2.deviceId
         and t1.from_user_id = t2.lastUserId
         and t2.onlineStatus = 1
@@ -32,13 +32,13 @@
 
     <select id="findDeviceScopeUserList" resultType="com.testwa.distest.server.service.device.dto.DeviceSharerDTO" >
         SELECT t.id as shareId, t.start_time as startTime, t.end_time as endTime, u.id as userId, u.username as username
-        FROM device_sharer t left join user u on t.sharer_id = u.id
+        FROM dis_device_sharer t left join user u on t.sharer_id = u.id
         where t.device_id = #{deviceId}
             and t.from_user_id = #{ownerId}
     </select>
 
     <delete id="removeOne">
-        delete from device_sharer
+        delete from dis_device_sharer
         where device_id = #{deviceId}
         and from_user_id = #{ownerId}
         and sharer_id = #{shareId}
