@@ -5,8 +5,6 @@ import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.util.ComparatorReverseDate;
 import com.testwa.core.base.vo.PageResult;
-import com.testwa.core.base.vo.Result;
-import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.exception.BusinessException;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.project.service.ProjectService;
@@ -43,9 +41,9 @@ public class ProjectStatisController extends BaseController {
     @Autowired
     private ProjectValidator projectValidator;
     @Autowired
-    private UserService userService;
-    @Autowired
     private ProjectStatisMgr projectStatisMgr;
+    @Autowired
+    private User currentUser;
 
 
     @ApiOperation(value="项目的基本统计信息")
@@ -53,17 +51,13 @@ public class ProjectStatisController extends BaseController {
     @GetMapping(value = "/{projectId}/statis/baseInfo")
     public ProjectStatis baseInfo(@PathVariable Long projectId){
         projectValidator.validateProjectExist(projectId);
-        String username = WebUtil.getCurrentUsername();
-        User member = userService.findByUsername(username);
-        projectValidator.validateUserIsProjectMember(projectId, member.getId());
+        projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
         return projectService.statis(projectId);
     }
 
     private void checkProjectTestStatisParams(@PathVariable Long projectId, @RequestParam(value="startTime" ,required=false) Long startTime, @RequestParam(value="endTime" ,required=false) Long endTime) {
         projectValidator.validateProjectExist(projectId);
-        String username = WebUtil.getCurrentUsername();
-        User member = userService.findByUsername(username);
-        projectValidator.validateUserIsProjectMember(projectId, member.getId());
+        projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
 
         if(startTime != null && endTime != null) {
             if (endTime < startTime) {

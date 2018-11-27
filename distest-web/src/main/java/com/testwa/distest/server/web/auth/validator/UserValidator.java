@@ -1,7 +1,6 @@
 package com.testwa.distest.server.web.auth.validator;
 
 import com.testwa.core.base.constant.ResultCode;
-import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.exception.AccountException;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.user.service.UserService;
@@ -18,9 +17,11 @@ public class UserValidator {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private User currentuUser;
 
     public void validateOnlineExist()  {
-        User user = userService.findByUsername(WebUtil.getCurrentUsername());
+        User user = userService.findOne(currentuUser.getId());
         if(user == null){
             throw new AccountException(ResultCode.ILLEGAL_OP, "用户不存在");
         }

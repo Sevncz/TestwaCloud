@@ -4,8 +4,6 @@ import com.testwa.core.base.constant.ResultCode;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.form.IDListForm;
-import com.testwa.core.base.vo.Result;
-import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.common.validator.FileUploadValidator;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.exception.BusinessException;
@@ -57,6 +55,8 @@ public class ScriptController extends BaseController {
     private FileUploadValidator fileUploadValidator;
     @Autowired
     private TestcaseService testcaseService;
+    @Autowired
+    private User currentUser;
 
     @ApiOperation(value="上传脚本", notes="")
     @ResponseBody
@@ -124,8 +124,7 @@ public class ScriptController extends BaseController {
     public void appendInfo(@RequestBody @Valid ScriptUpdateForm form) {
         scriptValidator.validateScriptExist(form.getScriptId());
         projectValidator.validateProjectExist(form.getProjectId());
-        User user = userService.findByUsername(WebUtil.getCurrentUsername());
-        projectValidator.validateUserIsProjectMember(form.getProjectId(), user.getId());
+        projectValidator.validateUserIsProjectMember(form.getProjectId(), currentUser.getId());
         scriptService.appendInfo(form);
     }
 
@@ -145,8 +144,7 @@ public class ScriptController extends BaseController {
     @GetMapping(value = "/project/{projectId}/scriptPage")
     public PageResult scriptPage(@PathVariable Long projectId, @Valid ScriptListForm queryForm) {
         projectValidator.validateProjectExist(projectId);
-        User user = userService.findByUsername(WebUtil.getCurrentUsername());
-        projectValidator.validateUserIsProjectMember(projectId, user.getId());
+        projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
         return scriptService.findPage(projectId, queryForm);
     }
 
@@ -155,8 +153,7 @@ public class ScriptController extends BaseController {
     @GetMapping(value = "/project/{projectId}/scriptList")
     public List scriptList(@PathVariable Long projectId, @Valid ScriptListForm queryForm) {
         projectValidator.validateProjectExist(projectId);
-        User user = userService.findByUsername(WebUtil.getCurrentUsername());
-        projectValidator.validateUserIsProjectMember(projectId, user.getId());
+        projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
         return scriptService.findList(projectId, queryForm);
     }
 

@@ -191,7 +191,7 @@ public class ProjectController extends BaseController {
     @GetMapping(value = "/my/views")
     public List myViews() throws Exception {
 
-        List<Long> projectIds = viewMgr.getRecentViewProject(currentUser.getUsername());
+        List<Long> projectIds = viewMgr.getRecentViewProject();
         List<ProjectVO> vos = new ArrayList<>();
         if(projectIds != null && !projectIds.isEmpty()){
             List<Project> projects = projectService.findByProjectOrder(projectIds);

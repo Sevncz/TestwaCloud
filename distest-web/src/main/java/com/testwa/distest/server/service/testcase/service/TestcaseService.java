@@ -5,17 +5,13 @@ import com.github.pagehelper.PageInfo;
 import com.google.common.base.Joiner;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.utils.TimeUtil;
-import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.service.app.service.AppInfoService;
-import com.testwa.distest.server.service.project.service.ProjectService;
-import com.testwa.distest.server.service.script.service.ScriptService;
 import com.testwa.distest.server.service.testcase.dao.ITestcaseDAO;
 import com.testwa.distest.server.service.testcase.dao.ITestcaseDetailDAO;
 import com.testwa.distest.server.service.testcase.form.TestcaseNewForm;
 import com.testwa.distest.server.service.testcase.form.TestcaseListForm;
 import com.testwa.distest.server.service.testcase.form.TestcaseUpdateForm;
-import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.auth.vo.UserVO;
 import com.testwa.distest.server.web.script.vo.ScriptVO;
 import com.testwa.distest.server.web.testcase.vo.TestcaseVO;
@@ -43,7 +39,7 @@ public class TestcaseService {
     @Autowired
     private AppInfoService appInfoService;
     @Autowired
-    private UserService userService;
+    private User currentUser;
 
     /**
      * 保存回归测试测试案例
@@ -54,7 +50,6 @@ public class TestcaseService {
      */
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public long saveFunctionalTestcase(Long projectId, AppInfo appInfo, TestcaseNewForm form) {
-        User user = userService.findByUsername(WebUtil.getCurrentUsername());
         Testcase testcase = new Testcase();
         if(StringUtils.isNotEmpty(form.getName())){
             testcase.setCaseName(form.getName());
@@ -67,7 +62,7 @@ public class TestcaseService {
         testcase.setAppInfoId(appInfo.getId());
         testcase.setPackageName(appInfo.getPackageName());
         testcase.setAppName(appInfo.getName());
-        testcase.setCreateBy(user.getId());
+        testcase.setCreateBy(currentUser.getId());
         testcase.setCreateTime(new Date());
         testcase.setEnabled(true);
         long testcaseId = testcaseDAO.insert(testcase);
@@ -77,7 +72,6 @@ public class TestcaseService {
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public Testcase saveTestcaseByScriptIds(App app, List<Long> scriptIds) {
-        User user = userService.findByUsername(WebUtil.getCurrentUsername());
         AppInfo appInfo = appInfoService.getByPackage(app.getProjectId(), app.getPackageName());
         Testcase testcase = new Testcase();
         testcase.setCaseName(String.format("案例-%s", TimeUtil.getTimestampForFile()));
@@ -85,7 +79,7 @@ public class TestcaseService {
         testcase.setAppInfoId(appInfo.getId());
         testcase.setPackageName(appInfo.getPackageName());
         testcase.setAppName(appInfo.getName());
-        testcase.setCreateBy(user.getId());
+        testcase.setCreateBy(currentUser.getId());
         testcase.setCreateTime(new Date());
         testcase.setEnabled(true);
         long testcaseId = testcaseDAO.insert(testcase);
@@ -170,12 +164,11 @@ public class TestcaseService {
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void update(TestcaseUpdateForm form) {
         Testcase testcase = testcaseDAO.findOne(form.getTestcaseId());
-        User user = userService.findByUsername(WebUtil.getCurrentUsername());
         List<Long> scriptIds = form.getScriptIds();
         testcase.setTag(form.getTag());
         testcase.setDescription(form.getDescription());
         testcase.setCaseName(form.getName());
-        testcase.setUpdateBy(user.getId());
+        testcase.setUpdateBy(currentUser.getId());
         testcase.setUpdateTime(new Date());
         testcaseDAO.update(testcase);
 

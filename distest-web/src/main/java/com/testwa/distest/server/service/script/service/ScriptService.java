@@ -10,11 +10,9 @@ import com.testwa.distest.config.DisFileProperties;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.server.entity.Script;
 import com.testwa.distest.server.entity.User;
-import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.service.script.dao.IScriptDAO;
 import com.testwa.distest.server.service.script.form.ScriptListForm;
 import com.testwa.distest.server.service.script.form.ScriptUpdateForm;
-import com.testwa.distest.server.service.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +35,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 
 /**
  * Created by wen on 21/10/2017.
@@ -50,13 +47,11 @@ public class ScriptService {
     @Autowired
     private IScriptDAO scriptDAO;
     @Autowired
-    private UserService userService;
-    @Autowired
-    private ProjectService projectService;
-    @Autowired
     private DisFileProperties disFileProperties;
     @Autowired
     private Environment env;
+    @Autowired
+    private User currentUser;
 
     public Script findOne(Long scriptId){
         return scriptDAO.findOne(scriptId);
@@ -155,7 +150,6 @@ public class ScriptService {
                 break;
         }
 
-        User currentUser = userService.findByUsername(getCurrentUsername());
         script.setCreateBy(currentUser.getId());
         script.setCreateTime(new Date());
         script.setScriptName(filename);
@@ -188,7 +182,6 @@ public class ScriptService {
     public void update(ScriptUpdateForm form) {
 
         Script script = findOne(form.getScriptId());
-        User currentUser = userService.findByUsername(getCurrentUsername());
         script.setProjectId(form.getProjectId());
         script.setTag(form.getTag());
         script.setDescription(form.getDescription());
@@ -201,7 +194,6 @@ public class ScriptService {
     public void appendInfo(ScriptUpdateForm form) {
 
         Script script = findOne(form.getScriptId());
-        User currentUser = userService.findByUsername(getCurrentUsername());
         script.setProjectId(form.getProjectId());
         script.setTag(form.getTag());
         script.setDescription(form.getDescription());
@@ -277,9 +269,8 @@ public class ScriptService {
         byte[] b = content.getBytes(StandardCharsets.UTF_8);
         Files.write(scriptPath, b);
 
-        User user = userService.findByUsername(getCurrentUsername());
         script.setUpdateTime(new Date());
-        script.setUpdateBy(user.getId());
+        script.setUpdateBy(currentUser.getId());
 
         scriptDAO.update(script);
     }

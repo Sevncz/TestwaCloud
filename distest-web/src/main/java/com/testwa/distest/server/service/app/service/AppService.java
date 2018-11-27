@@ -8,7 +8,6 @@ import com.testwa.distest.common.android.AndroidOSInfo;
 import com.testwa.distest.common.android.TestwaAndroidApp;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.util.AppUtil;
-import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.config.DisFileProperties;
 import com.testwa.distest.server.entity.App;
 import com.testwa.distest.server.entity.AppInfo;
@@ -35,8 +34,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
 
-import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
-
 
 /**
  * Created by wen on 16/9/1.
@@ -50,9 +47,9 @@ public class AppService {
     @Autowired
     private IAppInfoDAO appInfoDAO;
     @Autowired
-    private UserService userService;
-    @Autowired
     private DisFileProperties disFileProperties;
+    @Autowired
+    private User currentUser;
 
     /**
      * 只删除记录
@@ -117,7 +114,6 @@ public class AppService {
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void update(AppUpdateForm form) {
 
-        User currentUser = userService.findByUsername(getCurrentUsername());
         App app = findOne(form.getAppId());
         app.setProjectId(form.getProjectId());
         app.setVersion(form.getVersion());
@@ -131,7 +127,6 @@ public class AppService {
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void appendInfo(AppUpdateForm form) {
-        User currentUser = userService.findByUsername(getCurrentUsername());
         App app = findOne(form.getAppId());
         app.setProjectId(form.getProjectId());
         app.setVersion(form.getVersion());
@@ -172,9 +167,7 @@ public class AppService {
         }else{
             app = appList.get(0);
             app.setCreateTime(new Date());
-            String username = WebUtil.getCurrentUsername();
-            User user = userService.findByUsername(username);
-            app.setUpdateBy(user.getId());
+            app.setUpdateBy(currentUser.getId());
             appDAO.update(app);
         }
         saveOrUpdateAppInfo(projectId, app);
@@ -262,7 +255,6 @@ public class AppService {
             app.setProjectId(projectId);
             app.setEnabled(true);
         }
-        User currentUser = userService.findByUsername(getCurrentUsername());
         app.setCreateBy(currentUser.getId());
         long appId = appDAO.insert(app);
         app.setId(appId);

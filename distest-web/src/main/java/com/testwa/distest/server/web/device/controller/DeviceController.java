@@ -12,7 +12,6 @@ import com.testwa.distest.server.service.device.dto.PrivateDeviceDTO;
 import com.testwa.distest.server.service.device.form.DeviceBatchCheckForm;
 import com.testwa.distest.server.service.device.form.DeviceSearchForm;
 import com.testwa.distest.server.service.device.service.DeviceService;
-import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.device.mgr.DeviceOnlineMgr;
 import com.testwa.distest.server.web.device.validator.DeviceValidatoer;
 import com.testwa.distest.server.web.device.vo.*;
@@ -30,7 +29,6 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.Set;
 
-import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 
 /**
  * Created by wen on 7/30/16.
@@ -42,8 +40,6 @@ import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 @RequestMapping(path = WebConstants.API_PREFIX + "/device")
 public class DeviceController extends BaseController {
     @Autowired
-    private UserService userService;
-    @Autowired
     private DeviceService deviceService;
     @Autowired
     private DeviceOnlineMgr deviceOnlineMgr;
@@ -53,6 +49,8 @@ public class DeviceController extends BaseController {
     private DeviceLockCache deviceLockMgr;
     @Value("${lock.debug.expire}")
     private Integer debugExpireTime;
+    @Autowired
+    private User currentUser;
 
     /**
      * 云端设备列表
@@ -78,8 +76,7 @@ public class DeviceController extends BaseController {
     public List<PrivateDeviceVO> privateList(@Valid DeviceSearchForm form) {
         Set<String> deviceIds = deviceOnlineMgr.allOnlineDevices();
 
-        User user = userService.findByUsername(getCurrentUsername());
-        List<PrivateDeviceDTO> privateDeviceDTOList = deviceService.findPrivateList(deviceIds, user.getId(), form.getBrand(), form.getOsVersion(), form.getResolution(), form.getIsAll());
+        List<PrivateDeviceDTO> privateDeviceDTOList = deviceService.findPrivateList(deviceIds, currentUser.getId(), form.getBrand(), form.getOsVersion(), form.getResolution(), form.getIsAll());
         // 枚举转换器，可根据需要添加
         ConvertUtils.register(new Converter() {
             @Override
@@ -101,9 +98,7 @@ public class DeviceController extends BaseController {
     public List<Device> shareList(@Valid DeviceSearchForm form) {
         Set<String> deviceIds = deviceOnlineMgr.allOnlineDevices();
 
-        User user = userService.findByUsername(getCurrentUsername());
-
-        return deviceService.findShareToUserList(deviceIds, user.getId(), form.getBrand(), form.getOsVersion(), form.getResolution(), form.getIsAll());
+        return deviceService.findShareToUserList(deviceIds, currentUser.getId(), form.getBrand(), form.getOsVersion(), form.getResolution(), form.getIsAll());
     }
 
     /**
@@ -129,8 +124,7 @@ public class DeviceController extends BaseController {
     @GetMapping(value = "/private/search")
     public List<PrivateDeviceVO> myEnableSearch(@Valid DeviceSearchForm form) {
         Set<String> deviceIds = deviceOnlineMgr.allOnlineDevices();
-        User user = userService.findByUsername(getCurrentUsername());
-        List<PrivateDeviceDTO> privateDeviceDTOList = deviceService.searchPrivateList(deviceIds, user.getId(), form.getBrand(), form.getOsVersion(), form.getResolution(), form.getIsAll());
+        List<PrivateDeviceDTO> privateDeviceDTOList = deviceService.searchPrivateList(deviceIds, currentUser.getId(), form.getBrand(), form.getOsVersion(), form.getResolution(), form.getIsAll());
         // 枚举转换器，可根据需要添加
         ConvertUtils.register(new Converter() {
             @Override

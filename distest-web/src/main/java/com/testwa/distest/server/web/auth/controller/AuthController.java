@@ -39,7 +39,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 
-import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 
 /**
  * Created by wen on 20/10/2017.
@@ -63,6 +62,8 @@ public class AuthController extends BaseController {
     private AuthMgr authMgr;
     @Autowired
     private RedisLoginMgr redisLoginMgr;
+    @Autowired
+    private User currentUser;
 
     @ApiOperation(value = "登录")
     @ApiImplicitParam(name = "authenticationRequest", value = "JWT登录验证类", required = true, dataType = "JwtAuthenticationRequest")
@@ -206,11 +207,9 @@ public class AuthController extends BaseController {
         }
     }
 
-
     @PostMapping(value = "/logout")
-    public void logout(HttpServletRequest request,
-                         HttpServletResponse response){
-        redisLoginMgr.logout(getCurrentUsername());
+    public void logout(){
+        redisLoginMgr.logout(currentUser.getUsername());
     }
 
 }

@@ -50,8 +50,6 @@ public class ExecuteMgr {
     private final static String JOB_EXECUTE_NAME = "com.testwa.distest.quartz.job.TaskExecuteJob";
 
     @Autowired
-    private UserService userService;
-    @Autowired
     private AppService appService;
     @Autowired
     private TestcaseService testcaseService;
@@ -69,6 +67,8 @@ public class ExecuteMgr {
     private TaskCountMgr taskCountMgr;
     @Autowired
     private SnowflakeIdWorker taskIdWorker;
+    @Autowired
+    private User currentUser;
 
     /**
      *@Description: 开始执行一个回归测试任务
@@ -119,7 +119,6 @@ public class ExecuteMgr {
     private TaskStartResultVO startTask(List<String> deviceIds, Long projectId, Long testcaseId, Long appId, String taskName, DB.TaskType taskType) {
         // 记录task的执行信息
         App app = appService.findOne(appId);
-        User user = userService.findByUsername(WebUtil.getCurrentUsername());
         Long taskCode = taskIdWorker.nextId();
         TaskStartResultVO result = new TaskStartResultVO();
         result.setTaskCode(taskCode);
@@ -201,14 +200,14 @@ public class ExecuteMgr {
             subTask.setTaskCode(taskCode);
             subTask.setTaskType(task.getTaskType());
             subTask.setCreateTime(new Date());
-            subTask.setCreateBy(user.getId());
+            subTask.setCreateBy(currentUser.getId());
             subTask.setEnabled(true);
             subTask.setProjectId(app.getProjectId());
             subTaskService.save(subTask);
             deviceService.work(key);
             taskCountMgr.incrSubTaskCount(taskCode);
         }
-        task.setCreateBy(user.getId());
+        task.setCreateBy(currentUser.getId());
         task.setCreateTime(new Date());
         task.setEnabled(true);
         task.setDevicesJson(JSON.toJSONString(result.getRunningDevices()));
@@ -233,7 +232,6 @@ public class ExecuteMgr {
      */
     @Transactional(rollbackFor = BusinessException.class, propagation = Propagation.REQUIRED, readOnly = false)
     public void stop(TaskStopForm form) {
-        User currentUser = userService.findByUsername(WebUtil.getCurrentUsername());
         Task task = taskService.findByCode(form.getTaskCode());
         taskService.update(task);
         // 如果传了设备ID，那么停止这几个设备上的任务

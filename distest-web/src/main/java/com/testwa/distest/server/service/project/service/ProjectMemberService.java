@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigInteger;
 import java.util.*;
 
-import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 
 /**
  * Created by wen on 20/10/2017.
@@ -38,6 +37,8 @@ public class ProjectMemberService {
     private ProjectService projectService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private User currentUser;
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public void saveProjectOwner(Long projectId, Long userId) {
@@ -70,9 +71,8 @@ public class ProjectMemberService {
             return;
         }
         Project project = projectService.findOne(form.getProjectId());
-        User owner = userService.findByUsername(getCurrentUsername());
-        if (!project.getCreateBy().equals(owner.getId())) {
-            log.error("login auth not owner of the project, projectId: {}, currentUsername: {}", form.getProjectId(), getCurrentUsername());
+        if (!project.getCreateBy().equals(currentUser.getId())) {
+            log.error("login auth not owner of the project, projectId: {}, currentUsername: {}", form.getProjectId(), currentUser.getUsername());
             throw new AuthorizedException(ResultCode.ILLEGAL_OP, "您不是项目所有者，无法添加项目成员");
         }
         List<User> members = userService.findByUsernames(form.getUsernames());
@@ -86,7 +86,7 @@ public class ProjectMemberService {
         members.forEach(m -> {
             ProjectMember p = new ProjectMember();
             p.setMemberId(m.getId());
-            p.setInviteBy(owner.getId());
+            p.setInviteBy(currentUser.getId());
             p.setProjectId(project.getId());
             p.setCreateTime(new Date());
             p.setProjectRole(DB.ProjectRole.MEMBER);

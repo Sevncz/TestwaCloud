@@ -33,7 +33,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.testwa.distest.common.util.WebUtil.getCurrentUsername;
 
 @Slf4j
 @Api("设备权限配置相关api")
@@ -54,6 +53,8 @@ public class DeviceScopeConfigController extends BaseController{
     private UserValidator userValidator;
     @Autowired
     private ProjectValidator projectValidator;
+    @Autowired
+    private User currentUser;
 
     /**
      * 配置设备分享范围
@@ -66,13 +67,12 @@ public class DeviceScopeConfigController extends BaseController{
     public Result config(@RequestBody @Valid DeviceScopeNewForm form) {
         Device device = deviceValidatoer.validateDeviceExist(form.getDeviceId());
 
-        User user = userService.findByUsername(getCurrentUsername());
         // 设备当前登录用户和网站登录用户一致
-        if(!user.getId().equals(device.getLastUserId())) {
+        if(!currentUser.getId().equals(device.getLastUserId())) {
             return Result.error(ResultCode.ILLEGAL_OP, "该设备未连接您的客户端");
         }
 
-        deviceShareScopeService.updateOrSave(form.getDeviceId(), user.getId(), form.getScope());
+        deviceShareScopeService.updateOrSave(form.getDeviceId(), currentUser.getId(), form.getScope());
 
         return Result.success();
     }
@@ -100,21 +100,19 @@ public class DeviceScopeConfigController extends BaseController{
                 return Result.error(ResultCode.ILLEGAL_OP, "一个用户不能同时被添加和删除");
             }
         }
-
-        User user = userService.findByUsername(getCurrentUsername());
         // 设备当前登录用户和网站登录用户一致
-        if(!user.getId().equals(device.getLastUserId())) {
+        if(!currentUser.getId().equals(device.getLastUserId())) {
             return Result.error(ResultCode.ILLEGAL_OP, "该设备未连接您的客户端");
         }
 
-        if(form.getAddUserId().contains(user.getId()) || form.getRemoveUserId().contains(user.getId())) {
+        if(form.getAddUserId().contains(currentUser.getId()) || form.getRemoveUserId().contains(currentUser.getId())) {
             return Result.error(ResultCode.ILLEGAL_OP, "不能添加和删除自己");
         }
 
-        DeviceShareScope scope = deviceShareScopeService.findOneByDeviceIdAndCreateBy(form.getDeviceId(), user.getId());
+        DeviceShareScope scope = deviceShareScopeService.findOneByDeviceIdAndCreateBy(form.getDeviceId(), currentUser.getId());
         if(DB.DeviceShareScopeEnum.Protected.equals(scope.getShareScope())) {
-            deviceSharerService.insertList(form.getDeviceId(), user.getId(), form.getAddUserId());
-            deviceSharerService.removeList(form.getDeviceId(), user.getId(), form.getRemoveUserId());
+            deviceSharerService.insertList(form.getDeviceId(), currentUser.getId(), form.getAddUserId());
+            deviceSharerService.removeList(form.getDeviceId(), currentUser.getId(), form.getRemoveUserId());
         }else{
             return Result.error(ResultCode.ILLEGAL_OP, "您无法分享给指定用户");
         }
@@ -132,13 +130,12 @@ public class DeviceScopeConfigController extends BaseController{
     @PostMapping(value = "/removeUser")
     public Result removeUser(@RequestBody @Valid DeviceScopeRemoveForm form) {
         Device device = deviceValidatoer.validateDeviceExist(form.getDeviceId());
-        User user = userService.findByUsername(getCurrentUsername());
         // 设备当前登录用户和网站登录用户一致
-        if(!user.getId().equals(device.getLastUserId())) {
+        if(!currentUser.getId().equals(device.getLastUserId())) {
             return Result.error(ResultCode.ILLEGAL_OP, "该设备未连接您的客户端");
         }
 
-        deviceSharerService.removeOne(form.getDeviceId(), form.getUserId(), user.getId());
+        deviceSharerService.removeOne(form.getDeviceId(), form.getUserId(), currentUser.getId());
 
         return Result.success();
     }
@@ -152,10 +149,7 @@ public class DeviceScopeConfigController extends BaseController{
     @ResponseBody
     @GetMapping(value = "/{deviceId}/userList")
     public List shareList(@PathVariable String deviceId) {
-
-        User user = userService.findByUsername(getCurrentUsername());
-
-        return deviceSharerService.findDeviceScopeUserList(deviceId, user.getId());
+        return deviceSharerService.findDeviceScopeUserList(deviceId, currentUser.getId());
     }
 
     /**
@@ -172,9 +166,7 @@ public class DeviceScopeConfigController extends BaseController{
             return Result.error(ResultCode.PARAM_ERROR, "指定分享的项目列表不能为空");
         }
         projectValidator.validateProjectExist(form.getToProjectIdList());
-
-        User user = userService.findByUsername(getCurrentUsername());
-
+        // TODO
         return Result.success();
     }
 

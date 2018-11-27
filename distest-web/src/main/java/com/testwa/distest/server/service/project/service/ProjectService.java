@@ -48,13 +48,13 @@ public class ProjectService {
     @Autowired
     private ITaskDAO taskDAO;
     @Autowired
-    private UserService userService;
-    @Autowired
     private ViewMgr viewMgr;
     @Autowired
     private ProjectMemberService projectMemberService;
     @Autowired
     private DeviceOnlineMgr deviceOnlineMgr;
+    @Autowired
+    private User currentUser;
 
     /**
      * 保存project，同时保存projectMember for owner
@@ -117,8 +117,8 @@ public class ProjectService {
         return projectDAO.count(query);
     }
 
-    public List<Long> getRecentViewProject(String username) throws Exception {
-        return viewMgr.getRecentViewProject(username);
+    public List<Long> getRecentViewProject() throws Exception {
+        return viewMgr.getRecentViewProject();
     }
 
 
@@ -144,7 +144,6 @@ public class ProjectService {
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public Project update(ProjectUpdateForm form) {
 
-        User currentUser = userService.findByUsername(WebUtil.getCurrentUsername());
         Project project = projectDAO.findOne(form.getProjectId());
         project.setProjectName(form.getProjectName());
         project.setDescription(form.getDescription());

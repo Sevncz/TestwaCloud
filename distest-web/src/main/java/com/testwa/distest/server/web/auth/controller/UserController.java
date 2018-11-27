@@ -30,6 +30,8 @@ public class UserController extends BaseController{
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private User currentUser;
 
     @ApiOperation(value="查询用户", notes = "")
     @ResponseBody
@@ -43,7 +45,7 @@ public class UserController extends BaseController{
     @ResponseBody
     @GetMapping(value = "/baseinfo")
     public UserInfoVO baseInfo() {
-        User user = userService.findByUsername(WebUtil.getCurrentUsername());
+        User user = userService.findOne(currentUser.getId());
         return buildVO(user, UserInfoVO.class);
     }
 

@@ -91,10 +91,10 @@ public class ProjectServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "xiaoming", authorities = { "ADMIN", "USER" })
+    @WithMockUser(username = "admin", authorities = { "ADMIN", "USER" })
     public void testGetRecentViewProject(){
         try {
-            projectService.getRecentViewProject("xiaoming");
+            projectService.getRecentViewProject();
         } catch (Exception e) {
             e.printStackTrace();
         }

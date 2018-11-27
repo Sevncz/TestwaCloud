@@ -5,7 +5,6 @@ import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.form.IDListForm;
 import com.testwa.core.base.vo.PageResult;
-import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.common.validator.FileUploadValidator;
 import com.testwa.distest.server.entity.App;
 import com.testwa.distest.server.entity.AppInfo;
@@ -15,7 +14,6 @@ import com.testwa.distest.server.service.app.form.AppListForm;
 import com.testwa.distest.server.service.app.form.AppUpdateForm;
 import com.testwa.distest.server.service.app.service.AppInfoService;
 import com.testwa.distest.server.service.app.service.AppService;
-import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.app.mgr.InstallMgr;
 import com.testwa.distest.server.web.app.validator.AppValidator;
 import com.testwa.distest.server.web.app.vo.AppInfoVersionsDetailVO;
@@ -50,8 +48,6 @@ public class AppController extends BaseController {
     @Autowired
     private AppInfoService appInfoService;
     @Autowired
-    private UserService userService;
-    @Autowired
     private InstallMgr installMgr;
     @Autowired
     private AppValidator appValidator;
@@ -59,6 +55,8 @@ public class AppController extends BaseController {
     private ProjectValidator projectValidator;
     @Autowired
     private FileUploadValidator fileUploadValidator;
+    @Autowired
+    private User currentUser;
 
     @ApiOperation(value="上传应用，不在项目中", notes="")
     @ResponseBody
@@ -93,8 +91,7 @@ public class AppController extends BaseController {
     public void appendInfo(@Valid @RequestBody AppUpdateForm form) {
         appValidator.validateAppExist(form.getAppId());
         projectValidator.validateProjectExist(form.getProjectId());
-        User user = userService.findByUsername(WebUtil.getCurrentUsername());
-        projectValidator.validateUserIsProjectMember(form.getProjectId(), user.getId());
+        projectValidator.validateUserIsProjectMember(form.getProjectId(), currentUser.getId());
         appService.appendInfo(form);
     }
 
@@ -119,8 +116,7 @@ public class AppController extends BaseController {
     @GetMapping(value = "/project/{projectId}/appPage")
     public PageResult appPage(@PathVariable Long projectId, @Valid AppListForm queryForm) {
         projectValidator.validateProjectExist(projectId);
-        User user = userService.findByUsername(WebUtil.getCurrentUsername());
-        projectValidator.validateUserIsProjectMember(projectId, user.getId());
+        projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
         return appInfoService.findPage(projectId, queryForm);
     }
 
@@ -129,8 +125,7 @@ public class AppController extends BaseController {
     @GetMapping(value = "/project/{projectId}/appList")
     public List<AppInfo> appList(@PathVariable Long projectId, @Valid AppListForm queryForm) {
         projectValidator.validateProjectExist(projectId);
-        User user = userService.findByUsername(WebUtil.getCurrentUsername());
-        projectValidator.validateUserIsProjectMember(projectId, user.getId());
+        projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
         return appInfoService.findList(projectId, queryForm);
     }
 

@@ -6,7 +6,6 @@ import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.form.IDListForm;
-import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.exception.BusinessException;
 import com.testwa.distest.server.entity.AppInfo;
 import com.testwa.distest.server.entity.Testcase;
@@ -52,6 +51,8 @@ public class TestcaseController extends BaseController {
     private ScriptValidator scriptValidator;
     @Autowired
     private AppValidator appValidator;
+    @Autowired
+    private User currentUser;
 
     @ResponseBody
     @PostMapping(value = "/project/{projectId}/saveCase")
@@ -62,9 +63,7 @@ public class TestcaseController extends BaseController {
 
         AppInfo appInfo = appValidator.validateAppInfoExist(form.getAppInfoId());
         scriptValidator.validateScriptBelongApp(form.getScriptIds(), appInfo.getPackageName());
-
-        User user = userService.findByUsername(WebUtil.getCurrentUsername());
-        projectValidator.validateUserIsProjectMember(projectId, user.getId());
+        projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
 
         return testcaseService.saveFunctionalTestcase(projectId, appInfo, form);
     }

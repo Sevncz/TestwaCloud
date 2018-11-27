@@ -6,13 +6,11 @@ import com.testwa.core.base.form.IDListForm;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.base.vo.Result;
 import com.testwa.distest.common.enums.DB;
-import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.entity.*;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.distest.server.service.task.form.TaskListForm;
 import com.testwa.distest.server.service.task.service.SubTaskService;
 import com.testwa.distest.server.service.task.service.TaskService;
-import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
 import com.testwa.distest.server.web.task.mgr.ReportMgr;
 import com.testwa.distest.server.web.task.validator.TaskValidatoer;
@@ -42,21 +40,20 @@ public class CommonReportController extends BaseController {
     @Autowired
     private SubTaskService subTaskService;
     @Autowired
-    private UserService userService;
-    @Autowired
     private TaskValidatoer taskValidatoer;
     @Autowired
     private ProjectValidator projectValidator;
     @Autowired
     private ReportMgr reportMgr;
+    @Autowired
+    private User currentUser;
 
     @ApiOperation(value="任务分页列表", notes="")
     @ResponseBody
     @GetMapping(value = "/project/{projectId}/report/page")
     public PageResult page(@PathVariable Long projectId, @Valid TaskListForm pageForm) {
         projectValidator.validateProjectExist(projectId);
-        User user = userService.findByUsername(WebUtil.getCurrentUsername());
-        projectValidator.validateUserIsProjectMember(projectId, user.getId());
+        projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
 
         return taskService.findPage(projectId, pageForm);
     }
@@ -66,8 +63,7 @@ public class CommonReportController extends BaseController {
     @GetMapping(value = "/project/{projectId}/report/finishedPage")
     public PageResult finishedPage(@PathVariable Long projectId, @Valid TaskListForm pageForm) {
         projectValidator.validateProjectExist(projectId);
-        User user = userService.findByUsername(WebUtil.getCurrentUsername());
-        projectValidator.validateUserIsProjectMember(projectId, user.getId());
+        projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
 
         return taskService.findFinishPage(projectId, pageForm);
     }
