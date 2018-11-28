@@ -3,9 +3,6 @@ package com.testwa.distest.server.web.wallet.controller;
 
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
-import com.testwa.core.base.vo.Result;
-import com.testwa.distest.common.util.WebUtil;
-import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.web.wallet.mgr.WalletMgr;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

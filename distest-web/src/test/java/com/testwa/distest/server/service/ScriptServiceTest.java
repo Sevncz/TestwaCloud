@@ -2,9 +2,7 @@ package com.testwa.distest.server.service;
 
 
 import com.testwa.distest.DistestWebApplication;
-import com.testwa.core.base.form.RequestListBase;
 import com.testwa.distest.server.service.script.form.ScriptListForm;
-import com.testwa.distest.server.service.script.form.ScriptNewForm;
 import com.testwa.distest.server.service.script.service.ScriptService;
 import org.junit.Assert;
 import org.junit.Test;

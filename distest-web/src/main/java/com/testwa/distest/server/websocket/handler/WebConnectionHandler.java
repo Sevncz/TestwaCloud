@@ -5,15 +5,11 @@ import com.corundumstudio.socketio.annotation.OnConnect;
 import com.corundumstudio.socketio.annotation.OnDisconnect;
 import com.testwa.distest.config.security.JwtTokenUtil;
 import com.testwa.distest.server.entity.User;
-import com.testwa.distest.server.service.cache.mgr.DeviceLockCache;
 import com.testwa.distest.server.service.cache.mgr.WebsocketLoginMgr;
 import com.testwa.distest.server.service.cache.mgr.DeviceLoginMgr;
-import com.testwa.distest.server.service.cache.mgr.SubscribeDeviceFuncMgr;
-import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.user.service.AgentLoginLoggerService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.device.mgr.DeviceOnlineMgr;
-import com.testwa.distest.server.websocket.service.PushCmdService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,21 +28,13 @@ public class WebConnectionHandler {
     @Autowired
     private DeviceLoginMgr deviceSessionMgr;
     @Autowired
-    private PushCmdService pushCmdService;
-    @Autowired
     private DeviceOnlineMgr deviceOnlineMgr;
-    @Autowired
-    private DeviceService deviceService;
-    @Autowired
-    private SubscribeDeviceFuncMgr subscribeMgr;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
     private UserService userService;
     @Autowired
     private AgentLoginLoggerService agentLoginLoggerService;
-    @Autowired
-    private DeviceLockCache deviceLockMgr;
 
     @OnConnect
     @Async

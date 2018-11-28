@@ -2,8 +2,6 @@ package com.testwa.distest.server.web.auth.controller;
 
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
-import com.testwa.core.base.vo.Result;
-import com.testwa.distest.common.util.WebUtil;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.user.form.UserQueryForm;
 import com.testwa.distest.server.service.user.service.UserService;
