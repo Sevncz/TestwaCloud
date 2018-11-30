@@ -16,6 +16,7 @@ public class PostmanRequest {
 	private List<PostmanHeader> header;
 	private PostmanBody body;
 	private PostmanUrl url;
+	private String description;
 
 	public String getData(PostmanVariables var) {
 		if (body == null || body.getMode() == null)  {

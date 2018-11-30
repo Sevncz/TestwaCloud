@@ -9,12 +9,15 @@ import java.util.Map;
 @Data
 public class PostmanCollection {
 	private PostmanInfo info;
-	private List<PostmanFolder> item;
+	private List<PostmanItem> item;
 
-	private Map<String, PostmanFolder> folderLookup = new HashMap<>();
+	private Map<String, PostmanItem> folderLookup = new HashMap<>();
 
 	public void init() {
-		for (PostmanFolder f : item) {
+		for (PostmanItem f : item) {
+		    if(f.getItem() == null) {
+		        continue;
+            }
 			folderLookup.put(f.getName(), f);
 		}
 	}

@@ -8,6 +8,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
+import org.apache.commons.lang3.StringUtils;
 
 @Slf4j
 public class PostmanCollectionRunner {
@@ -72,9 +73,12 @@ public class PostmanCollectionRunner {
 		c.init();
 		PostmanEnvironment e = reader.readEnvironmentFile(envFilename);
 		e.init();
-		PostmanFolder folder = null;
-		if (folderName != null && !folderName.isEmpty()) {
-			folder = c.getFolderLookup().get(folderName);
+		PostmanItem item = null;
+		if (StringUtils.isNotBlank(folderName)) {
+            item = c.getFolderLookup().get(folderName);
+            if(item == null) {
+                return runResult;
+            }
 		}
 
 		PostmanVariables var;
@@ -89,12 +93,12 @@ public class PostmanCollectionRunner {
 
 		PostmanRequestRunner runner = new PostmanRequestRunner(var, haltOnError);
 		boolean isSuccessful = true;
-		if (folder != null) {
-			isSuccessful = runFolder(haltOnError, runner, var, folder, runResult);
+		if (item != null) {
+			isSuccessful = runFolder(haltOnError, runner, var, item, runResult);
 		} else {
 			// Execute all folder all requests
-			for (PostmanFolder pf : c.getItem()) {
-				isSuccessful = runFolder(haltOnError, runner, var, pf, runResult) && isSuccessful;
+			for (PostmanItem pi : c.getItem()) {
+				isSuccessful = runFolder(haltOnError, runner, var, pi, runResult) && isSuccessful;
 				if (haltOnError && !isSuccessful) {
 					return runResult;
 				}
@@ -107,29 +111,33 @@ public class PostmanCollectionRunner {
 	}
 
 	private boolean runFolder(boolean haltOnError, PostmanRequestRunner runner, PostmanVariables var,
-							  PostmanFolder folder, PostmanRunResult runResult) {
-		log.info("==> POSTMAN Folder: " + folder.getName());
+							  PostmanItem item, PostmanRunResult runResult) {
+		log.info("==> POSTMAN Folder: " + item.getName());
 		boolean isSuccessful = true;
-		for (PostmanItem fItem : folder.getItem()) {
-			runResult.totalRequest++;
-			log.info("======> POSTMAN request: " + fItem.getName());
-			try {
-				boolean runSuccess = runner.run(fItem, runResult);
-				if (!runSuccess) {
-					runResult.failedRequest++;
-					runResult.failedRequestName.add(folder.getName() + "." + fItem.getName());
-				}
-				isSuccessful = runSuccess && isSuccessful;
-				if (haltOnError && !isSuccessful) {
-					return isSuccessful;
-				}
-			} catch (Throwable e) {
-				e.printStackTrace();
-				runResult.failedRequest++;
-				runResult.failedRequestName.add(folder.getName() + "." + fItem.getName());
-				return false;
-			}
-		}
+		if(item.getItem() == null) {
+            runResult.totalRequest++;
+            log.info("======> POSTMAN request: " + item.getName());
+            try {
+                boolean runSuccess = runner.run(item, runResult);
+                if (!runSuccess) {
+                    runResult.failedRequest++;
+                    runResult.failedRequestName.add(item.getName() + "." + item.getName());
+                }
+                isSuccessful = runSuccess && isSuccessful;
+                if (haltOnError && !isSuccessful) {
+                    return isSuccessful;
+                }
+            } catch (Throwable e) {
+                e.printStackTrace();
+                runResult.failedRequest++;
+                runResult.failedRequestName.add(item.getName() + "." + item.getName());
+                return false;
+            }
+        }else{
+            for(PostmanItem loopItem : item.getItem()) {
+                return runFolder(haltOnError, runner, var, loopItem, runResult);
+            }
+        }
 		return isSuccessful;
 	}
 }

@@ -10,4 +10,5 @@ public class PostmanItem {
 	private List<PostmanEvent> event;
 	private PostmanRequest request;
 	private List<PostmanResponse> response;
+    private List<PostmanItem> item;
 }
