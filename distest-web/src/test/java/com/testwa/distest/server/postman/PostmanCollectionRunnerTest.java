@@ -27,7 +27,8 @@ public class PostmanCollectionRunnerTest {
 
         PostmanCollectionRunner runner = new PostmanCollectionRunner();
         try {
-            PostmanRunResult result = runner.runCollection(colFilename, envFilename, folder, false);
+            runner.init(colFilename, envFilename);
+            PostmanRunResult result = runner.runCollection(folder, false);
             log.info(result.toString());
         } catch (Exception e) {
 

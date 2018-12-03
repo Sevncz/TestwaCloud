@@ -17,66 +17,46 @@ public class PostmanCollectionRunner {
 	public static final String ARG_FOLDER = "f";
 	public static final String ARG_HALTONERROR = "haltonerror";
 
+	private PostmanCollection collection;
+
+	private PostmanEnvironment environment;
+
 	private PostmanVariables sharedPostmanEnvVars;
 
-	public static void main(String[] args) throws Exception {
-		Options options = new Options();
-		options.addOption(ARG_COLLECTION, true, "File name of the POSTMAN collection.");
-		options.addOption(ARG_ENVIRONMENT, true, "File name of the POSTMAN environment variables.");
-		options.addOption(ARG_FOLDER, true,
-				"(Optional) POSTMAN collection folder (group) to execute i.e. \"My Use Cases\"");
-		options.addOption(ARG_HALTONERROR, false, "(Optional) Stop on first error in POSTMAN folder.");
+	public void init(String colFilename, String envFilename) throws Exception {
+        log.info("@@@@@ POSTMAN init: {}", colFilename);
+        PostmanReader reader = new PostmanReader();
+        this.collection = reader.readCollectionFile(colFilename);
+        collection.init();
+        this.environment = reader.readEnvironmentFile(envFilename);
+        environment.init();
+    }
 
-		CommandLineParser parser = new BasicParser();
-		CommandLine cmd = parser.parse(options, args);
-		String colFilename = cmd.getOptionValue(ARG_COLLECTION);
-		String envFilename = cmd.getOptionValue(ARG_ENVIRONMENT);
-		String folderName = cmd.getOptionValue(ARG_FOLDER);
-		boolean haltOnError = cmd.hasOption(ARG_HALTONERROR);
-
-		if (colFilename == null || colFilename.isEmpty() || envFilename == null || envFilename.isEmpty()) {
-			// automatically generate the help statement
-			HelpFormatter formatter = new HelpFormatter();
-			formatter.printHelp("postman-runner", options);
-			return;
-		}
-
-		PostmanCollectionRunner pcr = new PostmanCollectionRunner();
-		pcr.runCollection(colFilename, envFilename, folderName, haltOnError, false);
-	}
-
-	public PostmanRunResult runCollection(String colFilename, String envFilename, String folderName,
-										  boolean haltOnError) throws Exception {
-		return runCollection(colFilename, envFilename, folderName, haltOnError, false);
+	public PostmanRunResult runCollection(String folderId, boolean haltOnError) throws Exception {
+		return runCollection(folderId, haltOnError, false);
 	}
 
 	/**
 	 *
-	 * @param colFilename
-	 * @param envFilename
-	 * @param folderName
+	 * @param folderId
 	 * @param haltOnError
 	 * @param useSharedPostmanVars
 	 *            Use a single set of postman variable(s) across all your tests.
 	 *            This allows for running tests between a select few postman
 	 *            folders while retaining environment variables between each run
 	 * @return
-	 * @throws Exception
 	 */
-	public PostmanRunResult runCollection(String colFilename, String envFilename, String folderName,
-										  boolean haltOnError, boolean useSharedPostmanVars) throws Exception {
-		log.info("@@@@@ POSTMAN Runner start: {}", colFilename);
+	public PostmanRunResult runCollection(String folderId, boolean haltOnError, boolean useSharedPostmanVars) {
+	    if(collection == null || environment == null) {
+	        throw new RuntimeException("请初始化");
+        }
+        log.info("@@@@@ POSTMAN run start");
 		PostmanRunResult runResult = new PostmanRunResult();
 
-		PostmanReader reader = new PostmanReader();
-		PostmanCollection c = reader.readCollectionFile(colFilename);
-		c.init();
-		PostmanEnvironment e = reader.readEnvironmentFile(envFilename);
-		e.init();
-		PostmanItem item = null;
-		if (StringUtils.isNotBlank(folderName)) {
-            item = c.getFolderLookup().get(folderName);
-            if(item == null) {
+		PostmanFolder folder = null;
+		if (StringUtils.isNotBlank(folderId)) {
+            folder = collection.getFolderLookup().get(folderId);
+            if(folder == null) {
                 return runResult;
             }
 		}
@@ -84,25 +64,23 @@ public class PostmanCollectionRunner {
 		PostmanVariables var;
 		if (useSharedPostmanVars) {
 			if (sharedPostmanEnvVars == null) {
-				sharedPostmanEnvVars = new PostmanVariables(e);
+				sharedPostmanEnvVars = new PostmanVariables(environment);
 			}
 			var = sharedPostmanEnvVars;
 		} else {
-			var = new PostmanVariables(e);
+			var = new PostmanVariables(environment);
 		}
 
 		PostmanRequestRunner runner = new PostmanRequestRunner(var, haltOnError);
 		boolean isSuccessful = true;
-		if (item != null) {
-			isSuccessful = runFolder(haltOnError, runner, var, item, runResult);
+		if (folder != null) {
+            isSuccessful = folder.run(haltOnError, runner, var, runResult);
 		} else {
 			// Execute all folder all requests
-			for (PostmanItem pi : c.getItem()) {
-				isSuccessful = runFolder(haltOnError, runner, var, pi, runResult) && isSuccessful;
-				if (haltOnError && !isSuccessful) {
-					return runResult;
-				}
-			}
+            isSuccessful = collection.getRootFolder().run(haltOnError, runner, var, runResult);
+            if (haltOnError && !isSuccessful) {
+                return runResult;
+            }
 		}
 
 		log.info("@@@@@ Yay! All Done!");
@@ -110,34 +88,30 @@ public class PostmanCollectionRunner {
 		return runResult;
 	}
 
-	private boolean runFolder(boolean haltOnError, PostmanRequestRunner runner, PostmanVariables var,
-							  PostmanItem item, PostmanRunResult runResult) {
-		log.info("==> POSTMAN Folder: " + item.getName());
-		boolean isSuccessful = true;
-		if(item.getItem() == null) {
-            runResult.totalRequest++;
-            log.info("======> POSTMAN request: " + item.getName());
-            try {
-                boolean runSuccess = runner.run(item, runResult);
-                if (!runSuccess) {
-                    runResult.failedRequest++;
-                    runResult.failedRequestName.add(item.getName() + "." + item.getName());
-                }
-                isSuccessful = runSuccess && isSuccessful;
-                if (haltOnError && !isSuccessful) {
-                    return isSuccessful;
-                }
-            } catch (Throwable e) {
-                e.printStackTrace();
-                runResult.failedRequest++;
-                runResult.failedRequestName.add(item.getName() + "." + item.getName());
-                return false;
-            }
-        }else{
-            for(PostmanItem loopItem : item.getItem()) {
-                return runFolder(haltOnError, runner, var, loopItem, runResult);
-            }
+    public static void main(String[] args) throws Exception {
+        Options options = new Options();
+        options.addOption(ARG_COLLECTION, true, "File name of the POSTMAN collection.");
+        options.addOption(ARG_ENVIRONMENT, true, "File name of the POSTMAN environment variables.");
+        options.addOption(ARG_FOLDER, true,
+                "(Optional) POSTMAN collection folder (group) to execute i.environment. \"My Use Cases\"");
+        options.addOption(ARG_HALTONERROR, false, "(Optional) Stop on first error in POSTMAN folder.");
+
+        CommandLineParser parser = new BasicParser();
+        CommandLine cmd = parser.parse(options, args);
+        String colFilename = cmd.getOptionValue(ARG_COLLECTION);
+        String envFilename = cmd.getOptionValue(ARG_ENVIRONMENT);
+        String folderId = cmd.getOptionValue(ARG_FOLDER);
+        boolean haltOnError = cmd.hasOption(ARG_HALTONERROR);
+
+        if (colFilename == null || colFilename.isEmpty() || envFilename == null || envFilename.isEmpty()) {
+            // automatically generate the help statement
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp("postman-runner", options);
+            return;
         }
-		return isSuccessful;
-	}
+
+        PostmanCollectionRunner pcr = new PostmanCollectionRunner();
+        pcr.init(colFilename, envFilename);
+        pcr.runCollection(folderId, haltOnError, true);
+    }
 }

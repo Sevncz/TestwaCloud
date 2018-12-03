@@ -15,7 +15,6 @@ import com.testwa.distest.server.service.script.form.ScriptListForm;
 import com.testwa.distest.server.service.script.form.ScriptUpdateForm;
 import com.testwa.distest.server.service.script.service.ScriptService;
 import com.testwa.distest.server.service.testcase.service.TestcaseService;
-import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
 import com.testwa.distest.server.web.script.validator.ScriptValidator;
 import io.swagger.annotations.Api;
@@ -45,8 +44,6 @@ public class ScriptController extends BaseController {
     private ScriptService scriptService;
     @Autowired
     private ScriptValidator scriptValidator;
-    @Autowired
-    private UserService userService;
     @Autowired
     private ScriptValidator validator;
     @Autowired

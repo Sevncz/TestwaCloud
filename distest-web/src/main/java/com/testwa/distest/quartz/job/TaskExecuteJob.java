@@ -28,13 +28,7 @@ public class TaskExecuteJob implements BaseJob, InterruptableJob {
     private boolean _interrupted = false;
 
     @Autowired
-    private DeviceLockMgr deviceLockMgr;
-    @Autowired
-    private DeviceOnlineMgr deviceOnlineMgr;
-    @Autowired
     private TaskService taskService;
-    @Autowired
-    private SubTaskService subTaskService;
     @Autowired
     private ApplicationContext applicationContext;
     @Autowired

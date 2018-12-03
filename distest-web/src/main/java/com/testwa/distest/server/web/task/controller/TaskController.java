@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.*;
@@ -287,7 +288,8 @@ public class TaskController extends BaseController {
     @ApiOperation(value="执行一个postman接口测试任务")
     @ResponseBody
     @PostMapping(value = "/run/postman")
-    public void runPostmanTest() {
+    public void runPostmanTest(@RequestParam("files") List<MultipartFile> uploadfiles) {
+
 
     }
 }
