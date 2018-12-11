@@ -40,11 +40,12 @@
         <slf4j.version>1.7.25</slf4j.version>
         <json.version>20141113</json.version>
         <quartz.version>2.3.0</quartz.version>
-        <netty-socketio.version>1.7.13</netty-socketio.version>
+        <netty-socketio.version>1.7.14</netty-socketio.version>
         <socket.io-client.version>0.8.3</socket.io-client.version>
         <okhttp.version>3.7.0</okhttp.version>
         <okhttp-ws.version>3.4.2</okhttp-ws.version>
-        <grpc.version>1.9.0</grpc.version>
+        <grpc.version>1.15.0</grpc.version>
+        <grpc-spring-boot-starter.version>3.0.0</grpc-spring-boot-starter.version>
         <protobuf-java.version>3.5.1</protobuf-java.version>
         <protobuf-java-format.version>1.4</protobuf-java-format.version>
 
@@ -178,12 +179,12 @@
                 <groupId>com.corundumstudio.socketio</groupId>
                 <artifactId>netty-socketio</artifactId>
                 <version>${netty-socketio.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>io.netty</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                </exclusions>
+                <!--<exclusions>-->
+                    <!--<exclusion>-->
+                        <!--<groupId>io.netty</groupId>-->
+                        <!--<artifactId>*</artifactId>-->
+                    <!--</exclusion>-->
+                <!--</exclusions>-->
             </dependency>
             <dependency>
                 <groupId>io.socket</groupId>
@@ -201,15 +202,7 @@
                 <version>${okhttp-ws.version}</version>
             </dependency>
 
-
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-all</artifactId>
-                <version>4.1.17.Final</version>
-            </dependency>
-
             <!-- grpc start-->
-
             <dependency>
                 <groupId>com.google.protobuf</groupId>
                 <artifactId>protobuf-java</artifactId>
@@ -220,6 +213,7 @@
                 <artifactId>protobuf-java-format</artifactId>
                 <version>${protobuf-java-format.version}</version>
             </dependency>
+            <!-- grpc-spring-boot-starter 有 grpc-netty 和 grpc-services-->
             <dependency>
                 <groupId>io.grpc</groupId>
                 <artifactId>grpc-netty</artifactId>
@@ -236,14 +230,10 @@
                 <version>${grpc.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.lognet</groupId>
+                <groupId>io.github.lognet</groupId>
                 <artifactId>grpc-spring-boot-starter</artifactId>
-                <version>2.3.2</version>
+                <version>${grpc-spring-boot-starter.version}</version>
                 <exclusions>
-                    <exclusion>
-                        <groupId>io.grpc</groupId>
-                        <artifactId>grpc-netty</artifactId>
-                    </exclusion>
                     <exclusion>
                         <groupId>org.springframework.boot</groupId>
                         <artifactId>spring-boot-starter</artifactId>
@@ -330,14 +320,15 @@
             </dependency>
 
             <dependency>
+                <groupId>com.github.promeg</groupId>
+                <artifactId>tinypinyin</artifactId>
+                <version>2.0.3</version>
+            </dependency>
+
+            <dependency>
                 <groupId>com.belerweb</groupId>
                 <artifactId>pinyin4j</artifactId>
                 <version>2.5.0</version>
-            </dependency>
-            <dependency>
-                <groupId>com.github.stuxuhai</groupId>
-                <artifactId>jpinyin</artifactId>
-                <version>1.1.8</version>
             </dependency>
 
 
@@ -473,14 +464,4 @@
         </dependencies>
     </dependencyManagement>
 
-    <repositories>
-        <repository>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>bintray-lognet-maven</id>
-            <name>bintray</name>
-            <url>http://dl.bintray.com/lognet/maven</url>
-        </repository>
-    </repositories>
 </project>

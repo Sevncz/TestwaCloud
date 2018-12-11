@@ -1,6 +1,5 @@
 syntax = "proto3";
 
-
 option java_multiple_files = true;
 option java_package = "io.rpc.testwa.push";
 option java_outer_classname = "PushProto";
@@ -10,16 +9,12 @@ package push;
 
 
 service Push {
-    //注册到基于protoBuf格式的推送服务
     rpc registerToServer (ClientInfo) returns (stream Message) {}
 
-    //订阅某些主题,阻塞调用
     rpc subscribe (TopicInfo) returns (Status) {}
 
-    //取消订阅某些主题,阻塞调用
     rpc cancel (TopicInfo) returns (Status){}
 
-    //从服务注销,阻塞调用
     rpc logoutFromServer (ClientInfo) returns (Status) {}
 }
 

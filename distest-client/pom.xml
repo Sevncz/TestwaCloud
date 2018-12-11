@@ -186,10 +186,6 @@
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
-            <artifactId>grpc-netty</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
             <artifactId>grpc-protobuf</artifactId>
         </dependency>
         <dependency>
@@ -197,18 +193,8 @@
             <artifactId>grpc-stub</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.lognet</groupId>
-            <artifactId>grpc-spring-boot-starter</artifactId>
-            <!--<exclusions>-->
-                <!--<exclusion>-->
-                    <!--<groupId>io.grpc</groupId>-->
-                    <!--<artifactId>grpc-netty</artifactId>-->
-                <!--</exclusion>-->
-                <!--<exclusion>-->
-                    <!--<groupId>org.springframework.boot</groupId>-->
-                    <!--<artifactId>spring-boot-starter</artifactId>-->
-                <!--</exclusion>-->
-            <!--</exclusions>-->
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-netty</artifactId>
         </dependency>
 
 
@@ -292,7 +278,7 @@
 
     <build>
         <resources>
-            <!-- 这种方式可以将JAR包引入，还不清楚原因，待研究
+            <!-- 这种方式可以将JAR包引入
             <resource>
                 <targetPath>lib/</targetPath>
                 <directory>lib/</directory>
