@@ -36,7 +36,7 @@ public class StepController extends BaseController {
     @Autowired
     private TaskValidatoer taskValidatoer;
 
-    @ApiOperation(value="步骤信息列表", notes="")
+    @ApiOperation(value="回归测试，有脚本的步骤信息列表", notes="")
     @ResponseBody
     @GetMapping(value = "/task/{taskCode}/device/{deviceId}/script/{scriptId}/stepList")
     public List stepList(@PathVariable(value = "taskCode") Long taskCode,
@@ -46,13 +46,11 @@ public class StepController extends BaseController {
         Task task = taskValidatoer.validateTaskExist(taskCode);
         if (DB.TaskType.FUNCTIONAL.equals(task.getTaskType())) {
             return stepService.listScriptAll(taskCode, deviceId, scriptId);
-        }else if (DB.TaskType.COMPATIBILITY.equals(task.getTaskType()) || DB.TaskType.CRAWLER.equals(task.getTaskType())) {
-            return stepService.listTaskAll(taskCode, deviceId);
         }
         return Collections.emptyList();
     }
 
-    @ApiOperation(value="步骤信息分页列表", notes="")
+    @ApiOperation(value="回归测试，有脚本的步骤信息分页列表", notes="")
     @ResponseBody
     @GetMapping(value = "/task/{taskCode}/device/{deviceId}/script/{scriptId}/stepPage")
     public PageResult stepPage(@PathVariable(value = "taskCode") Long taskCode,
@@ -62,7 +60,31 @@ public class StepController extends BaseController {
         Task task = taskValidatoer.validateTaskExist(taskCode);
         if (DB.TaskType.FUNCTIONAL.equals(task.getTaskType())) {
             return stepService.pageFunctionalStep(taskCode, deviceId, scriptId, pageForm);
-        }else if (DB.TaskType.COMPATIBILITY.equals(task.getTaskType())) {
+        }
+        return null;
+    }
+
+    @ApiOperation(value="没有脚本的测试步骤信息列表", notes="")
+    @ResponseBody
+    @GetMapping(value = "/task/{taskCode}/device/{deviceId}/stepList")
+    public List stepList(@PathVariable(value = "taskCode") Long taskCode,
+                         @PathVariable(value = "deviceId") String deviceId,
+                         @Valid StepListForm form) {
+        Task task = taskValidatoer.validateTaskExist(taskCode);
+        if (DB.TaskType.COMPATIBILITY.equals(task.getTaskType()) || DB.TaskType.CRAWLER.equals(task.getTaskType())) {
+            return stepService.listTaskAll(taskCode, deviceId);
+        }
+        return Collections.emptyList();
+    }
+
+    @ApiOperation(value="没有脚本的测试步骤信息分页列表", notes="")
+    @ResponseBody
+    @GetMapping(value = "/task/{taskCode}/device/{deviceId}/stepPage")
+    public PageResult stepPage(@PathVariable(value = "taskCode") Long taskCode,
+                               @PathVariable(value = "deviceId") String deviceId,
+                               @Valid StepPageForm pageForm) {
+        Task task = taskValidatoer.validateTaskExist(taskCode);
+        if (DB.TaskType.COMPATIBILITY.equals(task.getTaskType())) {
             return stepService.pageCompatibilityStep(taskCode, deviceId, pageForm);
         }
         return null;

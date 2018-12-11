@@ -284,12 +284,4 @@ public class TaskController extends BaseController {
         return Result.success();
     }
 
-
-    @ApiOperation(value="执行一个postman接口测试任务")
-    @ResponseBody
-    @PostMapping(value = "/run/postman")
-    public void runPostmanTest(@RequestParam("files") List<MultipartFile> uploadfiles) {
-
-
-    }
 }
