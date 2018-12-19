@@ -1,6 +1,5 @@
 package com.testwa.core.base.dao;
 
-import com.github.pagehelper.PageInfo;
 import com.testwa.core.base.bo.Entity;
 
 import java.io.Serializable;
@@ -9,82 +8,86 @@ import java.util.List;
 
 public interface IBaseDAO <T extends Entity, ID extends Serializable> {
 
-    /**
-     * 删除一个对象
-     * @param key
-     * @return
-     */
-    int delete(Serializable key);
-
-    /**
-     * 删除多个对象
-     * @param keys
-     * @return
-     */
-    int delete(Collection<ID> keys);
 
     /**
      * 保存对象
      * @param entity
      * @return id
      */
-    long insert(T entity);
+    <T, ID> ID insert(T entity);
+
+    /**
+     * 删除一个对象
+     * @param key
+     * @return
+     */
+    <T> int deleteByIds(Serializable key);
+
+    /**
+     * 逻辑删除一个对象
+     * @param key
+     * @return
+     */
+    <T> int deleteLogic(Serializable key);
+
+    /**
+     * 删除多个对象
+     * @param keys
+     * @return
+     */
+    <T> int deleteByIds(Collection<ID> keys);
 
     /**
      * 更新对象
      * @param entity
      * @return 更新的行数
      */
-    int update(T entity);
+    <T> int update(T entity);
+
+    /**
+     * 根据实体 Id 更新一条记录
+     *
+     * @param t            实体
+     * @param isIgnoreNull 是否忽略 null 值
+     * @param <T>          实体对象类型
+     * @return 受影响记录数
+     */
+    <T> int update(T t, boolean isIgnoreNull);
+
+    /**
+     * 根据 Id 查询一条记录
+     *
+     * @param id    主键
+     * @param <T>   实体对象类型
+     * @return 实体对象
+     */
+    <T> T get(Serializable id);
 
     /**
      * 查找所有
      * @return
      */
-    List<T> findAll();
+    <T> List<T> findAll();
 
     /**
      * 根据主键集合获取结果列表
      * @param keys
      * @return
      */
-    List<T> findAll(Collection<ID> keys);
+    <T> List<T> findByIds(Collection<ID> keys);
 
     /**
      * 根据entity参数获取list
      * @param entity
      * @return
      */
-    List<T> findBy(T entity);
-
-    /**
-     * 根据主键获得一个对象
-     * @param id
-     * @return
-     */
-    T findOne(Serializable id);
-
-    /**
-     * 分页结果列表
-     * @param pageNum
-     * @param pageSize
-     * @return
-     */
-    PageInfo<T> findPage(int pageNum, int pageSize);
-    /**
-     * 分页结果列表
-     * @param pageNum
-     * @param pageSize
-     * @param orderBy
-     * @param order
-     * @return
-     */
-    PageInfo<T> findPage(int pageNum, int pageSize, String orderBy, String order);
+    <T> List<T> findByProperty(T entity);
 
     /**
      * 数量
      * @return
      */
     long count();
+
 
 }

@@ -1,6 +1,6 @@
 package com.testwa.core.base.util;
 
-import com.testwa.core.base.annotation.Column;
+import com.testwa.core.base.mybatis.annotation.Column;
 
 import java.lang.reflect.*;
 import java.util.HashMap;
