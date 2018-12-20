@@ -7,10 +7,6 @@ import org.apache.ibatis.annotations.*;
 import java.io.Serializable;
 import java.util.List;
 
-/**
- * 一般不会直接使用该类，BaseMapper 供在BaseDAO中使用
- * Created by wen on 19/10/2017.
- */
 @Mapper
 public interface BaseMapper<T extends Entity, ID extends Serializable> {
 
@@ -33,6 +29,9 @@ public interface BaseMapper<T extends Entity, ID extends Serializable> {
      */
     @UpdateProvider(type = BaseSqlProvider.class, method = "update")
     int update(T entity);
+
+    @UpdateProvider(type = BaseSqlProvider.class, method = "updateProperty")
+    <T, R> int updateProperty(@Param("property") PropertyFunction<T, R> function, @Param("value") Object value, @Param("id") Long id);
 
     /**
      * 删除一条记录
