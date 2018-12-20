@@ -1,14 +1,11 @@
 package com.testwa.distest.server.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.testwa.core.base.annotation.Column;
-import com.testwa.core.base.annotation.TableName;
-import com.testwa.core.base.bo.BaseEntity;
-import com.testwa.distest.common.enums.DB;
+import com.testwa.core.base.mybatis.annotation.Column;
+import com.testwa.core.base.mybatis.annotation.Table;
+import com.testwa.core.base.mybatis.annotation.Transient;
 import lombok.Data;
 import lombok.ToString;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -16,19 +13,25 @@ import java.util.List;
  */
 @Data
 @ToString
-@TableName("testcase")
+@Table(name="testcase")
 public class Testcase extends ProjectBaseEntity {
+    @Column(name = "tag")
     private String tag;
+    @Column(name = "caseName")
     private String caseName;
+    @Column(name = "description")
     private String description;
+    @Column(name = "appInfoId")
     private Long appInfoId;
+    @Column(name = "packageName")
     private String packageName;
+    @Column(name = "appName")
     private String appName;
 
-    @Column(value="scripts", ignore=true)
+    @Transient
     private List<TestcaseDetail> testcaseDetails;
-    @Column(value="createUser", ignore=true)
+    @Transient
     private User createUser;
-    @Column(value="updateUser", ignore=true)
+    @Transient
     private User updateUser;
 }

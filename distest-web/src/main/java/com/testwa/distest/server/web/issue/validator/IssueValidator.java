@@ -15,7 +15,7 @@ public class IssueValidator {
 
 
     public Issue validateIssueExist(Long issueId) {
-        Issue issue = issueService.findOne(issueId);
+        Issue issue = issueService.get(issueId);
         if(issue == null){
             throw new BusinessException(ResultCode.NOT_FOUND, "issue不存在");
         }

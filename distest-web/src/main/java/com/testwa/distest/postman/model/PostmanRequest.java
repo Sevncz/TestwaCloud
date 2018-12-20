@@ -1,5 +1,6 @@
 package com.testwa.distest.postman.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.testwa.distest.postman.PostmanRequestRunner;
 import lombok.Data;
 
@@ -13,7 +14,7 @@ import java.util.Map;
 @Data
 public class PostmanRequest {
 	private String method;
-	private List<PostmanHeader> header;
+    private List<PostmanHeader> header;
 	private PostmanBody body;
 	private PostmanUrl url;
 	private String description;

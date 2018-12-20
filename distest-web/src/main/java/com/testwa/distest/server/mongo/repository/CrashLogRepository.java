@@ -6,10 +6,12 @@
 package com.testwa.distest.server.mongo.repository;
 
 import com.testwa.distest.server.mongo.model.CrashLog;
+import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
 import java.util.List;
 
+@Repository
 public interface CrashLogRepository extends CommonRepository<CrashLog, Serializable> {
 
     List<CrashLog> findByTaskCode(Long taskCode);

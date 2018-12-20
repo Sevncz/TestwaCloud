@@ -6,9 +6,11 @@
 package com.testwa.distest.server.mongo.repository;
 
 import com.testwa.distest.server.mongo.model.TaskLog;
+import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
 
+@Repository
 public interface TaskLogRepository extends CommonRepository<TaskLog, Serializable> {
 
     TaskLog findByTaskCode(Long taskCode);

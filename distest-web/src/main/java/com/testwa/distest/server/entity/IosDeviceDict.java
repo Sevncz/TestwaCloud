@@ -1,7 +1,7 @@
 package com.testwa.distest.server.entity;
 
-import com.testwa.core.base.annotation.Column;
-import com.testwa.core.base.annotation.TableName;
+import com.testwa.core.base.mybatis.annotation.Column;
+import com.testwa.core.base.mybatis.annotation.Table;
 import com.testwa.core.base.bo.BaseEntity;
 import lombok.Data;
 
@@ -12,14 +12,14 @@ import lombok.Data;
  * @Create: 2018-06-25 15:58
  **/
 @Data
-@TableName("dis_ios_device_dict")
+@Table(name="dis_ios_device_dict")
 public class IosDeviceDict extends BaseEntity {
-    @Column(value = "product_type")
+    @Column(name = "product_type")
     private String productType;
-    @Column(value = "name")
+    @Column(name = "name")
     private String name;
-    @Column(value = "width")
+    @Column(name = "width")
     private Integer width;
-    @Column(value = "height")
+    @Column(name = "height")
     private Integer height;
 }

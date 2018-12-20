@@ -26,7 +26,7 @@ import java.util.List;
 @Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = DistestWebApplication.class)
-@TestPropertySource(locations="classpath:application-dev.properties")
+@TestPropertySource(locations="classpath:application-test.properties")
 public class IssueLabelServiceTest {
 
     @Autowired
@@ -34,7 +34,7 @@ public class IssueLabelServiceTest {
 
     @Test
     @Transactional
-    @Rollback(true)
+    @Rollback
     @WithMockUser(username = "admin", authorities = { "ADMIN", "USER" })
     public void testUpdate() {
         // 保存一个标签
@@ -43,7 +43,7 @@ public class IssueLabelServiceTest {
         form.setName("test");
         long labelId = labelService.save(form, 15L);
 
-        IssueLabel label1 = labelService.findOne(labelId);
+        IssueLabel label1 = labelService.get(labelId);
         Assert.assertEquals(label1.getId().longValue(), labelId);
 
 
@@ -56,7 +56,7 @@ public class IssueLabelServiceTest {
         labelService.update(updateForm);
 
         // 获得刚才更新的标签
-        IssueLabel label2 = labelService.findOne(labelId);
+        IssueLabel label2 = labelService.get(labelId);
         Assert.assertEquals(label2.getName(), updateForm.getName());
         Assert.assertEquals(label2.getColor(), updateForm.getColor());
         Assert.assertEquals(label2.getId(), updateForm.getLabelId());
@@ -64,7 +64,7 @@ public class IssueLabelServiceTest {
 
     @Test
     @Transactional
-    @Rollback(true)
+    @Rollback
     @WithMockUser(username = "admin", authorities = { "ADMIN", "USER" })
     public void testDelete() {
         // 保存一个标签
@@ -73,7 +73,7 @@ public class IssueLabelServiceTest {
         form.setName("test");
         long labelId = labelService.save(form, 15L);
 
-        IssueLabel label1 = labelService.findOne(labelId);
+        IssueLabel label1 = labelService.get(labelId);
         Assert.assertEquals(label1.getId().longValue(), labelId);
 
 
@@ -86,13 +86,13 @@ public class IssueLabelServiceTest {
         labelService.update(updateForm);
 
         labelService.delete(labelId);
-        IssueLabel label2 = labelService.findOne(labelId);
+        IssueLabel label2 = labelService.get(labelId);
         Assert.assertNull(label2);
     }
 
     @Test
     @Transactional
-    @Rollback(true)
+    @Rollback
     @WithMockUser(username = "admin", authorities = { "ADMIN", "USER" })
     public void testList() {
         // 保存一个标签

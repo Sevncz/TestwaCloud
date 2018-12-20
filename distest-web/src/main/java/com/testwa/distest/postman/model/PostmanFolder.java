@@ -1,26 +1,20 @@
 package com.testwa.distest.postman.model;
 
 
-import com.testwa.core.utils.UUID;
 import com.testwa.distest.postman.PostmanRequestRunner;
 import com.testwa.distest.postman.PostmanRunResult;
+import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Data
 public class PostmanFolder extends AbstractItem {
     private List<AbstractItem> items = new ArrayList<>();
-    private String folderId;
     private String name;
 
     public PostmanFolder(String name) {
         this.name = name;
-        this.folderId = UUID.uuid();
-    }
-
-    @Override
-    public String getID() {
-        return this.folderId;
     }
 
     @Override

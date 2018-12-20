@@ -165,7 +165,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
                 file.setCreateTime(new Date());
                 LogFile oldFile = loggerFileService.findOne(taskCode, deviceId);
                 if(oldFile == null){
-                    loggerFileService.save(file);
+                    loggerFileService.insert(file);
                 }
 
                 String localPath = disFileProperties.getLogcat();
@@ -246,7 +246,7 @@ public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
                 appiumFile.setCreateTime(new Date());
                 AppiumFile oldFile = appiumFileService.findOne(taskCode, deviceId);
                 if(oldFile == null){
-                    appiumFileService.save(appiumFile);
+                    appiumFileService.insert(appiumFile);
                 }
 
                 String localPath = disFileProperties.getAppium();

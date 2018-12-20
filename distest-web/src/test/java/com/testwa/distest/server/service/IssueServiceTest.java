@@ -1,7 +1,6 @@
 package com.testwa.distest.server.service;
 
 import com.github.pagehelper.PageInfo;
-import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.DistestWebApplication;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Issue;
@@ -23,36 +22,33 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = DistestWebApplication.class)
-@TestPropertySource(locations="classpath:application-dev.properties")
+@TestPropertySource(locations="classpath:application-test.properties")
+@Transactional
 public class IssueServiceTest {
 
     @Autowired
     private IssueService issueService;
 
     @Test
-    @Transactional
-    @Rollback(true)
     @WithMockUser(username = "admin", authorities = { "ADMIN", "USER" })
     public void testUpdate() {
-        Long projectId = 1L;
+        Long projectId = 23L;
 
         IssueNewForm form = new IssueNewForm();
         form.setTitle("test");
         form.setContent("test");
-        form.setLabelId(1L);
+        form.setLabelName("bug");
         long issueId = issueService.save(form, projectId);
 
-        Issue issue1 = issueService.findOne(issueId);
+        Issue issue1 = issueService.get(issueId);
         Assert.assertEquals(issue1.getId().longValue(), issueId);
 
         issueService.updateState(issueId, DB.IssueStateEnum.CLOSED);
-        Issue issue2 = issueService.findOne(issueId);
+        Issue issue2 = issueService.get(issueId);
         Assert.assertEquals(issue2.getState(), DB.IssueStateEnum.CLOSED);
     }
 
     @Test
-    @Transactional
-    @Rollback(true)
     @WithMockUser(username = "admin", authorities = { "ADMIN", "USER" })
     public void testDelete() {
         Long projectId = 1L;
@@ -60,21 +56,19 @@ public class IssueServiceTest {
         IssueNewForm form = new IssueNewForm();
         form.setTitle("test");
         form.setContent("test");
-        form.setLabelId(1L);
+        form.setLabelName("bug");
         long issueId = issueService.save(form, projectId);
 
-        Issue issue1 = issueService.findOne(issueId);
+        Issue issue1 = issueService.get(issueId);
         Assert.assertEquals(issue1.getId().longValue(), issueId);
 
         issueService.delete(issueId);
-        Issue issue2 = issueService.findOne(issueId);
+        Issue issue2 = issueService.get(issueId);
         Assert.assertNull(issue2);
     }
 
 
     @Test
-    @Transactional
-    @Rollback(true)
     @WithMockUser(username = "admin", authorities = { "ADMIN", "USER" })
     public void testPage() {
         // 保存一个标签
@@ -92,7 +86,7 @@ public class IssueServiceTest {
             IssueNewForm newForm = new IssueNewForm();
             newForm.setTitle("test" + i);
             newForm.setContent("test");
-            newForm.setLabelId(1L);
+            newForm.setLabelName("bug");
             issueService.save(newForm, projectId);
         }
 

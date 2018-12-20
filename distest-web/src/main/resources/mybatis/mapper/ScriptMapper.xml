@@ -8,7 +8,7 @@
         <result column="size" property="size" jdbcType="VARCHAR" />
         <result column="tag" property="tag" jdbcType="VARCHAR" />
         <result column="description" property="description" jdbcType="VARCHAR" />
-        <result column="ln" property="ln" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
+        <result column="ln" property="ln" jdbcType="TINYINT" />
         <result column="path" property="path" jdbcType="VARCHAR" />
         <result column="md5" property="md5" jdbcType="VARCHAR" />
         <result column="appPackage" property="appPackage" jdbcType="VARCHAR" />
@@ -34,13 +34,7 @@
     <sql id="Base_Column_List" >
         id, scriptName, aliasName, size, appPackage, tag, description, ln, path, md5, updateTime, createTime, updateBy, createBy, enabled
     </sql>
-    <select id="findOne" parameterType="com.testwa.distest.server.entity.Script" resultMap="BaseResultMap" >
-        SELECT
-        <include refid="Base_Column_List" />
-        FROM script
-        WHERE id = #{key}
-        and enabled = 1
-    </select>
+
     <select id="findOneInProject" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />

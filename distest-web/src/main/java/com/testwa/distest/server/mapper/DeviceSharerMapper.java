@@ -1,6 +1,6 @@
 package com.testwa.distest.server.mapper;
 
-import com.testwa.core.base.mapper.BaseMapper;
+import com.testwa.core.base.mybatis.mapper.BaseMapper;
 import com.testwa.distest.server.entity.DeviceSharer;
 import com.testwa.distest.server.service.device.dto.DeviceSharerDTO;
 import org.apache.ibatis.annotations.Param;

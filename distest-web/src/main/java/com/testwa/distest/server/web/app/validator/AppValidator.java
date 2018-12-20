@@ -30,7 +30,7 @@ public class AppValidator {
     }
 
     public void validateAppExist(Long entityId) {
-        App entity = appService.findOne(entityId);
+        App entity = appService.get(entityId);
         if(entity == null){
             throw new BusinessException(ResultCode.NOT_FOUND, "App不存在");
         }

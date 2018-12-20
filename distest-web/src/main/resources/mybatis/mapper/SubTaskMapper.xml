@@ -3,13 +3,13 @@
 <mapper namespace="com.testwa.distest.server.mapper.SubTaskMapper" >
     <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.SubTask" >
         <id column="id" property="id" jdbcType="BIGINT" />
-        <result column="status" property="status" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
+        <result column="status" property="status" jdbcType="TINYINT" />
         <result column="taskCode" property="taskCode" jdbcType="BIGINT"/>
         <result column="deviceId" property="deviceId" jdbcType="VARCHAR" javaType="String"/>
         <result column="endTime" property="endTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="errorMsg" property="errorMsg" jdbcType="VARCHAR" javaType="String"/>
         <result column="video" property="video" jdbcType="VARCHAR" javaType="String"/>
-        <result column="taskType" property="taskType" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
+        <result column="taskType" property="taskType" jdbcType="TINYINT" />
 
         <result column="projectId" property="projectId" jdbcType="BIGINT"/>
         <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
@@ -19,20 +19,13 @@
         <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
     </resultMap>
     <resultMap id="StatisResultMap" type="com.testwa.distest.server.service.task.dto.TaskDeviceStatusStatis" >
-        <result column="taskStatus" property="taskStatus" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
+        <result column="taskStatus" property="taskStatus" jdbcType="TINYINT" />
         <result column="count" property="count" jdbcType="BIGINT"/>
     </resultMap>
 
     <sql id="Base_Column_List" >
         id,status,taskCode,deviceId,createTime,createBy,projectId,endTime,errorMsg,taskType,video
     </sql>
-
-    <select id="findOne" resultMap="BaseResultMap" >
-        SELECT
-        <include refid="Base_Column_List" />
-        FROM sub_task
-        WHERE enabled = 1 AND id = #{key}
-    </select>
 
     <select id="findOneByTaskCodeAndDeviceId" resultMap="BaseResultMap" >
         SELECT
@@ -65,7 +58,7 @@
         SELECT count(1) c FROM sub_task
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             enabled = 1
-            <if test="status != null">and status = #{status, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
+            <if test="status != null">and status = #{status}</if>
         </trim>
     </select>
 

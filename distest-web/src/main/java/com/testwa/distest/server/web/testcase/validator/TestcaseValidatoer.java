@@ -44,7 +44,7 @@ public class TestcaseValidatoer {
     }
 
     public Testcase validateTestcaseExist(Long entityId) {
-        Testcase entity = testcaseService.findOne(entityId);
+        Testcase entity = testcaseService.get(entityId);
         if(entity == null){
             throw new BusinessException(ResultCode.NOT_FOUND, "案例不存在");
         }
@@ -52,7 +52,7 @@ public class TestcaseValidatoer {
     }
 
     public Testcase validateTestcaseInProject(Long entityId, Long projectId) {
-        Testcase entity = testcaseService.findOne(entityId);
+        Testcase entity = testcaseService.get(entityId);
         if(entity == null){
             throw new BusinessException(ResultCode.NOT_FOUND, "案例不存在");
         }

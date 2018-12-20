@@ -15,7 +15,7 @@ public class LabelValidator {
 
     public IssueLabel validateLabelExist(Long labelId) {
 
-        IssueLabel label = labelService.findOne(labelId);
+        IssueLabel label = labelService.get(labelId);
         if(label == null){
             throw new BusinessException(ResultCode.NOT_FOUND, "issue不存在");
         }

@@ -22,7 +22,7 @@ import javax.sql.DataSource;
 @Configuration
 @EnableTransactionManagement
 @AutoConfigureAfter({DataConfig.class})
-@MapperScan(basePackages = {"com.testwa.distest.server.mapper", "com.testwa.core.base.mapper"})
+@MapperScan(basePackages = {"com.testwa.distest.server.mapper", "com.testwa.core.base.mybatis.mapper"})
 public class MybatisConfig implements EnvironmentAware {
 
     @Autowired
@@ -39,6 +39,7 @@ public class MybatisConfig implements EnvironmentAware {
             SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
             bean.setDataSource(dataSource);
             bean.setTypeAliasesPackage(propertyResolver.getProperty("type-aliases-package"));
+            bean.setTypeHandlersPackage(propertyResolver.getProperty("type-handlers-package"));
             bean.setMapperLocations(resourcePatternResolver.getResources(propertyResolver.getProperty("mapper-locations")));
             bean.setConfigLocation(new DefaultResourceLoader().getResource(propertyResolver.getProperty("config-locations")));
 

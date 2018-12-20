@@ -43,7 +43,7 @@
                 <result column="path" property="path"/>
                 <result column="projectId" property="projectId"/>
                 <result column="createTime" property="createTime"/>
-                <result column="ln" property="ln" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
+                <result column="ln" property="ln" />
             </association>
         </collection>
     </resultMap>
@@ -64,13 +64,6 @@
             <if test="appInfoId != null">and appInfoId = #{appInfoId}</if>
             <if test="packageName != null">and packageName = #{packageName}</if>
         </trim>
-    </select>
-
-    <select id="findOne" parameterType="com.testwa.distest.server.entity.Testcase" resultMap="BaseResultMap" >
-        SELECT
-        <include refid="Base_Column_List" />
-        FROM testcase
-        WHERE id = #{key}
     </select>
 
     <select id="fetchOne" parameterType="com.testwa.distest.server.entity.Testcase" resultMap="BaseResultMap" >

@@ -3,17 +3,17 @@ package com.testwa.distest.server.service.project.service;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.Joiner;
+import com.testwa.core.base.service.BaseService;
 import com.testwa.core.base.vo.PageResult;
+import com.testwa.distest.server.condition.BaseProjectCondition;
+import com.testwa.distest.server.condition.ProjectCondition;
 import com.testwa.distest.server.entity.*;
-import com.testwa.distest.server.service.app.dao.IAppDAO;
-import com.testwa.distest.server.service.project.dao.IProjectDAO;
+import com.testwa.distest.server.mapper.*;
+import com.testwa.distest.server.service.issue.service.LabelService;
 import com.testwa.distest.server.service.project.form.MembersModifyForm;
 import com.testwa.distest.server.service.project.form.ProjectNewForm;
 import com.testwa.distest.server.service.project.form.ProjectListForm;
 import com.testwa.distest.server.service.project.form.ProjectUpdateForm;
-import com.testwa.distest.server.service.script.dao.IScriptDAO;
-import com.testwa.distest.server.service.task.dao.ITaskDAO;
-import com.testwa.distest.server.service.testcase.dao.ITestcaseDAO;
 import com.testwa.distest.server.web.device.mgr.DeviceOnlineMgr;
 import com.testwa.distest.server.web.project.vo.ProjectStatis;
 import lombok.extern.slf4j.Slf4j;
@@ -31,18 +31,18 @@ import java.util.*;
 @Slf4j
 @Service
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
-public class ProjectService {
+public class ProjectService extends BaseService<Project, Long> {
 
     @Autowired
-    private IProjectDAO projectDAO;
+    private ProjectMapper projectMapper;
     @Autowired
-    private IAppDAO appDAO;
+    private AppMapper appMapper;
     @Autowired
-    private IScriptDAO scriptDAO;
+    private ScriptMapper scriptMapper;
     @Autowired
-    private ITestcaseDAO testcaseDAO;
+    private TestcaseMapper testcaseMapper;
     @Autowired
-    private ITaskDAO taskDAO;
+    private TaskMapper taskMapper;
     @Autowired
     private ViewMgr viewMgr;
     @Autowired
@@ -51,28 +51,20 @@ public class ProjectService {
     private DeviceOnlineMgr deviceOnlineMgr;
     @Autowired
     private User currentUser;
+    @Autowired
+    private LabelService labelService;
 
     /**
      * 保存project，同时保存projectMember for owner
      * @param entity
      * @return
      */
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public Long insert(Project entity) {
+    @Transactional(propagation = Propagation.REQUIRED)
+    public long insert(Project entity) {
         entity.setCreateTime(new Date());
-        Long projectId =  projectDAO.insert(entity);
-        projectMemberService.saveProjectOwner(projectId, entity.getCreateBy());
-        return projectId;
-    }
-
-    /**
-     * 返回删除的项目数量
-     * @param projectId
-     * @return
-     */
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public void delete(Long projectId) {
-        projectDAO.disable(projectId);
+        projectMapper.insert(entity);
+        projectMemberService.saveProjectOwner(entity.getId(), entity.getCreateBy());
+        return entity.getId();
     }
 
     /**
@@ -80,22 +72,18 @@ public class ProjectService {
      * @param projectIds
      * @return
      */
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void delete(List<Long> projectIds) {
-        projectDAO.disableAll(projectIds);
-    }
-
-    public List<Project> findAll() {
-        return projectDAO.findAll();
-    }
-
-
-    public Project findOne(Long projectId) {
-        return projectDAO.findOne(projectId);
+        projectMapper.disableAll(projectIds);
     }
 
     public List<Project> findAll(List<Long> projectIds) {
-        return projectDAO.findAll(projectIds);
+        List<Project> projects = new ArrayList<>();
+        projectIds.forEach( projectId -> {
+            Project project = get(projectId);
+            projects.add(project);
+        });
+        return projects;
     }
 
     public List<Project> findByProjectOrder(List<Long> projectIds) {
@@ -103,14 +91,14 @@ public class ProjectService {
         orderSb.append("field(id,");
         String order = Joiner.on(",").join(projectIds);
         orderSb.append(order).append(")");
-        return projectDAO.findAllOrder(projectIds, orderSb.toString());
+        return projectMapper.findAllOrder(projectIds, orderSb.toString());
     }
 
 
     public long getProjectCountByOwner(Long userId) {
-        Project query = new Project();
+        ProjectCondition query = new ProjectCondition();
         query.setCreateBy(userId);
-        return projectDAO.count(query);
+        return projectMapper.count(query);
     }
 
     public List<Long> getRecentViewProject() throws Exception {
@@ -118,7 +106,7 @@ public class ProjectService {
     }
 
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public Project save(ProjectNewForm form, User createUser) {
         Project project = new Project();
         project.setProjectName(form.getProjectName());
@@ -134,18 +122,21 @@ public class ProjectService {
         membersModifyForm.setProjectId(projectId);
         membersModifyForm.setUsernames(form.getMembers());
         projectMemberService.addMembers(membersModifyForm);
+
+        // 初始化项目所使用的 issueLabel
+        labelService.initForProject(projectId);
+
         return project;
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public Project update(ProjectUpdateForm form) {
-
-        Project project = projectDAO.findOne(form.getProjectId());
+        Project project = get(form.getProjectId());
         project.setProjectName(form.getProjectName());
         project.setDescription(form.getDescription());
         project.setUpdateTime(new Date());
         project.setUpdateBy(currentUser.getId());
-        projectDAO.update(project);
+        projectMapper.update(project);
 
         List<User> members = projectMemberService.findAllMembers(project.getId());
         List<Long> needDelMember = new ArrayList<>();
@@ -175,7 +166,7 @@ public class ProjectService {
 
     public List<Project> listByUser(Long userId) {
         if(userId != null){
-            return projectDAO.findAllByUser(userId);
+            return projectMapper.findAllByUser(userId, null);
         }
         return new ArrayList<>();
     }
@@ -190,7 +181,7 @@ public class ProjectService {
             pageForm.setOrder("desc");
         }
         PageHelper.orderBy(pageForm.getOrderBy() + " " + pageForm.getOrder());
-        List<Project> projectList = projectDAO.findAllByUser(user.getId(), pageForm.getProjectName());
+        List<Project> projectList = projectMapper.findAllByUser(user.getId(), pageForm.getProjectName());
         PageInfo<Project> info = new PageInfo(projectList);
         return new PageResult<>(info.getList(), info.getTotal());
     }
@@ -202,33 +193,23 @@ public class ProjectService {
         //分页处理
         PageHelper.startPage(pageForm.getPageNo(), pageForm.getPageSize());
         PageHelper.orderBy(pageForm.getOrderBy() + " " + pageForm.getOrder());
-        List<Project> projectList = projectDAO.findBy(query);
+        List<Project> projectList = projectMapper.findBy(query);
         PageInfo<Project> info = new PageInfo(projectList);
         PageResult<Project> pr = new PageResult<>(info.getList(), info.getTotal());
         return pr;
     }
 
     public long count() {
-        return projectDAO.count();
+        return projectMapper.count(null);
     }
 
     public ProjectStatis statis(Long projectId) {
-        App aq = new App();
-        aq.setProjectId(projectId);
-        aq.setEnabled(true);
-        Long app = appDAO.countBy(aq);
-        Script sq = new Script();
-        sq.setProjectId(projectId);
-        sq.setEnabled(true);
-        Long script = scriptDAO.countBy(sq);
-        Testcase tq = new Testcase();
-        tq.setProjectId(projectId);
-        tq.setEnabled(true);
-        Long testcase = testcaseDAO.countBy(tq);
-        Task kq = new Task();
-        kq.setProjectId(projectId);
-        kq.setEnabled(true);
-        Long task = taskDAO.countBy(kq);
+        BaseProjectCondition condition = new BaseProjectCondition();
+        condition.setProjectId(projectId);
+        Long app = appMapper.count(condition);
+        Long script = scriptMapper.count(condition);
+        Long testcase = testcaseMapper.count(condition);
+        Long task = taskMapper.count(condition);
 
         Set<String> deviceIds = deviceOnlineMgr.allOnlineDevices();
         int device = deviceIds.size();

@@ -47,7 +47,7 @@ public class TaskValidatoer {
 
 
     public void validateAppAndDevicePlatform(Long appId, List<String> deviceIds) {
-        App app = appService.findOne(appId);
+        App app = appService.get(appId);
         if(app == null) {
             throw new BusinessException(ResultCode.NOT_FOUND, "应用不存在");
         }

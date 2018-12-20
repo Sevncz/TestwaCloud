@@ -6,10 +6,12 @@
 package com.testwa.distest.server.mongo.repository;
 
 import com.testwa.distest.server.mongo.model.AppiumRunningLog;
+import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
 import java.util.List;
 
+@Repository
 public interface AppiumRunningLogRepository extends CommonRepository<AppiumRunningLog, Serializable> {
 
     List<AppiumRunningLog> findBySessionId(String sessionId);

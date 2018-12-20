@@ -1,7 +1,7 @@
 package com.testwa.distest.server.entity;
 
-import com.testwa.core.base.annotation.Column;
-import com.testwa.core.base.annotation.TableName;
+import com.testwa.core.base.mybatis.annotation.Column;
+import com.testwa.core.base.mybatis.annotation.Table;
 import com.testwa.core.base.bo.BaseEntity;
 import lombok.Data;
 
@@ -12,29 +12,29 @@ import java.util.Date;
  * Created by wen on 2016/10/16.
  */
 @Data
-@TableName("dis_agent_login_log")
+@Table(name= "dis_agent_login_log")
 public class AgentLoginLog extends BaseEntity {
 
-    @Column(value = "username")
+    @Column(name = "username")
     private String username;
-    @Column(value = "mac")
+    @Column(name = "mac")
     private String mac;
-    @Column(value = "host")
+    @Column(name = "host")
     private String host;
-    @Column(value = "os_name")
+    @Column(name = "os_name")
     private String osName;
-    @Column(value = "os_version")
+    @Column(name = "os_version")
     private String osVersion;
-    @Column(value = "os_arch")
+    @Column(name = "os_arch")
     private String osArch;
-    @Column(value = "java_version")
+    @Column(name = "java_version")
     private String javaVersion;
-    @Column(value = "client_version")
+    @Column(name = "client_version")
     private String clientVersion;
     private Integer ip;
 
-    @Column(value = "login_time")
+    @Column(name = "login_time")
     private Date loginTime;
-    @Column(value = "logout_time")
+    @Column(name = "logout_time")
     private Date logoutTime;
 }

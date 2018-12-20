@@ -21,7 +21,7 @@ public class UserValidator {
     private User currentuUser;
 
     public void validateOnlineExist()  {
-        User user = userService.findOne(currentuUser.getId());
+        User user = userService.get(currentuUser.getId());
         if(user == null){
             throw new AccountException(ResultCode.ILLEGAL_OP, "用户不存在");
         }
@@ -62,14 +62,14 @@ public class UserValidator {
     }
 
     public void validateUserIdExist(Long userId)  {
-        User user = userService.findOne(userId);
+        User user = userService.get(userId);
         if(user == null){
             throw new AccountException(ResultCode.ILLEGAL_OP, "用户不存在");
         }
     }
 
     public void validateUserIdsExist(List<Long> userIds) {
-        List<User> users = userService.findByUserIds(userIds);
+        List<User> users = userService.findAll(userIds);
         if(users == null || userIds.size() != users.size()){
             throw new AccountException(ResultCode.ILLEGAL_OP, "用户不存在");
         }

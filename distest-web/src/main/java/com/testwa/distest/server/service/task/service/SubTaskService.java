@@ -1,12 +1,13 @@
 package com.testwa.distest.server.service.task.service;
 
+import com.testwa.core.base.service.BaseService;
 import com.testwa.distest.common.enums.DB;
+import com.testwa.distest.server.condition.SubTaskCondition;
 import com.testwa.distest.server.entity.*;
+import com.testwa.distest.server.mapper.SubTaskMapper;
 import com.testwa.distest.server.mongo.model.AppiumRunningLog;
 import com.testwa.distest.server.mongo.repository.AppiumRunningLogRepository;
-import com.testwa.distest.server.service.task.dao.ISubTaskDAO;
 import com.testwa.distest.server.service.task.dto.TaskDeviceStatusStatis;
-import com.testwa.distest.server.web.device.mgr.DeviceLockMgr;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by wen on 24/10/2017.
@@ -22,63 +24,49 @@ import java.util.List;
 @Slf4j
 @Service
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
-public class SubTaskService {
+public class SubTaskService extends BaseService<SubTask, Long> {
 
     @Autowired
-    private ISubTaskDAO subTaskDAO;
+    private SubTaskMapper subTaskMapper;
     @Autowired
     private AppiumRunningLogRepository procedureInfoRepository;
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public long save(SubTask entity) {
-        return subTaskDAO.insert(entity);
-    }
-
-    public SubTask findOne(Long entityId) {
-        return subTaskDAO.findOne(entityId);
-    }
-
     public List<SubTask> findAll(List<Long> entityIds) {
-        return subTaskDAO.findAll(entityIds);
+        return entityIds.stream().map(this::get).collect(Collectors.toList());
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public void update(SubTask entity) {
-        subTaskDAO.update(entity);
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void deleteTaskDevice(List<Long> entityIds) {
-        subTaskDAO.delete(entityIds);
+        entityIds.forEach( id -> subTaskMapper.delete(id));
         entityIds.forEach( id -> {
             List<AppiumRunningLog> infos = procedureInfoRepository.findByTaskCodeOrderByTimestampAsc(id);
             procedureInfoRepository.delete(infos);
         });
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void deleteTaskDevice(Long taskCode) {
-        subTaskDAO.disableAll(taskCode);
+        subTaskMapper.disableAll(taskCode);
     }
 
     public List<SubTask> getRunningtaskDevice(Long projectId, Long userId) {
-        SubTask query = new SubTask();
-        query.setStatus(DB.TaskStatus.RUNNING);
+        SubTaskCondition query = new SubTaskCondition();
+        query.setStatus(DB.TaskStatus.RUNNING.getValue());
         query.setProjectId(projectId);
         query.setCreateBy(userId);
-        return subTaskDAO.findBy(query);
+        return subTaskMapper.selectByCondition(query);
     }
 
     public List<SubTask> getRecentFinishedRunningTask(Long projectId, Long userId) {
-        SubTask query = new SubTask();
-        query.setStatus(DB.TaskStatus.COMPLETE);
+        SubTaskCondition query = new SubTaskCondition();
+        query.setStatus(DB.TaskStatus.COMPLETE.getValue());
         query.setProjectId(projectId);
         query.setCreateBy(userId);
-        return subTaskDAO.findBy(query);
+        return subTaskMapper.selectByCondition(query);
     }
 
     public SubTask findOne(Long taskCode, String deviceId) {
-        return subTaskDAO.findOne(taskCode, deviceId);
+        return subTaskMapper.findOneByTaskCodeAndDeviceId(taskCode, deviceId);
     }
 
     /**
@@ -89,7 +77,7 @@ public class SubTaskService {
      *@Date: 2018/5/3
      */
     public List<SubTask> findByTaskCode(Long taskCode) {
-        return subTaskDAO.findByTaskCode(taskCode);
+        return subTaskMapper.findByTaskCode(taskCode);
     }
 
     /**
@@ -100,7 +88,7 @@ public class SubTaskService {
      *@Date: 2018/5/3
      */
     public List<TaskDeviceStatusStatis> countTaskDeviceStatus(Long taskCode) {
-        return subTaskDAO.countTaskDeviceStatus(taskCode);
+        return subTaskMapper.countTaskDeviceStatus(taskCode);
     }
 
     /**
@@ -110,14 +98,14 @@ public class SubTaskService {
      *@Author: wen
      *@Date: 2018/5/3
      */
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void cancelOneTask(String deviceId, Long taskId, Long userId) {
-        SubTask subTask = subTaskDAO.findOne(taskId, deviceId);
+        SubTask subTask = subTaskMapper.findOneByTaskCodeAndDeviceId(taskId, deviceId);
         subTask.setEndTime(new Date());
         subTask.setStatus(DB.TaskStatus.CANCEL);
         subTask.setUpdateBy(userId);
         subTask.setUpdateTime(new Date());
-        subTaskDAO.update(subTask);
+        subTaskMapper.update(subTask);
     }
 
     /**
@@ -127,9 +115,9 @@ public class SubTaskService {
      * @Author wen
      * @Date 2018/9/4 11:53
      */
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void updateVideoPath(long taskCode, String deviceId, String videoRelativePath) {
 
-        subTaskDAO.updateVideoPath(taskCode, deviceId, videoRelativePath);
+        subTaskMapper.updateVideoPath(taskCode, deviceId, videoRelativePath);
     }
 }

@@ -4,18 +4,19 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
+import com.testwa.core.base.service.BaseService;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.common.enums.DB;
+import com.testwa.distest.server.condition.TaskCondition;
 import com.testwa.distest.server.entity.*;
+import com.testwa.distest.server.mapper.TaskMapper;
 import com.testwa.distest.server.mongo.model.*;
 import com.testwa.distest.server.mongo.repository.*;
 import com.testwa.distest.server.service.project.service.ProjectService;
-import com.testwa.distest.server.service.task.dao.ITaskDAO;
 import com.testwa.distest.server.service.task.dto.CountAppTestStatisDTO;
 import com.testwa.distest.server.service.task.dto.CountElapsedTimeStatisDTO;
 import com.testwa.distest.server.service.task.dto.CountMemberTestStatisDTO;
 import com.testwa.distest.server.service.task.dto.TaskDeviceStatusStatis;
-import com.testwa.distest.server.service.task.form.ScriptListForm;
 import com.testwa.distest.server.service.task.form.TaskListForm;
 import io.rpc.testwa.task.StepRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by wen on 24/10/2017.
@@ -39,12 +41,10 @@ import java.util.*;
 @Slf4j
 @Service
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
-public class TaskService {
+public class TaskService extends BaseService<Task, Long> {
 
     @Autowired
-    private ITaskDAO taskDAO;
-    @Autowired
-    private ProjectService projectService;
+    private TaskMapper taskMapper;
     @Autowired
     private AppiumRunningLogRepository procedureInfoRepository;
     @Autowired
@@ -54,31 +54,17 @@ public class TaskService {
     @Autowired
     private MongoOperations mongoTemplate;
 
-
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public long save(Task entity) {
-        return taskDAO.insert(entity);
-    }
-
-    public Task findOne(Long entityId) {
-        return taskDAO.findOne(entityId);
-    }
-
     public Task findByCode(Long taskCode) {
-        return taskDAO.findByCode(taskCode);
+        return taskMapper.findByCode(taskCode);
     }
+
     public List<Task> findAll(List<Long> entityIds) {
-        return taskDAO.findAll(entityIds);
+        return entityIds.stream().map(this::get).collect(Collectors.toList());
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public void update(Task entity) {
-        taskDAO.update(entity);
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void disableAll(List<Long> taskCodes) {
-        taskDAO.disableAll(taskCodes);
+        taskMapper.disableAll(taskCodes);
     }
 
     public Map<String, Object> statis(Task task) {
@@ -120,7 +106,7 @@ public class TaskService {
 
     public List<Task> findList(Long projectId, TaskListForm queryForm) {
         PageHelper.orderBy(queryForm.getOrderBy() + " " + queryForm.getOrder());
-        Task query = new Task();
+        TaskCondition query = new TaskCondition();
         query.setProjectId(projectId);
         if (StringUtils.isNotBlank(queryForm.getTaskName())) {
             query.setTaskName(queryForm.getTaskName());
@@ -128,7 +114,7 @@ public class TaskService {
         if (queryForm.getAppId() != null) {
             query.setAppId(queryForm.getAppId());
         }
-        List<Task> entityList = taskDAO.findBy(query);
+        List<Task> entityList = taskMapper.selectByCondition(query);
 
         entityList.forEach(entity -> {
             List<TaskDeviceStatusStatis> tds = subTaskService.countTaskDeviceStatus(entity.getId());
@@ -152,7 +138,7 @@ public class TaskService {
         if (queryForm.getAppId() != null) {
             query.setAppId(queryForm.getAppId());
         }
-        List<Task> entityList = taskDAO.findFinishBy(query, startTime, endTime);
+        List<Task> entityList = taskMapper.findFinishBy(query, startTime, endTime);
 
         entityList.forEach(entity -> {
             List<TaskDeviceStatusStatis> tds = subTaskService.countTaskDeviceStatus(entity.getId());
@@ -171,7 +157,7 @@ public class TaskService {
         if (queryForm.getAppId() != null) {
             query.setAppId(queryForm.getAppId());
         }
-        List<Task> entityList = taskDAO.findFinishBy(query);
+        List<Task> entityList = taskMapper.findFinishBy(query, null, null);
 
         entityList.forEach(entity -> {
             List<TaskDeviceStatusStatis> tds = subTaskService.countTaskDeviceStatus(entity.getId());
@@ -180,16 +166,16 @@ public class TaskService {
         return entityList;
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void complete(Long taskCode) {
         Date endTime = new Date();
-        taskDAO.finish(taskCode, endTime, DB.TaskStatus.COMPLETE);
+        taskMapper.finish(taskCode, endTime, DB.TaskStatus.COMPLETE);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void timeout(Long taskCode) {
         Date endTime = new Date();
-        taskDAO.finish(taskCode, endTime, DB.TaskStatus.TIMEOUT);
+        taskMapper.finish(taskCode, endTime, DB.TaskStatus.TIMEOUT);
     }
 
 
@@ -436,18 +422,18 @@ public class TaskService {
     }
 
     public List<CountAppTestStatisDTO> countAppTest(Long projectId, Long startTime, Long endTime) {
-        return taskDAO.countAppTest(projectId, startTime, endTime);
+        return taskMapper.countAppTest(projectId, startTime, endTime);
     }
 
     public List<CountMemberTestStatisDTO> countMemberTest(Long projectId, Long startTime, Long endTime) {
-        return taskDAO.countMemberTest(projectId, startTime, endTime);
+        return taskMapper.countMemberTest(projectId, startTime, endTime);
     }
 
     public List<CountElapsedTimeStatisDTO> countElapsedTimeByDay(Long projectId, Long startTime, Long endTime) {
-        return taskDAO.countElapsedTimeByDay(projectId, startTime, endTime);
+        return taskMapper.countElapsedTimeByDay(projectId, null, startTime, endTime);
     }
 
     public List<CountElapsedTimeStatisDTO> countElapsedTimeByDay(Long projectId, Long userId, Long startTime, Long endTime) {
-        return taskDAO.countElapsedTimeByDay(projectId, userId, startTime, endTime);
+        return taskMapper.countElapsedTimeByDay(projectId, userId, startTime, endTime);
     }
 }

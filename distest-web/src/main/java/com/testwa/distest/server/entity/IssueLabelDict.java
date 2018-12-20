@@ -1,17 +1,17 @@
 package com.testwa.distest.server.entity;
 
-import com.testwa.core.base.annotation.Column;
-import com.testwa.core.base.annotation.TableName;
+import com.testwa.core.base.mybatis.annotation.Column;
+import com.testwa.core.base.mybatis.annotation.Table;
 import com.testwa.core.base.bo.BaseEntity;
 import lombok.Data;
 
 @Data
-@TableName("dis_issue_label_dict")
+@Table(name="dis_issue_label_dict")
 public class IssueLabelDict extends BaseEntity {
 
-    @Column(value = "name")
+    @Column(name = "name")
     private String name;
-    @Column(value = "color")
+    @Column(name = "color")
     private String color;
 
 }

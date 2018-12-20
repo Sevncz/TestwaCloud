@@ -1,6 +1,7 @@
 package com.testwa.distest.server.entity;
 
-import com.testwa.core.base.annotation.TableName;
+import com.testwa.core.base.mybatis.annotation.Column;
+import com.testwa.core.base.mybatis.annotation.Table;
 import com.testwa.core.base.bo.BaseEntity;
 import lombok.Data;
 
@@ -8,10 +9,12 @@ import lombok.Data;
  * Created by wen on 23/10/2017.
  */
 @Data
-@TableName("user_role")
+@Table(name="user_role")
 public class UserRole extends BaseEntity{
 
+    @Column(name="userId")
     private Long userId;
+    @Column(name="roleId")
     private Long roleId;
 
 }

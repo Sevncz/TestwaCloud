@@ -1,7 +1,7 @@
 package com.testwa.distest.server.entity;
 
-import com.testwa.core.base.annotation.Column;
-import com.testwa.core.base.annotation.TableName;
+import com.testwa.core.base.mybatis.annotation.Column;
+import com.testwa.core.base.mybatis.annotation.Table;
 import com.testwa.core.base.bo.BaseEntity;
 import lombok.Data;
 
@@ -11,16 +11,16 @@ import java.util.Date;
  * Created by wen on 12/08/2017.
  */
 @Data
-@TableName("dis_log_file")
+@Table(name="dis_log_file")
 public class LogFile extends BaseEntity {
 
-    @Column(value = "task_code")
+    @Column(name = "task_code")
     private Long taskCode;
-    @Column(value = "device_id")
+    @Column(name = "device_id")
     private String deviceId;
-    @Column(value = "file_name")
+    @Column(name = "file_name")
     private String filename;
-    @Column(value = "create_time")
+    @Column(name = "create_time")
     private Date createTime;
 
     /**

@@ -6,6 +6,7 @@
         <result column="testcaseId" property="testcaseId" jdbcType="BIGINT" />
         <result column="scriptId" property="scriptId" jdbcType="BIGINT" />
         <result column="seq" property="seq" jdbcType="INTEGER" />
+        <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
     </resultMap>
 
     <sql id="Base_Column_List" >

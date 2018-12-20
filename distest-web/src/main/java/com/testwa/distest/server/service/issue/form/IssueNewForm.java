@@ -22,6 +22,6 @@ public class IssueNewForm extends RequestFormBase {
     @NotBlank
     private String content;
     @NotNull
-    private Long labelId;
+    private String labelName;
     private Long assigneeId;
 }

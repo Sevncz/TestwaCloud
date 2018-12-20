@@ -1,8 +1,12 @@
 package com.testwa.distest.server.service.issue.service;
 
+import com.testwa.core.base.service.BaseService;
+import com.testwa.distest.server.condition.BaseProjectCondition;
 import com.testwa.distest.server.entity.IssueLabel;
+import com.testwa.distest.server.entity.IssueLabelDict;
 import com.testwa.distest.server.entity.User;
-import com.testwa.distest.server.service.issue.dao.IIssueLabelDAO;
+import com.testwa.distest.server.mapper.IssueLabelDictMapper;
+import com.testwa.distest.server.mapper.IssueLabelMapper;
 import com.testwa.distest.server.service.issue.form.IssueLabelNewForm;
 import com.testwa.distest.server.service.issue.form.IssueLabelUpdateForm;
 import lombok.extern.slf4j.Slf4j;
@@ -22,10 +26,12 @@ import java.util.List;
 @Slf4j
 @Service
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
-public class LabelService {
+public class LabelService extends BaseService<IssueLabel, Long> {
 
     @Autowired
-    private IIssueLabelDAO issueLabelDAO;
+    private IssueLabelMapper issueLabelMapper;
+    @Autowired
+    private IssueLabelDictMapper issueLabelDictMapper;
     @Autowired
     private User currentUser;
 
@@ -37,45 +43,54 @@ public class LabelService {
      * @Date 2018/11/22 18:46
      */
     public List<IssueLabel> list(Long projectId) {
-        return issueLabelDAO.listByProjectId(projectId);
-    }
-
-    /**
-     * @Description: 获得一个标签
-     * @Param: [labelId]
-     * @Return: com.testwa.distest.server.entity.IssueLabel
-     * @Author wen
-     * @Date 2018/11/23 15:15
-     */
-    public IssueLabel findOne(Long labelId) {
-        return issueLabelDAO.findOne(labelId);
+        BaseProjectCondition condition = new BaseProjectCondition();
+        condition.setProjectId(projectId);
+        return issueLabelMapper.selectByCondition(condition);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     public long save(IssueLabelNewForm form, Long projectId) {
+        String name =form.getName();
+        String color =form.getColor();
+        return save(projectId, name, color);
+    }
+
+    protected long save(Long projectId, String name, String color) {
         IssueLabel issueLabel = new IssueLabel();
         issueLabel.setProjectId(projectId);
-        issueLabel.setName(form.getName());
-        issueLabel.setColor(form.getColor());
+        issueLabel.setName(name);
+        issueLabel.setColor(color);
         issueLabel.setCreateBy(currentUser.getId());
         issueLabel.setEnabled(true);
 
-        return issueLabelDAO.insert(issueLabel);
+        return issueLabelMapper.insert(issueLabel);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void update(IssueLabelUpdateForm form) {
-        issueLabelDAO.update(form.getLabelId(), form.getName(), form.getColor());
-
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void delete(Long labelId) {
-        issueLabelDAO.delete(labelId);
+        IssueLabel issueLabel = get(form.getLabelId());
+        issueLabel.setColor(form.getColor());
+        issueLabel.setName(form.getName());
+        issueLabelMapper.update(issueLabel);
 
     }
 
     public IssueLabel getByName(Long projectId, String name) {
-        return issueLabelDAO.getByName(projectId, name);
+        return issueLabelMapper.getByName(projectId, name);
+    }
+
+    /**
+     * @Description: 根据 label 模板为项目创建默认label列表
+     * @Param: [projectId]
+     * @Return: void
+     * @Author wen
+     * @Date 2018/12/17 10:21
+     */
+    public void initForProject(final Long projectId) {
+        List<IssueLabelDict> labelDicts = issueLabelDictMapper.list();
+        labelDicts.forEach( defaultLabel -> {
+            save(projectId, defaultLabel.getName(), defaultLabel.getColor());
+        });
     }
 }
+

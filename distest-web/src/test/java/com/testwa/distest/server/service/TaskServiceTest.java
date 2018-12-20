@@ -19,7 +19,7 @@ import java.util.List;
 @Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = DistestWebApplication.class)
-@TestPropertySource(locations="classpath:application-dev.properties")
+@TestPropertySource(locations="classpath:application-test.properties")
 public class TaskServiceTest {
 
     @Autowired
@@ -30,7 +30,7 @@ public class TaskServiceTest {
 
     @Test
     public void testFindOne(){
-        Task task = taskService.findOne(30l);
+        Task task = taskService.get(30l);
         System.out.println(task.toString());
     }
     @Test

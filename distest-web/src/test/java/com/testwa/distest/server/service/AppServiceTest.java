@@ -2,12 +2,10 @@ package com.testwa.distest.server.service;
 
 
 import com.testwa.distest.DistestWebApplication;
-import com.testwa.core.base.form.RequestListBase;
 import com.testwa.distest.server.entity.App;
 import com.testwa.distest.server.service.app.form.AppListForm;
 import com.testwa.distest.server.service.app.form.AppUpdateForm;
 import com.testwa.distest.server.service.app.service.AppService;
-import com.testwa.distest.server.service.project.service.ProjectService;
 import com.testwa.distest.server.web.app.vo.AppVO;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -27,13 +25,11 @@ import java.util.List;
 @Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = DistestWebApplication.class)
-@TestPropertySource(locations="classpath:application-dev.properties")
+@TestPropertySource(locations="classpath:application-test.properties")
 public class AppServiceTest {
 
     @Autowired
     private AppService appService;
-    @Autowired
-    private ProjectService projectService;
 
     @Test
     public void testInsert(){
@@ -59,7 +55,7 @@ public class AppServiceTest {
 
     @Test
     public void testDelete(){
-        appService.delete(1l);
+        appService.disable(1l);
     }
     @Test
     public void testDeleteApp(){
@@ -68,7 +64,7 @@ public class AppServiceTest {
 
     @Test
     public void testFindOne(){
-        App app = appService.findOne(1l);
+        App app = appService.get(1l);
     }
 
     @Test

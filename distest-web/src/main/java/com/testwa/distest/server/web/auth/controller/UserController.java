@@ -34,7 +34,7 @@ public class UserController extends BaseController{
     @ApiOperation(value="查询用户", notes = "")
     @ResponseBody
     @GetMapping(value = "/query")
-    public List<User> query(@RequestBody @Valid UserQueryForm form) {
+    public List<User> query(@Valid UserQueryForm form) {
 
         return userService.queryUser(form);
     }
@@ -43,7 +43,7 @@ public class UserController extends BaseController{
     @ResponseBody
     @GetMapping(value = "/baseinfo")
     public UserInfoVO baseInfo() {
-        User user = userService.findOne(currentUser.getId());
+        User user = userService.get(currentUser.getId());
         return buildVO(user, UserInfoVO.class);
     }
 

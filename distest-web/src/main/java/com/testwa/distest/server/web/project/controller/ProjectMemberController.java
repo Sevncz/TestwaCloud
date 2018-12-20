@@ -73,7 +73,7 @@ public class ProjectMemberController extends BaseController {
         Set<Long> memberIds = members.stream().map(User::getId).collect(Collectors.toSet());
 
         if(memberIds.contains(project.getCreateBy())) {
-            User user = userService.findOne(project.getCreateBy());
+            User user = userService.get(project.getCreateBy());
             return Result.error(ResultCode.ILLEGAL_OP, "无法删除" + user.getUsername());
         }
         memberIds.forEach(memberId -> projectValidator.validateUserIsProjectMember(form.getProjectId(), memberId));

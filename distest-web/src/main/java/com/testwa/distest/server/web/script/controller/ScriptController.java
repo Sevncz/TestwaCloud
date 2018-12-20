@@ -4,6 +4,7 @@ import com.testwa.core.base.constant.ResultCode;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.form.IDListForm;
+import com.testwa.core.base.vo.Result;
 import com.testwa.distest.common.validator.FileUploadValidator;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.exception.BusinessException;
@@ -117,7 +118,7 @@ public class ScriptController extends BaseController {
 
     @ApiOperation(value="补充脚本信息", notes="")
     @ResponseBody
-    @PostMapping(value = "/append")
+    @PostMapping(value = "/script/append")
     public void appendInfo(@RequestBody @Valid ScriptUpdateForm form) {
         scriptValidator.validateScriptExist(form.getScriptId());
         projectValidator.validateProjectExist(form.getProjectId());
@@ -127,7 +128,7 @@ public class ScriptController extends BaseController {
 
     @ApiOperation(value="删除脚本", notes="")
     @ResponseBody
-    @PostMapping(value = "/delete")
+    @PostMapping(value = "/script/deleteByIds")
     public void delete(@RequestBody @Valid IDListForm form) {
         List<Testcase> testcases = testcaseService.findByScripts(form.getEntityIds());
         if(testcases != null && !testcases.isEmpty()) {
@@ -156,15 +157,16 @@ public class ScriptController extends BaseController {
 
     @ApiOperation(value="获得脚本内容", notes="")
     @ResponseBody
-    @GetMapping(value = "/read/{scriptId}")
-    public String read(@PathVariable Long scriptId) throws IOException{
+    @GetMapping(value = "/script/read/{scriptId}")
+    public Result read(@PathVariable Long scriptId) throws IOException{
         validator.validateScriptExist(scriptId);
-        return scriptService.getContent(scriptId);
+        String content = scriptService.getContent(scriptId);
+        return Result.success(content);
     }
 
     @ApiOperation(value="修改脚本内容", notes="")
     @ResponseBody
-    @PostMapping(value = {"/write/{scriptId}"})
+    @PostMapping(value = {"/script/write/{scriptId}"})
     public void write(@PathVariable Long scriptId, @RequestBody ScriptContentForm form) throws IOException {
         validator.validateScriptExist(scriptId);
         scriptService.modifyContent(scriptId, form.getContent());

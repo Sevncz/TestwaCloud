@@ -9,7 +9,7 @@
         <result column="start_time" property="startTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="end_time" property="endTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
-        <result column="share_scope_type" property="shareScopeType" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
+        <result column="share_scope_type" property="shareScopeType" jdbcType="TINYINT" />
     </resultMap>
 
     <select id="findShareUserIn" resultMap="BaseResultMap" >

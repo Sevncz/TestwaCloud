@@ -23,7 +23,7 @@ import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = DistestWebApplication.class)
-@TestPropertySource(locations="classpath:application-dev.properties")
+@TestPropertySource(locations="classpath:application-test.properties")
 public class ProjectServiceTest {
 
     @Autowired
@@ -34,7 +34,6 @@ public class ProjectServiceTest {
     @Test
     public void testInsert(){
         User user = userService.findByUsername("xiaoming");
-
         long countBefore =projectService.count();
         Project project = new Project();
         project.setProjectName("test project " + RandomUtils.nextInt(1, 50));
@@ -46,7 +45,7 @@ public class ProjectServiceTest {
 
     @Test
     public void testFind(){
-        Project project = projectService.findOne(4l);
+        Project project = projectService.get(4l);
         System.out.println(project.toString());
     }
     @Test
@@ -65,7 +64,7 @@ public class ProjectServiceTest {
     @Test
     @WithMockUser(username = "xiaoming", authorities = { "ADMIN", "USER" })
     public void testDeleteOne(){
-        List<Project> projects = projectService.findAll();
+        List<Project> projects = projectService.list();
         if(!projects.isEmpty()){
             projectService.delete(projects.get(0).getId());
         }
@@ -74,7 +73,7 @@ public class ProjectServiceTest {
     @Test
     @WithMockUser(username = "xiaoming", authorities = { "ADMIN", "USER" })
     public void testDeleteAll(){
-        List<Project> projects = projectService.findAll();
+        List<Project> projects = projectService.list();
         List<Long> ids = new ArrayList<>();
         projects.forEach(p -> {
             ids.add(p.getId());
@@ -105,7 +104,7 @@ public class ProjectServiceTest {
     public void testUpdate(){
         try {
             ProjectUpdateForm form = new ProjectUpdateForm();
-            List<Project> projects = projectService.findAll();
+            List<Project> projects = projectService.list();
             if(!projects.isEmpty()){
                 form.setProjectId(projects.get(0).getId());
                 form.setProjectName("hhhhha");

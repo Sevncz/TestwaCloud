@@ -75,7 +75,7 @@ public class ExecuteMgr {
      *@Author: wen
      *@Date: 2018/6/4
      */
-    @Transactional(rollbackFor = BusinessException.class, propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(rollbackFor = BusinessException.class, propagation = Propagation.REQUIRED)
     public TaskStartResultVO startFunctionalTestTask(List<String> useableDevices, App app, List<Long> scriptIds) {
         Testcase testcase = testcaseService.saveTestcaseByScriptIds(app, scriptIds);
         TaskStartResultVO vo = startFunctionalTestTask(useableDevices, app, testcase.getId(), testcase.getCaseName());
@@ -85,7 +85,7 @@ public class ExecuteMgr {
         return vo;
     }
 
-    @Transactional(rollbackFor = BusinessException.class, propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(rollbackFor = BusinessException.class, propagation = Propagation.REQUIRED)
     public TaskStartResultVO startFunctionalTestTask(List<String> deviceIds, App app, Long testcaseId, String caseName) {
         return startTask(deviceIds, app.getProjectId(), testcaseId, app.getId(), caseName, DB.TaskType.FUNCTIONAL);
     }
@@ -97,7 +97,7 @@ public class ExecuteMgr {
      *@Author: wen
      *@Date: 2018/6/4
      */
-    @Transactional(rollbackFor = BusinessException.class, propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(rollbackFor = BusinessException.class, propagation = Propagation.REQUIRED)
     public TaskStartResultVO startCompabilityTestTask(List<String> deviceIds, Long projectId, Long appId) {
         return startTask(deviceIds, projectId, null, appId, "兼容测试", DB.TaskType.COMPATIBILITY);
     }
@@ -109,14 +109,14 @@ public class ExecuteMgr {
      *@Author: wen
      *@Date: 2018/7/26
      */
-    @Transactional(rollbackFor = BusinessException.class, propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(rollbackFor = BusinessException.class, propagation = Propagation.REQUIRED)
     public TaskStartResultVO startCrawlerTestTask(List<String> deviceIds, Long projectId, Long appId) {
         return startTask(deviceIds, projectId, null, appId, "遍历测试", DB.TaskType.CRAWLER);
     }
 
     private TaskStartResultVO startTask(List<String> deviceIds, Long projectId, Long testcaseId, Long appId, String taskName, DB.TaskType taskType) {
         // 记录task的执行信息
-        App app = appService.findOne(appId);
+        App app = appService.get(appId);
         Long taskCode = taskIdWorker.nextId();
         TaskStartResultVO result = new TaskStartResultVO();
         result.setTaskCode(taskCode);
@@ -201,7 +201,7 @@ public class ExecuteMgr {
             subTask.setCreateBy(currentUser.getId());
             subTask.setEnabled(true);
             subTask.setProjectId(app.getProjectId());
-            subTaskService.save(subTask);
+            subTaskService.insert(subTask);
             deviceService.work(key);
             taskCountMgr.incrSubTaskCount(taskCode);
         }
@@ -210,7 +210,7 @@ public class ExecuteMgr {
         task.setEnabled(true);
         task.setDevicesJson(JSON.toJSONString(result.getRunningDevices()));
         task.setStatus(DB.TaskStatus.RUNNING);
-        taskService.save(task);
+        taskService.insert(task);
 
 
         // 执行任务所需要的参数
@@ -228,7 +228,7 @@ public class ExecuteMgr {
      * 停止任务
      * @param form
      */
-    @Transactional(rollbackFor = BusinessException.class, propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(rollbackFor = BusinessException.class, propagation = Propagation.REQUIRED)
     public void stop(TaskStopForm form) {
         Task task = taskService.findByCode(form.getTaskCode());
         taskService.update(task);

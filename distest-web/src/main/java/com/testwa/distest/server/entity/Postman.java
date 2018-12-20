@@ -1,16 +1,16 @@
 package com.testwa.distest.server.entity;
 
-import com.testwa.core.base.annotation.Column;
-import com.testwa.core.base.annotation.TableName;
+import com.testwa.core.base.mybatis.annotation.Column;
+import com.testwa.core.base.mybatis.annotation.Table;
 import lombok.Data;
 
 @Data
-@TableName("dis_postman")
-public class Postman extends ProjectBaseEntity{
+@Table(name="dis_postman")
+public class Postman extends ProjectBase{
 
-    @Column(value = "collection_path")
+    @Column(name = "postman_id")
+    private String postmanId;
+    @Column(name = "collection_path")
     private String collectionPath;
-    @Column(value = "environment_path")
-    private String environmentPath;
 
 }

@@ -6,7 +6,7 @@
         <result column="projectId" property="projectId" jdbcType="BIGINT" />
         <result column="memberId" property="memberId" jdbcType="BIGINT" />
         <result column="inviteBy" property="inviteBy" jdbcType="BIGINT" />
-        <result column="projectRole" property="projectRole"  jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
+        <result column="projectRole" property="projectRole"  jdbcType="TINYINT" />
         <result column="createTime" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
 
     </resultMap>
@@ -16,7 +16,7 @@
         <result column="password" property="password" jdbcType="VARCHAR" />
         <result column="mobile" property="mobile" jdbcType="VARCHAR" />
         <result column="email" property="email" jdbcType="VARCHAR" />
-        <result column="sex" property="sex" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
+        <result column="sex" property="sex" jdbcType="TINYINT" />
         <result column="nickname" property="nickname" jdbcType="VARCHAR" />
         <result column="address" property="address" jdbcType="VARCHAR" />
         <result column="country" property="country" jdbcType="VARCHAR" />
@@ -52,7 +52,7 @@
         INSERT INTO project_member (projectId,memberId,projectRole,inviteBy,createTime)
         VALUES
         <foreach item="item" index="index" collection="list" separator="," >
-            (#{item.projectId}, #{item.memberId}, #{item.projectRole, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}, #{item.inviteBy}, #{item.createTime})
+            (#{item.projectId}, #{item.memberId}, #{item.projectRole}, #{item.inviteBy}, #{item.createTime})
         </foreach>
             on duplicate key update createTime=values(createTime);
     </insert>

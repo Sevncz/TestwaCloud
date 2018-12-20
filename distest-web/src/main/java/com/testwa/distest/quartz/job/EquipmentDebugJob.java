@@ -44,7 +44,7 @@ public class EquipmentDebugJob implements BaseJob, InterruptableJob {
         String deviceId = params.getDeviceId();
         Long devLogId = params.getDevLogId();
 
-        DeviceLog devLog = deviceLogService.findOne(devLogId);
+        DeviceLog devLog = deviceLogService.get(devLogId);
         SocketIOClient client = server.getClient(UUID.fromString(socketClientId));
         if(client == null) {
             deviceLockMgr.debugRelease(deviceId, socketClientId);

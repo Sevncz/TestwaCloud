@@ -22,7 +22,7 @@ import java.util.List;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = DistestWebApplication.class)
-@TestPropertySource(locations="classpath:application-dev.properties")
+@TestPropertySource(locations="classpath:application-test.properties")
 public class UserServiceTest {
 
     @Autowired
@@ -45,13 +45,13 @@ public class UserServiceTest {
     @Test
     public void testFindByUserIds() {
         List<Long> idList = Arrays.asList(new Long[] {3l, 5l, 6l});
-        List<User> users = userService.findByUserIds(idList);
+        List<User> users = userService.findAll(idList);
         System.out.println(users.toString());
     }
 
     @Test
     public void testFindOne(){
-        User user = userService.findOne(3l);
+        User user = userService.get(3l);
         System.out.println(user.toString());
     }
 
@@ -76,23 +76,9 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testDelete(){
-        int val = userService.delete(4);
-        Assert.assertEquals(val, 1);
-    }
-
-    @Test
     public void testDeleteAll(){
         List<Long> idList = Arrays.asList(new Long[] {1l, 2l});
         userService.deleteAll(idList);
     }
-
-    @Test
-    public void testFindByPage(){
-        User user = new User();
-        PageResult<User> pr = userService.findByPage(user, 1, 10);
-        System.out.println(pr.getTotal());
-    }
-
 
 }

@@ -4,7 +4,7 @@
     <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.DeviceShareScope" >
         <id column="id" property="id" jdbcType="BIGINT" />
         <result column="device_id" property="deviceId" jdbcType="VARCHAR" />
-        <result column="share_scope" property="shareScope" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
+        <result column="share_scope" property="shareScope" jdbcType="TINYINT" />
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="create_by" property="createBy" jdbcType="BIGINT" />
     </resultMap>
@@ -15,7 +15,7 @@
     </select>
     <update id="updateScope" >
         update dis_device_share_scope
-        set share_scope = #{scope, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}
+        set share_scope = #{scope}
         where device_id = #{deviceId}
         and create_by = #{createBy}
     </update>

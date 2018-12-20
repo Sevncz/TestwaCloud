@@ -2,15 +2,20 @@ package com.testwa.distest.server.service.script.service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.testwa.core.base.constant.ResultCode;
+import com.testwa.core.base.service.BaseService;
 import com.testwa.core.utils.IOUtil;
 import com.testwa.core.utils.Identities;
 import com.testwa.core.utils.PinYinTool;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.config.DisFileProperties;
 import com.testwa.core.base.vo.PageResult;
+import com.testwa.distest.exception.BusinessException;
+import com.testwa.distest.server.condition.ScriptCondition;
+import com.testwa.distest.server.entity.ProjectMember;
 import com.testwa.distest.server.entity.Script;
 import com.testwa.distest.server.entity.User;
-import com.testwa.distest.server.service.script.dao.IScriptDAO;
+import com.testwa.distest.server.mapper.ScriptMapper;
 import com.testwa.distest.server.service.script.form.ScriptListForm;
 import com.testwa.distest.server.service.script.form.ScriptUpdateForm;
 import lombok.extern.slf4j.Slf4j;
@@ -29,10 +34,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
@@ -42,10 +49,10 @@ import java.util.stream.Stream;
 @Slf4j
 @Service
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
-public class ScriptService {
+public class ScriptService extends BaseService<Script, Long> {
     private static final String REG_ANDROID_PACKAGE = "[a-zA-Z]+[0-9a-zA-Z_]*(\\.[a-zA-Z]+[0-9a-zA-Z_]*)*";
     @Autowired
-    private IScriptDAO scriptDAO;
+    private ScriptMapper scriptMapper;
     @Autowired
     private DisFileProperties disFileProperties;
     @Autowired
@@ -54,21 +61,22 @@ public class ScriptService {
     private User currentUser;
 
     public Script findOne(Long scriptId){
-        return scriptDAO.findOne(scriptId);
+        Script script = scriptMapper.selectById(scriptId);
+        return script.getEnabled() ? script : null;
     }
 
     public Script findOneInPorject(Long scriptId, Long projectId){
-        return scriptDAO.findOneInPorject(scriptId, projectId);
+        return scriptMapper.findOneInProject(scriptId, projectId);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void uploadMulti(List<MultipartFile> uploadfiles) throws IOException {
         for(MultipartFile f : uploadfiles){
             upload(f);
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void uploadMulti(List<MultipartFile> uploadfiles, Long projectId) throws IOException {
         for(MultipartFile f : uploadfiles){
             upload(f, projectId);
@@ -81,7 +89,7 @@ public class ScriptService {
      * @return
      * @throws IOException
      */
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public Script upload(MultipartFile uploadfile) throws IOException {
         return upload(uploadfile, null);
     }
@@ -93,7 +101,7 @@ public class ScriptService {
      * @return
      * @throws IOException
      */
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public Script upload(MultipartFile uploadfile, Long projectId) throws IOException {
         // 解析文件
         String filename = uploadfile.getOriginalFilename();
@@ -159,7 +167,7 @@ public class ScriptService {
         script.setMd5(md5);
         script.setProjectId(projectId);
         script.setEnabled(true);
-        Long scriptId = scriptDAO.insert(script);
+        Long scriptId = scriptMapper.insert(script);
         script.setId(scriptId);
         return script;
     }
@@ -178,7 +186,7 @@ public class ScriptService {
     }
 
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void update(ScriptUpdateForm form) {
 
         Script script = findOne(form.getScriptId());
@@ -187,10 +195,10 @@ public class ScriptService {
         script.setDescription(form.getDescription());
         script.setUpdateTime(new Date());
         script.setUpdateBy(currentUser.getId());
-        scriptDAO.update(script);
+        scriptMapper.update(script);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void appendInfo(ScriptUpdateForm form) {
 
         Script script = findOne(form.getScriptId());
@@ -200,17 +208,12 @@ public class ScriptService {
         script.setUpdateTime(new Date());
         script.setUpdateBy(currentUser.getId());
         script.setEnabled(true);
-        scriptDAO.update(script);
+        scriptMapper.update(script);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void delete(List<Long> entityIds) {
-        scriptDAO.disableAll(entityIds);
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public void delete(Long entityId) {
-        scriptDAO.disable(entityId);
+        scriptMapper.disableAll(entityIds);
     }
 
     public PageResult<Script> findPage(Long projectId, ScriptListForm queryForm) {
@@ -223,18 +226,22 @@ public class ScriptService {
 
     public List<Script> findList(Long projectId, ScriptListForm queryForm) {
         PageHelper.orderBy(queryForm.getOrderBy() + " " + queryForm.getOrder());
-        Script script = new Script();
-        script.setProjectId(projectId);
+        ScriptCondition query = new ScriptCondition();
+        query.setProjectId(projectId);
         if(StringUtils.isNotBlank(queryForm.getScriptName())) {
-            script.setScriptName(queryForm.getScriptName());
+            query.setScriptName(queryForm.getScriptName());
         }
         if(queryForm.getLn() != null) {
-            script.setLn(DB.ScriptLN.valueOf(queryForm.getLn()));
+            DB.ScriptLN ln = DB.ScriptLN.valueOf(queryForm.getLn());
+            if(ln == null) {
+                throw new BusinessException(ResultCode.INVALID_PARAM, "非法参数");
+            }
+            query.setLn(ln);
         }
         if(StringUtils.isNotBlank(queryForm.getPackageName())) {
-            script.setAppPackage(queryForm.getPackageName());
+            query.setAppPackage(queryForm.getPackageName());
         }
-        return scriptDAO.findBy(script);
+        return scriptMapper.selectByCondition(query);
     }
 
 
@@ -251,10 +258,10 @@ public class ScriptService {
         if(StringUtils.isNotBlank(queryForm.getPackageName())) {
             script.setAppPackage(queryForm.getPackageName());
         }
-        return scriptDAO.findBy(script, startTime, endTime);
+        return scriptMapper.findBy(script, startTime, endTime);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void modifyContent(Long scriptId, String content) throws IOException {
         Script script = findOne(scriptId);
         String path = disFileProperties.getScript() + File.separator + script.getPath();
@@ -272,7 +279,7 @@ public class ScriptService {
         script.setUpdateTime(new Date());
         script.setUpdateBy(currentUser.getId());
 
-        scriptDAO.update(script);
+        scriptMapper.update(script);
     }
 
     /**
@@ -297,11 +304,11 @@ public class ScriptService {
     }
 
     public List<Script> findAll(List<Long> scriptIds) {
-        return scriptDAO.findAll(scriptIds);
+        return scriptIds.stream().map(this::findOne).collect(Collectors.toList());
     }
 
     public List<Script> findAllInProject(List<Long> scriptIds, Long projectId) {
-        return scriptDAO.findAllInProject(scriptIds, projectId);
+        return scriptMapper.findList(scriptIds, projectId, null);
     }
 
     public String getContent(Long scriptId) throws IOException {
@@ -317,9 +324,9 @@ public class ScriptService {
     }
 
     public List<Script> findByMD5InProject(String jrMd5, Long projectId) {
-        Script query = new Script();
+        ScriptCondition query = new ScriptCondition();
         query.setMd5(jrMd5);
         query.setProjectId(projectId);
-        return scriptDAO.findBy(query);
+        return scriptMapper.selectByCondition(query);
     }
 }

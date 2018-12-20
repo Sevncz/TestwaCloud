@@ -3,12 +3,14 @@ package com.testwa.distest.server.service.testcase.service;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.Joiner;
+import com.testwa.core.base.service.BaseService;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.utils.TimeUtil;
+import com.testwa.distest.server.condition.TestcaseCondition;
 import com.testwa.distest.server.entity.*;
+import com.testwa.distest.server.mapper.TestcaseDetailMapper;
+import com.testwa.distest.server.mapper.TestcaseMapper;
 import com.testwa.distest.server.service.app.service.AppInfoService;
-import com.testwa.distest.server.service.testcase.dao.ITestcaseDAO;
-import com.testwa.distest.server.service.testcase.dao.ITestcaseDetailDAO;
 import com.testwa.distest.server.service.testcase.form.TestcaseNewForm;
 import com.testwa.distest.server.service.testcase.form.TestcaseListForm;
 import com.testwa.distest.server.service.testcase.form.TestcaseUpdateForm;
@@ -24,6 +26,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by wen on 21/10/2017.
@@ -31,11 +34,11 @@ import java.util.*;
 @Slf4j
 @Service
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
-public class TestcaseService {
+public class TestcaseService extends BaseService<Testcase, Long> {
     @Autowired
-    private ITestcaseDAO testcaseDAO;
+    private TestcaseMapper testcaseMapper;
     @Autowired
-    private ITestcaseDetailDAO testcaseDetailDAO;
+    private TestcaseDetailMapper testcaseDetailMapper;
     @Autowired
     private AppInfoService appInfoService;
     @Autowired
@@ -48,7 +51,7 @@ public class TestcaseService {
      * @param form
      * @return
      */
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public long saveFunctionalTestcase(Long projectId, AppInfo appInfo, TestcaseNewForm form) {
         Testcase testcase = new Testcase();
         if(StringUtils.isNotEmpty(form.getName())){
@@ -65,12 +68,12 @@ public class TestcaseService {
         testcase.setCreateBy(currentUser.getId());
         testcase.setCreateTime(new Date());
         testcase.setEnabled(true);
-        long testcaseId = testcaseDAO.insert(testcase);
+        long testcaseId = testcaseMapper.insert(testcase);
         saveTestcaseScript(form.getScriptIds(), testcaseId);
         return testcaseId;
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public Testcase saveTestcaseByScriptIds(App app, List<Long> scriptIds) {
         AppInfo appInfo = appInfoService.getByPackage(app.getProjectId(), app.getPackageName());
         Testcase testcase = new Testcase();
@@ -82,7 +85,7 @@ public class TestcaseService {
         testcase.setCreateBy(currentUser.getId());
         testcase.setCreateTime(new Date());
         testcase.setEnabled(true);
-        long testcaseId = testcaseDAO.insert(testcase);
+        long testcaseId = testcaseMapper.insert(testcase);
         saveTestcaseScript(scriptIds, testcaseId);
         testcase.setId(testcaseId);
         return testcase;
@@ -95,7 +98,7 @@ public class TestcaseService {
             testcaseScript.setScriptId(scriptId);
             testcaseScript.setSeq(seq.size());
             testcaseScript.setTestcaseId(testcaseId);
-            testcaseDetailDAO.insert(testcaseScript);
+            testcaseDetailMapper.insert(testcaseScript);
             seq.add(1);
         });
     }
@@ -104,24 +107,24 @@ public class TestcaseService {
      * 删除案例及案例脚本的中间表
      * @param testcaseId
      */
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public void delete(Long testcaseId) {
+    @Transactional(propagation = Propagation.REQUIRED)
+    public int delete(Long testcaseId) {
         // 删除相关的testcasescript
-        testcaseDetailDAO.deleteByTestcaseId(testcaseId);
-        testcaseDAO.delete(testcaseId);
+        testcaseDetailMapper.deleteByTestcaseId(testcaseId);
+        return testcaseMapper.delete(testcaseId);
     }
 
     /**
      * 删除多个案例记录
      * @param testcaseIds
      */
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void delete(List<Long> testcaseIds) {
         testcaseIds.forEach(this::delete);
     }
 
     public TestcaseVO getTestcaseVO(Long caseId) {
-        Testcase testcase = testcaseDAO.fetchOne(caseId);
+        Testcase testcase = testcaseMapper.fetchOne(caseId);
         TestcaseVO testcaseVO = new TestcaseVO();
         if(testcase != null){
             toTestcaseVO(testcase, testcaseVO);
@@ -161,18 +164,18 @@ public class TestcaseService {
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void update(TestcaseUpdateForm form) {
-        Testcase testcase = testcaseDAO.findOne(form.getTestcaseId());
+        Testcase testcase = get(form.getTestcaseId());
         List<Long> scriptIds = form.getScriptIds();
         testcase.setTag(form.getTag());
         testcase.setDescription(form.getDescription());
         testcase.setCaseName(form.getName());
         testcase.setUpdateBy(currentUser.getId());
         testcase.setUpdateTime(new Date());
-        testcaseDAO.update(testcase);
+        testcaseMapper.update(testcase);
 
-        testcaseDetailDAO.deleteByTestcaseId(form.getTestcaseId());
+        testcaseDetailMapper.deleteByTestcaseId(form.getTestcaseId());
         saveTestcaseScript(scriptIds, form.getTestcaseId());
 
     }
@@ -187,13 +190,13 @@ public class TestcaseService {
         orderSb.append("field(id,");
         String order = Joiner.on(",").join(cases);
         orderSb.append(order).append(")");
-        return testcaseDAO.findAllOrder(cases, orderSb.toString());
+        return testcaseMapper.findAllOrder(cases, orderSb.toString());
     }
 
     public long countByProject(Long projectId) {
         Testcase query = new Testcase();
         query.setProjectId(projectId);
-        return testcaseDAO.countBy(query);
+        return testcaseMapper.countBy(query);
     }
 
 
@@ -207,31 +210,27 @@ public class TestcaseService {
 
     public List<Testcase> findList(Long projectId, TestcaseListForm queryForm) {
         PageHelper.orderBy(queryForm.getOrderBy() + " " + queryForm.getOrder());
-        Testcase testcase = new Testcase();
+        TestcaseCondition query = new TestcaseCondition();
         if(StringUtils.isNotBlank(queryForm.getCaseName())){
-            testcase.setCaseName(queryForm.getCaseName());
+            query.setCaseName(queryForm.getCaseName());
         }
         if(StringUtils.isNotBlank(queryForm.getPackageName())){
-            testcase.setPackageName(queryForm.getPackageName());
+            query.setPackageName(queryForm.getPackageName());
         }
-        testcase.setProjectId(projectId);
-        return testcaseDAO.findBy(testcase);
+        query.setProjectId(projectId);
+        return testcaseMapper.selectByCondition(query);
     }
 
 
     public List<Testcase> findAll(List<Long> entityIds) {
-        return testcaseDAO.findAll(entityIds);
-    }
-
-    public Testcase findOne(Long entityId) {
-        return testcaseDAO.findOne(entityId);
+        return entityIds.stream().map(this::get).collect(Collectors.toList());
     }
 
     public Testcase fetchOne(Long entityId) {
-        return testcaseDAO.fetchOne(entityId);
+        return testcaseMapper.fetchOne(entityId);
     }
 
     public List<Testcase> findByScripts(List<Long> scriptIds) {
-        return testcaseDAO.fetchContainsScripts(scriptIds);
+        return testcaseMapper.fetchContainsScripts(scriptIds);
     }
 }

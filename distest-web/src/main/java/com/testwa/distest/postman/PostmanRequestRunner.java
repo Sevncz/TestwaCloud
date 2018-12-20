@@ -254,7 +254,7 @@ public class PostmanRequestRunner {
             return true;
         } else {
             for (PostmanEvent event : item.getEvent()) {
-                if (event.getListen().equals("prerequest")) {
+                if ("prerequest".equals(event.getListen())) {
                     prerequest = event.getScript().getExec();
                 }
             }

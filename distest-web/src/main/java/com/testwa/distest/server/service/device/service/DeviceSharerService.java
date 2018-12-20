@@ -1,8 +1,10 @@
 package com.testwa.distest.server.service.device.service;
 
+import com.testwa.core.base.service.BaseService;
 import com.testwa.distest.common.enums.DB;
+import com.testwa.distest.server.entity.Api;
 import com.testwa.distest.server.entity.DeviceSharer;
-import com.testwa.distest.server.service.device.dao.IDeviceSharerDAO;
+import com.testwa.distest.server.mapper.DeviceSharerMapper;
 import com.testwa.distest.server.service.device.dto.DeviceSharerDTO;
 import com.testwa.distest.server.web.device.vo.DeviceScopeUserVO;
 import lombok.extern.slf4j.Slf4j;
@@ -17,12 +19,12 @@ import java.util.*;
 @Slf4j
 @Service
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
-public class DeviceSharerService {
+public class DeviceSharerService extends BaseService<DeviceSharer, Long> {
 
     @Autowired
-    private IDeviceSharerDAO deviceSharerDAO;
+    private DeviceSharerMapper deviceSharerMapper;
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void insert(String deviceId, Long ownerId, Long toUserId, DB.DeviceShareScopeTypeEnum shareScopeType) {
         if(toUserId == null) {
             return;
@@ -33,13 +35,13 @@ public class DeviceSharerService {
         scopeUser.setSharerId(toUserId);
         scopeUser.setCreateTime(new Date());
         scopeUser.setShareScopeType(shareScopeType);
-        DeviceSharer oldScopeUser = deviceSharerDAO.findShareUserIn(deviceId, ownerId, toUserId);
+        DeviceSharer oldScopeUser = deviceSharerMapper.findShareUserIn(deviceId, ownerId, toUserId);
         if(oldScopeUser == null) {
-            deviceSharerDAO.insert(scopeUser);
+            deviceSharerMapper.insert(scopeUser);
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void insertList(String deviceId, Long ownerId, Set<Long> userIds) {
         if(userIds == null || userIds.isEmpty()) {
             return;
@@ -49,7 +51,7 @@ public class DeviceSharerService {
         });
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void removeList(String deviceId, Long ownerId, Set<Long> userIds) {
         if(userIds == null || userIds.isEmpty()) {
             return;
@@ -59,7 +61,7 @@ public class DeviceSharerService {
         });
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void removeList(List<Long> entityIds) {
         if(entityIds == null) {
             return;
@@ -68,16 +70,14 @@ public class DeviceSharerService {
         if(entitySet.isEmpty()) {
             return;
         }
-        if(entitySet.size() == 1) {
-            deviceSharerDAO.delete(entityIds.get(0));
-        }else{
-            deviceSharerDAO.delete(entitySet);
-        }
+        entitySet.forEach( id -> {
+            deviceSharerMapper.delete(id);
+        });
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void removeOne(String deviceId, Long shareId, Long ownerId) {
-        deviceSharerDAO.removeOne(deviceId, shareId, ownerId);
+        deviceSharerMapper.removeOne(deviceId, shareId, ownerId);
     }
 
     /**
@@ -89,7 +89,7 @@ public class DeviceSharerService {
      */
     public List<DeviceSharer> findShareToUserList(Set<String> inDeviceList, Long userId) {
 
-        return deviceSharerDAO.findShareToUserList(inDeviceList, userId);
+        return deviceSharerMapper.findShareToUserList(inDeviceList, userId);
     }
 
     /**
@@ -103,7 +103,7 @@ public class DeviceSharerService {
 
         List<DeviceScopeUserVO> scopeUserVOList = new ArrayList<>();
 
-        List<DeviceSharerDTO> dtoList = deviceSharerDAO.findDeviceScopeUserList(deviceId, userId);
+        List<DeviceSharerDTO> dtoList = deviceSharerMapper.findDeviceScopeUserList(deviceId, userId);
 
         dtoList.forEach(dto -> {
             DeviceScopeUserVO vo = new DeviceScopeUserVO();

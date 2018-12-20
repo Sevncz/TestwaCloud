@@ -1,19 +1,22 @@
 package com.testwa.distest.server.entity;
 
-import com.testwa.core.base.annotation.Column;
-import com.testwa.core.base.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.testwa.core.base.mybatis.annotation.Column;
+import com.testwa.core.base.mybatis.annotation.Table;
 import com.testwa.core.base.bo.BaseEntity;
 import lombok.Data;
 
 @Data
-@TableName("dis_issue_label")
+@Table(name="dis_issue_label")
 public class IssueLabel extends BaseEntity {
-    @Column(value = "project_id")
+    @JsonIgnore
+    @Column(name = "project_id")
     private Long projectId;
-    @Column(value = "name")
+    @Column(name = "name")
     private String name;
-    @Column(value = "color")
+    @Column(name = "color")
     private String color;
-    @Column(value = "create_by")
+    @JsonIgnore
+    @Column(name = "create_by")
     private Long createBy;
 }

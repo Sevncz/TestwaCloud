@@ -5,12 +5,11 @@
  */
 package com.testwa.distest.server.service.user.service;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import com.testwa.core.base.vo.PageResult;
+import com.testwa.core.base.service.BaseService;
 import com.testwa.core.tools.SnowflakeIdWorker;
+import com.testwa.distest.server.entity.ProjectMember;
 import com.testwa.distest.server.entity.User;
-import com.testwa.distest.server.service.user.dao.IUserDAO;
+import com.testwa.distest.server.mapper.UserMapper;
 import com.testwa.distest.server.service.user.form.UserQueryForm;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,17 +26,17 @@ import java.util.*;
 @Slf4j
 @Service
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
-public class UserService {
+public class UserService extends BaseService<User, Long> {
     private static final String userCodePrefix = "U_";
 
     @Autowired
-    private IUserDAO userDAO;
+    private UserMapper userMapper;
     @Autowired
     private SnowflakeIdWorker commonIdWorker;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public String save(User user) {
         String userCode = userCodePrefix + commonIdWorker.nextId();
         user.setUserCode(userCode);
@@ -46,67 +45,41 @@ public class UserService {
         user.setEnabled(true);
         user.setIsActive(false);
         user.setIsRealNameAuth(false);
-        userDAO.insert(user);
+        userMapper.insert(user);
         return userCode;
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public int update(User user) {
-        return userDAO.update(user);
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public int delete(Integer id) {
-        return userDAO.delete(id);
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public int deleteAll(List<Long> idList) {
-        return userDAO.delete(idList);
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void deleteAll(List<Long> ids) {
+        ids.forEach( this::disable );
     }
 
     public User findByEmail(String email) {
-        return userDAO.getByEmail(email);
+        return userMapper.getByEmail(email);
     }
 
     public User findByUsername(String username) {
-        return userDAO.getByUsername(username);
+        return userMapper.getByUsername(username);
     }
 
     public User findByUserCode(String userCode) {
-        return userDAO.getByCode(userCode);
+        return userMapper.getByCode(userCode);
     }
 
     public List<User> findByUserCodes(List<String> userCodes) {
-        return userDAO.findByUserCodes(userCodes);
+        return userMapper.findByUserCodeList(userCodes);
     }
 
     public List<User> findByUsernames(List<String> usernames) {
-        List<User> users = userDAO.findByUsernames(usernames);
+        List<User> users = userMapper.findByUsernameList(usernames);
         if(users.isEmpty()){
             return Collections.emptyList();
         }
         return users;
     }
 
-    public User findOne(Long userId) {
-        return userDAO.findOne(userId);
-    }
-
-    public List<User> findByUserIds(List<Long> userIds) {
-        return userDAO.findAll(userIds);
-    }
-
     public long count() {
-        return userDAO.count();
-    }
-
-    public PageResult<User> findByPage(User user, int page, int rows){
-        //分页处理
-        PageHelper.startPage(page, rows);
-        List<User> userList = userDAO.findBy(user);
-        PageInfo info = new PageInfo(userList);
-        return new PageResult<>(info.getList(), info.getTotal());
+        return userMapper.count(null);
     }
 
     /**
@@ -117,25 +90,25 @@ public class UserService {
     public List<User> queryUser(UserQueryForm form) {
         User query = new User();
         query.setUsername(form.getUsername());
-        return userDAO.query(query);
+        return userMapper.query(query);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void updateActiveToTrue(String userCode) {
-        userDAO.updateActiveToTrue(userCode);
+        userMapper.updateActiveToTrue(userCode);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void resetPwd(String userCode, String newpassword) {
         String newHashPwd = passwordEncoder.encode(newpassword);
-        userDAO.resetPwd(userCode, newHashPwd);
+        userMapper.resetPwd(userCode, newHashPwd);
     }
 
     public List<User> findAll(List<Long> entityIds) {
         if(entityIds.isEmpty()) {
             return Collections.emptyList();
         }
-        return userDAO.findAll(entityIds);
+        return userMapper.findList(entityIds);
     }
 
     public User getCurrentUser() {

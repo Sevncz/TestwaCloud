@@ -161,7 +161,7 @@ public class AppController extends BaseController {
     @ResponseBody
     @PostMapping(value = "/deleteOne")
     public void deleteOne(@RequestBody @Valid IDForm del) {
-        appInfoService.delete(del.getEntityId());
+        appInfoService.disableAppInfo(del.getEntityId());
     }
 
     @ApiOperation(value="该app所有上传的版本", notes="")

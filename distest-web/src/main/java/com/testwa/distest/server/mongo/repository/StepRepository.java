@@ -6,10 +6,12 @@
 package com.testwa.distest.server.mongo.repository;
 
 import com.testwa.distest.server.mongo.model.Step;
+import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
 import java.util.List;
 
+@Repository
 public interface StepRepository extends CommonRepository<Step, Serializable> {
 
     List<Step> findByTaskCode(Long taskId);

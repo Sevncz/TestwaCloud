@@ -1,7 +1,6 @@
 package com.testwa.distest.config.security;
 
 import com.testwa.distest.server.entity.User;
-import com.testwa.distest.server.service.user.dao.IUserDAO;
 import com.testwa.distest.server.service.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

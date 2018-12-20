@@ -1,6 +1,5 @@
 package com.testwa.distest.postman.model;
 
-import com.testwa.core.utils.UUID;
 import com.testwa.distest.postman.PostmanRequestRunner;
 import com.testwa.distest.postman.PostmanRunResult;
 import lombok.Data;
@@ -11,21 +10,11 @@ import java.util.List;
 @Slf4j
 @Data
 public class PostmanItem extends AbstractItem{
-    private String itemId;
 	private String name;
 	private List<PostmanEvent> event;
 	private PostmanRequest request;
 	private List<PostmanResponse> response;
     private List<PostmanItem> item;
-
-    public PostmanItem() {
-        this.itemId = UUID.uuid();
-    }
-
-    @Override
-    public String getID() {
-        return this.itemId;
-    }
 
     @Override
     public void add(AbstractItem item) {

@@ -31,7 +31,7 @@ public class ProjectValidator {
     }
 
     public Project validateProjectExist(Long projectId) {
-        Project project = projectService.findOne(projectId);
+        Project project = projectService.get(projectId);
         if(project == null){
             throw new BusinessException(ResultCode.NOT_FOUND, "项目不存在");
         }

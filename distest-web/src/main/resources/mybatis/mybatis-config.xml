@@ -13,7 +13,7 @@
         <typeAlias alias="LinkedList" type="java.util.LinkedList" />
     </typeAliases>
     <plugins>
-        <plugin interceptor="com.testwa.core.base.mybatis.GenericEntityResultSetHandlerInterceptor"/>
-        <plugin interceptor="com.testwa.core.base.mybatis.MyBatisShowSQLInterceptor"/>
+        <plugin interceptor="com.testwa.core.base.mybatis.plugin.ResultMapInterceptor"/>
+        <plugin interceptor="com.testwa.core.base.mybatis.plugin.MyBatisShowSQLInterceptor"/>
     </plugins>
 </configuration>

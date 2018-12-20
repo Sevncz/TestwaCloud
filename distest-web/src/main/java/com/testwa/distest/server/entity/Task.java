@@ -2,11 +2,9 @@ package com.testwa.distest.server.entity;
 
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import com.testwa.core.base.annotation.Column;
-import com.testwa.core.base.annotation.TableName;
-import com.testwa.core.base.bo.BaseEntity;
+import com.testwa.core.base.mybatis.annotation.Column;
+import com.testwa.core.base.mybatis.annotation.Table;
+import com.testwa.core.base.mybatis.annotation.Transient;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.service.task.dto.TaskDeviceStatusStatis;
 import lombok.Data;
@@ -18,27 +16,38 @@ import java.util.*;
  * Created by wen on 12/08/2017.
  */
 @Data
-@TableName("task")
+@Table(name= "task" )
 public class Task extends ProjectBaseEntity {
 
     @JsonIgnore
+    @Column(name = "appId")
     private Long appId;
     @JsonIgnore
+    @Column(name = "appJson")
     private String appJson; // json
     @JsonIgnore
+    @Column(name = "testcaseJson")
     private String testcaseJson; // json
     @JsonIgnore
+    @Column(name = "scriptJson")
     private String scriptJson; // json
     @JsonIgnore
+    @Column(name = "devicesJson")
     private String devicesJson; // json
+    @Column(name = "taskName")
     private String taskName;
+    @Column(name = "taskType")
     private DB.TaskType taskType;
+    @Column(name = "endTime")
     private Date endTime;
+    @Column(name = "outTime")
     private Integer outTime;
+    @Column(name = "taskCode")
     private Long taskCode;
+    @Column(name = "status")
     private DB.TaskStatus status;
 
-    @Column(value="deviceStatusStatis", ignore=true)
+    @Transient
     private Map<String, Integer> deviceStatusStatis;
 
     public App getApp(){

@@ -5,7 +5,7 @@
         <id column="id" property="id" jdbcType="BIGINT" />
         <result column="packageName" property="packageName" jdbcType="VARCHAR" />
         <result column="name" property="name" jdbcType="VARCHAR" />
-        <result column="platform" property="platform" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
+        <result column="platform" property="platform" jdbcType="TINYINT" />
 
         <result column="latestUploadTime" property="latestUploadTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="latestAppId" property="latestAppId" jdbcType="BIGINT" />
@@ -62,14 +62,6 @@
         </if>
         <if test="desc != null">${desc}</if>
         limit ${offset}, ${limit}
-    </select>
-
-    <select id="findOne" parameterType="com.testwa.distest.server.entity.AppInfo" resultMap="BaseResultMap" >
-        SELECT t1.*, t2.id as latest_id, t2.fileName as fileName, t2.path as path, t2.miniOSVersion as miniOSVersion, t2.platformVersion as platformVersion, t2.sdkBuild as sdkBuild,
-        t2.activity as activity, t2.size as size, t2.createTime as version_createTime, t2.icon as icon, t2.version as version
-        FROM app_info t1 left join app t2 on t1.latestAppId = t2.id
-        WHERE t1.id = #{key}
-        and t1.enabled = 1
     </select>
 
     <select id="findOneInProject" resultMap="BaseResultMap" >

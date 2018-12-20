@@ -4,6 +4,7 @@ package com.testwa.distest.server.web.issue.controller;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.common.enums.DB;
+import com.testwa.distest.server.entity.IssueLabel;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.issue.form.IssueLabelNewForm;
 import com.testwa.distest.server.service.issue.form.IssueLabelUpdateForm;
@@ -23,6 +24,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @Slf4j
 @Api("label相关")
@@ -43,14 +45,14 @@ public class LabelController {
     @ApiOperation(value="新增标签")
     @ResponseBody
     @PostMapping(value = "/project/{projectId}/labelNew")
-    public void labelNew(@PathVariable Long projectId, @RequestBody @Valid IssueLabelNewForm form) {
+    public Long labelNew(@PathVariable Long projectId, @RequestBody @Valid IssueLabelNewForm form) {
 
         projectValidator.validateProjectExist(projectId);
         projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
 
         labelValidator.validateLabelNameExist(projectId, form.getName());
 
-        labelService.save(form, projectId);
+        return labelService.save(form, projectId);
 
     }
 
@@ -70,7 +72,7 @@ public class LabelController {
 
     @ApiOperation(value="删除标签")
     @ResponseBody
-    @PostMapping(value = "/project/{projectId}/label/{labelId}/delete")
+    @PostMapping(value = "/project/{projectId}/labelDelete/{labelId}")
     public void labelDelete(@PathVariable Long projectId, @RequestBody @Valid Long labelId) {
 
         projectValidator.validateProjectExist(projectId);
@@ -83,12 +85,12 @@ public class LabelController {
     @ApiOperation(value="标签列表")
     @ResponseBody
     @GetMapping(value = "/project/{projectId}/labelList")
-    public void labelList(@PathVariable Long projectId) {
+    public List<IssueLabel> labelList(@PathVariable Long projectId) {
 
         projectValidator.validateProjectExist(projectId);
         projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
 
-        labelService.list(projectId);
+        return labelService.list(projectId);
 
     }
 

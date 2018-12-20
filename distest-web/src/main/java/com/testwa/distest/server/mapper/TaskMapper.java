@@ -1,6 +1,6 @@
 package com.testwa.distest.server.mapper;
 
-import com.testwa.core.base.mapper.BaseMapper;
+import com.testwa.core.base.mybatis.mapper.BaseMapper;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Task;
 import com.testwa.distest.server.service.task.dto.CountAppTestStatisDTO;
@@ -11,14 +11,11 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 @Repository
 public interface TaskMapper extends BaseMapper<Task, Long> {
 
 	List<Task> findBy(Task entity);
-
-    Task findOne(Long key);
 
     Long countBy(Task query);
 

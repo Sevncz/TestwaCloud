@@ -30,7 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.*;
@@ -106,7 +105,7 @@ public class TaskController extends BaseController {
         for(String deviceId : useableList) {
             deviceLockMgr.workLock(deviceId, currentUser.getUserCode(), workExpireTime);
         }
-        App app = appService.findOne(form.getAppId());
+        App app = appService.get(form.getAppId());
         Testcase tc = testcaseService.fetchOne(form.getTestcaseId());
         vo = executeMgr.startFunctionalTestTask(useableList, app, tc.getId(), tc.getCaseName());
         vo.addUnableDevice(unableDevices);
@@ -123,7 +122,7 @@ public class TaskController extends BaseController {
 
         taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
 
-        App app = appService.findOne(form.getAppId());
+        App app = appService.get(form.getAppId());
 
         scriptValidator.validateScriptBelongApp(form.getScriptIds(), app.getPackageName());
 
@@ -183,7 +182,7 @@ public class TaskController extends BaseController {
             for(String deviceId : useableList) {
                 deviceLockMgr.workLock(deviceId, currentUser.getUserCode(), workExpireTime);
             }
-            App app = appService.findOne(form.getAppId());
+            App app = appService.get(form.getAppId());
             vo = executeMgr.startCompabilityTestTask(useableList, app.getProjectId(), form.getAppId());
         }
         vo.addUnableDevice(unableDevices);
@@ -220,7 +219,7 @@ public class TaskController extends BaseController {
             for(String deviceId : useableList) {
                 deviceLockMgr.workLock(deviceId, currentUser.getUserCode(), workExpireTime);
             }
-            App app = appService.findOne(form.getAppId());
+            App app = appService.get(form.getAppId());
             vo = executeMgr.startCrawlerTestTask(useableList, app.getProjectId(), form.getAppId());
 
             // 保存参数

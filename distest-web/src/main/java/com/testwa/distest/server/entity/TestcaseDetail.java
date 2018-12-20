@@ -1,8 +1,9 @@
 package com.testwa.distest.server.entity;
 
-import com.testwa.core.base.annotation.Column;
-import com.testwa.core.base.annotation.TableName;
+import com.testwa.core.base.mybatis.annotation.Column;
+import com.testwa.core.base.mybatis.annotation.Table;
 import com.testwa.core.base.bo.BaseEntity;
+import com.testwa.core.base.mybatis.annotation.Transient;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -11,16 +12,18 @@ import javax.validation.constraints.NotNull;
  * Created by wen on 21/10/2017.
  */
 @Data
-@TableName("testcase_detail")
+@Table(name="testcase_detail")
 public class TestcaseDetail extends BaseEntity implements Comparable<TestcaseDetail>{
-
+    @Column(name="testcaseId")
     private Long testcaseId;
+    @Column(name="scriptId")
     private Long scriptId;
+    @Column(name="seq")
     private int seq;
 
-    @Column(value="script", ignore=true)
+    @Transient
     private Script script;
-    @Column(value="testcase", ignore=true)
+    @Transient
     private Testcase testcase;
 
     @Override

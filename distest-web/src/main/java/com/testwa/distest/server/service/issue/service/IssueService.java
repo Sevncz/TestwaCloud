@@ -3,13 +3,16 @@ package com.testwa.distest.server.service.issue.service;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.testwa.core.base.constant.ResultCode;
+import com.testwa.core.base.service.BaseService;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.exception.BusinessException;
+import com.testwa.distest.server.condition.IssueLabelCondition;
+import com.testwa.distest.server.entity.DeviceSharer;
 import com.testwa.distest.server.entity.Issue;
 import com.testwa.distest.server.entity.IssueLabel;
 import com.testwa.distest.server.entity.User;
-import com.testwa.distest.server.service.issue.dao.IIssueDAO;
-import com.testwa.distest.server.service.issue.dao.IIssueLabelDAO;
+import com.testwa.distest.server.mapper.IssueLabelMapper;
+import com.testwa.distest.server.mapper.IssueMapper;
 import com.testwa.distest.server.service.issue.form.IssueListForm;
 import com.testwa.distest.server.service.issue.form.IssueNewForm;
 import lombok.extern.slf4j.Slf4j;
@@ -31,18 +34,14 @@ import java.util.List;
 @Slf4j
 @Service
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
-public class IssueService {
+public class IssueService extends BaseService<Issue, Long> {
 
     @Autowired
-    private IIssueDAO issueDAO;
+    private IssueMapper issueMapper;
     @Autowired
-    private IIssueLabelDAO labelDAO;
+    private IssueLabelMapper issueLabelMapper;
     @Autowired
     private User currentUser;
-
-    public Issue findOne(Long issueId) {
-        return issueDAO.findOne(issueId);
-    }
 
     @Transactional(propagation = Propagation.REQUIRED)
     public long save(IssueNewForm form, Long projectId) {
@@ -56,14 +55,19 @@ public class IssueService {
         }else{
             issue.setAssigneeId(currentUser.getId());
         }
-        issue.setLabelId(form.getLabelId());
+        String labelName = form.getLabelName();
+        IssueLabel label = issueLabelMapper.getByName(projectId, labelName);
+        if(label == null) {
+            throw new BusinessException(ResultCode.INVALID_PARAM, "不存在的标签名称");
+        }
+        issue.setLabelId(label.getId());
         issue.setAuthorId(currentUser.getId());
         issue.setCreateTime(new Date());
         issue.setState(DB.IssueStateEnum.OPEN);
 
         issue.setEnabled(true);
 
-        return issueDAO.insert(issue);
+        return issueMapper.insert(issue);
     }
 
     public PageInfo<Issue> page(IssueListForm form, Long projectId) {
@@ -77,11 +81,10 @@ public class IssueService {
             query.setAssigneeId(form.getAssigneeId());
         }
         if(StringUtils.isNotBlank(form.getLabelName())) {
-            IssueLabel labelQuery = new IssueLabel();
-            labelQuery.setEnabled(true);
-            labelQuery.setProjectId(projectId);
-            labelQuery.setName(form.getLabelName());
-            List<IssueLabel> labels = labelDAO.findBy(labelQuery);
+            IssueLabelCondition condition = new IssueLabelCondition();
+            condition.setProjectId(projectId);
+            condition.setName(form.getLabelName());
+            List<IssueLabel> labels = issueLabelMapper.selectByCondition(condition);
             if(labels.isEmpty()) {
                 throw new BusinessException(ResultCode.INVALID_PARAM, "不存在的标签名称");
             }
@@ -100,19 +103,20 @@ public class IssueService {
         PageHelper.orderBy(form.getOrderBy() + " " + form.getOrder());
         List<Issue> issues;
         if(StringUtils.isNotBlank(form.getIssueSearch())) {
-            issues = issueDAO.search(query, form.getIssueSearch());
+            issues = issueMapper.search(query, form.getIssueSearch());
         }else{
-            issues = issueDAO.findBy(query);
+            issues = issueMapper.findBy(query);
         }
         return new PageInfo(issues);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void updateState(Long issueId, DB.IssueStateEnum stateEnum) {
-        issueDAO.updateState(issueId, stateEnum);
+        Issue issue = get(issueId);
+        if(issue != null) {
+            issue.setState(stateEnum);
+            issueMapper.update(issue);
+        }
     }
 
-    public void delete(long issueId) {
-        issueDAO.delete(issueId);
-    }
 }

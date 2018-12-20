@@ -3,22 +3,16 @@
 <mapper namespace="com.testwa.distest.server.mapper.IssueLabelMapper" >
     <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.IssueLabel" >
         <id column="id" property="id" jdbcType="BIGINT" />
-        <result column="project_id" property="projectId" jdbcType="VARCHAR" />
+        <result column="project_id" property="projectId" jdbcType="BIGINT" />
         <result column="name" property="name" jdbcType="VARCHAR" />
         <result column="color" property="color" jdbcType="VARCHAR" />
+        <result column="create_by" property="createBy" jdbcType="BIGINT" />
         <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
     </resultMap>
 
     <sql id="Base_Column_List" >
         id, project_id, name, color
     </sql>
-
-    <select id="findOne" parameterType="com.testwa.distest.server.entity.IssueLabel" resultMap="BaseResultMap" >
-        SELECT
-        <include refid="Base_Column_List" />
-        FROM dis_issue_label
-        WHERE enabled = 1 AND id = #{labelId}
-    </select>
 
     <select id="getByName" parameterType="com.testwa.distest.server.entity.IssueLabel" resultMap="BaseResultMap" >
         SELECT

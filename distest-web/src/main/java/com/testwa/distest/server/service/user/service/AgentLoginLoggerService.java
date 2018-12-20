@@ -5,8 +5,10 @@
  */
 package com.testwa.distest.server.service.user.service;
 
+import com.testwa.core.base.service.BaseService;
 import com.testwa.distest.server.entity.AgentLoginLog;
-import com.testwa.distest.server.service.user.dao.IAgentLoginLogDAO;
+import com.testwa.distest.server.entity.ProjectMember;
+import com.testwa.distest.server.mapper.AgentLoginLogMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,23 +20,17 @@ import java.util.Date;
 @Slf4j
 @Service
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
-public class AgentLoginLoggerService {
+public class AgentLoginLoggerService extends BaseService<AgentLoginLog, Long> {
 
     @Autowired
-    private IAgentLoginLogDAO agentLoginLoggerDAO;
+    private AgentLoginLogMapper agentLoginLogMapper;
 
-
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public long save(AgentLoginLog entity) {
-        return agentLoginLoggerDAO.insert(entity);
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void updateRecentLogoutTime(String username) {
-        AgentLoginLog logger = agentLoginLoggerDAO.findRecentLoginOne(username);
+        AgentLoginLog logger = agentLoginLogMapper.findRecentLoginOne(username);
         if(logger != null){
             logger.setLogoutTime(new Date());
-            agentLoginLoggerDAO.update(logger);
+            agentLoginLogMapper.update(logger);
         }
     }
 }

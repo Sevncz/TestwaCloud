@@ -1,14 +1,16 @@
 package com.testwa.distest.server.service.project.service;
 
 import com.testwa.core.base.constant.ResultCode;
+import com.testwa.core.base.service.BaseService;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.exception.AuthorizedException;
 import com.testwa.distest.exception.BusinessException;
 import com.testwa.distest.exception.DBException;
+import com.testwa.distest.server.entity.IssueLabelDict;
 import com.testwa.distest.server.entity.Project;
 import com.testwa.distest.server.entity.ProjectMember;
 import com.testwa.distest.server.entity.User;
-import com.testwa.distest.server.service.project.dao.IProjectMemberDAO;
+import com.testwa.distest.server.mapper.ProjectMemberMapper;
 import com.testwa.distest.server.service.project.form.MembersModifyForm;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.auth.vo.UserVO;
@@ -29,10 +31,10 @@ import java.util.*;
 @Slf4j
 @Service
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
-public class ProjectMemberService {
+public class ProjectMemberService extends BaseService<ProjectMember, Long> {
 
     @Autowired
-    private IProjectMemberDAO projectMemberDAO;
+    private ProjectMemberMapper projectMemberMapper;
     @Autowired
     private ProjectService projectService;
     @Autowired
@@ -40,12 +42,12 @@ public class ProjectMemberService {
     @Autowired
     private User currentUser;
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void saveProjectOwner(Long projectId, Long userId) {
         addMember(projectId, userId, DB.ProjectRole.OWNER);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void saveProjectMember(Long projectId, Long userId) {
         addMember(projectId, userId, DB.ProjectRole.MEMBER);
     }
@@ -56,21 +58,21 @@ public class ProjectMemberService {
         pm.setProjectId(projectId);
         pm.setProjectRole(projectRole);
         pm.setCreateTime(new Date());
-        projectMemberDAO.insert(pm);
+        projectMemberMapper.insert(pm);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void delete(Long projectId, Long memberId) {
-        projectMemberDAO.deleteMember(projectId, memberId);
+        projectMemberMapper.deleteMember(projectId, memberId);
 
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void addMembers(MembersModifyForm form) {
         if(form.getUsernames() == null || form.getUsernames().isEmpty()){
             return;
         }
-        Project project = projectService.findOne(form.getProjectId());
+        Project project = projectService.get(form.getProjectId());
         if (!project.getCreateBy().equals(currentUser.getId())) {
             log.error("login auth not owner of the project, projectId: {}, currentUsername: {}", form.getProjectId(), currentUser.getUsername());
             throw new AuthorizedException(ResultCode.ILLEGAL_OP, "您不是项目所有者，无法添加项目成员");
@@ -92,10 +94,10 @@ public class ProjectMemberService {
             p.setProjectRole(DB.ProjectRole.MEMBER);
             pms.add(p);
         });
-        projectMemberDAO.mergeInsert(pms);
+        projectMemberMapper.mergeInsert(pms);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void deleteMemberList(Project project, Set<Long> memberIds) {
         memberIds.remove(project.getCreateBy());
         if(memberIds.isEmpty()) {
@@ -103,23 +105,23 @@ public class ProjectMemberService {
         }
         if(memberIds.size() == 1) {
             List<Long> memberList = new ArrayList<>(memberIds);
-            int deleteNum = projectMemberDAO.deleteMember(project.getId(), memberList.get(0));
+            int deleteNum = projectMemberMapper.deleteMember(project.getId(), memberList.get(0));
             log.info("Delete from members {}", deleteNum);
         }else{
-            projectMemberDAO.deleteMemberList(project.getId(), memberIds);
+            projectMemberMapper.deleteMemberList(project.getId(), memberIds);
         }
     }
 
     public List<User> findAllMembers(Long projectId){
-
-        Project project = projectService.findOne(projectId);
-        return projectMemberDAO.findMembersFromProject(project.getId());
+        Map<String, Object> params = new HashMap<>();
+        params.put("projectId", projectId);
+        return projectMemberMapper.findMembersFromProject(params);
     }
 
     public List<Map> findMembers(Long projectId, User userquery){
 
-        Project project = projectService.findOne(projectId);
-        return projectMemberDAO.findUsersProject(project.getId(), userquery);
+        Project project = projectService.get(projectId);
+        return projectMemberMapper.findUsersProject(project.getId(), userquery);
     }
 
 
@@ -157,20 +159,18 @@ public class ProjectMemberService {
     }
 
     public ProjectMember findByProjectIdAndMemberId(Long projectId, Long memberId){
-        return projectMemberDAO.findByProjectIdAndMember(projectId, memberId);
+        return projectMemberMapper.findByProjectIdAndMember(projectId, memberId);
     }
 
     public List<ProjectMember> findByProjectIdAndMemberId(Long projectId, List<Long> memberId){
-        return projectMemberDAO.findByProjectIdAndMembers(projectId, memberId);
+        return projectMemberMapper.findByProjectIdAndMembers(projectId, memberId);
     }
-
-
 
     public ProjectMember getProjectRole(Long projectId, Long userId) throws DBException {
         ProjectMember query = new ProjectMember();
         query.setMemberId(userId);
         query.setProjectId(projectId);
-        List<ProjectMember> result = projectMemberDAO.findBy(query);
+        List<ProjectMember> result = projectMemberMapper.findBy(query);
         if(result.isEmpty()){
             return null;
         }
@@ -181,6 +181,6 @@ public class ProjectMemberService {
     }
 
     public int delAllMembers(Long projectId) {
-        return projectMemberDAO.deleteMember(projectId, null);
+        return projectMemberMapper.deleteMember(projectId, null);
     }
 }

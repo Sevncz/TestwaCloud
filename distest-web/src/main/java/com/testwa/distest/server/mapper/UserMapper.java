@@ -2,7 +2,7 @@ package com.testwa.distest.server.mapper;
 
 import java.util.List;
 
-import com.testwa.core.base.mapper.BaseMapper;
+import com.testwa.core.base.mybatis.mapper.BaseMapper;
 import com.testwa.distest.server.entity.User;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -11,8 +11,6 @@ import org.springframework.stereotype.Repository;
 public interface UserMapper extends BaseMapper<User, Long> {
 
 	List<User> findBy(User user);
-
-	User findOne(Long key);
 
     List<User> findList(List<Long> keys);
 
@@ -33,4 +31,5 @@ public interface UserMapper extends BaseMapper<User, Long> {
     User getByEmail(String email);
 
     void resetPwd(@Param("userCode") String userCode, @Param("password") String password);
+
 }

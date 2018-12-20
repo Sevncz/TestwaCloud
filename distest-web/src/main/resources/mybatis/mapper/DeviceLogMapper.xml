@@ -6,7 +6,7 @@
         <result column="projectId" property="projectId" jdbcType="BIGINT" />
         <result column="deviceId" property="deviceId" jdbcType="VARCHAR" />
         <result column="userCode" property="userCode" jdbcType="VARCHAR" />
-        <result column="logType" property="logType" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
+        <result column="logType" property="logType" jdbcType="TINYINT" />
         <result column="running" property="running" jdbcType="TINYINT"/>
         <result column="startTime" property="startTime" jdbcType="BIGINT"/>
         <result column="endTime" property="endTime" jdbcType="BIGINT"/>
@@ -16,13 +16,6 @@
     <sql id="Base_Column_List" >
         id, projectId, deviceId, userCode, logType, running, startTime, endTime
     </sql>
-
-    <select id="findOne" resultMap="BaseResultMap" >
-        SELECT
-        <include refid="Base_Column_List" />
-        FROM device_log
-        WHERE id = #{key}
-    </select>
 
     <select id="sumDebugTime" resultType="long" >
         SELECT sum(endTime - startTime)

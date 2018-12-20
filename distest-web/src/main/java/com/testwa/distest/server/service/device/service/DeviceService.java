@@ -2,13 +2,14 @@ package com.testwa.distest.server.service.device.service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.testwa.core.base.service.BaseService;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.DeviceSharer;
 import com.testwa.distest.server.entity.IosDeviceDict;
-import com.testwa.distest.server.service.device.dao.IDeviceDAO;
-import com.testwa.distest.server.service.device.dao.IIosDeviceDictDAO;
+import com.testwa.distest.server.mapper.DeviceMapper;
+import com.testwa.distest.server.mapper.IosDeviceDictMapper;
 import com.testwa.distest.server.service.device.dto.DeviceOneCategoryResultDTO;
 import com.testwa.distest.server.service.device.dto.PrivateDeviceDTO;
 import com.testwa.distest.server.service.device.form.DeviceListForm;
@@ -28,12 +29,12 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Service
-public class DeviceService {
+public class DeviceService extends BaseService<Device, Long> {
 
     @Autowired
-    private IDeviceDAO deviceDAO;
+    private DeviceMapper deviceMapper;
     @Autowired
-    private IIosDeviceDictDAO iosDeviceDictDAO;
+    private IosDeviceDictMapper iosDeviceDictMapper;
     @Autowired
     private DeviceSharerService deviceSharerService;
     @Autowired
@@ -42,7 +43,7 @@ public class DeviceService {
     public Device findByDeviceId(String deviceId) {
         Map<String, Object> queryMap = new HashMap<>();
         queryMap.put("deviceId", deviceId);
-        List<Device> list = deviceDAO.findOnlineList(queryMap);
+        List<Device> list = deviceMapper.findOnlineList(queryMap);
         if (!list.isEmpty()){
             return list.get(0);
         }
@@ -51,27 +52,28 @@ public class DeviceService {
 
     public void insertAndroid(Device entity) {
         entity.setCreateTime(new Date());
-        deviceDAO.insertAndroid(entity);
+        deviceMapper.insertAndroid(entity);
     }
 
     public void updateStatus(String deviceId, DB.PhoneOnlineStatus status) {
-        deviceDAO.updateOnlineStatus(deviceId, status);
+        deviceMapper.updateStatus(deviceId, status);
     }
 
     public void updateWorkStatus(String deviceId, DB.DeviceWorkStatus status) {
-        deviceDAO.updateWorkStatus(deviceId, status);
+        deviceMapper.updateWorkStatus(deviceId, status);
     }
 
     public void updateAndroid(Device entity) {
         entity.setUpdateTime(new Date());
-        deviceDAO.updateAndroid(entity);
+        deviceMapper.updateAndroid(entity);
     }
 
     public List<Device> findAll(List<String> deviceIds) {
-        return deviceDAO.findAll(deviceIds);
+        return deviceMapper.findAll(deviceIds);
     }
     public Device findOne(String deviceId) {
-        return deviceDAO.findOne(deviceId);
+        Device device = deviceMapper.selectByProperty(Device::getDeviceId, deviceId);
+        return device.getEnabled() ? device : null;
     }
 
     /**
@@ -95,7 +97,7 @@ public class DeviceService {
             pageForm.setOrder("desc");
         }
         PageHelper.orderBy(pageForm.getOrderBy() + " " + pageForm.getOrder());
-        List<Device> deviceList = deviceDAO.findListByOnlineDevice(queryMap, onlineDeviceList);
+        List<Device> deviceList = deviceMapper.findListByOnlineDevice(queryMap, onlineDeviceList);
         PageInfo<Device> info = new PageInfo(deviceList);
         PageResult<Device> pr = new PageResult<>(info.getList(), info.getTotal());
         return pr;
@@ -113,7 +115,7 @@ public class DeviceService {
         queryMap.put("model", form.getModel());
         queryMap.put("deviceId", form.getDeviceId());
         queryMap.put("onlineStatus", form.getOnlineStatus());
-        return deviceDAO.findListByOnlineDevice(queryMap, onlineDeviceList);
+        return deviceMapper.findListByOnlineDevice(queryMap, onlineDeviceList);
     }
 
     public List<Device> findOnlineList(Set<String> deviceIds) {
@@ -131,7 +133,7 @@ public class DeviceService {
             }
             queryMap.put("deviceId", form.getDeviceId());
         }
-        return deviceDAO.findOnlineList(queryMap);
+        return deviceMapper.findOnlineList(queryMap);
     }
 
     public PageResult<Device> findOnlinePage(Set<String> onlineDevIds, DeviceListForm pageForm) {
@@ -154,27 +156,27 @@ public class DeviceService {
         Map<String, Object> queryMap = new HashMap<>();
         queryMap.put("createBy", createBy);
         queryMap.put("onlineDeviceList", onlineDeviceList);
-        return deviceDAO.fetchList(queryMap);
+        return deviceMapper.fetchList(queryMap);
     }
 
     public void release(String deviceId) {
-        deviceDAO.updateWorkStatus(deviceId, DB.DeviceWorkStatus.FREE);
+        deviceMapper.updateWorkStatus(deviceId, DB.DeviceWorkStatus.FREE);
     }
 
     public void work(String deviceId) {
-        deviceDAO.updateWorkStatus(deviceId, DB.DeviceWorkStatus.BUSY);
+        deviceMapper.updateWorkStatus(deviceId, DB.DeviceWorkStatus.BUSY);
     }
 
     public DeviceCategoryVO getCategory(Set<String> deviceIds) {
 
         DeviceCategoryVO vo = new DeviceCategoryVO();
-        List<DeviceOneCategoryResultDTO> dto = deviceDAO.getResolutionCategory(deviceIds);
+        List<DeviceOneCategoryResultDTO> dto = deviceMapper.getResolutionCategory(deviceIds);
         dto.forEach( d -> vo.getResolution().add(d.getName()));
 
-        dto = deviceDAO.getOSVersionCategory(deviceIds);
+        dto = deviceMapper.getOSVersionCategory(deviceIds);
         dto.forEach( d -> vo.getOsVersion().add(d.getName()));
 
-        dto = deviceDAO.getBrandCategory(deviceIds);
+        dto = deviceMapper.getBrandCategory(deviceIds);
         dto.forEach( d -> vo.getBrand().add(d.getName()));
 
         return vo;
@@ -205,7 +207,7 @@ public class DeviceService {
             queryMap.put("workStatus", DB.DeviceWorkStatus.FREE);
             queryMap.put("debugStatus", DB.DeviceDebugStatus.FREE);
         }
-        return deviceDAO.findOnlineAndPublicDeviceList(queryMap);
+        return deviceMapper.findOnlineAndPublicDeviceList(queryMap);
     }
 
     public List<Device> searchCloudList(Set<String> deviceIds, String brand, String osVersion, String resolution, Boolean isAll) {
@@ -232,7 +234,7 @@ public class DeviceService {
             queryMap.put("workStatus", DB.DeviceWorkStatus.FREE);
             queryMap.put("debugStatus", DB.DeviceDebugStatus.FREE);
         }
-        return deviceDAO.searchOnlineAndPublicDeviceList(queryMap);
+        return deviceMapper.searchOnlineAndPublicDeviceList(queryMap);
     }
 
     /**
@@ -279,7 +281,7 @@ public class DeviceService {
             queryMap.put("workStatus", DB.DeviceWorkStatus.FREE);
             queryMap.put("debugStatus", DB.DeviceDebugStatus.FREE);
         }
-        return deviceDAO.findPrivateList(queryMap);
+        return deviceMapper.findPrivateList(queryMap);
     }
 
     public List<PrivateDeviceDTO> searchPrivateList(Set<String> deviceIds, Long userId, String brand, String osVersion, String resolution, Boolean isAll) {
@@ -307,7 +309,7 @@ public class DeviceService {
             queryMap.put("workStatus", DB.DeviceWorkStatus.FREE);
             queryMap.put("debugStatus", DB.DeviceDebugStatus.FREE);
         }
-        return deviceDAO.searchPrivateList(queryMap);
+        return deviceMapper.searchPrivateList(queryMap);
     }
 
     /**
@@ -356,20 +358,20 @@ public class DeviceService {
             queryMap.put("workStatus", DB.DeviceWorkStatus.FREE);
             queryMap.put("debugStatus", DB.DeviceDebugStatus.FREE);
         }
-        return deviceDAO.findOnlineList(queryMap);
+        return deviceMapper.findOnlineList(queryMap);
     }
 
     public void debugging(String deviceId) {
-        deviceDAO.updateDebugStatus(deviceId, DB.DeviceDebugStatus.DEBUGGING);
+        deviceMapper.updateDebugStatus(deviceId, DB.DeviceDebugStatus.DEBUGGING);
     }
 
     public void debugFree(String deviceId) {
-        deviceDAO.updateDebugStatus(deviceId, DB.DeviceDebugStatus.FREE);
+        deviceMapper.updateDebugStatus(deviceId, DB.DeviceDebugStatus.FREE);
     }
 
     @Cacheable("ios_dict")
     public IosDeviceDict getIOSDict(String productType) {
-        return iosDeviceDictDAO.findByProductType(productType);
+        return iosDeviceDictMapper.findByProductType(productType);
     }
 
     /**
@@ -380,7 +382,7 @@ public class DeviceService {
      *@Date: 2018/8/10
      */
     public List<Device> findAllInWrok() {
-        return deviceDAO.findAllInWrok();
+        return deviceMapper.findAllInWrok();
     }
 
 }

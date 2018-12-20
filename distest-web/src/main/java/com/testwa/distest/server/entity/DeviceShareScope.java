@@ -1,7 +1,7 @@
 package com.testwa.distest.server.entity;
 
-import com.testwa.core.base.annotation.Column;
-import com.testwa.core.base.annotation.TableName;
+import com.testwa.core.base.mybatis.annotation.Column;
+import com.testwa.core.base.mybatis.annotation.Table;
 import com.testwa.core.base.bo.BaseEntity;
 import com.testwa.distest.common.enums.DB;
 import lombok.Data;
@@ -12,16 +12,16 @@ import java.util.Date;
  * 设备分享范围
  */
 @Data
-@TableName("dis_device_share_scope")
+@Table(name="dis_device_share_scope")
 public class DeviceShareScope extends BaseEntity {
 
-    @Column(value = "device_id")
+    @Column(name = "device_id")
     private String deviceId;
-    @Column(value = "share_scope")
+    @Column(name = "share_scope")
     private DB.DeviceShareScopeEnum shareScope;
-    @Column(value = "create_by")
+    @Column(name = "create_by")
     private Long createBy;
-    @Column(value = "create_time")
+    @Column(name = "create_time")
     private Date createTime;
 
 }

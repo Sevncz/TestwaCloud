@@ -1,6 +1,6 @@
 package com.testwa.distest.server.mapper;
 
-import com.testwa.core.base.mapper.BaseMapper;
+import com.testwa.core.base.mybatis.mapper.BaseMapper;
 import com.testwa.distest.server.entity.SubTask;
 import com.testwa.distest.server.entity.Task;
 import com.testwa.distest.server.service.task.dto.TaskDeviceStatusStatis;
@@ -11,13 +11,11 @@ import java.util.List;
 
 
 @Repository
-public interface SubTaskMapper extends BaseMapper<Task, Long> {
+public interface SubTaskMapper extends BaseMapper<SubTask, Long> {
 
     List<SubTask> findBy(SubTask entity);
 
     List<SubTask> findByTaskCode(@Param("taskCode") Long taskCode);
-
-    SubTask findOne(Long key);
 
     Long countBy(SubTask query);
 

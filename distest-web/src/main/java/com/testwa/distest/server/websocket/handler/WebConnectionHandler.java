@@ -37,7 +37,6 @@ public class WebConnectionHandler {
     private AgentLoginLoggerService agentLoginLoggerService;
 
     @OnConnect
-    @Async
     public void onConnect(SocketIOClient client) {
 
         String type = client.getHandshakeData().getSingleUrlParam("type");
@@ -63,7 +62,6 @@ public class WebConnectionHandler {
     }
 
     @OnDisconnect
-    @Async
     public void onDisconnect(SocketIOClient client) {
 
         String type = client.getHandshakeData().getSingleUrlParam("type");

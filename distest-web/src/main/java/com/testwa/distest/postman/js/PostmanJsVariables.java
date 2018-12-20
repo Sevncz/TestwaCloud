@@ -1,9 +1,6 @@
 package com.testwa.distest.postman.js;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import com.testwa.distest.postman.PostmanHttpResponse;
 import com.testwa.distest.postman.model.PostmanEnvValue;

@@ -6,9 +6,11 @@
 package com.testwa.distest.server.mongo.repository;
 
 import com.testwa.distest.server.mongo.model.ProcedureStatis;
+import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
 
+@Repository
 public interface ProcedureStatisRepository extends CommonRepository<ProcedureStatis, Serializable> {
 
     ProcedureStatis findByTaskCode(Long taskCode);

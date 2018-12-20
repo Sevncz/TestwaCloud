@@ -12,7 +12,7 @@
         <result column="platformVersion" property="platformVersion" jdbcType="VARCHAR" />
         <result column="displayName" property="displayName" jdbcType="VARCHAR" />
         <result column="icon" property="icon" jdbcType="VARCHAR" />
-        <result column="platform" property="platform" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
+        <result column="platform" property="platform" jdbcType="TINYINT" />
         <result column="version" property="version" jdbcType="VARCHAR" />
         <result column="path" property="path" jdbcType="VARCHAR" />
         <result column="projectId" property="projectId" jdbcType="BIGINT" />
@@ -55,13 +55,6 @@
             <if test="md5 != null">and md5 = #{md5}</if>
             <if test="packageName != null">and packageName = #{packageName}</if>
         </trim>
-    </select>
-
-    <select id="findOne" parameterType="com.testwa.distest.server.entity.App" resultMap="BaseResultMap" >
-        SELECT
-        <include refid="Base_Column_List" />
-        FROM app
-        WHERE id = #{key}
     </select>
     <select id="findOneInProject" resultMap="BaseResultMap" >
         SELECT

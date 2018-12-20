@@ -68,7 +68,7 @@ public class TaskOverListener implements ApplicationListener<TaskOverEvent> {
         if(DB.TaskType.COMPATIBILITY.equals(task.getTaskType())){
             logType = DB.DeviceLogType.JR;
         }
-        User user = userService.findOne(task.getCreateBy());
+        User user = userService.get(task.getCreateBy());
         List<SubTask> tds = subTaskService.findByTaskCode(taskCode);
         for(SubTask subTask : tds) {
             DeviceLog dl = new DeviceLog();

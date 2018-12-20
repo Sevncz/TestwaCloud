@@ -2,6 +2,7 @@ package com.testwa.distest.server.service.app.service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.testwa.core.base.service.BaseService;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.utils.*;
 import com.testwa.distest.common.android.AndroidOSInfo;
@@ -9,14 +10,13 @@ import com.testwa.distest.common.android.TestwaAndroidApp;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.common.util.AppUtil;
 import com.testwa.distest.config.DisFileProperties;
+import com.testwa.distest.server.condition.AppCondition;
 import com.testwa.distest.server.entity.App;
 import com.testwa.distest.server.entity.AppInfo;
 import com.testwa.distest.server.entity.User;
-import com.testwa.distest.server.service.app.dao.IAppDAO;
-import com.testwa.distest.server.service.app.dao.IAppInfoDAO;
+import com.testwa.distest.server.mapper.AppMapper;
 import com.testwa.distest.server.service.app.form.AppListForm;
 import com.testwa.distest.server.service.app.form.AppUpdateForm;
-import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.app.vo.AppVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -41,32 +41,23 @@ import java.util.*;
 @Slf4j
 @Service
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
-public class AppService {
+public class AppService extends BaseService<App, Long> {
     @Autowired
-    private IAppDAO appDAO;
+    private AppMapper appMapper;
     @Autowired
-    private IAppInfoDAO appInfoDAO;
+    private AppInfoService appInfoService;
     @Autowired
     private DisFileProperties disFileProperties;
     @Autowired
     private User currentUser;
 
     /**
-     * 只删除记录
-     * @param appId
-     */
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public void delete(Long appId){
-        appDAO.delete(appId);
-    }
-
-    /**
      * 删除app及其文件
      * @param appId
      */
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void deleteApp(Long appId){
-        App app = findOne(appId);
+        App app = get(appId);
         if (app == null){
             return;
         }
@@ -81,10 +72,10 @@ public class AppService {
             // 删除文件夹
             Files.deleteIfExists(Paths.get(filePath).getParent());
         } catch (IOException e) {
-            log.error("delete app file error", e);
+            log.error("deleteByIds app file error", e);
         }
         // 删除记录
-        delete(appId);
+        disable(appId);
 
     }
 
@@ -92,29 +83,29 @@ public class AppService {
      * 删除多条记录
      * @param appIds
      */
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public void delete(List<Long> appIds){
-        appDAO.delete(appIds);
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void disable(List<Long> appIds){
+        appIds.forEach(this::disable);
     }
 
     /**
      * 删除多个app及其文件
      * @param appIds
      */
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void deleteApp(List<Long> appIds){
         appIds.forEach(this::deleteApp);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    public void update(App app) {
-        appDAO.update(app);
-    }
+//    @Transactional(propagation = Propagation.REQUIRED)
+//    public void update(App app) {
+//        appMapper.update(app);
+//    }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void update(AppUpdateForm form) {
 
-        App app = findOne(form.getAppId());
+        App app = get(form.getAppId());
         app.setProjectId(form.getProjectId());
         app.setVersion(form.getVersion());
         app.setCreateBy(currentUser.getId());
@@ -125,9 +116,9 @@ public class AppService {
 
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void appendInfo(AppUpdateForm form) {
-        App app = findOne(form.getAppId());
+        App app = get(form.getAppId());
         app.setProjectId(form.getProjectId());
         app.setVersion(form.getVersion());
         app.setDescription(form.getDescription());
@@ -137,15 +128,16 @@ public class AppService {
         update(app);
     }
 
-    public App findOne(Long entityId){
-        return appDAO.findOne(entityId);
+    public App get(Long entityId){
+        App app = appMapper.selectById(entityId);
+        return app.getEnabled() ? app : null;
     }
 
     public App findOneInProject(Long entityId, Long projectId) {
-        return appDAO.findOneInProject(entityId, projectId);
+        return appMapper.findOneInProject(entityId, projectId);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public App uploadOnly(MultipartFile uploadfile, Long projectId) throws IOException {
 
         String filename = uploadfile.getOriginalFilename();
@@ -168,21 +160,20 @@ public class AppService {
             app = appList.get(0);
             app.setCreateTime(new Date());
             app.setUpdateBy(currentUser.getId());
-            appDAO.update(app);
+            appMapper.update(app);
         }
-        saveOrUpdateAppInfo(projectId, app);
+        appInfoService.saveOrUpdateAppInfo(projectId, app);
         return app;
     }
 
     private List<App> findByMd5InProject(String md5, Long projectId) {
-        App query = new App();
+        AppCondition query = new AppCondition();
         query.setProjectId(projectId);
         query.setMd5(md5);
-        List<App> appList = appDAO.findBy(query);
-        return appList;
+        return appMapper.selectByCondition(query);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public App upload(MultipartFile uploadfile, Long projectId) throws IOException {
 
         String filename = uploadfile.getOriginalFilename();
@@ -198,7 +189,7 @@ public class AppService {
         String size = uploadfile.getSize() + "";
         String md5 = IOUtil.fileMD5(filepath.toString());
         App app = saveFile(filename, aliasName, filepath.toString(), dirName, size, type, md5, projectId);
-        saveOrUpdateAppInfo(projectId, app);
+        appInfoService.saveOrUpdateAppInfo(projectId, app);
         return app;
 
     }
@@ -256,38 +247,8 @@ public class AppService {
             app.setEnabled(true);
         }
         app.setCreateBy(currentUser.getId());
-        long appId = appDAO.insert(app);
-        app.setId(appId);
+        appMapper.insert(app);
         return app;
-    }
-
-    private void saveOrUpdateAppInfo(Long projectId, App app) {
-        if(projectId == null) {
-            return;
-        }
-        AppInfo appInfo = appInfoDAO.findOne(projectId, null, app.getPackageName());
-        if(appInfo == null) {
-            appInfo = new AppInfo();
-            appInfo.setName(app.getDisplayName());
-            appInfo.setPackageName(app.getPackageName());
-            appInfo.setProjectId(app.getProjectId());
-            appInfo.setLatestUploadTime(new Date());
-            appInfo.setLatestAppId(app.getId());
-            appInfo.setCreateTime(new Date());
-            appInfo.setCreateBy(app.getCreateBy());
-            appInfo.setPlatform(app.getPlatform());
-            appInfo.setEnabled(true);
-            appInfoDAO.insert(appInfo);
-        }else{
-            appInfo.setName(app.getDisplayName());
-            appInfo.setLatestAppId(app.getId());
-            appInfo.setLatestUploadTime(new Date());
-            appInfo.setUpdateTime(new Date());
-            appInfo.setUpdateBy(app.getCreateBy());
-            appInfo.setPlatform(app.getPlatform());
-            appInfo.setEnabled(true);
-            appInfoDAO.update(appInfo);
-        }
     }
 
     private void getIpaInfo(App app, String filePath, String dirName) {
@@ -320,7 +281,7 @@ public class AppService {
     }
 
 
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED)
     public App upload(MultipartFile uploadfile) throws IOException{
         return upload(uploadfile, null);
     }
@@ -328,7 +289,7 @@ public class AppService {
     public PageResult<App> findPage(App app, int page, int rows){
         //分页处理
         PageHelper.startPage(page, rows);
-        List<App> appList = appDAO.findBy(app);
+        List<App> appList = appMapper.selectByCondition(app);
         PageInfo info = new PageInfo(appList);
         PageResult<App> pr = new PageResult<>(info.getList(), info.getTotal());
         return pr;
@@ -345,7 +306,7 @@ public class AppService {
 
     public List<App> findList(Long projectId, AppListForm queryForm){
         PageHelper.orderBy(queryForm.getOrderBy() + " " + queryForm.getOrder());
-        App query = new App();
+        AppCondition query = new AppCondition();
         query.setProjectId(projectId);
         if(StringUtils.isNotBlank(queryForm.getAppName())) {
             query.setDisplayName(queryForm.getAppName());
@@ -353,12 +314,12 @@ public class AppService {
         if(StringUtils.isNotBlank(queryForm.getPackageName())) {
             query.setPackageName(queryForm.getPackageName());
         }
-        return appDAO.findBy(query);
+        return appMapper.selectByCondition(query);
     }
 
     public AppVO getAppVO(Long appId) {
         AppVO appVO = new AppVO();
-        App app = this.findOne(appId);
+        App app = this.get(appId);
         if (app != null) {
             BeanUtils.copyProperties(app, appVO);
         }
@@ -366,17 +327,21 @@ public class AppService {
     }
 
     public List<App> findByProjectId(Long projectId) {
-        App query = new App();
+        AppCondition query = new AppCondition();
         query.setProjectId(projectId);
-        List<App> apps = appDAO.findBy(query);
-        return apps;
+        return appMapper.selectByCondition(query);
     }
 
     public List<App> findAll(List<Long> entityIds) {
-        return appDAO.findAll(entityIds);
+        List<App> apps = new ArrayList<>();
+        entityIds.forEach(id -> {
+            App app = get(id);
+            apps.add(app);
+        });
+        return apps;
     }
 
     public List<App> getAllVersions(AppInfo appInfo) {
-        return appDAO.getAllVersion(appInfo.getPackageName(), appInfo.getProjectId());
+        return appMapper.getAllVersion(appInfo.getPackageName(), appInfo.getProjectId());
     }
 }

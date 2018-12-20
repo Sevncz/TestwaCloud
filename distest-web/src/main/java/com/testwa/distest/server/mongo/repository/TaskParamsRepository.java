@@ -6,9 +6,12 @@
 package com.testwa.distest.server.mongo.repository;
 
 import com.testwa.distest.server.mongo.model.TaskParams;
+import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
 
+
+@Repository
 public interface TaskParamsRepository extends CommonRepository<TaskParams, Serializable> {
 
     TaskParams findByTaskCode(Long taskCode);

@@ -13,11 +13,6 @@
         DELETE FROM dis_appium_file
         WHERE task_code = #{taskCode}
     </delete>
-    <select id="findOne" resultMap="BaseResultMap" >
-        SELECT * FROM dis_appium_file
-        WHERE task_code = #{taskCode}
-        and device_id = #{deviceId}
-    </select>
     <select id="fildAll" parameterType="com.testwa.distest.server.entity.AppiumFile" resultMap="BaseResultMap" >
         SELECT * FROM dis_appium_file
         <trim prefix="WHERE" prefixOverrides="AND |OR ">

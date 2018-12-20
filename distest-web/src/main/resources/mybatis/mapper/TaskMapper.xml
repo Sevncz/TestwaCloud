@@ -11,26 +11,17 @@
         <result column="createBy" property="createBy" jdbcType="BIGINT"/>
         <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
         <result column="endTime" property="endTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
-        <result column="status" property="status" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
+        <result column="status" property="status" jdbcType="TINYINT" />
         <result column="devicesJson" property="devicesJson" jdbcType="VARCHAR" javaType="String"/>
         <result column="appJson" property="appJson" jdbcType="VARCHAR" javaType="String"/>
         <result column="testcaseJson" property="testcaseJson" jdbcType="VARCHAR" javaType="String"/>
         <result column="scriptJson" property="scriptJson" jdbcType="VARCHAR" javaType="String"/>
-        <result column="taskType" property="taskType" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
+        <result column="taskType" property="taskType" jdbcType="TINYINT" />
     </resultMap>
 
     <sql id="Base_Column_List" >
         id,taskCode,projectId,createTime,createBy,endTime,devicesJson,appJson,testcaseJson,scriptJson,taskType,taskName,appId,status
     </sql>
-
-    <select id="findOne" parameterType="com.testwa.distest.server.entity.Task" resultMap="BaseResultMap" >
-        SELECT
-        <include refid="Base_Column_List" />
-        FROM task
-        WHERE id = #{key}
-        and
-        enabled = 1
-    </select>
 
     <select id="findBy" parameterType="com.testwa.distest.server.entity.Task" resultMap="BaseResultMap" >
         SELECT
@@ -69,7 +60,7 @@
             enabled = 1
             <if test="projectId != null">and projectId = #{projectId}</if>
             <if test="appId != null">and appId = #{appId}</if>
-            <if test="taskType != null">and taskType = #{taskType, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
+            <if test="taskType != null">and taskType = #{taskType}</if>
         </trim>
     </select>
 
@@ -82,7 +73,7 @@
 
     <update id="finish" >
         update task
-        set endTime = #{endTime}, status = #{status, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}
+        set endTime = #{endTime}, status = #{status}
         where taskCode = #{taskCode}
     </update>
 

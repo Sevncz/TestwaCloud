@@ -90,7 +90,7 @@ public class ProjectController extends BaseController {
             userValidator.validateUsernamesExist(form.getMembers());
         }
         Project project = projectService.update(form);
-        User createUser = userService.findOne(project.getCreateBy());
+        User createUser = userService.get(project.getCreateBy());
 
         ProjectVO vo = buildVO(project, ProjectVO.class);
         UserVO userVO = buildVO(createUser, UserVO.class);
@@ -125,7 +125,7 @@ public class ProjectController extends BaseController {
         List<Project> projects = projectPR.getPages();
         List<ProjectVO> vos = new ArrayList<>();
         for (Project p : projects) {
-            User createUser = userService.findOne(p.getCreateBy());
+            User createUser = userService.get(p.getCreateBy());
             ProjectStatis ps = projectService.statis(p.getId());
             ProjectVO vo = new ProjectVO();
             BeanUtils.copyProperties(p, vo);
@@ -149,7 +149,7 @@ public class ProjectController extends BaseController {
         List<Project> projectsOfUser = projectService.listByUser(currentUser.getId());
         List<ProjectVO> vos = new ArrayList<>();
         for (Project p : projectsOfUser) {
-            User createUser = userService.findOne(p.getCreateBy());
+            User createUser = userService.get(p.getCreateBy());
             ProjectVO vo = new ProjectVO();
             BeanUtils.copyProperties(p, vo);
             UserVO userVO = new UserVO();
@@ -169,7 +169,7 @@ public class ProjectController extends BaseController {
 
         List<User> members = projectMemberService.findAllMembers(projectId);
         viewMgr.setRecentViewProject(projectId);
-        User createUser = userService.findOne(project.getCreateBy());
+        User createUser = userService.get(project.getCreateBy());
         //  build vo
         ProjectDetailVO vo = new ProjectDetailVO();
         ProjectVO projectVO = buildVO(project, ProjectVO.class);

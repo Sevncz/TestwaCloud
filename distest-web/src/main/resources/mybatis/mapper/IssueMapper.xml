@@ -10,20 +10,13 @@
         <result column="title" property="title" jdbcType="VARCHAR" />
         <result column="content" property="content" jdbcType="VARCHAR" />
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
-        <result column="state" property="state" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler" />
+        <result column="state" property="state" jdbcType="TINYINT"  />
         <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
     </resultMap>
 
     <sql id="Base_Column_List" >
         id, project_id, label_id, assignee_id, author_id, title, content, create_time, state
     </sql>
-
-    <select id="findOne" parameterType="com.testwa.distest.server.entity.Issue" resultMap="BaseResultMap" >
-        SELECT
-        <include refid="Base_Column_List" />
-        FROM dis_issue
-        WHERE enabled = 1 AND id = #{issueId}
-    </select>
 
     <select id="findBy" parameterType="com.testwa.distest.server.entity.Issue" resultMap="BaseResultMap" >
         SELECT
@@ -33,7 +26,7 @@
         <if test="projectId != null">and project_id = #{projectId}</if>
         <if test="assigneeId != null">and assignee_id = #{assigneeId}</if>
         <if test="authorId != null">and author_id = #{authorId}</if>
-        <if test="state != null">and state = #{state, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
+        <if test="state != null">and state = #{state}</if>
     </select>
 
     <select id="search" resultMap="BaseResultMap" >
@@ -44,7 +37,7 @@
         <if test="query.projectId != null">and project_id = #{query.projectId}</if>
         <if test="query.assigneeId != null">and assignee_id = #{query.assigneeId}</if>
         <if test="query.authorId != null">and author_id = #{query.authorId}</if>
-        <if test="query.state != null">and state = #{query.state, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
+        <if test="query.state != null">and state = #{query.state}</if>
         <if test="search != null">and (title like CONCAT('%', #{search}, '%') or content like CONCAT('%', #{search}, '%'))</if>
     </select>
 

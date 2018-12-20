@@ -20,7 +20,7 @@ import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = DistestWebApplication.class)
-@TestPropertySource(locations="classpath:application-dev.properties")
+@TestPropertySource(locations="classpath:application-test.properties")
 public class TestcaseServiceTest {
 
     @Autowired
@@ -46,7 +46,7 @@ public class TestcaseServiceTest {
 
     @Test
     public void testFindOne(){
-        testcaseService.findOne(1l);
+        testcaseService.get(1l);
     }
 
     @Test
@@ -74,7 +74,7 @@ public class TestcaseServiceTest {
         form.setScriptIds(Arrays.asList(2l, 3l, 1l));
 //        Long testcaseId = testcaseService.saveFunctionalTestcase(15L, appInfo, form);
 
-//        testcaseService.delete(testcaseId);
+//        testcaseService.deleteByIds(testcaseId);
     }
 
     @Test
@@ -84,7 +84,7 @@ public class TestcaseServiceTest {
 
     @Test
     public void testUpdate(){
-        Testcase testcase = testcaseService.findOne(1l);
+        Testcase testcase = testcaseService.get(1l);
         TestcaseUpdateForm form = new TestcaseUpdateForm();
         form.setTestcaseId(testcase.getId());
         form.setDescription("update lo");

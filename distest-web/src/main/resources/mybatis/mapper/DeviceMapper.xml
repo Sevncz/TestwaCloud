@@ -4,10 +4,10 @@
     <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.Device" >
         <id column="id" property="id" jdbcType="BIGINT" />
         <result column="deviceId" property="deviceId" jdbcType="VARCHAR" />
-        <result column="phoneOS" property="phoneOS" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
-        <result column="onlineStatus" property="onlineStatus" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
-        <result column="workStatus" property="workStatus" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
-        <result column="debugStatus" property="debugStatus" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
+        <result column="phoneOS" property="phoneOS" jdbcType="TINYINT" />
+        <result column="onlineStatus" property="onlineStatus" jdbcType="TINYINT" />
+        <result column="workStatus" property="workStatus" jdbcType="TINYINT" />
+        <result column="debugStatus" property="debugStatus" jdbcType="TINYINT" />
         <result column="createTime" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="model" property="model" jdbcType="VARCHAR" />
@@ -41,10 +41,10 @@
         density,osVersion,host,stfagentInstall,appiumserverInstall,appiumserverdebugInstall,keyboardserviceInstall,
         settingsInstall,unlockInstall,unicodeIMEInstall,selendroidInstall,lastUserId)
         VALUES
-        (#{deviceId},#{phoneOS, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},
-        #{onlineStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},
-        #{debugStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},
-        #{workStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},
+        (#{deviceId},#{phoneOS},
+        #{onlineStatus},
+        #{debugStatus},
+        #{workStatus},
         #{createTime},#{model},#{brand},#{cpuabi},#{sdk},#{width},#{height},#{osName},#{density},#{osVersion},#{host},
         #{stfagentInstall},#{appiumserverInstall},#{appiumserverdebugInstall},#{keyboardserviceInstall},
         #{settingsInstall},#{unlockInstall},#{unicodeIMEInstall},#{selendroidInstall},#{lastUserId})
@@ -53,9 +53,9 @@
     <update id="updateAndroid" parameterType="com.testwa.distest.server.entity.Device">
         update device
         <trim prefix="SET" suffixOverrides=",">
-            onlineStatus=#{onlineStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},
-            workStatus=#{workStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},
-            debugStatus=#{debugStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},
+            onlineStatus=#{onlineStatus},
+            workStatus=#{workStatus},
+            debugStatus=#{debugStatus},
             updateTime=#{updateTime},
             model=#{model},
             brand=#{brand},
@@ -84,7 +84,7 @@
     <update id="updateStatus" >
         update device
         <trim prefix="SET" suffixOverrides=",">
-            onlineStatus=#{status, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},
+            onlineStatus=#{status},
         </trim>
         WHERE
         deviceId = #{deviceId}
@@ -92,7 +92,7 @@
     <update id="updateWorkStatus" >
         update device
         <trim prefix="SET" suffixOverrides=",">
-            workStatus=#{status, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},
+            workStatus=#{status},
         </trim>
         WHERE
         deviceId = #{deviceId}
@@ -100,7 +100,7 @@
     <update id="updateDebugStatus" >
         update device
         <trim prefix="SET" suffixOverrides=",">
-            debugStatus=#{status, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler},
+            debugStatus=#{status},
         </trim>
         WHERE
         deviceId = #{deviceId}
@@ -117,9 +117,9 @@
                 and deviceId in <foreach item="devId" index="index" collection="deviceIdList" open="(" separator="," close=")">#{devId} </foreach>
             </if>
             <if test="phoneOS != null">and phoneOS = #{phoneOS}</if>
-            <if test="onlineStatus != null">and onlineStatus = #{onlineStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
-            <if test="workStatus != null">and workStatus = #{workStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
-            <if test="debugStatus != null">and debugStatus = #{debugStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
+            <if test="onlineStatus != null">and onlineStatus = #{onlineStatus}</if>
+            <if test="workStatus != null">and workStatus = #{workStatus}</if>
+            <if test="debugStatus != null">and debugStatus = #{debugStatus}</if>
             <if test="model != null">and model = #{model}</if>
             <if test="brand != null">and brand = #{brand}</if>
             <if test="lastUserId != null">and lastUserId = #{lastUserId}</if>
@@ -142,9 +142,9 @@
                 and t1.deviceId in <foreach item="devId" index="index" collection="deviceIdList" open="(" separator="," close=")">#{devId} </foreach>
             </if>
             <if test="phoneOS != null">and t1.phoneOS = #{phoneOS}</if>
-            <if test="onlineStatus != null">and t1.onlineStatus = #{onlineStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
-            <if test="workStatus != null">and t1.workStatus = #{workStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
-            <if test="debugStatus != null">and t1.debugStatus = #{debugStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
+            <if test="onlineStatus != null">and t1.onlineStatus = #{onlineStatus}</if>
+            <if test="workStatus != null">and t1.workStatus = #{workStatus}</if>
+            <if test="debugStatus != null">and t1.debugStatus = #{debugStatus}</if>
             <if test="model != null">and t1.model = #{model}</if>
             <if test="brand != null">and t1.brand = #{brand}</if>
             <if test="lastUserId != null">and t1.lastUserId = #{lastUserId}</if>
@@ -167,9 +167,9 @@
                 and t1.deviceId in <foreach item="devId" index="index" collection="deviceIdList" open="(" separator="," close=")">#{devId} </foreach>
             </if>
             <if test="phoneOS != null">and t1.phoneOS = #{phoneOS}</if>
-            <if test="onlineStatus != null">and t1.onlineStatus = #{onlineStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
-            <if test="workStatus != null">and t1.workStatus = #{workStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
-            <if test="debugStatus != null">and t1.debugStatus = #{debugStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
+            <if test="onlineStatus != null">and t1.onlineStatus = #{onlineStatus}</if>
+            <if test="workStatus != null">and t1.workStatus = #{workStatus}</if>
+            <if test="debugStatus != null">and t1.debugStatus = #{debugStatus}</if>
             <if test="brand != null">
                 and
                 (t1.model LIKE CONCAT('%', #{brand}, '%') or t1.brand LIKE CONCAT('%', #{brand}, '%'))
@@ -194,9 +194,9 @@
                 and t1.deviceId in <foreach item="devId" index="index" collection="deviceIdList" open="(" separator="," close=")">#{devId} </foreach>
             </if>
             <if test="phoneOS != null">and t1.phoneOS = #{phoneOS}</if>
-            <if test="onlineStatus != null">and t1.onlineStatus = #{onlineStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
-            <if test="workStatus != null">and t1.workStatus = #{workStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
-            <if test="debugStatus != null">and t1.debugStatus = #{debugStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
+            <if test="onlineStatus != null">and t1.onlineStatus = #{onlineStatus}</if>
+            <if test="workStatus != null">and t1.workStatus = #{workStatus}</if>
+            <if test="debugStatus != null">and t1.debugStatus = #{debugStatus}</if>
             <if test="model != null">and t1.model = #{model}</if>
             <if test="brand != null">and t1.brand = #{brand}</if>
             <if test="lastUserId != null">and t1.lastUserId = #{lastUserId}</if>
@@ -219,9 +219,9 @@
                 and t1.deviceId in <foreach item="devId" index="index" collection="deviceIdList" open="(" separator="," close=")">#{devId} </foreach>
             </if>
             <if test="phoneOS != null">and t1.phoneOS = #{phoneOS}</if>
-            <if test="onlineStatus != null">and t1.onlineStatus = #{onlineStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
-            <if test="workStatus != null">and t1.workStatus = #{workStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
-            <if test="debugStatus != null">and t1.debugStatus = #{debugStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
+            <if test="onlineStatus != null">and t1.onlineStatus = #{onlineStatus}</if>
+            <if test="workStatus != null">and t1.workStatus = #{workStatus}</if>
+            <if test="debugStatus != null">and t1.debugStatus = #{debugStatus}</if>
             <if test="brand != null">
                 and
                 (t1.model LIKE CONCAT('%', #{brand}, '%') or t1.brand LIKE CONCAT('%', #{brand}, '%'))
@@ -244,9 +244,9 @@
                 and deviceId in <foreach item="devId" index="index" collection="deviceIdList" open="(" separator="," close=")">#{devId} </foreach>
             </if>
             <if test="phoneOS != null">and phoneOS = #{phoneOS}</if>
-            <if test="onlineStatus != null">and onlineStatus = #{onlineStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
-            <if test="workStatus != null">and workStatus = #{workStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
-            <if test="debugStatus != null">and debugStatus = #{debugStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
+            <if test="onlineStatus != null">and onlineStatus = #{onlineStatus}</if>
+            <if test="workStatus != null">and workStatus = #{workStatus}</if>
+            <if test="debugStatus != null">and debugStatus = #{debugStatus}</if>
             <if test="brand != null"> and (model LIKE CONCAT('%', #{brand}, '%') or brand LIKE CONCAT('%', #{brand}, '%'))</if>
             <if test="lastUserId != null">and lastUserId = #{lastUserId}</if>
             <if test="width != null">and width = #{width}</if>
@@ -269,7 +269,7 @@
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             <if test="query.deviceId != null">and deviceId = #{query.deviceId}</if>
             <if test="query.phoneOS != null">and phoneOS = #{query.phoneOS}</if>
-            <if test="query.onlineStatus != null">and onlineStatus = #{query.onlineStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
+            <if test="query.onlineStatus != null">and onlineStatus = #{query.onlineStatus}</if>
             <if test="query.model != null">and model = #{query.model}</if>
             <if test="query.brand != null">and brand = #{query.brand}</if>
             <if test="query.lastUserId != null">and lastUserId = #{query.lastUserId}</if>
@@ -295,7 +295,7 @@
                 and device.deviceId in <foreach item="devId" index="index" collection="deviceIdList" open="(" separator="," close=")">#{devId} </foreach>
             </if>
             <if test="phoneOS != null">and device.phoneOS = #{phoneOS}</if>
-            <if test="onlineStatus != null">and device.onlineStatus = #{onlineStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
+            <if test="onlineStatus != null">and device.onlineStatus = #{onlineStatus}</if>
             <if test="model != null">and device.model = #{model}</if>
             <if test="brand != null">and device.brand = #{brand}</if>
             <if test="createBy != null">and device.lastUserId = #{createBy}</if>
@@ -318,7 +318,7 @@
         SELECT count(1) c FROM device
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             <if test="lastUserId != null">and lastUserId = #{lastUserId}</if>
-            <if test="onlineStatus != null">and device.onlineStatus = #{onlineStatus, typeHandler=com.testwa.core.base.mybatis.EnumValueHandler}</if>
+            <if test="onlineStatus != null">and device.onlineStatus = #{onlineStatus}</if>
         </trim>
     </select>
 

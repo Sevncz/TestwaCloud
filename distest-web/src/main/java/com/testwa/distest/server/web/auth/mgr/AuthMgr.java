@@ -85,7 +85,7 @@ public class AuthMgr {
                 lal.setClientVersion(agents[1]);
                 lal.setLoginTime(new Date());
                 lal.setIp(InetAddresses.coerceToInteger(addr));
-                agentLoginLoggerService.save(lal);
+                agentLoginLoggerService.insert(lal);
                 // 替换之前登录的token
                 redisLoginMgr.login(username, access_token);
             }

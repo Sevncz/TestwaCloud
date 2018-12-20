@@ -77,7 +77,7 @@ public class IssueController {
         if(DB.IssueStateEnum.CLOSED.equals(issue.getState()) ) {
             return;
         }
-
+        log.info("Close issue {} BY {}", issueId, currentUser.getId());
         issueService.updateState(issueId, DB.IssueStateEnum.CLOSED);
 
     }
@@ -94,6 +94,7 @@ public class IssueController {
             return;
         }
 
+        log.info("Reject issue {} BY {}", issueId, currentUser.getId());
         issueService.updateState(issueId, DB.IssueStateEnum.REJECT);
 
     }

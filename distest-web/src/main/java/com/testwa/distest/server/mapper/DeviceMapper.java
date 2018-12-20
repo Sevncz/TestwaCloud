@@ -1,6 +1,6 @@
 package com.testwa.distest.server.mapper;
 
-import com.testwa.core.base.mapper.BaseMapper;
+import com.testwa.core.base.mybatis.mapper.BaseMapper;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.service.device.dto.DeviceOneCategoryResultDTO;
@@ -22,8 +22,6 @@ public interface DeviceMapper extends BaseMapper<Device, Long> {
     void updateStatus(@Param("deviceId") String deviceId, @Param("status") DB.PhoneOnlineStatus status);
 
     List<Device> findAll(@Param("deviceIds") List<String> deviceIds);
-
-    Device findOne(@Param("deviceId")String deviceId);
 
     List<Device> fetchList(Map queryMap);
 

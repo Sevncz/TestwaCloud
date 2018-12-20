@@ -1,6 +1,6 @@
 package com.testwa.distest.server.mapper;
 
-import com.testwa.core.base.mapper.BaseMapper;
+import com.testwa.core.base.mybatis.mapper.BaseMapper;
 import com.testwa.distest.server.entity.Project;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -16,11 +16,7 @@ public interface ProjectMapper extends BaseMapper<Project, Long> {
 
     long countBy(Project query);
 
-    Project findOne(Long projectId);
-
     List<Project> findAllOrder(@Param("projectIds") List<Long> projectIds, @Param("order") String order);
-
-    void disable(@Param("key") Long projectId);
 
     void disableAll(@Param("keys") List<Long> projectId);
 }

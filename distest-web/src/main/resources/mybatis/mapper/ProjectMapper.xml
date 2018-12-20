@@ -17,13 +17,6 @@
         id, projectName, description, createTime, updateTime, createBy, updateBy, enabled
     </sql>
 
-    <select id="findOne" parameterType="com.testwa.distest.server.entity.Project" resultMap="BaseResultMap" >
-        SELECT
-        <include refid="Base_Column_List" />
-        FROM project
-        WHERE enabled = 1 AND id = #{key}
-    </select>
-
     <select id="findBy" parameterType="com.testwa.distest.server.entity.Project" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />

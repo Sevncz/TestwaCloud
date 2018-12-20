@@ -6,10 +6,12 @@
 package com.testwa.distest.server.mongo.repository;
 
 import com.testwa.distest.server.mongo.model.Performance;
+import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
 import java.util.List;
 
+@Repository
 public interface PerformanceRepository extends CommonRepository<Performance, Serializable> {
 
     List<Performance> findByTaskCodeOrderByTimestampAsc(Long taskId);

@@ -8,7 +8,7 @@
         <result column="password" property="password" jdbcType="VARCHAR" />
         <result column="mobile" property="mobile" jdbcType="VARCHAR" />
         <result column="email" property="email" jdbcType="VARCHAR" />
-        <result column="sex" property="sex" jdbcType="TINYINT" typeHandler="com.testwa.core.base.mybatis.EnumValueHandler"/>
+        <result column="sex" property="sex" jdbcType="TINYINT" />
         <result column="nickname" property="nickname" jdbcType="VARCHAR" />
         <result column="address" property="address" jdbcType="VARCHAR" />
         <result column="country" property="country" jdbcType="VARCHAR" />
@@ -33,12 +33,6 @@
         id, username, password, mobile, email, sex, nickname, address, country, header, lastPasswordResetTime, lastLoginTime, loginTime, registerTime, loginIp, lastLoginIp, enabled, isActive, isRealNameAuth, realName, userCode
     </sql>
 
-    <select id="findOne" parameterType="com.testwa.distest.server.entity.User" resultMap="BaseResultMap" >
-        SELECT
-        <include refid="Base_Column_List" />
-        FROM user
-        WHERE id = #{key}
-    </select>
     <select id="findList" parameterType="com.testwa.distest.server.entity.User" resultMap="BaseResultMap" >
         SELECT
         <include refid="Base_Column_List" />
@@ -133,5 +127,10 @@
         update user
         set password = #{password}
         where userCode = #{userCode}
+    </update>
+    <update id="disable" >
+        update user
+        set enabled = 0
+        where id = #{userId}
     </update>
 </mapper>

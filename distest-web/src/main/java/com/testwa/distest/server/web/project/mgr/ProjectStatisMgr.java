@@ -206,7 +206,7 @@ public class ProjectStatisMgr {
         List<Task> taskList = taskPageResult.getPages();
 
         List<ProjectTestDynamicVO> dynamicVOs = taskList.stream().map( task -> {
-            User user = userService.findOne(task.getCreateBy());
+            User user = userService.get(task.getCreateBy());
             ProjectTestDynamicVO vo = new ProjectTestDynamicVO();
             vo.setAppName(task.getApp().getDisplayName());
             vo.setEquipments(task.getDevices().size());
