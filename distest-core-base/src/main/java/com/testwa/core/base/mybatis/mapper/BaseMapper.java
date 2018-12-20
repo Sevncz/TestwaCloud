@@ -6,7 +6,6 @@ import org.apache.ibatis.annotations.*;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 一般不会直接使用该类，BaseMapper 供在BaseDAO中使用
@@ -51,7 +50,7 @@ public interface BaseMapper<T extends Entity, ID extends Serializable> {
      * @return Entity
      */
     @SelectProvider(type = BaseSqlProvider.class, method = "selectById")
-    <T> T selectById(Long id);
+    T selectById(Long id);
 
     /**
      * 根据属性查询一条记录
@@ -91,7 +90,7 @@ public interface BaseMapper<T extends Entity, ID extends Serializable> {
      * @return List Entity
      */
     @SelectProvider(type = BaseSqlProvider.class, method = "list")
-    <T> List<T> list();
+    List<T> list();
 
     /**
      * 获得记录数量

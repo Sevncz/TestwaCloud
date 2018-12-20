@@ -6,4 +6,6 @@ public interface Entity {
 
     Serializable getId();
 
+    Boolean getEnabled();
+
 }
