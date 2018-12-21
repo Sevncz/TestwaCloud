@@ -29,10 +29,22 @@
         WHERE t.enabled = 1 AND m.issue_id = #{issueId}
     </select>
 
-    <update id="addNum">
+    <update id="incr">
         update dis_issue_label
         set num = num + 1
         where id = #{labelId}
+    </update>
+
+    <update id="decr">
+        update dis_issue_label
+        set num = num - 1
+        where id = #{labelId} and num > 0
+    </update>
+
+    <update id="decrByProjectId">
+        update dis_issue_label
+        set num = num - 1
+        where project_id = #{projectId} and num > 0
     </update>
 
 </mapper>

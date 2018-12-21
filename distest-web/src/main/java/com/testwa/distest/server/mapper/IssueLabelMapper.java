@@ -12,7 +12,12 @@ public interface IssueLabelMapper extends BaseMapper<IssueLabel, Long> {
 
     IssueLabel getByName(@Param("projectId") Long projectId, @Param("name") String name);
 
-    void addNum(Long labelId);
+    void incr(@Param("labelId") Long labelId);
+
+    void decr(@Param("labelId") Long labelId);
+
+    void decrByProjectId(@Param("projectId") Long projectId);
 
     List<IssueLabel> listByIssueId(@Param("issueId") Long issueId);
+
 }

@@ -11,6 +11,7 @@ import com.testwa.distest.server.entity.IssueContent;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.issue.form.IssueListForm;
 import com.testwa.distest.server.service.issue.form.IssueNewForm;
+import com.testwa.distest.server.service.issue.form.IssueUpdateForm;
 import com.testwa.distest.server.service.issue.service.IssueService;
 import com.testwa.distest.server.web.auth.validator.UserValidator;
 import com.testwa.distest.server.web.issue.validator.IssueValidator;
@@ -142,6 +143,38 @@ public class IssueController {
             detailVO.setContent("");
         }
         return detailVO;
+    }
+
+    @ApiOperation(value="issue详情编辑")
+    @ResponseBody
+    @PostMapping(value = "/project/{projectId}/issue/{issueId}/contentUpdate")
+    public void issueContentUpdate(@PathVariable Long projectId, @PathVariable Long issueId, @RequestBody String content) {
+
+        projectValidator.validateProjectExist(projectId);
+        projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
+        issueValidator.validateIssueExist(issueId);
+
+        issueService.updateContent(issueId, content);
+
+    }
+
+    @ApiOperation(value="issue更新")
+    @ResponseBody
+    @PostMapping(value = "/project/{projectId}/issue/{issueId}/update")
+    public void issueUpdate(@PathVariable Long projectId, @PathVariable Long issueId, @RequestBody @Valid IssueUpdateForm form) {
+
+        projectValidator.validateProjectExist(projectId);
+        projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
+        issueValidator.validateIssueExist(issueId);
+
+        if(form.getLabelName() != null) {
+            form.getLabelName().forEach( name -> {
+                labelValidator.validateLabelNameExist(projectId, name);
+            });
+        }
+
+        issueService.update(projectId, issueId, form);
+
     }
 
 }

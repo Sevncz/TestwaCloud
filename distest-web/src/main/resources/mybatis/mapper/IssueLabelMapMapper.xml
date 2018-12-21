@@ -12,4 +12,8 @@
        delete from dis_issue_label_map
        where label_id = #{labelId}
    </delete>
+   <delete id="deleteByIssueId" >
+       delete from dis_issue_label_map
+       where issue_id = #{issueId}
+   </delete>
 </mapper>
