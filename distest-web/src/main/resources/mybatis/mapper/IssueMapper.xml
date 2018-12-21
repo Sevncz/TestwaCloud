@@ -7,19 +7,17 @@
         <result column="assignee_id" property="assigneeId" jdbcType="BIGINT" />
         <result column="author_id" property="authorId" jdbcType="BIGINT" />
         <result column="title" property="title" jdbcType="VARCHAR" />
-        <result column="content" property="content" jdbcType="VARCHAR" />
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="state" property="state" jdbcType="TINYINT"  />
         <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
     </resultMap>
 
     <sql id="Base_Column_List" >
-        id, project_id, assignee_id, author_id, title, content, create_time, state
+        id, project_id, assignee_id, author_id, title, create_time, state
     </sql>
 
     <select id="listByCondition" resultMap="BaseResultMap" >
-        SELECT
-        t.id, t.project_id, t.assignee_id, t.author_id, t.title, t.content, t.create_time, t.state
+        SELECT distinct t.id, t.project_id, t.assignee_id, t.author_id, t.title, t.create_time, t.state
         FROM dis_issue t left join dis_issue_label_map m on t.id = m.issue_id
         WHERE t.enabled = 1
         <if test="query.projectId != null">and t.project_id = #{query.projectId}</if>

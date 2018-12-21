@@ -27,9 +27,6 @@ public class Issue extends BaseEntity {
     // 标题
     @Column(name = "title")
     private String title;
-    // 内容
-    @Column(name = "content")
-    private String content;
     // 状态
     @Column(name = "state")
     private DB.IssueStateEnum state;

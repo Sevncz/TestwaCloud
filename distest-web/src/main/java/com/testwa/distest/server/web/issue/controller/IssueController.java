@@ -7,6 +7,7 @@ import com.testwa.core.base.constant.WebConstants;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.exception.BusinessException;
 import com.testwa.distest.server.entity.Issue;
+import com.testwa.distest.server.entity.IssueContent;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.issue.form.IssueListForm;
 import com.testwa.distest.server.service.issue.form.IssueNewForm;
@@ -14,12 +15,14 @@ import com.testwa.distest.server.service.issue.service.IssueService;
 import com.testwa.distest.server.web.auth.validator.UserValidator;
 import com.testwa.distest.server.web.issue.validator.IssueValidator;
 import com.testwa.distest.server.web.issue.validator.LabelValidator;
+import com.testwa.distest.server.web.issue.vo.IssueDetailVO;
 import com.testwa.distest.server.web.issue.vo.IssueVO;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -122,14 +125,23 @@ public class IssueController {
     @ApiOperation(value="issue详情")
     @ResponseBody
     @GetMapping(value = "/project/{projectId}/issue/{issueId}/detail")
-    public IssueVO issueDetail(@PathVariable Long projectId, @PathVariable Long issueId) {
+    public IssueDetailVO issueDetail(@PathVariable Long projectId, @PathVariable Long issueId) {
 
         projectValidator.validateProjectExist(projectId);
         projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
         Issue issue = issueValidator.validateIssueExist(issueId);
 
-        log.info("Reject issue {} BY {}", issueId, currentUser.getId());
-        return issueService.buildIssueVO(issue);
+        IssueContent content = issueService.getContent(issue.getId());
+
+        IssueVO vo = issueService.buildIssueVO(issue);
+        IssueDetailVO detailVO = new IssueDetailVO();
+        BeanUtils.copyProperties(vo, detailVO);
+        if(content != null) {
+            detailVO.setContent(content.getContent());
+        }else{
+            detailVO.setContent("");
+        }
+        return detailVO;
     }
 
 }

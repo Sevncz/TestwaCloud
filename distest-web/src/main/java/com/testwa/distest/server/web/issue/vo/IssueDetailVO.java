@@ -12,7 +12,7 @@ import java.util.List;
  * @create 2018-12-21 13:53
  */
 @Data
-public class IssueVO {
+public class IssueDetailVO {
     private Long id;
     private Long projectId;
     private Date createTime;
@@ -20,6 +20,8 @@ public class IssueVO {
     private UserVO author;
     // 标题
     private String title;
+    // 内容
+    private String content;
     // 状态
     private DB.IssueStateEnum state;
 

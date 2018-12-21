@@ -42,7 +42,6 @@ public class IssueMapperTest {
         issue.setProjectId(32L);
         issue.setAssigneeId(8L);
         issue.setTitle("title");
-        issue.setContent("content");
 
         issue.setAuthorId(7L);
         issue.setCreateTime(new Date());

@@ -9,10 +9,7 @@ import com.testwa.distest.exception.BusinessException;
 import com.testwa.distest.server.condition.IssueCondition;
 import com.testwa.distest.server.condition.IssueLabelCondition;
 import com.testwa.distest.server.entity.*;
-import com.testwa.distest.server.mapper.IssueLabelMapMapper;
-import com.testwa.distest.server.mapper.IssueLabelMapper;
-import com.testwa.distest.server.mapper.IssueMapper;
-import com.testwa.distest.server.mapper.UserMapper;
+import com.testwa.distest.server.mapper.*;
 import com.testwa.distest.server.service.issue.form.IssueListForm;
 import com.testwa.distest.server.service.issue.form.IssueNewForm;
 import com.testwa.distest.server.web.issue.vo.IssueLabelVO;
@@ -49,6 +46,8 @@ public class IssueService extends BaseService<Issue, Long> {
     @Autowired
     private IssueLabelMapMapper labelMapMapper;
     @Autowired
+    private IssueContentMapper issueContentMapper;
+    @Autowired
     private UserMapper userMapper;
     @Autowired
     private User currentUser;
@@ -58,7 +57,6 @@ public class IssueService extends BaseService<Issue, Long> {
         Issue issue = new Issue();
         issue.setProjectId(projectId);
         issue.setTitle(form.getTitle());
-        issue.setContent(form.getContent());
         // 如果没有指定用户，则指定创建者本人
         if(form.getAssigneeId() != null) {
             issue.setAssigneeId(form.getAssigneeId());
@@ -72,6 +70,10 @@ public class IssueService extends BaseService<Issue, Long> {
         issue.setEnabled(true);
 
         insert(issue);
+        IssueContent issueContent = new IssueContent();
+        issueContent.setContent(form.getContent());
+        issueContent.setIssueId(issue.getId());
+        issueContentMapper.insert(issueContent);
 
         List<String> labelNames = form.getLabelName();
         if(labelNames != null && !labelNames.isEmpty()) {
@@ -175,4 +177,7 @@ public class IssueService extends BaseService<Issue, Long> {
         }
     }
 
+    public IssueContent getContent(Long issueId) {
+        return issueContentMapper.selectByProperty(IssueContent::getIssueId, issueId);
+    }
 }
