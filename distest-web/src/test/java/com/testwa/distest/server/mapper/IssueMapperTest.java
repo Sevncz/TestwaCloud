@@ -39,7 +39,6 @@ public class IssueMapperTest {
     public void before() {
         Issue issue = new Issue();
         issue.setState(DB.IssueStateEnum.OPEN);
-        issue.setLabelId(1L);
         issue.setProjectId(32L);
         issue.setAssigneeId(8L);
         issue.setTitle("title");

@@ -22,5 +22,4 @@ public class IssueValidator {
         return issue;
     }
 
-
 }

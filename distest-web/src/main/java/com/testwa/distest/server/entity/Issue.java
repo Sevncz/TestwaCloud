@@ -15,9 +15,6 @@ public class Issue extends BaseEntity {
     // 所属项目
     @Column(name = "project_id")
     private Long projectId;
-    // 标签
-    @Column(name = "label_id")
-    private Long labelId;
     // 负责人
     @Column(name = "assignee_id")
     private Long assigneeId;

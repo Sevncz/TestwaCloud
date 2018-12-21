@@ -16,6 +16,7 @@ import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.auth.vo.UserVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -143,8 +144,7 @@ public class ProjectMemberService extends BaseService<ProjectMember, Long> {
             UserVO vo = new UserVO();
             vo.setId(((BigInteger) u.get("id")).longValue());
             vo.setUsername((String) u.get("username"));
-            vo.setEmail((String) u.get("email"));
-            vo.setPhone((String) u.get("phone"));
+            vo.setHeader((String) u.get("header"));
             if("in".equals(u.get("flag"))){
                 in.add(vo);
             }

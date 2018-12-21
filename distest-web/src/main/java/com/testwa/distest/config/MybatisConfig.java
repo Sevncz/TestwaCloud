@@ -3,6 +3,7 @@ package com.testwa.distest.config;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
+import org.mybatis.spring.boot.autoconfigure.SpringBootVFS;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.bind.RelaxedPropertyResolver;
@@ -42,6 +43,8 @@ public class MybatisConfig implements EnvironmentAware {
             bean.setTypeHandlersPackage(propertyResolver.getProperty("type-handlers-package"));
             bean.setMapperLocations(resourcePatternResolver.getResources(propertyResolver.getProperty("mapper-locations")));
             bean.setConfigLocation(new DefaultResourceLoader().getResource(propertyResolver.getProperty("config-locations")));
+            // springboot jar 执行需要注入，否则会无法生效
+            bean.setVfs(SpringBootVFS.class);
 
             return bean.getObject();
 

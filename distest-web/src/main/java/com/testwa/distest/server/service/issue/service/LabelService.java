@@ -6,6 +6,7 @@ import com.testwa.distest.server.entity.IssueLabel;
 import com.testwa.distest.server.entity.IssueLabelDict;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.mapper.IssueLabelDictMapper;
+import com.testwa.distest.server.mapper.IssueLabelMapMapper;
 import com.testwa.distest.server.mapper.IssueLabelMapper;
 import com.testwa.distest.server.service.issue.form.IssueLabelNewForm;
 import com.testwa.distest.server.service.issue.form.IssueLabelUpdateForm;
@@ -29,7 +30,9 @@ import java.util.List;
 public class LabelService extends BaseService<IssueLabel, Long> {
 
     @Autowired
-    private IssueLabelMapper issueLabelMapper;
+    private IssueLabelMapper labelMapper;
+    @Autowired
+    private IssueLabelMapMapper labelMapMapper;
     @Autowired
     private IssueLabelDictMapper issueLabelDictMapper;
     @Autowired
@@ -45,7 +48,7 @@ public class LabelService extends BaseService<IssueLabel, Long> {
     public List<IssueLabel> list(Long projectId) {
         BaseProjectCondition condition = new BaseProjectCondition();
         condition.setProjectId(projectId);
-        return issueLabelMapper.selectByCondition(condition);
+        return labelMapper.selectByCondition(condition);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -63,7 +66,20 @@ public class LabelService extends BaseService<IssueLabel, Long> {
         issueLabel.setCreateBy(currentUser.getId());
         issueLabel.setEnabled(true);
 
-        return issueLabelMapper.insert(issueLabel);
+        return labelMapper.insert(issueLabel);
+    }
+
+    /**
+     * @Description: 删除标签，并且删除其引用
+     * @Param: [labelId]
+     * @Return: void
+     * @Author wen
+     * @Date 2018/12/21 11:10
+     */
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void deleteLabel(Long labelId) {
+        delete(labelId);
+        labelMapMapper.deleteByLabelId(labelId);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -71,12 +87,12 @@ public class LabelService extends BaseService<IssueLabel, Long> {
         IssueLabel issueLabel = get(form.getLabelId());
         issueLabel.setColor(form.getColor());
         issueLabel.setName(form.getName());
-        issueLabelMapper.update(issueLabel);
+        labelMapper.update(issueLabel);
 
     }
 
     public IssueLabel getByName(Long projectId, String name) {
-        return issueLabelMapper.getByName(projectId, name);
+        return labelMapper.getByName(projectId, name);
     }
 
     /**

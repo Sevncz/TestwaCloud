@@ -6,12 +6,13 @@
         <result column="project_id" property="projectId" jdbcType="BIGINT" />
         <result column="name" property="name" jdbcType="VARCHAR" />
         <result column="color" property="color" jdbcType="VARCHAR" />
+        <result column="num" property="num" jdbcType="BIGINT" />
         <result column="create_by" property="createBy" jdbcType="BIGINT" />
         <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
     </resultMap>
 
     <sql id="Base_Column_List" >
-        id, project_id, name, color
+        id, project_id, name, color, num
     </sql>
 
     <select id="getByName" parameterType="com.testwa.distest.server.entity.IssueLabel" resultMap="BaseResultMap" >
@@ -20,5 +21,18 @@
         FROM dis_issue_label
         WHERE enabled = 1 AND project_id = #{projectId} AND name = #{name}
     </select>
+
+    <select id="listByIssueId" resultMap="BaseResultMap" >
+        SELECT
+        t.id, t.name, t.color, t.num
+        FROM dis_issue_label t left join dis_issue_label_map m on t.id = m.label_id
+        WHERE t.enabled = 1 AND m.issue_id = #{issueId}
+    </select>
+
+    <update id="addNum">
+        update dis_issue_label
+        set num = num + 1
+        where id = #{labelId}
+    </update>
 
 </mapper>

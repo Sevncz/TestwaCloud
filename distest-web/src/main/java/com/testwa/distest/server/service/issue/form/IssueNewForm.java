@@ -7,6 +7,7 @@ import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * Created by wen on 20/10/2017.
@@ -21,7 +22,6 @@ public class IssueNewForm extends RequestFormBase {
     private String title;
     @NotBlank
     private String content;
-    @NotNull
-    private String labelName;
+    private List<String> labelName;
     private Long assigneeId;
 }

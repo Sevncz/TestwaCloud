@@ -28,15 +28,11 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     private final static DecimalFormat format = new DecimalFormat("###.0");
 
     @Autowired
-    private SocketIOServer server;
-    @Autowired
     private DeviceOnlineMgr deviceOnlineMgr;
     @Autowired
     private DeviceService deviceService;
     @Autowired
     private UserService userService;
-    @Autowired
-    private SubscribeDeviceFuncMgr subscribeMgr;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
     @Autowired

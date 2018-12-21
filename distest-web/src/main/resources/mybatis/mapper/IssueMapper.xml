@@ -4,7 +4,6 @@
     <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.Issue" >
         <id column="id" property="id" jdbcType="BIGINT" />
         <result column="project_id" property="projectId" jdbcType="BIGINT" />
-        <result column="label_id" property="labelId" jdbcType="BIGINT" />
         <result column="assignee_id" property="assigneeId" jdbcType="BIGINT" />
         <result column="author_id" property="authorId" jdbcType="BIGINT" />
         <result column="title" property="title" jdbcType="VARCHAR" />
@@ -15,30 +14,22 @@
     </resultMap>
 
     <sql id="Base_Column_List" >
-        id, project_id, label_id, assignee_id, author_id, title, content, create_time, state
+        id, project_id, assignee_id, author_id, title, content, create_time, state
     </sql>
 
-    <select id="findBy" parameterType="com.testwa.distest.server.entity.Issue" resultMap="BaseResultMap" >
+    <select id="listByCondition" resultMap="BaseResultMap" >
         SELECT
-        <include refid="Base_Column_List" />
-        FROM dis_issue
-        WHERE enabled = 1
-        <if test="projectId != null">and project_id = #{projectId}</if>
-        <if test="assigneeId != null">and assignee_id = #{assigneeId}</if>
-        <if test="authorId != null">and author_id = #{authorId}</if>
-        <if test="state != null">and state = #{state}</if>
-    </select>
-
-    <select id="search" resultMap="BaseResultMap" >
-        SELECT
-        <include refid="Base_Column_List" />
-        FROM dis_issue
-        WHERE enabled = 1
-        <if test="query.projectId != null">and project_id = #{query.projectId}</if>
-        <if test="query.assigneeId != null">and assignee_id = #{query.assigneeId}</if>
-        <if test="query.authorId != null">and author_id = #{query.authorId}</if>
-        <if test="query.state != null">and state = #{query.state}</if>
-        <if test="search != null">and (title like CONCAT('%', #{search}, '%') or content like CONCAT('%', #{search}, '%'))</if>
+        t.id, t.project_id, t.assignee_id, t.author_id, t.title, t.content, t.create_time, t.state
+        FROM dis_issue t left join dis_issue_label_map m on t.id = m.issue_id
+        WHERE t.enabled = 1
+        <if test="query.projectId != null">and t.project_id = #{query.projectId}</if>
+        <if test="query.assigneeId != null">and t.assignee_id = #{query.assigneeId}</if>
+        <if test="query.authorId != null">and t.author_id = #{query.authorId}</if>
+        <if test="query.state != null">and t.state = #{query.state}</if>
+        <if test="query.search != null">and (t.title like CONCAT('%', #{search}, '%') or t.content like CONCAT('%', #{search}, '%'))</if>
+        <if test="labelIds != null">
+          and m.label_id in <foreach item="item" index="index" collection="labelIds" open="(" separator="," close=")">#{item} </foreach>
+        </if>
     </select>
 
 </mapper>

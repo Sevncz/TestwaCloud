@@ -94,7 +94,7 @@
 
     <select id="findMembersFromProject" parameterType="java.util.Map" resultMap="MemberResultMap">
         SELECT
-        u.id, userCode, username, password, mobile, email, sex, nickname, address, country, header, lastPasswordResetTime, lastLoginTime, loginTime, registerTime, loginIp, lastLoginIp, enabled
+        u.id, userCode, username, password, mobile, email, sex, nickname, address, country, header, lastPasswordResetTime, lastLoginTime, loginTime, registerTime, loginIp, lastLoginIp
         FROM project_member pm LEFT JOIN user u on pm.memberId = u.id
         WHERE pm.projectId = #{params.projectId}
         <if test="params.user != null">

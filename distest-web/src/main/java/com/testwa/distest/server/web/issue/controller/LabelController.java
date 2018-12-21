@@ -50,7 +50,7 @@ public class LabelController {
         projectValidator.validateProjectExist(projectId);
         projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
 
-        labelValidator.validateLabelNameExist(projectId, form.getName());
+        labelValidator.validateLabelNameNotExist(projectId, form.getName());
 
         return labelService.save(form, projectId);
 
@@ -64,22 +64,23 @@ public class LabelController {
         projectValidator.validateProjectExist(projectId);
         projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
 
-        labelValidator.validateLabelNameExist(projectId, form.getName());
+        labelValidator.validateLabelExist(form.getLabelId());
+        labelValidator.validateLabelNameNotExist(projectId, form.getName());
 
         labelService.update(form);
 
     }
 
-    @ApiOperation(value="删除标签")
+    @ApiOperation(value="删除标签，同时删除和 issue 的关联")
     @ResponseBody
     @PostMapping(value = "/project/{projectId}/labelDelete/{labelId}")
-    public void labelDelete(@PathVariable Long projectId, @RequestBody @Valid Long labelId) {
+    public void labelDelete(@PathVariable Long projectId, @PathVariable @Valid Long labelId) {
 
         projectValidator.validateProjectExist(projectId);
         projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
         labelValidator.validateLabelExist(labelId);
 
-        labelService.delete(labelId);
+        labelService.deleteLabel(labelId);
     }
 
     @ApiOperation(value="标签列表")

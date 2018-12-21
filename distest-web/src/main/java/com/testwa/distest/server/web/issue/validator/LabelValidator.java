@@ -17,7 +17,7 @@ public class LabelValidator {
 
         IssueLabel label = labelService.get(labelId);
         if(label == null){
-            throw new BusinessException(ResultCode.NOT_FOUND, "issue不存在");
+            throw new BusinessException(ResultCode.NOT_FOUND, "标签不存在");
         }
         return label;
     }
@@ -25,7 +25,13 @@ public class LabelValidator {
     public void validateLabelNameExist(Long projectId, String name) {
         IssueLabel label = labelService.getByName(projectId, name);
         if(label == null){
-            throw new BusinessException(ResultCode.CONFLICT, "issue已存在");
+            throw new BusinessException(ResultCode.CONFLICT, "标签" + name + "不存在");
+        }
+    }
+    public void validateLabelNameNotExist(Long projectId, String name) {
+        IssueLabel label = labelService.getByName(projectId, name);
+        if(label != null){
+            throw new BusinessException(ResultCode.CONFLICT, "标签" + name + "已存在");
         }
     }
 }

@@ -19,4 +19,5 @@ public class IssueLabel extends BaseEntity {
     @JsonIgnore
     @Column(name = "create_by")
     private Long createBy;
+    private Long num;
 }

@@ -11,12 +11,13 @@ import lombok.Data;
  */
 @Data
 public class IssueCondition extends BaseProjectCondition{
-    private Long labelId;
     private Long assigneeId;
     private Long authorId;
     @Condition(logic = Logic.LIKE)
     private String title;
     @Condition(logic = Logic.LIKE)
     private String content;
+    @Condition(logic = Logic.LIKE)
+    private String search;
     private DB.IssueStateEnum state;
 }

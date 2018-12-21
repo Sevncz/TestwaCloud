@@ -11,9 +11,8 @@ import java.util.List;
  * @create 2018-12-18 18:29
  */
 @Data
-public class IssueLabelCondition extends BaseProjectCondition{
+public class IssueLabelMapCondition extends BaseProjectCondition{
 
-    private String color;
-    @Condition(logic = Logic.IN)
-    private List<String> name;
+    private Long labelId;
+    private Long issueId;
 }
