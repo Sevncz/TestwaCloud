@@ -62,7 +62,7 @@ public class IssueService extends BaseService<Issue, Long> {
         if(form.getAssigneeId() != null) {
             issue.setAssigneeId(form.getAssigneeId());
         }else{
-            issue.setAssigneeId(currentUser.getId());
+//            issue.setAssigneeId(currentUser.getId());
         }
         issue.setAuthorId(currentUser.getId());
         issue.setCreateTime(new Date());
@@ -178,7 +178,7 @@ public class IssueService extends BaseService<Issue, Long> {
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void update(Long projectId, Long issueId, IssueUpdateForm form) {
         if(StringUtils.isNotBlank(form.getTitle())) {
             issueMapper.updateProperty(Issue::getTitle, form.getTitle(), issueId);

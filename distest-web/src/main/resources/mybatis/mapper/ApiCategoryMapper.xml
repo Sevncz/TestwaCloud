@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.testwa.distest.server.mapper.ApiCategoryMapper" >
+    <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.ApiCategory" >
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="category_name" property="categoryName" jdbcType="VARCHAR" />
+        <result column="parent_id" property="parentId" jdbcType="BIGINT" />
+        <result column="seq" property="seq" jdbcType="INTEGER" />
+        <result column="authorization" property="authorization" jdbcType="VARCHAR" />
+        <result column="pre_script" property="preScript" jdbcType="CLOB" />
+        <result column="script" property="script" jdbcType="CLOB" />
+        <result column="description" property="description" jdbcType="CLOB" />
+        <result column="project_id" property="projectId" jdbcType="BIGINT" />
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+        <result column="update_by" property="updateBy" jdbcType="BIGINT"/>
+        <result column="create_by" property="createBy" jdbcType="BIGINT"/>
+        <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
+    </resultMap>
+
+
+</mapper>
