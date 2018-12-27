@@ -66,8 +66,9 @@ public class ApiServiceTest {
         String script = "";
         String preScript = "";
         String description = "";
+        String apiName = "";
 
-        return apiService.save(projectId, categoryId, url, method, param, authorization, header, body, preScript, script, description);
+        return apiService.save(projectId, categoryId, apiName, url, method, param, authorization, header, body, preScript, script, description);
     }
 
     @Test
@@ -100,10 +101,11 @@ public class ApiServiceTest {
         String script = "";
         String preScript = "";
         String description = "";
+        String apiName = "";
 
         int loopTime = 30;
         for (int i=0;i<loopTime;i++) {
-            apiService.save(projectId, categoryId, url, method, param, authorization, header, body, preScript, script, description);
+            apiService.save(projectId, categoryId, apiName, url, method, param, authorization, header, body, preScript, script, description);
         }
 
         List<Api> apiList = apiService.listByCategoryId(categoryId);

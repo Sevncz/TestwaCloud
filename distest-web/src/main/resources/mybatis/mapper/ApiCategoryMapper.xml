@@ -27,4 +27,10 @@
         where path like concat(#{categoryPath}, '%')
     </update>
 
+    <update id="batchUpdatePathAndLevel" >
+        update dis_api_category
+        set path=replace(path, #{oldPath}, #{newPath}), level=level + #{diffLevel}
+        where path like CONCAT(#{oldPath}, '%')
+    </update>
+
 </mapper>

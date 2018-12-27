@@ -59,7 +59,7 @@ public class ApiMapperTest {
         api.setPreScript(preScript);
         api.setScript(script);
         api.setDescription(description);
-        api.setCategoryPath("1,2,3,4,5,6");
+//        api.setCategoryPath("1,2,3,4,5,6");
 
         api.setCreateBy(7L);
         api.setCreateTime(new Date());

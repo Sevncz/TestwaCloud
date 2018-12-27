@@ -40,6 +40,7 @@ public class ApiService extends BaseService<Api, Long> {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Api save(Long projectId, Long categoryId, ApiNewForm form) {
         return save(projectId, categoryId,
+                form.getApiName(),
                 form.getUrl(),
                 form.getMethod(),
                 form.getParam(),
@@ -51,28 +52,27 @@ public class ApiService extends BaseService<Api, Long> {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public Api save(Long projectId, Long categoryId, String url, String method, List<Map<String, String>> param, Map<String, String> authorization, List<Map<String, String>> header, Map<String, String> body, String preScript, String script, String description) {
+    public Api save(Long projectId, Long categoryId, String apiName, String url, String method, List<Map<String, String>> param, Map<String, String> authorization, List<Map<String, String>> header, Map<String, String> body, String preScript, String script, String description) {
         Api api = new Api();
         api.setProjectId(projectId);
+        api.setApiName(apiName);
         ApiCategory category = apiCategoryMapper.selectById(categoryId);
         if(category == null || !category.getEnabled()) {
             throw new BusinessException(ResultCode.NOT_FOUND, "分类" + categoryId + "未找到");
         }
         api.setCategoryId(categoryId);
-        api.setCategoryPath(category.getPath());
-
         api.setUrl(url);
         api.setMethod(method);
-        if(!param.isEmpty()){
+        if(param != null && !param.isEmpty()){
             api.setParam(JSON.toJSONString(param));
         }
-        if(!authorization.isEmpty()){
+        if(authorization != null && !authorization.isEmpty()){
             api.setAuthorization(JSON.toJSONString(authorization));
         }
-        if(!header.isEmpty()){
+        if(header != null && !header.isEmpty()){
             api.setHeader(JSON.toJSONString(header));
         }
-        if(!body.isEmpty()){
+        if(body != null && !body.isEmpty()){
             api.setBody(JSON.toJSONString(body));
         }
         api.setPreScript(preScript);
@@ -100,7 +100,12 @@ public class ApiService extends BaseService<Api, Long> {
         }
         Api api = get(apiId);
         api.setCategoryId(otherCategoryId);
-        api.setCategoryPath(category.getPath());
         apiMapper.update(api);
+    }
+
+    public List<Api> listByProjectId(Long projectId) {
+        ApiCondition condition = new ApiCondition();
+        condition.setProjectId(projectId);
+        return apiMapper.selectByCondition(condition);
     }
 }

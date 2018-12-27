@@ -4,7 +4,7 @@
     <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.Api" >
         <id column="id" property="id" jdbcType="BIGINT" />
         <result column="category_id" property="categoryId" jdbcType="BIGINT" />
-        <result column="category_path" property="categoryPath" jdbcType="VARCHAR" />
+        <result column="api_name" property="apiName" jdbcType="VARCHAR" />
         <result column="method" property="method" jdbcType="VARCHAR" />
         <result column="url" property="url" jdbcType="VARCHAR" />
         <result column="param" property="param" jdbcType="VARCHAR" />
@@ -23,10 +23,10 @@
         <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
     </resultMap>
 
-    <update id="disableByCategoryPath" >
+    <update id="disableByCategoryId" >
         update dis_api
         set enabled = 0
-        where category_path like concat(#{categoryPath}, '%')
+        where category_id = #{categoryId}
     </update>
 
 </mapper>

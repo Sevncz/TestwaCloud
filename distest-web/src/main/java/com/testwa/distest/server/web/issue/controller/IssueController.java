@@ -138,6 +138,9 @@ public class IssueController {
         if(DB.IssueStateEnum.CLOSED.equals(issue.getState()) ) {
             throw new BusinessException(ResultCode.PARAM_ERROR, "Issue 已经关闭");
         }
+        if(!currentUser.getId().equals(issue.getAuthorId()) && !currentUser.getId().equals(issue.getAssigneeId())) {
+            throw new BusinessException(ResultCode.ILLEGAL_OP, "您无法关闭 issue");
+        }
         log.info("Close issue {} BY {}", issueId, currentUser.getId());
         issueService.updateState(issueId, DB.IssueStateEnum.CLOSED);
 
@@ -153,6 +156,9 @@ public class IssueController {
         Issue issue = issueValidator.validateIssueExist(issueId);
         if(!DB.IssueStateEnum.OPEN.equals(issue.getState())) {
             throw new BusinessException(ResultCode.PARAM_ERROR, "Issue 已经" + issue.getState().getDesc());
+        }
+        if(!currentUser.getId().equals(issue.getAssigneeId())) {
+            throw new BusinessException(ResultCode.ILLEGAL_OP, "您无法拒绝 issue");
         }
 
         log.info("Reject issue {} BY {}", issueId, currentUser.getId());

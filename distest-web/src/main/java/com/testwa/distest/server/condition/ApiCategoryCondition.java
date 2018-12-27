@@ -15,4 +15,5 @@ public class ApiCategoryCondition extends BaseProjectCondition{
     @Condition(logic = Logic.LIKE)
     private String path;
     private Integer level;
+    private Long parentId;
 }

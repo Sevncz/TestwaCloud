@@ -26,6 +26,7 @@ public class CategoryNewForm extends RequestFormBase {
     private Map<String, String> authorization;
     private String preScript;
     private String script;
+    @Length(min = 1, max = 10000)
     private String description;
 
 }

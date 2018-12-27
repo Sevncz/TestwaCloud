@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ApiMapper extends BaseMapper<Api, Long> {
 
-    void disableByCategoryPath(@Param("categoryPath") String categoryPath);
+    void disableByCategoryId(@Param("categoryId") Long categoryId);
 }

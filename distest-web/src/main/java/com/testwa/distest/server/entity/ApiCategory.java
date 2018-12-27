@@ -1,9 +1,15 @@
 package com.testwa.distest.server.entity;
 
+import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.testwa.core.base.mybatis.annotation.Column;
 import com.testwa.core.base.mybatis.annotation.Table;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * api 分类
@@ -40,4 +46,5 @@ public class ApiCategory extends ProjectBase{
     @JsonIgnore
     @Column(name = "lock_version")
     private Long lockVersion;
+
 }

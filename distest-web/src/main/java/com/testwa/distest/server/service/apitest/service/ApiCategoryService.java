@@ -5,6 +5,7 @@ import com.testwa.core.base.constant.ResultCode;
 import com.testwa.core.base.service.BaseService;
 import com.testwa.distest.exception.BusinessException;
 import com.testwa.distest.server.condition.ApiCategoryCondition;
+import com.testwa.distest.server.condition.ApiCondition;
 import com.testwa.distest.server.entity.ApiCategory;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.mapper.ApiCategoryMapper;
@@ -64,7 +65,7 @@ public class ApiCategoryService extends BaseService<ApiCategory, Long>  {
             // 为子分类生成节点路径和深度
             String parentPath = parentCategory.getPath();
             Integer parentLevel = parentCategory.getLevel();
-            category.setPath(parentPath + CATEGORY_PATH_SPLIT + parentId);
+            category.setPath(parentPath + CATEGORY_PATH_SPLIT + category.getId());
             category.setLevel(parentLevel + 1);
         }else{
             category.setPath(String.valueOf(category.getId()));
@@ -96,8 +97,8 @@ public class ApiCategoryService extends BaseService<ApiCategory, Long>  {
         category.setDescription(form.getDescription());
         category.setCategoryName(form.getName());
 
-        category.setUpdateBy(currentUser.getId());
-        category.setUpdateTime(new Date());
+//        category.setUpdateBy(currentUser.getId());
+//        category.setUpdateTime(new Date());
 
         apiCategoryMapper.update(category);
 
@@ -116,17 +117,27 @@ public class ApiCategoryService extends BaseService<ApiCategory, Long>  {
         if(category == null) {
             return;
         }
+        String oldPath = category.getPath();
+        Integer oldLevel = category.getLevel();
         if(ROOT_CATEGORY_ID.equals(otherParentId)) {
             category.setLevel(0);
             category.setPath(String.valueOf(category.getId()));
+            apiCategoryMapper.batchUpdatePathAndLevel(oldPath, String.valueOf(category.getId()), 0 - oldLevel);
         }else{
             ApiCategory parentCategory = get(otherParentId);
             if(parentCategory == null) {
                 throw new BusinessException(ResultCode.ILLEGAL_PARAM, "错误的父分类");
             }
+            String newPath = parentCategory.getPath() + CATEGORY_PATH_SPLIT + category.getId();
+            Integer newLevel = parentCategory.getLevel() + 1;
+            Integer diffLevel = newLevel - oldLevel;
+            int line = apiCategoryMapper.batchUpdatePathAndLevel(oldPath, newPath, diffLevel);
+            log.info("移动分类，受影响的行数 {}", line);
+            category.setParentId(otherParentId);
             category.setLevel(parentCategory.getLevel() + 1);
-            category.setPath(parentCategory.getPath() + CATEGORY_PATH_SPLIT + category.getId());
+            category.setPath(newPath);
         }
+
         apiCategoryMapper.update(category);
     }
 
@@ -143,9 +154,14 @@ public class ApiCategoryService extends BaseService<ApiCategory, Long>  {
         if( apiCategory == null ){
             throw new BusinessException(ResultCode.NOT_FOUND, "分类" + categoryId + "未找到");
         }
+        ApiCategoryCondition condition = new ApiCategoryCondition();
+        condition.setPath(apiCategory.getPath() + "%");
+        List<ApiCategory> apiCategoryList = apiCategoryMapper.selectByCondition(condition);
         // 禁止该分类下的所有的 category 和 api
         apiCategoryMapper.disableByCategoryPath(apiCategory.getPath());
-        apiMapper.disableByCategoryPath(apiCategory.getPath());
+        apiCategoryList.forEach( tmp -> {
+            apiMapper.disableByCategoryId(tmp.getId());
+        });
     }
 
     /**

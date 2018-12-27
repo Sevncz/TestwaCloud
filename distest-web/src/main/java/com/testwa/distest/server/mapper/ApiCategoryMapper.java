@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 public interface ApiCategoryMapper extends BaseMapper<ApiCategory, Long> {
 
     void disableByCategoryPath(@Param("categoryPath") String categoryPath);
+
+    int batchUpdatePathAndLevel(@Param("oldPath") String oldPath, @Param("newPath") String newPath, @Param("diffLevel") Integer diffLevel);
 }

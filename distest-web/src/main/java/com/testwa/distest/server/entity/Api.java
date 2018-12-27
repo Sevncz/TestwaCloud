@@ -1,9 +1,14 @@
 package com.testwa.distest.server.entity;
 
+import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.testwa.core.base.mybatis.annotation.Column;
 import com.testwa.core.base.mybatis.annotation.Table;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * api 测试的配置
@@ -17,8 +22,8 @@ public class Api extends ProjectBase{
 
     @Column(name = "category_id")
     private Long categoryId;
-    @Column(name = "category_path")
-    private String categoryPath;
+    @Column(name = "api_name")
+    private String apiName;
     @Column(name = "method")
     private String method;
     @Column(name = "url")
@@ -41,5 +46,4 @@ public class Api extends ProjectBase{
     @JsonIgnore
     @Column(name = "lock_version")
     private Long lockVersion;
-
 }

@@ -21,6 +21,9 @@ import java.util.Map;
 @Data
 public class ApiNewForm extends RequestFormBase {
     @NotBlank
+    @Length(min = 1, max = 256)
+    private String apiName;
+    @NotBlank
     @Length(min = 1, max = 500)
     private String url;
     @NotBlank

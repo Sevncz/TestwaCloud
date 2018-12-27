@@ -3,6 +3,7 @@ package com.testwa.distest.server.web.apitest.controller;
 import com.testwa.core.base.constant.ResultCode;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.distest.exception.BusinessException;
+import com.testwa.distest.server.entity.Api;
 import com.testwa.distest.server.entity.ApiCategory;
 import com.testwa.distest.server.entity.Project;
 import com.testwa.distest.server.service.apitest.form.ApiNewForm;
@@ -12,8 +13,9 @@ import com.testwa.distest.server.service.apitest.service.ApiService;
 import com.testwa.distest.server.web.apitest.validator.ApiValidator;
 import com.testwa.distest.server.web.apitest.validator.CategoryValidator;
 import com.testwa.distest.server.web.apitest.vo.ApiCategoryVO;
+import com.testwa.distest.server.web.apitest.vo.ApiDetailVO;
+import com.testwa.distest.server.web.apitest.vo.ApiVO;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -26,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Api 相关接口
@@ -34,7 +37,7 @@ import java.util.Map;
  * @create 2018-12-17 18:44
  */
 @Slf4j
-@Api("Api管理")
+@io.swagger.annotations.Api("Api管理")
 @Validated
 @RestController
 @RequestMapping(path = WebConstants.API_PREFIX)
@@ -54,8 +57,8 @@ public class ApiController {
 
     @ApiOperation(value="新建一个分类")
     @ResponseBody
-    @PostMapping(value = "/project/{projectId}/apiCategory/new")
-    public Long saveCategory(@PathVariable("projectId") Long projectId, @RequestBody @Valid CategoryNewForm form, @RequestParam Long parentId) {
+    @PostMapping(value = "/project/{projectId}/apiCategoryNew")
+    public Long saveCategory(@PathVariable("projectId") Long projectId, @RequestBody @Valid CategoryNewForm form, @RequestParam("parentId") Long parentId) {
         projectValidator.validateProjectExist(projectId);
         if(parentId != null) {
             categoryValidator.validateCategoryExist(parentId);
@@ -68,11 +71,17 @@ public class ApiController {
 
     @ApiOperation(value="分类列表")
     @ResponseBody
-    @PostMapping(value = "/project/{projectId}/apiCategoryList")
+    @GetMapping(value = "/project/{projectId}/apiCategoryList")
     public List<ApiCategoryVO> categoryList(@PathVariable("projectId") Long projectId) {
         projectValidator.validateProjectExist(projectId);
 
         List<ApiCategory> categoryList = apiCategoryService.listByProjectId(projectId);
+        List<Api> apiList = apiService.listByProjectId(projectId);
+        Map<Long, List<ApiVO>> apiVOMap = apiList.stream().map( api -> {
+                    ApiVO voTemp = new ApiVO();
+                    BeanUtils.copyProperties(api, voTemp);
+                    return voTemp;
+                }).collect(Collectors.groupingBy(ApiVO::getCategoryId));
         Map<Long, List<ApiCategoryVO>> parentIdCategoryMap = new HashMap<>();
         // 构建树形结构
         if(categoryList != null && !categoryList.isEmpty()) {
@@ -84,8 +93,8 @@ public class ApiController {
                 }
                 ApiCategoryVO voTemp = new ApiCategoryVO();
                 BeanUtils.copyProperties(category, voTemp);
+                voTemp.addItems(apiVOMap.get(category.getId()));
                 voTempList.add(voTemp);
-
                 parentIdCategoryMap.put(parentId, voTempList);
             });
         }
@@ -121,6 +130,11 @@ public class ApiController {
     @PostMapping(value = "/project/{projectId}/apiCategory/{categoryId}/moveTo/{otherCategoryId}")
     public void moveToOtherCategory(@PathVariable("projectId") Long projectId, @PathVariable("categoryId") Long categoryId,  @PathVariable("otherCategoryId") Long otherCategoryId) {
         Project project = projectValidator.validateProjectExist(projectId);
+
+        if(categoryId.equals(otherCategoryId)) {
+            return;
+        }
+
         ApiCategory category = categoryValidator.validateCategoryExist(categoryId);
         if(!category.getProjectId().equals(projectId)) {
             throw new BusinessException(ResultCode.ILLEGAL_OP, "分类 " + category.getCategoryName() +" 不属于项目" + project.getProjectName());
@@ -133,8 +147,28 @@ public class ApiController {
         if(!otherCategory.getProjectId().equals(projectId)) {
             throw new BusinessException(ResultCode.ILLEGAL_OP, "分类 " + otherCategory.getCategoryName() +" 不属于项目" + project.getProjectName());
         }
+        if(otherCategory.getPath().startsWith(category.getPath())) {
+            throw new BusinessException(ResultCode.ILLEGAL_OP, "分类 " + category.getCategoryName() +" 无法移到其子类" + otherCategory.getCategoryName());
+        }
 
-        apiCategoryService.updateParent(projectId, otherCategoryId);
+        apiCategoryService.updateParent(categoryId, otherCategoryId);
+    }
+
+    @ApiOperation(value=" 删除一个分类")
+    @ResponseBody
+    @PostMapping(value = "/project/{projectId}/apiCategory/{categoryId}/delete")
+    public void deleteCategory(@PathVariable("projectId") Long projectId, @PathVariable("categoryId") Long categoryId) {
+        Project project = projectValidator.validateProjectExist(projectId);
+
+        ApiCategory category = categoryValidator.validateCategoryExist(categoryId);
+        if(!category.getProjectId().equals(projectId)) {
+            throw new BusinessException(ResultCode.ILLEGAL_OP, "分类 " + category.getCategoryName() +" 不属于项目" + project.getProjectName());
+        }
+        if(apiCategoryService.getRootParentId().equals(category.getParentId())) {
+            throw new BusinessException(ResultCode.ILLEGAL_PARAM, category.getCategoryName() + "不能移动至其他分类下");
+        }
+
+        apiCategoryService.remove(categoryId);
     }
 
     @ApiOperation(value="新建一个Api")
@@ -146,7 +180,7 @@ public class ApiController {
         if(!category.getProjectId().equals(projectId)) {
             throw new BusinessException(ResultCode.ILLEGAL_OP, "该分类不属于项目" + project.getProjectName());
         }
-        com.testwa.distest.server.entity.Api api = apiService.save(projectId, categoryId, form);
+        Api api = apiService.save(projectId, categoryId, form);
         return api.getId();
     }
 
@@ -167,17 +201,12 @@ public class ApiController {
     @ResponseBody
     @PostMapping(value = "/project/{projectId}/api/{apiId}/moveTo/{otherCategoryId}")
     public void apiMoveToOtherCategory(@PathVariable("projectId") Long projectId,
-                                                                             @PathVariable("categoryId") Long categoryId,
-                                                                             @PathVariable("apiId") Long apiId,
-                                                                             @PathVariable("otherCategoryId") Long otherCategoryId) {
+                                         @PathVariable("apiId") Long apiId,
+                                         @PathVariable("otherCategoryId") Long otherCategoryId) {
         Project project = projectValidator.validateProjectExist(projectId);
         com.testwa.distest.server.entity.Api api = apiValidator.validateApiExist(apiId);
         if(!api.getProjectId().equals(projectId)) {
             throw new BusinessException(ResultCode.ILLEGAL_OP, "该 API 不属于项目" + project.getProjectName());
-        }
-        ApiCategory oldCategory = categoryValidator.validateCategoryExist(categoryId);
-        if(!oldCategory.getProjectId().equals(projectId)) {
-            throw new BusinessException(ResultCode.ILLEGAL_OP, "分类 " + oldCategory.getCategoryName() +" 不属于项目" + project.getProjectName());
         }
         ApiCategory newCategory = categoryValidator.validateCategoryExist(otherCategoryId);
         if(!newCategory.getProjectId().equals(projectId)) {
@@ -192,11 +221,25 @@ public class ApiController {
     @PostMapping(value = "/project/{projectId}/api/{apiId}/delete")
     public void apiMoveToOtherCategory(@PathVariable("projectId") Long projectId, @PathVariable("apiId") Long apiId) {
         Project project = projectValidator.validateProjectExist(projectId);
-        com.testwa.distest.server.entity.Api api = apiValidator.validateApiExist(apiId);
+        Api api = apiValidator.validateApiExist(apiId);
         if(!api.getProjectId().equals(projectId)) {
             throw new BusinessException(ResultCode.ILLEGAL_OP, "该 API 不属于项目" + project.getProjectName());
         }
         apiService.disable(apiId);
+    }
+
+    @ApiOperation(value="api 详情")
+    @ResponseBody
+    @GetMapping(value = "/project/{projectId}/api/{apiId}")
+    public ApiDetailVO apiDetail(@PathVariable("projectId") Long projectId, @PathVariable("apiId") Long apiId) {
+        Project project = projectValidator.validateProjectExist(projectId);
+        Api api = apiValidator.validateApiExist(apiId);
+        if(!api.getProjectId().equals(projectId)) {
+            throw new BusinessException(ResultCode.ILLEGAL_OP, "该 API 不属于项目" + project.getProjectName());
+        }
+        ApiDetailVO vo = new ApiDetailVO();
+        BeanUtils.copyProperties(api, vo);
+        return vo;
     }
 
 }
