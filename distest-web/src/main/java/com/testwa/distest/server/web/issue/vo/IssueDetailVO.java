@@ -18,6 +18,7 @@ public class IssueDetailVO {
     private Date createTime;
     private UserVO assignee;
     private UserVO author;
+    private Long commentNum;
     // 标题
     private String title;
     // 内容
