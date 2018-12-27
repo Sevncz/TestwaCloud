@@ -1,5 +1,6 @@
 package com.testwa.distest.server.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.testwa.core.base.mybatis.annotation.Column;
 import com.testwa.core.base.mybatis.annotation.Table;
 import com.testwa.core.base.bo.BaseEntity;
@@ -31,6 +32,10 @@ public class DeviceSharer extends BaseEntity {
     private Date createTime;
     @Column(name = "share_scope_type")
     private DB.DeviceShareScopeTypeEnum shareScopeType;
+
+    @JsonIgnore
+    @Column(name = "lock_version")
+    private Long lockVersion;
 
 
 }

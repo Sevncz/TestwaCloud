@@ -44,7 +44,7 @@ public class ResultMapInterceptor implements Interceptor {
         }
         TableMataDate mataDate = TableMataDate.forClass(mapType);
         Map<String, Class<?>> fieldTypeMap = mataDate.getFieldTypeMap();
-        //
+
         List<ResultMapping> resultMappings = new ArrayList<>(fieldTypeMap.size());
         for (Map.Entry<String, String> entry : mataDate.getFieldColumnMap().entrySet()) {
             ResultMapping resultMapping = new ResultMapping.Builder(ms.getConfiguration(), entry.getKey(), entry.getValue(), fieldTypeMap.get(entry.getKey())).build();

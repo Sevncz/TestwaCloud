@@ -1,5 +1,6 @@
 package com.testwa.distest.server.service.issue.service;
 
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.testwa.core.base.constant.ResultCode;
@@ -10,6 +11,7 @@ import com.testwa.distest.server.condition.IssueCondition;
 import com.testwa.distest.server.condition.IssueLabelCondition;
 import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.mapper.*;
+import com.testwa.distest.server.service.issue.dto.IssueStateCountDTO;
 import com.testwa.distest.server.service.issue.form.IssueListForm;
 import com.testwa.distest.server.service.issue.form.IssueNewForm;
 import com.testwa.distest.server.service.issue.form.IssueUpdateForm;
@@ -24,9 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -53,7 +53,7 @@ public class IssueService extends BaseService<Issue, Long> {
     @Autowired
     private User currentUser;
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Issue save(IssueNewForm form, Long projectId) {
         Issue issue = new Issue();
         issue.setProjectId(projectId);
@@ -80,29 +80,52 @@ public class IssueService extends BaseService<Issue, Long> {
         if(labelNames != null && !labelNames.isEmpty()) {
             labelNames.forEach( name -> {
                 IssueLabel label = labelMapper.getByName(projectId, name);
-                IssueLabelMap labelMap = new IssueLabelMap();
-                labelMap.setIssueId(issue.getId());
-                labelMap.setLabelId(label.getId());
-                labelMap.setEnabled(true);
-                labelMapMapper.insert(labelMap);
-                // 引用数量 +1
-                labelMapper.incr(label.getId());
+                if(label != null) {
+                    IssueLabelMap labelMap = new IssueLabelMap();
+                    labelMap.setIssueId(issue.getId());
+                    labelMap.setLabelId(label.getId());
+                    labelMap.setEnabled(true);
+                    labelMapMapper.insert(labelMap);
+                    // 引用数量 +1
+                    labelMapper.incr(label.getId(), label.getLockVersion());
+                }else{
+                    // label 不存在需要处理下
+                }
             });
         }
         return issue;
     }
 
-    public PageInfo<IssueVO> page(IssueListForm form, Long projectId) {
-        IssueCondition query = new IssueCondition();
-        query.setProjectId(projectId);
+    public PageInfo<Issue> page(IssueListForm form, Long projectId) {
+        IssueCondition query = getIssueCondition(form, projectId);
 
-        if(form.getAuthorId() != null) {
-            query.setAuthorId(form.getAuthorId());
+        if(StringUtils.isNotBlank(form.getState())) {
+            DB.IssueStateEnum stateEnum = DB.IssueStateEnum.nameOf(form.getState());
+            if(stateEnum == null) {
+                throw new BusinessException(ResultCode.INVALID_PARAM, "不存在状态");
+            }
+            query.setState(stateEnum);
         }
-        if(form.getAssigneeId() != null) {
-            query.setAssigneeId(form.getAssigneeId());
-        }
-        List<Long> labelIds = null;
+        final List<Long> labelIds = getLabelIds(form, projectId);
+        //分页处理
+        PageInfo<Issue> page = PageHelper.startPage(form.getPageNo(), form.getPageSize())
+                            .setOrderBy(form.getOrderBy() + " " + form.getOrder())
+                            .doSelectPageInfo(()-> issueMapper.listByCondition(query, labelIds));
+
+//        PageHelper.startPage(form.getPageNo(), form.getPageSize());
+//        PageHelper.orderBy(form.getOrderBy() + " " + form.getOrder());
+//        List<Issue> issues = issueMapper.listByCondition(query, labelIds);
+        return page;
+    }
+
+    public List<IssueStateCountDTO> getCountGroupByState(IssueListForm form, Long projectId) {
+        IssueCondition query = getIssueCondition(form, projectId);
+        final List<Long> labelIds = getLabelIds(form, projectId);
+        return issueMapper.getCountGroupByState(query, labelIds);
+    }
+
+    protected List<Long> getLabelIds(IssueListForm form, Long projectId) {
+        final List<Long> labelIds = new ArrayList<>();
         if(StringUtils.isNotBlank(form.getLabelName())) {
             List<String> names = Arrays.asList(form.getLabelName().split(","));
 
@@ -112,61 +135,29 @@ public class IssueService extends BaseService<Issue, Long> {
 
             List<IssueLabel> labels = labelMapper.selectByCondition(condition);
 
-            labelIds = labels.stream().map(IssueLabel::getId).collect(Collectors.toList());
+            labelIds.addAll(labels.stream().map(IssueLabel::getId).collect(Collectors.toList()));
 
             if(labelIds.size() != names.size()) {
                 throw new BusinessException(ResultCode.INVALID_PARAM, "不存在的标签");
             }
         }
-        if(StringUtils.isNotBlank(form.getState())) {
-            DB.IssueStateEnum stateEnum = DB.IssueStateEnum.nameOf(form.getState());
-            if(stateEnum == null) {
-                throw new BusinessException(ResultCode.INVALID_PARAM, "不存在状态");
-            }
-            query.setState(stateEnum);
+        return labelIds;
+    }
+
+    protected IssueCondition getIssueCondition(IssueListForm form, Long projectId) {
+        IssueCondition query = new IssueCondition();
+        query.setProjectId(projectId);
+
+        if(form.getAuthorId() != null) {
+            query.setAuthorId(form.getAuthorId());
+        }
+        if(form.getAssigneeId() != null) {
+            query.setAssigneeId(form.getAssigneeId());
         }
         if(StringUtils.isNotBlank(form.getIssueSearch())) {
             query.setSearch(form.getIssueSearch());
         }
-        //分页处理
-        PageHelper.startPage(form.getPageNo(), form.getPageSize());
-        PageHelper.orderBy(form.getOrderBy() + " " + form.getOrder());
-        List<Issue> issues = issueMapper.listByCondition(query, labelIds);
-        List<IssueVO> issueVOS = buildIssueVOList(issues);
-        return new PageInfo(issueVOS);
-    }
-
-    public List<IssueVO> buildIssueVOList(List<Issue> issues) {
-        return issues.stream().map(this::buildIssueVO).collect(Collectors.toList());
-    }
-
-    public IssueVO buildIssueVO(Issue issue) {
-        IssueVO vo = new IssueVO();
-        BeanUtils.copyProperties(issue, vo);
-
-        // 获得 issue 的标签列表
-        List<IssueLabel> issueLabels = labelMapper.listByIssueId(issue.getId());
-        List<IssueLabelVO> lableVOs = issueLabels.stream().map(lable -> {
-            IssueLabelVO labelVO = new IssueLabelVO();
-            BeanUtils.copyProperties(lable, labelVO);
-            return labelVO;
-        }).collect(Collectors.toList());
-        vo.setLabels(lableVOs);
-
-        // 获得创建人
-        User author = userMapper.selectById(issue.getAuthorId());
-        UserVO authorVO = new UserVO();
-        BeanUtils.copyProperties(author, authorVO);
-        vo.setAuthor(authorVO);
-        // 获得指派者
-        if(issue.getAssigneeId() != null) {
-            User assignee = userMapper.selectById(issue.getAssigneeId());
-            UserVO assigneeVO = new UserVO();
-            BeanUtils.copyProperties(assignee, assigneeVO);
-            vo.setAssignee(assigneeVO);
-        }
-
-        return vo;
+        return query;
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -201,7 +192,7 @@ public class IssueService extends BaseService<Issue, Long> {
                 labelMap.setEnabled(true);
                 labelMapMapper.insert(labelMap);
                 // 引用数量 +1
-                labelMapper.incr(label.getId());
+                labelMapper.incr(label.getId(), label.getLockVersion());
             });
         }
     }
@@ -213,6 +204,7 @@ public class IssueService extends BaseService<Issue, Long> {
     @Transactional(propagation = Propagation.REQUIRED)
     public void updateContent(Long issueId, String content) {
         IssueContent issueContent = getContent(issueId);
-        issueContentMapper.updateProperty(IssueContent::getContent, content, issueContent.getId());
+        issueContent.setContent(content);
+        issueContentMapper.update(issueContent);
     }
 }

@@ -78,6 +78,7 @@ public class IssueMapperTest {
         Issue entity1 = mapper.selectById(this.entity.getId());
         entity1.setAuthorId(authorId);
         mapper.update(entity1);
+        mapper.updateProperty(Issue::getState, DB.IssueStateEnum.CLOSED, this.entity.getId());
         Issue entity2 = mapper.selectById(this.entity.getId());
         Assert.assertEquals(entity2.getAuthorId(), authorId);
     }

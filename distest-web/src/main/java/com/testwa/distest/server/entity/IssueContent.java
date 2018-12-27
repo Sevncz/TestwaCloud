@@ -1,5 +1,6 @@
 package com.testwa.distest.server.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.testwa.core.base.bo.BaseEntity;
 import com.testwa.core.base.mybatis.annotation.Column;
 import com.testwa.core.base.mybatis.annotation.Table;
@@ -17,5 +18,9 @@ public class IssueContent extends BaseEntity {
     //  对应的 issue
     @Column(name = "issue_id")
     private Long issueId;
+
+    @JsonIgnore
+    @Column(name = "lock_version")
+    private Long lockVersion;
 
 }

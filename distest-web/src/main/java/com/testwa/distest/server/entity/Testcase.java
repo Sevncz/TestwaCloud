@@ -1,5 +1,6 @@
 package com.testwa.distest.server.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.testwa.core.base.mybatis.annotation.Column;
 import com.testwa.core.base.mybatis.annotation.Table;
 import com.testwa.core.base.mybatis.annotation.Transient;
@@ -27,6 +28,10 @@ public class Testcase extends ProjectBaseEntity {
     private String packageName;
     @Column(name = "appName")
     private String appName;
+
+    @JsonIgnore
+    @Column(name = "lock_version")
+    private Long lockVersion;
 
     @Transient
     private List<TestcaseDetail> testcaseDetails;

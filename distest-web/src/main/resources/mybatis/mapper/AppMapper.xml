@@ -24,6 +24,7 @@
         <result column="createBy" property="createBy" jdbcType="BIGINT" />
         <result column="updateBy" property="updateBy" jdbcType="BIGINT" />
         <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
+        <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
         <association property="createUser" javaType="com.testwa.distest.server.entity.User">
             <id column="create_id" property="id"/>
             <result column="create_username" property="username"/>
@@ -39,7 +40,7 @@
     </resultMap>
 
     <sql id="Base_Column_List" >
-        id, fileName, fileAliasName, packageName, activity, sdkBuild, miniOSVersion, platformVersion, platform, version, path, projectId, md5, size, description, updateTime, createTime, updateBy, createBy, enabled, displayName, icon
+        id, fileName, fileAliasName, packageName, activity, sdkBuild, miniOSVersion, platformVersion, platform, version, path, projectId, md5, size, description, updateTime, createTime, updateBy, createBy, enabled, displayName, icon,lock_version
     </sql>
 
     <select id="findBy" parameterType="com.testwa.distest.server.entity.App" resultMap="BaseResultMap" >

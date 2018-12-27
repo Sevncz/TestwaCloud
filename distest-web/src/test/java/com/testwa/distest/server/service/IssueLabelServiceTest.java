@@ -41,22 +41,22 @@ public class IssueLabelServiceTest {
         IssueLabelNewForm form = new IssueLabelNewForm();
         form.setColor("000000");
         form.setName("test");
-        long labelId = labelService.save(form, 15L);
+        IssueLabel issueLabel = labelService.save(form, 15L);
 
-        IssueLabel label1 = labelService.get(labelId);
-        Assert.assertEquals(label1.getId().longValue(), labelId);
+        IssueLabel label1 = labelService.get(issueLabel.getId());
+        Assert.assertEquals(label1.getId().longValue(), issueLabel.getId().longValue());
 
 
         // 更新一个标签
         IssueLabelUpdateForm updateForm = new IssueLabelUpdateForm();
-        updateForm.setLabelId(labelId);
+        updateForm.setLabelId(issueLabel.getId());
         updateForm.setName("test1");
         updateForm.setColor("111111");
 
         labelService.update(updateForm);
 
         // 获得刚才更新的标签
-        IssueLabel label2 = labelService.get(labelId);
+        IssueLabel label2 = labelService.get(issueLabel.getId());
         Assert.assertEquals(label2.getName(), updateForm.getName());
         Assert.assertEquals(label2.getColor(), updateForm.getColor());
         Assert.assertEquals(label2.getId(), updateForm.getLabelId());
@@ -71,22 +71,22 @@ public class IssueLabelServiceTest {
         IssueLabelNewForm form = new IssueLabelNewForm();
         form.setColor("000000");
         form.setName("test");
-        long labelId = labelService.save(form, 15L);
+        IssueLabel label = labelService.save(form, 15L);
 
-        IssueLabel label1 = labelService.get(labelId);
-        Assert.assertEquals(label1.getId().longValue(), labelId);
+        IssueLabel label1 = labelService.get(label.getId());
+        Assert.assertEquals(label1.getId().longValue(), label.getId().longValue());
 
 
         // 更新一个标签
         IssueLabelUpdateForm updateForm = new IssueLabelUpdateForm();
-        updateForm.setLabelId(labelId);
+        updateForm.setLabelId(label.getId());
         updateForm.setName("test1");
         updateForm.setColor("111111");
 
         labelService.update(updateForm);
 
-        labelService.delete(labelId);
-        IssueLabel label2 = labelService.get(labelId);
+        labelService.delete(label.getId());
+        IssueLabel label2 = labelService.get(label.getId());
         Assert.assertNull(label2);
     }
 

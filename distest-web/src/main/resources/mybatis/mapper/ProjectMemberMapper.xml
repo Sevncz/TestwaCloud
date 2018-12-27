@@ -8,6 +8,7 @@
         <result column="inviteBy" property="inviteBy" jdbcType="BIGINT" />
         <result column="projectRole" property="projectRole"  jdbcType="TINYINT" />
         <result column="createTime" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
+        <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
 
     </resultMap>
     <resultMap id="MemberResultMap" type="com.testwa.distest.server.entity.User" >
@@ -31,11 +32,11 @@
     </resultMap>
 
     <sql id="Base_Column_List" >
-        id, projectId, memberId, inviteBy, projectRole, createTime
+        id, projectId, memberId, inviteBy, projectRole, createTime,lock_version
     </sql>
 
     <sql id="Member_Column_List" >
-        id, username, password, mobile, email, sex, nickname, address, country, header, lastPasswordResetTime, lastLoginTime, loginTime, registerTime, loginIp, lastLoginIp, enabled
+        id, username, password, mobile, email, sex, nickname, address, country, header, lastPasswordResetTime, lastLoginTime, loginTime, registerTime, loginIp, lastLoginIp, enabled,lock_version
     </sql>
 
     <select id="findBy" parameterType="com.testwa.distest.server.entity.ProjectMember" resultMap="BaseResultMap" >

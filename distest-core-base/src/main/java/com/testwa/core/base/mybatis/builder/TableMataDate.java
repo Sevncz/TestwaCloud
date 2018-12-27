@@ -45,9 +45,16 @@ public class TableMataDate {
      */
     private Map<String, Class<?>> fieldTypeMap;
 
+
+    /**
+     * 字段类型
+     */
+    private Map<String, Field> fieldMap;
+
     private TableMataDate(Class<?> clazz) {
         fieldColumnMap = new HashMap<>();
         fieldTypeMap = new HashMap<>();
+        fieldMap = new HashMap<>();
         initTableInfo(clazz);
     }
 
@@ -117,6 +124,7 @@ public class TableMataDate {
             if (descriptor != null && descriptor.getReadMethod() != null && descriptor.getWriteMethod() != null) {
                 fieldColumnMap.put(property, columnName);
                 fieldTypeMap.put(property, field.getType());
+                fieldMap.put(property, field);
             }
         }
     }

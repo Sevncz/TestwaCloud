@@ -23,6 +23,7 @@
         <result column="isActive" property="isActive" jdbcType="BOOLEAN" />
         <result column="isRealNameAuth" property="isRealNameAuth" jdbcType="BOOLEAN" />
         <result column="realName" property="realName" jdbcType="VARCHAR" />
+        <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
         <collection property="roles" ofType="com.testwa.distest.server.entity.Role">
             <id column="role_id" property="id"/>
             <result column="roleName" property="roleName"/>
@@ -30,7 +31,7 @@
     </resultMap>
 
     <sql id="Base_Column_List" >
-        id, username, password, mobile, email, sex, nickname, address, country, header, lastPasswordResetTime, lastLoginTime, loginTime, registerTime, loginIp, lastLoginIp, enabled, isActive, isRealNameAuth, realName, userCode
+        id, username, password, mobile, email, sex, nickname, address, country, header, lastPasswordResetTime, lastLoginTime, loginTime, registerTime, loginIp, lastLoginIp, enabled, isActive, isRealNameAuth, realName, userCode,lock_version
     </sql>
 
     <select id="findList" parameterType="com.testwa.distest.server.entity.User" resultMap="BaseResultMap" >

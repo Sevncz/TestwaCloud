@@ -2,18 +2,11 @@ package com.testwa.distest.server.web.issue.controller;
 
 
 import com.testwa.core.base.constant.WebConstants;
-import com.testwa.core.base.vo.PageResult;
-import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.IssueLabel;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.issue.form.IssueLabelNewForm;
 import com.testwa.distest.server.service.issue.form.IssueLabelUpdateForm;
-import com.testwa.distest.server.service.issue.form.IssueListForm;
-import com.testwa.distest.server.service.issue.form.IssueNewForm;
-import com.testwa.distest.server.service.issue.service.IssueService;
 import com.testwa.distest.server.service.issue.service.LabelService;
-import com.testwa.distest.server.web.auth.validator.UserValidator;
-import com.testwa.distest.server.web.issue.validator.IssueValidator;
 import com.testwa.distest.server.web.issue.validator.LabelValidator;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
 import io.swagger.annotations.Api;
@@ -45,7 +38,7 @@ public class LabelController {
     @ApiOperation(value="新增标签")
     @ResponseBody
     @PostMapping(value = "/project/{projectId}/labelNew")
-    public Long labelNew(@PathVariable Long projectId, @RequestBody @Valid IssueLabelNewForm form) {
+    public IssueLabel labelNew(@PathVariable Long projectId, @RequestBody @Valid IssueLabelNewForm form) {
 
         projectValidator.validateProjectExist(projectId);
         projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
@@ -65,7 +58,7 @@ public class LabelController {
         projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
 
         labelValidator.validateLabelExist(form.getLabelId());
-        labelValidator.validateLabelNameNotExist(projectId, form.getName());
+        labelValidator.validateLabelNameNotExist(projectId, form.getName(), form.getLabelId());
 
         labelService.update(form);
 

@@ -1,5 +1,6 @@
 package com.testwa.distest.server.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.testwa.core.base.mybatis.annotation.Column;
 import com.testwa.core.base.mybatis.annotation.Table;
 import com.testwa.core.base.bo.BaseEntity;
@@ -13,5 +14,9 @@ public class IssueLabelDict extends BaseEntity {
     private String name;
     @Column(name = "color")
     private String color;
+
+    @JsonIgnore
+    @Column(name = "lock_version")
+    private Long lockVersion;
 
 }

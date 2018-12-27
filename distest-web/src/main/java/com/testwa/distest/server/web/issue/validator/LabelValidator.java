@@ -28,6 +28,14 @@ public class LabelValidator {
             throw new BusinessException(ResultCode.CONFLICT, "标签" + name + "不存在");
         }
     }
+
+    public void validateLabelNameNotExist(Long projectId, String name, Long labelId) {
+        IssueLabel label = labelService.getByName(projectId, name);
+        if(label != null && !label.getId().equals(labelId)){
+            throw new BusinessException(ResultCode.CONFLICT, "标签" + name + "已存在");
+        }
+    }
+
     public void validateLabelNameNotExist(Long projectId, String name) {
         IssueLabel label = labelService.getByName(projectId, name);
         if(label != null){

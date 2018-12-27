@@ -1,5 +1,6 @@
 package com.testwa.distest.server.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.testwa.core.base.mybatis.annotation.Column;
 import com.testwa.core.base.mybatis.annotation.Table;
 import com.testwa.core.base.bo.BaseEntity;
@@ -20,6 +21,10 @@ public class TestcaseDetail extends BaseEntity implements Comparable<TestcaseDet
     private Long scriptId;
     @Column(name="seq")
     private int seq;
+
+    @JsonIgnore
+    @Column(name = "lock_version")
+    private Long lockVersion;
 
     @Transient
     private Script script;

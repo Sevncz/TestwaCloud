@@ -10,11 +10,12 @@
         <result column="running" property="running" jdbcType="TINYINT"/>
         <result column="startTime" property="startTime" jdbcType="BIGINT"/>
         <result column="endTime" property="endTime" jdbcType="BIGINT"/>
+        <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
 
     </resultMap>
 
     <sql id="Base_Column_List" >
-        id, projectId, deviceId, userCode, logType, running, startTime, endTime
+        id, projectId, deviceId, userCode, logType, running, startTime, endTime,lock_version
     </sql>
 
     <select id="sumDebugTime" resultType="long" >

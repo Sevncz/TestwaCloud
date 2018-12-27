@@ -41,15 +41,16 @@ public class PostmanEnvService extends BaseService<Api, Long> {
     private DisFileProperties disFileProperties;
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public long save(long projectId, String environmentPath, String envId) {
-        PostmanEnv postman = new PostmanEnv();
-        postman.setEnvId(envId);
-        postman.setEnvironmentPath(environmentPath);
-        postman.setProjectId(projectId);
-        postman.setCreateBy(currentUser.getId());
-        postman.setCreateTime(new Date());
-        postman.setEnabled(true);
-        return postmanEnvMapper.insert(postman);
+    public PostmanEnv save(long projectId, String environmentPath, String envId) {
+        PostmanEnv postmanEnv = new PostmanEnv();
+        postmanEnv.setEnvId(envId);
+        postmanEnv.setEnvironmentPath(environmentPath);
+        postmanEnv.setProjectId(projectId);
+        postmanEnv.setCreateBy(currentUser.getId());
+        postmanEnv.setCreateTime(new Date());
+        postmanEnv.setEnabled(true);
+        postmanEnvMapper.insert(postmanEnv);
+        return postmanEnv;
     }
 
     @Transactional(propagation = Propagation.REQUIRED)

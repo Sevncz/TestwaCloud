@@ -1,5 +1,6 @@
 package com.testwa.distest.server.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.testwa.core.base.mybatis.annotation.Column;
 import com.testwa.core.base.mybatis.annotation.Table;
 import com.testwa.core.base.bo.BaseEntity;
@@ -30,5 +31,13 @@ public class Issue extends BaseEntity {
     // 状态
     @Column(name = "state")
     private DB.IssueStateEnum state;
+
+    @JsonIgnore
+    @Column(name = "lock_version")
+    private Long lockVersion;
+
+    @Column(name = "comment_num")
+    private Long commentNum;
+
 
 }

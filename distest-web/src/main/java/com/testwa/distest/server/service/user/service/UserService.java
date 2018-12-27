@@ -7,6 +7,7 @@ package com.testwa.distest.server.service.user.service;
 
 import com.testwa.core.base.service.BaseService;
 import com.testwa.core.tools.SnowflakeIdWorker;
+import com.testwa.distest.config.security.DefaultAnonymousUser;
 import com.testwa.distest.server.entity.ProjectMember;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.mapper.UserMapper;
@@ -116,6 +117,9 @@ public class UserService extends BaseService<User, Long> {
     }
 
     private String getCurrentUsername() {
+        if(SecurityContextHolder.getContext().getAuthentication() == null) {
+            return new DefaultAnonymousUser().getUsername();
+        }
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof UserDetails) {
             return ((UserDetails) principal).getUsername();

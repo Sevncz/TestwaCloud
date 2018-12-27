@@ -52,13 +52,13 @@ public class LabelService extends BaseService<IssueLabel, Long> {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public long save(IssueLabelNewForm form, Long projectId) {
+    public IssueLabel save(IssueLabelNewForm form, Long projectId) {
         String name =form.getName();
         String color =form.getColor();
         return save(projectId, name, color);
     }
 
-    protected long save(Long projectId, String name, String color) {
+    protected IssueLabel save(Long projectId, String name, String color) {
         IssueLabel issueLabel = new IssueLabel();
         issueLabel.setProjectId(projectId);
         issueLabel.setName(name);
@@ -66,7 +66,8 @@ public class LabelService extends BaseService<IssueLabel, Long> {
         issueLabel.setCreateBy(currentUser.getId());
         issueLabel.setEnabled(true);
 
-        return labelMapper.insert(issueLabel);
+        labelMapper.insert(issueLabel);
+        return issueLabel;
     }
 
     /**
@@ -87,6 +88,7 @@ public class LabelService extends BaseService<IssueLabel, Long> {
         IssueLabel issueLabel = get(form.getLabelId());
         issueLabel.setColor(form.getColor());
         issueLabel.setName(form.getName());
+
         labelMapper.update(issueLabel);
 
     }
@@ -107,6 +109,10 @@ public class LabelService extends BaseService<IssueLabel, Long> {
         labelDicts.forEach( defaultLabel -> {
             save(projectId, defaultLabel.getName(), defaultLabel.getColor());
         });
+    }
+
+    public List<IssueLabel> listByIssueId(Long issueId) {
+        return labelMapper.listByIssueId(issueId);
     }
 }
 

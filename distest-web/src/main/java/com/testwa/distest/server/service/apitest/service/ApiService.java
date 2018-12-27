@@ -1,11 +1,16 @@
 package com.testwa.distest.server.service.apitest.service;
 
 import com.alibaba.fastjson.JSON;
+import com.testwa.core.base.constant.ResultCode;
 import com.testwa.core.base.service.BaseService;
+import com.testwa.distest.exception.BusinessException;
 import com.testwa.distest.server.condition.ApiCondition;
 import com.testwa.distest.server.entity.Api;
+import com.testwa.distest.server.entity.ApiCategory;
 import com.testwa.distest.server.entity.User;
+import com.testwa.distest.server.mapper.ApiCategoryMapper;
 import com.testwa.distest.server.mapper.ApiMapper;
+import com.testwa.distest.server.service.apitest.form.ApiNewForm;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,12 +33,34 @@ public class ApiService extends BaseService<Api, Long> {
     @Autowired
     private ApiMapper apiMapper;
     @Autowired
+    private ApiCategoryMapper apiCategoryMapper;
+    @Autowired
     private User currentUser;
 
-    @Transactional(propagation = Propagation.REQUIRED)
-    public long save(Long projectId, String url, String method, List<Map<String, String>> param, Map<String, String> authorization, List<Map<String, String>> header, Map<String, String> body, String preScript, String script, String description) {
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public Api save(Long projectId, Long categoryId, ApiNewForm form) {
+        return save(projectId, categoryId,
+                form.getUrl(),
+                form.getMethod(),
+                form.getParam(),
+                form.getAuthorization(),
+                form.getHeader(),
+                form.getBody(),
+                form.getPreScript(),
+                form.getScript(), form.getDescription());
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public Api save(Long projectId, Long categoryId, String url, String method, List<Map<String, String>> param, Map<String, String> authorization, List<Map<String, String>> header, Map<String, String> body, String preScript, String script, String description) {
         Api api = new Api();
         api.setProjectId(projectId);
+        ApiCategory category = apiCategoryMapper.selectById(categoryId);
+        if(category == null || !category.getEnabled()) {
+            throw new BusinessException(ResultCode.NOT_FOUND, "分类" + categoryId + "未找到");
+        }
+        api.setCategoryId(categoryId);
+        api.setCategoryPath(category.getPath());
+
         api.setUrl(url);
         api.setMethod(method);
         if(!param.isEmpty()){
@@ -55,14 +82,25 @@ public class ApiService extends BaseService<Api, Long> {
         api.setCreateBy(currentUser.getId());
         api.setCreateTime(new Date());
         api.setEnabled(true);
-
         apiMapper.insert(api);
-        return api.getId();
+        return api;
     }
 
     public List<Api> listByCategoryId(Long categoryId) {
         ApiCondition condition = new ApiCondition();
         condition.setCategoryId(categoryId);
         return apiMapper.selectByCondition(condition);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void updateCategory(Long apiId, Long otherCategoryId) {
+        ApiCategory category = apiCategoryMapper.selectById(otherCategoryId);
+        if(category == null || !category.getEnabled()) {
+            throw new BusinessException(ResultCode.NOT_FOUND, "分类" + otherCategoryId + "未找到");
+        }
+        Api api = get(apiId);
+        api.setCategoryId(otherCategoryId);
+        api.setCategoryPath(category.getPath());
+        apiMapper.update(api);
     }
 }

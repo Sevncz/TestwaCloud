@@ -1,5 +1,6 @@
 package com.testwa.distest.server.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.testwa.core.base.mybatis.annotation.Column;
 import com.testwa.core.base.mybatis.annotation.Table;
 import com.testwa.core.base.mybatis.annotation.Transient;
@@ -37,6 +38,10 @@ public class Script extends ProjectBaseEntity {
     private String md5;
     @Column(name = "path")
     private String path;
+
+    @JsonIgnore
+    @Column(name = "lock_version")
+    private Long lockVersion;
 
     @Transient
     private User createUser;

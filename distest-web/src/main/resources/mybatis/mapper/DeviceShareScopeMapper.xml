@@ -7,6 +7,7 @@
         <result column="share_scope" property="shareScope" jdbcType="TINYINT" />
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="create_by" property="createBy" jdbcType="BIGINT" />
+        <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
     </resultMap>
 
     <select id="findOneByDeviceIdAndCreateBy" resultMap="BaseResultMap" >

@@ -8,11 +8,12 @@
         <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="createBy" property="createBy" jdbcType="BIGINT" />
         <result column="updateBy" property="updateBy" jdbcType="BIGINT" />
+        <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
 
     </resultMap>
 
     <sql id="Base_Column_List" >
-        id, roleName, createTime, updateTime, createBy, updateBy
+        id, roleName, createTime, updateTime, createBy, updateBy,lock_version
     </sql>
 
     <select id="findBy" parameterType="com.testwa.distest.server.entity.Role" resultMap="BaseResultMap" >

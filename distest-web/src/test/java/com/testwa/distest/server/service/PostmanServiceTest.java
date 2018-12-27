@@ -37,10 +37,10 @@ public class PostmanServiceTest {
 
         String collectionPath = "/Users/wen/Dropbox/Distest/接口文档/testCollection.postman_collection.json";
         String postmanId = "0993071f-1144-4423-82ef-7bb841cb272b";
-        long id = postmanService.save(projectId, collectionPath, postmanId);
+        Postman postman = postmanService.save(projectId, collectionPath, postmanId);
 
-        Postman postman = postmanService.get(id);
-        Assert.assertNotNull(postman);
+        Postman postman1 = postmanService.get(postman.getId());
+        Assert.assertNotNull(postman1);
     }
 
 }

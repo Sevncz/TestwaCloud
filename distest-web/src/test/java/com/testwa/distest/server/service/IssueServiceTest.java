@@ -89,10 +89,11 @@ public class IssueServiceTest {
 
         IssueListForm form = new IssueListForm();
         form.setPageNo(1);
-        form.setPageSize(20);
+        form.setPageSize(5);
         form.setState("open");
 
-        PageInfo<IssueVO> issues1 = service.page(form, projectId);
+        PageInfo<Issue> issues1 = service.page(form, projectId);
+
 
         for(int i=0; i<loopTime; i++) {
             IssueNewForm newForm = new IssueNewForm();
@@ -106,9 +107,17 @@ public class IssueServiceTest {
             service.save(newForm, projectId);
         }
 
-        PageInfo<IssueVO> issues2 = service.page(form, projectId);
+        PageInfo<Issue> issues2 = service.page(form, projectId);
 
         Assert.assertEquals(issues2.getTotal(), issues1.getTotal() + loopTime);
         Assert.assertEquals(issues2.getPageSize(), form.getPageSize());
     }
+
+
+    @Test
+    @WithMockUser(username = "admin", authorities = { "ADMIN", "USER" })
+    public void testStateCount() {
+
+    }
+
 }

@@ -40,7 +40,7 @@ public class PostmanService extends BaseService<Postman, Long> {
     private DisFileProperties disFileProperties;
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public long save(long projectId, String collectionPath, String postmanId) {
+    public Postman save(long projectId, String collectionPath, String postmanId) {
         Postman postman = new Postman();
         postman.setPostmanId(postmanId);
         postman.setCollectionPath(collectionPath);
@@ -48,7 +48,8 @@ public class PostmanService extends BaseService<Postman, Long> {
         postman.setCreateBy(currentUser.getId());
         postman.setCreateTime(new Date());
         postman.setEnabled(true);
-        return postmanMapper.insert(postman);
+        postmanMapper.insert(postman);
+        return postman;
     }
 
     @Transactional(propagation = Propagation.REQUIRED)

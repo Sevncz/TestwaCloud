@@ -1,5 +1,6 @@
 package com.testwa.distest.server.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.testwa.core.base.mybatis.annotation.Column;
 import com.testwa.core.base.mybatis.annotation.Table;
 import lombok.Data;
@@ -16,6 +17,8 @@ public class Api extends ProjectBase{
 
     @Column(name = "category_id")
     private Long categoryId;
+    @Column(name = "category_path")
+    private String categoryPath;
     @Column(name = "method")
     private String method;
     @Column(name = "url")
@@ -35,5 +38,8 @@ public class Api extends ProjectBase{
     @Column(name = "description")
     private String description;
 
+    @JsonIgnore
+    @Column(name = "lock_version")
+    private Long lockVersion;
 
 }

@@ -1,5 +1,6 @@
 package com.testwa.distest.server.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.testwa.core.base.mybatis.annotation.Column;
 import com.testwa.core.base.mybatis.annotation.Table;
 import com.testwa.core.base.bo.BaseEntity;
@@ -22,4 +23,8 @@ public class IosDeviceDict extends BaseEntity {
     private Integer width;
     @Column(name = "height")
     private Integer height;
+
+    @JsonIgnore
+    @Column(name = "lock_version")
+    private Long lockVersion;
 }

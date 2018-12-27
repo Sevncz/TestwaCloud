@@ -20,11 +20,12 @@ import org.springframework.context.annotation.Configuration;
 public class GrpcConfig {
     @Autowired
     private EurekaClient client;
+    @Value("${grpc.server.name}")
+    private String grpcServerName;
 
     @Bean("serverChannel")
     public ManagedChannel serverChannel(){
-//        log.debug("GRPC: {}:{}", host, port);
-        final InstanceInfo instanceInfo = client.getNextServerFromEureka("grpc-server", false);
+        final InstanceInfo instanceInfo = client.getNextServerFromEureka(grpcServerName, false);
         log.info("Discovery GRPC: {}:{}", instanceInfo.getIPAddr(), instanceInfo.getPort());
         final ManagedChannel channel = ManagedChannelBuilder.forAddress(instanceInfo.getIPAddr(), instanceInfo.getPort())
                 .usePlaintext()

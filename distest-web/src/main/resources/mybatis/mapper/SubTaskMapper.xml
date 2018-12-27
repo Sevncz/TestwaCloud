@@ -17,6 +17,7 @@
         <result column="updateBy" property="updateBy" jdbcType="BIGINT"/>
         <result column="createBy" property="createBy" jdbcType="BIGINT"/>
         <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
+        <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
     </resultMap>
     <resultMap id="StatisResultMap" type="com.testwa.distest.server.service.task.dto.TaskDeviceStatusStatis" >
         <result column="taskStatus" property="taskStatus" jdbcType="TINYINT" />
@@ -24,7 +25,7 @@
     </resultMap>
 
     <sql id="Base_Column_List" >
-        id,status,taskCode,deviceId,createTime,createBy,projectId,endTime,errorMsg,taskType,video
+        id,status,taskCode,deviceId,createTime,createBy,projectId,endTime,errorMsg,taskType,video,lock_version
     </sql>
 
     <select id="findOneByTaskCodeAndDeviceId" resultMap="BaseResultMap" >

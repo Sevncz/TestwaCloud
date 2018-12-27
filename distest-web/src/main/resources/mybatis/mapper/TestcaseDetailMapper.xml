@@ -7,10 +7,11 @@
         <result column="scriptId" property="scriptId" jdbcType="BIGINT" />
         <result column="seq" property="seq" jdbcType="INTEGER" />
         <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
+        <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
     </resultMap>
 
     <sql id="Base_Column_List" >
-        id, testcaseId, scriptId
+        id, testcaseId, scriptId,lock_version
     </sql>
 
     <delete id="deleteByTestcaseId" parameterType="java.lang.Long">

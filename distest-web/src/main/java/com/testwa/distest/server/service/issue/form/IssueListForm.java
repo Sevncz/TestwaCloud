@@ -7,8 +7,8 @@ import lombok.Data;
 /**
  * Created by wen on 20/10/2017.
  */
-@ApiModel(value = "IssueNewForm",
-        description = "创建一个issue"
+@ApiModel(value = "IssueListForm",
+        description = "issue 列表"
 )
 @Data
 public class IssueListForm extends RequestListBase {

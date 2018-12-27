@@ -1,6 +1,7 @@
 package com.testwa.core.base.mybatis.mapper;
 
 import com.testwa.core.base.bo.Entity;
+import com.testwa.core.base.mybatis.annotation.VersionLocker;
 import com.testwa.core.base.mybatis.builder.PropertyFunction;
 import org.apache.ibatis.annotations.*;
 
@@ -30,6 +31,17 @@ public interface BaseMapper<T extends Entity, ID extends Serializable> {
     @UpdateProvider(type = BaseSqlProvider.class, method = "update")
     int update(T entity);
 
+
+    /**
+     *  更新一个属性
+     *
+     * @param function
+     * @param value
+     * @param id
+     * @param <T>
+     * @param <R>
+     * @return 受影响记录
+     */
     @UpdateProvider(type = BaseSqlProvider.class, method = "updateProperty")
     <T, R> int updateProperty(@Param("property") PropertyFunction<T, R> function, @Param("value") Object value, @Param("id") Long id);
 

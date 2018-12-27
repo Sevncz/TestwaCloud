@@ -15,6 +15,7 @@
         <result column="updateBy" property="updateBy" jdbcType="BIGINT"/>
         <result column="createBy" property="createBy" jdbcType="BIGINT"/>
         <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
+        <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
         <association property="createUser" javaType="com.testwa.distest.server.entity.User">
             <id column="create_id" property="id"/>
             <result column="create_username" property="username"/>
@@ -49,7 +50,7 @@
     </resultMap>
 
     <sql id="Base_Column_List" >
-        id, caseName, tag, projectId, description, createBy, updateTime, createTime, updateBy, enabled, appInfoId, appName, packageName
+        id, caseName, tag, projectId, description, createBy, updateTime, createTime, updateBy, enabled, appInfoId, appName, packageName,lock_version
     </sql>
 
     <select id="findBy" parameterType="com.testwa.distest.server.entity.Testcase" resultMap="BaseResultMap" >

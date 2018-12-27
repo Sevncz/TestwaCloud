@@ -1,5 +1,6 @@
 package com.testwa.distest.server.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.testwa.core.base.mybatis.annotation.Column;
 import com.testwa.core.base.mybatis.annotation.Table;
 import lombok.Data;
@@ -12,5 +13,9 @@ public class PostmanEnv extends ProjectBase{
     private String envId;
     @Column(name = "environment_path")
     private String environmentPath;
+
+    @JsonIgnore
+    @Column(name = "lock_version")
+    private Long lockVersion;
 
 }

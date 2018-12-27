@@ -6,6 +6,7 @@
         <result column="issue_id" property="issueId" jdbcType="BIGINT" />
         <result column="content" property="content" jdbcType="VARCHAR" />
         <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
+        <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
     </resultMap>
 
 </mapper>

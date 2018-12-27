@@ -20,6 +20,8 @@ import java.util.Map;
 )
 @Data
 public class CategoryNewForm extends RequestFormBase {
+    @NotBlank
+    @Length(min = 1, max = 500)
     private String name;
     private Map<String, String> authorization;
     private String preScript;

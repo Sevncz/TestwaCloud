@@ -18,7 +18,7 @@ import java.util.List;
 @Data
 public class IssueNewForm extends RequestFormBase {
     @NotBlank
-    @Length(min = 1, max = 100)
+    @Length(min = 1, max = 256)
     private String title;
     @NotBlank
     private String content;

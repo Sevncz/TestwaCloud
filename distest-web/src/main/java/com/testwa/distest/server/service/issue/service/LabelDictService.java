@@ -22,11 +22,12 @@ public class LabelDictService extends BaseService<IssueLabelDict, Long> {
     @Autowired
     private IssueLabelDictMapper issueLabelDictMapper;
 
-    public long save(String name, String color) {
+    public IssueLabelDict save(String name, String color) {
         IssueLabelDict issueLabelDict = new IssueLabelDict();
         issueLabelDict.setName(name);
         issueLabelDict.setColor(color);
-        return issueLabelDictMapper.insert(issueLabelDict);
+        issueLabelDictMapper.insert(issueLabelDict);
+        return issueLabelDict;
     }
 
 }

@@ -1,5 +1,6 @@
 package com.testwa.distest.server.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.testwa.core.base.mybatis.annotation.Column;
 import com.testwa.core.base.mybatis.annotation.Table;
 import lombok.Data;
@@ -18,8 +19,6 @@ public class ApiCategory extends ProjectBase{
     private String categoryName;
     @Column(name = "parent_id")
     private Long parentId;
-    @Column(name = "seq")
-    private Integer seq;
     @Column(name = "authorization")
     private String authorization;
     @Column(name = "pre_script")
@@ -28,6 +27,17 @@ public class ApiCategory extends ProjectBase{
     private String script;
     @Column(name = "description")
     private String description;
+    // 节点路径
+    @Column(name = "path")
+    private String path;
+    // 节点层级
+    @Column(name = "level")
+    private Integer level;
+    // 节点排序
+    @Column(name = "seq")
+    private Integer seq;
 
-
+    @JsonIgnore
+    @Column(name = "lock_version")
+    private Long lockVersion;
 }

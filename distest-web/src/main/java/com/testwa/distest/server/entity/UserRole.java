@@ -1,5 +1,6 @@
 package com.testwa.distest.server.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.testwa.core.base.mybatis.annotation.Column;
 import com.testwa.core.base.mybatis.annotation.Table;
 import com.testwa.core.base.bo.BaseEntity;
@@ -16,5 +17,9 @@ public class UserRole extends BaseEntity{
     private Long userId;
     @Column(name="roleId")
     private Long roleId;
+
+    @JsonIgnore
+    @Column(name = "lock_version")
+    private Long lockVersion;
 
 }

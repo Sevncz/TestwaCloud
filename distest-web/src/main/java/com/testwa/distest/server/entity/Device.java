@@ -80,4 +80,8 @@ public class Device extends BaseEntity {
     @Column(name = "selendroidInstall")
     private Boolean selendroidInstall;
 
+    @JsonIgnore
+    @Column(name = "lock_version")
+    private Long lockVersion;
+
 }
