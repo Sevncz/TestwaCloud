@@ -58,6 +58,7 @@ public class IssueCommentService extends BaseService<IssueComment, Long> {
         comment.setIssueId(issueId);
         comment.setContent(content);
         issueCommentMapper.insert(comment);
+        issueMapper.incrCommentNum(issueId);
         return comment;
     }
 

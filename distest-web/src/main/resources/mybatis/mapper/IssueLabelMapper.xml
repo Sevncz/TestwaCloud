@@ -32,19 +32,19 @@
 
     <update id="incr">
         update dis_issue_label
-        set num = num + 1, lock_version = lock_version + 1
+        set num = num + 1
         where id = #{labelId}
     </update>
 
     <update id="decr">
         update dis_issue_label
-        set num = num - 1, lock_version = lock_version + 1
+        set num = num - 1
         where id = #{labelId} and num > 0
     </update>
 
     <update id="decrByProjectId">
         update dis_issue_label
-        set num = num - 1, lock_version = lock_version + 1
+        set num = num - 1
         where project_id = #{projectId} and num > 0
     </update>
 

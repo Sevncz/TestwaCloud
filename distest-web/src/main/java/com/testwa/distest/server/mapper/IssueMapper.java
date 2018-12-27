@@ -16,4 +16,8 @@ public interface IssueMapper extends BaseMapper<Issue, Long> {
     List<Issue> listByCondition(@Param("query") IssueCondition query, @Param("labelIds") List<Long> labelIds);
 
     List<IssueStateCountDTO> getCountGroupByState(@Param("query") IssueCondition query, @Param("labelIds") List<Long> labelIds);
+
+    int incrCommentNum(@Param("issueId") Long issueId);
+
+    int decrCommentNum(@Param("issueId") Long issueId);
 }

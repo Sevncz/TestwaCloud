@@ -23,9 +23,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.testwa.distest.common.enums.DB.IssueStateEnum.*;
-import static com.testwa.distest.common.enums.DB.IssueStateEnum.OPEN;
-import static com.testwa.distest.common.enums.DB.IssueStateEnum.REJECT;
 
 /**
  * @author wen

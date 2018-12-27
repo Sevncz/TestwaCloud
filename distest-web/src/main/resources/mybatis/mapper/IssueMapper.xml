@@ -14,12 +14,8 @@
         <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
     </resultMap>
 
-    <sql id="Base_Column_List" >
-        id, project_id, assignee_id, author_id, title, create_time, state,lock_version
-    </sql>
-
     <select id="listByCondition" resultMap="BaseResultMap" >
-        SELECT distinct t.id, t.project_id, t.assignee_id, t.author_id, t.title, t.create_time, t.state
+        SELECT distinct t.*
         FROM dis_issue t left join dis_issue_label_map m on t.id = m.issue_id
         WHERE t.enabled = 1
         <if test="query.projectId != null">and t.project_id = #{query.projectId}</if>
@@ -47,4 +43,15 @@
         group by t.state
     </select>
 
+    <update id="incrCommentNum">
+        update dis_issue
+        set comment_num = comment_num + 1
+        where id = #{issueId}
+    </update>
+
+    <update id="decrCommentNum">
+        update dis_issue
+        set comment_num = comment_num - 1
+        where id = #{issueId} and num > 0
+    </update>
 </mapper>

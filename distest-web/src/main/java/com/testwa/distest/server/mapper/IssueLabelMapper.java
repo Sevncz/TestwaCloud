@@ -13,11 +13,9 @@ public interface IssueLabelMapper extends BaseMapper<IssueLabel, Long> {
 
     IssueLabel getByName(@Param("projectId") Long projectId, @Param("name") String name);
 
-    @VersionLocker(value = true)
-    void incr(@Param("labelId") Long labelId, @Param("lock_version") Long lockVersion);
+    void incr(@Param("labelId") Long labelId);
 
-    @VersionLocker(value = true)
-    void decr(@Param("labelId") Long labelId, @Param("lock_version") Long lockVersion);
+    void decr(@Param("labelId") Long labelId);
 
     void decrByProjectId(@Param("projectId") Long projectId);
 

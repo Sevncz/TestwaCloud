@@ -87,7 +87,7 @@ public class IssueService extends BaseService<Issue, Long> {
                     labelMap.setEnabled(true);
                     labelMapMapper.insert(labelMap);
                     // 引用数量 +1
-                    labelMapper.incr(label.getId(), label.getLockVersion());
+                    labelMapper.incr(label.getId());
                 }else{
                     // label 不存在需要处理下
                 }
@@ -192,7 +192,7 @@ public class IssueService extends BaseService<Issue, Long> {
                 labelMap.setEnabled(true);
                 labelMapMapper.insert(labelMap);
                 // 引用数量 +1
-                labelMapper.incr(label.getId(), label.getLockVersion());
+                labelMapper.incr(label.getId());
             });
         }
     }
