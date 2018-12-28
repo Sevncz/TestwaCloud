@@ -17,6 +17,6 @@ import java.util.List;
 @Data
 public class IssueCommentNewForm extends RequestFormBase {
     @NotBlank
-    @Length(min = 1, max = 10000)
+    @Length(min = 1)
     private String content;
 }

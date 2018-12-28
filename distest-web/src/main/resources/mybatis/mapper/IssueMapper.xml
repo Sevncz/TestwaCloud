@@ -22,7 +22,7 @@
         <if test="query.assigneeId != null">and t.assignee_id = #{query.assigneeId}</if>
         <if test="query.authorId != null">and t.author_id = #{query.authorId}</if>
         <if test="query.state != null">and t.state = #{query.state}</if>
-        <if test="query.search != null">and (t.title like CONCAT('%', #{query.search}, '%') or t.content like CONCAT('%', #{query.search}, '%'))</if>
+        <if test="query.search != null">and t.title like CONCAT('%', #{query.search}, '%')</if>
         <if test="labelIds != null and labelIds.size > 0">
           and m.label_id in <foreach item="item" index="index" collection="labelIds" open="(" separator="," close=")">#{item} </foreach>
         </if>
@@ -36,7 +36,7 @@
         <if test="query.assigneeId != null">and t.assignee_id = #{query.assigneeId}</if>
         <if test="query.authorId != null">and t.author_id = #{query.authorId}</if>
         <if test="query.state != null">and t.state = #{query.state}</if>
-        <if test="query.search != null">and (t.title like CONCAT('%', #{query.search}, '%') or t.content like CONCAT('%', #{query.search}, '%'))</if>
+        <if test="query.search != null">and t.title like CONCAT('%', #{query.search}, '%')</if>
         <if test="labelIds != null and labelIds.size > 0">
           and m.label_id in <foreach item="item" index="index" collection="labelIds" open="(" separator="," close=")">#{item} </foreach>
         </if>

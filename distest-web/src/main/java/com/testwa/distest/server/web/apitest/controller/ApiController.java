@@ -54,7 +54,6 @@ public class ApiController {
     @Autowired
     private CategoryValidator categoryValidator;
 
-
     @ApiOperation(value="新建一个分类")
     @ResponseBody
     @PostMapping(value = "/project/{projectId}/apiCategoryNew")

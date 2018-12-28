@@ -57,10 +57,14 @@ public class PrepareInterceptor implements Interceptor {
                     log.info("插入操作时设置create_time:{}", currentDate);
                 }
                 Field fieldCreateBy = mataDate.getFieldMap().get("createBy");
-                if(fieldCreateBy != null) {
-                    fieldCreateBy.setAccessible(true);
-                    fieldCreateBy.set(parameter, currentUser.getId());
-                    log.info("插入操作时设置create_by:{}", currentDate);
+                if(fieldCreateBy != null && currentUser != null) {
+                    try {
+                        fieldCreateBy.setAccessible(true);
+                        fieldCreateBy.set(parameter, currentUser.getId());
+                        log.info("插入操作时设置create_by:{}", currentDate);
+                    }catch (Exception e) {
+
+                    }
                 }
                 Field fieldEnabled = mataDate.getFieldMap().get("enabled");
                 if(fieldEnabled != null) {
@@ -87,10 +91,13 @@ public class PrepareInterceptor implements Interceptor {
                     log.info("更新操作时设置update_time:{}", currentDate);
                 }
                 Field fieldUpdateBy = mataDate.getFieldMap().get("updateBy");
-                if(fieldUpdateBy != null) {
-                    fieldUpdateBy.setAccessible(true);
-                    fieldUpdateBy.set(parameter, currentUser.getId());
-                    log.info("更新操作时设置update_by:{}", currentDate);
+                if(fieldUpdateBy != null && currentUser != null) {
+                    try {
+                        fieldUpdateBy.setAccessible(true);
+                        fieldUpdateBy.set(parameter, currentUser.getId());
+                    }catch (Exception e) {
+
+                    }
                 }
             } else if (SqlCommandType.UPDATE.equals(sqlCommandType)) {
                 Field fieldModifyTime = mataDate.getFieldMap().get("updateTime");
@@ -100,9 +107,13 @@ public class PrepareInterceptor implements Interceptor {
                     log.info("更新操作时设置update_time:{}", currentDate);
                 }
                 Field fieldUpdateBy = mataDate.getFieldMap().get("updateBy");
-                if(fieldUpdateBy != null) {
-                    fieldUpdateBy.setAccessible(true);
-                    fieldUpdateBy.set(parameter, currentUser.getId());
+                if(fieldUpdateBy != null && currentUser != null) {
+                    try {
+                        fieldUpdateBy.setAccessible(true);
+                        fieldUpdateBy.set(parameter, currentUser.getId());
+                    }catch (Exception e) {
+
+                    }
                     log.info("更新操作时设置update_by:{}", currentDate);
                 }
             }

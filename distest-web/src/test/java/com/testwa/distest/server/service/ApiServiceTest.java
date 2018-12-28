@@ -1,13 +1,12 @@
 package com.testwa.distest.server.service;
 
+import com.alibaba.fastjson.JSON;
 import com.testwa.distest.DistestWebApplication;
 import com.testwa.distest.server.entity.Api;
 import com.testwa.distest.server.entity.ApiCategory;
-import com.testwa.distest.server.entity.Postman;
 import com.testwa.distest.server.service.apitest.form.CategoryNewForm;
 import com.testwa.distest.server.service.apitest.service.ApiCategoryService;
 import com.testwa.distest.server.service.apitest.service.ApiService;
-import com.testwa.distest.server.service.apitest.service.PostmanService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
@@ -15,12 +14,21 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,6 +50,8 @@ public class ApiServiceTest {
     private ApiService apiService;
     @Autowired
     private ApiCategoryService apiCategoryService;
+    @Autowired
+    private RestTemplate restTemplate;
 
     @Before
     public void before() {
@@ -133,6 +143,25 @@ public class ApiServiceTest {
         apiService.disable(this.api.getId());
         Api api = apiService.get(this.api.getId());
         Assert.assertNull(api);
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    @WithMockUser(username = "admin", authorities = { "ADMIN", "USER" })
+    public void testSender() throws KeyManagementException, NoSuchAlgorithmException {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+
+        String url = "http://api.testwa.com/v1/auth/login";
+        MultiValueMap<String, String> param= new LinkedMultiValueMap<>();
+        param.add("username", "wen01");
+        param.add("password", "12345^");
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(param, headers);
+
+        ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+        System.out.println(response);
     }
 
 }

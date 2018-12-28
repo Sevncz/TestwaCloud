@@ -21,7 +21,7 @@ public class IssueNewForm extends RequestFormBase {
     @Length(min = 1, max = 256)
     private String title;
     @NotBlank
-    @Length(min = 1, max = 10000)
+    @Length(min = 1)
     private String content;
     private List<String> labelName;
     private Long assigneeId;
