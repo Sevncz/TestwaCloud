@@ -464,8 +464,9 @@ public final class DB {
 
     public enum IssueStateEnum implements ValueEnum  {
         OPEN(0, "open", "开启"),
-        CLOSED(1, "closed", "关闭"),
-        REJECT(2, "rejected", "拒绝");
+        FIXED(1, "fixed", " 已解决"),
+        CLOSED(2, "closed", "已关闭"),
+        REJECT(3, "rejected", "已拒绝");
 
         private int value;
         private String name;
@@ -508,5 +509,86 @@ public final class DB {
             return status;
         }
     }
+
+
+
+    public enum IssueOpTypeEnum implements ValueEnum  {
+        ADD(0, "add", " 添加"),
+        UPDATE(1, "update", "修改"),
+        REMOVE(2, "remove", "移除"),
+        CREATE(3, "create", "创建");
+
+        private int value;
+        private String name;
+        private String desc;
+
+        IssueOpTypeEnum(int value, String name, String desc){
+            this.value = value;
+            this.name = name;
+            this.desc = desc;
+        }
+
+        public int getValue() {
+            return value;
+        }
+        @JsonValue
+        public String getName() {
+            return name;
+        }
+        public String getDesc() {
+            return desc;
+        }
+
+        public static IssueOpTypeEnum valueOf(int value) {
+            IssueOpTypeEnum type = null;
+            switch (value) {
+                case 0: type = ADD;break;
+                case 1: type = UPDATE;break;
+                case 2: type = REMOVE;break;
+                case 3: type = CREATE;break;
+            }
+            return type;
+        }
+
+        public static IssueOpTypeEnum nameOf(String name) {
+            IssueOpTypeEnum status = null;
+            switch (name) {
+                case "add": status = ADD;break;
+                case "update": status = UPDATE;break;
+                case "remove": status = REMOVE;break;
+                case "create": status = CREATE;break;
+            }
+            return status;
+        }
+    }
+
+    public enum IssuePriorityEnum implements ValueEnum  {
+        LOW(0, " 低"),
+        MIDDLE(1, "中"),
+        HIGH(2, "高");
+        private int value;
+        private String desc;
+        IssuePriorityEnum(int value, String desc){
+            this.value = value;
+            this.desc = desc;
+        }
+        public int getValue() {
+            return value;
+        }
+        public String getDesc() {
+            return desc;
+        }
+        public static IssuePriorityEnum valueOf(int value) {
+            IssuePriorityEnum priorityEnum = LOW;
+            switch (value) {
+                case 0: priorityEnum = LOW;break;
+                case 1: priorityEnum = MIDDLE;break;
+                case 2: priorityEnum = HIGH;break;
+                default: priorityEnum = LOW;
+            }
+            return priorityEnum;
+        }
+    }
+
 
 }

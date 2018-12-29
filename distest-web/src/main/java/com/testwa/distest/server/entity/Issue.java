@@ -31,6 +31,9 @@ public class Issue extends BaseEntity {
     // 状态
     @Column(name = "state")
     private DB.IssueStateEnum state;
+    // 优先级
+    @Column(name = "priority")
+    private DB.IssuePriorityEnum priority;
 
     @JsonIgnore
     @Column(name = "lock_version")

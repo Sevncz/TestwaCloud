@@ -1,6 +1,5 @@
 package com.testwa.distest.server.service.issue.service;
 
-import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.testwa.core.base.constant.ResultCode;
@@ -15,12 +14,8 @@ import com.testwa.distest.server.service.issue.dto.IssueStateCountDTO;
 import com.testwa.distest.server.service.issue.form.IssueListForm;
 import com.testwa.distest.server.service.issue.form.IssueNewForm;
 import com.testwa.distest.server.service.issue.form.IssueUpdateForm;
-import com.testwa.distest.server.web.issue.vo.IssueLabelVO;
-import com.testwa.distest.server.web.issue.vo.IssueVO;
-import com.testwa.distest.server.web.auth.vo.UserVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -49,6 +44,8 @@ public class IssueService extends BaseService<Issue, Long> {
     @Autowired
     private IssueContentMapper issueContentMapper;
     @Autowired
+    private IssueOpLogMapper issueOpLogMapper;
+    @Autowired
     private UserMapper userMapper;
     @Autowired
     private User currentUser;
@@ -67,6 +64,12 @@ public class IssueService extends BaseService<Issue, Long> {
         issue.setAuthorId(currentUser.getId());
         issue.setCreateTime(new Date());
         issue.setState(DB.IssueStateEnum.OPEN);
+        if(form.getPriority() != null) {
+            DB.IssuePriorityEnum priorityEnum = DB.IssuePriorityEnum.valueOf(form.getPriority());
+            if(priorityEnum != null) {
+                issue.setPriority(priorityEnum);
+            }
+        }
 
         issue.setEnabled(true);
 
@@ -93,6 +96,7 @@ public class IssueService extends BaseService<Issue, Long> {
                 }
             });
         }
+
         return issue;
     }
 

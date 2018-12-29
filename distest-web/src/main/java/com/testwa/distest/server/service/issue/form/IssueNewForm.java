@@ -23,6 +23,7 @@ public class IssueNewForm extends RequestFormBase {
     @NotBlank
     @Length(min = 1)
     private String content;
+    private Integer priority;
     private List<String> labelName;
     private Long assigneeId;
 }

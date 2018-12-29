@@ -65,6 +65,12 @@ public class IssueController {
         if(form.getAssigneeId() != null) {
             userValidator.validateUserIdExist(form.getAssigneeId());
         }
+        if(form.getPriority() != null) {
+            DB.IssuePriorityEnum priorityEnum = DB.IssuePriorityEnum.valueOf(form.getPriority());
+            if(priorityEnum == null) {
+                throw new BusinessException(ResultCode.ILLEGAL_PARAM, "issue 优先级错误");
+            }
+        }
         if(form.getLabelName() != null) {
             form.getLabelName().forEach( name -> {
                 labelValidator.validateLabelNameExist(projectId, name);
@@ -127,42 +133,20 @@ public class IssueController {
 
     }
 
-    @ApiOperation(value="关闭issue")
+    @ApiOperation(value="更新issue状态")
     @ResponseBody
-    @PostMapping(value = "/project/{projectId}/issue/{issueId}/close")
-    public void issueClose(@PathVariable Long projectId, @PathVariable Long issueId) {
+    @PostMapping(value = "/project/{projectId}/issue/{issueId}/state/{state}")
+    public void issueClose(@PathVariable Long projectId, @PathVariable Long issueId, @PathVariable int state) {
 
         projectValidator.validateProjectExist(projectId);
         projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
         Issue issue = issueValidator.validateIssueExist(issueId);
-        if(DB.IssueStateEnum.CLOSED.equals(issue.getState()) ) {
-            throw new BusinessException(ResultCode.PARAM_ERROR, "Issue 已经关闭");
-        }
-        if(!currentUser.getId().equals(issue.getAuthorId()) && !currentUser.getId().equals(issue.getAssigneeId())) {
-            throw new BusinessException(ResultCode.ILLEGAL_OP, "您无法关闭 issue");
-        }
         log.info("Close issue {} BY {}", issueId, currentUser.getId());
-        issueService.updateState(issueId, DB.IssueStateEnum.CLOSED);
-
-    }
-
-    @ApiOperation(value="拒绝issue")
-    @ResponseBody
-    @PostMapping(value = "/project/{projectId}/issue/{issueId}/reject")
-    public void issueReject(@PathVariable Long projectId, @PathVariable Long issueId) {
-
-        projectValidator.validateProjectExist(projectId);
-        projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
-        Issue issue = issueValidator.validateIssueExist(issueId);
-        if(!DB.IssueStateEnum.OPEN.equals(issue.getState())) {
-            throw new BusinessException(ResultCode.PARAM_ERROR, "Issue 已经" + issue.getState().getDesc());
+        DB.IssueStateEnum issueStateEnum = DB.IssueStateEnum.valueOf(state);
+        if(issueStateEnum == null) {
+            throw new BusinessException(ResultCode.ILLEGAL_PARAM, "issue 状态不存在");
         }
-        if(!currentUser.getId().equals(issue.getAssigneeId())) {
-            throw new BusinessException(ResultCode.ILLEGAL_OP, "您无法拒绝 issue");
-        }
-
-        log.info("Reject issue {} BY {}", issueId, currentUser.getId());
-        issueService.updateState(issueId, DB.IssueStateEnum.REJECT);
+        issueService.updateState(issueId, issueStateEnum);
 
     }
 

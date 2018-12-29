@@ -1,6 +1,5 @@
 package com.testwa.distest.server.mapper;
 
-import com.testwa.core.base.mybatis.annotation.VersionLocker;
 import com.testwa.core.base.mybatis.mapper.BaseMapper;
 import com.testwa.distest.server.entity.IssueLabel;
 import org.apache.ibatis.annotations.Param;
