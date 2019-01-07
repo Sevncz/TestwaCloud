@@ -25,5 +25,5 @@ public class IssueNewForm extends RequestFormBase {
     private String content;
     private Integer priority;
     private List<String> labelName;
-    private Long assigneeId;
+    private List<Long> assigneeIds;
 }

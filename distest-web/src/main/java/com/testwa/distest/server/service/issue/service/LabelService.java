@@ -4,6 +4,7 @@ import com.testwa.core.base.service.BaseService;
 import com.testwa.distest.server.condition.BaseProjectCondition;
 import com.testwa.distest.server.entity.IssueLabel;
 import com.testwa.distest.server.entity.IssueLabelDict;
+import com.testwa.distest.server.entity.IssueLabelMap;
 import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.mapper.IssueLabelDictMapper;
 import com.testwa.distest.server.mapper.IssueLabelMapMapper;
@@ -77,13 +78,13 @@ public class LabelService extends BaseService<IssueLabel, Long> {
      * @Author wen
      * @Date 2018/12/21 11:10
      */
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteLabel(Long labelId) {
         delete(labelId);
         labelMapMapper.deleteByLabelId(labelId);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void update(IssueLabelUpdateForm form) {
         IssueLabel issueLabel = get(form.getLabelId());
         issueLabel.setColor(form.getColor());
@@ -113,6 +114,27 @@ public class LabelService extends BaseService<IssueLabel, Long> {
 
     public List<IssueLabel> listByIssueId(Long issueId) {
         return labelMapper.listByIssueId(issueId);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void updateLabels(Long projectId, List<String> labelNames, Long issueId) {
+        if(labelNames != null && !labelNames.isEmpty()) {
+            // 删除旧的标签配置
+            labelMapMapper.deleteByIssueId(issueId);
+            labelMapper.decrByProjectId(projectId);
+
+            // 添加新的标签配置
+            labelNames.forEach( name -> {
+                IssueLabel label = labelMapper.getByName(projectId, name);
+                IssueLabelMap labelMap = new IssueLabelMap();
+                labelMap.setIssueId(issueId);
+                labelMap.setLabelId(label.getId());
+                labelMap.setEnabled(true);
+                labelMapMapper.insert(labelMap);
+                // 引用数量 +1
+                labelMapper.incr(label.getId());
+            });
+        }
     }
 }
 

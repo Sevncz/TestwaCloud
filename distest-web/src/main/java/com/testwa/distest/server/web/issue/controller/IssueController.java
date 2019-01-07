@@ -62,8 +62,8 @@ public class IssueController {
     public void issueSave(@PathVariable Long projectId, @RequestBody @Valid IssueNewForm form) {
         projectValidator.validateProjectExist(projectId);
         projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
-        if(form.getAssigneeId() != null) {
-            userValidator.validateUserIdExist(form.getAssigneeId());
+        if(form.getAssigneeIds() != null && !form.getAssigneeIds().isEmpty()) {
+            form.getAssigneeIds().forEach( assigneeId -> userValidator.validateUserIdExist(assigneeId));
         }
         if(form.getPriority() != null) {
             DB.IssuePriorityEnum priorityEnum = DB.IssuePriorityEnum.valueOf(form.getPriority());
@@ -76,7 +76,7 @@ public class IssueController {
                 labelValidator.validateLabelNameExist(projectId, name);
             });
         }
-        issueService.save(form, projectId);
+        issueMgr.save(form, projectId);
     }
 
     @ApiOperation(value="issue 分页列表")
@@ -147,7 +147,6 @@ public class IssueController {
             throw new BusinessException(ResultCode.ILLEGAL_PARAM, "issue 状态不存在");
         }
         issueService.updateState(issueId, issueStateEnum);
-
     }
 
     @ApiOperation(value="issue详情")
@@ -200,7 +199,7 @@ public class IssueController {
             });
         }
 
-        issueService.update(projectId, issueId, form);
+        issueMgr.update(projectId, issueId, form);
 
     }
 

@@ -16,15 +16,15 @@ public class Issue extends BaseEntity {
     // 所属项目
     @Column(name = "project_id")
     private Long projectId;
-    // 负责人
-    @Column(name = "assignee_id")
-    private Long assigneeId;
     // 创建人
     @Column(name = "author_id")
     private Long authorId;
     // 创建时间
     @Column(name = "create_time")
     private Date createTime;
+    // 修改时间
+    @Column(name = "update_time")
+    private Date updateTime;
     // 标题
     @Column(name = "title")
     private String title;
@@ -34,11 +34,9 @@ public class Issue extends BaseEntity {
     // 优先级
     @Column(name = "priority")
     private DB.IssuePriorityEnum priority;
-
     @JsonIgnore
     @Column(name = "lock_version")
     private Long lockVersion;
-
     @Column(name = "comment_num")
     private Long commentNum;
 

@@ -56,11 +56,11 @@ public class IssueService extends BaseService<Issue, Long> {
         issue.setProjectId(projectId);
         issue.setTitle(form.getTitle());
         // 如果没有指定用户，则指定创建者本人
-        if(form.getAssigneeId() != null) {
-            issue.setAssigneeId(form.getAssigneeId());
-        }else{
+//        if(form.getAssigneeId() != null) {
+//            issue.setAssigneeId(form.getAssigneeId());
+//        }else{
 //            issue.setAssigneeId(currentUser.getId());
-        }
+//        }
         issue.setAuthorId(currentUser.getId());
         issue.setCreateTime(new Date());
         issue.setState(DB.IssueStateEnum.OPEN);
@@ -173,42 +173,23 @@ public class IssueService extends BaseService<Issue, Long> {
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void update(Long projectId, Long issueId, IssueUpdateForm form) {
-        if(StringUtils.isNotBlank(form.getTitle())) {
-            issueMapper.updateProperty(Issue::getTitle, form.getTitle(), issueId);
-        }
-        if(form.getAssigneeId() != null) {
-            issueMapper.updateProperty(Issue::getAssigneeId, form.getAssigneeId(), issueId);
-        }
-        List<String> labelNames = form.getLabelName();
-        if(labelNames != null && !labelNames.isEmpty()) {
-            // 删除旧的标签配置
-            labelMapMapper.deleteByIssueId(issueId);
-            labelMapper.decrByProjectId(projectId);
-
-            // 添加新的标签配置
-            labelNames.forEach( name -> {
-                IssueLabel label = labelMapper.getByName(projectId, name);
-                IssueLabelMap labelMap = new IssueLabelMap();
-                labelMap.setIssueId(issueId);
-                labelMap.setLabelId(label.getId());
-                labelMap.setEnabled(true);
-                labelMapMapper.insert(labelMap);
-                // 引用数量 +1
-                labelMapper.incr(label.getId());
-            });
-        }
-    }
-
     public IssueContent getContent(Long issueId) {
         return issueContentMapper.selectByProperty(IssueContent::getIssueId, issueId);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void updateContent(Long issueId, String content) {
         IssueContent issueContent = getContent(issueId);
         issueContent.setContent(content);
         issueContentMapper.update(issueContent);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void updateTitle(String title, Long issueId) {
+        issueMapper.updateProperty(Issue::getTitle, title, issueId);
+    }
+
+    public long saveIssueContent(IssueContent issueContent) {
+        return issueContentMapper.insert(issueContent);
     }
 }

@@ -563,7 +563,7 @@ public final class DB {
     }
 
     public enum IssuePriorityEnum implements ValueEnum  {
-        LOW(0, " 低"),
+        LOW(0, "低"),
         MIDDLE(1, "中"),
         HIGH(2, "高");
         private int value;
@@ -587,6 +587,33 @@ public final class DB {
                 default: priorityEnum = LOW;
             }
             return priorityEnum;
+        }
+    }
+
+
+    public enum IssueAssignRoleEnum implements ValueEnum  {
+        LEADER(0, "负责人"),
+        MEMBER(1, "协作人");
+        private int value;
+        private String desc;
+        IssueAssignRoleEnum(int value, String desc){
+            this.value = value;
+            this.desc = desc;
+        }
+        public int getValue() {
+            return value;
+        }
+        public String getDesc() {
+            return desc;
+        }
+        public static IssueAssignRoleEnum valueOf(int value) {
+            IssueAssignRoleEnum issueAssignRoleEnum = LEADER;
+            switch (value) {
+                case 0: issueAssignRoleEnum = LEADER;break;
+                case 1: issueAssignRoleEnum = MEMBER;break;
+                default: issueAssignRoleEnum = LEADER;
+            }
+            return issueAssignRoleEnum;
         }
     }
 
