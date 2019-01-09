@@ -6,14 +6,13 @@ import com.testwa.core.base.constant.ResultCode;
 import com.testwa.core.base.service.BaseService;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.exception.BusinessException;
+import com.testwa.distest.server.async.IssueLogTask;
 import com.testwa.distest.server.condition.IssueCondition;
 import com.testwa.distest.server.condition.IssueLabelCondition;
 import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.mapper.*;
 import com.testwa.distest.server.service.issue.dto.IssueStateCountDTO;
 import com.testwa.distest.server.service.issue.form.IssueListForm;
-import com.testwa.distest.server.service.issue.form.IssueNewForm;
-import com.testwa.distest.server.service.issue.form.IssueUpdateForm;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,85 +39,47 @@ public class IssueService extends BaseService<Issue, Long> {
     @Autowired
     private IssueLabelMapper labelMapper;
     @Autowired
-    private IssueLabelMapMapper labelMapMapper;
-    @Autowired
     private IssueContentMapper issueContentMapper;
     @Autowired
-    private IssueOpLogMapper issueOpLogMapper;
-    @Autowired
-    private UserMapper userMapper;
-    @Autowired
     private User currentUser;
+    @Autowired
+    private IssueLogTask issueLogTask;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public Issue save(IssueNewForm form, Long projectId) {
+    public Issue save(Long projectId, String title, Integer priorityValue, DB.IssueStateEnum stateEnum) {
         Issue issue = new Issue();
         issue.setProjectId(projectId);
-        issue.setTitle(form.getTitle());
-        // 如果没有指定用户，则指定创建者本人
-//        if(form.getAssigneeId() != null) {
-//            issue.setAssigneeId(form.getAssigneeId());
-//        }else{
-//            issue.setAssigneeId(currentUser.getId());
-//        }
+        issue.setTitle(title);
         issue.setAuthorId(currentUser.getId());
         issue.setCreateTime(new Date());
-        issue.setState(DB.IssueStateEnum.OPEN);
-        if(form.getPriority() != null) {
-            DB.IssuePriorityEnum priorityEnum = DB.IssuePriorityEnum.valueOf(form.getPriority());
+        issue.setState(stateEnum);
+        if(priorityValue != null) {
+            DB.IssuePriorityEnum priorityEnum = DB.IssuePriorityEnum.valueOf(priorityValue);
             if(priorityEnum != null) {
                 issue.setPriority(priorityEnum);
             }
         }
+        issueMapper.insert(issue);
 
-        issue.setEnabled(true);
-
-        insert(issue);
-        IssueContent issueContent = new IssueContent();
-        issueContent.setContent(form.getContent());
-        issueContent.setIssueId(issue.getId());
-        issueContentMapper.insert(issueContent);
-
-        List<String> labelNames = form.getLabelName();
-        if(labelNames != null && !labelNames.isEmpty()) {
-            labelNames.forEach( name -> {
-                IssueLabel label = labelMapper.getByName(projectId, name);
-                if(label != null) {
-                    IssueLabelMap labelMap = new IssueLabelMap();
-                    labelMap.setIssueId(issue.getId());
-                    labelMap.setLabelId(label.getId());
-                    labelMap.setEnabled(true);
-                    labelMapMapper.insert(labelMap);
-                    // 引用数量 +1
-                    labelMapper.incr(label.getId());
-                }else{
-                    // label 不存在需要处理下
-                }
-            });
-        }
-
+        issueLogTask.logNewIssue(issue.getId(), currentUser.getId());
         return issue;
     }
 
     public PageInfo<Issue> page(IssueListForm form, Long projectId) {
         IssueCondition query = getIssueCondition(form, projectId);
-
+        PageInfo<Issue> page = new PageInfo<>();
         if(StringUtils.isNotBlank(form.getState())) {
             DB.IssueStateEnum stateEnum = DB.IssueStateEnum.nameOf(form.getState());
             if(stateEnum == null) {
-                throw new BusinessException(ResultCode.INVALID_PARAM, "不存在状态");
+                return page;
             }
             query.setState(stateEnum);
         }
         final List<Long> labelIds = getLabelIds(form, projectId);
         //分页处理
-        PageInfo<Issue> page = PageHelper.startPage(form.getPageNo(), form.getPageSize())
+        page = PageHelper.startPage(form.getPageNo(), form.getPageSize())
                             .setOrderBy(form.getOrderBy() + " " + form.getOrder())
                             .doSelectPageInfo(()-> issueMapper.listByCondition(query, labelIds));
-
-//        PageHelper.startPage(form.getPageNo(), form.getPageSize());
-//        PageHelper.orderBy(form.getOrderBy() + " " + form.getOrder());
-//        List<Issue> issues = issueMapper.listByCondition(query, labelIds);
         return page;
     }
 
@@ -164,13 +125,17 @@ public class IssueService extends BaseService<Issue, Long> {
         return query;
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void updateState(Long issueId, DB.IssueStateEnum stateEnum) {
-        Issue issue = get(issueId);
-        if(issue != null) {
-            issue.setState(stateEnum);
-            issueMapper.update(issue);
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public int updateState(Long issueId, Integer state) {
+        DB.IssueStateEnum newIssueStateEnum = DB.IssueStateEnum.valueOf(state);
+        if(newIssueStateEnum == null) {
+            throw new BusinessException(ResultCode.ILLEGAL_PARAM, "issue 状态不存在");
         }
+        Issue oldIssue = get(issueId);
+        int line =  issueMapper.updateProperty(Issue::getState, newIssueStateEnum, issueId);
+
+        issueLogTask.logUpdateForState(issueId, currentUser.getId(), oldIssue.getState().getDesc(), newIssueStateEnum.getDesc());
+        return line;
     }
 
     public IssueContent getContent(Long issueId) {
@@ -187,9 +152,25 @@ public class IssueService extends BaseService<Issue, Long> {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void updateTitle(String title, Long issueId) {
         issueMapper.updateProperty(Issue::getTitle, title, issueId);
+
     }
 
-    public long saveIssueContent(IssueContent issueContent) {
-        return issueContentMapper.insert(issueContent);
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void saveIssueContent(Long issueId, String content) {
+        IssueContent issueContent = new IssueContent();
+        issueContent.setContent(content);
+        issueContent.setIssueId(issueId);
+        issueContentMapper.insert(issueContent);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void updatePriority(Long issueId, Integer issuePriority) {
+        DB.IssuePriorityEnum priorityEnum = DB.IssuePriorityEnum.valueOf(issuePriority);
+        if(priorityEnum == null) {
+            throw new BusinessException(ResultCode.ILLEGAL_PARAM, "issue 优先级不存在");
+        }
+        Issue oldIssue = get(issueId);
+        issueMapper.updateProperty(Issue::getPriority, priorityEnum, issueId);
+        issueLogTask.logUpdateForPriority(issueId, currentUser.getId(), oldIssue.getPriority().getDesc(), priorityEnum.getDesc());
     }
 }

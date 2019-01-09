@@ -16,7 +16,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @EnableAsync
 @EnableEurekaClient
-public class DistestClientApplication extends AsyncConfigurerSupport {
+public class DistestClientApplication {
 
     public static void main(String[] args) {
 

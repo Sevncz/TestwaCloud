@@ -12,4 +12,7 @@ public interface IssueLabelMapMapper extends BaseMapper<IssueLabelMap, Long> {
 
     void deleteByIssueId(@Param("issueId") Long issueId);
 
+    void deleteByIssueIdAndLabel(@Param("issueId") Long issueId, @Param("labelId") Long labelId);
+
+    IssueLabelMap getByIssueIdAndLabelId(@Param("issueId") Long issueId, @Param("labelId") Long labelId);
 }

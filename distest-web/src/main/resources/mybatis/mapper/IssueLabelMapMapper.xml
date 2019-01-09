@@ -10,11 +10,30 @@
     </resultMap>
 
    <delete id="deleteByLabelId" >
+       <if test="labelId != null">
        delete from dis_issue_label_map
        where label_id = #{labelId}
+       </if>
    </delete>
+
    <delete id="deleteByIssueId" >
+       <if test="issueId != null">
        delete from dis_issue_label_map
        where issue_id = #{issueId}
+       </if>
    </delete>
+
+   <delete id="deleteByIssueIdAndLabel" >
+       <if test="issueId != null and labelId != null ">
+       delete from dis_issue_label_map
+       where issue_id = #{issueId} and label_id = #{labelId}
+       </if>
+   </delete>
+
+    <select id="getByIssueIdAndLabelId"  resultMap="BaseResultMap">
+        <if test="issueId != null and labelId != null ">
+            select * from dis_issue_label_map
+            where issue_id = #{issueId} and label_id = #{labelId}
+        </if>
+    </select>
 </mapper>

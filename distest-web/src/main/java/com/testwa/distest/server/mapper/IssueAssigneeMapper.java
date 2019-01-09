@@ -13,5 +13,9 @@ import java.util.List;
 @Repository
 public interface IssueAssigneeMapper extends BaseMapper<IssueAssignee, Long> {
 
-    int deleteByIssueId(Long issueId);
+    int deleteByIssueId(@Param("issueId") Long issueId);
+
+    int deleteByIssueIdAndAssigneeId(@Param("issueId") Long issueId, @Param("assigneeId") Long assigneeId);
+
+    IssueAssignee getByIssueIdAndAssigneeId(@Param("issueId") Long issueId, @Param("assigneeId") Long assigneeId);
 }

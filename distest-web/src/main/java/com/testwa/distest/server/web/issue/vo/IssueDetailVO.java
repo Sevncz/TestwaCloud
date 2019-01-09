@@ -4,6 +4,7 @@ import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.web.auth.vo.UserVO;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -16,7 +17,7 @@ public class IssueDetailVO {
     private Long id;
     private Long projectId;
     private Date createTime;
-    private UserVO assignee;
+    private List<UserVO> assignees;
     private UserVO author;
     private Long commentNum;
     // 标题
@@ -28,4 +29,6 @@ public class IssueDetailVO {
 
     private List<IssueLabelVO> labels;
 
+    // 参与人员
+    private List<UserVO> participants;
 }

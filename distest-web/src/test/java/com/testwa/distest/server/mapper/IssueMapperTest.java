@@ -40,7 +40,6 @@ public class IssueMapperTest {
         Issue issue = new Issue();
         issue.setState(DB.IssueStateEnum.OPEN);
         issue.setProjectId(32L);
-        issue.setAssigneeId(8L);
         issue.setTitle("title");
 
         issue.setAuthorId(7L);

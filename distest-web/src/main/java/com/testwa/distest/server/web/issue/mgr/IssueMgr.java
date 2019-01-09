@@ -1,14 +1,14 @@
 package com.testwa.distest.server.web.issue.mgr;
 
+import com.testwa.core.base.constant.ResultCode;
 import com.testwa.distest.common.enums.DB;
+import com.testwa.distest.exception.BusinessException;
 import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.service.issue.dto.IssueStateCountDTO;
 import com.testwa.distest.server.service.issue.form.IssueListForm;
 import com.testwa.distest.server.service.issue.form.IssueNewForm;
 import com.testwa.distest.server.service.issue.form.IssueUpdateForm;
-import com.testwa.distest.server.service.issue.service.IssueAssigneeService;
-import com.testwa.distest.server.service.issue.service.IssueService;
-import com.testwa.distest.server.service.issue.service.LabelService;
+import com.testwa.distest.server.service.issue.service.*;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.auth.vo.UserVO;
 import com.testwa.distest.server.web.issue.vo.IssueCommentVO;
@@ -20,9 +20,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,8 +33,9 @@ import java.util.stream.Collectors;
  * @author wen
  * @create 2018-12-26 11:01
  */
-@Component
 @Slf4j
+@Component
+@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 public class IssueMgr {
 
     @Autowired
@@ -43,6 +46,10 @@ public class IssueMgr {
     private LabelService labelService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private IssueCommentService issueCommentService;
+    @Autowired
+    private IssueOperationLogService issueOperationLogService;
     @Autowired
     private User currentUser;
 
@@ -65,18 +72,14 @@ public class IssueMgr {
         vo.setLabels(lableVOs);
 
         // 获得创建人
-        User author = userService.get(issue.getAuthorId());
-        UserVO authorVO = new UserVO();
-        BeanUtils.copyProperties(author, authorVO);
+        UserVO authorVO = getUserVO(issue.getAuthorId());
         vo.setAuthor(authorVO);
 
         // 获得指派者
         List<IssueAssignee> issueAssignees = issueAssigneeService.getByIssueId(issue.getId());
         if(issueAssignees != null && !issueAssignees.isEmpty()) {
             issueAssignees.forEach( issueAssignee -> {
-                User assignee = userService.get(issueAssignee.getAssigneeId());
-                UserVO assigneeVO = new UserVO();
-                BeanUtils.copyProperties(assignee, assigneeVO);
+                UserVO assigneeVO = getUserVO(issueAssignee.getAssigneeId());
                 vo.addAssignee(assigneeVO);
             });
         }
@@ -84,11 +87,19 @@ public class IssueMgr {
         return vo;
     }
 
+    public UserVO getUserVO(Long userId) {
+        User user = userService.get(userId);
+        UserVO userVO = new UserVO();
+        BeanUtils.copyProperties(user, userVO);
+        return userVO;
+    }
+
     public IssueStateCountVO getStateCountVO(IssueListForm form, Long projectId) {
         IssueStateCountVO vo = new IssueStateCountVO();
         vo.setRejected(0L);
         vo.setClosed(0L);
         vo.setOpen(0L);
+        vo.setFixed(0L);
         List<IssueStateCountDTO> countDTOList = issueService.getCountGroupByState(form, projectId);
         countDTOList.forEach( dto -> {
             switch(dto.getIssueState()) {
@@ -100,6 +111,9 @@ public class IssueMgr {
                     break;
                 case REJECT:
                     vo.setRejected(dto.getCountValue());
+                    break;
+                case FIXED:
+                    vo.setFixed(dto.getCountValue());
                     break;
             }
         });
@@ -113,9 +127,7 @@ public class IssueMgr {
             return commentList.stream().map(comment -> {
                 IssueCommentVO vo = new IssueCommentVO();
                 BeanUtils.copyProperties(comment, vo);
-                User assignee = userService.get(comment.getAuthorId());
-                UserVO assigneeVO = new UserVO();
-                BeanUtils.copyProperties(assignee, assigneeVO);
+                UserVO assigneeVO = getUserVO(comment.getAuthorId());
                 vo.setAuthor(assigneeVO);
                 return vo;
             }).collect(Collectors.toList());
@@ -123,46 +135,83 @@ public class IssueMgr {
         return Collections.emptyList();
     }
 
-    public void save(IssueNewForm form, Long projectId) {
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public Issue save(IssueNewForm form, Long projectId) {
 
         // 保存 issue
-        Issue issue = new Issue();
-        issue.setProjectId(projectId);
-        issue.setTitle(form.getTitle());
-        issue.setAuthorId(currentUser.getId());
-        issue.setCreateTime(new Date());
-        issue.setState(DB.IssueStateEnum.OPEN);
-        if(form.getPriority() != null) {
-            DB.IssuePriorityEnum priorityEnum = DB.IssuePriorityEnum.valueOf(form.getPriority());
-            if(priorityEnum != null) {
-                issue.setPriority(priorityEnum);
-            }
-        }
-        issue.setEnabled(true);
-        issueService.insert(issue);
+        Issue issue = issueService.save(projectId, form.getTitle(), form.getPriority(), DB.IssueStateEnum.OPEN);
 
-        // 如果没有指定用户，则指定创建者本人
+        // 保存 issue content
+        issueService.saveIssueContent(issue.getId(), form.getContent());
+
+        // 保存 assignee
         if(form.getAssigneeIds() != null && !form.getAssigneeIds().isEmpty()) {
             form.getAssigneeIds().forEach(assigneeId -> issueAssigneeService.save(issue.getId(), assigneeId));
         }
 
-        IssueContent issueContent = new IssueContent();
-        issueContent.setContent(form.getContent());
-        issueContent.setIssueId(issue.getId());
-        issueService.saveIssueContent(issueContent);
+        // 保存 label
+        List<String> labelNames = form.getLabelName();
+        if(labelNames != null && !labelNames.isEmpty()) {
+            labelService.newLabelForIssue(projectId, form.getLabelName(), issue.getId());
+        }
+        return issue;
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void update(Long projectId, Long issueId, IssueUpdateForm form) {
+        // 更新 title
         if(StringUtils.isNotBlank(form.getTitle())) {
             issueService.updateTitle(form.getTitle(), issueId);
         }
+        // 更新 assignee
         if(form.getAssigneeIds() != null && !form.getAssigneeIds().isEmpty()) {
             issueAssigneeService.updateAssignees(form.getAssigneeIds(), issueId);
         }
+        // 更新 label
         List<String> labelNames = form.getLabelName();
         if(labelNames != null && !labelNames.isEmpty()) {
             // 删除旧的标签配置
             labelService.updateLabels(projectId, form.getLabelName(), issueId);
         }
+        // 更新 state
+        if(form.getIssueState() != null) {
+            issueService.updateState(issueId, form.getIssueState());
+        }
+        // 更新 issuePriority
+        if(form.getIssuePriority() != null) {
+            issueService.updatePriority(issueId, form.getIssuePriority());
+        }
+    }
+
+    /**
+     * @Description: 获得所有参与者
+     * @Param: [issueId]
+     * @Return: java.util.List<com.testwa.distest.server.web.auth.vo.UserVO>
+     * @Author wen
+     * @Date 2019/1/8 18:53
+     */
+    public List<UserVO> listParticipantByIssue(Long issueId) {
+        Issue issue = issueService.get(issueId);
+        if(issue == null) {
+            throw new BusinessException(ResultCode.ILLEGAL_OP, "issue 不可用");
+        }
+        // 创建者
+        List<Long> allParticipantList = new ArrayList<>();
+        allParticipantList.add(issue.getAuthorId());
+
+        // 负责人
+        List<IssueAssignee> issueAssignees = issueAssigneeService.getByIssueId(issueId);
+        List<Long> issueAssigneeIds = issueAssignees.stream().map(IssueAssignee::getAssigneeId).collect(Collectors.toList());
+        allParticipantList.addAll(issueAssigneeIds);
+
+        // 评论者
+        List<Long> commentUserIds = issueCommentService.listCommentUserId(issueId);
+        allParticipantList.addAll(commentUserIds);
+
+        // 修改者
+        List<Long> opUserIds = issueOperationLogService.listOperationUserId(issueId);
+        allParticipantList.addAll(opUserIds);
+
+        return allParticipantList.stream().distinct().map(this::getUserVO).collect(Collectors.toList());
     }
 }

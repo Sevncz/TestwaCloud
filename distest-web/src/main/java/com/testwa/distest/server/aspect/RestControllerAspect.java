@@ -1,4 +1,4 @@
-package com.testwa.distest.server.web;
+package com.testwa.distest.server.aspect;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

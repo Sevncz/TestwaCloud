@@ -59,6 +59,7 @@ public class LabelService extends BaseService<IssueLabel, Long> {
         return save(projectId, name, color);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     protected IssueLabel save(Long projectId, String name, String color) {
         IssueLabel issueLabel = new IssueLabel();
         issueLabel.setProjectId(projectId);
@@ -72,7 +73,7 @@ public class LabelService extends BaseService<IssueLabel, Long> {
     }
 
     /**
-     * @Description: 删除标签，并且删除其引用
+     * @Description: 删除标签，并且删除其引用，物理删除
      * @Param: [labelId]
      * @Return: void
      * @Author wen
@@ -99,12 +100,13 @@ public class LabelService extends BaseService<IssueLabel, Long> {
     }
 
     /**
-     * @Description: 根据 label 模板为项目创建默认label列表
+     * @Description: 为项目创建默认label列表
      * @Param: [projectId]
      * @Return: void
      * @Author wen
      * @Date 2018/12/17 10:21
      */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void initForProject(final Long projectId) {
         List<IssueLabelDict> labelDicts = issueLabelDictMapper.list();
         labelDicts.forEach( defaultLabel -> {
@@ -116,16 +118,37 @@ public class LabelService extends BaseService<IssueLabel, Long> {
         return labelMapper.listByIssueId(issueId);
     }
 
+    /**
+     * @Description: 更新 issue 的标签
+     * @Param: [projectId, labelNames, issueId]
+     * @Return: void
+     * @Author wen
+     * @Date 2019/1/8 10:40
+     */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void updateLabels(Long projectId, List<String> labelNames, Long issueId) {
         if(labelNames != null && !labelNames.isEmpty()) {
             // 删除旧的标签配置
             labelMapMapper.deleteByIssueId(issueId);
             labelMapper.decrByProjectId(projectId);
+            this.newLabelForIssue(projectId, labelNames, issueId);
 
-            // 添加新的标签配置
-            labelNames.forEach( name -> {
-                IssueLabel label = labelMapper.getByName(projectId, name);
+        }
+    }
+
+    /**
+     * @Description: 为 issue 配置新的标签
+     * @Param: [projectId, labelNames, issueId]
+     * @Return: void
+     * @Author wen
+     * @Date 2019/1/8 10:40
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void newLabelForIssue(Long projectId, List<String> labelNames, Long issueId) {
+        // 添加新的标签配置
+        labelNames.forEach( name -> {
+            IssueLabel label = labelMapper.getByName(projectId, name);
+            if(label != null) {
                 IssueLabelMap labelMap = new IssueLabelMap();
                 labelMap.setIssueId(issueId);
                 labelMap.setLabelId(label.getId());
@@ -133,8 +156,13 @@ public class LabelService extends BaseService<IssueLabel, Long> {
                 labelMapMapper.insert(labelMap);
                 // 引用数量 +1
                 labelMapper.incr(label.getId());
-            });
-        }
+            }
+        });
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void incr(Long labelId) {
+        labelMapper.incr(labelId);
     }
 }
 

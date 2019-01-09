@@ -1,4 +1,4 @@
-package com.testwa.distest.common.validator;
+package com.testwa.distest.server.aspect;
 
 import com.testwa.core.base.constant.ResultCode;
 import com.testwa.distest.exception.BusinessException;

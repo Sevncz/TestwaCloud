@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.testwa.distest.server.mapper.IssueCommentMapper" >
-    <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.IssueComment" >
+<mapper namespace="com.testwa.distest.server.mapper.IssueOperationLogMapper" >
+    <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.IssueOperationLog" >
         <id column="id" property="id" jdbcType="BIGINT" />
         <result column="issue_id" property="issueId" jdbcType="BIGINT" />
+        <result column="user_id" property="userId" jdbcType="BIGINT" />
+        <result column="op_type" property="opType" jdbcType="TINYINT" />
         <result column="content" property="content" jdbcType="VARCHAR" />
-        <result column="author_id" property="authorId" jdbcType="BIGINT" />
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
         <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
     </resultMap>
 
-    <select id="listCommentUserId" resultType="java.lang.Long">
+    <select id="listOperationUserId" resultType="java.lang.Long">
         <if test="issueId != null">
-            select distinct t.author_id
-            from dis_issue_comment as t
-            where t.enabled = 1
-            and t.issue_id = #{issueId}
+            select distinct t.user_id
+            from dis_issue_op_log as t
+            where t.issue_id = #{issueId}
         </if>
     </select>
 

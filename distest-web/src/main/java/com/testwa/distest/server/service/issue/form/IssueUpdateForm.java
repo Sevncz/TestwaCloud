@@ -21,4 +21,6 @@ public class IssueUpdateForm extends RequestFormBase {
     private String title;
     private List<String> labelName;
     private List<Long> assigneeIds;
+    private Integer issueState;
+    private Integer issuePriority;
 }

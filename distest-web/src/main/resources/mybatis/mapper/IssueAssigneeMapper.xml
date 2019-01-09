@@ -13,9 +13,23 @@
 
     <delete id="deleteByIssueId">
         <if test="issueId != null">
-            delete from dis_issue_assignee t
-            where t.issue_id = #{issueId}
+            delete from dis_issue_assignee
+            where issue_id = #{issueId}
         </if>
     </delete>
+
+    <delete id="deleteByIssueIdAndAssigneeId">
+        <if test="issueId != null and assigneeId != null ">
+            delete from dis_issue_assignee
+            where issue_id = #{issueId} and assignee_id = #{assigneeId}
+        </if>
+    </delete>
+
+    <select id="getByIssueIdAndAssigneeId"  resultMap="BaseResultMap">
+        <if test="issueId != null and assigneeId != null ">
+            select * from dis_issue_assignee
+                where issue_id = #{issueId} and assignee_id = #{assigneeId}
+        </if>
+    </select>
 
 </mapper>

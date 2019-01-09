@@ -25,26 +25,15 @@ import java.util.concurrent.Executor;
 @EnableMongoRepositories(repositoryBaseClass = CommonMongoRepositoryImpl.class, basePackages = {"com.testwa.distest.server.mongo.repository"})
 @EnableScheduling
 @EnableCaching
-@EnableAsync
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableRabbit
 @EnableEurekaClient
-public class DistestWebApplication extends AsyncConfigurerSupport {
+@EnableAsync
+public class DistestWebApplication{
 
 	@Bean
 	public SpringAnnotationScanner springAnnotationScanner(SocketIOServer ssrv) {
 		return new SpringAnnotationScanner(ssrv);
-	}
-
-	@Override
-	public Executor getAsyncExecutor() {
-		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-		executor.setCorePoolSize(1000);
-		executor.setMaxPoolSize(1000);
-		executor.setQueueCapacity(500);
-		executor.setThreadNamePrefix("DT-web-");
-		executor.initialize();
-		return executor;
 	}
 
 	public static void main(String[] args) {

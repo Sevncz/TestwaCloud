@@ -40,13 +40,7 @@ public class IssueServiceTest {
         IssueNewForm form = new IssueNewForm();
         form.setTitle("test");
         form.setContent("test");
-        List<String> labelName = new ArrayList<>();
-        labelName.add("bug");
-        labelName.add("enhancement");
-        labelName.add("duplicate");
-        form.setLabelName(labelName);
-
-        this.entity = service.save(form, projectId);
+        this.entity = service.save(projectId, form.getTitle(), form.getPriority(), DB.IssueStateEnum.OPEN);
     }
 
     @Test
@@ -62,8 +56,9 @@ public class IssueServiceTest {
 
         Issue issue1 = service.get(this.entity.getId());
         Assert.assertNotNull(issue1);
-
-        service.updateState(this.entity.getId(), DB.IssueStateEnum.CLOSED);
+        issue1.setPriority(DB.IssuePriorityEnum.HIGH);
+        issue1.setState(DB.IssueStateEnum.CLOSED);
+        service.update(issue1);
         Issue issue2 = service.get(this.entity.getId());
         Assert.assertEquals(issue2.getState(), DB.IssueStateEnum.CLOSED);
     }
@@ -99,12 +94,7 @@ public class IssueServiceTest {
             IssueNewForm newForm = new IssueNewForm();
             newForm.setTitle("test" + i);
             newForm.setContent("test");
-            List<String> labelName = new ArrayList<>();
-            labelName.add("bug");
-            labelName.add("enhancement");
-            labelName.add("duplicate");
-            form.setLabelName(String.join(",", labelName));
-            service.save(newForm, projectId);
+            this.entity = service.save(projectId, newForm.getTitle(), newForm.getPriority(), DB.IssueStateEnum.OPEN);
         }
 
         PageInfo<Issue> issues2 = service.page(form, projectId);
@@ -112,7 +102,6 @@ public class IssueServiceTest {
         Assert.assertEquals(issues2.getTotal(), issues1.getTotal() + loopTime);
         Assert.assertEquals(issues2.getPageSize(), form.getPageSize());
     }
-
 
     @Test
     @WithMockUser(username = "admin", authorities = { "ADMIN", "USER" })

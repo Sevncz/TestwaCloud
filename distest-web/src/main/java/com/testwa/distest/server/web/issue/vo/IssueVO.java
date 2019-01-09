@@ -5,6 +5,7 @@ import com.testwa.distest.server.web.auth.vo.UserVO;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class IssueVO {
     private Long id;
     private Long projectId;
     private Date createTime;
-    private List<UserVO> assignees;
+    private List<UserVO> assignees = new ArrayList<>();
     private UserVO author;
     private Long commentNum;
     // 标题
@@ -25,7 +26,7 @@ public class IssueVO {
     // 状态
     private DB.IssueStateEnum state;
 
-    private List<IssueLabelVO> labels;
+    private List<IssueLabelVO> labels = new ArrayList<>();
 
     public void addAssignee(UserVO assignee) {
         if(assignees == null) {

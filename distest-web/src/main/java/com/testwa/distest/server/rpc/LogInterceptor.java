@@ -1,4 +1,4 @@
-package com.testwa.distest.server;
+package com.testwa.distest.server.rpc;
 
 import io.grpc.Metadata;
 import io.grpc.ServerCall;

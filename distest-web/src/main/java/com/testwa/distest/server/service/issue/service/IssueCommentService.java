@@ -71,4 +71,7 @@ public class IssueCommentService extends BaseService<IssueComment, Long> {
         return page;
     }
 
+    public List<Long> listCommentUserId(Long issueId) {
+        return issueCommentMapper.listCommentUserId(issueId);
+    }
 }

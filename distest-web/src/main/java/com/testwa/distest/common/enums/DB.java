@@ -464,7 +464,7 @@ public final class DB {
 
     public enum IssueStateEnum implements ValueEnum  {
         OPEN(0, "open", "开启"),
-        FIXED(1, "fixed", " 已解决"),
+        FIXED(1, "fixed", "已解决"),
         CLOSED(2, "closed", "已关闭"),
         REJECT(3, "rejected", "已拒绝");
 
@@ -490,13 +490,14 @@ public final class DB {
         }
 
         public static IssueStateEnum valueOf(int value) {
-            IssueStateEnum status = null;
+            IssueStateEnum stateEnum = null;
             switch (value) {
-                case 0: status = OPEN;break;
-                case 1: status = CLOSED;break;
-                case 2: status = REJECT;break;
+                case 0: stateEnum = OPEN;break;
+                case 1: stateEnum = FIXED;break;
+                case 2: stateEnum = CLOSED;break;
+                case 3: stateEnum = REJECT;break;
             }
-            return status;
+            return stateEnum;
         }
 
         public static IssueStateEnum nameOf(String name) {
@@ -504,6 +505,7 @@ public final class DB {
             switch (name) {
                 case "open": status = OPEN;break;
                 case "closed": status = CLOSED;break;
+                case "fixed": status = FIXED;break;
                 case "rejected": status = REJECT;break;
             }
             return status;
@@ -511,9 +513,8 @@ public final class DB {
     }
 
 
-
     public enum IssueOpTypeEnum implements ValueEnum  {
-        ADD(0, "add", " 添加"),
+        ADD(0, "add", "添加"),
         UPDATE(1, "update", "修改"),
         REMOVE(2, "remove", "移除"),
         CREATE(3, "create", "创建");
@@ -563,9 +564,11 @@ public final class DB {
     }
 
     public enum IssuePriorityEnum implements ValueEnum  {
-        LOW(0, "低"),
-        MIDDLE(1, "中"),
-        HIGH(2, "高");
+        LOWER(0, "极低"),
+        LOW(1, "低"),
+        MIDDLE(2, "中"),
+        HIGH(3, "高"),
+        HIGHER(4, "极高");
         private int value;
         private String desc;
         IssuePriorityEnum(int value, String desc){
@@ -579,12 +582,13 @@ public final class DB {
             return desc;
         }
         public static IssuePriorityEnum valueOf(int value) {
-            IssuePriorityEnum priorityEnum = LOW;
+            IssuePriorityEnum priorityEnum = null;
             switch (value) {
-                case 0: priorityEnum = LOW;break;
-                case 1: priorityEnum = MIDDLE;break;
-                case 2: priorityEnum = HIGH;break;
-                default: priorityEnum = LOW;
+                case 0: priorityEnum = LOWER;break;
+                case 1: priorityEnum = LOW;break;
+                case 2: priorityEnum = MIDDLE;break;
+                case 3: priorityEnum = HIGH;break;
+                case 4: priorityEnum = HIGHER;break;
             }
             return priorityEnum;
         }
@@ -607,11 +611,10 @@ public final class DB {
             return desc;
         }
         public static IssueAssignRoleEnum valueOf(int value) {
-            IssueAssignRoleEnum issueAssignRoleEnum = LEADER;
+            IssueAssignRoleEnum issueAssignRoleEnum = null;
             switch (value) {
                 case 0: issueAssignRoleEnum = LEADER;break;
                 case 1: issueAssignRoleEnum = MEMBER;break;
-                default: issueAssignRoleEnum = LEADER;
             }
             return issueAssignRoleEnum;
         }

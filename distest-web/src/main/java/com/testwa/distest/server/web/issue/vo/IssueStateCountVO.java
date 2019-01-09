@@ -13,4 +13,5 @@ public class IssueStateCountVO {
     private Long open;
     private Long closed;
     private Long rejected;
+    private Long fixed;
 }
