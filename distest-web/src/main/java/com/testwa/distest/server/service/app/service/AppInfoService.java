@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
  */
 @Slf4j
 @Service
-@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+@Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
 public class AppInfoService extends BaseService<AppInfo, Long> {
     private static final String REG_ANDROID_PACKAGE = "[a-zA-Z]+[0-9a-zA-Z_]*(\\.[a-zA-Z]+[0-9a-zA-Z_]*)*";
     @Autowired
@@ -35,39 +35,30 @@ public class AppInfoService extends BaseService<AppInfo, Long> {
     @Autowired
     private AppInfoMapper appInfoMapper;
 
-    /**
-     * @Description: 根据 id 获得可用的对象
-     * @Param: [entityId]
-     * @Return: com.testwa.distest.server.entity.AppInfo
-     * @Author wen
-     * @Date 2018/12/20 15:46
-     */
-    public AppInfo get(Long entityId) {
-        AppInfo appInfo = appInfoMapper.selectById(entityId);
-        return appInfo.getEnabled() ? appInfo : null;
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void disableAppInfo(Long entityId){
         AppInfo appInfo = get(entityId);
-        disable(entityId);
-        appMapper.disableAllBy(appInfo.getPackageName(), appInfo.getProjectId());
+        this.disableAppInfo(appInfo);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void disableAppInfo(AppInfo appInfo) {
+        if (appInfo != null) {
+            disable(appInfo.getId());
+            appMapper.disableAllBy(appInfo.getPackageName(), appInfo.getProjectId());
+        }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteAll(List<Long> entityIds){
         entityIds.forEach(this::disableAppInfo);
-    }
-
-    public AppInfo findOne(Long entityId){
-        return get(entityId);
     }
 
     public AppInfo findOneInProject(Long entityId, Long projectId) {
         return appInfoMapper.findOneInProject(entityId, projectId);
     }
 
-    public List<AppInfo> findList(Long projectId, AppListForm queryForm) {
+    public List<AppInfo> list(Long projectId, AppListForm queryForm) {
         AppInfo query = new AppInfo();
         query.setProjectId(projectId);
         if(StringUtils.isNotBlank(queryForm.getAppName())) {
@@ -79,7 +70,7 @@ public class AppInfoService extends BaseService<AppInfo, Long> {
         return appInfoMapper.findBy(query);
     }
 
-    public PageResult<AppInfo> findPage(Long projectId, AppListForm queryForm){
+    public PageResult<AppInfo> page(Long projectId, AppListForm queryForm){
         //分页处理
         AppInfo query = new AppInfo();
         query.setProjectId(projectId);
@@ -99,7 +90,7 @@ public class AppInfoService extends BaseService<AppInfo, Long> {
         return pr;
     }
 
-    public List<AppInfo> findByProjectId(Long projectId) {
+    public List<AppInfo> listByProjectId(Long projectId) {
         AppInfo query = new AppInfo();
         query.setProjectId(projectId);
         List<AppInfo> result = appInfoMapper.findBy(query);
@@ -174,5 +165,4 @@ public class AppInfoService extends BaseService<AppInfo, Long> {
             appInfoMapper.update(appInfo);
         }
     }
-
 }

@@ -19,8 +19,6 @@ public class AppValidator {
 
     @Autowired
     private AppService appService;
-    @Autowired
-    private AppInfoService appInfoService;
 
     public void validateAppsExist(List<Long> entityIds) {
         List<App> entityList = appService.findAll(entityIds);
@@ -41,13 +39,5 @@ public class AppValidator {
         if(entity == null){
             throw new BusinessException(ResultCode.CONFLICT, "App不在该项目中");
         }
-    }
-
-    public AppInfo validateAppInfoExist(Long entityId) {
-        AppInfo entity = appInfoService.findOne(entityId);
-        if(entity == null){
-            throw new BusinessException(ResultCode.NOT_FOUND, "App不存在");
-        }
-        return entity;
     }
 }

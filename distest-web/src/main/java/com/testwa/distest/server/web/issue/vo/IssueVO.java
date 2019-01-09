@@ -25,6 +25,7 @@ public class IssueVO {
     private String title;
     // 状态
     private DB.IssueStateEnum state;
+    private DB.IssuePriorityEnum priority;
 
     private List<IssueLabelVO> labels = new ArrayList<>();
 

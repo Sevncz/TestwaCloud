@@ -78,12 +78,12 @@ public class DeviceController extends BaseController {
 
         List<PrivateDeviceDTO> privateDeviceDTOList = deviceService.findPrivateList(deviceIds, currentUser.getId(), form.getBrand(), form.getOsVersion(), form.getResolution(), form.getIsAll());
         // 枚举转换器，可根据需要添加
-        ConvertUtils.register(new Converter() {
-            @Override
-            public Object convert(Class type, Object o) {
-                return DB.PhoneOS.valueOf((Integer) o);
-            }
-        }, DB.PhoneOS.class);
+//        ConvertUtils.register(new Converter() {
+//            @Override
+//            public Object convert(Class type, Object o) {
+//                return DB.PhoneOS.valueOf((Integer) o);
+//            }
+//        }, DB.PhoneOS.class);
         return buildVOs(privateDeviceDTOList, PrivateDeviceVO.class);
     }
 

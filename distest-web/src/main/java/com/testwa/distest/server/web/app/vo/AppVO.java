@@ -18,13 +18,13 @@ public class AppVO {
     private String fileName;
     private String path;
     private Long projectId;
-    private String md5;
+//    private String md5;
     private String size;
     private String description;
     private Date createTime;
-    private Date updateTime;
+//    private Date updateTime;
     private Long createBy;
-    private Long updateBy;
+//    private Long updateBy;
 
     private String displayName; // 应用显示名称
     private String icon;  // 应用图标

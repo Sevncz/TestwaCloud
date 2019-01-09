@@ -21,6 +21,4 @@ public interface AppMapper extends BaseMapper<App, Long> {
     void disableAll(List<Long> entityIds);
 
     void disableAllBy(@Param("packageName") String packageName, @Param("projectId") Long projectId);
-
-    List<App> getAllVersion(@Param("packageName") String packageName, @Param("projectId") Long projectId);
 }

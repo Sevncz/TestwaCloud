@@ -342,6 +342,10 @@ public class AppService extends BaseService<App, Long> {
     }
 
     public List<App> getAllVersions(AppInfo appInfo) {
-        return appMapper.getAllVersion(appInfo.getPackageName(), appInfo.getProjectId());
+        AppCondition condition = new AppCondition();
+        condition.setPackageName(appInfo.getPackageName());
+        condition.setProjectId(appInfo.getProjectId());
+        PageHelper.orderBy("createTime desc");
+        return appMapper.selectByCondition(condition);
     }
 }

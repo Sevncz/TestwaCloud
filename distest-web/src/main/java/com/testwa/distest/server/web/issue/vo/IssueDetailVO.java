@@ -26,6 +26,8 @@ public class IssueDetailVO {
     private String content;
     // 状态
     private DB.IssueStateEnum state;
+    // 优先级
+    private DB.IssuePriorityEnum priority;
 
     private List<IssueLabelVO> labels;
 

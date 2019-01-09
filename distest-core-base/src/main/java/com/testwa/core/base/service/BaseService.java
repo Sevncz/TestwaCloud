@@ -12,7 +12,7 @@ import java.util.List;
  * @author wen
  * @create 2018-12-20 15:46
  */
-public class BaseService<T extends Entity, ID extends Serializable> {
+public class  BaseService<T extends Entity, ID extends Serializable> {
     @Autowired
     private BaseMapper<T, ID> baseMapper;
 

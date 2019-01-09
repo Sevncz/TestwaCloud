@@ -14,8 +14,11 @@ import com.testwa.distest.server.service.app.form.AppListForm;
 import com.testwa.distest.server.service.app.form.AppUpdateForm;
 import com.testwa.distest.server.service.app.service.AppInfoService;
 import com.testwa.distest.server.service.app.service.AppService;
+import com.testwa.distest.server.web.app.mgr.AppInfoMgr;
 import com.testwa.distest.server.web.app.mgr.InstallMgr;
+import com.testwa.distest.server.web.app.validator.AppInfoValidator;
 import com.testwa.distest.server.web.app.validator.AppValidator;
+import com.testwa.distest.server.web.app.vo.AppInfoVO;
 import com.testwa.distest.server.web.app.vo.AppInfoVersionsDetailVO;
 import com.testwa.distest.server.web.app.vo.AppVO;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
@@ -48,9 +51,13 @@ public class AppController extends BaseController {
     @Autowired
     private AppInfoService appInfoService;
     @Autowired
+    private AppInfoMgr appInfoMgr;
+    @Autowired
     private InstallMgr installMgr;
     @Autowired
     private AppValidator appValidator;
+    @Autowired
+    private AppInfoValidator appInfoValidator;
     @Autowired
     private ProjectValidator projectValidator;
     @Autowired
@@ -117,7 +124,7 @@ public class AppController extends BaseController {
     public PageResult appPage(@PathVariable Long projectId, @Valid AppListForm queryForm) {
         projectValidator.validateProjectExist(projectId);
         projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
-        return appInfoService.findPage(projectId, queryForm);
+        return appInfoService.page(projectId, queryForm);
     }
 
     @ApiOperation(value="app列表", notes="")
@@ -126,15 +133,16 @@ public class AppController extends BaseController {
     public List<AppInfo> appList(@PathVariable Long projectId, @Valid AppListForm queryForm) {
         projectValidator.validateProjectExist(projectId);
         projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
-        return appInfoService.findList(projectId, queryForm);
+        return appInfoService.list(projectId, queryForm);
     }
 
-    @ApiOperation(value="搜索一个App", notes="")
+    @ApiOperation(value="搜索一个AppInfo", notes="")
     @ResponseBody
     @GetMapping(value = "/project/{projectId}/searchOneApp/{query:.+}")
-    public AppInfo searchOneApp(@PathVariable("projectId") Long projectId, @PathVariable("query") String query) {
+    public AppInfoVO searchOneApp(@PathVariable("projectId") Long projectId, @PathVariable("query") String query) {
         projectValidator.validateProjectExist(projectId);
-        return appInfoService.getByQuery(projectId, query);
+        AppInfo appInfo = appInfoService.getByQuery(projectId, query);
+        return buildVO(appInfo, AppInfoVO.class);
     }
 
     @ApiOperation(value="获取一个App的详情", notes="")
@@ -142,34 +150,34 @@ public class AppController extends BaseController {
     @GetMapping(value = "/project/{projectId}/app/{appInfoId}/appDetail")
     public AppInfoVersionsDetailVO getDetail(@PathVariable("projectId") Long projectId, @PathVariable("appInfoId") Long appInfoId) {
         projectValidator.validateProjectExist(projectId);
-        AppInfo appInfo = appInfoService.findOne(appInfoId);
-        List<App> apps = appService.getAllVersions(appInfo);
-        AppInfoVersionsDetailVO vo = new AppInfoVersionsDetailVO();
-        vo.setAppInfo(appInfo);
-        vo.setVersions(apps);
-        return vo;
+        appInfoValidator.validateAppInfoExist(appInfoId);
+
+        return appInfoMgr.getAppDetail(appInfoId);
     }
 
     @ApiOperation(value="删除多个应用", notes="")
     @ResponseBody
-    @PostMapping(value = "/deleteAll")
+    @PostMapping(value = "/app/deleteAll")
     public void deleteAll(@RequestBody @Valid IDListForm del) {
         appInfoService.deleteAll(del.getEntityIds());
     }
 
     @ApiOperation(value="删除一个应用", notes="")
     @ResponseBody
-    @PostMapping(value = "/deleteOne")
+    @PostMapping(value = "/app/deleteOne")
     public void deleteOne(@RequestBody @Valid IDForm del) {
-        appInfoService.disableAppInfo(del.getEntityId());
+        AppInfo appInfo = appInfoValidator.validateAppInfoExist(del.getEntityId());
+        appInfoService.disableAppInfo(appInfo);
     }
 
     @ApiOperation(value="该app所有上传的版本", notes="")
     @ResponseBody
     @GetMapping(value = "/app/{appinfoId}/versionList")
-    public List<App> versionList(@PathVariable("appinfoId") Long appinfoId) {
-        AppInfo appInfo = appValidator.validateAppInfoExist(appinfoId);
-        return appService.getAllVersions(appInfo);
+    public List<AppVO> versionList(@PathVariable("appinfoId") Long appinfoId) {
+        AppInfo appInfo = appInfoValidator.validateAppInfoExist(appinfoId);
+        List<App> appList = appService.getAllVersions(appInfo);
+
+        return buildVOs(appList, AppVO.class);
     }
 
 }

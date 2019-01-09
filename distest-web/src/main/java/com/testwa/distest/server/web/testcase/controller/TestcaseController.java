@@ -14,7 +14,7 @@ import com.testwa.distest.server.service.testcase.form.TestcaseNewForm;
 import com.testwa.distest.server.service.testcase.form.TestcaseListForm;
 import com.testwa.distest.server.service.testcase.form.TestcaseUpdateForm;
 import com.testwa.distest.server.service.testcase.service.TestcaseService;
-import com.testwa.distest.server.service.user.service.UserService;
+import com.testwa.distest.server.web.app.validator.AppInfoValidator;
 import com.testwa.distest.server.web.app.validator.AppValidator;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
 import com.testwa.distest.server.web.script.validator.ScriptValidator;
@@ -42,8 +42,6 @@ public class TestcaseController extends BaseController {
     @Autowired
     private TestcaseService testcaseService;
     @Autowired
-    private UserService userService;
-    @Autowired
     private TestcaseValidatoer testcaseValidatoer;
     @Autowired
     private ProjectValidator projectValidator;
@@ -51,6 +49,8 @@ public class TestcaseController extends BaseController {
     private ScriptValidator scriptValidator;
     @Autowired
     private AppValidator appValidator;
+    @Autowired
+    private AppInfoValidator appInfoValidator;
     @Autowired
     private User currentUser;
 
@@ -61,7 +61,7 @@ public class TestcaseController extends BaseController {
 
         scriptValidator.validateScriptsInProject(form.getScriptIds(), projectId);
 
-        AppInfo appInfo = appValidator.validateAppInfoExist(form.getAppInfoId());
+        AppInfo appInfo = appInfoValidator.validateAppInfoExist(form.getAppInfoId());
         scriptValidator.validateScriptBelongApp(form.getScriptIds(), appInfo.getPackageName());
         projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
 
@@ -75,7 +75,7 @@ public class TestcaseController extends BaseController {
 
         scriptValidator.validateScriptsInProject(form.getScriptIds(), testcase.getProjectId());
 
-        AppInfo appInfo = appValidator.validateAppInfoExist(form.getAppInfoId());
+        AppInfo appInfo = appInfoValidator.validateAppInfoExist(form.getAppInfoId());
 
         scriptValidator.validateScriptBelongApp(form.getScriptIds(), appInfo.getPackageName());
 

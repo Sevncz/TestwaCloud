@@ -1,5 +1,6 @@
 package com.testwa.distest.server.service.device.dto;
 
+import com.testwa.distest.common.enums.DB;
 import lombok.Data;
 
 import java.util.Date;
@@ -8,10 +9,10 @@ import java.util.Date;
 public class PrivateDeviceDTO {
 
     private String deviceId;
-    private Integer onlineStatus;
-    private Integer workStatus;
-    private Integer debugStatus;
-    private Integer phoneOS;
+    private DB.PhoneOnlineStatus onlineStatus;
+    private DB.DeviceWorkStatus workStatus;
+    private DB.DeviceDebugStatus debugStatus;
+    private DB.PhoneOS phoneOS;
     /**注册时间**/
     private Date createTime = new Date();
     /**更新时间**/

@@ -6,10 +6,8 @@
         <result column="packageName" property="packageName" jdbcType="VARCHAR" />
         <result column="name" property="name" jdbcType="VARCHAR" />
         <result column="platform" property="platform" jdbcType="TINYINT" />
-
         <result column="latestUploadTime" property="latestUploadTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="latestAppId" property="latestAppId" jdbcType="BIGINT" />
-
         <result column="projectId" property="projectId" jdbcType="BIGINT" />
         <result column="createTime" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
@@ -17,19 +15,6 @@
         <result column="updateBy" property="updateBy" jdbcType="BIGINT" />
         <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
         <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
-        <association property="latestApp" javaType="com.testwa.distest.server.entity.App">
-            <id column="latest_id" property="id"/>
-            <result column="fileName" property="fileName"/>
-            <result column="path" property="path"/>
-            <result column="miniOSVersion" property="miniOSVersion"/>
-            <result column="platformVersion" property="platformVersion"/>
-            <result column="sdkBuild" property="sdkBuild"/>
-            <result column="activity" property="activity"/>
-            <result column="size" property="size"/>
-            <result column="version_createTime" property="createTime"/>
-            <result column="icon" property="icon"/>
-            <result column="version" property="version"/>
-        </association>
     </resultMap>
 
     <sql id="Base_Column_List" >
@@ -37,50 +22,46 @@
     </sql>
 
     <select id="findBy" parameterType="com.testwa.distest.server.entity.AppInfo" resultMap="BaseResultMap" >
-        SELECT t1.*, t2.id as latest_id, t2.fileName as fileName, t2.path as path, t2.miniOSVersion as miniOSVersion, t2.platformVersion as platformVersion, t2.sdkBuild as sdkBuild,
-        t2.activity as activity, t2.size as size, t2.createTime as version_createTime, t2.icon as icon, t2.version as version
-        FROM app_info t1 left join app t2 on t1.latestAppId = t2.id
+        SELECT *
+        FROM app_info
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
-            t1.enabled = 1
-            <if test="name != null">and t1.name LIKE CONCAT('%', #{name}, '%')</if>
-            <if test="packageName != null">and t1.packageName = #{packageName}</if>
-            <if test="projectId != null">and t1.projectId = #{projectId}</if>
+            enabled = 1
+            <if test="name != null">and name LIKE CONCAT('%', #{name}, '%')</if>
+            <if test="packageName != null">and packageName = #{packageName}</if>
+            <if test="projectId != null">and projectId = #{projectId}</if>
         </trim>
     </select>
 
     <select id="findPage" resultMap="BaseResultMap" >
-        SELECT t1.*, t2.id as latest_id, t2.fileName as fileName, t2.path as path, t2.miniOSVersion as miniOSVersion, t2.platformVersion as platformVersion, t2.sdkBuild as sdkBuild,
-        t2.activity as activity, t2.size as size, t2.createTime as version_createTime, t2.icon as icon, t2.version as version
-        FROM app_info t1 left join app t2 on t1.latestAppId = t2.id
+        SELECT *
+        FROM app_info
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
-            t1.enabled = 1
-            <if test="query.name != null">and t1.name = #{query.name}</if>
-            <if test="query.packageName != null">and t1.packageName = #{query.packageName}</if>
-            <if test="query.projectId != null">and t1.projectId = #{query.projectId}</if>
+            enabled = 1
+            <if test="query.name != null">and name = #{query.name}</if>
+            <if test="query.packageName != null">and packageName = #{query.packageName}</if>
+            <if test="query.projectId != null">and projectId = #{query.projectId}</if>
         </trim>
         <if test="orderBy != null">
-            order by t1.${orderBy}
+            order by ${orderBy}
         </if>
         <if test="desc != null">${desc}</if>
         limit ${offset}, ${limit}
     </select>
 
     <select id="findOneInProject" resultMap="BaseResultMap" >
-        SELECT t1.*, t2.id as latest_id, t2.fileName as fileName, t2.path as path, t2.miniOSVersion as miniOSVersion, t2.platformVersion as platformVersion, t2.sdkBuild as sdkBuild,
-        t2.activity as activity, t2.size as size, t2.createTime as version_createTime, t2.icon as icon, t2.version as version
-        FROM app_info t1 left join app t2 on t1.latestAppId = t2.id
-        WHERE t1.id = #{key}
-        and t1.projectId = #{projectId}
-        and t1.enabled = 1
+        SELECT *
+        FROM app_info
+        WHERE id = #{key}
+        and projectId = #{projectId}
+        and enabled = 1
     </select>
 
     <select id="findList" parameterType="com.testwa.distest.server.entity.AppInfo" resultMap="BaseResultMap" >
-        SELECT t1.*, t2.id as latest_id, t2.fileName as fileName, t2.path as path, t2.miniOSVersion as miniOSVersion, t2.platformVersion as platformVersion, t2.sdkBuild as sdkBuild,
-        t2.activity as activity, t2.size as size, t2.createTime as version_createTime, t2.icon as icon, t2.version as version
-        FROM app_info t1 left join app t2 on t1.latestAppId = t2.id
-        WHERE t1.enabled = 1
+        SELECT *
+        FROM app_info
+        WHERE enabled = 1
         <if test="keys != null">
-            and t1.id in <foreach item="id" index="index" collection="keys" open="(" separator="," close=")">#{id} </foreach>
+            and id in <foreach item="id" index="index" collection="keys" open="(" separator="," close=")">#{id} </foreach>
         </if>
     </select>
 
