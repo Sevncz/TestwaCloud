@@ -8,6 +8,7 @@ import com.testwa.distest.exception.AuthorizedException;
 import com.testwa.distest.server.entity.Project;
 import com.testwa.distest.server.entity.ProjectMember;
 import com.testwa.distest.server.entity.User;
+import com.testwa.distest.server.service.project.form.MemberRoleUpdateForm;
 import com.testwa.distest.server.service.project.form.MembersModifyForm;
 import com.testwa.distest.server.service.project.form.MembersQueryForm;
 import com.testwa.distest.server.service.project.service.ProjectMemberService;
@@ -86,7 +87,7 @@ public class ProjectMemberController extends BaseController {
     @GetMapping(value = "/{projectId}/members")
     public List members(@PathVariable Long projectId) {
         projectValidator.validateProjectExist(projectId);
-        List<User> users = projectMemberService.findAllMembers(projectId);
+        List<User> users = projectMemberService.listMembers(projectId);
         return buildVOs(users, UserVO.class);
     }
 
@@ -113,6 +114,20 @@ public class ProjectMemberController extends BaseController {
         ProjectMemberVO vo = new ProjectMemberVO();
         BeanUtils.copyProperties(pm, vo);
         return vo;
+    }
+
+    @ApiOperation(value="修改用户项目角色", notes = "")
+    @ResponseBody
+    @PostMapping(value = "/{projectId}/memberRole/change")
+    public void changeMemberRole(@PathVariable(value = "projectId") Long projectId, @RequestBody @Valid MemberRoleUpdateForm form) {
+        projectValidator.validateProjectExist(projectId);
+        projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
+        projectValidator.checkProjectAdmin(projectId, currentUser.getId());
+        ProjectMember pm = projectMemberService.getProjectRole(projectId, form.getUserId());
+        if (null == pm){
+            throw new AuthorizedException(ResultCode.ILLEGAL_OP, "该用户不属于此项目");
+        }
+        projectMemberService.updateRole(projectId, form.getUserId(), form.getRoleId());
     }
 
 }

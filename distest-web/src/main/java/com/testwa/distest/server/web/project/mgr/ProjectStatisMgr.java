@@ -2,7 +2,6 @@ package com.testwa.distest.server.web.project.mgr;
 
 
 import com.testwa.core.base.constraint.validation.PageOrderValidator;
-import com.testwa.core.base.form.RequestListBase;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.server.entity.App;
@@ -62,7 +61,7 @@ public class ProjectStatisMgr {
 
         ProjectStatisTestInfoVO testInfo = new ProjectStatisTestInfoVO();
 
-        List<User> members = projectMemberService.findAllMembers(projectId);
+        List<User> members = projectMemberService.listMembers(projectId);
         // 这里只统计每个成员调试设备花费的时间
         Long debugTime = deviceLogService.sumDebugTime(members, startTime*1000, endTime*1000);
         // 统计测试时长和测试次数
@@ -236,7 +235,7 @@ public class ProjectStatisMgr {
 
     public Map<String, ProjectStatisElapsedTimeLineVO> countElapsedTimeForMember(Long projectId, Long startTime, Long endTime) {
         Map<String, ProjectStatisElapsedTimeLineVO> lines = new HashMap<>();
-        List<User> members = projectMemberService.findAllMembers(projectId);
+        List<User> members = projectMemberService.listMembers(projectId);
         if(!members.isEmpty()) {
             for(User member : members) {
                 List<CountElapsedTimeStatisDTO> countElapsedTimeDaysList = taskService.countElapsedTimeByDay(projectId, member.getId(), startTime, endTime);

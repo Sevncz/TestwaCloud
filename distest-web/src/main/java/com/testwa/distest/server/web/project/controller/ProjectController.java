@@ -84,7 +84,7 @@ public class ProjectController extends BaseController {
     public ProjectVO update(@RequestBody @Valid ProjectUpdateForm form) {
         projectValidator.validateProjectExist(form.getProjectId());
 
-        checkProjectAdmin(form.getProjectId());
+        projectValidator.checkProjectAdmin(form.getProjectId(), currentUser.getId());
 
         if(form.getMembers() != null){
             userValidator.validateUsernamesExist(form.getMembers());
@@ -104,7 +104,9 @@ public class ProjectController extends BaseController {
     @ResponseBody
     @PostMapping(value = "/deleteAll")
     public void deleteAll(@RequestBody @Valid IDListForm form) {
-        form.getEntityIds().forEach(this::checkProjectOwner);
+        form.getEntityIds().forEach(entityId -> {
+            projectValidator.checkProjectAdmin(entityId, currentUser.getId());
+        });
         projectService.delete(form.getEntityIds());
     }
 
@@ -113,7 +115,7 @@ public class ProjectController extends BaseController {
     @ResponseBody
     @PostMapping(value = "/deleteOne")
     public void deleteOne(@RequestBody @Valid IDForm form) {
-        checkProjectOwner(form.getEntityId());
+        projectValidator.checkProjectAdmin(form.getEntityId(), currentUser.getId());
         projectService.delete(form.getEntityId());
     }
 
@@ -167,7 +169,7 @@ public class ProjectController extends BaseController {
         Project project = projectValidator.validateProjectExist(projectId);
         projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
 
-        List<User> members = projectMemberService.findAllMembers(projectId);
+        List<User> members = projectMemberService.listMembers(projectId);
         viewMgr.setRecentViewProject(projectId);
         User createUser = userService.get(project.getCreateBy());
         //  build vo
@@ -200,23 +202,4 @@ public class ProjectController extends BaseController {
         return vos;
 
     }
-
-    private void checkProjectOwner(Long entityId) {
-        checkProjectRole(entityId, DB.ProjectRole.OWNER);
-    }
-
-    private void checkProjectAdmin(Long entityId) {
-        checkProjectRole(entityId, DB.ProjectRole.ADMIN);
-    }
-
-    private void checkProjectRole(Long entityId, DB.ProjectRole projectRole) {
-        ProjectMember projectMember = projectMemberService.findByProjectIdAndMemberId(entityId, currentUser.getId());
-        if(projectMember != null) {
-            if (!projectRole.equals(projectMember.getProjectRole())) {
-                throw new AuthorizedException(ResultCode.ILLEGAL_OP, "您无法更改项目");
-            }
-        }
-    }
-
-
 }

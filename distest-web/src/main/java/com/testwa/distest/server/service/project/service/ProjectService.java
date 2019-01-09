@@ -138,7 +138,7 @@ public class ProjectService extends BaseService<Project, Long> {
         project.setUpdateBy(currentUser.getId());
         projectMapper.update(project);
 
-        List<User> members = projectMemberService.findAllMembers(project.getId());
+        List<User> members = projectMemberService.listMembers(project.getId());
         List<Long> needDelMember = new ArrayList<>();
         List<String> noNeedAddMember = new ArrayList<>();
 

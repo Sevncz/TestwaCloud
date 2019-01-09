@@ -1,6 +1,8 @@
 package com.testwa.distest.server.web.project.validator;
 
 import com.testwa.core.base.constant.ResultCode;
+import com.testwa.distest.common.enums.DB;
+import com.testwa.distest.exception.AuthorizedException;
 import com.testwa.distest.exception.BusinessException;
 import com.testwa.distest.server.entity.Project;
 import com.testwa.distest.server.entity.ProjectMember;
@@ -39,7 +41,7 @@ public class ProjectValidator {
     }
 
     public void validateUserIsProjectMember(Long projectId, Long userId) {
-        ProjectMember member = projectMemberService.findByProjectIdAndMemberId(projectId, userId);
+        ProjectMember member = projectMemberService.getByProjectIdAndMemberId(projectId, userId);
         if(member == null){
             throw new BusinessException(ResultCode.ILLEGAL_OP, "该用户不在项目中");
         }
@@ -57,7 +59,15 @@ public class ProjectValidator {
         if(projectList.isEmpty()){
             throw new BusinessException(ResultCode.ILLEGAL_OP, "该用户不在项目中");
         }
+    }
 
 
+    public void checkProjectAdmin(Long entityId, Long userId) {
+        ProjectMember projectMember = projectMemberService.getByProjectIdAndMemberId(entityId, userId);
+        if(projectMember != null) {
+            if (DB.ProjectRole.MEMBER.equals(projectMember.getProjectRole())) {
+                throw new AuthorizedException(ResultCode.ILLEGAL_OP, "您无法更改项目");
+            }
+        }
     }
 }

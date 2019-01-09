@@ -6,7 +6,7 @@ import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.exception.AuthorizedException;
 import com.testwa.distest.exception.BusinessException;
 import com.testwa.distest.exception.DBException;
-import com.testwa.distest.server.entity.IssueLabelDict;
+import com.testwa.distest.server.condition.ProjectMemberCondition;
 import com.testwa.distest.server.entity.Project;
 import com.testwa.distest.server.entity.ProjectMember;
 import com.testwa.distest.server.entity.User;
@@ -16,7 +16,6 @@ import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.auth.vo.UserVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -24,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -31,7 +31,7 @@ import java.util.*;
  */
 @Slf4j
 @Service
-@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+@Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
 public class ProjectMemberService extends BaseService<ProjectMember, Long> {
 
     @Autowired
@@ -43,12 +43,12 @@ public class ProjectMemberService extends BaseService<ProjectMember, Long> {
     @Autowired
     private User currentUser;
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveProjectOwner(Long projectId, Long userId) {
         addMember(projectId, userId, DB.ProjectRole.OWNER);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveProjectMember(Long projectId, Long userId) {
         addMember(projectId, userId, DB.ProjectRole.MEMBER);
     }
@@ -62,13 +62,13 @@ public class ProjectMemberService extends BaseService<ProjectMember, Long> {
         projectMemberMapper.insert(pm);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void delete(Long projectId, Long memberId) {
         projectMemberMapper.deleteMember(projectId, memberId);
 
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void addMembers(MembersModifyForm form) {
         if(form.getUsernames() == null || form.getUsernames().isEmpty()){
             return;
@@ -98,7 +98,7 @@ public class ProjectMemberService extends BaseService<ProjectMember, Long> {
         projectMemberMapper.mergeInsert(pms);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteMemberList(Project project, Set<Long> memberIds) {
         memberIds.remove(project.getCreateBy());
         if(memberIds.isEmpty()) {
@@ -113,14 +113,15 @@ public class ProjectMemberService extends BaseService<ProjectMember, Long> {
         }
     }
 
-    public List<User> findAllMembers(Long projectId){
-        Map<String, Object> params = new HashMap<>();
-        params.put("projectId", projectId);
-        return projectMemberMapper.findMembersFromProject(params);
+    public List<User> listMembers(Long projectId){
+        ProjectMemberCondition condition = new ProjectMemberCondition();
+        condition.setProjectId(projectId);
+        List<ProjectMember> members = projectMemberMapper.selectByCondition(condition);
+        List<Long> memberIds = members.stream().map(ProjectMember::getMemberId).collect(Collectors.toList());
+        return userService.findAll(memberIds);
     }
 
-    public List<Map> findMembers(Long projectId, User userquery){
-
+    public List<Map> listMembers(Long projectId, User userquery){
         Project project = projectService.get(projectId);
         return projectMemberMapper.findUsersProject(project.getId(), userquery);
     }
@@ -137,7 +138,7 @@ public class ProjectMemberService extends BaseService<ProjectMember, Long> {
         if(StringUtils.isNotEmpty(phone)){
             userquery.setMobile(phone);
         }
-        List<Map> allUsers = findMembers(projectId, userquery);
+        List<Map> allUsers = listMembers(projectId, userquery);
         List<UserVO> in = new ArrayList<>();
         List<UserVO> out = new ArrayList<>();
         allUsers.forEach(u -> {
@@ -158,12 +159,12 @@ public class ProjectMemberService extends BaseService<ProjectMember, Long> {
         return result;
     }
 
-    public ProjectMember findByProjectIdAndMemberId(Long projectId, Long memberId){
-        return projectMemberMapper.findByProjectIdAndMember(projectId, memberId);
+    public ProjectMember getByProjectIdAndMemberId(Long projectId, Long memberId){
+        return projectMemberMapper.getByProjectIdAndMemberId(projectId, memberId);
     }
 
-    public List<ProjectMember> findByProjectIdAndMemberId(Long projectId, List<Long> memberId){
-        return projectMemberMapper.findByProjectIdAndMembers(projectId, memberId);
+    public List<ProjectMember> getByProjectIdAndMemberId(Long projectId, List<Long> memberId){
+        return projectMemberMapper.listByProjectIdAndMembers(projectId, memberId);
     }
 
     public ProjectMember getProjectRole(Long projectId, Long userId) throws DBException {
@@ -180,7 +181,19 @@ public class ProjectMemberService extends BaseService<ProjectMember, Long> {
         return result.get(0);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public int delAllMembers(Long projectId) {
         return projectMemberMapper.deleteMember(projectId, null);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void updateRole(Long projectId, Long userId, Integer roleId) {
+        DB.ProjectRole projectRole = DB.ProjectRole.valueOf(roleId);
+        if(projectRole == null) {
+            throw new BusinessException(ResultCode.ILLEGAL_OP, "角色信息错误");
+        }
+        ProjectMember projectMember = projectMemberMapper.getByProjectIdAndMemberId(projectId, userId);
+        projectMemberMapper.updateProperty(ProjectMember::getProjectRole, projectRole, projectMember.getId());
+
     }
 }

@@ -218,7 +218,7 @@ public final class DB {
             return desc;
         }
         public static ProjectRole valueOf(int value) {
-            ProjectRole role = OWNER;
+            ProjectRole role = null;
             switch (value) {
                 case 0: role = OWNER;break;
                 case 1: role = ADMIN;break;
