@@ -20,7 +20,6 @@ public class IssueNewForm extends RequestFormBase {
     @NotBlank
     @Length(min = 1, max = 256)
     private String title;
-    @Length(min = 1)
     private String content;
     private Integer priority;
     private List<String> labelName;

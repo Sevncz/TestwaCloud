@@ -6,6 +6,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +20,7 @@ import org.springframework.context.annotation.Configuration;
 @EnableEurekaClient
 public class GrpcConfig {
     @Autowired
+    @Qualifier(value = "eurekaClient")
     private EurekaClient client;
     @Value("${grpc.server.name}")
     private String grpcServerName;
