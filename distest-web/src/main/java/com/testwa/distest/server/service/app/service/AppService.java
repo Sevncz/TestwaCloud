@@ -40,7 +40,7 @@ import java.util.*;
  */
 @Slf4j
 @Service
-@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+@Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
 public class AppService extends BaseService<App, Long> {
     @Autowired
     private AppMapper appMapper;
@@ -55,7 +55,7 @@ public class AppService extends BaseService<App, Long> {
      * 删除app及其文件
      * @param appId
      */
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteApp(Long appId){
         App app = get(appId);
         if (app == null){
@@ -83,7 +83,7 @@ public class AppService extends BaseService<App, Long> {
      * 删除多条记录
      * @param appIds
      */
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void disable(List<Long> appIds){
         appIds.forEach(this::disable);
     }
@@ -92,17 +92,17 @@ public class AppService extends BaseService<App, Long> {
      * 删除多个app及其文件
      * @param appIds
      */
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteApp(List<Long> appIds){
         appIds.forEach(this::deleteApp);
     }
 
-//    @Transactional(propagation = Propagation.REQUIRED)
+//    @Transactional(propagation = Propagation.REQUIRES_NEW)
 //    public void update(App app) {
 //        appMapper.update(app);
 //    }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void update(AppUpdateForm form) {
 
         App app = get(form.getAppId());
@@ -116,7 +116,7 @@ public class AppService extends BaseService<App, Long> {
 
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void appendInfo(AppUpdateForm form) {
         App app = get(form.getAppId());
         app.setProjectId(form.getProjectId());
@@ -137,7 +137,7 @@ public class AppService extends BaseService<App, Long> {
         return appMapper.findOneInProject(entityId, projectId);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public App uploadOnly(MultipartFile uploadfile, Long projectId) throws IOException {
 
         String filename = uploadfile.getOriginalFilename();
@@ -173,7 +173,7 @@ public class AppService extends BaseService<App, Long> {
         return appMapper.selectByCondition(query);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public App upload(MultipartFile uploadfile, Long projectId) throws IOException {
 
         String filename = uploadfile.getOriginalFilename();
@@ -281,7 +281,7 @@ public class AppService extends BaseService<App, Long> {
     }
 
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public App upload(MultipartFile uploadfile) throws IOException{
         return upload(uploadfile, null);
     }

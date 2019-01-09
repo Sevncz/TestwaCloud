@@ -33,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by wen on 20/10/2017.
@@ -124,16 +125,33 @@ public class AppController extends BaseController {
     public PageResult appPage(@PathVariable Long projectId, @Valid AppListForm queryForm) {
         projectValidator.validateProjectExist(projectId);
         projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
-        return appInfoService.page(projectId, queryForm);
+        PageResult pr = appInfoService.page(projectId, queryForm);
+        List<AppInfo> appInfos = pr.getPages();
+
+        List<AppInfoVO> appInfoVOS = getAppInfoVOList(appInfos);
+        pr.setPages(appInfoVOS);
+        return pr;
     }
 
     @ApiOperation(value="app列表", notes="")
     @ResponseBody
     @GetMapping(value = "/project/{projectId}/appList")
-    public List<AppInfo> appList(@PathVariable Long projectId, @Valid AppListForm queryForm) {
+    public List<AppInfoVO> appList(@PathVariable Long projectId, @Valid AppListForm queryForm) {
         projectValidator.validateProjectExist(projectId);
         projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
-        return appInfoService.list(projectId, queryForm);
+        List<AppInfo> appInfos = appInfoService.list(projectId, queryForm);
+        List<AppInfoVO> appInfoVOS = getAppInfoVOList(appInfos);
+        return appInfoVOS;
+    }
+
+    private List<AppInfoVO> getAppInfoVOList(List<AppInfo> appInfos) {
+        return appInfos.stream().map(this::getAppInfoVO).collect(Collectors.toList());
+    }
+
+    private AppInfoVO getAppInfoVO(AppInfo appInfo) {
+        AppInfoVO vo = buildVO(appInfo, AppInfoVO.class);
+        appInfoMgr.setLastestAppToVO(appInfo, vo);
+        return vo;
     }
 
     @ApiOperation(value="搜索一个AppInfo", notes="")
@@ -142,7 +160,7 @@ public class AppController extends BaseController {
     public AppInfoVO searchOneApp(@PathVariable("projectId") Long projectId, @PathVariable("query") String query) {
         projectValidator.validateProjectExist(projectId);
         AppInfo appInfo = appInfoService.getByQuery(projectId, query);
-        return buildVO(appInfo, AppInfoVO.class);
+        return getAppInfoVO(appInfo);
     }
 
     @ApiOperation(value="获取一个App的详情", notes="")

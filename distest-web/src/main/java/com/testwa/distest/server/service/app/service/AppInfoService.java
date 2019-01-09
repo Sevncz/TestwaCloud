@@ -137,6 +137,8 @@ public class AppInfoService extends BaseService<AppInfo, Long> {
         return getByDisplayName(projectId, query);
     }
 
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveOrUpdateAppInfo(Long projectId, App app) {
         if(projectId == null) {
             return;
