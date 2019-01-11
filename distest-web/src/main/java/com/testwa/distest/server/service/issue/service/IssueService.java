@@ -4,6 +4,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.testwa.core.base.constant.ResultCode;
 import com.testwa.core.base.service.BaseService;
+import com.testwa.core.redis.RedisCacheManager;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.exception.BusinessException;
 import com.testwa.distest.server.async.IssueLogTask;
@@ -33,7 +34,8 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 public class IssueService extends BaseService<Issue, Long> {
-
+    // 用于 issue seq 自增，%s 占位符是 projectId
+    private static final String ISSUE_SEQ = "issueSeq.%s";
     @Autowired
     private IssueMapper issueMapper;
     @Autowired
@@ -44,15 +46,18 @@ public class IssueService extends BaseService<Issue, Long> {
     private User currentUser;
     @Autowired
     private IssueLogTask issueLogTask;
+    @Autowired
+    private RedisCacheManager redisCacheManager;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public Issue save(Long projectId, String title, Integer priorityValue, DB.IssueStateEnum stateEnum) {
+    public Issue save(Long projectId, String title, Integer priorityValue, DB.IssueStateEnum stateEnum, Long seq) {
         Issue issue = new Issue();
         issue.setProjectId(projectId);
         issue.setTitle(title);
         issue.setAuthorId(currentUser.getId());
         issue.setCreateTime(new Date());
         issue.setState(stateEnum);
+        issue.setIssueSeq(seq);
         if(priorityValue != null) {
             DB.IssuePriorityEnum priorityEnum = DB.IssuePriorityEnum.valueOf(priorityValue);
             if(priorityEnum != null) {
@@ -133,8 +138,14 @@ public class IssueService extends BaseService<Issue, Long> {
         }
         Issue oldIssue = get(issueId);
         int line =  issueMapper.updateProperty(Issue::getState, newIssueStateEnum, issueId);
-
-        issueLogTask.logUpdateForState(issueId, currentUser.getId(), oldIssue.getState().getDesc(), newIssueStateEnum.getDesc());
+        if(oldIssue == null) {
+            throw new BusinessException(ResultCode.ILLEGAL_PARAM, "issue 不存在");
+        }
+        String oldState = "未设置";
+        if(oldIssue.getState() != null) {
+            oldState = oldIssue.getState().getDesc();
+        }
+        issueLogTask.logUpdateForState(issueId, currentUser.getId(), oldState, newIssueStateEnum.getDesc());
         return line;
     }
 
@@ -150,7 +161,7 @@ public class IssueService extends BaseService<Issue, Long> {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void updateTitle(String title, Long issueId) {
+    public void updateTitle(Long issueId, String title) {
         issueMapper.updateProperty(Issue::getTitle, title, issueId);
 
     }
@@ -170,7 +181,32 @@ public class IssueService extends BaseService<Issue, Long> {
             throw new BusinessException(ResultCode.ILLEGAL_PARAM, "issue 优先级不存在");
         }
         Issue oldIssue = get(issueId);
+        if(oldIssue == null) {
+            throw new BusinessException(ResultCode.ILLEGAL_PARAM, "issue 不存在");
+        }
         issueMapper.updateProperty(Issue::getPriority, priorityEnum, issueId);
-        issueLogTask.logUpdateForPriority(issueId, currentUser.getId(), oldIssue.getPriority().getDesc(), priorityEnum.getDesc());
+        String oldPriority = "未设置";
+        if(oldIssue.getPriority() != null) {
+            oldPriority = oldIssue.getPriority().getDesc();
+        }
+        issueLogTask.logUpdateForPriority(issueId, currentUser.getId(), oldPriority, priorityEnum.getDesc());
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void incrCommentNum(Long issueId) {
+        issueMapper.incrCommentNum(issueId);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void decrCommentNum(Long issueId) {
+        issueMapper.decrCommentNum(issueId);
+    }
+
+    public String getIssueSeqRedisKey(Long projectId) {
+        return String.format(ISSUE_SEQ, projectId);
+    }
+
+    public Issue getIssueMaxSeq(Long projectId) {
+        return issueMapper.getIssueMaxSeq(projectId);
     }
 }

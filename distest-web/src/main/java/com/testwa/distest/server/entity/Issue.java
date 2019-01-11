@@ -16,6 +16,9 @@ public class Issue extends BaseEntity {
     // 所属项目
     @Column(name = "project_id")
     private Long projectId;
+    // 项目中 issue 的序号
+    @Column(name = "issue_seq")
+    private Long issueSeq;
     // 创建人
     @Column(name = "author_id")
     private Long authorId;
@@ -39,6 +42,4 @@ public class Issue extends BaseEntity {
     private Long lockVersion;
     @Column(name = "comment_num")
     private Long commentNum;
-
-
 }

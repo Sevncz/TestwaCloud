@@ -181,21 +181,16 @@ public class IssueController {
         issueService.updateContent(issueId, content);
     }
 
-    @ApiOperation(value="issue 更新")
+    @ApiOperation(value="issue 更新 title 和 content")
     @ResponseBody
-    @PostMapping(value = "/project/{projectId}/issue/{issueId}/update")
+    @PostMapping(value = "/project/{projectId}/issue/{issueId}/edit")
     public void issueUpdate(@PathVariable Long projectId, @PathVariable Long issueId, @RequestBody @Valid IssueUpdateForm form) {
 
         projectValidator.validateProjectExist(projectId);
         projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
         issueValidator.validateIssueExist(issueId);
 
-        if(form.getLabelName() != null) {
-            form.getLabelName().forEach( name -> {
-                labelValidator.validateLabelNameExist(projectId, name);
-            });
-        }
-        issueMgr.update(projectId, issueId, form);
+        issueMgr.edit(issueId, form);
     }
 
     @ApiOperation(value="issue 添加 assignee")
@@ -295,11 +290,12 @@ public class IssueController {
     @ApiOperation(value="创建issue comment")
     @ResponseBody
     @PostMapping(value = "/project/{projectId}/issue/{issueId}/commentNew")
-    public void issueCommentSave(@PathVariable Long projectId, @PathVariable Long issueId, @RequestBody @Valid IssueCommentNewForm form) {
+    public Long issueCommentSave(@PathVariable Long projectId, @PathVariable Long issueId, @RequestBody @Valid IssueCommentNewForm form) {
         projectValidator.validateProjectExist(projectId);
         projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
         Issue issue = issueValidator.validateIssueExist(issueId);
-        issueCommentService.save(issueId, form.getContent());
+        IssueComment comment = issueCommentService.save(issueId, form.getContent());
+        return comment.getId();
     }
 
 
@@ -314,6 +310,16 @@ public class IssueController {
             throw new BusinessException(ResultCode.ILLEGAL_OP, "您无法删除 issue");
         }
         issueService.disable(issueId);
+    }
+
+    @ApiOperation(value="删除issue comment")
+    @ResponseBody
+    @PostMapping(value = "/project/{projectId}/issue/{issueId}/commentDelete/{commentId}")
+    public void issueCommentDelete(@PathVariable Long projectId, @PathVariable Long issueId, @PathVariable Long commentId) {
+        projectValidator.validateProjectExist(projectId);
+        projectValidator.validateUserIsProjectMember(projectId, currentUser.getId());
+        Issue issue = issueValidator.validateIssueExist(issueId);
+        issueMgr.deleteComment(issueId, commentId);
     }
 
 

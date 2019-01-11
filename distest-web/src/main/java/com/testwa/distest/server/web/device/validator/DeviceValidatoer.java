@@ -2,7 +2,6 @@ package com.testwa.distest.server.web.device.validator;
 
 import com.testwa.core.base.constant.ResultCode;
 import com.testwa.distest.common.enums.DB;
-import com.testwa.distest.exception.BusinessException;
 import com.testwa.distest.exception.DeviceException;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.service.device.service.DeviceService;
@@ -48,7 +47,7 @@ public class DeviceValidatoer {
     }
 
     public Device validateDeviceExist(String deviceId) {
-        Device entity = deviceService.findOne(deviceId);
+        Device entity = deviceService.getByDeviceId(deviceId);
         if(entity == null){
             throw new DeviceException(ResultCode.NOT_FOUND, "设备不存在");
         }
@@ -56,7 +55,7 @@ public class DeviceValidatoer {
     }
 
     public void validateDeviceBelongUser(String deviceId, Long userId) {
-        Device entity = deviceService.findOne(deviceId);
+        Device entity = deviceService.getByDeviceId(deviceId);
         if(!entity.getLastUserId().equals(userId)){
             throw new DeviceException(ResultCode.CONFLICT, "该设备不属于用户");
         }

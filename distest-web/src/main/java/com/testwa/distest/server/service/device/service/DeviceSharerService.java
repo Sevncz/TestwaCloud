@@ -87,7 +87,7 @@ public class DeviceSharerService extends BaseService<DeviceSharer, Long> {
      * @Author wen
      * @Date 2018/10/30 18:34
      */
-    public List<DeviceSharer> findShareToUserList(Set<String> inDeviceList, Long userId) {
+    public List<DeviceSharer> listFindShareToUser(Set<String> inDeviceList, Long userId) {
 
         return deviceSharerMapper.findShareToUserList(inDeviceList, userId);
     }
@@ -99,7 +99,7 @@ public class DeviceSharerService extends BaseService<DeviceSharer, Long> {
      * @Author wen
      * @Date 2018/10/30 18:36
      */
-    public List<DeviceScopeUserVO> findDeviceScopeUserList(String deviceId, Long userId) {
+    public List<DeviceScopeUserVO> listDeviceScopeUser(String deviceId, Long userId) {
 
         List<DeviceScopeUserVO> scopeUserVOList = new ArrayList<>();
 

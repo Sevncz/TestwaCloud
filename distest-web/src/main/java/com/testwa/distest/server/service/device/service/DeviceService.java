@@ -71,8 +71,12 @@ public class DeviceService extends BaseService<Device, Long> {
     public List<Device> findAll(List<String> deviceIds) {
         return deviceMapper.findAll(deviceIds);
     }
-    public Device findOne(String deviceId) {
+
+    public Device getByDeviceId(String deviceId) {
         Device device = deviceMapper.selectByProperty(Device::getDeviceId, deviceId);
+        if(device == null) {
+            return null;
+        }
         return device.getEnabled() ? device : null;
     }
 
@@ -324,7 +328,7 @@ public class DeviceService extends BaseService<Device, Long> {
             return new ArrayList<>();
         }
         // 获得分享给用户userId的DeviceSharer列表
-        List<DeviceSharer> deviceSharerList = deviceSharerService.findShareToUserList(onlineDeviceList, userId);
+        List<DeviceSharer> deviceSharerList = deviceSharerService.listFindShareToUser(onlineDeviceList, userId);
         if(deviceSharerList.isEmpty()) {
             return Collections.emptyList();
         }

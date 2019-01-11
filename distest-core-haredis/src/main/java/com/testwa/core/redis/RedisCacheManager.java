@@ -780,7 +780,7 @@ public class RedisCacheManager {
                 public String getOptionType() {
                     return "incr";
                 }
-            }, clients, key, false);
+            }, clients, key, true);
         }
         return 0L;
     }

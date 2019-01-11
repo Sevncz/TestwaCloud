@@ -5,6 +5,7 @@ import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.vo.Result;
 import com.testwa.distest.common.enums.DB;
+import com.testwa.distest.exception.BusinessException;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.DeviceShareScope;
 import com.testwa.distest.server.entity.User;
@@ -17,7 +18,6 @@ import com.testwa.distest.server.service.device.service.DeviceSharerService;
 import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.auth.validator.UserValidator;
 import com.testwa.distest.server.web.device.validator.DeviceValidatoer;
-import com.testwa.distest.server.web.device.vo.DeviceScopeUserVO;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -148,8 +148,8 @@ public class DeviceScopeConfigController extends BaseController{
     @ApiOperation(value="设备分享的用户列表", notes = "只能管理自己的设备")
     @ResponseBody
     @GetMapping(value = "/{deviceId}/userList")
-    public List shareList(@PathVariable String deviceId) {
-        return deviceSharerService.findDeviceScopeUserList(deviceId, currentUser.getId());
+    public List userList(@PathVariable String deviceId) {
+        return deviceSharerService.listDeviceScopeUser(deviceId, currentUser.getId());
     }
 
     /**
@@ -160,14 +160,13 @@ public class DeviceScopeConfigController extends BaseController{
     @ApiOperation(value="配置设备分享的项目", notes = "只能管理自己的设备")
     @ResponseBody
     @PostMapping(value = "/shareToProject")
-    public Result shareToProject(@RequestBody @Valid DeviceScopeShareToProjectForm form) {
+    public void shareToProject(@RequestBody @Valid DeviceScopeShareToProjectForm form) {
         deviceValidatoer.validateDeviceExist(form.getDeviceId());
         if(form.getToProjectIdList() == null || form.getToProjectIdList().isEmpty()) {
-            return Result.error(ResultCode.PARAM_ERROR, "指定分享的项目列表不能为空");
+            throw new BusinessException(ResultCode.ILLEGAL_PARAM, "指定分享的项目列表不能为空");
         }
         projectValidator.validateProjectExist(form.getToProjectIdList());
         // TODO
-        return Result.success();
     }
 
 }

@@ -7,7 +7,6 @@ import com.testwa.distest.server.entity.Issue;
 import com.testwa.distest.server.service.issue.form.IssueListForm;
 import com.testwa.distest.server.service.issue.form.IssueNewForm;
 import com.testwa.distest.server.service.issue.service.IssueService;
-import com.testwa.distest.server.web.issue.vo.IssueVO;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
@@ -19,9 +18,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -40,7 +36,8 @@ public class IssueServiceTest {
         IssueNewForm form = new IssueNewForm();
         form.setTitle("test");
         form.setContent("test");
-        this.entity = service.save(projectId, form.getTitle(), form.getPriority(), DB.IssueStateEnum.OPEN);
+        Long seq = 1L;
+        this.entity = service.save(projectId, form.getTitle(), form.getPriority(), DB.IssueStateEnum.OPEN, seq);
     }
 
     @Test
@@ -94,7 +91,8 @@ public class IssueServiceTest {
             IssueNewForm newForm = new IssueNewForm();
             newForm.setTitle("test" + i);
             newForm.setContent("test");
-            this.entity = service.save(projectId, newForm.getTitle(), newForm.getPriority(), DB.IssueStateEnum.OPEN);
+            Long seq = i + 1L;
+            this.entity = service.save(projectId, newForm.getTitle(), newForm.getPriority(), DB.IssueStateEnum.OPEN, seq);
         }
 
         PageInfo<Issue> issues2 = service.page(form, projectId);

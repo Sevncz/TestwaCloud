@@ -3,6 +3,7 @@
 <mapper namespace="com.testwa.distest.server.mapper.IssueMapper" >
     <resultMap id="BaseResultMap" type="com.testwa.distest.server.entity.Issue" >
         <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="issue_seq" property="issueSeq" jdbcType="BIGINT" />
         <result column="project_id" property="projectId" jdbcType="BIGINT" />
         <result column="author_id" property="authorId" jdbcType="BIGINT" />
         <result column="title" property="title" jdbcType="VARCHAR" />
@@ -52,6 +53,10 @@
     <update id="decrCommentNum">
         update dis_issue
         set comment_num = comment_num - 1
-        where id = #{issueId} and num > 0
+        where id = #{issueId} and comment_num > 0
     </update>
+
+    <select id="getIssueMaxSeq"  resultMap="BaseResultMap">
+        select * from dis_issue where project_id = #{projectId} order by issue_seq desc limit 1
+    </select>
 </mapper>

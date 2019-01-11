@@ -20,4 +20,6 @@ public interface IssueMapper extends BaseMapper<Issue, Long> {
     int incrCommentNum(@Param("issueId") Long issueId);
 
     int decrCommentNum(@Param("issueId") Long issueId);
+
+    Issue getIssueMaxSeq(@Param("projectId") Long projectId);
 }
