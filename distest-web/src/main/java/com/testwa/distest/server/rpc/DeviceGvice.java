@@ -13,7 +13,7 @@ import com.testwa.distest.server.web.device.mgr.DeviceOnlineMgr;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.device.*;
 import lombok.extern.slf4j.Slf4j;
-import org.lognet.springboot.grpc.GRpcService;
+import net.devh.springboot.autoconfigure.grpc.server.GrpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.text.DecimalFormat;
@@ -23,7 +23,7 @@ import java.util.List;
  * Created by wen on 2017/06/09.
  */
 @Slf4j
-@GRpcService
+@GrpcService(DeviceServiceGrpc.class)
 public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     private final static DecimalFormat format = new DecimalFormat("###.0");
 
