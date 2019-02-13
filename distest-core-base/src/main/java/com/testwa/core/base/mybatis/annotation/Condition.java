@@ -17,5 +17,4 @@ public @interface Condition {
 
     Logic logic() default Logic.EQ;
 
-
 }
