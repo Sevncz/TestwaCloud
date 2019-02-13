@@ -15,23 +15,27 @@ import org.springframework.context.annotation.Configuration;
 /**
  * Created by wen on 13/08/2017.
  */
-@Slf4j
-@Configuration
-@EnableEurekaClient
+//@Slf4j
+//@Configuration
+//@EnableEurekaClient
 public class GrpcConfig {
-    @Autowired
-    @Qualifier(value = "eurekaClient")
-    private EurekaClient client;
-    @Value("${grpc.server.name}")
-    private String grpcServerName;
-
-    @Bean("serverChannel")
-    public ManagedChannel serverChannel(){
-        final InstanceInfo instanceInfo = client.getNextServerFromEureka(grpcServerName, false);
-        log.info("Discovery GRPC: {}:{}", instanceInfo.getIPAddr(), instanceInfo.getPort());
-        final ManagedChannel channel = ManagedChannelBuilder.forAddress(instanceInfo.getIPAddr(), instanceInfo.getPort())
-                .usePlaintext()
-                .build();
-        return channel;
-    }
+//    @Autowired
+//    @Qualifier(value = "eurekaClient")
+//    private EurekaClient client;
+//    @Value("${grpc.server.name}")
+//    private String grpcServerName;
+//    @Value("${grpc.host}")
+//    private String grpcHost;
+//    @Value("${grpc.port}")
+//    private Integer grpcPort;
+//
+//    @Bean("serverChannel")
+//    public ManagedChannel serverChannel(){
+//        final InstanceInfo instanceInfo = client.getNextServerFromEureka(grpcServerName, false);
+//        log.info("Discovery GRPC: {}:{}", instanceInfo.getIPAddr(), instanceInfo.getPort());
+//        final ManagedChannel channel = ManagedChannelBuilder.forAddress(grpcHost, grpcPort)
+//                .usePlaintext()
+//                .build();
+//        return channel;
+//    }
 }
