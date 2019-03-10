@@ -138,9 +138,13 @@ public class ExecuteMgr {
             // 批量获取案例下的所有脚本
             List<ScriptInfo> scripts = new ArrayList<>();
             List<Long> scriptIds = new ArrayList<>();
-            c.getTestcaseDetails().forEach( s -> {
-                scriptIds.add(s.getScriptId());
-            });
+            if(c != null && c.getTestcaseDetails() != null) {
+                c.getTestcaseDetails().forEach( s -> {
+                    scriptIds.add(s.getScriptId());
+                });
+            }else{
+                log.error("testcase {} is null or testcase detail is null", testcaseId);
+            }
             // 转换成cmd下的scriptInfo
             List<Script> caseAllScript = scriptService.findAll(scriptIds);
             caseAllScript.forEach(script -> {

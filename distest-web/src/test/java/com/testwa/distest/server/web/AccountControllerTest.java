@@ -1,6 +1,7 @@
 package com.testwa.distest.server.web;
 
 import com.alibaba.fastjson.JSON;
+import com.testwa.core.base.constant.WebConstants;
 import com.testwa.distest.DistestWebApplication;
 import com.testwa.distest.server.web.auth.controller.AuthController;
 import org.junit.Before;
@@ -54,11 +55,11 @@ public class AccountControllerTest {
     @WithAnonymousUser
     public void testLogin() throws Exception {
         Map<String, Object> params = new HashMap<>();
-        params.put("username", "admin");
-        params.put("password", "admin");
+        params.put("username", "wen01");
+        params.put("password", "12345^");
         String requestJson = JSON.toJSONString(params);
         RequestBuilder request = null;
-        request = post("/account/login/")
+        request = post(WebConstants.API_PREFIX + "/auth/login/")
                 .contentType(APPLICATION_JSON_UTF8)
                 .content(requestJson);
         mvc.perform(request)
