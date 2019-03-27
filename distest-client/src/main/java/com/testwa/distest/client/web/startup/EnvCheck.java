@@ -140,7 +140,7 @@ public class EnvCheck implements CommandLineRunner {
                             String token = data.getString("accessToken");
                             UserInfo.token = token;
                             UserInfo.username = username;
-
+                            log.info("登录成功：{}, {}", UserInfo.username, UserInfo.token);
                             startDeviceManager();
                         } else {
                             log.error("登录{}失败，返回{}", loginUrl, content);

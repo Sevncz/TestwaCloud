@@ -229,17 +229,28 @@
                 <artifactId>grpc-stub</artifactId>
                 <version>${grpc.version}</version>
             </dependency>
+            <!--<dependency>-->
+                <!--<groupId>io.github.lognet</groupId>-->
+                <!--<artifactId>grpc-spring-boot-starter</artifactId>-->
+                <!--<version>${grpc-spring-boot-starter.version}</version>-->
+                <!--<exclusions>-->
+                    <!--<exclusion>-->
+                        <!--<groupId>org.springframework.boot</groupId>-->
+                        <!--<artifactId>spring-boot-starter</artifactId>-->
+                    <!--</exclusion>-->
+                <!--</exclusions>-->
+            <!--</dependency>-->
             <dependency>
-                <groupId>io.github.lognet</groupId>
-                <artifactId>grpc-spring-boot-starter</artifactId>
-                <version>${grpc-spring-boot-starter.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-starter</artifactId>
-                    </exclusion>
-                </exclusions>
+                <groupId>net.devh</groupId>
+                <artifactId>grpc-server-spring-boot-starter</artifactId>
+                <version>1.4.1.RELEASE</version>
             </dependency>
+            <dependency>
+                <groupId>net.devh</groupId>
+                <artifactId>grpc-client-spring-boot-starter</artifactId>
+                <version>1.4.1.RELEASE</version>
+            </dependency>
+
             <!-- grpc end -->
 
             <dependency>
@@ -247,7 +258,6 @@
                 <artifactId>device-api</artifactId>
                 <version>0.9.3</version>
             </dependency>
-
 
             <dependency>
                 <groupId>io.appium</groupId>
