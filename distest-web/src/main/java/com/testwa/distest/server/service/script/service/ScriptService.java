@@ -62,6 +62,9 @@ public class ScriptService extends BaseService<Script, Long> {
 
     public Script findOne(Long scriptId){
         Script script = scriptMapper.selectById(scriptId);
+        if(script == null) {
+            return null;
+        }
         return script.getEnabled() ? script : null;
     }
 
