@@ -33,6 +33,7 @@ public class Constant {
     // ios-deploy
     public static final String IOS_DEPLOY = "ios-deploy";
     public static final String IOS_DEPLOY_BIN = "ios-deploy";
+    public static final String IOS_SYSLOG = "idevicesyslog";
 
     public static final String APPIUM_LIB = "appium";
     public static final String APPIUM_UI2 = "appium-uiautomator2-server.apk";

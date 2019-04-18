@@ -14,5 +14,8 @@ public class PortConfig {
 
 	public final static int appiumPortStart=15000;// appium端口映射开始号
 	public final static int appiumPortEnd=20000;
+
+	public final static int wdaPortStart=20500;// appium端口映射开始号
+	public final static int wdaPortEnd=21000;
 	
 }

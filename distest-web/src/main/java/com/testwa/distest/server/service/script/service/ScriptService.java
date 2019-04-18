@@ -170,8 +170,7 @@ public class ScriptService extends BaseService<Script, Long> {
         script.setMd5(md5);
         script.setProjectId(projectId);
         script.setEnabled(true);
-        Long scriptId = scriptMapper.insert(script);
-        script.setId(scriptId);
+        scriptMapper.insert(script);
         return script;
     }
 
@@ -193,6 +192,9 @@ public class ScriptService extends BaseService<Script, Long> {
     public void update(ScriptUpdateForm form) {
 
         Script script = findOne(form.getScriptId());
+        if(script == null) {
+            return;
+        }
         script.setProjectId(form.getProjectId());
         script.setTag(form.getTag());
         script.setDescription(form.getDescription());
@@ -205,6 +207,9 @@ public class ScriptService extends BaseService<Script, Long> {
     public void appendInfo(ScriptUpdateForm form) {
 
         Script script = findOne(form.getScriptId());
+        if(script == null) {
+            return;
+        }
         script.setProjectId(form.getProjectId());
         script.setTag(form.getTag());
         script.setDescription(form.getDescription());
@@ -267,6 +272,9 @@ public class ScriptService extends BaseService<Script, Long> {
     @Transactional(propagation = Propagation.REQUIRED)
     public void modifyContent(Long scriptId, String content) throws IOException {
         Script script = findOne(scriptId);
+        if(script == null) {
+            return;
+        }
         String path = disFileProperties.getScript() + File.separator + script.getPath();
 
         content = replaceBlank(content);
@@ -316,6 +324,9 @@ public class ScriptService extends BaseService<Script, Long> {
 
     public String getContent(Long scriptId) throws IOException {
         Script script = findOne(scriptId);
+        if(script == null) {
+            return "";
+        }
         return getContent(script);
     }
 

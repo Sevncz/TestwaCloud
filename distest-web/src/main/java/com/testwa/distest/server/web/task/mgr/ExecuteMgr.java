@@ -149,8 +149,10 @@ public class ExecuteMgr {
             List<Script> caseAllScript = scriptService.findAll(scriptIds);
             caseAllScript.forEach(script -> {
                 ScriptInfo info = new ScriptInfo();
-                BeanUtils.copyProperties(script, info);
-                scripts.add(info);
+                if(script != null) {
+                    BeanUtils.copyProperties(script, info);
+                    scripts.add(info);
+                }
             });
             content.setScripts(scripts);
             cases.add(content);
