@@ -163,35 +163,6 @@ public class JWda {
         }
     }
 
-//    public void cleanKeychain(String device) {
-//        try {
-//            Runtime.getRuntime().exec(commandPath + " " + deviceInfo.get(device) + " clear_keychain " + bundleId);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    public void installApp(String device) {
-//        try {
-//            Runtime.getRuntime().exec(commandPath + " " + deviceInfo.get(device) + " install " + appPath);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    public void uninstallApp(String device) {
-//        try {
-//            Runtime.getRuntime().exec(commandPath + " " + deviceInfo.get(device) + " uninstall " + bundleId);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-
-    public void tap(String elementId) {
-        String route = url + "/" + sessionId + "/element/" + elementId + "/click";
-        sendRequest(route, "post", "");
-    }
-
     public void input(String elementId, String val) {
         String routeClear = url + "/" + sessionId + "/element/" + elementId + "/clear";
         sendRequest(routeClear, "post", "");
@@ -203,63 +174,6 @@ public class JWda {
         String body = "{\"value\": \"" + val + "\"}";
         sendRequest(routeInput, "post", body);
     }
-
-    public void scroll(String elementId, String name) {
-        String route = url + "/" + sessionId + "/wda/Element/" + elementId + "/scroll";
-        String body = "{\"name\": \"" + name + "\"}";
-        sendRequest(route, "post", body);
-    }
-
-    public void swipeWIthDirection(String elementId, String direction) {
-        String route = url + "/" + sessionId + "/wda/element/" + elementId + "/swipe";
-        String body = "{\"direction\": \"" + direction + "\"}";
-        sendRequest(route, "post", body);
-    }
-
-//    public JsonObject getEelementVal(String elementId) {
-//        Supplier<JsonObject> action = () -> {
-//            String route = route = url + "/" + sessionId + "/element/" + elementId + "/attribute/value";
-//            return get(route);
-//        };
-//
-//        Predicate<JsonObject> checker = jsonResponse -> jsonResponse.has(sessionId);
-//
-//        return waitFor(action, checker, "Element not found!");
-//    }
-//
-//    public JsonObject backgroundApp() {
-//        url = url.replace("/session", "");
-//
-//        Supplier<JsonObject> action = () -> {
-//            String route = url + "/wda/homescreen";
-//            return post(route, "");
-//        };
-//
-//        Predicate<JsonObject> checker = jsonResponse -> jsonResponse.has(sessionId);
-//        return waitFor(action, checker, "Action failed!");
-//    }
-//
-//    public JsonObject waitForEnable(String elementId) {
-//        Supplier<JsonObject> action = () -> {
-//            String route = url + "/" + sessionId + "/element/" + elementId + "/enabled";
-//            return get(route);
-//        };
-//
-//        Predicate<JsonObject> checker = jsonResponse -> jsonResponse.has("true");
-//
-//        return waitFor(action, checker, "Element not enabled!");
-//    }
-//
-//    public JsonObject waitForDisplay(String elementId) {
-//        Supplier<JsonObject> action = () -> {
-//            String route = url + "/" + sessionId + "/element/" + elementId + "/displayed";
-//            return get(route);
-//        };
-//
-//        Predicate<JsonObject> checker = jsonResponse -> jsonResponse.has("true");
-//
-//        return waitFor(action, checker, "Element not displayed!");
-//    }
 
     public void tap(String x, String y) {
         String route = url + "/session/" + sessionId + "/wda/tap/0";
@@ -287,4 +201,26 @@ public class JWda {
         String route = url + "/status";
         return sendRequest(route, "get", null);
     }
+
+    /**
+     * @Description: Args:
+     *             - bundle_id (str): the app bundle id
+     *             - arguments (list): ['-u', 'https://www.google.com/ncr']
+     *             - enviroment (dict): {"KEY": "VAL"}
+     * @Param: [url]
+     * @Return: void
+     * @Author wen
+     * @Date 2019/4/18 12:54
+     */
+    public void openUrl(String url) {
+        String bundleId = "com.apple.mobilesafari";
+        Map<String, Object> capabilities = new HashMap<>();
+        capabilities.put("bundleId", bundleId);
+        capabilities.put("arguments", bundleId);
+        capabilities.put("environment", bundleId);
+        capabilities.put("shouldWaitForQuiescence", true);
+        String route = url + "/session";
+        sendRequest(route, "post", JSON.toJSONString(capabilities));
+    }
+
 }

@@ -163,11 +163,26 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
 
 
     @Override
-    public void screen(ScreenCaptureRequest request, StreamObserver<CommonReply> responseObserver) {
-        String serial = request.getSerial();
-        screenStreamQueue.push(serial, request.getImg());
-        final CommonReply.Builder replyBuilder = CommonReply.newBuilder().setMessage("OK ");
-        responseObserver.onNext(replyBuilder.build());
-        responseObserver.onCompleted();
+    public StreamObserver<ScreenCaptureRequest> screen(StreamObserver<CommonReply> responseObserver) {
+        return new StreamObserver<ScreenCaptureRequest>() {
+
+            @Override
+            public void onNext(ScreenCaptureRequest request) {
+                String serial = request.getSerial();
+                screenStreamQueue.push(serial, request.getImg());
+            }
+
+            @Override
+            public void onError(Throwable t) {
+
+            }
+
+            @Override
+            public void onCompleted() {
+                responseObserver.onNext(CommonReply.newBuilder().setMessage("OK ")
+                        .build());
+                responseObserver.onCompleted();
+            }
+        };
     }
 }

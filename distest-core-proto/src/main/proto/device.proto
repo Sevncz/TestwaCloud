@@ -20,7 +20,7 @@ service DeviceService {
     rpc disconnect (DeviceStatusChangeRequest) returns ( CommonReply ) {}
     rpc offline (DeviceStatusChangeRequest) returns ( CommonReply ) {}
     rpc logcat(LogcatRequest) returns ( CommonReply ) {}
-    rpc screen(ScreenCaptureRequest) returns ( CommonReply ) {}
+    rpc screen(stream ScreenCaptureRequest) returns ( CommonReply ) {}
 }
 
 message Device {
