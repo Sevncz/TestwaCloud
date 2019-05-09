@@ -1,0 +1,1 @@
+package com.testwa.distest.client2.support.android;import lombok.AllArgsConstructor;import lombok.Data;import lombok.NoArgsConstructor;@Data@NoArgsConstructor@AllArgsConstructorpublic class PhysicalSize {    /** 宽度 */    private int width;    /** 高度 */    private int height;}
