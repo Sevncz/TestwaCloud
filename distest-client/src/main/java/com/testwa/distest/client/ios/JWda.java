@@ -98,62 +98,11 @@ public class JWda {
         throw new AssertionError(String.format(error_template, response));
     }
 
-//    private JSONObject getSpecificElement(String label, JSONObject response) {
-//        for (JsonElement entry : response.get("value").getAsJsonArray()) {
-//            if (entry.toString().contains(label)) {
-//                return entry.getAsJsonObject();
-//            }
-//        }
-//        return null;
-//    }
-
     public void openApp(String url, String bundleId) {
         String body = "{\"desiredCapabilities\":{\"bundleId\":\"" + bundleId + "\"}}";
         JSONObject response = post(url, body);
         sessionId = response.getString("sessionId");
     }
-
-//    public void waitForNetworkDone() {
-//        String route = url + "/" + sessionId + "/elements";
-//        String body = "{\"using\":\"xpath\",\"value\":\"//XCUIElementTypeOther[@label='Network connection in progress']\"}";
-//        long start = System.currentTimeMillis();
-//
-//        sleepTimeout("interval");
-//        while (System.currentTimeMillis() - start < 10 * 1000) {
-//            JsonObject response = post(route, body);
-//            if (response.get("value").getAsJsonArray().size() == 0) {
-//                break;
-//            }
-//            sleepTimeout("interval");
-//        }
-//    }
-
-//    public JsonObject findElementsByClass(String classVal, String label) {
-//        Supplier<JsonObject> action = () -> {
-//            String route = url + "/" + sessionId + "/elements";
-//            String body = "{\"using\":\"class name\",\"value\":\"" + classVal + "\"}";
-//            return post(route, body);
-//        };
-//
-//        Predicate<JsonObject> checker = jsonResponse -> jsonResponse.toString().contains(label);
-//
-//        JsonObject response = waitFor(action, checker, "Element not found!");
-//        return getSpecificElement(label, response);
-//    }
-//
-//    public JsonObject findElementsByXpath(String xpath) {
-//        Supplier<JsonObject> action = () -> {
-//            String route = url + "/" + sessionId + "/elements";
-//            String body = "{\"using\":\"xpath\",\"value\":\"" + xpath + "\"}";
-//            return post(route, body);
-//        };
-//
-//        Predicate<JsonObject> checker = jsonResponse -> jsonResponse.get("value").getAsJsonArray().size() > 0 && !jsonResponse.toString().contains("Cannot evaluate results for XPath expression");
-//
-//        JsonObject response = waitFor(action, checker, "Element not found!");
-//
-//        return (JsonObject) response.get("value").getAsJsonArray().get(0);
-//    }
 
     private void sleepTimeout(String timeout) {
         try {

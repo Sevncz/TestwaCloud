@@ -1,0 +1,86 @@
+[
+  { "name": "iPhone 2G",
+    "points": "320x480",
+    "physical": "320x480"
+  },
+  { "name": "iPhone 3G",
+    "points": "320x480",
+    "physical": "320x480"
+  },
+  { "name": "iPhone 3GS",
+    "points": "320x480",
+    "physical": "320x480"
+  },
+  { "name": "iPhone 4",
+    "points": "320x480",
+    "physical": "640x960"
+  },
+  { "name": "iPhone 4s",
+    "points": "320x480",
+    "physical": "640x960"
+  },
+  { "name": "iPhone 5",
+    "points": "320x568",
+    "physical": "640x1136"
+  },
+  { "name": "iPhone 5s",
+    "points": "320x568",
+    "physical": "640x1136"
+  },
+  { "name": "iPhone 5C",
+    "points": "320x568",
+    "physical": "640x1136"
+  },
+  { "name": "iPhone SE",
+    "points": "320x568",
+    "physical": "640x1136"
+  },
+  { "name": "iPhone 6",
+    "points": "375x667",
+    "physical": "750x1334"
+  },
+  { "name": "iPhone 6s",
+    "points": "375x667",
+    "physical": "750x1334"
+  },
+  { "name": "iPhone 7",
+    "points": "375x667",
+    "physical": "750x1334"
+  },
+  { "name": "iPhone 8",
+    "points": "375x667",
+    "physical": "750x1334"
+  },
+  { "name": "iPhone 6P",
+    "points": "414x736",
+    "physical": "1242x2280"
+  },
+  { "name": "iPhone 6sP",
+    "points": "414x736",
+    "physical": "1242x2280"
+  },
+  { "name": "iPhone 7P",
+    "points": "414x736",
+    "physical": "1242x2280"
+  },
+  { "name": "iPhone 8P",
+    "points": "414x736",
+    "physical": "1242x2280"
+  },
+  { "name": "iPhone X",
+    "points": "375x812",
+    "physical": "1125x2436"
+  },
+  { "name": "iPhone XS",
+    "points": "375x812",
+    "physical": "1125x2436"
+  },
+  { "name": "iPhone XR",
+    "points": "414x896",
+    "physical": "828x1792"
+  },
+  { "name": "iPhone XS Max",
+    "points": "414x896",
+    "physical": "1242x2688"
+  }
+]

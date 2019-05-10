@@ -25,7 +25,7 @@ public class FrameCounter {
 
     public boolean filter(){
         Long currentTime = System.currentTimeMillis();
-        if(currentTime - startTime > SECOND_1/MAX_COUNT){
+        if((currentTime - startTime) > SECOND_1/MAX_COUNT){
             startTime = currentTime;
             return true;
         }
