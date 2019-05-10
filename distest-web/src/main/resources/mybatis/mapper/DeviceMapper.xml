@@ -77,7 +77,8 @@
             settingsInstall=#{settingsInstall},
             unlockInstall=#{unlockInstall},
             unicodeIMEInstall=#{unicodeIMEInstall},
-            selendroidInstall=#{selendroidInstall}
+            selendroidInstall=#{selendroidInstall},
+            enabled=#{enabled}
         </trim>
         WHERE
         deviceId = #{deviceId}
