@@ -56,6 +56,10 @@
         </dependency>
         <dependency>
             <groupId>com.testwa</groupId>
+            <artifactId>distest-jadb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.testwa</groupId>
             <artifactId>distest-core-proto</artifactId>
         </dependency>
 
@@ -123,7 +127,6 @@
             <groupId>com.googlecode.protobuf-java-format</groupId>
             <artifactId>protobuf-java-format</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.github.cosysoft</groupId>
             <artifactId>device-api</artifactId>

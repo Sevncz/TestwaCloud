@@ -3,7 +3,6 @@ package com.testwa.distest.client.web.startup;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.testwa.distest.client.android.AndroidHelper;
-import com.testwa.distest.client.android.DeviceManager;
 import com.testwa.distest.client.component.appium.utils.Config;
 import com.testwa.distest.client.component.executor.task.TaskDispatcher;
 import com.testwa.distest.client.component.port.*;
@@ -30,9 +29,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by wen on 16/8/27.
@@ -65,8 +61,11 @@ public class EnvCheck implements CommandLineRunner {
         ApkPortProvider.init(PortConfig.apkPortStart, PortConfig.apkPortEnd);
         AppiumPortProvider.init(PortConfig.appiumPortStart, PortConfig.appiumPortEnd);
         WDAPortProvider.init(PortConfig.wdaPortStart, PortConfig.wdaPortEnd);
-//        ADBCommandUtils.restart();
+        TcpIpPortProvider.init(PortConfig.tcpipStart, PortConfig.tcpipEnd);
+        SocatPortProvider.init(PortConfig.socatStart, PortConfig.socatEnd);
+
         AndroidHelper.getInstance();
+
         checkSupportEnv();
         checkAuth(username, password);
         checkTempDirPath();
@@ -139,7 +138,6 @@ public class EnvCheck implements CommandLineRunner {
                             UserInfo.token = token;
                             UserInfo.username = username;
                             log.info("登录成功：{}, {}", UserInfo.username, UserInfo.token);
-                            startDeviceManager();
                         } else {
                             log.error("登录{}失败，返回{}", loginUrl, content);
                             System.exit(0);
@@ -231,12 +229,6 @@ public class EnvCheck implements CommandLineRunner {
         log.info("Script: {}", Constant.localScriptPath);
         log.info("Video: {}", Constant.localVideoPath);
         log.info("Crawler: {}", Constant.localCrawlerOutPath);
-    }
-
-    private void startDeviceManager() {
-        Thread t = new Thread(() -> DeviceManager.getInstance().start());
-        t.setDaemon(false);
-        t.start();
     }
 
 }

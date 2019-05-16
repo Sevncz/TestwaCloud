@@ -17,7 +17,6 @@ import io.rpc.testwa.push.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -107,7 +106,7 @@ public class CronScheduled {
             StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(d);
             if(observer == null){
                 log.error("{} observer is null", d);
-                deviceOnlineMgr.offline(d);
+                deviceOnlineMgr.offline(d, DB.PhoneOnlineStatus.DISCONNECT);
             }else{
                 int tryTime = 5;
                 while(tryTime >= 0) {
@@ -125,7 +124,7 @@ public class CronScheduled {
                     }
                 }
                 if(tryTime <= 0) {
-                    deviceOnlineMgr.offline(d);
+                    deviceOnlineMgr.offline(d, DB.PhoneOnlineStatus.DISCONNECT);
                     log.warn("通信失败 {}", d);
                 }
             }

@@ -80,6 +80,13 @@ public class Device extends BaseEntity {
     @Column(name = "selendroidInstall")
     private Boolean selendroidInstall;
 
+    @Column(name = "remote_connect_port")
+    private Integer remoteConnectPort;
+    @Column(name = "ip")
+    private String ip;
+    @Column(name = "enable_connected")
+    private Boolean enableConnected;
+
     @JsonIgnore
     @Column(name = "lock_version")
     private Long lockVersion;

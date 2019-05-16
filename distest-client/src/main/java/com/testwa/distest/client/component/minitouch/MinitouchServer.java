@@ -115,7 +115,7 @@ public class MinitouchServer extends Thread implements Closeable {
             try {
                 // run minicap server
                 String command = getCommand();
-                log.info("{} 拉起 Minitouch 服务 command: {}", device.getName(), command);
+                log.info("{} 拉起 Minitouch 服务 shellCommand: {}", device.getName(), command);
                 device.executeShellCommand(command, new IShellOutputReceiver() {
                     @Override
                     public void addOutput(byte[] bytes, int i, int i1) {

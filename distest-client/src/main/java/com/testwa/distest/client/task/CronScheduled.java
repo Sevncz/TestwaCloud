@@ -1,13 +1,12 @@
 package com.testwa.distest.client.task;
 
-import com.github.cosysoft.device.android.AndroidDevice;
-import com.testwa.distest.client.DeviceClient;
-import com.testwa.distest.client.DeviceClientCache;
-import com.testwa.distest.client.android.AndroidHelper;
+import com.testwa.distest.client.DeviceClientManager;
+import com.testwa.distest.client.android.JadbDeviceManager;
 import com.testwa.distest.client.component.appium.utils.Config;
 import com.testwa.distest.client.exception.DeviceNotReadyException;
 import com.testwa.distest.client.ios.IOSDeviceUtil;
 import com.testwa.distest.client.service.GrpcClientService;
+import com.testwa.distest.jadb.JadbDevice;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -40,10 +39,10 @@ public class CronScheduled {
     @Scheduled(fixedDelay = 5000, initialDelay = 5000)
     public void androidInit() {
         Config.setEnv(env);
-        Set<AndroidDevice> ads = AndroidHelper.getInstance().getAllDevices();
-        ads.forEach(d -> {
+        List<JadbDevice> devices = JadbDeviceManager.getJadbDeviceList();
+        devices.forEach(d -> {
             try {
-                grpcClientService.initAndroidDevice(d.getSerialNumber());
+                grpcClientService.initAndroidDevice(d.getSerial());
             } catch (DeviceNotReadyException e) {
                 log.error("", e);
             }
@@ -75,7 +74,7 @@ public class CronScheduled {
             if(!IOSDeviceUtil.isOnline(udid)){
                 log.warn("iOS 设备 {} 离线", udid);
                 iosOnline.remove(udid);
-                DeviceClientCache.remove(udid);
+                DeviceClientManager.remove(udid);
             }
         });
     }

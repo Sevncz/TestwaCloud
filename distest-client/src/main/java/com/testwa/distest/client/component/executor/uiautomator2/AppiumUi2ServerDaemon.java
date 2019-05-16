@@ -3,7 +3,6 @@ package com.testwa.distest.client.component.executor.uiautomator2;
 import com.testwa.distest.client.android.ADBCommandUtils;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -22,7 +21,7 @@ public class AppiumUi2ServerDaemon implements Runnable, Closeable {
     public void run() {
         while(isRunning.get()) {
             boolean isExsit = false;
-            String ps_output = ADBCommandUtils.command(deviceId, new String[]{"ps"});
+            String ps_output = ADBCommandUtils.shellCommand(deviceId, new String[]{"ps"});
             String[] outs = ps_output.split("\n");
             for(String line : outs) {
                 if(line.contains("io.appium.uiautomator2.server")) {

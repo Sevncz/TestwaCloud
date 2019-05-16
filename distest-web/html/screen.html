@@ -8,6 +8,7 @@
 <canvas id="phone-screen"></canvas>
 <script src="js/socket.io-1.4.5.js"></script>
 
+<br>
 <button id="devices">DEVICES</button>
 <button id="back">BACK</button>
 <button id="home" >HOME</button>
@@ -15,16 +16,20 @@
 <button id="openBaidu">OPENBAIDU</button>
 <button id="shell">SHELL</button>
 
+<br>
 <input type="text" id="text" />
 <button id="send">SEND</button>
 <button id="del">DEL</button>
 
-
+<br>
 <button id="sub">SUB</button>
 <button id="wait">WAIT</button>
-
-
 <button id="reset_minicap">RESET_MINICAP</button>
+<br>
+<button id="debugStart">启动debug</button>
+<button id="debugStop">关闭debug</button>
+
+
 <!-- jQuery -->
 <script src="js/jquery.min.js"></script>
 <script src="js/jquery.jsonp.js"></script>
@@ -59,12 +64,13 @@ var BLANK_IMG =
 
 var canvas = document.getElementById('phone-screen')
   , g = canvas.getContext('2d')
-var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjUEKwjAQRe8y6wSSTGfM9B6uipQmnUJFamlTFMS7G8GF2_8e779gPxK08NDFeTBw7Lr181iXc89MEkNEkRCQHYbK86ZD0co9ERNy44UZDez5viq03cWAPtcfZgpeDMxD-fersQzp9o2U7VAD1zLXP4y5GYWizXFKtnETW5mcs5IwJCZ3ohHh_QEAAP__.zNB2CYLHDDeQ61r-SLx6tk7Q5dW7d9C6SIccG5-tkeM";
+var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjUEKwjAQRe8y6wQmMZOZ9B6uREraTKEiVdoUBfHuRldu_3u8_4JtH6CDhy7owMC-6drPpS3H3pGw4IE4EkZmjo2Pq-aqjTsiTokxEpE3sI23u0J3OhvQ5_2HBT1JJANzrv9-M5Y8XL-Ruu5q4FLn9qcOJ6FUbAl5siE4bwf2YjlL8n7CoGOB9wcAAP__.SFRurXq8eWytScv1HmxB9bE4j3GBb8ZgY-H04qtg_MU";
 // var socket = io('http://cloud.test.testwa.com:9092?type=browser&token=' + token);
 var socket = io('http://127.0.0.1:9092?type=browser&token=' + token);
 
 // var deviceId = '98895a44324f494f4d';
-var deviceId = '8e9e4b90bf9f8ad4d544b5e3d9d6b5940e0912e4';
+// var deviceId = '8e9e4b90bf9f8ad4d544b5e3d9d6b5940e0912e4';
+var deviceId = '4205dccb';
 
 socket.on('connect', function(){
     util.serverConnected = true
@@ -93,6 +99,12 @@ socket.on('minicap', function(message){
 });
 socket.on('disconnect', function(){
     util.serverConnected = false;
+});
+socket.on('remote_debug_start', function(message){
+    console.log(message)
+});
+socket.on('remote_debug_stop', function(message){
+    console.log(message)
 });
 
 var isDown = false;
@@ -175,6 +187,14 @@ function subScreen() {
 function waitScreen() {
     console.log("wait")
     socket.emit("wait_screen", deviceId)
+}
+function debugStart() {
+    console.log("debugStart")
+    socket.emit("remote_debug_start", deviceId)
+}
+function debugStop() {
+    console.log("debugStop")
+    socket.emit("remote_debug_stop", deviceId)
 }
 
 function getDevices() {
@@ -303,6 +323,12 @@ $("#openBaidu").click(function () {
 $("#shell").click(function () {
     var cmd = "getprop ro.build.version.sdk"
     sendShell(cmd);
+})
+$("#debugStart").click(function () {
+    debugStart();
+})
+$("#debugStop").click(function () {
+    debugStop();
 })
 
 </script>

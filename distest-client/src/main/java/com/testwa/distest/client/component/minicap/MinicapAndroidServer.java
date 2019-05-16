@@ -2,8 +2,8 @@ package com.testwa.distest.client.component.minicap;
 
 import com.android.ddmlib.*;
 
-import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.distest.client.android.ADBCommandUtils;
+import com.testwa.distest.client.android.AndroidHelper;
 import com.testwa.distest.client.android.PhysicalSize;
 import com.testwa.distest.client.component.appium.utils.Config;
 import com.testwa.distest.client.component.port.MinicapPortProvider;
@@ -162,7 +162,7 @@ public class MinicapAndroidServer extends Thread implements Closeable {
             try {
                 // run minicap server
                 String command = getCommand();
-                log.info("拉起 Minicap 服务 command: {}", command);
+                log.info("拉起 Minicap 服务 shellCommand: {}", command);
                 device.executeShellCommand(command, new IShellOutputReceiver() {
                     @Override
                     public void addOutput(byte[] bytes, int i, int i1) {

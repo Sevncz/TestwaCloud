@@ -69,7 +69,7 @@ public class WDAServer{
     public void serverStart() {
         try {
             CommandLine commandLine2 = getWDAProxyCommand();
-            log.info("拉起 ios wda proxy 服务 command: {}", commandLine2.toString().replace(",", ""));
+            log.info("拉起 ios wda proxy 服务 shellCommand: {}", commandLine2.toString().replace(",", ""));
             proxyExecs = new UTF8CommonExecs(commandLine2);
             proxyExecs.setTimeout(INFINITE_TIMEOUT);
             proxyExecs.asyncexec();

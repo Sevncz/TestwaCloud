@@ -43,6 +43,9 @@ message ClientInfo {
     bool unicodeIMEInstall = 20;
     bool selendroidInstall = 21;
 
+    uint32 remoteConnectPort = 22;
+    string ip = 23;
+    bool tcpipCommandSuccessed = 24;
 }
 
 message Status {
@@ -85,6 +88,8 @@ message Message {
         DEL = 24;
         JR_TASK_START = 25;
         CRAWLER_TASK_START = 26;
+        DEBUG_START = 30;
+        DEBUG_STOP = 31;
     }
 	Topic topicName = 1;
 	string status = 2;

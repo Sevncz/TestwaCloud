@@ -41,7 +41,7 @@ public class HttpAsyncConfig {
                 .setSocketTimeout(30000)         //设置请求响应超时时间
                 .setConnectTimeout(3000)        //设置请求连接超时时间
                 .build();
-        AgentInfo info = new AgentInfo();
+        AgentInfo info = AgentInfo.getAgentInfo();
         return HttpAsyncClients.custom()
                 .setUserAgent(String.format("Distest-agent/%s/%s", applicationVersion, JSON.toJSONString(info)))
                 .setConnectionManager(connectionManager)

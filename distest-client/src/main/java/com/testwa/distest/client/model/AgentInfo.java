@@ -20,8 +20,11 @@ public class AgentInfo {
     private String osArch;
     private String javaVersion;
 
+    private static class Holder {
+        private static AgentInfo agentInfo = new AgentInfo();
+    }
 
-    public AgentInfo(){
+    private AgentInfo(){
         try {
             InetAddress ia = InetAddress.getLocalHost();
             this.host = NetUtil.getLocalIp(ia);
@@ -39,6 +42,10 @@ public class AgentInfo {
         this.osArch =  System.getProperty("os.arch");
         this.javaVersion =  System.getProperty("java.version");
 
+    }
+
+    public static AgentInfo getAgentInfo() {
+        return Holder.agentInfo;
     }
 
     public static void main(String[] args) throws Exception {
