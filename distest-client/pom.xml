@@ -303,7 +303,11 @@
             <groupId>org.zeroturnaround</groupId>
             <artifactId>zt-process-killer</artifactId>
         </dependency>
-
+        <!-- 异步请求包 -->
+        <dependency>
+            <groupId>org.asynchttpclient</groupId>
+            <artifactId>async-http-client</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

@@ -2,6 +2,7 @@ package com.testwa.distest.client.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -32,9 +33,9 @@ import java.util.concurrent.Future;
 /**
  * Created by wen on 16/9/11.
  */
+@Slf4j
 @Service
 public class HttpService {
-    private static final Logger LOG = LoggerFactory.getLogger(HttpService.class);
     @Autowired
     CloseableHttpAsyncClient httpAsyncClient;
     @Autowired
@@ -88,17 +89,17 @@ public class HttpService {
         return new FutureCallback<HttpResponse>() {
             @Override
             public void completed(HttpResponse response) {
-                LOG.info("执行接口completed:{} -> {}",post.getRequestLine() ,response.getStatusLine());
+                log.info("执行接口completed:{} -> {}",post.getRequestLine() ,response.getStatusLine());
             }
 
             @Override
             public void failed(Exception ex) {
-                LOG.error("执行接口failed {}", post.getRequestLine(), ex);
+                log.error("执行接口failed {}", post.getRequestLine(), ex);
             }
 
             @Override
             public void cancelled() {
-                LOG.debug("执行接口cancelled: {} cancelled", post.getRequestLine());
+                log.debug("执行接口cancelled: {} cancelled", post.getRequestLine());
             }
         };
     }
@@ -107,17 +108,17 @@ public class HttpService {
         return postProto(url, data, new FutureCallback<HttpResponse>() {
             @Override
             public void completed(HttpResponse response) {
-                LOG.info("Async post completed: {}", response.getStatusLine());
+                log.info("Async post completed: {}", response.getStatusLine());
             }
 
             @Override
             public void failed(Exception ex) {
-                LOG.error("Async post failed {}", ex);
+                log.error("Async post failed {}", ex);
             }
 
             @Override
             public void cancelled() {
-                LOG.debug("Async post cancelled: {} cancelled");
+                log.debug("Async post cancelled: {} cancelled");
             }
         });
     }
@@ -154,26 +155,26 @@ public class HttpService {
 //            return this.postProto(url, message.toByteArray(), new FutureCallback<HttpResponse>() {
 //                @Override
 //                public void completed(HttpResponse response) {
-//                    LOG.debug("Async post log completed: {}", response.getStatusLine());
+//                    log.debug("Async post log completed: {}", response.getStatusLine());
 //                    try {
 //                        Files.delete(filePath);
 //                    } catch (IOException e) {
-//                        LOG.error("File {} upload error.", filePath, e);
+//                        log.error("File {} upload error.", filePath, e);
 //                    }
 //                }
 //
 //                @Override
 //                public void failed(Exception ex) {
-//                    LOG.error("Async post log fail {}", ex);
+//                    log.error("Async post log fail {}", ex);
 //                }
 //
 //                @Override
 //                public void cancelled() {
-//                    LOG.debug("Async post log cancelled: {} cancelled");
+//                    log.debug("Async post log cancelled: {} cancelled");
 //                }
 //            });
 //        } catch (IOException e) {
-//            LOG.error("Post file error.url: {}, filePath: {}", url, filePath, e);
+//            log.error("Post file error.url: {}, filePath: {}", url, filePath, e);
 //        }
 //        return null;
 //    }
@@ -189,17 +190,17 @@ public class HttpService {
                 str = EntityUtils.toString(entity);
             }
             if (StringUtils.isBlank(str)) {
-                LOG.info("获取执行返回值为空");
+                log.info("获取执行返回值为空");
                 return null;
             }
-            LOG.info("获取执行返回值={}", str);
+            log.info("获取执行返回值={}", str);
             return objectMapper.readValue(str.getBytes("utf-8"), clazz);
         } catch (IOException e) {
-            LOG.error("接口IOException异常", e);
+            log.error("接口IOException异常", e);
         } catch (InterruptedException e) {
-            LOG.error("接口InterruptedException异常", e);
+            log.error("接口InterruptedException异常", e);
         } catch (ExecutionException e) {
-            LOG.error("接口ExecutionException异常", e);
+            log.error("接口ExecutionException异常", e);
         }
         return null;
     }

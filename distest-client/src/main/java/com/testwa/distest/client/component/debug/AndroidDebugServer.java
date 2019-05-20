@@ -1,11 +1,19 @@
 package com.testwa.distest.client.component.debug;
 
-import com.testwa.core.shell.UTF8CommonExecs;
+import com.testwa.distest.client.command.CommonProcessListener;
 import com.testwa.distest.client.component.port.SocatPortProvider;
 import com.testwa.distest.client.component.port.TcpIpPortProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.exec.CommandLine;
+import org.zeroturnaround.exec.ProcessExecutor;
+import org.zeroturnaround.exec.ProcessResult;
+import org.zeroturnaround.exec.stop.DestroyProcessStopper;
+import org.zeroturnaround.exec.stream.LogOutputStream;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.apache.commons.exec.ExecuteWatchdog.INFINITE_TIMEOUT;
@@ -17,10 +25,10 @@ import static org.apache.commons.exec.ExecuteWatchdog.INFINITE_TIMEOUT;
 @Slf4j
 public class AndroidDebugServer{
     private static final String SOCAT_CMD = "socat";
-    /** 是否运行 */
-    private AtomicBoolean isRunning = new AtomicBoolean(false);
     private String deviceId;
-    private UTF8CommonExecs execs;
+    private Future<ProcessResult> future;
+    private CommonProcessListener processListener;
+
     private int tcpipPort;
     private int remotePort;
 
@@ -28,33 +36,34 @@ public class AndroidDebugServer{
         this.deviceId = deviceId;
         this.tcpipPort = tcpipPort;
         this.remotePort = remotePort;
+        this.processListener = new CommonProcessListener(this.getClass().getName());
     }
 
     public void start() {
-        if (this.isRunning.get()) {
-            throw new IllegalStateException("debug 服务已运行");
-        } else {
-            this.isRunning.set(true);
-        }
+        List<String> commandLine = getSocatCommandLine(this.tcpipPort, this.remotePort);
         try {
-            CommandLine commandLine = getSocatCommandLine(this.tcpipPort, this.remotePort);
-            log.info("拉起 socat 服务 shellCommand: {}", commandLine.toString().replace(",", ""));
-            execs = new UTF8CommonExecs(commandLine);
-            execs.setTimeout(INFINITE_TIMEOUT);
-            execs.asyncexec();
-        } catch (Exception e) {
-            String out = execs.getOutput();
-            String error = execs.getError();
-            log.warn("socat服务运行异常, {} {} {}", this.deviceId, out, error);
+            future = new ProcessExecutor()
+                    .command(commandLine)
+                    .redirectOutput(new LogOutputStream() {
+                        @Override
+                        protected void processLine(String line) {
+                            log.debug(line);
+                        }
+                    }).listener(processListener)
+                    .start().getFuture();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
     }
 
     public void stop() {
-        this.isRunning.set(false);
         TcpIpPortProvider.pushPort(this.tcpipPort);
         SocatPortProvider.pushPort(this.remotePort);
-        if(execs != null) {
-            execs.destroy();
+        if(future != null) {
+            if(processListener.getProcess() != null) {
+                DestroyProcessStopper.INSTANCE.stop(processListener.getProcess());
+            }
         }
     }
 
@@ -66,14 +75,25 @@ public class AndroidDebugServer{
      * @Author wen
      * @Date 2019/5/14 22:46
      */
-    private CommandLine getSocatCommandLine(int tcpipPort, int socatListenPort) {
-        CommandLine commandLine = new CommandLine(SOCAT_CMD);
-        commandLine.addArgument(String.format("tcp4-listen:%d,fork,reuseaddr",socatListenPort));
-        commandLine.addArgument(String.format("tcp-connect:127.0.0.1:%d",tcpipPort));
+    private List<String> getSocatCommandLine(int tcpipPort, int socatListenPort) {
+        List<String> commandLine = new ArrayList<>();
+        commandLine.add(SOCAT_CMD);
+        commandLine.add(String.format("tcp4-listen:%d,fork,reuseaddr",socatListenPort));
+        commandLine.add(String.format("tcp-connect:127.0.0.1:%d",tcpipPort));
         return commandLine;
     }
 
     public boolean isRunning() {
-        return this.isRunning.get();
+        if(future != null) {
+            if(future.isCancelled()){
+                return false;
+            }
+            if(future.isDone()){
+                return false;
+            }
+            return true;
+        }else{
+            return false;
+        }
     }
 }

@@ -1,6 +1,5 @@
 package com.testwa.distest.client.ios;
 
-import com.testwa.distest.client.command.CommonProcessListener;
 import com.testwa.distest.client.command.WdaProcessListener;
 import com.testwa.distest.client.component.appium.utils.Config;
 import com.testwa.distest.client.component.port.WDAPortProvider;
@@ -22,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 
 /**
@@ -47,11 +45,7 @@ public class WDAServer{
     private int port;
 
     private JWda jdwa;
-    /** 是否运行 */
-    private AtomicBoolean isRunning = new AtomicBoolean(false);
-
-    private double percentX;
-    private double percentY;
+    private double percent;
 
     private String lastX;
     private String lastY;
@@ -66,8 +60,7 @@ public class WDAServer{
         this.wdaHome = Config.getString("wda.home");
         this.port = WDAPortProvider.pullPort();
         this.size = IOSDeviceUtil.getSize(udid);
-        this.percentX = (this.size.getPointWidth() * 1.0)/this.size.getPhsicalHeight();
-        this.percentY = (this.size.getPointHeight() * 1.0)/this.size.getPhsicalHeight();
+        this.percent = (this.size.getPointWidth() * 1.0)/this.size.getPhsicalWidth();
         this.processListener = new WdaProcessListener(this);
     }
 
@@ -214,8 +207,8 @@ public class WDAServer{
                     x = Integer.parseInt(m[2]);
                     y = Integer.parseInt(m[3]);
 
-                    double xd = x * percentX;
-                    double yd = y * percentY;
+                    double xd = x * percent;
+                    double yd = y * percent;
                     this.lastX = String.valueOf(xd);
                     this.lastY = String.valueOf(yd);
                     this.lastTime = System.currentTimeMillis();
@@ -230,8 +223,8 @@ public class WDAServer{
                     x = Integer.parseInt(m[2]);
                     y = Integer.parseInt(m[3]);
 
-                    double xd = x * percentX;
-                    double yd = y * percentY;
+                    double xd = x * percent;
+                    double yd = y * percent;
                     this.jdwa.swipe(lastX, lastY, String.valueOf(xd), String.valueOf(yd), 0);
 
                 }catch (NumberFormatException e){
