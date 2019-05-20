@@ -1,20 +1,29 @@
 package com.testwa.distest.client.ios;
 
-import com.testwa.core.shell.UTF8CommonExecs;
+import com.testwa.distest.client.command.CommonProcessListener;
+import com.testwa.distest.client.command.WdaProcessListener;
 import com.testwa.distest.client.component.appium.utils.Config;
 import com.testwa.distest.client.component.port.WDAPortProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.exec.CommandLine;
 import org.openqa.selenium.net.UrlChecker;
+import org.zeroturnaround.exec.ProcessExecutor;
+import org.zeroturnaround.exec.ProcessResult;
+import org.zeroturnaround.exec.stop.DestroyProcessStopper;
+import org.zeroturnaround.exec.stream.LogOutputStream;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.apache.commons.exec.ExecuteWatchdog.INFINITE_TIMEOUT;
 
 /**
  * @author wen
@@ -29,7 +38,7 @@ public class WDAServer{
     private static final String WDA_PROJECT = "WebDriverAgent.xcodeproj";
     private static final String WDA_SCHEME = "WebDriverAgentRunner";
     private static final String XCODE = "/usr/bin/xcodebuild";
-    private static final String PROXY = "/usr/local/bin/wdaproxy";
+    private static final String PROXY = "wdaproxy";
 
     private String udid;
     private IOSPhysicalSize size;
@@ -37,7 +46,6 @@ public class WDAServer{
 
     private int port;
 
-    private UTF8CommonExecs proxyExecs;
     private JWda jdwa;
     /** 是否运行 */
     private AtomicBoolean isRunning = new AtomicBoolean(false);
@@ -47,7 +55,11 @@ public class WDAServer{
 
     private String lastX;
     private String lastY;
-    private Long lastTime;
+    private long lastTime;
+
+    private Future<ProcessResult> future;
+    private WdaProcessListener processListener;
+    private boolean close = false;
 
     public WDAServer(String udid) {
         this.udid = udid;
@@ -56,23 +68,68 @@ public class WDAServer{
         this.size = IOSDeviceUtil.getSize(udid);
         this.percentX = (this.size.getPointWidth() * 1.0)/this.size.getPhsicalHeight();
         this.percentY = (this.size.getPointHeight() * 1.0)/this.size.getPhsicalHeight();
+        this.processListener = new WdaProcessListener(this);
     }
+
 
     /**
      * 是否运行
      * @return true 已运行 false 未运行
      */
     public boolean isRunning() {
-        return this.isRunning.get();
+        if(future != null) {
+            if(future.isCancelled()){
+                return false;
+            }
+            if(future.isDone()){
+                return false;
+            }
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    public void close() {
+        this.close = true;
+        if(future != null) {
+            if(processListener.getProcess() != null) {
+                DestroyProcessStopper.INSTANCE.stop(processListener.getProcess());
+            }
+        }
+        WDAPortProvider.pushPort(this.port);
+    }
+
+    public boolean isClose() {
+        return this.close;
     }
 
     public void serverStart() {
         try {
-            CommandLine commandLine2 = getWDAProxyCommand();
-            log.info("拉起 ios wda proxy 服务 shellCommand: {}", commandLine2.toString().replace(",", ""));
-            proxyExecs = new UTF8CommonExecs(commandLine2);
-            proxyExecs.setTimeout(INFINITE_TIMEOUT);
-            proxyExecs.asyncexec();
+            while(IOSDeviceUtil.isOnline(this.udid)){
+                if(IOSDeviceUtil.isUndetermined(this.udid)) {
+                    try {
+                        TimeUnit.SECONDS.sleep(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    continue;
+                }else{
+                    break;
+                }
+            }
+            List<String> command = getWDAProxyCommand();
+            log.info("拉起 ios wda proxy 服务 shellCommand: {}", command.toString().replace(",", ""));
+            future = new ProcessExecutor()
+                    .command(command)
+                    .redirectOutput(new LogOutputStream() {
+                        @Override
+                        protected void processLine(String line) {
+                            log.debug(line);
+                        }
+                    }).listener(processListener)
+                    .start().getFuture();
+
             boolean running = waitUntilIsRunning();
             log.info("wda running {}", running);
             if(running) {
@@ -80,10 +137,8 @@ public class WDAServer{
             }else{
                 log.error("wda 启动失败");
             }
-        } catch (Exception e) {
-            String out = proxyExecs.getOutput();
-            String error = proxyExecs.getError();
-            log.warn("iOS {} wda服务运行异常, {} {}", udid, out, error);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -111,25 +166,28 @@ public class WDAServer{
         return commandLine;
     }
 
-    private CommandLine getWDAProxyCommand() {
+    private List<String> getWDAProxyCommand() {
+        List<String> command = new ArrayList<>();
         Path wdaProject = Paths.get(wdaHome);
-        CommandLine commandLine = new CommandLine(PROXY);
-        commandLine.addArgument("-p");
-        commandLine.addArgument(String.valueOf(port));
-        commandLine.addArgument("-u");
-        commandLine.addArgument(udid);
-        commandLine.addArgument("-W");
-        commandLine.addArgument(wdaProject.toString());
-        return commandLine;
+        command.add(PROXY);
+        command.add("-p");
+        command.add(String.valueOf(port));
+        command.add("-u");
+        command.add(udid);
+        command.add("-W");
+        command.add(wdaProject.toString());
+        // 启动debug
+//        command.add("-d");
+        return command;
     }
 
 
-    private boolean waitUntilIsRunning() throws Exception {
-        final URL status = new URL(getUrl() + "/status");
+    private boolean waitUntilIsRunning() {
         try {
+            final URL status = new URL(getUrl() + "/status");
             new UrlChecker().waitUntilAvailable(REAL_DEVICE_RUNNING_TIMEOUT, TimeUnit.MILLISECONDS, status);
             return true;
-        } catch (UrlChecker.TimeoutException e) {
+        } catch (UrlChecker.TimeoutException | MalformedURLException e) {
             return false;
         }
     }
@@ -187,5 +245,9 @@ public class WDAServer{
         if(this.jdwa != null) {
             this.jdwa.home();
         }
+    }
+
+    public void restart() {
+        serverStart();
     }
 }

@@ -23,7 +23,6 @@ import java.util.Set;
 @Slf4j
 @Component
 public class CronScheduled {
-    private static final Set<String> iosOnline = new HashSet<>();
     @Autowired
     private GrpcClientService grpcClientService;
     @Autowired
@@ -59,7 +58,7 @@ public class CronScheduled {
             log.debug("udids {}", udids.toString());
             udids.forEach(udid -> {
                 try {
-                    iosOnline.add(udid);
+                    IOSDeviceUtil.addOnline(udid);
                     grpcClientService.initIOSDevice(udid);
                 } catch (DeviceNotReadyException e) {
                     log.error("", e);
@@ -70,10 +69,11 @@ public class CronScheduled {
 
     @Scheduled(fixedDelay = 3000)
     public void iOSClear() {
-        iosOnline.forEach(udid -> {
+        // 2个间隔时间都检查到离线，才离线
+        IOSDeviceUtil.ONLINE_UDID.forEach(udid -> {
             if(!IOSDeviceUtil.isOnline(udid)){
                 log.warn("iOS 设备 {} 离线", udid);
-                iosOnline.remove(udid);
+                IOSDeviceUtil.removeOnline(udid);
                 DeviceClientManager.remove(udid);
             }
         });
