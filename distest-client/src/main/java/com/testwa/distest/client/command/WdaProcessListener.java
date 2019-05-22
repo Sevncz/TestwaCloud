@@ -1,6 +1,6 @@
 package com.testwa.distest.client.command;
 
-import com.testwa.distest.client.ios.WDAServer;
+import com.testwa.distest.client.component.wda.remote.WebDriverAgentRunner;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.zeroturnaround.exec.ProcessExecutor;
@@ -16,11 +16,11 @@ import org.zeroturnaround.exec.listener.ProcessListener;
 public class WdaProcessListener extends ProcessListener {
     private Process process;
     private String className;
-    private WDAServer wdaServer;
+    private WebDriverAgentRunner runner;
 
-    public WdaProcessListener(WDAServer wdaServer) {
+    public WdaProcessListener(WebDriverAgentRunner wdaServer) {
         this.className = wdaServer.getClass().getName();
-        this.wdaServer = wdaServer;
+        this.runner = wdaServer;
     }
 
     @Override
@@ -31,15 +31,15 @@ public class WdaProcessListener extends ProcessListener {
 
     @Override
     public void afterFinish(Process process, ProcessResult result) {
-        log.info("[{}] ProcessExecutor finish {} {}... ... ", className, result.getExitValue(), result.getOutput());
+        log.info("[{}] ProcessExecutor finish {}... ... ", className, result.getExitValue());
     }
 
     @Override
     public void afterStop(Process process) {
-        if(wdaServer.isClose()) {
+        if(runner.isStop()) {
             log.info("[{}] ProcessExecutor stop ... ... ", className);
         }else{
-            wdaServer.restart();
+            runner.start();
         }
     }
 }

@@ -2,7 +2,7 @@ package com.testwa.distest.client.component.port;
 
 import com.testwa.core.tools.PortProvider;
 
-public class WDAPortProvider {
+public class IProxyPortProvider {
     private static PortProvider portProvider;
 	
 	public static void init(int portStart,int portEnd){

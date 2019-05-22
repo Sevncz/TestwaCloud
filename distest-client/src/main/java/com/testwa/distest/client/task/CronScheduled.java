@@ -35,7 +35,7 @@ public class CronScheduled {
      *@Author: wen
      *@Date: 2018/5/8
      */
-    @Scheduled(fixedDelay = 5000, initialDelay = 5000)
+    @Scheduled(fixedDelay = 5000, initialDelay = 1000)
     public void androidInit() {
         Config.setEnv(env);
         List<JadbDevice> devices = JadbDeviceManager.getJadbDeviceList();
@@ -48,7 +48,7 @@ public class CronScheduled {
         });
     }
 
-    @Scheduled(fixedDelay = 5000, initialDelay = 5000)
+    @Scheduled(fixedDelay = 5000, initialDelay = 1000)
     public void iOSInit() {
         Config.setEnv(env);
         String osName = System.getProperty("os.name");

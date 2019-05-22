@@ -60,7 +60,7 @@ public class EnvCheck implements CommandLineRunner {
         MinitouchPortProvider.init(PortConfig.touchPortStart, PortConfig.touchPortEnd);
         ApkPortProvider.init(PortConfig.apkPortStart, PortConfig.apkPortEnd);
         AppiumPortProvider.init(PortConfig.appiumPortStart, PortConfig.appiumPortEnd);
-        WDAPortProvider.init(PortConfig.wdaPortStart, PortConfig.wdaPortEnd);
+        IProxyPortProvider.init(PortConfig.iproxyPortStart, PortConfig.iproxyPortEnd);
         TcpIpPortProvider.init(PortConfig.tcpipStart, PortConfig.tcpipEnd);
         SocatPortProvider.init(PortConfig.socatStart, PortConfig.socatEnd);
 

@@ -31,8 +31,8 @@ public class PortConfig {
     /**
      * appium端口映射开始号
      */
-	public final static int wdaPortStart=9000;
-	public final static int wdaPortEnd=9499;
+	public final static int iproxyPortStart =9000;
+	public final static int iproxyPortEnd =9499;
 
     /**
      * android tcpip 命令端口
