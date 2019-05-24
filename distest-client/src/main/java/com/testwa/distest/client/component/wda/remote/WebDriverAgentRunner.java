@@ -21,7 +21,7 @@ import com.testwa.distest.client.component.port.IProxyPortProvider;
 import com.testwa.distest.client.component.wda.driver.CommandExecutor;
 import com.testwa.distest.client.component.wda.driver.DriverCapabilities;
 import com.testwa.distest.client.component.wda.exception.WebDriverAgentException;
-import com.testwa.distest.client.component.wda.support.CommandLineExecutor;
+import com.testwa.distest.client.util.CommandLineExecutor;
 import com.testwa.distest.client.component.wda.support.ResponseValueConverter;
 import com.testwa.distest.client.component.wda.support.XCodeBuilder;
 import com.testwa.distest.client.ios.IOSDeviceUtil;
@@ -29,9 +29,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpStatus;
 import org.openqa.selenium.net.UrlChecker;
 import org.zeroturnaround.exec.StartedProcess;
-import org.zeroturnaround.process.ProcessUtil;
-import org.zeroturnaround.process.Processes;
-import org.zeroturnaround.process.SystemProcess;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -39,7 +36,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 
 @Slf4j

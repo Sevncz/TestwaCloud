@@ -190,9 +190,9 @@ public class RemoteScreenEventHandler {
         StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
         if(observer != null ){
             // 通知设备启动
-            Message message = Message.newBuilder().setTopicName(Message.Topic.COMPONENT_START).setStatus(STATUS_OK).setMessage(ByteString.copyFromUtf8(JSON.toJSONString(config))).build();
-            observer.onNext(message);
-            message = Message.newBuilder().setTopicName(Message.Topic.SCREEN_START).setStatus(STATUS_OK).setMessage(ByteString.copyFromUtf8("screen start")).build();
+//            Message message = Message.newBuilder().setTopicName(Message.Topic.COMPONENT_START).setStatus(STATUS_OK).setMessage(ByteString.copyFromUtf8(JSON.toJSONString(config))).build();
+//            observer.onNext(message);
+            Message message = Message.newBuilder().setTopicName(Message.Topic.SCREEN_START).setStatus(STATUS_OK).setMessage(ByteString.copyFromUtf8("screen start")).build();
             observer.onNext(message);
             deviceLockMgr.debugLock(deviceId, client.getSessionId().toString());
         }else{

@@ -64,12 +64,13 @@ var BLANK_IMG =
 
 var canvas = document.getElementById('phone-screen')
   , g = canvas.getContext('2d')
-var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjc0KgzAQhN9lzwls0M1G36OnIpKfFVKKFU1oofTdG-mlp4H5PmbecNQAIzxlRQMK6iH7nFNrLrMhxw47Yktomdk2HnfxRRo3RM6elJhJwREfm8B4nRTIa_thxqGFguzLv9-M1Yf7OVL2KgpuJbe_KC4tYfFaApHuLQ16wCjaJ9cjptT5LsHnCwAA__8.zke_QcBJuRTYh9eJPGmO-7MWQePd_IbCCkTTqwfPsVM";
+var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMzc0KwjAQBOB32XMCSdPdJH0PTyIlP1uoSC1pgoL47kbw4HW-YeYFR4swwYM3pUFAO7jMa-7JadborFMGLaEiay11T4VD5e4a0aHypD2RF3Ck-84wnS8C-Ln_2LhRd1tD_e_3xhbi7TtSS2MB17r2PzuQ0Sl7GQ2zHLMapEce5eJyWrLKZnAJ3h8AAAD__w.Dd5mb4F_BFUoKDh-eoA3G_xIx-4_oKYUmiauRFzcN64";
 // var socket = io('http://cloud.test.testwa.com:9092?type=browser&token=' + token);
 var socket = io('http://127.0.0.1:9092?type=browser&token=' + token);
 
 // var deviceId = '98895a44324f494f4d';
-var deviceId = '4205dccb';
+var deviceId = '8f45336f66ff83bb61fce2aa57a33b695e5878db';
+// var deviceId = '4205dccb';
 
 socket.on('connect', function(){
     util.serverConnected = true
@@ -211,10 +212,12 @@ function sendDown(argx, argy, isRo) {
 //    }
     x = Math.round(x * scalex);
     y = Math.round(y * scaley);
-    var command = "d 0 " + x + " " + y + " 50\n";
-    command += "c\n";
-    console.log("command: " + command)
-    sendTouchEvent(command);
+    var command = {
+        x: x,
+        y: y
+    };
+    console.log("command: " + JSON.stringify(command))
+    sendTouchEvent(JSON.stringify(command));
 }
 
 function sendMove(argx, argy, isRo) {
@@ -231,7 +234,7 @@ function sendMove(argx, argy, isRo) {
     var command = "m 0 " + x + " " + y + " 50\n";
     command += "c\n";
     console.log("command: " + command)
-    sendTouchEvent(command);
+    // sendTouchEvent(command);
 }
 
 function sendUp() {
@@ -254,7 +257,7 @@ canvas.onmousemove = function (event) {
         return;
     }
     var pos = getXAndY(canvas, event);
-    sendMove(pos.x, pos.y, util.isRotate);
+    // sendMove(pos.x, pos.y, util.isRotate);
 };
 
 canvas.onmouseover = function (event) {
@@ -266,7 +269,6 @@ canvas.onmouseout = function (event) {
         return;
     }
     isDown = false;
-    sendUp();
 };
 
 canvas.onmouseup = function (event) {
@@ -274,7 +276,6 @@ canvas.onmouseup = function (event) {
         return;
     }
     isDown = false;
-    sendUp();
 };
 
 $("#back").click(function () {

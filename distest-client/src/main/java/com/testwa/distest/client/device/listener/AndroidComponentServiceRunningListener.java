@@ -26,8 +26,8 @@ public class AndroidComponentServiceRunningListener implements ScreenListener, L
 
     private final String deviceId;
     private final DeivceRemoteApiClient api;
-    private boolean isScreenWaitting;
-    private boolean isLogWaitting;
+    private boolean isScreenWaitting = false;
+    private boolean isLogWaitting = false;
 
     /**
      * 在Android的ADB的情况下，我们是使用adb logcat -v brief -v threadtime

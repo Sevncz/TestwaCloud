@@ -23,7 +23,6 @@ public class IDeviceRemoteControlDriverCapabilities {
         DEVICE_ID("deviceId"),
         WDA_PATH("wdaPath"),
         RESOURCE_PATH("resourcePath"),
-        USER_TOKEN("userToken"),
         ;
 
         private String key;
@@ -66,10 +65,6 @@ public class IDeviceRemoteControlDriverCapabilities {
 
     public void setPort(String value) {
         this.setCapability(IDeviceKey.PORT, value);
-    }
-
-    public void setUserToken(String value) {
-        this.setCapability(IDeviceKey.USER_TOKEN, value);
     }
 
     public String getCapability(String name) {

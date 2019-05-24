@@ -78,6 +78,7 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
         }
     }
 
+
     @Override
     public void stateChange(DeviceStatusChangeRequest request, StreamObserver<CommonReply> responseObserver) {
         DB.PhoneOnlineStatus status = DB.PhoneOnlineStatus.valueOf(request.getStatusValue());

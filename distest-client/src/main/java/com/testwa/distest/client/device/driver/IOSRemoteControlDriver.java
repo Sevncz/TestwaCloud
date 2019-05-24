@@ -118,7 +118,22 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver {
     }
 
     @Override
+    public void touch(String cmd) {
+
+    }
+
+    @Override
     public void installApp(String command) {
+
+    }
+
+    @Override
+    public void uninstallApp(String command) {
+
+    }
+
+    @Override
+    public void openWeb(String cmd) {
 
     }
 

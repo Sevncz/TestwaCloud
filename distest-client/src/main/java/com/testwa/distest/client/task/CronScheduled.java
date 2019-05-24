@@ -3,10 +3,12 @@ package com.testwa.distest.client.task;
 import com.testwa.distest.client.DeviceClientManager;
 import com.testwa.distest.client.android.JadbDeviceManager;
 import com.testwa.distest.client.component.appium.utils.Config;
+import com.testwa.distest.client.device.pool.DeviceManagerPool;
 import com.testwa.distest.client.exception.DeviceNotReadyException;
 import com.testwa.distest.client.ios.IOSDeviceUtil;
 import com.testwa.distest.client.service.GrpcClientService;
 import com.testwa.distest.jadb.JadbDevice;
+import io.rpc.testwa.device.DeviceType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -27,6 +29,8 @@ public class CronScheduled {
     private GrpcClientService grpcClientService;
     @Autowired
     private Environment env;
+    @Autowired
+    private DeviceManagerPool deviceManagerPool;
 
     /**
      *@Description: android设备在线情况的补充检查
@@ -40,11 +44,12 @@ public class CronScheduled {
         Config.setEnv(env);
         List<JadbDevice> devices = JadbDeviceManager.getJadbDeviceList();
         devices.forEach(d -> {
-            try {
-                grpcClientService.initAndroidDevice(d.getSerial());
-            } catch (DeviceNotReadyException e) {
-                log.error("", e);
-            }
+//            try {
+//                grpcClientService.initAndroidDevice(d.getSerial());
+//            } catch (DeviceNotReadyException e) {
+//                log.error("", e);
+//            }
+            deviceManagerPool.getManager(d.getSerial(), DeviceType.ANDROID);
         });
     }
 
@@ -57,12 +62,13 @@ public class CronScheduled {
             List<String> udids = IOSDeviceUtil.getUDID();
             log.debug("udids {}", udids.toString());
             udids.forEach(udid -> {
-                try {
+//                try {
                     IOSDeviceUtil.addOnline(udid);
-                    grpcClientService.initIOSDevice(udid);
-                } catch (DeviceNotReadyException e) {
-                    log.error("", e);
-                }
+//                    grpcClientService.initIOSDevice(udid);
+                    deviceManagerPool.getManager(udid, DeviceType.IOS);
+//                } catch (DeviceNotReadyException e) {
+//                    log.error("", e);
+//                }
             });
         }
     }
@@ -74,7 +80,8 @@ public class CronScheduled {
             if(!IOSDeviceUtil.isOnline(udid)){
                 log.warn("iOS 设备 {} 离线", udid);
                 IOSDeviceUtil.removeOnline(udid);
-                DeviceClientManager.remove(udid);
+//                DeviceClientManager.remove(udid);
+                deviceManagerPool.release(udid);
             }
         });
     }

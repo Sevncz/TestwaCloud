@@ -97,7 +97,7 @@ public class CronScheduled {
      *@Date: 2018/5/9
      */
     @Async
-    @Scheduled(fixedDelay = 3000)
+    @Scheduled(fixedDelay = 5000)
     public void checkDeviceOnline(){
         Set<String> deviceIds = deviceOnlineMgr.allOnlineDevices();
         log.debug("online device num: {}", deviceIds.size());
@@ -111,7 +111,7 @@ public class CronScheduled {
                 int tryTime = 5;
                 while(tryTime >= 0) {
                     try{
-                        Message message = Message.newBuilder().setTopicName(Message.Topic.ADB).setStatus("OK").setMessage(ByteString.copyFromUtf8("0")).build();
+                        Message message = Message.newBuilder().setTopicName(Message.Topic.ADB).setMessage(ByteString.copyFromUtf8("0")).build();
                         observer.onNext(message);
                         break;
                     }catch (Exception e) {

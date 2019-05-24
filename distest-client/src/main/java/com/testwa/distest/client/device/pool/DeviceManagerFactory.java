@@ -13,20 +13,18 @@ import org.apache.commons.pool2.impl.DefaultPooledObject;
 public class DeviceManagerFactory extends BasePooledObjectFactory<DeviceManager> {
     private final String host;
     private final int port;
-    private final String userToken;
     private final String resourcePath;
 
-    public DeviceManagerFactory(String host, int port, String resourcePath, String userToken) {
+    public DeviceManagerFactory(String host, int port, String resourcePath) {
         this.host = host;
         this.port = port;
-        this.userToken = userToken;
         this.resourcePath = resourcePath;
     }
 
     @Override
-    public DeviceManager create() throws Exception {
+    public DeviceManager create() {
         log.info("Device manager create");
-        return new DeviceManager(this.host, this.port, this.resourcePath, this.userToken);
+        return new DeviceManager(this.host, this.port, this.resourcePath);
     }
 
     @Override
@@ -35,13 +33,12 @@ public class DeviceManagerFactory extends BasePooledObjectFactory<DeviceManager>
     }
 
     @Override
-    public void activateObject(PooledObject<DeviceManager> p) throws Exception {
+    public void activateObject(PooledObject<DeviceManager> p)  {
 
     }
 
     @Override
-    public void passivateObject(PooledObject<DeviceManager> pooledObject) throws Exception {
-
+    public void passivateObject(PooledObject<DeviceManager> pooledObject)  {
         pooledObject.getObject().reset();
     }
 

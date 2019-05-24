@@ -1,26 +1,22 @@
 package com.testwa.distest.client.component.minitouch;
 
-import com.android.ddmlib.IDevice;
-import com.android.ddmlib.IShellOutputReceiver;
-import com.testwa.distest.client.android.ADBCommandUtils;
-import com.testwa.distest.client.android.AndroidHelper;
-import com.testwa.distest.client.component.appium.utils.Config;
+import com.testwa.distest.client.android.*;
 import com.testwa.distest.client.component.port.MinitouchPortProvider;
+import com.testwa.distest.client.util.CommandLineExecutor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import org.zeroturnaround.exec.StartedProcess;
 
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 
 /**
  * Created by wen on 2017/4/19.
  */
 @Slf4j
-public class MinitouchServer extends Thread implements Closeable {
+public class MinitouchServer {
     /** android 临时文件存放目录 */
     private static final String ANDROID_TMP_DIR = "/data/local/tmp/";
     /** minitouch 临时存放目录 */
@@ -30,22 +26,17 @@ public class MinitouchServer extends Thread implements Closeable {
     private static final String AB_NAME = "minitouch";
 
     private Integer port;
-    private IDevice device;
+    private String deviceId;
     private String abi;
-    /** 是否运行 */
-    private AtomicBoolean isRunning = new AtomicBoolean(false);
-    private AtomicBoolean isReady = new AtomicBoolean(false);
-    /** 是否重启 */
-    private AtomicBoolean restart = new AtomicBoolean(false);
 
     /** resource 文件夹目录 */
     private String resourcePath;
-    private int retry = 10;
 
-    public MinitouchServer(String deviceId) {
-        super("minitouch-server");
-        this.resourcePath = Config.getString("distest.agent.resources");
-        this.device = AndroidHelper.getInstance().getAndroidDevice(deviceId).getDevice();
+    private StartedProcess mainProcess;
+
+    public MinitouchServer(String deviceId, String resourcePath) {
+        this.resourcePath = resourcePath;
+        this.deviceId = deviceId;
     }
 
     /**
@@ -53,110 +44,69 @@ public class MinitouchServer extends Thread implements Closeable {
      * @return true 已运行 false 未运行
      */
     public boolean isRunning() {
-        return this.isRunning.get();
-    }
-    public boolean isReady() {
-        return this.isReady.get();
+        if(this.mainProcess != null) {
+            return mainProcess.getProcess().isAlive();
+        }
+        return false;
     }
 
-    @Override
     public void close() {
-        this.isRunning.set(false);
-        this.isReady.set(false);
-        this.restart.set(true);
+        release();
     }
 
     /**
      * 重启
      */
     public synchronized void restart() {
-        this.isReady.set(false);
-        this.restart.set(true);
+        close();
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) {
+
+        }
+        start();
     }
 
-    @Override
+    private void release() {
+        if(this.mainProcess != null) {
+            CommandLineExecutor.processQuit(mainProcess);
+        }
+        if(this.port != null) {
+            ADBTools.forwardRemove(deviceId, this.port);
+            MinitouchPortProvider.pushPort(this.port);
+        }
+    }
+
     public synchronized void start() {
-        if (this.isRunning.get()) {
-            throw new IllegalStateException("Minicap服务已运行");
-        }else{
-            this.isRunning.set(true);
+        if(this.mainProcess != null && this.mainProcess.getProcess().isAlive()) {
+            log.error("minitouch已经在运行中");
+            return;
         }
         try {
             // push minicap
             String minicapPath = getMinitouchPath().toString();
             log.info("推送文件 local: {}, remote: {}", minicapPath, MINITOUCH_TMP_DIR);
-            ADBCommandUtils.pushFile(device.getSerialNumber(), getResource(minicapPath), MINITOUCH_TMP_DIR, "777");
+            ADBTools.pushFile(deviceId, getResource(minicapPath), MINITOUCH_TMP_DIR);
+            ADBTools.chmod(deviceId, MINITOUCH_TMP_DIR, "777");
 
             // push minicap-nopie
             String minicapNopiePath = getMinitouchNopiePath().toString();
             log.info("推送文件 local: {}, remote: {}", minicapNopiePath, MINITOUCH_NOPIE_TMP_DIR);
-            ADBCommandUtils.pushFile(device.getSerialNumber(), getResource(minicapNopiePath), MINITOUCH_NOPIE_TMP_DIR, "777");
+            ADBTools.pushFile(deviceId, getResource(minicapNopiePath), MINITOUCH_NOPIE_TMP_DIR);
+            ADBTools.chmod(deviceId, MINITOUCH_NOPIE_TMP_DIR, "777");
 
             // forward port
             this.port = MinitouchPortProvider.pullPort();
-            device.createForward(port, AB_NAME, IDevice.DeviceUnixSocketNamespace.ABSTRACT);
+            ADBTools.forward(deviceId, this.port, AB_NAME);
             log.info("端口转发 tcp:{} localabstract:minicap", port);
 
+            String command = getCommand();
+            mainProcess = ADBTools.asyncCommandShell(deviceId, command);
+
         } catch (Exception e) {
-            throw new IllegalStateException("Minicap服务启动失败");
+            release();
+            throw new IllegalStateException("Minitouch服务启动失败");
         }
-        super.start();
-    }
-
-    @Override
-    public void run() {
-        while (this.isRunning.get()) {
-            retry--;
-            if(retry < 0) {
-                restart.set(false);
-                log.warn("重试次数太多，minicap启动失败");
-                break;
-            }
-            try {
-                // run minicap server
-                String command = getCommand();
-                log.info("{} 拉起 Minitouch 服务 shellCommand: {}", device.getName(), command);
-                device.executeShellCommand(command, new IShellOutputReceiver() {
-                    @Override
-                    public void addOutput(byte[] bytes, int i, int i1) {
-                        String ret = new String(bytes, i, i1);
-                        String[] split = ret.split("\n");
-                        for (String line : split) {
-                            if (StringUtils.isNotEmpty(line)) {
-                                if(!isReady.get()) {
-                                    isReady.set(true);
-                                }
-                                log.info("----minitouch----{}", line.trim());
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void flush() {
-                    }
-
-                    @Override
-                    public boolean isCancelled() {
-                        boolean result = restart.get();
-                        restart.set(false);
-                        return result;
-                    }
-                }, Integer.MAX_VALUE, TimeUnit.DAYS);
-            } catch (Exception e) {
-                log.warn("{} Minitouch 服务运行异常, {}", device.getSerialNumber(), e.getMessage());
-            }
-        }
-        try {
-            device.removeForward(port, AB_NAME, IDevice.DeviceUnixSocketNamespace.ABSTRACT);
-        } catch (Exception e) {
-            log.error("移除端口转发失败. port: {}", e, port);
-        }
-        this.isRunning.set(false);
-        this.isReady.set(false);
-        if(this.port != null) {
-            MinitouchPortProvider.pushPort(this.port);
-        }
-        log.info("Minitouch 服务已关闭");
     }
 
     private String getResource(String name) {
@@ -170,7 +120,7 @@ public class MinitouchServer extends Thread implements Closeable {
      */
     protected String getAbi() throws Exception {
         if (abi == null) {
-            abi = ADBCommandUtils.getAbi(device.getSerialNumber());
+            abi = ADBTools.getAbi(deviceId);
         }
         return abi;
     }

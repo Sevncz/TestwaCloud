@@ -5,6 +5,8 @@ import com.google.protobuf.ByteString;
 import com.testwa.distest.client.callback.remote.ScreenObserver;
 import com.testwa.distest.client.device.listener.IDeviceRemoteCommandListener;
 import io.grpc.ManagedChannel;
+import io.grpc.internal.GrpcUtil;
+import io.grpc.netty.NegotiationType;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.device.*;
@@ -17,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 设备远程API客户端
@@ -42,7 +45,11 @@ public class DeivceRemoteApiClient {
 
     public DeivceRemoteApiClient(String host, int port){
        this.channel = NettyChannelBuilder.forAddress(host, port)
-                .build();
+               .keepAliveTime(GrpcUtil.DEFAULT_KEEPALIVE_TIME_NANOS, TimeUnit.NANOSECONDS)
+               .keepAliveWithoutCalls(true)
+               .negotiationType(NegotiationType.PLAINTEXT)
+               .build();
+
         this.deviceServiceFutureStub = DeviceServiceGrpc.newFutureStub(channel);
         this.deviceServiceStub = DeviceServiceGrpc.newStub(channel);
         this.deviceServiceBlockingStub = DeviceServiceGrpc.newBlockingStub(channel);

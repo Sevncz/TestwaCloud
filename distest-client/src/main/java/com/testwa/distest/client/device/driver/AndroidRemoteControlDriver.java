@@ -26,6 +26,7 @@ import com.testwa.distest.client.exception.DeviceNotReadyException;
 import com.testwa.distest.client.exception.DownloadFailException;
 import com.testwa.distest.client.ios.IOSDeviceUtil;
 import com.testwa.distest.client.model.AgentInfo;
+import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.jadb.JadbDevice;
 import com.testwa.distest.jadb.JadbException;
 import io.rpc.testwa.device.DeviceType;
@@ -75,6 +76,8 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
      */
     private static final int BASE_WIDTH = 720;
     private float defaultScale = 0.5f;
+    // 设置画质
+    private static final int QUALITY = 25;
 
     private final JadbDevice device;
     private ClientInfo clientInfo;
@@ -128,6 +131,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
     public void deviceInit() {
         try {
             clientInfo = buildClientInfo();
+            initTcpipCommand();
             this.commandListener = new IDeviceRemoteCommandListener(device.getSerial(), this);
             register();
         } catch (DeviceNotReadyException e) {
@@ -165,11 +169,23 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
         }
         stopScreen();
 
-        this.screenProjection = new ScreenAndroidProjection(this.device.getSerial(), listener);
-        this.screenProjection.start();
+        if(this.screenProjection == null) {
+            this.screenProjection = new ScreenAndroidProjection(this.device.getSerial(), this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH), listener);
+            this.screenProjection.setZoom(scale);
+            this.screenProjection.setRotate(rotate);
+            this.screenProjection.setQuality(QUALITY);
+            this.screenProjection.start();
+        }else{
+            this.screenProjection.start();
+        }
 
-        this.touchProjection = new TouchAndroidProjection(this.device.getSerial());
-        this.touchProjection.start();
+        if(this.touchProjection == null) {
+            this.touchProjection = new TouchAndroidProjection(this.device.getSerial(), this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH));
+            this.touchProjection.start();
+        }else{
+            this.touchProjection.start();
+        }
+
 
     }
 
@@ -276,6 +292,11 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
     }
 
     @Override
+    public void touch(String cmd) {
+
+    }
+
+    @Override
     public void installApp(String command) {
 
         AppInfo appInfo = JSON.parseObject(command, AppInfo.class);
@@ -295,6 +316,16 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
 
         ADBCommandUtils.installApp(device.getSerial(), appLocalPath);
         ADBCommandUtils.launcherApp(device.getSerial(), appLocalPath);
+    }
+
+    @Override
+    public void uninstallApp(String command) {
+
+    }
+
+    @Override
+    public void openWeb(String cmd) {
+
     }
 
     @Override
@@ -372,8 +403,6 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
             if(!keyboardserviceInstall) {
                 log.warn("{} 未安装 {}", dev.getName(), KEYBOARD_SERVICE_PACKAGE);
             }
-
-            initTcpipCommand();
             return ClientInfo.newBuilder()
                     .setDeviceId(dev.getSerialNumber())
                     .setBrand(brand)
@@ -385,7 +414,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
                     .setModel(model)
                     .setOsName("Android")
                     .setSdk(sdk)
-                    .setUserFlag(capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.USER_TOKEN))
+                    .setUserFlag(UserInfo.token)
                     .setVersion(version)
                     .setSftagentInstall(stfagentInstall)
                     .setAppiumUiautomator2ServerInstall(appiumServerInstall)

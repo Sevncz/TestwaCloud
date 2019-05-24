@@ -16,6 +16,7 @@
 
 package com.testwa.distest.client.component.wda.support;
 
+import com.testwa.distest.client.util.CommandLineExecutor;
 import org.apache.http.util.Args;
 
 import java.io.File;
