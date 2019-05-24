@@ -3,10 +3,12 @@ package com.testwa.distest.client.component.debug;
 import com.testwa.distest.client.command.CommonProcessListener;
 import com.testwa.distest.client.component.port.SocatPortProvider;
 import com.testwa.distest.client.component.port.TcpIpPortProvider;
+import com.testwa.distest.client.util.CommandLineExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.exec.CommandLine;
 import org.zeroturnaround.exec.ProcessExecutor;
 import org.zeroturnaround.exec.ProcessResult;
+import org.zeroturnaround.exec.StartedProcess;
 import org.zeroturnaround.exec.stop.DestroyProcessStopper;
 import org.zeroturnaround.exec.stream.LogOutputStream;
 
@@ -26,7 +28,7 @@ import static org.apache.commons.exec.ExecuteWatchdog.INFINITE_TIMEOUT;
 public class AndroidDebugServer{
     private static final String SOCAT_CMD = "socat";
     private String deviceId;
-    private Future<ProcessResult> future;
+    private StartedProcess mainProcess;
     private CommonProcessListener processListener;
 
     private int tcpipPort;
@@ -42,7 +44,7 @@ public class AndroidDebugServer{
     public void start() {
         List<String> commandLine = getSocatCommandLine(this.tcpipPort, this.remotePort);
         try {
-            future = new ProcessExecutor()
+            mainProcess = new ProcessExecutor()
                     .command(commandLine)
                     .redirectOutput(new LogOutputStream() {
                         @Override
@@ -50,7 +52,7 @@ public class AndroidDebugServer{
                             log.debug(line);
                         }
                     }).listener(processListener)
-                    .start().getFuture();
+                    .start();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -60,10 +62,8 @@ public class AndroidDebugServer{
     public void stop() {
         TcpIpPortProvider.pushPort(this.tcpipPort);
         SocatPortProvider.pushPort(this.remotePort);
-        if(future != null) {
-            if(processListener.getProcess() != null) {
-                DestroyProcessStopper.INSTANCE.stop(processListener.getProcess());
-            }
+        if(mainProcess != null) {
+            CommandLineExecutor.processQuit(mainProcess);
         }
     }
 
@@ -84,14 +84,8 @@ public class AndroidDebugServer{
     }
 
     public boolean isRunning() {
-        if(future != null) {
-            if(future.isCancelled()){
-                return false;
-            }
-            if(future.isDone()){
-                return false;
-            }
-            return true;
+        if(mainProcess != null) {
+            return mainProcess.getProcess().isAlive();
         }else{
             return false;
         }

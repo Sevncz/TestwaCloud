@@ -6,10 +6,7 @@ import com.android.ddmlib.IDevice;
 import com.github.cosysoft.device.android.AndroidDevice;
 import com.github.cosysoft.device.android.impl.AndroidDeviceStore;
 import com.testwa.core.cmd.AppInfo;
-import com.testwa.distest.client.android.ADBCommandUtils;
-import com.testwa.distest.client.android.AndroidHelper;
-import com.testwa.distest.client.android.JadbDeviceManager;
-import com.testwa.distest.client.android.PhysicalSize;
+import com.testwa.distest.client.android.*;
 import com.testwa.distest.client.component.Constant;
 import com.testwa.distest.client.component.appium.utils.Config;
 import com.testwa.distest.client.component.debug.AndroidDebugServer;
@@ -273,27 +270,41 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
 
     @Override
     public void debugStart() {
-
+        ADBTools.forward(device.getSerial(), this.tcpipPort, this.tcpipPort);
+        if(this.androidDebugServer == null) {
+            this.androidDebugServer = new AndroidDebugServer(device.getSerial(), this.tcpipPort, this.socatPort);
+        }
+        if(!this.androidDebugServer.isRunning()) {
+            this.androidDebugServer.start();
+        }
     }
 
     @Override
     public void debugStop() {
-
+        if(this.androidDebugServer.isRunning()) {
+            this.androidDebugServer.stop();
+        }
     }
 
     @Override
     public void keyevent(int keyCode) {
-
+        if (this.touchProjection != null && this.touchProjection.isRunning()) {
+            this.touchProjection.sendCode(keyCode);
+        }
     }
 
     @Override
     public void inputText(String cmd) {
-
+        if (this.touchProjection != null && this.touchProjection.isRunning()) {
+            this.touchProjection.sendText(cmd);
+        }
     }
 
     @Override
     public void touch(String cmd) {
-
+        if (this.touchProjection != null && this.touchProjection.isRunning()) {
+            this.touchProjection.sendEvent(cmd);
+        }
     }
 
     @Override

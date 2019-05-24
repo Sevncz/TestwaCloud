@@ -12,6 +12,7 @@ import org.zeroturnaround.exec.StartedProcess;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 使用jadb和process执行adb命令
@@ -94,6 +95,16 @@ public class ADBTools {
         return false;
     }
 
+    public static Boolean forward(String deviceId, int port, int remotePort) {
+        try {
+            command(deviceId, "forward", String.format("tcp:%d", port), String.format("tcp:%s", remotePort));
+            return true;
+        }catch (CommandFailureException e){
+            log.error("[{}] forward tcp:{} tcp:{} 错误", deviceId, port, remotePort);
+        }
+        return false;
+    }
+
     public static Boolean forwardRemove(String deviceId, int port) {
         try {
             command(deviceId, "forward", "--remove", String.format("tcp:%d", port));
@@ -161,6 +172,11 @@ public class ADBTools {
 
     public static void restartAdb() {
         CommandLineExecutor.execute(new String[]{AndroidSdk.adb().getName(), "kill-server"});
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         CommandLineExecutor.execute(new String[]{AndroidSdk.adb().getName(), "start-server"});
     }
 
