@@ -40,12 +40,12 @@ public class CommandLineExecutor {
         return execute(command, DEFAULT_TIMEOUT);
     }
 
-    public static String execute(String[] command, int timeout) {
+    public static String execute(String[] command, int timeoutSeconds) {
         try {
             return new ProcessExecutor()
                         .command(command)
                         .readOutput(true)
-                        .timeout(timeout, TimeUnit.SECONDS)
+                        .timeout(timeoutSeconds, TimeUnit.SECONDS)
                         .execute().outputUTF8();
         } catch (IOException | InterruptedException | TimeoutException e) {
             throw new CommandFailureException(e);

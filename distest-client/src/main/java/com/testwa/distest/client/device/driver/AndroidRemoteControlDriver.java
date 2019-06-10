@@ -3,13 +3,13 @@ package com.testwa.distest.client.device.driver;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.android.ddmlib.IDevice;
-import com.github.cosysoft.device.android.AndroidDevice;
-import com.github.cosysoft.device.android.impl.AndroidDeviceStore;
 import com.testwa.core.cmd.AppInfo;
+import com.testwa.core.cmd.RemoteRunCommand;
 import com.testwa.distest.client.android.*;
 import com.testwa.distest.client.component.Constant;
 import com.testwa.distest.client.component.appium.utils.Config;
 import com.testwa.distest.client.component.debug.AndroidDebugServer;
+import com.testwa.distest.client.component.executor.task.*;
 import com.testwa.distest.client.component.logcat.DLogger;
 import com.testwa.distest.client.component.minicap.ScreenAndroidProjection;
 import com.testwa.distest.client.component.minitouch.TouchAndroidProjection;
@@ -21,7 +21,6 @@ import com.testwa.distest.client.device.remote.DeivceRemoteApiClient;
 import com.testwa.distest.client.download.Downloader;
 import com.testwa.distest.client.exception.DeviceNotReadyException;
 import com.testwa.distest.client.exception.DownloadFailException;
-import com.testwa.distest.client.ios.IOSDeviceUtil;
 import com.testwa.distest.client.model.AgentInfo;
 import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.jadb.JadbDevice;
@@ -108,6 +107,9 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
      * 超过该时间再断开，即算断开
      */
     private static final Long TCPIP_TIMEOUT = 20*1000L;
+    /*------------------------------------------远程任务----------------------------------------------------*/
+
+    private AbstractTestTask task = null;
 
 
     public AndroidRemoteControlDriver(IDeviceRemoteControlDriverCapabilities capabilities){
@@ -232,7 +234,6 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
         if(dLogger != null){
             dLogger.close();
         }
-
     }
 
     @Override
@@ -330,33 +331,52 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
     }
 
     @Override
-    public void uninstallApp(String command) {
-
+    public void uninstallApp(String url) {
+        ADBTools.uninstallApp(device.getSerial(), url);
     }
 
     @Override
     public void openWeb(String cmd) {
-
+        ADBTools.openWeb(this.device.getSerial(), cmd);
     }
 
     @Override
     public void startCrawlerTask(String command) {
-
+        log.info("设备 {}，开始遍历任务 {}", device.getSerial(), command);
+        RemoteRunCommand cmd = JSON.parseObject(command, RemoteRunCommand.class);
+//        defaultVideoRecorderStart(cmd.getTaskCode());
+        task = new CrawlerTestTask(cmd, listener);
+        TaskDispatcher.getInstance().submit(task);
     }
 
     @Override
     public void startCompatibilityTask(String command) {
-
+        log.info("设备 {}，开始兼容任务 {}", device.getSerial(), command);
+        RemoteRunCommand cmd = JSON.parseObject(command, RemoteRunCommand.class);
+//        defaultVideoRecorderStart(cmd.getTaskCode());
+        task = new CompatibilityAndroidTestTask(cmd, listener);
+        TaskDispatcher.getInstance().submit(task);
     }
 
     @Override
     public void startFunctionalTask(String command) {
-
+        log.info("设备 {}，开始任务 {}", device.getSerial(), command);
+//        switchADBKeyBoard();
+        RemoteRunCommand cmd = JSON.parseObject(command, RemoteRunCommand.class);
+//        defaultVideoRecorderStart(cmd.getTaskCode());
+        task = new FunctionalTestTask(cmd, listener);
+        TaskDispatcher.getInstance().submit(task);
     }
 
     @Override
     public void stopTask(String taskCode) {
-
+        if(task != null){
+            RemoteRunCommand cmd = task.getCMD();
+            if(taskCode.equals(String.valueOf(cmd.getTaskCode()))) {
+                task.terminate();
+                task = null;
+            }
+        }
     }
 
 
@@ -451,7 +471,6 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
             }
         } catch (IOException | JadbException e) {
             log.error("tcpip 命令执行失败", e);
-
         }
     }
 

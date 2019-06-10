@@ -180,6 +180,18 @@ public class ADBTools {
         CommandLineExecutor.execute(new String[]{AndroidSdk.adb().getName(), "start-server"});
     }
 
+    public static String openWeb(String deviceId, String url) {
+        String result = commandShell(deviceId, "am", "start", "-a", "android.intent.action.VIEW", "-d", url);
+        if(StringUtils.isNoneEmpty(result)) {
+            return result.trim();
+        }
+        return ERROR;
+    }
+
+
+    public static void uninstallApp(String deviceId, String basePackage) {
+        commandShell(deviceId, "am", basePackage);
+    }
 
     public static void main(String[] args) {
         String deviceId = "4205dccb";

@@ -27,6 +27,7 @@ public class DeviceManagerPool {
     }
 
     public synchronized DeviceManager getManager(String deviceId, DeviceType deviceType) {
+        DeviceManager manager = null;
         try {
             if(borrowManger.containsKey(deviceId)) {
                 return borrowManger.get(deviceId);
@@ -37,12 +38,17 @@ public class DeviceManagerPool {
                     throw new Exception("Android 设备还未初始化完成");
                 }
             }
-            DeviceManager manager = pool.borrowObject();
-            manager.init(deviceId, deviceType);
-            borrowManger.put(deviceId, manager);
+            manager = pool.borrowObject();
+            if(manager != null) {
+                manager.init(deviceId, deviceType);
+                borrowManger.put(deviceId, manager);
+            }
             return manager;
         } catch (Exception e) {
             log.error("Borrow device manager error", e);
+            if(manager != null) {
+                pool.returnObject(manager);
+            }
             return null;
         }
     }

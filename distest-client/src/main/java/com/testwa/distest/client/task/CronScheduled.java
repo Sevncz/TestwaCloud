@@ -53,7 +53,7 @@ public class CronScheduled {
         });
     }
 
-    @Scheduled(fixedDelay = 5000, initialDelay = 1000)
+    @Scheduled(fixedDelay = 5000, initialDelay = 10000)
     public void iOSInit() {
         Config.setEnv(env);
         String osName = System.getProperty("os.name");

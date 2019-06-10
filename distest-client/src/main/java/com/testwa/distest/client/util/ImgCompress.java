@@ -27,6 +27,5 @@ public class ImgCompress {
         } catch (IOException e) {
         }
         return picByte;
-
     }
 }

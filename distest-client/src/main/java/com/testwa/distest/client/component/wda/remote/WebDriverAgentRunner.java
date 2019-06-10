@@ -44,7 +44,7 @@ public class WebDriverAgentRunner {
     private static final String WDA_STATE_FIELD = "state";
     private static final int WDA_AGENT_PORT = 8100;
     private static final int DEFAULT_LAUNCH_TIMEOUT = 60;
-    private static final String IPROXY = "iproxy";
+    private static final String IPROXY = "/usr/local/bin/iproxy";
 
     private DriverCapabilities capabilities;
     private CommandExecutor commandExecutor;
@@ -93,7 +93,6 @@ public class WebDriverAgentRunner {
                     .setLog(false)
                     .addListener(this.wdaProcessListener)
                     .build();
-
             iproxyProcess = CommandLineExecutor.asyncExecute(new String[]{IPROXY, String.valueOf(this.iproxyPort), String.valueOf(WDA_AGENT_PORT), udid});
         } else {
             log.info("Use existing WebDriverAgent process.");
