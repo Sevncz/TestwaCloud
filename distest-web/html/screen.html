@@ -64,12 +64,10 @@ var BLANK_IMG =
 
 var canvas = document.getElementById('phone-screen')
   , g = canvas.getContext('2d')
-var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjc0KgzAQhN9lzwls0M1G36OnIpKfFVKKFU1oofTdG-mlp4H5PmbecNQAIzxlRQMK6iH7nFNrLrMhxw47Yktomdk2HnfxRRo3RM6elJhJwREfm8B4nRTIa_thxqGFguzLv9-M1Yf7OVL2KgpuJbe_KC4tYfFaApHuLQ16wCjaJ9cjptT5LsHnCwAA__8.zke_QcBJuRTYh9eJPGmO-7MWQePd_IbCCkTTqwfPsVM";
-// var socket = io('http://cloud.test.testwa.com:9092?type=browser&token=' + token);
+var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjUEKwjAQRe8y6wSmbTLT9h6uRMokmUJFamlSFMS7G8GF2_8e778gHwFGeOiKDRg4su7Tkupymhrfc4-dZ_JIzEyVx12laOWNJ2wdE7q2YwM53jeF8XwxoM_th5kcOgOLlH-_GquE2zdS9kMNXMtS_waKcZiFbIterEuBbD9HtEmFOCaptQDvDwAAAP__.UMgxO_kOHKR8Gzn5B0oF5-5KMnNe92iTDjMSCHRqxd4";
 var socket = io('http://127.0.0.1:9092?type=browser&token=' + token);
 
-// var deviceId = '98895a44324f494f4d';
-var deviceId = '4205dccb';
+var deviceId = '3JU5T18313001420';
 
 socket.on('connect', function(){
     util.serverConnected = true
@@ -167,7 +165,7 @@ function sendShell(cmd) {
 function sendTouchEvent(minitouchStr) {
     var params = {
         deviceId: deviceId,
-        touch: minitouchStr
+        cmd: minitouchStr
     }
     socket.emit("touch", JSON.stringify(params))
 }

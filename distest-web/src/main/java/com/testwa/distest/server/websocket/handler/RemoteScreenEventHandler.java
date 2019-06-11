@@ -48,6 +48,8 @@ import java.util.Map;
 public class RemoteScreenEventHandler {
 
     private final static String TOUCH = "touch";
+    private final static String TAP = "tap";
+    private final static String SWIP = "swip";
     private final static String INPUT = "input";
     private final static String HOME = "home";
     private final static String BACK = "back";
@@ -62,6 +64,7 @@ public class RemoteScreenEventHandler {
 
     private final static String SUB_SCREEN = "sub_screen";
     private final static String WAIT_SCREEN = "wait_screen";
+    private final static String FRAME_RATE = "frame_rate";
     private final static String SUB_LOGCAT = "sub_logcat";
     private final static String FILTER_LOGCAT = "filter_logcat";
     private final static String WAIT_LOGCAT = "wait_logcat";
@@ -157,7 +160,8 @@ public class RemoteScreenEventHandler {
             // 浏览器连接断开
             log.debug("browser disconnect");
             // 清理资源
-
+            String serial = client.getHandshakeData().getSingleUrlParam("serial");
+            deviceLockMgr.debugRelease(serial, client.getSessionId().toString());
         }
     }
 
@@ -303,6 +307,12 @@ public class RemoteScreenEventHandler {
         }
     }
 
+    @OnEvent(value = FRAME_RATE)
+    public void onFrameRate(SocketIOClient client, String data, AckRequest ackRequest) {
+
+        sendCmd(client, data, "cmd", "帧率不能为空", Message.Topic.FRAME_RATE);
+    }
+
     @OnEvent(value = WAIT_LOGCAT)
     public void onWaitLogcat(SocketIOClient client, String deviceId, AckRequest ackRequest) {
         try {
@@ -322,45 +332,24 @@ public class RemoteScreenEventHandler {
     @OnEvent(value = TOUCH)
     public void onTouch(SocketIOClient client, String data, AckRequest ackRequest) {
 
-        Map params = JSON.parseObject(data, Map.class);
-        String deviceId = (String) params.get("deviceId");
-        if (isIllegalDeviceId(client, deviceId)) {
-            return;
-        }
-        String touch = (String) params.get("touch");
-        if(StringUtils.isBlank(touch)){
-            client.sendEvent("error", "坐标不能为空");
-            return;
-        }
-        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
-        if(observer != null ){
-            Message message = Message.newBuilder().setTopicName(Message.Topic.TOUCH).setStatus(STATUS_OK).setMessage(ByteString.copyFromUtf8(touch)).build();
-            observer.onNext(message);
-        }else{
-            client.sendEvent("error", "设备还未准备好");
-        }
+        sendCmd(client, data, "cmd", "坐标不能为空", Message.Topic.TOUCH);
+    }
+
+    @OnEvent(value = TAP)
+    public void onTap(SocketIOClient client, String data, AckRequest ackRequest) {
+
+        sendCmd(client, data, "cmd", "坐标不能为空", Message.Topic.TAP);
+    }
+
+    @OnEvent(value = SWIP)
+    public void onSwip(SocketIOClient client, String data, AckRequest ackRequest) {
+
+        sendCmd(client, data, "cmd", "坐标不能为空", Message.Topic.SWIP);
     }
 
     @OnEvent(value = INPUT)
     public void onInput(SocketIOClient client, String data, AckRequest ackRequest) {
-        Map params = JSON.parseObject(data, Map.class);
-        String deviceId = (String) params.get("deviceId");
-        if (isIllegalDeviceId(client, deviceId)) {
-            return;
-        }
-
-        String input = (String) params.get("input");
-        if(StringUtils.isBlank(input)){
-            client.sendEvent("error", "请输入内容");
-            return;
-        }
-        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
-        if(observer != null ){
-            Message message = Message.newBuilder().setTopicName(Message.Topic.INPUT).setStatus(STATUS_OK).setMessage(ByteString.copyFromUtf8(input)).build();
-            observer.onNext(message);
-        }else{
-            client.sendEvent("error", "设备还未准备好");
-        }
+        sendCmd(client, data, "input", "请输入内容", Message.Topic.INPUT);
 
     }
 
@@ -441,46 +430,12 @@ public class RemoteScreenEventHandler {
 
     @OnEvent(value = SHELL)
     public void onShell(SocketIOClient client, String data, AckRequest ackRequest) {
-        Map params = JSON.parseObject(data, Map.class);
-        String deviceId = (String) params.get("deviceId");
-        if (isIllegalDeviceId(client, deviceId)) {
-            return;
-        }
-
-        String cmd = (String) params.get("cmd");
-        if(StringUtils.isBlank(cmd)){
-            client.sendEvent("error", "shell命令不能为空");
-            return;
-        }
-        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
-        if(observer != null ){
-            Message message = Message.newBuilder().setTopicName(Message.Topic.SHELL).setStatus(STATUS_OK).setMessage(ByteString.copyFromUtf8(data)).build();
-            observer.onNext(message);
-        }else{
-            client.sendEvent("error", "设备还未准备好");
-        }
+        sendCmd(client, data, "cmd", "shell命令不能为空", Message.Topic.SHELL);
     }
 
     @OnEvent(value = WEB)
     public void onWeb(SocketIOClient client, String data, AckRequest ackRequest) {
-        Map params = JSON.parseObject(data, Map.class);
-        String deviceId = (String) params.get("deviceId");
-        if (isIllegalDeviceId(client, deviceId)) {
-            return;
-        }
-
-        String url = (String) params.get("url");
-        if(StringUtils.isBlank(url)){
-            client.sendEvent("error", "网址不能为空");
-            return;
-        }
-        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
-        if(observer != null ){
-            Message message = Message.newBuilder().setTopicName(Message.Topic.OPENWEB).setStatus(STATUS_OK).setMessage(ByteString.copyFromUtf8(url)).build();
-            observer.onNext(message);
-        }else{
-            client.sendEvent("error", "设备还未准备好");
-        }
+        sendCmd(client, data, "url", "网址不能为空", Message.Topic.OPENWEB);
     }
 
     /*------------------DEBUG状态------------------*/
@@ -512,6 +467,27 @@ public class RemoteScreenEventHandler {
             observer.onNext(message);
             client.sendEvent(REMOTE_DEBUG_STOP, "已停止");
         }else{
+            client.sendEvent("error", "设备还未准备好");
+        }
+    }
+
+
+    private void sendCmd(SocketIOClient client, String data, String cmdKey, String tips, Message.Topic topic) {
+        Map params = JSON.parseObject(data, Map.class);
+        String deviceId = (String) params.get("deviceId");
+        if (isIllegalDeviceId(client, deviceId)) {
+            return;
+        }
+        String content = (String) params.get(cmdKey);
+        if (StringUtils.isBlank(content)) {
+            client.sendEvent("error", tips);
+            return;
+        }
+        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
+        if (observer != null) {
+            Message message = Message.newBuilder().setTopicName(topic).setStatus(STATUS_OK).setMessage(ByteString.copyFromUtf8(content)).build();
+            observer.onNext(message);
+        } else {
             client.sendEvent("error", "设备还未准备好");
         }
     }

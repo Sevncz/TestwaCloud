@@ -18,8 +18,7 @@ import io.rpc.testwa.task.TaskServiceGrpc;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * 设备远程API客户端
@@ -42,6 +41,10 @@ public class DeivceRemoteApiClient {
     private final PushGrpc.PushBlockingStub pushBlockingStub;
 
     private final StreamObserver<ScreenCaptureRequest> screenRequestObserver;
+    private static final ConcurrentLinkedQueue<ScreenCaptureRequest> SCREEN_IMG_QUQUE = new ConcurrentLinkedQueue();
+    private static final ExecutorService SCREEN_EXECUTOR = Executors.newSingleThreadExecutor();
+    private Future screenFuture;
+
 
     public DeivceRemoteApiClient(String host, int port){
        this.channel = NettyChannelBuilder.forAddress(host, port)
@@ -67,6 +70,37 @@ public class DeivceRemoteApiClient {
 
         ScreenObserver screenObserver = new ScreenObserver();
         this.screenRequestObserver = this.deviceServiceStub.screen(screenObserver);
+        screenFuture = startScreenSendTask();
+
+    }
+
+    /**
+     * @Description: 启动screen发送线程
+     * @Param: []
+     * @Return: void
+     * @Author wen
+     * @Date 2019/6/10 16:03
+     */
+    private Future startScreenSendTask() {
+        return SCREEN_EXECUTOR.submit(new Runnable() {
+            @Override
+            public void run() {
+                while(true) {
+                    try {
+                        synchronized (SCREEN_IMG_QUQUE) {
+                            if(!SCREEN_IMG_QUQUE.isEmpty()) {
+                                ScreenCaptureRequest request = SCREEN_IMG_QUQUE.poll();
+                                screenRequestObserver.onNext(request);
+                            }else{
+                                TimeUnit.MILLISECONDS.sleep(1);
+                            }
+                        }
+                    }catch (Exception e) {
+                        log.error("屏幕同步线程发生未知异常", e);
+                    }
+                }
+            }
+        });
     }
 
     /**
@@ -122,15 +156,17 @@ public class DeivceRemoteApiClient {
      * @Author wen
      * @Date 2019/5/23 20:58
      */
-    public void sendScreen(byte[] frame, String deviceId) {
-
+    public void saveScreen(byte[] frame, String deviceId) {
         try {
+            if(screenFuture == null) {
+                screenFuture = startScreenSendTask();
+            }
+
             ScreenCaptureRequest request = ScreenCaptureRequest.newBuilder()
                     .setImg(ByteString.copyFrom(frame))
                     .setSerial(deviceId)
                     .build();
-
-            this.screenRequestObserver.onNext(request);
+            SCREEN_IMG_QUQUE.add(request);
         }catch (Exception e){
             log.error(e.getMessage());
         }finally {

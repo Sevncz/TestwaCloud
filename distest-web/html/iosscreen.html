@@ -28,6 +28,9 @@
 <br>
 <button id="debugStart">启动debug</button>
 <button id="debugStop">关闭debug</button>
+<br>
+<input type="text" id="ratetext" />
+<button id="rate">帧率设置</button>
 
 
 <!-- jQuery -->
@@ -64,7 +67,7 @@ var BLANK_IMG =
 
 var canvas = document.getElementById('phone-screen')
   , g = canvas.getContext('2d')
-var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMzc0KwjAQBOB32XMCSdPdJH0PTyIlP1uoSC1pgoL47kbw4HW-YeYFR4swwYM3pUFAO7jMa-7JadborFMGLaEiay11T4VD5e4a0aHypD2RF3Ck-84wnS8C-Ln_2LhRd1tD_e_3xhbi7TtSS2MB17r2PzuQ0Sl7GQ2zHLMapEce5eJyWrLKZnAJ3h8AAAD__w.Dd5mb4F_BFUoKDh-eoA3G_xIx-4_oKYUmiauRFzcN64";
+var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjcEKwjAQRP9lzwls2mw27X94EilJu4WK1NKkKIj_7goevA3zHjMvKEeGHh6yogMDR5F9WCZtToOjyBFb4kAYmDkoH3dJVZQ7Ctg0SKghGCjjfRPozxcD8tx-2HctOgNLqv--GmvKt-9I3Q8xcK2L_rFnnyJNNtDcWZ_F2xhdtr6bWe8x5dzC-wMAAP__.YCA718R4E62wPeOcdUMkJRl57sNYfEx-AiV5Wr86oFs";
 // var socket = io('http://cloud.test.testwa.com:9092?type=browser&token=' + token);
 var socket = io('http://127.0.0.1:9092?type=browser&token=' + token);
 
@@ -165,12 +168,12 @@ function sendShell(cmd) {
     socket.emit("shell", JSON.stringify(params))
 }
 
-function sendTouchEvent(minitouchStr) {
+function sendTapEvent(minitouchStr) {
     var params = {
         deviceId: deviceId,
-        touch: minitouchStr
+        cmd: minitouchStr
     }
-    socket.emit("touch", JSON.stringify(params))
+    socket.emit("tap", JSON.stringify(params))
 }
 function sendInputText(text) {
     var params = {
@@ -196,6 +199,18 @@ function debugStop() {
     console.log("debugStop")
     socket.emit("remote_debug_stop", deviceId)
 }
+function rate() {
+    var rateText = $("#ratetext").val()
+    var v1 = {
+        rate: rateText
+    }
+    var params = {
+        deviceId: deviceId,
+        cmd: JSON.stringify(v1)
+    }
+    console.log("rate")
+    socket.emit("frame_rate", JSON.stringify(params))
+}
 
 function getDevices() {
     console.log("devices")
@@ -217,7 +232,7 @@ function sendDown(argx, argy, isRo) {
         y: y
     };
     console.log("command: " + JSON.stringify(command))
-    sendTouchEvent(JSON.stringify(command));
+    sendTapEvent(JSON.stringify(command));
 }
 
 function sendMove(argx, argy, isRo) {
@@ -234,13 +249,13 @@ function sendMove(argx, argy, isRo) {
     var command = "m 0 " + x + " " + y + " 50\n";
     command += "c\n";
     console.log("command: " + command)
-    // sendTouchEvent(command);
+    // sendTapEvent(command);
 }
 
 function sendUp() {
     var command = "u 0\n";
     command += "c\n";
-    sendTouchEvent(command);
+    sendTapEvent(command);
 }
 
 canvas.onmousedown = function (event) {
@@ -329,6 +344,9 @@ $("#debugStart").click(function () {
 })
 $("#debugStop").click(function () {
     debugStop();
+})
+$("#rate").click(function () {
+    rate();
 })
 
 </script>

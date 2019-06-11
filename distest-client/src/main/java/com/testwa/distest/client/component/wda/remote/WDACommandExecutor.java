@@ -19,20 +19,23 @@ package com.testwa.distest.client.component.wda.remote;
 
 import com.testwa.distest.client.component.wda.driver.CommandExecutor;
 import com.testwa.distest.client.component.wda.exception.WebDriverAgentException;
-import com.testwa.distest.client.component.wda.support.HttpService;
 import com.testwa.distest.client.component.wda.support.JsonConverter;
+import com.testwa.distest.client.support.OkHttpUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.net.URL;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Slf4j
 public class WDACommandExecutor implements CommandExecutor {
 
     private URL wdaUrl;
+    private ReentrantLock lock = new ReentrantLock();
 
     public WDACommandExecutor(URL wdaUrl) {
         this.wdaUrl = wdaUrl;
@@ -40,7 +43,7 @@ public class WDACommandExecutor implements CommandExecutor {
 
     @Override
     public RemoteResponse execute(String command, Map<WDACommand.Wildcard, String> wildcards, Map<String, ?> parameters) {
-        log.info(String.format("Execute command: %s with wildcards: %s and parameters: %s",
+        log.debug(String.format("Execute command: %s with wildcards: %s and parameters: %s",
                 command, wildcards, parameters));
         RemoteCommandInfo commandInfo = getCommandInfo(command);
         String url = wdaUrl.toString() + commandInfo.getUrl();
@@ -53,21 +56,34 @@ public class WDACommandExecutor implements CommandExecutor {
         }
 
         String responseContent = null;
-        switch (commandInfo.getMethod()) {
-            case GET:
-                responseContent = HttpService.getInstance().executeGet(url);
-                break;
-            case POST:
-                String jsonParameters = "";
-                if(parameters != null) {
-                    jsonParameters = JsonConverter.toJson(parameters);
-                }
-                responseContent = HttpService.getInstance().executePost(url, jsonParameters);
-                break;
-            case DELETE:
-                responseContent = HttpService.getInstance().executeDelete(url);
-                break;
+        try {
+            lock.lock();
+
+            switch (commandInfo.getMethod()) {
+                case GET:
+//                responseContent = HttpService.getInstance().executeGet(url);
+                    responseContent = OkHttpUtil.get(url, null);
+                    break;
+                case POST:
+                    String jsonParameters = "";
+                    if(parameters != null) {
+                        jsonParameters = JsonConverter.toJson(parameters);
+                    }
+//                responseContent = HttpService.getInstance().executePost(url, jsonParameters);
+                    responseContent = OkHttpUtil.postJsonParams(url, jsonParameters);
+                    break;
+                case DELETE:
+//                responseContent = HttpService.getInstance().executeDelete(url);
+                    responseContent = OkHttpUtil.delete(url);
+                    break;
+            }
+
+        }catch (Exception e) {
+            log.error("request wda exception {}", e.getMessage());
+        }finally {
+            lock.unlock();
         }
+
         RemoteResponse response = JsonConverter.fromJson(responseContent, RemoteResponse.class);
 
         if (response.getStatus() != RemoteDriverStatus.NO_ERROR.getStatus()) {

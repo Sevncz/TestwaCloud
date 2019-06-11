@@ -90,6 +90,11 @@ message Message {
         CRAWLER_TASK_START = 26;
         DEBUG_START = 30;
         DEBUG_STOP = 31;
+
+
+        TAP = 40;
+        SWIP = 41;
+        FRAME_RATE = 42;
     }
 	Topic topicName = 1;
 	string status = 2;

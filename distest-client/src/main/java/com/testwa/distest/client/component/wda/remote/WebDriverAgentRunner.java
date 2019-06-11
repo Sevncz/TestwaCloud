@@ -61,7 +61,7 @@ public class WebDriverAgentRunner {
         this.iproxyPort = IProxyPortProvider.pullPort();
         this.commandExecutor = new WDACommandExecutor(getWdaUrl());
         this.wdaProcessListener = new WdaProcessListener(this);
-        log.info("iproxy port {}", iproxyPort);
+        this.iproxyProcess = CommandLineExecutor.asyncExecute(new String[]{IPROXY, String.valueOf(this.iproxyPort), String.valueOf(WDA_AGENT_PORT), capabilities.getCapability(DriverCapabilities.Key.DEVICE_ID)});
     }
 
     public void start() {
@@ -93,7 +93,8 @@ public class WebDriverAgentRunner {
                     .setLog(false)
                     .addListener(this.wdaProcessListener)
                     .build();
-            iproxyProcess = CommandLineExecutor.asyncExecute(new String[]{IPROXY, String.valueOf(this.iproxyPort), String.valueOf(WDA_AGENT_PORT), udid});
+
+
         } else {
             log.info("Use existing WebDriverAgent process.");
         }

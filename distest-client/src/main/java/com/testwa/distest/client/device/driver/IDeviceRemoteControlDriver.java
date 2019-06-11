@@ -45,6 +45,11 @@ public interface IDeviceRemoteControlDriver {
     void stopScreen();
 
     /**
+     * 屏幕帧率
+     */
+    void rate(String command);
+
+    /**
      * 日志
      */
     void startLog(String command);
@@ -62,15 +67,14 @@ public interface IDeviceRemoteControlDriver {
 
     void stopRecorder();
 
-
     /**
      * 是否真的离线
      * @return
      */
     boolean isRealOffline();
 
-
     void debugStart();
+
     void debugStop();
 
     /*==========================操作相关接口===============================*/
@@ -83,6 +87,9 @@ public interface IDeviceRemoteControlDriver {
     void inputText(String cmd);
 
     void touch(String cmd);
+    void swip(String cmd);
+    void tap(String cmd);
+    void tapAndHold(String cmd);
 
     void installApp(String command);
 

@@ -121,6 +121,13 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver {
     }
 
     @Override
+    public void rate(String cmd) {
+        JSONObject rateCommand = JSON.parseObject(cmd);
+        Integer rate = rateCommand.getInteger("rate");
+        this.listener.rate(rate);
+    }
+
+    @Override
     public void startLog(String command) {
 
     }
@@ -191,12 +198,36 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver {
 
     @Override
     public void touch(String cmd) {
+        log.error("Android event {}", cmd);
+    }
+
+    @Override
+    public void swip(String cmd) {
+        if(this.iosDriver != null) {
+            JSONObject tapCommand = JSON.parseObject(cmd);
+            Integer fromX = tapCommand.getInteger("fromX");
+            Integer fromY = tapCommand.getInteger("fromY");
+            Integer toX = tapCommand.getInteger("toX");
+            Integer toY = tapCommand.getInteger("toY");
+            Integer duration = tapCommand.getInteger("duration");
+            this.iosDriver.swipe(fromX, fromY, toX, toY, duration);
+        }
+    }
+
+    @Override
+    public void tap(String cmd) {
         if(this.iosDriver != null) {
             JSONObject tapCommand = JSON.parseObject(cmd);
             Integer x = tapCommand.getInteger("x");
             Integer y = tapCommand.getInteger("y");
             this.iosDriver.tap(x, y);
         }
+
+    }
+
+    @Override
+    public void tapAndHold(String cmd) {
+
     }
 
     @Override
@@ -217,7 +248,9 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver {
 
     @Override
     public void openWeb(String cmd) {
-
+        if(this.iosDriver != null) {
+//            this.iosDriver.openWeb(cmd);
+        }
     }
 
     @Override

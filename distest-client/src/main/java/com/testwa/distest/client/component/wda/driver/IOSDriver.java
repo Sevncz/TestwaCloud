@@ -150,8 +150,9 @@ public class IOSDriver implements Driver {
     }
 
     @Override
-    public void swipe(String x1, String y1, String x2, String y2, int duration) {
-        Map<String, Object> parameters = ImmutableMap.of("fromX", x1, "fromY", y1, "toX", x2, "toY", y2, "duration", String.valueOf(duration));
+    public void swipe(Integer x1, Integer y1, Integer x2, Integer y2, int duration) {
+        double scale = Double.parseDouble(capabilities.getCapability(DriverCapabilities.Key.SCALE));
+        Map<String, Object> parameters = ImmutableMap.of("fromX", x1*scale, "fromY", y1*scale, "toX", x2*scale, "toY", y2*scale, "duration", String.valueOf(duration));
         execute(WDACommand.SWIP, new EnumMap<>(WDACommand.Wildcard.class), parameters);
     }
 

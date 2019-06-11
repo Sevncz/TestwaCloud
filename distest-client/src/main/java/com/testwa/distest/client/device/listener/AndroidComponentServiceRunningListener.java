@@ -8,6 +8,7 @@ import com.testwa.distest.client.component.logcat.LogCatMessage;
 import com.testwa.distest.client.component.logcat.LogListener;
 import com.testwa.distest.client.component.minicap.ScreenListener;
 import com.testwa.distest.client.device.remote.DeivceRemoteApiClient;
+import com.testwa.distest.client.util.ImgCompress;
 import io.rpc.testwa.device.LogcatMessageRequest;
 import org.apache.commons.lang3.StringUtils;
 
@@ -26,8 +27,11 @@ public class AndroidComponentServiceRunningListener implements ScreenListener, L
 
     private final String deviceId;
     private final DeivceRemoteApiClient api;
-    private boolean isScreenWaitting = false;
-    private boolean isLogWaitting = false;
+    private boolean isScreenWaitting = true;
+    private boolean isLogWaitting = true;
+    // 帧率
+    private int framerate = 20;
+    private long latesenttime = 0;
 
     /**
      * 在Android的ADB的情况下，我们是使用adb logcat -v brief -v threadtime
@@ -67,7 +71,16 @@ public class AndroidComponentServiceRunningListener implements ScreenListener, L
     @Override
     public void projection(byte[] frame) {
         if (!isScreenWaitting) {
-            api.sendScreen(frame, this.deviceId);
+            if (latesenttime == 0 || System.currentTimeMillis() - latesenttime > 1000/framerate) {
+                this.latesenttime = System.currentTimeMillis();
+                api.saveScreen(frame, this.deviceId);
+            }
+        }
+    }
+
+    public void rate(Integer rate) {
+        if(rate > 2 && rate < 100) {
+            this.framerate = rate;
         }
     }
 

@@ -209,6 +209,13 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
     }
 
     @Override
+    public void rate(String command) {
+        JSONObject rateCommand = JSON.parseObject(command);
+        Integer rate = rateCommand.getInteger("rate");
+        this.listener.rate(rate);
+    }
+
+    @Override
     public void startLog(String command) {
         // logcat 解析器
         this.listener.buildLogcatFilter(command);
@@ -306,6 +313,22 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
         if (this.touchProjection != null && this.touchProjection.isRunning()) {
             this.touchProjection.sendEvent(cmd);
         }
+    }
+
+    @Override
+    public void swip(String cmd) {
+        log.error("iOS event {}", cmd);
+    }
+
+    @Override
+    public void tap(String cmd) {
+        log.error("iOS event {}", cmd);
+
+    }
+
+    @Override
+    public void tapAndHold(String cmd) {
+        log.error("iOS event {}", cmd);
     }
 
     @Override
