@@ -96,12 +96,37 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     }
 
 
+    /**
+     * @Description: log for android
+     * @Param: [request, responseObserver]
+     * @Return: void
+     * @Author wen
+     * @Date 2019/6/13 18:51
+     */
     @Override
     public void logcat(LogcatRequest request, StreamObserver<CommonReply> responseObserver) {
         String serial = request.getSerial();
         request.getMessagesList().forEach(m -> {
             logQueue.push(serial, m.toByteArray());
         });
+        final CommonReply.Builder replyBuilder = CommonReply.newBuilder().setMessage("OK ");
+        responseObserver.onNext(replyBuilder.build());
+        responseObserver.onCompleted();
+    }
+
+
+    /**
+     * @Description: log for ios
+     * @Param: [request, responseObserver]
+     * @Return: void
+     * @Author wen
+     * @Date 2019/6/13 18:51
+     */
+    @Override
+    public void log(LogRequest request, StreamObserver<CommonReply> responseObserver) {
+
+        String serial = request.getSerial();
+        logQueue.push(serial, request.getContent().getBytes());
         final CommonReply.Builder replyBuilder = CommonReply.newBuilder().setMessage("OK ");
         responseObserver.onNext(replyBuilder.build());
         responseObserver.onCompleted();

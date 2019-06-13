@@ -8,8 +8,8 @@ import com.testwa.distest.server.entity.DeviceLog;
 import com.testwa.distest.server.rpc.cache.CacheUtil;
 import com.testwa.distest.server.service.cache.queue.LogQueue;
 import com.testwa.distest.server.service.device.service.DeviceLogService;
-import com.testwa.distest.server.web.device.mgr.DeviceLockMgr;
 import io.grpc.stub.StreamObserver;
+import io.rpc.testwa.device.LogRequest;
 import io.rpc.testwa.device.LogcatMessageRequest;
 import io.rpc.testwa.push.Message;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ import java.util.UUID;
 @Slf4j
 @Component
 @DisallowConcurrentExecution
-public class EquipmentLogcatJob implements BaseJob, InterruptableJob {
+public class EquipmentLogJob implements BaseJob, InterruptableJob {
     private boolean _interrupted = false;
 
     @Autowired
@@ -64,16 +64,10 @@ public class EquipmentLogcatJob implements BaseJob, InterruptableJob {
                 if(obj != null) {
                     byte[] bytes = (byte[]) obj;
                     if(bytes.length != 0) {
-                        LogcatMessageRequest messageRequest = LogcatMessageRequest.parseFrom(bytes);
+                        LogRequest messageRequest = LogRequest.parseFrom(bytes);
                         Map<String, String> map = new HashMap<String, String>(){
                             {
-                                put("data", messageRequest.getData());
-                                put("tag", messageRequest.getTag());
-                                put("level", messageRequest.getLevel());
-                                put("message", messageRequest.getMessage());
-                                put("pid", messageRequest.getPid());
-                                put("thread", messageRequest.getThread());
-                                put("time", messageRequest.getTime());
+                                put("content", messageRequest.getContent());
                             }
                         };
                         client.sendEvent("logcat", JSON.toJSONString(map));

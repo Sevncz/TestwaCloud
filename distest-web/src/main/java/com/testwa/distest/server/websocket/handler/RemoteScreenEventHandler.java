@@ -72,6 +72,7 @@ public class RemoteScreenEventHandler {
 
     private final static String JOB_DEBUG_NAME = "com.testwa.distest.quartz.job.EquipmentDebugJob";
     private final static String JOB_LOGCAT_NAME = "com.testwa.distest.quartz.job.EquipmentLogcatJob";
+    private final static String JOB_LOG_NAME = "com.testwa.distest.quartz.job.EquipmentLogJob";
 
     private final static String OPEN_ACTION = "open";
     private final static String CLOSE_ACTION = "close";
@@ -294,7 +295,12 @@ public class RemoteScreenEventHandler {
         DateTime now = new DateTime();
         String cron = CronDateUtils.getCron(now.plusSeconds(2).toDate());
         try {
-            jobService.addJob(JOB_LOGCAT_NAME, deviceId, cron,  String.format("设备[%s]-[%s]-[%s]获取Logcat",device.getBrand(),device.getModel(),device.getDeviceId()), JSON.toJSONString(debugParams));
+            if("iOS".equalsIgnoreCase(device.getOsName())){
+                jobService.addJob(JOB_LOG_NAME, deviceId, cron, String.format("设备[%s]-[%s]-[%s]获取Logcat",device.getBrand(),device.getModel(),device.getDeviceId()), JSON.toJSONString(debugParams));
+            }
+            if("android".equalsIgnoreCase(device.getOsName())){
+                jobService.addJob(JOB_LOGCAT_NAME, deviceId, cron, String.format("设备[%s]-[%s]-[%s]获取Logcat",device.getBrand(),device.getModel(),device.getDeviceId()), JSON.toJSONString(debugParams));
+            }
         } catch (BusinessException e) {
             e.printStackTrace();
         }

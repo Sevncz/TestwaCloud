@@ -17,6 +17,7 @@ service DeviceService {
     rpc all (DevicesRequest) returns ( CommonReply ) {}
     rpc stateChange (DeviceStatusChangeRequest) returns ( CommonReply ) {}
     rpc logcat(LogcatRequest) returns ( CommonReply ) {}
+    rpc log(LogRequest) returns ( CommonReply ) {}
     rpc screen(stream ScreenCaptureRequest) returns ( CommonReply ) {}
 }
 
@@ -154,4 +155,9 @@ message LogcatMessageRequest {
     string level = 5;
     string tag = 6;
     string message = 7;
+}
+
+message LogRequest {
+    string serial = 1;
+    string content = 2;
 }
