@@ -89,12 +89,13 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver {
     public void startScreen(String command) {
         stopScreen();
 
-        if(this.screenIOSProjection != null && this.screenIOSProjection.isAlive()){
+        if(this.screenIOSProjection != null && this.screenIOSProjection.isRunning()){
             this.screenIOSProjection.start();
         }else{
-            this.screenIOSProjection = new ScreenIOSProjection(udid, this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH), listener);
+            this.screenIOSProjection = new ScreenIOSProjection(udid, this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH), this.listener);
             this.screenIOSProjection.start();
         }
+
         this.iosDriver = new IOSDriver(this.iosDriverCapabilities);
 
     }

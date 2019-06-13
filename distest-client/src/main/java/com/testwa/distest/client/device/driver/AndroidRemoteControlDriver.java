@@ -169,7 +169,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
         stopScreen();
 
         if(this.screenProjection == null) {
-            this.screenProjection = new ScreenAndroidProjection(this.device.getSerial(), this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH), listener);
+            this.screenProjection = new ScreenAndroidProjection(this.device.getSerial(), this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH), this.listener);
             this.screenProjection.setZoom(scale);
             this.screenProjection.setRotate(rotate);
             this.screenProjection.setQuality(QUALITY);
@@ -177,7 +177,6 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
         }else{
             this.screenProjection.start();
         }
-
         if(this.touchProjection == null) {
             this.touchProjection = new TouchAndroidProjection(this.device.getSerial(), this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH));
             this.touchProjection.start();
