@@ -1,6 +1,5 @@
 package com.testwa.distest.client.device.driver;
 
-import com.testwa.distest.client.DeviceClient;
 import com.testwa.distest.client.device.manager.DeviceManager;
 
 import java.util.ArrayList;

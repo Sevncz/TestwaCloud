@@ -35,9 +35,6 @@ public class IOSComponentServiceRunningListener implements ScreenListener, LogLi
     private int framerate = 20;
     private long latesenttime = 0;
 
-    /**
-     * 在Android的ADB的情况下，我们是使用adb logcat -v brief -v threadtime
-     */
     private final static String adb_log_line_regex = "(.\\S*) *(.\\S*) *(\\d*) *(\\d*) *([A-Z]) *([^:]*): *(.*?)$";
     private Pattern logAndroidPattern;
     private LogCatFilter logCatFilter;

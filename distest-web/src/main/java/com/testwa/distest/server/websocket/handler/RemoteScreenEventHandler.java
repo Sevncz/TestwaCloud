@@ -126,6 +126,8 @@ public class RemoteScreenEventHandler {
             }
         }else if("browser".equals(type)){
             // 浏览器连接, 订阅一个设备的图像输出流
+            String serial = client.getHandshakeData().getSingleUrlParam("serial");
+            deviceLockMgr.debugLock(serial, client.getSessionId().toString());
         } else {
             log.error("Illegal connection");
         }

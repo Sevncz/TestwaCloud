@@ -2,8 +2,8 @@ package com.testwa.distest.client.device.remote;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
-import com.testwa.distest.client.callback.remote.ScreenObserver;
 import com.testwa.distest.client.device.listener.IDeviceRemoteCommandListener;
+import com.testwa.distest.client.device.listener.callback.remote.ScreenObserver;
 import io.grpc.ManagedChannel;
 import io.grpc.internal.GrpcUtil;
 import io.grpc.netty.NegotiationType;

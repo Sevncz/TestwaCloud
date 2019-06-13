@@ -2,6 +2,7 @@ package com.testwa.distest.client.model;
 
 import com.testwa.core.utils.NetUtil;
 import lombok.Data;
+import lombok.ToString;
 
 import java.net.InetAddress;
 import java.net.SocketException;
@@ -10,6 +11,7 @@ import java.net.UnknownHostException;
 /**
  * Created by wen on 2016/10/16.
  */
+@ToString
 @Data
 public class AgentInfo {
 

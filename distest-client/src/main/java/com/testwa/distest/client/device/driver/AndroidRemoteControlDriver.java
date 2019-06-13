@@ -401,9 +401,9 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
         }
     }
 
-
     private ClientInfo buildClientInfo() throws DeviceNotReadyException {
         AgentInfo agentInfo = AgentInfo.getAgentInfo();
+        log.info("buildClientInfo - deviceId: {} agentInfo: {}", this.device.getSerial(), agentInfo.toString());
         IDevice dev = AndroidHelper.getInstance().getAndroidDevice(this.device.getSerial()).getDevice();
         if(dev != null && dev.isOnline()){
             String brand = dev.getProperty("ro.product.brand");

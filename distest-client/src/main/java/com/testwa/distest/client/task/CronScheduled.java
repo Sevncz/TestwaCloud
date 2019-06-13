@@ -1,10 +1,8 @@
 package com.testwa.distest.client.task;
 
-import com.testwa.distest.client.DeviceClientManager;
 import com.testwa.distest.client.android.JadbDeviceManager;
 import com.testwa.distest.client.component.appium.utils.Config;
 import com.testwa.distest.client.device.pool.DeviceManagerPool;
-import com.testwa.distest.client.exception.DeviceNotReadyException;
 import com.testwa.distest.client.ios.IOSDeviceUtil;
 import com.testwa.distest.client.service.GrpcClientService;
 import com.testwa.distest.jadb.JadbDevice;
@@ -15,9 +13,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by wen on 16/9/4.

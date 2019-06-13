@@ -175,12 +175,12 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver {
 
     @Override
     public void debugStart() {
-
+        log.error("iOS no debug start");
     }
 
     @Override
     public void debugStop() {
-
+        log.error("iOS no debug stop");
     }
 
     @Override
@@ -295,6 +295,7 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver {
 
     private ClientInfo buildClientInfo() throws Exception {
         AgentInfo agentInfo = AgentInfo.getAgentInfo();
+        log.info("buildClientInfo - uuid: {} agentInfo: {}", udid, agentInfo.toString());
         String cpu = IOSDeviceUtil.getCPUArchitecture(udid);
         String model = IOSDeviceUtil.getModel(udid);
         String productVersion = IOSDeviceUtil.getProductVersion(udid);
@@ -328,6 +329,8 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver {
                 .setWidth(width)
                 .setHeight(height)
                 .setIp(agentInfo.getHost())
+                .setRemoteConnectPort(8555)
+                .setTcpipCommandSuccessed(true)
                 .build();
     }
 }

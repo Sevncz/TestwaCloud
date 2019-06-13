@@ -1,6 +1,5 @@
 package com.testwa.distest.client.device.listener;
 
-import com.testwa.distest.client.callback.ICallBack;
 import com.testwa.distest.client.device.driver.IDeviceRemoteControlDriver;
 import com.testwa.distest.client.device.listener.callback.IRemoteCommandCallBack;
 import com.testwa.distest.client.device.listener.callback.RemoteCommandCallBackUtils;
