@@ -27,15 +27,13 @@ import static org.apache.commons.exec.ExecuteWatchdog.INFINITE_TIMEOUT;
 @Slf4j
 public class AndroidDebugServer{
     private static final String SOCAT_CMD = "socat";
-    private String deviceId;
     private StartedProcess mainProcess;
     private CommonProcessListener processListener;
 
     private int tcpipPort;
     private int remotePort;
 
-    public AndroidDebugServer(String deviceId, int tcpipPort, int remotePort){
-        this.deviceId = deviceId;
+    public AndroidDebugServer(int tcpipPort, int remotePort){
         this.tcpipPort = tcpipPort;
         this.remotePort = remotePort;
         this.processListener = new CommonProcessListener(this.getClass().getName());

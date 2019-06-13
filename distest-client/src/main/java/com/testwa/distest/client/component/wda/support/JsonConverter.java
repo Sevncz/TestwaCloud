@@ -18,6 +18,7 @@ package com.testwa.distest.client.component.wda.support;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 
 public class JsonConverter {
     private static ObjectMapper mapper = new ObjectMapper();
@@ -30,6 +31,13 @@ public class JsonConverter {
     }
 
     public static <T> T fromJson(String json, Class<T> classOfT) {
+        if(StringUtils.isEmpty(json)) {
+            try {
+                return classOfT.newInstance();
+            } catch (InstantiationException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
         try {
             return mapper.readValue(json, classOfT);
         } catch (Exception e) {

@@ -7,6 +7,7 @@ import com.testwa.core.cmd.KeyCode;
 import com.testwa.core.cmd.RemoteRunCommand;
 import com.testwa.distest.client.component.appium.utils.Config;
 import com.testwa.distest.client.component.executor.task.*;
+import com.testwa.distest.client.component.logcat.DLogger;
 import com.testwa.distest.client.component.minicap.ScreenIOSProjection;
 import com.testwa.distest.client.component.wda.driver.DriverCapabilities;
 import com.testwa.distest.client.component.wda.driver.IOSDriver;
@@ -49,6 +50,11 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver {
     private DeivceRemoteApiClient api;
     private IDeviceRemoteCommandListener commandListener;
     private ScreenIOSProjection screenIOSProjection;
+
+    /*------------------------------------------LOG----------------------------------------------------*/
+
+    private DLogger dLogger;
+
     /*------------------------------------------远程任务----------------------------------------------------*/
 
     private AbstractTestTask task = null;
@@ -130,7 +136,12 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver {
 
     @Override
     public void startLog(String command) {
-
+        // 启动 log 日志服务
+        if(dLogger == null || !dLogger.isRunning()) {
+            dLogger = new DLogger(this.udid, DeviceType.IOS, this.listener);
+            dLogger.start();
+        }
+        this.listener.setLogWait(true);
     }
 
     @Override

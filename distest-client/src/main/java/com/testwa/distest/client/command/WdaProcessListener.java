@@ -31,7 +31,7 @@ public class WdaProcessListener extends ProcessListener {
 
     @Override
     public void afterFinish(Process process, ProcessResult result) {
-        log.info("[{}] ProcessExecutor finish {}... ... ", className, result.getExitValue());
+        log.info("[{}] ProcessExecutor finish {}... ... ", className, result.getOutput().getLinesAsUTF8());
     }
 
     @Override

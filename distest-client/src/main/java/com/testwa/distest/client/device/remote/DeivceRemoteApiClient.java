@@ -180,4 +180,12 @@ public class DeivceRemoteApiClient {
                 .build();
         this.deviceServiceFutureStub.logcat(request);
     }
+
+    public void sendLog(String logContent, String deviceId) {
+        LogRequest request = LogRequest.newBuilder()
+                .setContent(deviceId)
+                .setContent(logContent)
+                .build();
+        this.deviceServiceFutureStub.log(request);
+    }
 }

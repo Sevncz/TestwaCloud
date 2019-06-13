@@ -223,6 +223,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
             dLogger = new DLogger(this.device.getSerial(), DeviceType.ANDROID, this.listener);
             dLogger.start();
         }
+        this.listener.setLogWait(true);
     }
 
     @Override
@@ -279,7 +280,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
     public void debugStart() {
         ADBTools.forward(device.getSerial(), this.tcpipPort, this.tcpipPort);
         if(this.androidDebugServer == null) {
-            this.androidDebugServer = new AndroidDebugServer(device.getSerial(), this.tcpipPort, this.socatPort);
+            this.androidDebugServer = new AndroidDebugServer(this.tcpipPort, this.socatPort);
         }
         if(!this.androidDebugServer.isRunning()) {
             this.androidDebugServer.start();

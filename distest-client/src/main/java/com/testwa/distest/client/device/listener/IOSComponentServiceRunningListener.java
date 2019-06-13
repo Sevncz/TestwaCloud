@@ -9,6 +9,7 @@ import com.testwa.distest.client.component.logcat.LogListener;
 import com.testwa.distest.client.component.minicap.ScreenListener;
 import com.testwa.distest.client.device.remote.DeivceRemoteApiClient;
 import com.testwa.distest.client.util.ImgCompress;
+import io.rpc.testwa.device.LogRequest;
 import io.rpc.testwa.device.LogcatMessageRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -63,8 +64,10 @@ public class IOSComponentServiceRunningListener implements ScreenListener, LogLi
 
     @Override
     public void onLog(byte[] bytes) {
-        List<LogcatMessageRequest> logcatMessage = getAndroidLogMessageRequests(bytes);
-        api.sendLogcatMessages(logcatMessage, this.deviceId);
+        if (!isLogWaitting) {
+            String content = new String(bytes);
+            api.sendLog(content, this.deviceId);
+        }
     }
 
     /**
@@ -105,53 +108,4 @@ public class IOSComponentServiceRunningListener implements ScreenListener, LogLi
         this.isLogWaitting = isWaitting;
     }
 
-    private List<LogcatMessageRequest> getAndroidLogMessageRequests(byte[] bytes) {
-        List<LogcatMessageRequest> logLines = new ArrayList<>();
-        String logstr = new String(bytes, StandardCharsets.UTF_8).replace("\0", "");
-
-        String[] lines = logstr.split("\n");
-        for(String line : lines) {
-            // 正则解析 logstr
-            Matcher matcher = logAndroidPattern.matcher(line);
-            if(matcher.matches()){
-                String logData = matcher.group(1);
-                String logTime = matcher.group(2);
-                String logProcess = matcher.group(3);
-                String logThread = matcher.group(4);
-                Log.LogLevel logLevel = Log.LogLevel.getByLetterString(matcher.group(5));
-                if(logLevel == null) {
-                    continue;
-                }
-                String logTag = matcher.group(6);
-                String logMessage = matcher.group(7);
-                LogCatMessage logCatMessage = new LogCatMessage(logData, logTime, logProcess, logThread, logLevel, logTag, logMessage);
-                if(logCatFilter.matches(logCatMessage)) {
-                    LogcatMessageRequest messageRequest = LogcatMessageRequest.newBuilder()
-                            .setData(logData)
-                            .setTime(logTime)
-                            .setPid(logProcess)
-                            .setThread(logThread)
-                            .setLevel(logLevel.getStringValue())
-                            .setTag(logTag)
-                            .setMessage(logMessage)
-                            .build();
-                    logLines.add(messageRequest);
-                }
-            }
-        }
-        return logLines;
-    }
-
-    public void buildLogcatFilter(String command) {
-        if(StringUtils.isNotEmpty(command)) {
-            Map filterParams = JSON.parseObject(command, Map.class);
-            if(filterParams != null) {
-                String tag = (String) filterParams.getOrDefault("tag", "");
-                String pid = (String) filterParams.getOrDefault("pid", "");
-                Log.LogLevel level = Log.LogLevel.getByLetterString((String) filterParams.getOrDefault("level", "E"));
-                String message = (String) filterParams.get("message");
-                this.logCatFilter = new LogCatFilter(tag, message, pid, level);
-            }
-        }
-    }
 }
