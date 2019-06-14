@@ -27,7 +27,7 @@ public class IDeviceRemoteCommandListener implements StreamObserver<Message> {
 
     @Override
     public void onError(Throwable throwable) {
-        log.info("{} connect retry ... ...", deviceId);
+        log.info("{} connect server retry ... ...", deviceId);
         try {
             TimeUnit.SECONDS.sleep(1);
         } catch (InterruptedException e) {

@@ -15,7 +15,7 @@ import java.io.InputStream;
  */
 public class ImgCompress {
 
-    public static byte[] decompressPicByte(byte[] picByte, float defaultScale) {
+    public static byte[] decompressPicByte(byte[] picByte, double defaultScale) {
         ByteArrayInputStream intputStream = new ByteArrayInputStream(picByte);
         Thumbnails.Builder<? extends InputStream> builder = Thumbnails.of(intputStream).scale(defaultScale);
         try {

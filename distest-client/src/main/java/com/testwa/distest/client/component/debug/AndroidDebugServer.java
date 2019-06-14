@@ -26,7 +26,7 @@ import static org.apache.commons.exec.ExecuteWatchdog.INFINITE_TIMEOUT;
  */
 @Slf4j
 public class AndroidDebugServer{
-    private static final String SOCAT_CMD = "socat";
+    private static final String SOCAT_CMD = "/usr/local/bin/socat";
     private StartedProcess mainProcess;
     private CommonProcessListener processListener;
 

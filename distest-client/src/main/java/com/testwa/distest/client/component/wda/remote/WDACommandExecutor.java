@@ -86,7 +86,7 @@ public class WDACommandExecutor implements CommandExecutor {
 
         RemoteResponse response = JsonConverter.fromJson(responseContent, RemoteResponse.class);
 
-        if (response.getStatus() != RemoteDriverStatus.NO_ERROR.getStatus()) {
+        if (response != null && response.getStatus() != null && response.getStatus() != RemoteDriverStatus.NO_ERROR.getStatus()) {
             RemoteDriverStatus remoteStatus = RemoteDriverStatus.getByStatusCode(response.getStatus());
             String message = RemoteDriverStatus.getMessage(remoteStatus);
             throw new WebDriverAgentException(String.format("%s. Description: %s", message, response.getValue()));

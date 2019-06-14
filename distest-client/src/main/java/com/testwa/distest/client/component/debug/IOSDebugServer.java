@@ -19,7 +19,7 @@ import java.util.List;
  */
 @Slf4j
 public class IOSDebugServer {
-    private static final String SOCAT_CMD = "socat";
+    private static final String SOCAT_CMD = "/usr/local/bin/socat";
     private StartedProcess mainProcess;
     private CommonProcessListener processListener;
 
