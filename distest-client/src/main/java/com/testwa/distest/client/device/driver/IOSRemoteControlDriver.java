@@ -137,11 +137,17 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver {
     @Override
     public void startLog(String command) {
         // 启动 log 日志服务
-        if(dLogger == null || !dLogger.isRunning()) {
+        if(dLogger == null) {
             dLogger = new DLogger(this.udid, DeviceType.IOS, this.listener);
             dLogger.start();
+        }else{
+            if(!dLogger.isRunning()) {
+                dLogger.close();
+                dLogger = new DLogger(this.udid, DeviceType.IOS, this.listener);
+                dLogger.start();
+            }
         }
-        this.listener.setLogWait(true);
+        this.listener.setLogWait(false);
     }
 
     @Override
@@ -156,7 +162,10 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver {
 
     @Override
     public void stopLog() {
-
+        this.listener.setLogWait(true);
+        if(dLogger != null) {
+            dLogger.close();
+        }
     }
 
     @Override

@@ -35,6 +35,7 @@ public class XCodeBuilder {
     private static String COMMAND_NAME = "xcodebuild";
     private static String RUN_TYPE = "build-for-testing";
     private static String TEST_BUILD = "test-without-building";
+    private static String TEST = "test";
     private static String OS_SCHEME = "WebDriverAgentRunner";
     private String wdaPath;
     private String platform;
@@ -116,6 +117,7 @@ public class XCodeBuilder {
         command.add(CLProperty.DESTINATION.getValue());
         command.add(new DestinationBuilder().build());
         command.add(CLProperty.ALLOW_PROVISIONING_UPDATES.getValue());
+//        command.add(TEST);
         return command.toArray(new String[command.size()]);
     }
 

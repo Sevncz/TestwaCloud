@@ -183,7 +183,7 @@ public class DeivceRemoteApiClient {
 
     public void sendLog(String logContent, String deviceId) {
         LogRequest request = LogRequest.newBuilder()
-                .setContent(deviceId)
+                .setSerial(deviceId)
                 .setContent(logContent)
                 .build();
         this.deviceServiceFutureStub.log(request);

@@ -219,9 +219,15 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
         // logcat 解析器
         this.listener.buildLogcatFilter(command);
         // 启动 logcat 日志服务
-        if(dLogger == null || !dLogger.isRunning()) {
+        if(dLogger == null) {
             dLogger = new DLogger(this.device.getSerial(), DeviceType.ANDROID, this.listener);
             dLogger.start();
+        }else{
+            if(!dLogger.isRunning()) {
+                dLogger.close();
+                dLogger = new DLogger(this.device.getSerial(), DeviceType.ANDROID, this.listener);
+                dLogger.start();
+            }
         }
         this.listener.setLogWait(true);
     }
