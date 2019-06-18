@@ -5,18 +5,18 @@ import com.google.protobuf.ByteString;
 import com.testwa.distest.client.device.listener.IDeviceRemoteCommandListener;
 import com.testwa.distest.client.device.listener.callback.remote.ScreenObserver;
 import io.grpc.ManagedChannel;
-import io.grpc.internal.GrpcUtil;
-import io.grpc.netty.NegotiationType;
-import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.device.*;
 import io.rpc.testwa.push.ClientInfo;
 import io.rpc.testwa.push.PushGrpc;
 import io.rpc.testwa.push.Status;
 import io.rpc.testwa.push.TopicInfo;
-import io.rpc.testwa.task.TaskServiceGrpc;
 import lombok.extern.slf4j.Slf4j;
+import net.devh.springboot.autoconfigure.grpc.client.GrpcClient;
+import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -26,81 +26,73 @@ import java.util.concurrent.*;
  * @create 2019-05-23 18:27
  */
 @Slf4j
+@Service
 public class DeivceRemoteApiClient {
-    private final ManagedChannel channel;
-    private final DeviceServiceGrpc.DeviceServiceFutureStub deviceServiceFutureStub;
-    private final DeviceServiceGrpc.DeviceServiceStub deviceServiceStub;
-    private final DeviceServiceGrpc.DeviceServiceBlockingStub deviceServiceBlockingStub;
+    @GrpcClient("grpc-server")
+    private ManagedChannel channel;
+    private static final ConcurrentLinkedQueue<ScreenCaptureRequest> SCREEN_IMG_QUQUE = new ConcurrentLinkedQueue<>();
+    private ExecutorService pool;
 
-    private final TaskServiceGrpc.TaskServiceFutureStub taskServiceFutureStub;
-    private final TaskServiceGrpc.TaskServiceStub taskServiceStub;
-    private final TaskServiceGrpc.TaskServiceBlockingStub taskServiceBlockingStub;
+    private DeivceRemoteApiClient() {
+        log.info("start screen send quque");
+        ScreenSendTask task = new ScreenSendTask();
+        ScreenTaskFactory factory = new ScreenTaskFactory(task);
+        pool = Executors.newSingleThreadExecutor(factory);
+        pool.execute(task);
+    }
 
-    private final PushGrpc.PushFutureStub pushFutureStub;
-    private final PushGrpc.PushStub pushStub;
-    private final PushGrpc.PushBlockingStub pushBlockingStub;
+    @PreDestroy
+    public void destroy(){
+        pool.shutdown();
+    }
 
-    private final StreamObserver<ScreenCaptureRequest> screenRequestObserver;
-    private static final ConcurrentLinkedQueue<ScreenCaptureRequest> SCREEN_IMG_QUQUE = new ConcurrentLinkedQueue();
-    private static final ExecutorService SCREEN_EXECUTOR = Executors.newSingleThreadExecutor();
-    private Future screenFuture;
+    class ScreenTaskFactory implements ThreadFactory {
+        private ScreenSendTask screenSendTask;
 
+        public ScreenTaskFactory(ScreenSendTask task) {
+            super();
+            this.screenSendTask = task;
+        }
 
-    public DeivceRemoteApiClient(String host, int port){
-       this.channel = NettyChannelBuilder.forAddress(host, port)
-               .keepAliveTime(GrpcUtil.DEFAULT_KEEPALIVE_TIME_NANOS, TimeUnit.NANOSECONDS)
-               .keepAliveWithoutCalls(true)
-               .negotiationType(NegotiationType.PLAINTEXT)
-               .build();
-
-        this.deviceServiceFutureStub = DeviceServiceGrpc.newFutureStub(channel);
-        this.deviceServiceStub = DeviceServiceGrpc.newStub(channel);
-        this.deviceServiceBlockingStub = DeviceServiceGrpc.newBlockingStub(channel);
-
-
-        this.taskServiceFutureStub = TaskServiceGrpc.newFutureStub(channel);
-        this.taskServiceStub = TaskServiceGrpc.newStub(channel);
-        this.taskServiceBlockingStub = TaskServiceGrpc.newBlockingStub(channel);
-
-
-        this.pushFutureStub = PushGrpc.newFutureStub(channel);
-        this.pushStub = PushGrpc.newStub(channel);
-        this.pushBlockingStub = PushGrpc.newBlockingStub(channel);
-
-
-        ScreenObserver screenObserver = new ScreenObserver();
-        this.screenRequestObserver = this.deviceServiceStub.screen(screenObserver);
-        screenFuture = startScreenSendTask();
-
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread thread = new Thread(r);
+            thread.setUncaughtExceptionHandler((t, e) -> {
+                pool = Executors.newSingleThreadExecutor(new ScreenTaskFactory(screenSendTask));
+                pool.execute(screenSendTask);
+            });
+            return thread;
+        }
     }
 
     /**
-     * @Description: 启动screen发送线程
+     * @Description: screen发送线程
      * @Param: []
      * @Return: void
      * @Author wen
      * @Date 2019/6/10 16:03
      */
-    private Future startScreenSendTask() {
-        return SCREEN_EXECUTOR.submit(new Runnable() {
-            @Override
-            public void run() {
-                while(true) {
-                    try {
-                        synchronized (SCREEN_IMG_QUQUE) {
-                            if(!SCREEN_IMG_QUQUE.isEmpty()) {
-                                ScreenCaptureRequest request = SCREEN_IMG_QUQUE.poll();
-                                screenRequestObserver.onNext(request);
-                            }else{
-                                TimeUnit.MILLISECONDS.sleep(1);
-                            }
+    class ScreenSendTask implements Runnable {
+        @Override
+        public void run() {
+            ScreenObserver screenObserver = new ScreenObserver();
+            DeviceServiceGrpc.DeviceServiceStub deviceServiceStub = DeviceServiceGrpc.newStub(channel);
+            StreamObserver<ScreenCaptureRequest> screenRequestObserver = deviceServiceStub.screen(screenObserver);
+            while(true) {
+                try {
+                    synchronized (SCREEN_IMG_QUQUE) {
+                        if(!SCREEN_IMG_QUQUE.isEmpty()) {
+                            ScreenCaptureRequest request = SCREEN_IMG_QUQUE.poll();
+                            screenRequestObserver.onNext(request);
+                        }else{
+                            TimeUnit.MILLISECONDS.sleep(1);
                         }
-                    }catch (Exception e) {
-                        log.error("屏幕同步线程发生未知异常", e);
                     }
+                }catch (Exception e) {
+                    log.error("屏幕同步线程发生未知异常", e);
                 }
             }
-        });
+        }
     }
 
     /**
@@ -115,6 +107,7 @@ public class DeivceRemoteApiClient {
                 .setDeviceId(deviceId)
                 .setStatus(status)
                 .build();
+        DeviceServiceGrpc.DeviceServiceFutureStub deviceServiceFutureStub = DeviceServiceGrpc.newFutureStub(channel);
         ListenableFuture<CommonReply> reply = deviceServiceFutureStub.stateChange(request);
         try {
             CommonReply result = reply.get();
@@ -128,23 +121,27 @@ public class DeivceRemoteApiClient {
      * grpc
      */
     public void registerToServer(ClientInfo request, IDeviceRemoteCommandListener deviceCommandListener) {
-        this.pushStub.registerToServer(request, deviceCommandListener);
+        PushGrpc.PushStub pushStub = PushGrpc.newStub(channel);
+        pushStub.registerToServer(request, deviceCommandListener);
     }
 
     public String subscribe(ClientInfo request, String topic){
         TopicInfo topicInfo = TopicInfo.newBuilder().setTopicName(topic).setClientInfo(request).build();
-        Status status = this.pushBlockingStub.subscribe(topicInfo);
+        PushGrpc.PushBlockingStub pushBlockingStub = PushGrpc.newBlockingStub(channel);
+        Status status = pushBlockingStub.subscribe(topicInfo);
         return status.getStatus();
     }
 
     public String cancel(ClientInfo request, String topic){
         TopicInfo topicInfo = TopicInfo.newBuilder().setTopicName(topic).setClientInfo(request).build();
-        Status status = this.pushBlockingStub.cancel(topicInfo);
+        PushGrpc.PushBlockingStub pushBlockingStub = PushGrpc.newBlockingStub(channel);
+        Status status = pushBlockingStub.cancel(topicInfo);
         return status.getStatus();
     }
 
     public String logoutFromServer(ClientInfo request){
-        Status status = this.pushBlockingStub.logoutFromServer(request);
+        PushGrpc.PushBlockingStub pushBlockingStub = PushGrpc.newBlockingStub(channel);
+        Status status = pushBlockingStub.logoutFromServer(request);
         return status.getStatus();
     }
 
@@ -158,10 +155,6 @@ public class DeivceRemoteApiClient {
      */
     public void saveScreen(byte[] frame, String deviceId) {
         try {
-            if(screenFuture == null) {
-                screenFuture = startScreenSendTask();
-            }
-
             ScreenCaptureRequest request = ScreenCaptureRequest.newBuilder()
                     .setImg(ByteString.copyFrom(frame))
                     .setSerial(deviceId)
@@ -178,7 +171,15 @@ public class DeivceRemoteApiClient {
                 .setSerial(deviceId)
                 .addAllMessages(logLines)
                 .build();
-        this.deviceServiceFutureStub.logcat(request);
+        DeviceServiceGrpc.DeviceServiceFutureStub deviceServiceFutureStub = DeviceServiceGrpc.newFutureStub(channel);
+        ListenableFuture<CommonReply> replyListenableFuture = deviceServiceFutureStub.logcat(request);
+        try {
+            CommonReply reply = replyListenableFuture.get();
+            // TODO 可以查看返回的消息
+            log.debug(reply.getMessage());
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
     }
 
     public void sendLog(String logContent, String deviceId) {
@@ -186,6 +187,14 @@ public class DeivceRemoteApiClient {
                 .setSerial(deviceId)
                 .setContent(logContent)
                 .build();
-        this.deviceServiceFutureStub.log(request);
+        DeviceServiceGrpc.DeviceServiceFutureStub deviceServiceFutureStub = DeviceServiceGrpc.newFutureStub(channel);
+        ListenableFuture<CommonReply> replyListenableFuture = deviceServiceFutureStub.log(request);
+        try {
+            CommonReply reply = replyListenableFuture.get();
+            // TODO 可以查看返回的消息
+            log.debug(reply.getMessage());
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
     }
 }

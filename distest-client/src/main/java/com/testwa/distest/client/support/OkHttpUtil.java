@@ -1,13 +1,9 @@
 package com.testwa.distest.client.support;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.Map;
 
 import com.testwa.distest.client.ApplicationContextUtil;
-import com.testwa.distest.client.component.wda.exception.WebDriverAgentException;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.FormBody;
 import okhttp3.MediaType;
@@ -16,10 +12,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * OK http 封装类
@@ -64,11 +56,11 @@ public class OkHttpUtil{
             if (response.isSuccessful()) {
                 return response.body().string();
             } else {
-                throw new WebDriverAgentException("Status code is not OK during http request execution: " + status);
+                throw new HttpRequestException("Status code is not OK during http request execution: " + status);
             }
         } catch (Exception e) {
             log.error("okhttp3 put error >> ex = {}", ExceptionUtils.getMessage(e));
-            throw new WebDriverAgentException(e);
+            throw new HttpRequestException(e);
         } finally {
             if (response != null) {
                 response.close();

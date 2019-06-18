@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.android.ddmlib.IDevice;
 import com.testwa.core.cmd.AppInfo;
 import com.testwa.core.cmd.RemoteRunCommand;
+import com.testwa.distest.client.ApplicationContextUtil;
 import com.testwa.distest.client.android.*;
 import com.testwa.distest.client.component.Constant;
 import com.testwa.distest.client.component.appium.utils.Config;
@@ -115,7 +116,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
     public AndroidRemoteControlDriver(IDeviceRemoteControlDriverCapabilities capabilities){
         this.capabilities = capabilities;
 
-        this.api = new DeivceRemoteApiClient(capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.HOST), Integer.parseInt(capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.PORT)));
+        this.api = ApplicationContextUtil.getBean(DeivceRemoteApiClient.class);
 
         this.device = JadbDeviceManager.getJadbDevice(capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.DEVICE_ID));
 

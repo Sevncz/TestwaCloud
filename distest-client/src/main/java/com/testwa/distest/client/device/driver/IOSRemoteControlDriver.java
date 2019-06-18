@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.testwa.core.cmd.AppInfo;
 import com.testwa.core.cmd.KeyCode;
 import com.testwa.core.cmd.RemoteRunCommand;
+import com.testwa.distest.client.ApplicationContextUtil;
 import com.testwa.distest.client.component.appium.utils.Config;
 import com.testwa.distest.client.component.executor.task.*;
 import com.testwa.distest.client.component.logcat.DLogger;
@@ -22,6 +23,7 @@ import com.testwa.distest.client.model.UserInfo;
 import io.rpc.testwa.device.DeviceType;
 import io.rpc.testwa.push.ClientInfo;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.OkHttpClient;
 import org.apache.commons.lang3.StringUtils;
 
 import java.nio.file.Path;
@@ -65,7 +67,7 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver {
 
         this.udid = capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.DEVICE_ID);
 
-        this.api = new DeivceRemoteApiClient(capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.HOST), Integer.parseInt(capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.PORT)));
+        this.api = ApplicationContextUtil.getBean(DeivceRemoteApiClient.class);
 
         this.listener = new IOSComponentServiceRunningListener(capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.DEVICE_ID), api);
 
@@ -101,7 +103,12 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver {
             this.screenIOSProjection = new ScreenIOSProjection(udid, this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH), this.listener);
             this.screenIOSProjection.start();
         }
+        // 必须在minicap启动之后启动wda
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) {
 
+        }
         this.iosDriver = new IOSDriver(this.iosDriverCapabilities);
 
     }

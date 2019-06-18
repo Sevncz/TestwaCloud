@@ -58,13 +58,8 @@ public class CronScheduled {
             List<String> udids = IOSDeviceUtil.getUDID();
             log.debug("udids {}", udids.toString());
             udids.forEach(udid -> {
-//                try {
                     IOSDeviceUtil.addOnline(udid);
-//                    grpcClientService.initIOSDevice(udid);
                     deviceManagerPool.getManager(udid, DeviceType.IOS);
-//                } catch (DeviceNotReadyException e) {
-//                    log.error("", e);
-//                }
             });
         }
     }
@@ -76,7 +71,6 @@ public class CronScheduled {
             if(!IOSDeviceUtil.isOnline(udid)){
                 log.warn("iOS 设备 {} 离线", udid);
                 IOSDeviceUtil.removeOnline(udid);
-//                DeviceClientManager.remove(udid);
                 deviceManagerPool.release(udid);
             }
         });

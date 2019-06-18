@@ -10,8 +10,13 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+
+import com.alibaba.fastjson.JSON;
+import com.testwa.distest.client.model.AgentInfo;
+import com.testwa.distest.client.support.UserAgentInterceptor;
 import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -20,6 +25,8 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class OkHttpConfig {
+    @Value("${application.version}")
+    private String applicationVersion;
 
     @Bean
     public X509TrustManager x509TrustManager() {
@@ -58,6 +65,8 @@ public class OkHttpConfig {
     }
     @Bean
     public OkHttpClient okHttpClient() {
+        AgentInfo info = AgentInfo.getAgentInfo();
+        String agent = String.format("Distest-agent/%s/%s", applicationVersion, JSON.toJSONString(info));
         return new OkHttpClient.Builder()
                 .sslSocketFactory(sslSocketFactory(), x509TrustManager())
                 //是否开启缓存
@@ -66,6 +75,7 @@ public class OkHttpConfig {
                 .connectionPool(pool())
                 .connectTimeout(5L, TimeUnit.SECONDS)
                 .readTimeout(5L, TimeUnit.SECONDS)
+                .addInterceptor(new UserAgentInterceptor(agent))
                 .build();
     }
 }

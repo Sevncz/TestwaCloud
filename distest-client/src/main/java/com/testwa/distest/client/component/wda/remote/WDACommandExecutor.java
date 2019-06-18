@@ -22,7 +22,6 @@ import com.testwa.distest.client.component.wda.exception.WebDriverAgentException
 import com.testwa.distest.client.component.wda.support.JsonConverter;
 import com.testwa.distest.client.support.OkHttpUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
 import java.net.URL;
 import java.util.EnumMap;
@@ -61,7 +60,6 @@ public class WDACommandExecutor implements CommandExecutor {
 
             switch (commandInfo.getMethod()) {
                 case GET:
-//                responseContent = HttpService.getInstance().executeGet(url);
                     responseContent = OkHttpUtil.get(url, null);
                     break;
                 case POST:
@@ -69,12 +67,13 @@ public class WDACommandExecutor implements CommandExecutor {
                     if(parameters != null) {
                         jsonParameters = JsonConverter.toJson(parameters);
                     }
-//                responseContent = HttpService.getInstance().executePost(url, jsonParameters);
                     responseContent = OkHttpUtil.postJsonParams(url, jsonParameters);
                     break;
                 case DELETE:
-//                responseContent = HttpService.getInstance().executeDelete(url);
                     responseContent = OkHttpUtil.delete(url);
+                    break;
+                default:
+                    log.error("不属于任何方法");
                     break;
             }
 
