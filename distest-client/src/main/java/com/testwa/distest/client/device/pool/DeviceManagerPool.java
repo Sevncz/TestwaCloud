@@ -60,7 +60,10 @@ public class DeviceManagerPool {
 
     public void release(String deviceId) {
         DeviceManager o = borrowManger.remove(deviceId);
-        pool.returnObject(o);
+        if(o != null) {
+            o.destory();
+            pool.returnObject(o);
+        }
     }
 
 }
