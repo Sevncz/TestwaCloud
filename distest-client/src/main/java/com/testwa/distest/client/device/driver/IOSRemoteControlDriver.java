@@ -14,8 +14,8 @@ import com.testwa.distest.client.component.wda.driver.DriverCapabilities;
 import com.testwa.distest.client.component.wda.driver.IOSDriver;
 import com.testwa.distest.client.device.listener.IDeviceRemoteCommandListener;
 import com.testwa.distest.client.device.listener.IOSComponentServiceRunningListener;
+import com.testwa.distest.client.device.manager.DeviceInitException;
 import com.testwa.distest.client.device.remote.DeivceRemoteApiClient;
-import com.testwa.distest.client.exception.CommandFailureException;
 import com.testwa.distest.client.ios.IOSDeviceUtil;
 import com.testwa.distest.client.ios.IOSPhysicalSize;
 import com.testwa.distest.client.model.AgentInfo;
@@ -23,8 +23,6 @@ import com.testwa.distest.client.model.UserInfo;
 import io.rpc.testwa.device.DeviceType;
 import io.rpc.testwa.push.ClientInfo;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.OkHttpClient;
-import org.apache.commons.lang3.StringUtils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -76,7 +74,7 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver {
     }
 
     @Override
-    public void deviceInit() throws Exception {
+    public void deviceInit() throws DeviceInitException {
 
         clientInfo = buildClientInfo();
         this.commandListener = new IDeviceRemoteCommandListener(udid, this);
@@ -320,13 +318,16 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver {
         }
     }
 
-    private ClientInfo buildClientInfo() throws Exception {
+    private ClientInfo buildClientInfo() throws DeviceInitException {
         AgentInfo agentInfo = AgentInfo.getAgentInfo();
         log.info("buildClientInfo - uuid: {} agentInfo: {}", udid, agentInfo.toString());
         String cpu = IOSDeviceUtil.getCPUArchitecture(udid);
         String model = IOSDeviceUtil.getModel(udid);
         String productVersion = IOSDeviceUtil.getProductVersion(udid);
         IOSPhysicalSize size = IOSDeviceUtil.getSize(udid);
+        if(size == null) {
+            throw new DeviceInitException("设备[" + udid + "]初始化IOSPhysicalSize失败");
+        }
         String width = String.valueOf(size.getPhsicalWidth());
         String height = String.valueOf(size.getPhsicalHeight());
 
@@ -337,13 +338,6 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver {
         this.iosDriverCapabilities.setDeviceId(udid);
         this.iosDriverCapabilities.setWdaPath(wdaProject.toString());
         this.iosDriverCapabilities.setSale(String.valueOf(scale));
-        while(StringUtils.isEmpty(UserInfo.token)){
-            try {
-                TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException e) {
-
-            }
-        }
 
         return ClientInfo.newBuilder()
                 .setDeviceId(udid)

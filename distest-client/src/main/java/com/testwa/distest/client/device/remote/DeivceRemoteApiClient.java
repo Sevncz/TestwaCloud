@@ -30,70 +30,6 @@ import java.util.concurrent.*;
 public class DeivceRemoteApiClient {
     @GrpcClient("grpc-server")
     private ManagedChannel channel;
-    private static final ConcurrentLinkedQueue<ScreenCaptureRequest> SCREEN_IMG_QUQUE = new ConcurrentLinkedQueue<>();
-    private ExecutorService pool;
-
-    private DeivceRemoteApiClient() {
-        log.info("start screen send quque");
-        ScreenSendTask task = new ScreenSendTask();
-        ScreenTaskFactory factory = new ScreenTaskFactory(task);
-        pool = Executors.newSingleThreadExecutor(factory);
-        pool.execute(task);
-    }
-
-    @PreDestroy
-    public void destroy(){
-        pool.shutdown();
-    }
-
-    class ScreenTaskFactory implements ThreadFactory {
-        private ScreenSendTask screenSendTask;
-
-        public ScreenTaskFactory(ScreenSendTask task) {
-            super();
-            this.screenSendTask = task;
-        }
-
-        @Override
-        public Thread newThread(Runnable r) {
-            Thread thread = new Thread(r);
-            thread.setUncaughtExceptionHandler((t, e) -> {
-                pool = Executors.newSingleThreadExecutor(new ScreenTaskFactory(screenSendTask));
-                pool.execute(screenSendTask);
-            });
-            return thread;
-        }
-    }
-
-    /**
-     * @Description: screen发送线程
-     * @Param: []
-     * @Return: void
-     * @Author wen
-     * @Date 2019/6/10 16:03
-     */
-    class ScreenSendTask implements Runnable {
-        @Override
-        public void run() {
-            ScreenObserver screenObserver = new ScreenObserver();
-            DeviceServiceGrpc.DeviceServiceStub deviceServiceStub = DeviceServiceGrpc.newStub(channel);
-            StreamObserver<ScreenCaptureRequest> screenRequestObserver = deviceServiceStub.screen(screenObserver);
-            while(true) {
-                try {
-                    synchronized (SCREEN_IMG_QUQUE) {
-                        if(!SCREEN_IMG_QUQUE.isEmpty()) {
-                            ScreenCaptureRequest request = SCREEN_IMG_QUQUE.poll();
-                            screenRequestObserver.onNext(request);
-                        }else{
-                            TimeUnit.MILLISECONDS.sleep(1);
-                        }
-                    }
-                }catch (Exception e) {
-                    log.error("屏幕同步线程发生未知异常", e);
-                }
-            }
-        }
-    }
 
     /**
      * @Description: 设备状态修改
@@ -145,25 +81,18 @@ public class DeivceRemoteApiClient {
         return status.getStatus();
     }
 
-
-    /**
-     * @Description: 发送屏幕数据流
-     * @Param: [frame, deviceId]
-     * @Return: void
-     * @Author wen
-     * @Date 2019/5/23 20:58
-     */
-    public void saveScreen(byte[] frame, String deviceId) {
-        try {
-            ScreenCaptureRequest request = ScreenCaptureRequest.newBuilder()
+    public ScreenCaptureRequest getScreenCaptureRequest(byte[] frame, String deviceId) {
+            return ScreenCaptureRequest.newBuilder()
                     .setImg(ByteString.copyFrom(frame))
                     .setSerial(deviceId)
                     .build();
-            SCREEN_IMG_QUQUE.add(request);
-        }catch (Exception e){
-            log.error(e.getMessage());
-        }finally {
-        }
+    }
+
+    public StreamObserver<ScreenCaptureRequest> getScreenStub() {
+        ScreenObserver screenObserver = new ScreenObserver();
+        DeviceServiceGrpc.DeviceServiceStub deviceServiceStub = DeviceServiceGrpc.newStub(channel);
+        StreamObserver<ScreenCaptureRequest> screenRequestObserver = deviceServiceStub.screen(screenObserver);
+        return screenRequestObserver;
     }
 
     public void sendLogcatMessages(List<LogcatMessageRequest> logLines, String deviceId) {

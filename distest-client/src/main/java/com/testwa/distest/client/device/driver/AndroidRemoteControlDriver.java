@@ -18,6 +18,7 @@ import com.testwa.distest.client.component.port.SocatPortProvider;
 import com.testwa.distest.client.component.port.TcpIpPortProvider;
 import com.testwa.distest.client.device.listener.AndroidComponentServiceRunningListener;
 import com.testwa.distest.client.device.listener.IDeviceRemoteCommandListener;
+import com.testwa.distest.client.device.manager.DeviceInitException;
 import com.testwa.distest.client.device.remote.DeivceRemoteApiClient;
 import com.testwa.distest.client.download.Downloader;
 import com.testwa.distest.client.exception.DeviceNotReadyException;
@@ -128,15 +129,11 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
     }
 
     @Override
-    public void deviceInit() {
-        try {
-            clientInfo = buildClientInfo();
-            initTcpipCommand();
-            this.commandListener = new IDeviceRemoteCommandListener(device.getSerial(), this);
-            register();
-        } catch (DeviceNotReadyException e) {
-            e.printStackTrace();
-        }
+    public void deviceInit() throws DeviceInitException {
+        clientInfo = buildClientInfo();
+        initTcpipCommand();
+        this.commandListener = new IDeviceRemoteCommandListener(device.getSerial(), this);
+        register();
     }
 
     @Override
@@ -409,7 +406,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
         }
     }
 
-    private ClientInfo buildClientInfo() throws DeviceNotReadyException {
+    private ClientInfo buildClientInfo() throws DeviceInitException {
         AgentInfo agentInfo = AgentInfo.getAgentInfo();
         log.info("buildClientInfo - deviceId: {} agentInfo: {}", this.device.getSerial(), agentInfo.toString());
         IDevice dev = AndroidHelper.getInstance().getAndroidDevice(this.device.getSerial()).getDevice();
@@ -417,7 +414,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
             String brand = dev.getProperty("ro.product.brand");
             if(StringUtils.isBlank(brand)){
                 if(buildClientInfoMaxTime <= 0){
-                    throw new DeviceNotReadyException("无法获取设备属性");
+                    throw new DeviceInitException("无法获取设备["+this.device.getSerial()+"]属性");
                 }
                 buildClientInfoMaxTime--;
                 try {
@@ -487,7 +484,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
                     .setTcpipCommandSuccessed(this.enabledTcpip)
                     .build();
         }else{
-            throw new DeviceNotReadyException("设备不在线，无法初始化");
+            throw new DeviceInitException("设备["+this.device.getSerial()+"不在线，无法初始化");
         }
 
     }

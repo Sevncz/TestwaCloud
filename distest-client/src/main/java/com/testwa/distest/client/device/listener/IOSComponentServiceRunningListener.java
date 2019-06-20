@@ -4,6 +4,8 @@ import com.testwa.distest.client.component.executor.task.TestTaskListener;
 import com.testwa.distest.client.component.logcat.LogListener;
 import com.testwa.distest.client.component.minicap.ScreenListener;
 import com.testwa.distest.client.device.remote.DeivceRemoteApiClient;
+import io.grpc.stub.StreamObserver;
+import io.rpc.testwa.device.ScreenCaptureRequest;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -18,17 +20,19 @@ public class IOSComponentServiceRunningListener implements ScreenListener, LogLi
     private boolean isScreenWaitting = true;
     private boolean isLogWaitting = true;
     // 帧率
-    private int framerate = 15;
+    private int framerate = 30;
     private long latesenttime = 0;
-
     private double defaultScale = 0.2;
 
     private final static String adb_log_line_regex = "(.\\S*) *(.\\S*) *(\\d*) *(\\d*) *([A-Z]) *([^:]*): *(.*?)$";
+
+    private StreamObserver<ScreenCaptureRequest> observers;
 
 
     public IOSComponentServiceRunningListener(String deviceId, DeivceRemoteApiClient api) {
         this.deviceId = deviceId;
         this.api = api;
+        this.observers = api.getScreenStub();
     }
 
     @Override
@@ -72,8 +76,7 @@ public class IOSComponentServiceRunningListener implements ScreenListener, LogLi
         if (!isScreenWaitting) {
             if (latesenttime == 0 || System.currentTimeMillis() - latesenttime > 1000/framerate) {
                 this.latesenttime = System.currentTimeMillis();
-//                byte[] scaleFrame = ImgCompress.decompressPicByte(frame, defaultScale);
-                api.saveScreen(frame, this.deviceId);
+                this.observers.onNext(api.getScreenCaptureRequest(frame, this.deviceId));
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.testwa.distest.client.device.pool;
 
 import com.testwa.distest.client.android.JadbDeviceManager;
+import com.testwa.distest.client.device.manager.DeviceInitException;
 import com.testwa.distest.client.device.manager.DeviceManager;
 import com.testwa.distest.jadb.JadbDevice;
 import io.rpc.testwa.device.DeviceType;
@@ -45,7 +46,7 @@ public class DeviceManagerPool {
             }
             return manager;
         } catch (Exception e) {
-            log.error("Borrow device manager error", e);
+            log.error("设备初始化失败", e.getMessage());
             if(manager != null) {
                 pool.returnObject(manager);
             }

@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class IOSScreenServer {
     private static final String SCREEN_CMD = "ios-screen/smile.sh";
     // 保存base64队列
-    private static final ConcurrentLinkedQueue<String> QUEUE = new ConcurrentLinkedQueue<>();
+    private ConcurrentLinkedQueue<String> queue;
     private String udid;
     private String shFile;
     private StartedProcess mainProcess;
@@ -34,6 +34,7 @@ public class IOSScreenServer {
     public IOSScreenServer(String udid, String resourcePath) {
         this.udid = udid;
         this.shFile = resourcePath + File.separator + SCREEN_CMD;
+        this.queue = new ConcurrentLinkedQueue<>();
 
         ScheduledFuture future = executorService.scheduleAtFixedRate(new Runnable() {
             @Override
@@ -58,18 +59,17 @@ public class IOSScreenServer {
                     .redirectOutput(new LogOutputStream() {
                         @Override
                         protected void processLine(String line) {
-                            if(QUEUE.size() >= 10) {
+                            if(queue.size() >= 10) {
                                 // 丢弃一张
-                                QUEUE.poll();
+                                queue.poll();
                             }
-                            QUEUE.offer(line);
+                            queue.offer(line);
                         }
                     })
                     .start();
         } catch (IOException e) {
             e.printStackTrace();
         }finally {
-            log.info("[IOSScreenServer] 已结束");
         }
     }
 
@@ -84,13 +84,12 @@ public class IOSScreenServer {
 
     public byte[] take() {
         long start = System.currentTimeMillis();
-        String base64Image = QUEUE.poll();
+        String base64Image = queue.poll();
         if(StringUtils.isBlank(base64Image)) {
             return null;
         }
         // create a buffered image
         try {
-
             BASE64Decoder decoder = new BASE64Decoder();
             return decoder.decodeBuffer(base64Image);
         } catch (Exception e) {

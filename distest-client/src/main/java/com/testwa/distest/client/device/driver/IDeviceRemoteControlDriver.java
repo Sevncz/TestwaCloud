@@ -1,5 +1,6 @@
 package com.testwa.distest.client.device.driver;
 
+import com.testwa.distest.client.device.manager.DeviceInitException;
 import io.rpc.testwa.device.DeviceType;
 
 /**
@@ -11,7 +12,7 @@ public interface IDeviceRemoteControlDriver {
     /**
      * 初始化第一步调用， 包含注册
      */
-    void deviceInit() throws Exception;
+    void deviceInit() throws DeviceInitException;
 
     /**
      * 设备注册，断开连接之后提供再次注册设备的方法

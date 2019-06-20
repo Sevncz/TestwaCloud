@@ -9,7 +9,9 @@ import com.testwa.distest.client.component.logcat.LogListener;
 import com.testwa.distest.client.component.minicap.ScreenListener;
 import com.testwa.distest.client.device.remote.DeivceRemoteApiClient;
 import com.testwa.distest.client.util.ImgCompress;
+import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.device.LogcatMessageRequest;
+import io.rpc.testwa.device.ScreenCaptureRequest;
 import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -39,12 +41,14 @@ public class AndroidComponentServiceRunningListener implements ScreenListener, L
     private final static String adb_log_line_regex = "(.\\S*) *(.\\S*) *(\\d*) *(\\d*) *([A-Z]) *([^:]*): *(.*?)$";
     private Pattern logAndroidPattern;
     private LogCatFilter logCatFilter;
+    private StreamObserver<ScreenCaptureRequest> observers;
 
 
     public AndroidComponentServiceRunningListener(String deviceId, DeivceRemoteApiClient api) {
         this.deviceId = deviceId;
         this.api = api;
         this.logAndroidPattern = Pattern.compile(adb_log_line_regex);
+        this.observers = api.getScreenStub();
     }
 
     @Override
@@ -73,7 +77,7 @@ public class AndroidComponentServiceRunningListener implements ScreenListener, L
         if (!isScreenWaitting) {
             if (latesenttime == 0 || System.currentTimeMillis() - latesenttime > 1000/framerate) {
                 this.latesenttime = System.currentTimeMillis();
-                api.saveScreen(frame, this.deviceId);
+                this.observers.onNext(api.getScreenCaptureRequest(frame, this.deviceId));
             }
         }
     }
