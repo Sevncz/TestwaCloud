@@ -307,9 +307,38 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
 
     @Override
     public void inputText(String cmd) {
-        if (this.touchProjection != null && this.touchProjection.isRunning()) {
-            this.touchProjection.sendText(cmd);
+
+        if(hasChineseByRange(cmd)) {
+            ADBCommandUtils.switchADBKeyBoard(this.device.getSerial());
+            ADBCommandUtils.inputTextADBKeyBoard(this.device.getSerial(), cmd, 5000L);
+        }else{
+            // 使用stfservice处理非中文字符
+            if (this.touchProjection != null && this.touchProjection.isRunning()) {
+                this.touchProjection.sendText(cmd);
+            }
         }
+    }
+
+
+    /**
+     * 是否包含汉字<br>
+     * 根据汉字编码范围进行判断<br>
+     * CJK统一汉字（不包含中文的，。《》（）“‘’”、！￥等符号）<br>
+     *
+     * @param str
+     * @return
+     */
+    private boolean hasChineseByRange(String str) {
+        if (str == null) {
+            return false;
+        }
+        char[] ch = str.toCharArray();
+        for (char c : ch) {
+            if (c >= 0x4E00 && c <= 0x9FBF) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

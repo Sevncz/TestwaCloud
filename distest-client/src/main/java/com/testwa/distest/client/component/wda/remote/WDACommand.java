@@ -133,7 +133,7 @@ public class WDACommand {
         commands.put(TAP, post("/session/:sessionId/wda/tap/0"));
         commands.put(SWIP, post("/session/:sessionId/wda/dragfromtoforduration"));
         commands.put(HOME, post("/wda/homescreen"));
-        commands.put(INPUT, post("/session"));
+        commands.put(INPUT, post("/session/:sessionId/wda/keys"));
     }
 
     public enum Wildcard {

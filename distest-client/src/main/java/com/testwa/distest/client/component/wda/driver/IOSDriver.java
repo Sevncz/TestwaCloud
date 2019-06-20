@@ -140,7 +140,8 @@ public class IOSDriver implements Driver {
 
     @Override
     public void input(String text) {
-
+        Map<String, Object> parameters = ImmutableMap.of("value", text.split(""));
+        execute(WDACommand.INPUT, new EnumMap<>(WDACommand.Wildcard.class), parameters);
     }
 
     @Override

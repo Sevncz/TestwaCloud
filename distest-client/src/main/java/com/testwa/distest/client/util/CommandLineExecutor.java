@@ -87,7 +87,7 @@ public class CommandLineExecutor {
     }
 
     private static String commandArraysToString(String[] command) {
-        return Arrays.toString(command).replace(",", "");
+        return String.join(" ", command);
     }
 
 

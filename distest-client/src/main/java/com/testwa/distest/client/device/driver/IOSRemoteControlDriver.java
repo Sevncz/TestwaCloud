@@ -219,7 +219,9 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver {
 
     @Override
     public void inputText(String cmd) {
-
+        if(this.iosDriver != null) {
+            this.iosDriver.input(cmd);
+        }
     }
 
     @Override
