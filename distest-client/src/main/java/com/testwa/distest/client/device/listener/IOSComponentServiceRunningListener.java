@@ -4,7 +4,6 @@ import com.testwa.distest.client.component.executor.task.TestTaskListener;
 import com.testwa.distest.client.component.logcat.LogListener;
 import com.testwa.distest.client.component.minicap.ScreenListener;
 import com.testwa.distest.client.device.remote.DeivceRemoteApiClient;
-import com.testwa.distest.client.util.ImgCompress;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -73,8 +72,8 @@ public class IOSComponentServiceRunningListener implements ScreenListener, LogLi
         if (!isScreenWaitting) {
             if (latesenttime == 0 || System.currentTimeMillis() - latesenttime > 1000/framerate) {
                 this.latesenttime = System.currentTimeMillis();
-                byte[] scaleFrame = ImgCompress.decompressPicByte(frame, defaultScale);
-                api.saveScreen(scaleFrame, this.deviceId);
+//                byte[] scaleFrame = ImgCompress.decompressPicByte(frame, defaultScale);
+                api.saveScreen(frame, this.deviceId);
             }
         }
     }

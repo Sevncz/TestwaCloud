@@ -1,5 +1,6 @@
 package com.testwa.distest.client.task;
 
+import com.sun.jna.Platform;
 import com.testwa.distest.client.android.JadbDeviceManager;
 import com.testwa.distest.client.component.appium.utils.Config;
 import com.testwa.distest.client.device.pool.DeviceManagerPool;
@@ -52,9 +53,8 @@ public class CronScheduled {
     @Scheduled(fixedDelay = 5000, initialDelay = 10000)
     public void iOSInit() {
         Config.setEnv(env);
-        String osName = System.getProperty("os.name");
 
-        if(osName.toLowerCase().startsWith("mac")) {
+        if(Platform.isMac()) {
             List<String> udids = IOSDeviceUtil.getUDID();
             log.debug("udids {}", udids.toString());
             udids.forEach(udid -> {
