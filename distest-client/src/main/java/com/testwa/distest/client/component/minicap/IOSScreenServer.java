@@ -30,28 +30,30 @@ public class IOSScreenServer {
     private AtomicBoolean isRunning = new AtomicBoolean(false);
 
     private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+    private ScheduledFuture handler;
 
     public IOSScreenServer(String udid, String resourcePath) {
         this.udid = udid;
         this.shFile = resourcePath + File.separator + SCREEN_CMD;
         this.queue = new ConcurrentLinkedQueue<>();
 
-        ScheduledFuture future = executorService.scheduleAtFixedRate(new Runnable() {
+        handler = executorService.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                if(mainProcess == null) {
-                    return;
-                }
-                if(!mainProcess.getProcess().isAlive()) {
-                    start();
+                if(isRunning.get()) {
+                    if(mainProcess == null) {
+                        return;
+                    }
+                    if(!mainProcess.getProcess().isAlive()) {
+                        start();
+                    }
                 }
             }
         }, 0, 1, TimeUnit.SECONDS);
     }
 
     public void start() {
-        this.isRunning.set(true);
-        log.info("[IOSScreenServer] 已开始");
+        log.info("[Start idevicescreenshot command] {}", udid);
         try {
             mainProcess = new ProcessExecutor()
                     .command("/bin/sh", shFile, udid)
@@ -71,10 +73,12 @@ public class IOSScreenServer {
             e.printStackTrace();
         }finally {
         }
+        this.isRunning.set(true);
     }
 
     public void close(){
         isRunning.set(false);
+        handler.cancel(true);
         CommandLineExecutor.processQuit(mainProcess);
     }
 

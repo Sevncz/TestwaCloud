@@ -17,8 +17,6 @@
 package com.testwa.distest.client.util;
 
 
-import com.alibaba.fastjson.JSON;
-import com.testwa.distest.client.command.CommonProcessListener;
 import com.testwa.distest.client.exception.CommandFailureException;
 import lombok.extern.slf4j.Slf4j;
 import org.zeroturnaround.exec.ProcessExecutor;

@@ -37,7 +37,7 @@ public class ThirdLibInitCommandLine implements CommandLineRunner {
     public void run(String... strings) throws Exception {
         Resource[] resources = loadResources(thirdLibPath);
         for(int i=0; i<resources.length; i++) {
-            log.info(resources[i].getURL().toString());
+            log.debug(resources[i].getURL().toString());
         }
     }
 

@@ -39,6 +39,8 @@ public class Constant {
     public static final String APPIUM_UI2 = "appium-uiautomator2-server.apk";
     public static final String APPIUM_UI2_DEBUG = "appium-uiautomator2-server-debug-androidTest.apk";
 
+    public static final String XCODEBUILD_CONFIG_DIR = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "xcode").toString();
+
 
     public static String getKeyboardService() {
         return "keyboardservice" + File.separator + KEYBOARD_SERVICE_APK;

@@ -1,7 +1,6 @@
 package com.testwa.distest.client.device.pool;
 
 import com.testwa.distest.client.android.JadbDeviceManager;
-import com.testwa.distest.client.device.manager.DeviceInitException;
 import com.testwa.distest.client.device.manager.DeviceManager;
 import com.testwa.distest.jadb.JadbDevice;
 import io.rpc.testwa.device.DeviceType;
@@ -27,7 +26,7 @@ public class DeviceManagerPool {
         borrowManger = new ConcurrentHashMap<>();
     }
 
-    public synchronized DeviceManager getManager(String deviceId, DeviceType deviceType) {
+    public DeviceManager getManager(String deviceId, DeviceType deviceType) {
         DeviceManager manager = null;
         try {
             if(borrowManger.containsKey(deviceId)) {

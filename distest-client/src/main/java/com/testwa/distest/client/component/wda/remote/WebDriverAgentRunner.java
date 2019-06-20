@@ -16,7 +16,6 @@
 
 package com.testwa.distest.client.component.wda.remote;
 
-import com.testwa.distest.client.command.WdaProcessListener;
 import com.testwa.distest.client.component.port.IProxyPortProvider;
 import com.testwa.distest.client.component.wda.driver.CommandExecutor;
 import com.testwa.distest.client.component.wda.driver.DriverCapabilities;
@@ -35,7 +34,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 @Slf4j
@@ -51,17 +51,30 @@ public class WebDriverAgentRunner {
     private StartedProcess wdaProcess;
     private StartedProcess iproxyProcess;
 
-    private WdaProcessListener wdaProcessListener;
-    private boolean stop;
     private int iproxyPort;
+
+    private ScheduledExecutorService wdaWatchDog;
+    private ScheduledFuture<?> handle;
+
+    private AtomicBoolean isStart = new AtomicBoolean(false);
 
     public WebDriverAgentRunner(DriverCapabilities capabilities) {
         this.capabilities = capabilities;
-        this.stop = false;
         this.iproxyPort = IProxyPortProvider.pullPort();
         this.commandExecutor = new WDACommandExecutor(getWdaUrl());
-        this.wdaProcessListener = new WdaProcessListener(this);
         this.iproxyProcess = CommandLineExecutor.asyncExecute(new String[]{IPROXY, String.valueOf(this.iproxyPort), String.valueOf(WDA_AGENT_PORT), capabilities.getCapability(DriverCapabilities.Key.DEVICE_ID)});
+        this.wdaWatchDog = Executors.newSingleThreadScheduledExecutor();
+        this.handle =this.wdaWatchDog.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                if(isStart.get()){
+                    if(wdaProcess == null || wdaProcess.getProcess() == null || !wdaProcess.getProcess().isAlive()) {
+                        log.info("[WebDriverAgentRunner] 重启 xcodebuild");
+                        start();
+                    }
+                }
+            }
+        }, 0, 500, TimeUnit.MILLISECONDS);
     }
 
     public void start() {
@@ -83,7 +96,7 @@ public class WebDriverAgentRunner {
                 }
             }
 
-            log.info("Start WebDriverAgent.");
+            log.info("[Start WebDriverAgent] {}", udid);
             wdaProcess = new XCodeBuilder()
                     .setWdaPath(capabilities.getCapability(DriverCapabilities.Key.WDA_PATH))
                     .setPlatform(capabilities.getCapability(DriverCapabilities.Key.PLATFORM))
@@ -91,9 +104,7 @@ public class WebDriverAgentRunner {
                     .setDeviceId(capabilities.getCapability(DriverCapabilities.Key.DEVICE_ID))
                     .setOsVersion(capabilities.getCapability(DriverCapabilities.Key.OS_VERSION))
                     .setLog(false)
-                    .addListener(this.wdaProcessListener)
                     .build();
-
 
         } else {
             log.info("Use existing WebDriverAgent process.");
@@ -105,17 +116,21 @@ public class WebDriverAgentRunner {
 
         waitForReachability(getWdaUrl(), timeout);
         checkStatus();
+        isStart.set(true);
     }
 
     public void stop() {
         log.info("Stop WebDriverAgent.");
-        this.stop = true;
+        isStart.set(false);
+        handle.cancel(true);
+        this.wdaWatchDog.shutdown();
+        try {
+            TimeUnit.SECONDS.sleep(2);
+        } catch (InterruptedException e) {
+
+        }
         CommandLineExecutor.processQuit(wdaProcess);
         CommandLineExecutor.processQuit(iproxyProcess);
-    }
-
-    public boolean isStop() {
-        return this.stop;
     }
 
     public URL getWdaUrl() {
@@ -157,12 +172,10 @@ public class WebDriverAgentRunner {
     }
 
     private void checkStatus() {
-        log.info("Check WebDriverAgent status.");
         RemoteResponse response = commandExecutor.execute(WDACommand.STATUS);
         String state = (String) new ResponseValueConverter(response).toMap().get(WDA_STATE_FIELD);
-
+        log.info("[Check WebDriverAgent status] state: {}", state);
         if (!"success".equals(state)) {
-            stop();
             throw new WebDriverAgentException("WDA returned error state: " + state);
         }
     }

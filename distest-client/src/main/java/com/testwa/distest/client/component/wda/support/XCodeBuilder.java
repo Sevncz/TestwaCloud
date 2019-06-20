@@ -16,9 +16,9 @@
 
 package com.testwa.distest.client.component.wda.support;
 
-import com.testwa.distest.client.command.WdaProcessListener;
+import com.testwa.distest.client.component.Constant;
 import com.testwa.distest.client.component.wda.exception.WebDriverAgentException;
-import com.testwa.distest.client.ios.IOSDeviceUtil;
+import com.testwa.distest.client.util.CommonProcessListener;
 import lombok.extern.slf4j.Slf4j;
 import org.zeroturnaround.exec.ProcessExecutor;
 import org.zeroturnaround.exec.StartedProcess;
@@ -26,6 +26,8 @@ import org.zeroturnaround.exec.listener.ProcessListener;
 import org.zeroturnaround.exec.stream.LogOutputStream;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +48,7 @@ public class XCodeBuilder {
     private List<ProcessListener> listeners = new ArrayList<>();
 
     public StartedProcess build() {
-        log.info("Start xcode build process.");
+        log.info("[Start xcode build process] {}", deviceId);
         try {
             ProcessExecutor executor = new ProcessExecutor()
                     .command(getCommand())
@@ -58,6 +60,8 @@ public class XCodeBuilder {
                 for (ProcessListener l : listeners) {
                     executor.addListener(l);
                 }
+            }else{
+                executor.addListener(new CommonProcessListener(XCodeBuilder.class.getName()));
             }
             return executor.start();
         } catch (IOException e) {
@@ -117,8 +121,10 @@ public class XCodeBuilder {
         command.add(CLProperty.DESTINATION.getValue());
         command.add(new DestinationBuilder().build());
         command.add(CLProperty.ALLOW_PROVISIONING_UPDATES.getValue());
+        Path xcodePath = Paths.get(Constant.XCODEBUILD_CONFIG_DIR, this.deviceId);
+        command.add(String.format("%s=%s", CLProperty.CONFIGURATION_BUILD_DIR.getValue(), xcodePath.toString()));
 //        command.add(TEST);
-        return command.toArray(new String[command.size()]);
+        return command.toArray(new String[0]);
     }
 
     private enum CLProperty {
@@ -129,6 +135,7 @@ public class XCodeBuilder {
         XCODE_TEST_RUN("-xctestrun"),
         SCHEME("-scheme"),
         ALLOW_PROVISIONING_UPDATES("-allowProvisioningUpdates"),
+        CONFIGURATION_BUILD_DIR("CONFIGURATION_BUILD_DIR"),
         ;
 
         String value;

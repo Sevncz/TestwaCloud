@@ -320,7 +320,7 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver {
 
     private ClientInfo buildClientInfo() throws DeviceInitException {
         AgentInfo agentInfo = AgentInfo.getAgentInfo();
-        log.info("buildClientInfo - uuid: {} agentInfo: {}", udid, agentInfo.toString());
+        log.info("[Register device to server] uuid: {} agentInfo: {}", udid, agentInfo.toString());
         String cpu = IOSDeviceUtil.getCPUArchitecture(udid);
         String model = IOSDeviceUtil.getModel(udid);
         String productVersion = IOSDeviceUtil.getProductVersion(udid);

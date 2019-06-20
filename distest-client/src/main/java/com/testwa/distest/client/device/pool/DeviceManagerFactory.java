@@ -23,7 +23,6 @@ public class DeviceManagerFactory extends BasePooledObjectFactory<DeviceManager>
 
     @Override
     public DeviceManager create() {
-        log.info("Device manager create");
         return new DeviceManager(this.host, this.port, this.resourcePath);
     }
 

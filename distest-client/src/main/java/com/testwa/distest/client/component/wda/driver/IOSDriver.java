@@ -135,6 +135,7 @@ public class IOSDriver implements Driver {
     public void quit() {
         sessionId = null;
         wdaRunner.stop();
+
     }
 
     @Override
@@ -185,9 +186,9 @@ public class IOSDriver implements Driver {
 
 
     private void getSession() {
-        log.info("Starting get WebDriverAgent session.");
         RemoteResponse response = commandExecutor.execute(WDACommand.STATUS);
         this.sessionId = response.getSessionId();
+        log.info("[Start get WebDriverAgent session] sessionId: {}", sessionId);
     }
 
 

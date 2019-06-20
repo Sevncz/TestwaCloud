@@ -1,4 +1,4 @@
-package com.testwa.distest.client.command;
+package com.testwa.distest.client.util;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +28,7 @@ public class CommonProcessListener extends ProcessListener {
 
     @Override
     public void afterFinish(Process process, ProcessResult result) {
-        log.info("[{}] ProcessExecutor finish {} {}... ... ", className, result.getExitValue(), result.getOutput());
+        log.info("[{}] ProcessExecutor finish {} {}... ... ", className, result.getExitValue(), String.join("\n", result.getOutput().getLinesAsUTF8()));
     }
 
     @Override

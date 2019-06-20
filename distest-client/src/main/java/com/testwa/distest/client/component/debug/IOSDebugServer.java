@@ -1,8 +1,6 @@
 package com.testwa.distest.client.component.debug;
 
-import com.testwa.distest.client.command.CommonProcessListener;
-import com.testwa.distest.client.component.port.SocatPortProvider;
-import com.testwa.distest.client.component.port.TcpIpPortProvider;
+import com.testwa.distest.client.util.CommonProcessListener;
 import com.testwa.distest.client.util.CommandLineExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.zeroturnaround.exec.ProcessExecutor;
