@@ -74,11 +74,12 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver {
     }
 
     @Override
-    public void deviceInit() throws DeviceInitException {
+    public boolean deviceInit() throws DeviceInitException {
 
         clientInfo = buildClientInfo();
         this.commandListener = new IDeviceRemoteCommandListener(udid, this);
         register();
+        return this.commandListener.isConnected();
     }
 
     @Override

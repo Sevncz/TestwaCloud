@@ -1,5 +1,6 @@
 package com.testwa.distest.client.component.debug;
 
+import com.sun.jna.Platform;
 import com.testwa.distest.client.util.CommonProcessListener;
 import com.testwa.distest.client.component.port.SocatPortProvider;
 import com.testwa.distest.client.component.port.TcpIpPortProvider;
@@ -9,6 +10,7 @@ import org.zeroturnaround.exec.ProcessExecutor;
 import org.zeroturnaround.exec.StartedProcess;
 import org.zeroturnaround.exec.stream.LogOutputStream;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,17 +21,21 @@ import java.util.List;
  */
 @Slf4j
 public class AndroidDebugServer{
-    private static final String SOCAT_CMD = "/usr/local/bin/socat";
+    private static final String SOCAT_CMD_LINUX = "/usr/local/bin/socat";
+    private static final String SOCAT_CMD_WIN = "socat.exe";
     private StartedProcess mainProcess;
     private CommonProcessListener processListener;
 
     private int tcpipPort;
     private int remotePort;
+    private String socatExeFile;
 
-    public AndroidDebugServer(int tcpipPort, int remotePort){
+    public AndroidDebugServer(int tcpipPort, int remotePort, String resourcePath){
         this.tcpipPort = tcpipPort;
         this.remotePort = remotePort;
         this.processListener = new CommonProcessListener(this.getClass().getName());
+        this.processListener = new CommonProcessListener(this.getClass().getName());
+        this.socatExeFile = resourcePath + File.separator + "socat-windows" + File.separator + SOCAT_CMD_WIN;
     }
 
     public void start() {
@@ -68,7 +74,11 @@ public class AndroidDebugServer{
      */
     private List<String> getSocatCommandLine(int tcpipPort, int socatListenPort) {
         List<String> commandLine = new ArrayList<>();
-        commandLine.add(SOCAT_CMD);
+        if(Platform.isWindows()) {
+            commandLine.add(this.socatExeFile);
+        }else{
+            commandLine.add(SOCAT_CMD_LINUX);
+        }
         commandLine.add(String.format("tcp4-listen:%d,fork,reuseaddr",socatListenPort));
         commandLine.add(String.format("tcp-connect:127.0.0.1:%d",tcpipPort));
         return commandLine;

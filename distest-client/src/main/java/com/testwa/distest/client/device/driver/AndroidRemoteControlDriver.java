@@ -21,7 +21,6 @@ import com.testwa.distest.client.device.listener.IDeviceRemoteCommandListener;
 import com.testwa.distest.client.device.manager.DeviceInitException;
 import com.testwa.distest.client.device.remote.DeivceRemoteApiClient;
 import com.testwa.distest.client.download.Downloader;
-import com.testwa.distest.client.exception.DeviceNotReadyException;
 import com.testwa.distest.client.exception.DownloadFailException;
 import com.testwa.distest.client.model.AgentInfo;
 import com.testwa.distest.client.model.UserInfo;
@@ -129,11 +128,12 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
     }
 
     @Override
-    public void deviceInit() throws DeviceInitException {
+    public boolean deviceInit() throws DeviceInitException {
         clientInfo = buildClientInfo();
         initTcpipCommand();
         this.commandListener = new IDeviceRemoteCommandListener(device.getSerial(), this);
         register();
+        return this.commandListener.isConnected();
     }
 
     @Override
@@ -181,8 +181,6 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
         }else{
             this.touchProjection.start();
         }
-
-
     }
 
     @Override
@@ -284,7 +282,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
     public void debugStart() {
         ADBTools.forward(device.getSerial(), this.tcpipPort, this.tcpipPort);
         if(this.androidDebugServer == null) {
-            this.androidDebugServer = new AndroidDebugServer(this.tcpipPort, this.socatPort);
+            this.androidDebugServer = new AndroidDebugServer(this.tcpipPort, this.socatPort, this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH));
         }
         if(!this.androidDebugServer.isRunning()) {
             this.androidDebugServer.start();

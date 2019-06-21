@@ -85,7 +85,7 @@ public class JobService {
         }
         String createTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         try {
-            log.info("添加jobName=%s,jobGroup=%s,cronExpression=%s,jobDescription=%s", jobName, jobGroup, cronExpression, jobDescription);
+            log.info("添加jobName={},jobGroup={},cronExpression={},jobDescription={}", jobName, jobGroup, cronExpression, jobDescription);
 
             if (checkExists(jobName, jobGroup)) {
                 log.error("Job已经存在, jobName={},jobGroup={}", jobName, jobGroup);

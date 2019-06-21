@@ -61,6 +61,7 @@ public class EquipmentDebugJob implements BaseJob, InterruptableJob {
                 Object obj = screenStreamQueue.pop(deviceId);
                 if(obj != null) {
                     byte[] imgData = (byte[]) obj;
+                    log.info("获取{}屏幕，bytes 长度 {}", deviceId, imgData.length);
                     if(imgData.length != 0) {
                         client.sendEvent("minicap", imgData);
                         continue;

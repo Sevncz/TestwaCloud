@@ -124,8 +124,8 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
      */
     @Override
     public void log(LogRequest request, StreamObserver<CommonReply> responseObserver) {
-
         String serial = request.getSerial();
+        log.info("接收到 ios 日志，存入redis log.{}", serial);
         logQueue.push(serial, request.getContent().getBytes());
         final CommonReply.Builder replyBuilder = CommonReply.newBuilder().setMessage("OK ");
         responseObserver.onNext(replyBuilder.build());

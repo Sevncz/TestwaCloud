@@ -175,7 +175,7 @@ public class WebDriverAgentRunner {
         RemoteResponse response = commandExecutor.execute(WDACommand.STATUS);
         String state = (String) new ResponseValueConverter(response).toMap().get(WDA_STATE_FIELD);
         log.info("[Check WebDriverAgent status] state: {}", state);
-        if (!"success".equals(state)) {
+        if (!"isConnected".equals(state)) {
             throw new WebDriverAgentException("WDA returned error state: " + state);
         }
     }

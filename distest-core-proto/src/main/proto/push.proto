@@ -95,6 +95,8 @@ message Message {
         TAP = 40;
         SWIP = 41;
         FRAME_RATE = 42;
+
+        CONNECTED = 99;
     }
 	Topic topicName = 1;
 	string status = 2;

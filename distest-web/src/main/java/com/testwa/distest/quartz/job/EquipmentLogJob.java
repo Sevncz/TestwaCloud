@@ -9,16 +9,12 @@ import com.testwa.distest.server.rpc.cache.CacheUtil;
 import com.testwa.distest.server.service.cache.queue.LogQueue;
 import com.testwa.distest.server.service.device.service.DeviceLogService;
 import io.grpc.stub.StreamObserver;
-import io.rpc.testwa.device.LogRequest;
-import io.rpc.testwa.device.LogcatMessageRequest;
 import io.rpc.testwa.push.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -36,7 +32,7 @@ public class EquipmentLogJob implements BaseJob, InterruptableJob {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-
+        log.info("EquipmentLogJob: 启动日志收集任务");
         JobDataMap dataMap = context.getJobDetail().getJobDataMap();
         String paramsStr = dataMap.getString("params");
         DebugJobDataMap params = JSON.parseObject(paramsStr, DebugJobDataMap.class);
@@ -63,22 +59,17 @@ public class EquipmentLogJob implements BaseJob, InterruptableJob {
                 Object obj = logQueue.pop(deviceId);
                 if(obj != null) {
                     byte[] bytes = (byte[]) obj;
+                    log.info("获取{}日志，bytes 长度 {}", deviceId, bytes.length);
                     if(bytes.length != 0) {
-                        LogRequest messageRequest = LogRequest.parseFrom(bytes);
-                        Map<String, String> map = new HashMap<String, String>(){
-                            {
-                                put("content", messageRequest.getContent());
-                            }
-                        };
-                        client.sendEvent("logcat", JSON.toJSONString(map));
+                        client.sendEvent("logcat", new String(bytes));
                         continue;
                     }
                 }
             } catch (Exception e) {
-                log.warn("Sender img to ws client error, close {} ws connection", deviceId, e);
+                log.warn("EquipmentLogJob: Sender img to ws client error, close {} ws connection", deviceId, e);
             }
         }
-        log.info("ws connect status {} {} ", client.isChannelOpen(), devLog.toString());
+        log.info("EquipmentLogJob: ws connect status {} {} ", client.isChannelOpen(), devLog.toString());
         StreamObserver<Message> devObserver = CacheUtil.serverCache.getObserver(deviceId);
         if(devObserver != null ) {
             Message message = Message.newBuilder().setTopicName(Message.Topic.LOGCAT_STOP).setStatus("OK").setMessage(ByteString.copyFromUtf8("stop")).build();

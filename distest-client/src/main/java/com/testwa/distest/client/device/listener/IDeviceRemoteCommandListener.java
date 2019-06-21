@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author wen
@@ -16,6 +17,8 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 public class IDeviceRemoteCommandListener implements StreamObserver<Message> {
+    private AtomicBoolean isOnNext = new AtomicBoolean(false);
+    private AtomicBoolean isOnErrot = new AtomicBoolean(false);
     private String deviceId;
     private IDeviceRemoteControlDriver driver;
     private volatile ConcurrentHashMap<Message.Topic, IRemoteCommandCallBack> cache = new ConcurrentHashMap<>();
@@ -27,13 +30,14 @@ public class IDeviceRemoteCommandListener implements StreamObserver<Message> {
 
     @Override
     public void onError(Throwable throwable) {
-        log.info("{} connect server retry ... ...", deviceId);
-        try {
-            TimeUnit.SECONDS.sleep(1);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        driver.register();
+        log.info("{} register server error ... ... msg: [{}]", deviceId, throwable.getMessage());
+        isOnErrot.set(true);
+//        try {
+//            TimeUnit.SECONDS.sleep(1);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//        driver.register();
     }
 
     @Override
@@ -45,6 +49,10 @@ public class IDeviceRemoteCommandListener implements StreamObserver<Message> {
     @Override
     public void onNext(Message message) {
         log.debug(deviceId +",{topicName:"+message.getTopicName()+",getSource:"+message.getStatus()+"}");
+        if(Message.Topic.CONNECTED.equals(message.getTopicName())) {
+            isOnNext.set(true);
+            return;
+        }
         IRemoteCommandCallBack call;
         try {
             if(cache.containsKey(message.getTopicName())){
@@ -59,5 +67,23 @@ public class IDeviceRemoteCommandListener implements StreamObserver<Message> {
         }
     }
 
+    /**
+     * 最多等待5s
+     * @return
+     */
+    public boolean isConnected() {
+        int tryTime = 5;
+        while(tryTime > 0) {
+            try {
+                TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e) {
 
+            }
+            if(isOnNext.get()) {
+                break;
+            }
+            tryTime--;
+        }
+        return isOnNext.get();
+    }
 }

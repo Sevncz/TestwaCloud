@@ -55,8 +55,8 @@ public class AccountControllerTest {
     @WithAnonymousUser
     public void testLogin() throws Exception {
         Map<String, Object> params = new HashMap<>();
-        params.put("username", "wen01");
-        params.put("password", "12345^");
+        params.put("username", "admin");
+        params.put("password", "admin");
         String requestJson = JSON.toJSONString(params);
         RequestBuilder request = null;
         request = post(WebConstants.API_PREFIX + "/auth/login/")

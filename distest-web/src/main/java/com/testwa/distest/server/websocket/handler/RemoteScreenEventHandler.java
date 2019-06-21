@@ -164,7 +164,8 @@ public class RemoteScreenEventHandler {
             log.debug("browser disconnect");
             // 清理资源
             String serial = client.getHandshakeData().getSingleUrlParam("serial");
-            deviceLockMgr.debugRelease(serial, client.getSessionId().toString());
+            deviceLockMgr.debugReleaseForce(serial);
+            deviceLockMgr.workRelease(serial);
         }
     }
 
@@ -196,6 +197,7 @@ public class RemoteScreenEventHandler {
 
         StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
         if(observer != null ){
+            log.info("通知设备{}启动屏幕", deviceId);
             // 通知设备启动
 //            Message message = Message.newBuilder().setTopicName(Message.Topic.COMPONENT_START).setStatus(STATUS_OK).setMessage(ByteString.copyFromUtf8(JSON.toJSONString(config))).build();
 //            observer.onNext(message);
@@ -267,6 +269,7 @@ public class RemoteScreenEventHandler {
         Map content = (Map) params.get("filter");
         StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
         if(observer != null ){
+            log.info("通知日志启动....");
             Message message = Message.newBuilder().setTopicName(Message.Topic.LOGCAT_START).setStatus(STATUS_OK).setMessage(ByteString.copyFromUtf8(JSON.toJSONString(content))).build();
             observer.onNext(message);
         }else{
@@ -295,10 +298,11 @@ public class RemoteScreenEventHandler {
         DateTime now = new DateTime();
         String cron = CronDateUtils.getCron(now.plusSeconds(2).toDate());
         try {
-            if("iOS".equalsIgnoreCase(device.getOsName())){
-                jobService.addJob(JOB_LOG_NAME, deviceId, cron, String.format("设备[%s]-[%s]-[%s]获取Logcat",device.getBrand(),device.getModel(),device.getDeviceId()), JSON.toJSONString(debugParams));
+            if("ios".equals(device.getOsName().toLowerCase())){
+                log.info("ios log start");
+                jobService.addJob(JOB_LOG_NAME, deviceId, cron, String.format("设备[%s]-[%s]-[%s]获取Log",device.getBrand(),device.getModel(),device.getDeviceId()), JSON.toJSONString(debugParams));
             }
-            if("android".equalsIgnoreCase(device.getOsName())){
+            if("android".equals(device.getOsName().toLowerCase())){
                 jobService.addJob(JOB_LOGCAT_NAME, deviceId, cron, String.format("设备[%s]-[%s]-[%s]获取Logcat",device.getBrand(),device.getModel(),device.getDeviceId()), JSON.toJSONString(debugParams));
             }
         } catch (BusinessException e) {
@@ -323,8 +327,15 @@ public class RemoteScreenEventHandler {
 
     @OnEvent(value = WAIT_LOGCAT)
     public void onWaitLogcat(SocketIOClient client, String deviceId, AckRequest ackRequest) {
+        Device device = deviceService.findByDeviceId(deviceId);
         try {
-            jobService.interrupt(JOB_LOGCAT_NAME, deviceId);
+            if("ios".equals(device.getOsName().toLowerCase())){
+                log.info("ios log start");
+                jobService.interrupt(JOB_LOG_NAME, deviceId);
+            }
+            if("android".equals(device.getOsName().toLowerCase())){
+                jobService.interrupt(JOB_LOGCAT_NAME, deviceId);
+            }
         } catch (BusinessException e) {
             e.printStackTrace();
         }
