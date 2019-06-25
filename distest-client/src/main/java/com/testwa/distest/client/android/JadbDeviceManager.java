@@ -32,15 +32,12 @@ public class JadbDeviceManager {
                 try {
                     if(d.getState().equals(device.getState())) {
                         changeState(d);
-                        jadbDeviceMap.put(d.getSerial(), d);
                     }
                 } catch (IOException | JadbException e) {
                     changeState(d);
-                    jadbDeviceMap.remove(d.getSerial());
                 }
             }else{
                 changeState(d);
-                jadbDeviceMap.put(d.getSerial(), d);
             }
         });
 
@@ -48,8 +45,7 @@ public class JadbDeviceManager {
             try {
                 d.getState();
             } catch (IOException | JadbException e) {
-                onDisconnect(d.getSerial());
-                jadbDeviceMap.remove(d.getSerial());
+                onDisconnect(d);
             }
         });
     }
@@ -59,35 +55,35 @@ public class JadbDeviceManager {
             switch (d.getState()) {
                 case Device:
                     // 初始化设备
-                    onDevice(d.getSerial());
+                    onDevice(d);
                     break;
                 case Offline:
                     // 关闭设备
-                    onOffline(d.getSerial());
+                    onOffline(d);
                     break;
                 case BootLoader:
-                    onBootLoader(d.getSerial());
+                    onBootLoader(d);
                     break;
                 case Recovery:
-                    onRecovery(d.getSerial());
+                    onRecovery(d);
                     break;
                 case Unauthorized:
-                    onUnauthorized(d.getSerial());
+                    onUnauthorized(d);
                     break;
                 case Authorizing:
-                    onAuthorizing(d.getSerial());
+                    onAuthorizing(d);
                     break;
                 case Connecting:
-                    onConnecting(d.getSerial());
+                    onConnecting(d);
                     break;
                 case Sideload:
-                    onSideload(d.getSerial());
+                    onSideload(d);
                     break;
                 default:
                     break;
             }
         } catch (IOException | JadbException e) {
-            onDisconnect(d.getSerial());
+            onDisconnect(d);
         }
     }
 
@@ -106,46 +102,46 @@ public class JadbDeviceManager {
      * @Author wen
      * @Date 2019/5/15 19:54
      */
-    public static void onDevice(String deviceId){
-        context.publishEvent(new DeviceStatusChangeEvent(JadbDeviceManager.class, deviceId, DeviceStatusChangeRequest.LineStatus.ONLINE));
+    public static void onDevice(JadbDevice jadbDevice){
+        context.publishEvent(new DeviceStatusChangeEvent(JadbDeviceManager.class, jadbDevice, DeviceStatusChangeRequest.LineStatus.ONLINE));
 
     }
 
-    public static void onOffline(String deviceId){
-        context.publishEvent(new DeviceStatusChangeEvent(JadbDeviceManager.class, deviceId, DeviceStatusChangeRequest.LineStatus.OFFLINE));
+    public static void onOffline(JadbDevice jadbDevice){
+        context.publishEvent(new DeviceStatusChangeEvent(JadbDeviceManager.class, jadbDevice, DeviceStatusChangeRequest.LineStatus.OFFLINE));
 
     }
 
-    public static void onBootLoader(String deviceId){
-        context.publishEvent(new DeviceStatusChangeEvent(JadbDeviceManager.class, deviceId, DeviceStatusChangeRequest.LineStatus.BOOTLOADER));
+    public static void onBootLoader(JadbDevice jadbDevice){
+        context.publishEvent(new DeviceStatusChangeEvent(JadbDeviceManager.class, jadbDevice, DeviceStatusChangeRequest.LineStatus.BOOTLOADER));
 
     }
 
-    public static void onRecovery(String deviceId){
-        context.publishEvent(new DeviceStatusChangeEvent(JadbDeviceManager.class, deviceId, DeviceStatusChangeRequest.LineStatus.RECOVERY));
+    public static void onRecovery(JadbDevice jadbDevice){
+        context.publishEvent(new DeviceStatusChangeEvent(JadbDeviceManager.class, jadbDevice, DeviceStatusChangeRequest.LineStatus.RECOVERY));
 
     }
 
-    public static void onUnauthorized(String deviceId){
-        context.publishEvent(new DeviceStatusChangeEvent(JadbDeviceManager.class, deviceId, DeviceStatusChangeRequest.LineStatus.UNAUTHORIZED));
+    public static void onUnauthorized(JadbDevice jadbDevice){
+        context.publishEvent(new DeviceStatusChangeEvent(JadbDeviceManager.class, jadbDevice, DeviceStatusChangeRequest.LineStatus.UNAUTHORIZED));
 
     }
 
-    public static void onAuthorizing(String deviceId){
-        context.publishEvent(new DeviceStatusChangeEvent(JadbDeviceManager.class, deviceId, DeviceStatusChangeRequest.LineStatus.AUTHORIZING));
+    public static void onAuthorizing(JadbDevice jadbDevice){
+        context.publishEvent(new DeviceStatusChangeEvent(JadbDeviceManager.class, jadbDevice, DeviceStatusChangeRequest.LineStatus.AUTHORIZING));
 
     }
 
-    public static void onConnecting(String deviceId){
-        context.publishEvent(new DeviceStatusChangeEvent(JadbDeviceManager.class, deviceId, DeviceStatusChangeRequest.LineStatus.CONNECTING));
+    public static void onConnecting(JadbDevice jadbDevice){
+        context.publishEvent(new DeviceStatusChangeEvent(JadbDeviceManager.class, jadbDevice, DeviceStatusChangeRequest.LineStatus.CONNECTING));
     }
 
-    public static void onSideload(String deviceId){
-        context.publishEvent(new DeviceStatusChangeEvent(JadbDeviceManager.class, deviceId, DeviceStatusChangeRequest.LineStatus.SIDELOAD));
+    public static void onSideload(JadbDevice jadbDevice){
+        context.publishEvent(new DeviceStatusChangeEvent(JadbDeviceManager.class, jadbDevice, DeviceStatusChangeRequest.LineStatus.SIDELOAD));
     }
 
-    public static void onDisconnect(String deviceId){
-        jadbDeviceMap.remove(deviceId);
-        context.publishEvent(new DeviceStatusChangeEvent(JadbDeviceManager.class, deviceId, DeviceStatusChangeRequest.LineStatus.DISCONNECTED));
+    public static void onDisconnect(JadbDevice jadbDevice){
+        jadbDeviceMap.remove(jadbDevice.getSerial());
+        context.publishEvent(new DeviceStatusChangeEvent(JadbDeviceManager.class, jadbDevice, DeviceStatusChangeRequest.LineStatus.DISCONNECTED));
     }
 }

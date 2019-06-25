@@ -12,21 +12,28 @@ import com.testwa.distest.client.component.logcat.DLogger;
 import com.testwa.distest.client.component.minicap.ScreenIOSProjection;
 import com.testwa.distest.client.component.wda.driver.DriverCapabilities;
 import com.testwa.distest.client.component.wda.driver.IOSDriver;
-import com.testwa.distest.client.device.listener.IDeviceRemoteCommandListener;
 import com.testwa.distest.client.device.listener.IOSComponentServiceRunningListener;
+import com.testwa.distest.client.device.listener.callback.IRemoteCommandCallBack;
+import com.testwa.distest.client.device.listener.callback.RemoteCommandCallBackUtils;
 import com.testwa.distest.client.device.manager.DeviceInitException;
 import com.testwa.distest.client.device.remote.DeivceRemoteApiClient;
 import com.testwa.distest.client.ios.IOSDeviceUtil;
 import com.testwa.distest.client.ios.IOSPhysicalSize;
 import com.testwa.distest.client.model.AgentInfo;
 import com.testwa.distest.client.model.UserInfo;
+import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.device.DeviceType;
 import io.rpc.testwa.push.ClientInfo;
+import io.rpc.testwa.push.Message;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * iOS设备驱动
@@ -35,7 +42,8 @@ import java.util.concurrent.TimeUnit;
  * @create 2019-05-23 18:52
  */
 @Slf4j
-public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver {
+public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, StreamObserver<Message> {
+    private volatile ConcurrentHashMap<Message.Topic, IRemoteCommandCallBack> cache = new ConcurrentHashMap<>();
     private static final String WDA_PROJECT = "WebDriverAgent.xcodeproj";
     private final static DeviceType TYPE = DeviceType.IOS;
     private final String udid;
@@ -48,7 +56,6 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver {
     private DriverCapabilities iosDriverCapabilities;
 
     private DeivceRemoteApiClient api;
-    private IDeviceRemoteCommandListener commandListener;
     private ScreenIOSProjection screenIOSProjection;
 
     /*------------------------------------------LOG----------------------------------------------------*/
@@ -58,6 +65,8 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver {
     /*------------------------------------------远程任务----------------------------------------------------*/
 
     private AbstractTestTask task = null;
+
+    private AtomicInteger connectRetryTime = new AtomicInteger(0);
 
     public IOSRemoteControlDriver(IDeviceRemoteControlDriverCapabilities capabilities) {
 
@@ -74,17 +83,14 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver {
     }
 
     @Override
-    public boolean deviceInit() throws DeviceInitException {
-
+    public void deviceInit() throws DeviceInitException {
         clientInfo = buildClientInfo();
-        this.commandListener = new IDeviceRemoteCommandListener(udid, this);
         register();
-        return this.commandListener.isConnected();
     }
 
     @Override
     public void register() {
-        this.api.registerToServer(clientInfo, commandListener);
+        this.api.registerToServer(clientInfo, this);
     }
 
     @Override
@@ -95,31 +101,22 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver {
     @Override
     public void startScreen(String command) {
         stopScreen();
-
-        if(this.screenIOSProjection != null && this.screenIOSProjection.isRunning()){
-            this.screenIOSProjection.start();
-        }else{
-            this.screenIOSProjection = new ScreenIOSProjection(udid, this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH), this.listener);
-            this.screenIOSProjection.start();
-        }
-        // 必须在minicap启动之后启动wda
-        try {
-            TimeUnit.SECONDS.sleep(1);
-        } catch (InterruptedException e) {
-
-        }
+        this.screenIOSProjection = new ScreenIOSProjection(udid, this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH), this.listener);
+        this.screenIOSProjection.start();
         this.iosDriver = new IOSDriver(this.iosDriverCapabilities);
-
     }
 
     @Override
     public void waitScreen() {
         this.listener.setScreenWait(true);
+        this.stopScreen();
     }
 
     @Override
     public void notifyScreen() {
         this.listener.setScreenWait(false);
+        Map<String, Object> config = new HashMap<>();
+        this.startScreen(JSON.toJSONString(config));
     }
 
     @Override
@@ -356,5 +353,47 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver {
                 .setRemoteConnectPort(8555)
                 .setTcpipCommandSuccessed(true)
                 .build();
+    }
+
+    @Override
+    public void onNext(Message message) {
+        if(Message.Topic.CONNECTED.equals(message.getTopicName())) {
+            log.info("[Connected to Server] {}", this.udid);
+            // 连上服务器之后归零
+            connectRetryTime.set(0);
+            return;
+        }
+        IRemoteCommandCallBack call;
+        try {
+            if(cache.containsKey(message.getTopicName())){
+                call = cache.get(message.getTopicName());
+            }else{
+                call = RemoteCommandCallBackUtils.getCallBack(message.getTopicName(), this);
+                cache.put(message.getTopicName(), call);
+            }
+            call.callback(message.getMessage());
+        } catch (Exception e) {
+            log.error("回调错误", e);
+        }
+    }
+
+    @Override
+    public void onError(Throwable throwable) {
+        // 出现异常
+        try {
+            try {
+                TimeUnit.MILLISECONDS.sleep(connectRetryTime.get() * 200L);
+            } catch (InterruptedException e) {
+
+            }
+            deviceInit();
+        } catch (DeviceInitException e) {
+            log.error("设备重新注册失败");
+        }
+    }
+
+    @Override
+    public void onCompleted() {
+
     }
 }

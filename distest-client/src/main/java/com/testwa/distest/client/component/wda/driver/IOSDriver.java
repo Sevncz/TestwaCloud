@@ -26,6 +26,7 @@ import com.testwa.distest.client.component.wda.remote.WebDriverAgentRunner;
 import com.testwa.distest.client.component.wda.support.IOSDeploy;
 import com.testwa.distest.client.component.wda.support.ResponseValueConverter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 
 import java.awt.*;
 import java.util.*;
@@ -46,6 +47,7 @@ public class IOSDriver implements Driver {
         this.commandExecutor = new WDACommandExecutor(wdaRunner.getWdaUrl());
         this.wdaRunner.start();
         this.getSession();
+
     }
 
     @Override
@@ -134,7 +136,9 @@ public class IOSDriver implements Driver {
     @Override
     public void quit() {
         sessionId = null;
-        wdaRunner.stop();
+        if(wdaRunner != null) {
+            wdaRunner.stop();
+        }
 
     }
 
@@ -171,6 +175,9 @@ public class IOSDriver implements Driver {
 
     @Override
     public RemoteResponse execute(String command, Map<WDACommand.Wildcard, String> wildcards, Map<String, ?> parameters) {
+        if(StringUtils.isBlank(sessionId)) {
+            this.getSession();
+        }
         Optional.ofNullable(sessionId).ifPresent(id -> wildcards.put(WDACommand.Wildcard.SESSION_ID, sessionId));
         return commandExecutor.execute(command, wildcards, parameters);
     }

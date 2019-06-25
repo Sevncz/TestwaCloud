@@ -2,21 +2,15 @@ package com.testwa.distest.client.device.remote;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
-import com.testwa.distest.client.device.listener.IDeviceRemoteCommandListener;
 import com.testwa.distest.client.device.listener.callback.remote.ScreenObserver;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.device.*;
-import io.rpc.testwa.push.ClientInfo;
-import io.rpc.testwa.push.PushGrpc;
-import io.rpc.testwa.push.Status;
-import io.rpc.testwa.push.TopicInfo;
+import io.rpc.testwa.push.*;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.springboot.autoconfigure.grpc.client.GrpcClient;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -56,9 +50,9 @@ public class DeivceRemoteApiClient {
     /**
      * grpc
      */
-    public void registerToServer(ClientInfo request, IDeviceRemoteCommandListener deviceCommandListener) {
+    public void registerToServer(ClientInfo request, StreamObserver<Message> observer) {
         PushGrpc.PushStub pushStub = PushGrpc.newStub(channel);
-        pushStub.registerToServer(request, deviceCommandListener);
+        pushStub.registerToServer(request, observer);
     }
 
     public String subscribe(ClientInfo request, String topic){

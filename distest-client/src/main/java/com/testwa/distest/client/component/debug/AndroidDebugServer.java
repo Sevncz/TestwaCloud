@@ -24,7 +24,6 @@ public class AndroidDebugServer{
     private static final String SOCAT_CMD_LINUX = "/usr/local/bin/socat";
     private static final String SOCAT_CMD_WIN = "socat.exe";
     private StartedProcess mainProcess;
-    private CommonProcessListener processListener;
 
     private int tcpipPort;
     private int remotePort;
@@ -33,13 +32,12 @@ public class AndroidDebugServer{
     public AndroidDebugServer(int tcpipPort, int remotePort, String resourcePath){
         this.tcpipPort = tcpipPort;
         this.remotePort = remotePort;
-        this.processListener = new CommonProcessListener(this.getClass().getName());
-        this.processListener = new CommonProcessListener(this.getClass().getName());
         this.socatExeFile = resourcePath + File.separator + "socat-windows" + File.separator + SOCAT_CMD_WIN;
     }
 
     public void start() {
         List<String> commandLine = getSocatCommandLine(this.tcpipPort, this.remotePort);
+        CommonProcessListener processListener = new CommonProcessListener(String.join(" ", commandLine));
         try {
             mainProcess = new ProcessExecutor()
                     .command(commandLine)

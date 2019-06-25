@@ -1,6 +1,7 @@
 package com.testwa.distest.client.component.minicap;
 
 import com.testwa.distest.client.util.CommandLineExecutor;
+import com.testwa.distest.client.util.CommonProcessListener;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.zeroturnaround.exec.ProcessExecutor;
@@ -10,6 +11,8 @@ import sun.misc.BASE64Decoder;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -54,9 +57,11 @@ public class IOSScreenServer {
 
     public void start() {
         log.info("[Start idevicescreenshot command] {}", udid);
+        List<String> commandLine = Arrays.asList("/bin/sh", shFile, udid);
+        CommonProcessListener processListener = new CommonProcessListener(String.join(" ", commandLine));
         try {
             mainProcess = new ProcessExecutor()
-                    .command("/bin/sh", shFile, udid)
+                    .command(commandLine)
                     .readOutput(true)
                     .redirectOutput(new LogOutputStream() {
                         @Override
@@ -68,6 +73,7 @@ public class IOSScreenServer {
                             queue.offer(line);
                         }
                     })
+                    .addListener(processListener)
                     .start();
         } catch (IOException e) {
             e.printStackTrace();

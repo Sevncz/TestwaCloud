@@ -6,8 +6,10 @@ import com.testwa.distest.client.component.appium.utils.Config;
 import com.testwa.distest.client.device.manager.DeviceManager;
 import com.testwa.distest.client.device.pool.DeviceManagerPool;
 import com.testwa.distest.client.ios.IOSDeviceUtil;
+import com.testwa.distest.client.service.DeviceGvice;
 import com.testwa.distest.client.service.GrpcClientService;
 import com.testwa.distest.jadb.JadbDevice;
+import io.rpc.testwa.device.DeviceStatusChangeRequest;
 import io.rpc.testwa.device.DeviceType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +30,11 @@ public class CronScheduled {
     private ExecutorService deviceExecutor = Executors.newCachedThreadPool();
 
     @Autowired
-    private GrpcClientService grpcClientService;
-    @Autowired
     private Environment env;
     @Autowired
     private DeviceManagerPool deviceManagerPool;
+    @Autowired
+    private DeviceGvice deviceGvice;
 
     /**
      *@Description: android设备在线情况的补充检查
@@ -54,7 +56,11 @@ public class CronScheduled {
         //遍历任务的结果
         for (Future<DeviceManager> fs : resultList){
             while(!fs.isDone()){
+                try {
+                    TimeUnit.MILLISECONDS.sleep(1);
+                } catch (InterruptedException e) {
 
+                }
             }
         }
     }
@@ -75,7 +81,11 @@ public class CronScheduled {
             //遍历任务的结果
             for (Future<DeviceManager> fs : resultList){
                 while(!fs.isDone()){
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(1);
+                    } catch (InterruptedException e) {
 
+                    }
                 }
             }
         }
@@ -98,14 +108,14 @@ public class CronScheduled {
 
     @Scheduled(fixedDelay = 3000)
     public void iOSClear() {
-        // 2个间隔时间都检查到离线，才离线
-        IOSDeviceUtil.ONLINE_UDID.forEach(udid -> {
-            if(!IOSDeviceUtil.isOnline(udid)){
+        for (String udid : IOSDeviceUtil.ONLINE_UDID) {
+            if (!IOSDeviceUtil.isOnline(udid)) {
                 log.warn("iOS 设备 {} 离线", udid);
                 IOSDeviceUtil.removeOnline(udid);
                 deviceManagerPool.release(udid);
+                deviceGvice.stateChange(udid, DeviceStatusChangeRequest.LineStatus.DISCONNECTED);
             }
-        });
+        }
     }
 
 }

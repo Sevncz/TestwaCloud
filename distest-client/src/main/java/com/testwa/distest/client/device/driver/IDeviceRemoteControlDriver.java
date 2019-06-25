@@ -12,7 +12,7 @@ public interface IDeviceRemoteControlDriver {
     /**
      * 初始化第一步调用， 包含注册
      */
-    boolean deviceInit() throws DeviceInitException;
+    void deviceInit() throws DeviceInitException;
 
     /**
      * 设备注册，断开连接之后提供再次注册设备的方法

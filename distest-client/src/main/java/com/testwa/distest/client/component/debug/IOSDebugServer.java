@@ -19,17 +19,16 @@ import java.util.List;
 public class IOSDebugServer {
     private static final String SOCAT_CMD = "/usr/local/bin/socat";
     private StartedProcess mainProcess;
-    private CommonProcessListener processListener;
 
     private int remotePort;
 
     public IOSDebugServer(int remotePort){
         this.remotePort = remotePort;
-        this.processListener = new CommonProcessListener(this.getClass().getName());
     }
 
     public void start() {
         List<String> commandLine = getSocatCommandLine(this.remotePort);
+        CommonProcessListener processListener = new CommonProcessListener(String.join(" ", commandLine));
         try {
             mainProcess = new ProcessExecutor()
                     .command(commandLine)

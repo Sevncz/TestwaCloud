@@ -49,9 +49,11 @@ public class XCodeBuilder {
 
     public StartedProcess build() {
         log.info("[Start xcode build process] {}", deviceId);
+        String[] commandLine = getCommand();
+        CommonProcessListener processListener = new CommonProcessListener(String.join(" ", commandLine));
         try {
             ProcessExecutor executor = new ProcessExecutor()
-                    .command(getCommand())
+                    .command(commandLine)
                     .readOutput(true);
             if(logOutputStream != null) {
                 executor = executor.redirectOutput(logOutputStream);
@@ -61,7 +63,7 @@ public class XCodeBuilder {
                     executor.addListener(l);
                 }
             }else{
-                executor.addListener(new CommonProcessListener(XCodeBuilder.class.getName()));
+                executor.addListener(processListener);
             }
             return executor.start();
         } catch (IOException e) {

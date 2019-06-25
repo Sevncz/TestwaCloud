@@ -25,9 +25,12 @@ import com.testwa.distest.client.component.wda.support.ResponseValueConverter;
 import com.testwa.distest.client.component.wda.support.XCodeBuilder;
 import com.testwa.distest.client.ios.IOSDeviceUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpStatus;
 import org.openqa.selenium.net.UrlChecker;
+import org.zeroturnaround.exec.ProcessExecutor;
 import org.zeroturnaround.exec.StartedProcess;
+import org.zeroturnaround.exec.stream.LogOutputStream;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -51,10 +54,7 @@ public class WebDriverAgentRunner {
     private StartedProcess wdaProcess;
     private StartedProcess iproxyProcess;
 
-    private int iproxyPort;
-
-    private ScheduledExecutorService wdaWatchDog;
-    private ScheduledFuture<?> handle;
+    private Integer iproxyPort;
 
     private AtomicBoolean isStart = new AtomicBoolean(false);
 
@@ -63,18 +63,6 @@ public class WebDriverAgentRunner {
         this.iproxyPort = IProxyPortProvider.pullPort();
         this.commandExecutor = new WDACommandExecutor(getWdaUrl());
         this.iproxyProcess = CommandLineExecutor.asyncExecute(new String[]{IPROXY, String.valueOf(this.iproxyPort), String.valueOf(WDA_AGENT_PORT), capabilities.getCapability(DriverCapabilities.Key.DEVICE_ID)});
-        this.wdaWatchDog = Executors.newSingleThreadScheduledExecutor();
-        this.handle =this.wdaWatchDog.scheduleWithFixedDelay(new Runnable() {
-            @Override
-            public void run() {
-                if(isStart.get()){
-                    if(wdaProcess == null || wdaProcess.getProcess() == null || !wdaProcess.getProcess().isAlive()) {
-                        log.info("[WebDriverAgentRunner] 重启 xcodebuild");
-                        start();
-                    }
-                }
-            }
-        }, 0, 500, TimeUnit.MILLISECONDS);
     }
 
     public void start() {
@@ -83,19 +71,6 @@ public class WebDriverAgentRunner {
                 .orElse(true);
         if (startNewProcess) {
             String udid = capabilities.getCapability(DriverCapabilities.Key.DEVICE_ID);
-            while(IOSDeviceUtil.isOnline(udid)){
-                if(IOSDeviceUtil.isUndetermined(udid)) {
-                    try {
-                        TimeUnit.SECONDS.sleep(1);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    continue;
-                }else{
-                    break;
-                }
-            }
-
             log.info("[Start WebDriverAgent] {}", udid);
             wdaProcess = new XCodeBuilder()
                     .setWdaPath(capabilities.getCapability(DriverCapabilities.Key.WDA_PATH))
@@ -122,15 +97,39 @@ public class WebDriverAgentRunner {
     public void stop() {
         log.info("Stop WebDriverAgent.");
         isStart.set(false);
-        handle.cancel(true);
-        this.wdaWatchDog.shutdown();
-        try {
-            TimeUnit.SECONDS.sleep(2);
-        } catch (InterruptedException e) {
+//        CommandLineExecutor.processQuit(iproxyProcess);
 
+        String udid = capabilities.getCapability(DriverCapabilities.Key.DEVICE_ID);
+        if(StringUtils.isNotBlank(udid)) {
+            // kill 进程
+            try {
+                new ProcessExecutor()
+                        .command("/bin/sh","-c","ps aux | grep iproxy | grep " + udid + " | awk {'print $2'} | xargs kill -9")
+                        .redirectOutput(new LogOutputStream() {
+                            @Override
+                            protected void processLine(String line) {
+                                log.info(line);
+                            }
+                        }).execute();
+
+
+                new ProcessExecutor()
+                        .command("/bin/sh","-c","ps aux | grep xcodebuild | grep " + udid + " | awk {'print $2'} | xargs kill -9")
+                        .redirectOutput(new LogOutputStream() {
+                            @Override
+                            protected void processLine(String line) {
+                                log.info(line);
+                            }
+                        }).execute();
+
+            } catch (IOException | InterruptedException | TimeoutException e) {
+                e.printStackTrace();
+            }
         }
-        CommandLineExecutor.processQuit(wdaProcess);
-        CommandLineExecutor.processQuit(iproxyProcess);
+        if(this.iproxyPort != null) {
+            IProxyPortProvider.pushPort(this.iproxyPort);
+        }
+//        CommandLineExecutor.processQuit(wdaProcess);
     }
 
     public URL getWdaUrl() {
@@ -171,11 +170,41 @@ public class WebDriverAgentRunner {
         return false;
     }
 
+    /**
+     * @Description:
+        {"value":{
+        "build":{
+        "productBundleIdentifier":"com.facebook.WebDriverAgentRunner",
+        "time":"Jun 24 2019 15:16:52"
+        },
+        "device":{
+        "name":"W e N - iPhone",
+        "udid":"8e9e4b90bf9f8ad4d544b5e3d9d6b5940e0912e4"
+        },
+        "ios":{
+        "ip":null,
+        "simulatorVersion":"12.3.1"
+        },
+        "os":{
+        "name":"iOS",
+        "sdkVersion":"12.2",
+        "version":"12.3.1"
+        },
+        "state":"success"
+        },
+        "sessionId":"29E1D582-D4EA-47F7-B0D4-C38D35CBE385",
+        "status":0
+        }
+     * @Param: []
+     * @Return: void
+     * @Author wen
+     * @Date 2019-06-24 15:21
+     */
     private void checkStatus() {
         RemoteResponse response = commandExecutor.execute(WDACommand.STATUS);
         String state = (String) new ResponseValueConverter(response).toMap().get(WDA_STATE_FIELD);
         log.info("[Check WebDriverAgent status] state: {}", state);
-        if (!"isConnected".equals(state)) {
+        if (!"success".equals(state)) {
             throw new WebDriverAgentException("WDA returned error state: " + state);
         }
     }

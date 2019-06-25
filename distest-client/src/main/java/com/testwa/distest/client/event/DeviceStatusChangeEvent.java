@@ -1,5 +1,6 @@
 package com.testwa.distest.client.event;
 
+import com.testwa.distest.jadb.JadbDevice;
 import io.rpc.testwa.device.DeviceStatusChangeRequest;
 import lombok.Data;
 import lombok.ToString;
@@ -12,12 +13,12 @@ import org.springframework.context.ApplicationEvent;
 @ToString
 @Data
 public class DeviceStatusChangeEvent extends ApplicationEvent {
-    private String deviceId;
+    private JadbDevice jadbDevice;
     private DeviceStatusChangeRequest.LineStatus lineStatus;
 
-    public DeviceStatusChangeEvent(Object source, String deviceId, DeviceStatusChangeRequest.LineStatus lineStatus) {
+    public DeviceStatusChangeEvent(Object source, JadbDevice jadbDevice, DeviceStatusChangeRequest.LineStatus lineStatus) {
         super(source);
-        this.deviceId = deviceId;
+        this.jadbDevice = jadbDevice;
         this.lineStatus = lineStatus;
     }
 }

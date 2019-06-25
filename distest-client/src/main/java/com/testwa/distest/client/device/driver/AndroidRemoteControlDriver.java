@@ -17,7 +17,8 @@ import com.testwa.distest.client.component.minitouch.TouchAndroidProjection;
 import com.testwa.distest.client.component.port.SocatPortProvider;
 import com.testwa.distest.client.component.port.TcpIpPortProvider;
 import com.testwa.distest.client.device.listener.AndroidComponentServiceRunningListener;
-import com.testwa.distest.client.device.listener.IDeviceRemoteCommandListener;
+import com.testwa.distest.client.device.listener.callback.IRemoteCommandCallBack;
+import com.testwa.distest.client.device.listener.callback.RemoteCommandCallBackUtils;
 import com.testwa.distest.client.device.manager.DeviceInitException;
 import com.testwa.distest.client.device.remote.DeivceRemoteApiClient;
 import com.testwa.distest.client.download.Downloader;
@@ -26,15 +27,21 @@ import com.testwa.distest.client.model.AgentInfo;
 import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.jadb.JadbDevice;
 import com.testwa.distest.jadb.JadbException;
+import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.device.DeviceType;
 import io.rpc.testwa.push.ClientInfo;
+import io.rpc.testwa.push.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Android设备驱动
@@ -43,7 +50,8 @@ import java.util.concurrent.TimeUnit;
  * @create 2019-05-23 18:52
  */
 @Slf4j
-public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
+public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, StreamObserver<Message> {
+    private volatile ConcurrentHashMap<Message.Topic, IRemoteCommandCallBack> cache = new ConcurrentHashMap<>();
 
     /*------------------------------------------环境信息----------------------------------------------------*/
     /**
@@ -102,16 +110,16 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
     private AndroidDebugServer androidDebugServer;
     private boolean enabledTcpip = false;
     private Long tcpipTime;
-    private IDeviceRemoteCommandListener commandListener;
     /**
      * 毫秒
      * 超过该时间再断开，即算断开
      */
-    private static final Long TCPIP_TIMEOUT = 20*1000L;
+    private static final Long TCPIP_TIMEOUT = 3*1000L;
     /*------------------------------------------远程任务----------------------------------------------------*/
 
     private AbstractTestTask task = null;
 
+    private AtomicInteger connectRetryTime = new AtomicInteger(0);
 
     public AndroidRemoteControlDriver(IDeviceRemoteControlDriverCapabilities capabilities){
         this.capabilities = capabilities;
@@ -128,17 +136,15 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
     }
 
     @Override
-    public boolean deviceInit() throws DeviceInitException {
+    public void deviceInit() throws DeviceInitException {
         clientInfo = buildClientInfo();
-        initTcpipCommand();
-        this.commandListener = new IDeviceRemoteCommandListener(device.getSerial(), this);
+        // 注册到server
         register();
-        return this.commandListener.isConnected();
     }
 
     @Override
     public void register() {
-        this.api.registerToServer(clientInfo, commandListener);
+        this.api.registerToServer(clientInfo, this);
     }
 
     @Override
@@ -165,32 +171,28 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
             rotate = 0;
         }
         stopScreen();
+        // 重建新的进程
+        this.screenProjection = new ScreenAndroidProjection(this.device.getSerial(), this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH), this.listener);
+        this.screenProjection.setZoom(scale);
+        this.screenProjection.setRotate(rotate);
+        this.screenProjection.setQuality(QUALITY);
+        this.screenProjection.start();
 
-        if(this.screenProjection == null) {
-            this.screenProjection = new ScreenAndroidProjection(this.device.getSerial(), this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH), this.listener);
-            this.screenProjection.setZoom(scale);
-            this.screenProjection.setRotate(rotate);
-            this.screenProjection.setQuality(QUALITY);
-            this.screenProjection.start();
-        }else{
-            this.screenProjection.start();
-        }
-        if(this.touchProjection == null) {
-            this.touchProjection = new TouchAndroidProjection(this.device.getSerial(), this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH));
-            this.touchProjection.start();
-        }else{
-            this.touchProjection.start();
-        }
+        this.touchProjection = new TouchAndroidProjection(this.device.getSerial(), this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH));
+        this.touchProjection.start();
     }
 
     @Override
     public void waitScreen() {
         this.listener.setScreenWait(true);
+        this.stopScreen();
     }
 
     @Override
     public void notifyScreen() {
         this.listener.setScreenWait(false);
+        Map<String, Object> config = new HashMap<>();
+        this.startScreen(JSON.toJSONString(config));
     }
 
     @Override
@@ -516,9 +518,13 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
 
     }
 
-    private void initTcpipCommand() {
+    private synchronized void initTcpipCommand() {
+        if(this.enabledTcpip) {
+            return;
+        }
         try {
             if(device != null) {
+                log.info("[Adb tcpip] {}", this.device.getSerial());
                 device.enableAdbOverTCP(this.tcpipPort);
                 this.tcpipTime = System.currentTimeMillis();
                 this.enabledTcpip = true;
@@ -529,4 +535,52 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver {
     }
 
 
+    @Override
+    public void onNext(Message message) {
+        if(Message.Topic.CONNECTED.equals(message.getTopicName())) {
+            log.info("[Connected to Server] {}", this.device.getSerial());
+            // 已经连接
+            try {
+                TimeUnit.SECONDS.sleep(3);
+            } catch (InterruptedException e) {
+
+            }
+            // 连上服务器之后归零
+            connectRetryTime.set(0);
+            initTcpipCommand();
+            return;
+        }
+        IRemoteCommandCallBack call;
+        try {
+            if(cache.containsKey(message.getTopicName())){
+                call = cache.get(message.getTopicName());
+            }else{
+                call = RemoteCommandCallBackUtils.getCallBack(message.getTopicName(), this);
+                cache.put(message.getTopicName(), call);
+            }
+            call.callback(message.getMessage());
+        } catch (Exception e) {
+            log.error("回调错误", e);
+        }
+    }
+
+    @Override
+    public void onError(Throwable throwable) {
+        // 出现异常，通常是连接失败
+        try {
+            try {
+                TimeUnit.MILLISECONDS.sleep(connectRetryTime.get() * 200L);
+            } catch (InterruptedException e) {
+
+            }
+            deviceInit();
+        } catch (DeviceInitException e) {
+            log.error("设备重新注册失败");
+        }
+    }
+
+    @Override
+    public void onCompleted() {
+
+    }
 }

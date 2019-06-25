@@ -45,7 +45,7 @@ public class DeviceManagerPool {
             }
             return manager;
         } catch (Exception e) {
-            log.error("设备初始化失败", e.getMessage());
+            log.error("[DeviceManager 初始化失败] {}", deviceId, e.getMessage());
             if(manager != null) {
                 pool.returnObject(manager);
             }
