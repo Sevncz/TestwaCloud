@@ -107,16 +107,15 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
 
     /*------------------------------------------远程DEBUG----------------------------------------------------*/
 
-    private final int tcpipPort;
-    private final int socatPort;
+    private int tcpipPort;
+    private int socatPort;
     private AndroidDebugServer androidDebugServer;
-    private boolean enabledTcpip = false;
-    private Long tcpipTime;
+
     /**
      * 毫秒
      * 超过该时间再断开，即算断开
      */
-    private static final Long TCPIP_TIMEOUT = 3*1000L;
+    private static final Long TCPIP_TIMEOUT = 2*1000L;
     /*------------------------------------------远程任务----------------------------------------------------*/
 
     private AbstractTestTask task = null;
@@ -141,6 +140,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
 
     @Override
     public void deviceInit() throws DeviceInitException {
+        initTcpipCommand();
         clientInfo = buildClientInfo();
         // 注册到server
         register();
@@ -274,15 +274,22 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
 
     @Override
     public boolean isRealOffline() {
-        // 检查是不是tcpip命令已执行成功
-        if(this.enabledTcpip){
-            // 检查是否超时
-            Long currentTime = System.currentTimeMillis();
-            if((currentTime - tcpipTime) > TCPIP_TIMEOUT) {
-                return true;
+        try {
+            this.device.getState();
+            return false;
+        } catch (IOException | JadbException e) {
+            try {
+                TimeUnit.MILLISECONDS.sleep(TCPIP_TIMEOUT);
+            } catch (InterruptedException e1) {
+
             }
         }
-        return false;
+        try {
+            this.device.getState();
+            return false;
+        } catch (IOException | JadbException e) {
+            return true;
+        }
     }
 
     @Override
@@ -475,26 +482,26 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
                 String height = String.valueOf(size.getHeight());
 
                 // 检查 uiautomator2、stfagent 等组件的安装情况
-                boolean stfagentInstall = ADBCommandUtils.isInstalledBasepackage(device.getSerial(), STF_SERVICE_PACKAGE);
-                if(!stfagentInstall) {
-                    log.warn("{} 未安装 {}", device.getSerial(), STF_SERVICE_PACKAGE);
-                }
-                boolean appiumServerInstall = ADBCommandUtils.isInstalledBasepackage(device.getSerial(), UI2_SERVER_PACKAGE);
-                if(!appiumServerInstall) {
-                    log.warn("{} 未安装 {}", device.getSerial(), UI2_SERVER_PACKAGE);
-                }
-                boolean appiumDebugInstall = ADBCommandUtils.isInstalledBasepackage(device.getSerial(), UI2_DEBUG_PACKAGE);
-                if(!appiumDebugInstall) {
-                    log.debug("{} 未安装 {}", device.getSerial(), UI2_DEBUG_PACKAGE);
-                }
-                boolean unicodeIMEInstall = ADBCommandUtils.isInstalledBasepackage(device.getSerial(), UNICODEIME_PACKAGE);
-                if(!unicodeIMEInstall) {
-                    log.debug("{} 未安装 {}", device.getSerial(), UNICODEIME_PACKAGE);
-                }
-                boolean keyboardserviceInstall = ADBCommandUtils.isInstalledBasepackage(device.getSerial(), KEYBOARD_SERVICE_PACKAGE);
-                if(!keyboardserviceInstall) {
-                    log.warn("{} 未安装 {}", device.getSerial(), KEYBOARD_SERVICE_PACKAGE);
-                }
+//                boolean stfagentInstall = ADBCommandUtils.isInstalledBasepackage(device.getSerial(), STF_SERVICE_PACKAGE);
+//                if(!stfagentInstall) {
+//                    log.warn("{} 未安装 {}", device.getSerial(), STF_SERVICE_PACKAGE);
+//                }
+//                boolean appiumServerInstall = ADBCommandUtils.isInstalledBasepackage(device.getSerial(), UI2_SERVER_PACKAGE);
+//                if(!appiumServerInstall) {
+//                    log.warn("{} 未安装 {}", device.getSerial(), UI2_SERVER_PACKAGE);
+//                }
+//                boolean appiumDebugInstall = ADBCommandUtils.isInstalledBasepackage(device.getSerial(), UI2_DEBUG_PACKAGE);
+//                if(!appiumDebugInstall) {
+//                    log.debug("{} 未安装 {}", device.getSerial(), UI2_DEBUG_PACKAGE);
+//                }
+//                boolean unicodeIMEInstall = ADBCommandUtils.isInstalledBasepackage(device.getSerial(), UNICODEIME_PACKAGE);
+//                if(!unicodeIMEInstall) {
+//                    log.debug("{} 未安装 {}", device.getSerial(), UNICODEIME_PACKAGE);
+//                }
+//                boolean keyboardserviceInstall = ADBCommandUtils.isInstalledBasepackage(device.getSerial(), KEYBOARD_SERVICE_PACKAGE);
+//                if(!keyboardserviceInstall) {
+//                    log.warn("{} 未安装 {}", device.getSerial(), KEYBOARD_SERVICE_PACKAGE);
+//                }
                 return ClientInfo.newBuilder()
                         .setDeviceId(device.getSerial())
                         .setBrand(brand)
@@ -508,33 +515,38 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
                         .setSdk(sdk)
                         .setUserFlag(UserInfo.token)
                         .setVersion(version)
-                        .setSftagentInstall(stfagentInstall)
-                        .setAppiumUiautomator2ServerInstall(appiumServerInstall)
-                        .setAppiumUiautomator2DebugInstall(appiumDebugInstall)
-                        .setKeyboardserviceInstall(keyboardserviceInstall)
-                        .setUnicodeIMEInstall(unicodeIMEInstall)
+//                        .setSftagentInstall(stfagentInstall)
+//                        .setAppiumUiautomator2ServerInstall(appiumServerInstall)
+//                        .setAppiumUiautomator2DebugInstall(appiumDebugInstall)
+//                        .setKeyboardserviceInstall(keyboardserviceInstall)
+//                        .setUnicodeIMEInstall(unicodeIMEInstall)
                         .setRemoteConnectPort(this.socatPort)
                         .setIp(agentInfo.getHost())
-                        .setTcpipCommandSuccessed(this.enabledTcpip)
+                        .setTcpipCommandSuccessed(true)
                         .build();
             }
         } catch (IOException | JadbException e) {
-            e.printStackTrace();
+            log.error("[Register device to server] {}", e.getMessage());
         }
         log.error("[Register device to server] {} is not online ", this.device.getSerial());
         throw new DeviceInitException("设备["+this.device.getSerial()+"不在线，无法初始化");
     }
 
     private synchronized void initTcpipCommand() {
-        if(this.enabledTcpip) {
+        String content = ADBTools.isTcpip(device.getSerial()).trim();
+        try {
+            int intPort = Integer.parseInt(content);
+            if(intPort == 0) {
+                log.info("[Adb tcpip] {}", this.device.getSerial());
+                ADBTools.tcpip(device.getSerial(), this.tcpipPort);
+            }else{
+                this.tcpipPort = intPort;
+            }
+
+        }catch (Exception e) {
             return;
         }
-        if(device != null) {
-            log.info("[Adb tcpip] {}", this.device.getSerial());
-            ADBTools.tcpip(device.getSerial(), this.tcpipPort);
-            this.tcpipTime = System.currentTimeMillis();
-            this.enabledTcpip = true;
-        }
+
     }
 
 
@@ -550,7 +562,6 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
             }
             // 连上服务器之后归零
             connectRetryTime.set(0);
-            initTcpipCommand();
             return;
         }
         IRemoteCommandCallBack call;

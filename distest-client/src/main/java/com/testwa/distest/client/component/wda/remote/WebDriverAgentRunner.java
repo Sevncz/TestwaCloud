@@ -66,17 +66,18 @@ public class WebDriverAgentRunner {
                 .orElse(true);
         if (startNewProcess) {
             String udid = capabilities.getCapability(DriverCapabilities.Key.DEVICE_ID);
-            log.info("[Start WebDriverAgent] {}", udid);
-            wdaProcess = new XCodeBuilder()
-                    .setWdaPath(capabilities.getCapability(DriverCapabilities.Key.WDA_PATH))
-                    .setPlatform(capabilities.getCapability(DriverCapabilities.Key.PLATFORM))
-                    .setDeviceName(capabilities.getCapability(DriverCapabilities.Key.DEVICE_NAME))
-                    .setDeviceId(capabilities.getCapability(DriverCapabilities.Key.DEVICE_ID))
-                    .setOsVersion(capabilities.getCapability(DriverCapabilities.Key.OS_VERSION))
-                    .setLog(false)
-                    .build();
-
+            killWdaProcess(udid);
             try {
+                log.info("[Start WebDriverAgent] {}", udid);
+                wdaProcess = new XCodeBuilder()
+                        .setWdaPath(capabilities.getCapability(DriverCapabilities.Key.WDA_PATH))
+                        .setPlatform(capabilities.getCapability(DriverCapabilities.Key.PLATFORM))
+                        .setDeviceName(capabilities.getCapability(DriverCapabilities.Key.DEVICE_NAME))
+                        .setDeviceId(capabilities.getCapability(DriverCapabilities.Key.DEVICE_ID))
+                        .setOsVersion(capabilities.getCapability(DriverCapabilities.Key.OS_VERSION))
+                        .setUsePort(WDA_AGENT_PORT)
+                        .setLog(false)
+                        .build();
                 this.iproxyPort = PortUtil.getAvailablePort();
                 this.iproxyProcess = CommandLineExecutor.asyncExecute(new String[]{IPROXY, String.valueOf(this.iproxyPort), String.valueOf(WDA_AGENT_PORT), capabilities.getCapability(DriverCapabilities.Key.DEVICE_ID)});
                 this.iproxyScreenPort = PortUtil.getAvailablePort();
@@ -106,29 +107,7 @@ public class WebDriverAgentRunner {
         String udid = capabilities.getCapability(DriverCapabilities.Key.DEVICE_ID);
         if(StringUtils.isNotBlank(udid)) {
             // kill 进程
-            try {
-                // kill iproxy
-                new ProcessExecutor()
-                        .command("/bin/sh","-c","ps aux | grep iproxy | grep " + udid + " | awk {'print $2'} | xargs kill -9")
-                        .redirectOutput(new LogOutputStream() {
-                            @Override
-                            protected void processLine(String line) {
-                                log.info(line);
-                            }
-                        }).execute();
-
-                new ProcessExecutor()
-                        .command("/bin/sh","-c","ps aux | grep xcodebuild | grep " + udid + " | awk {'print $2'} | xargs kill -9")
-                        .redirectOutput(new LogOutputStream() {
-                            @Override
-                            protected void processLine(String line) {
-                                log.info(line);
-                            }
-                        }).execute();
-
-            } catch (IOException | InterruptedException | TimeoutException e) {
-                e.printStackTrace();
-            }
+            killWdaProcess(udid);
         }
 //        if(this.iproxyPort != null) {
 //            IProxyPortProvider.pushPort(this.iproxyPort);
@@ -137,6 +116,32 @@ public class WebDriverAgentRunner {
 //            IProxyPortProvider.pushPort(this.iproxyScreenPort);
 //        }
 //        CommandLineExecutor.processQuit(wdaProcess);
+    }
+
+    private void killWdaProcess(String udid) {
+        try {
+            // kill iproxy
+            new ProcessExecutor()
+                    .command("/bin/sh","-c","ps aux | grep iproxy | grep " + udid + " | awk {'print $2'} | xargs kill -9")
+                    .redirectOutput(new LogOutputStream() {
+                        @Override
+                        protected void processLine(String line) {
+                            log.info(line);
+                        }
+                    }).execute();
+
+            new ProcessExecutor()
+                    .command("/bin/sh","-c","ps aux | grep xcodebuild | grep " + udid + " | awk {'print $2'} | xargs kill -9")
+                    .redirectOutput(new LogOutputStream() {
+                        @Override
+                        protected void processLine(String line) {
+                            log.info(line);
+                        }
+                    }).execute();
+
+        } catch (IOException | InterruptedException | TimeoutException e) {
+            e.printStackTrace();
+        }
     }
 
     public URL getWdaUrl() {

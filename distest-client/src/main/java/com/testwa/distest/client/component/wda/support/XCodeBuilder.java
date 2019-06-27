@@ -38,12 +38,14 @@ public class XCodeBuilder {
     private static String RUN_TYPE = "build-for-testing";
     private static String TEST_BUILD = "test-without-building";
     private static String TEST = "test";
+    private static String USE_PORT = "USE_PORT";
     private static String OS_SCHEME = "WebDriverAgentRunner";
     private String wdaPath;
     private String platform;
     private String deviceName;
     private String deviceId;
     private String osVersion;
+    private String usePort;
     private LogOutputStream logOutputStream;
     private List<ProcessListener> listeners = new ArrayList<>();
 
@@ -103,6 +105,11 @@ public class XCodeBuilder {
         return this;
     }
 
+    public XCodeBuilder setUsePort(int port) {
+        this.usePort = String.valueOf(port);
+        return this;
+    }
+
     public XCodeBuilder addListener(ProcessListener listener) {
         listeners.add(listener);
         return this;
@@ -125,6 +132,7 @@ public class XCodeBuilder {
 //        command.add(CLProperty.ALLOW_PROVISIONING_UPDATES.getValue());
         Path xcodePath = Paths.get(Constant.XCODEBUILD_CONFIG_DIR, this.deviceId);
         command.add(String.format("%s=%s", CLProperty.CONFIGURATION_BUILD_DIR.getValue(), xcodePath.toString()));
+        command.add(String.format("%s=%s", USE_PORT, usePort));
         command.add(TEST);
         return command.toArray(new String[0]);
     }

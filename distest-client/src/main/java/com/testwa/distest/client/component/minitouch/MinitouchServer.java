@@ -158,7 +158,6 @@ public class MinitouchServer {
         return Paths.get("minitouch", getAbi(), "minitouch-nopie");
     }
 
-
     public int getPort() {
         return this.port;
     }
