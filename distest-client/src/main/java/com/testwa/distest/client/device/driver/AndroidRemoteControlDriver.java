@@ -84,7 +84,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
     private static final int BASE_WIDTH = 720;
     private float defaultScale = 0.5f;
     // 设置画质
-    private static final int QUALITY = 50 ;
+    private static final int QUALITY = 25;
 
     private final JadbDevice device;
     private ClientInfo clientInfo;
@@ -177,7 +177,6 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
         stopScreen();
         // 重建新的进程
         this.screenProjection = new ScreenAndroidProjection(this.device.getSerial(), this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH), this.listener);
-        this.screenProjection.setZoom(scale);
         this.screenProjection.setRotate(rotate);
         this.screenProjection.setQuality(QUALITY);
         this.screenProjection.start();

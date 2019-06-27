@@ -16,14 +16,10 @@
 
 package com.testwa.distest.client.component.wda.remote;
 
-import com.testwa.distest.client.component.port.IProxyPortProvider;
-import com.testwa.distest.client.component.wda.driver.CommandExecutor;
 import com.testwa.distest.client.component.wda.driver.DriverCapabilities;
 import com.testwa.distest.client.component.wda.exception.WebDriverAgentException;
 import com.testwa.distest.client.util.CommandLineExecutor;
-import com.testwa.distest.client.component.wda.support.ResponseValueConverter;
 import com.testwa.distest.client.component.wda.support.XCodeBuilder;
-import com.testwa.distest.client.ios.IOSDeviceUtil;
 import com.testwa.distest.client.util.PortUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -36,11 +32,9 @@ import org.zeroturnaround.exec.stream.LogOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.ServerSocket;
 import java.net.URL;
 import java.util.Optional;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 
 @Slf4j

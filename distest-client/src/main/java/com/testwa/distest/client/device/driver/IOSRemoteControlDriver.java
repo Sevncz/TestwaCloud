@@ -295,9 +295,12 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
 
     @Override
     public void uninstallApp(String bundleId) {
-        if(this.iosDriver != null) {
-            this.iosDriver.removeApp(bundleId);
-        }
+        executorService.submit(() -> {
+            if(this.iosDriver != null) {
+                this.iosDriver.terminate(bundleId);
+                this.iosDriver.removeApp(bundleId);
+            }
+        });
 
     }
 

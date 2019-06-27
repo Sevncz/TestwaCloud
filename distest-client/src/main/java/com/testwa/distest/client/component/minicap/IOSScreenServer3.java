@@ -28,15 +28,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @create 2019-06-18 23:19
  */
 @Slf4j
-public class IOSScreenServer3 extends Thread implements Closeable {
+public class  IOSScreenServer3 extends Thread implements Closeable {
     private String host = "127.0.0.1";
     private int port;
     private Socket socket;
 
     /** 队列大小 */
     private int queueSize = 50;
-    /** 调用take的线程 */
-    private Thread takeThread;
     /** 存放图片队列 */
     private BlockingQueue<byte[]> frameQueue;
 
@@ -56,7 +54,6 @@ public class IOSScreenServer3 extends Thread implements Closeable {
      */
     public synchronized byte[] take() throws InterruptedException {
         checkClosed();
-        takeThread = Thread.currentThread();
         return frameQueue.take();
     }
 
@@ -134,17 +131,6 @@ public class IOSScreenServer3 extends Thread implements Closeable {
             }
         }
         IOUtils.closeQuietly(this.socket);
-    }
-
-    private byte[] subByteArray(byte[] byte1, int start, int end) {
-        byte[] byte2 = new byte[0];
-        try {
-            byte2 = new byte[end - start];
-        } catch (NegativeArraySizeException e) {
-            e.printStackTrace();
-        }
-        System.arraycopy(byte1, start, byte2, 0, end - start);
-        return byte2;
     }
 
     /**

@@ -53,11 +53,7 @@ public class EnvCheck implements CommandLineRunner {
     @Override
     public void run(String... strings) throws Exception {
         Config.setEnv(env);
-        MinicapPortProvider.init(PortConfig.screenPortStart, PortConfig.screenPortEnd);
-        MinitouchPortProvider.init(PortConfig.touchPortStart, PortConfig.touchPortEnd);
-        ApkPortProvider.init(PortConfig.apkPortStart, PortConfig.apkPortEnd);
         AppiumPortProvider.init(PortConfig.appiumPortStart, PortConfig.appiumPortEnd);
-        IProxyPortProvider.init(PortConfig.iproxyPortStart, PortConfig.iproxyPortEnd);
         TcpIpPortProvider.init(PortConfig.tcpipStart, PortConfig.tcpipEnd);
         SocatPortProvider.init(PortConfig.socatStart, PortConfig.socatEnd);
 

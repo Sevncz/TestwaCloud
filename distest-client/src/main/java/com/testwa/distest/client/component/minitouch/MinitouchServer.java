@@ -1,14 +1,17 @@
 package com.testwa.distest.client.component.minitouch;
 
 import com.testwa.distest.client.android.*;
-import com.testwa.distest.client.component.port.MinitouchPortProvider;
 import com.testwa.distest.client.util.CommandLineExecutor;
+import com.testwa.distest.client.util.CommonUtil;
+import com.testwa.distest.client.util.PortUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.zeroturnaround.exec.StartedProcess;
 
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.StringTokenizer;
 import java.util.concurrent.TimeUnit;
 
 
@@ -73,7 +76,6 @@ public class MinitouchServer {
         }
         if(this.port != null) {
             ADBTools.forwardRemove(deviceId, this.port);
-            MinitouchPortProvider.pushPort(this.port);
         }
     }
 
@@ -84,21 +86,26 @@ public class MinitouchServer {
         }
         try {
             // push minicap
-            String minicapPath = getMinitouchPath().toString();
-            log.info("推送文件 local: {}, remote: {}", minicapPath, MINITOUCH_TMP_DIR);
+            if(!checkMinitouchInstallation(deviceId)) {
+                String minicapPath = getMinitouchPath().toString();
+                log.info("推送文件 local: {}, remote: {}", minicapPath, MINITOUCH_TMP_DIR);
 //            ADBTools.pushFile(deviceId, getResource(minicapPath), MINITOUCH_TMP_DIR);
 //            ADBTools.chmod(deviceId, MINITOUCH_TMP_DIR, "777");
-            ADBCommandUtils.pushFile(deviceId, getResource(minicapPath), MINITOUCH_TMP_DIR, "777");
+                ADBCommandUtils.pushFile(deviceId, getResource(minicapPath), MINITOUCH_TMP_DIR, "777");
 
-            // push minicap-nopie
-            String minicapNopiePath = getMinitouchNopiePath().toString();
-            log.info("推送文件 local: {}, remote: {}", minicapNopiePath, MINITOUCH_NOPIE_TMP_DIR);
+                // push minicap-nopie
+                String minicapNopiePath = getMinitouchNopiePath().toString();
+                log.info("推送文件 local: {}, remote: {}", minicapNopiePath, MINITOUCH_NOPIE_TMP_DIR);
 //            ADBTools.pushFile(deviceId, getResource(minicapNopiePath), MINITOUCH_NOPIE_TMP_DIR);
 //            ADBTools.chmod(deviceId, MINITOUCH_NOPIE_TMP_DIR, "777");
-            ADBCommandUtils.pushFile(deviceId, getResource(minicapNopiePath), MINITOUCH_NOPIE_TMP_DIR, "777");
+                ADBCommandUtils.pushFile(deviceId, getResource(minicapNopiePath), MINITOUCH_NOPIE_TMP_DIR, "777");
+            }
+
+            int processId = getMinitouchProcessID(deviceId);
+            ADBTools.killProcess(deviceId, processId);
 
             // forward port
-            this.port = MinitouchPortProvider.pullPort();
+            this.port = PortUtil.getAvailablePort();
             ADBTools.forward(deviceId, this.port, AB_NAME);
             log.info("端口转发 tcp:{} localabstract:minicap", port);
 
@@ -154,5 +161,53 @@ public class MinitouchServer {
 
     public int getPort() {
         return this.port;
+    }
+
+    public boolean checkMinitouchInstallation(String deviceId) {
+        String cmd = "ls /data/local/tmp/minitouch /data/local/tmp/minitouch-nopie";
+        String ret = ADBTools.shell(deviceId, cmd);
+        StringTokenizer st = new StringTokenizer(ret);
+
+        int index = 0;
+        while (st.hasMoreElements()) {
+            String token = st.nextToken();
+
+            if (index == 0) {
+                if (token.equals("/data/local/tmp/minitouch")) {
+                    index++;
+                    continue;
+                } else {
+                    return false;
+                }
+            } else if(index == 1) {
+                if (token.equals("/data/local/tmp/minitouch-nopie")) {
+                    index++;
+                    continue;
+                } else {
+                    return false;
+                }
+            } else {
+                log.error("Unexpected token: " + token + ", the whole result:" + ret);
+                return false;
+            }
+        }
+
+        return index == 2;
+    }
+
+    public int getMinitouchProcessID(String deviceId) {
+        String cmd = ADBTools.getPsCommand(deviceId) + "|grep minitouch";
+        String ret;
+        try {
+            ret = ADBTools.shell(deviceId, cmd);
+            if (StringUtils.isEmpty(ret)) {
+                return -1;
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return -1;
+        }
+        ret = ret.trim();
+        return CommonUtil.resolveProcessID(ret, "minitouch");
     }
 }

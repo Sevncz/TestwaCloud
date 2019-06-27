@@ -5,18 +5,6 @@ package com.testwa.distest.client.config;
  */
 public class PortConfig {
     /**
-     * 触控端口映射开始号
-     */
-    public final static int touchPortStart=7000;
-	public final static int touchPortEnd=7499;
-
-    /**
-     * 屏幕端口映射开始号
-     */
-	public final static int screenPortStart=7500;
-	public final static int screenPortEnd=7999;
-
-    /**
      * 手机端端口映射开始号
      */
 	public final static int apkPortStart=8000;

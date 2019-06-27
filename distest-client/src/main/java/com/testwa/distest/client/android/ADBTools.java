@@ -2,16 +2,11 @@ package com.testwa.distest.client.android;
 
 import com.testwa.distest.client.exception.CommandFailureException;
 import com.testwa.distest.client.util.CommandLineExecutor;
-import com.testwa.distest.jadb.JadbDevice;
-import com.testwa.distest.jadb.JadbException;
-import com.testwa.distest.jadb.RemoteFile;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.zeroturnaround.exec.StartedProcess;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -30,7 +25,7 @@ public class ADBTools {
      * @Author wen
      * @Date 2019/5/24 10:56
      */
-    public static String commandShell(String deviceId, String... command) {
+    public static String shell(String deviceId, String... command) {
         String[] adbCommand = buildAdbShell(deviceId);
         String[] shellCommand =  ArrayUtils.addAll(adbCommand, command);
         return CommandLineExecutor.execute(shellCommand);
@@ -40,6 +35,35 @@ public class ADBTools {
         String[] adbCommand = buildAdb(deviceId);
         String[] notShellCommand =  ArrayUtils.addAll(adbCommand, command);
         return CommandLineExecutor.execute(notShellCommand);
+    }
+
+    public static String getPsCommand(String deviceId) {
+        String version = getProp(deviceId, "ro.build.version.release");
+        if (version == null) {
+            return "ps";
+        }
+        version = version.trim();
+        int versionValue;
+        String majorVersion;
+        int index = version.indexOf(".");
+        if (index > -1) {
+            majorVersion = version.substring(0, index);
+        } else {
+            majorVersion = version;
+        }
+
+        try {
+            versionValue = Integer.parseInt(majorVersion);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return "ps";
+        }
+
+        if (versionValue >= 8) {
+            return "ps -A";
+        } else {
+            return "ps";
+        }
     }
 
     /**
@@ -75,7 +99,7 @@ public class ADBTools {
 
     public static Boolean chmod(String deviceId, String remoteFile, String mode) {
         try {
-            commandShell(deviceId, "chmod", "-R", mode, remoteFile);
+            shell(deviceId, "chmod", "-R", mode, remoteFile);
             return true;
         }catch (CommandFailureException e){
             log.error("[{}] chmod 错误", deviceId, e);
@@ -134,7 +158,7 @@ public class ADBTools {
     }
 
     public static PhysicalSize getPhysicalSize(String deviceId) {
-        String ret = commandShell(deviceId, "wm", "size");
+        String ret = shell(deviceId, "wm", "size");
 
         String retLine = ret.split("\n")[0];
 
@@ -161,7 +185,7 @@ public class ADBTools {
     }
 
     public static String getProp(String deviceId, String propStr) {
-        String result = commandShell(deviceId, "getprop", propStr);
+        String result = shell(deviceId, "getprop", propStr);
         if(StringUtils.isNoneEmpty(result)) {
             return result.trim();
         }
@@ -179,7 +203,7 @@ public class ADBTools {
     }
 
     public static String openWeb(String deviceId, String url) {
-        String result = commandShell(deviceId, "am", "start", "-a", "android.intent.action.VIEW", "-d", url);
+        String result = shell(deviceId, "am", "start", "-a", "android.intent.action.VIEW", "-d", url);
         if(StringUtils.isNoneEmpty(result)) {
             return result.trim();
         }
@@ -196,8 +220,25 @@ public class ADBTools {
     }
 
     public static String isTcpip(String deviceId) {
-        return commandShell(deviceId,"getprop", "service.adb.tcp.port");
+        return shell(deviceId,"getprop", "service.adb.tcp.port");
     }
+
+
+
+    /**
+     * Kill specified process run on device.
+     *
+     * @param pid the id of process.
+     * @param deviceId .
+     */
+    public static void killProcess(String deviceId, int pid) {
+        if (pid < 0) {
+            return;
+        }
+        String cmd = "kill -9 " + pid;
+        shell(deviceId, cmd);
+    }
+
 
     public static void main(String[] args) {
         String deviceId = "4205dccb";
