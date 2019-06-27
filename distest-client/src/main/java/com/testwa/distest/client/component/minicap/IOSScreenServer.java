@@ -17,7 +17,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * ios屏幕同步服务
+ * ios屏幕同步服务 - idevicescreenshot
  *
  * @author wen
  * @create 2019-06-18 23:19

@@ -38,8 +38,8 @@ public class ADBTools {
 
     private static String command(String deviceId, String... command) {
         String[] adbCommand = buildAdb(deviceId);
-        String[] shellCommand =  ArrayUtils.addAll(adbCommand, command);
-        return CommandLineExecutor.execute(shellCommand);
+        String[] notShellCommand =  ArrayUtils.addAll(adbCommand, command);
+        return CommandLineExecutor.execute(notShellCommand);
     }
 
     /**
@@ -64,25 +64,23 @@ public class ADBTools {
     }
 
     public static boolean pushFile(String deviceId, String localFile, String remoteFile) {
-        JadbDevice jadbDevice = JadbDeviceManager.getJadbDevice(deviceId);
         try {
-            jadbDevice.push(new File(localFile), new RemoteFile(remoteFile));
+            command(deviceId, "push", localFile, remoteFile);
             return true;
-        } catch (IOException | JadbException e) {
-            log.error("[{}] Push 文件 {} TO {} 错误", deviceId, localFile, remoteFile);
+        }catch (CommandFailureException e){
+            log.error("[{}] pushFile 错误", deviceId, e);
         }
-        return false;
+        return true;
     }
 
     public static Boolean chmod(String deviceId, String remoteFile, String mode) {
-        JadbDevice jadbDevice = JadbDeviceManager.getJadbDevice(deviceId);
         try {
-            jadbDevice.executeShell("chmod", "-R", mode, remoteFile);
+            commandShell(deviceId, "chmod", "-R", mode, remoteFile);
             return true;
-        } catch (IOException | JadbException e) {
-            log.error("[{}] chmod 文件 {} {} 错误", deviceId, remoteFile, mode);
+        }catch (CommandFailureException e){
+            log.error("[{}] chmod 错误", deviceId, e);
         }
-        return false;
+        return true;
     }
 
     public static Boolean forward(String deviceId, int port, String socketName) {
@@ -90,7 +88,7 @@ public class ADBTools {
             command(deviceId, "forward", String.format("tcp:%d", port), String.format("localabstract:%s", socketName));
             return true;
         }catch (CommandFailureException e){
-            log.error("[{}] forward tcp:{} 错误", deviceId, port);
+            log.error("[{}] forward tcp:{} 错误", deviceId, port, e.getMessage());
         }
         return false;
     }
@@ -100,7 +98,7 @@ public class ADBTools {
             command(deviceId, "forward", String.format("tcp:%d", port), String.format("tcp:%s", remotePort));
             return true;
         }catch (CommandFailureException e){
-            log.error("[{}] forward tcp:{} tcp:{} 错误", deviceId, port, remotePort);
+            log.error("[{}] forward tcp:{} tcp:{} 错误", deviceId, port, remotePort, e.getMessage());
         }
         return false;
     }
@@ -110,7 +108,7 @@ public class ADBTools {
             command(deviceId, "forward", "--remove", String.format("tcp:%d", port));
             return true;
         }catch (CommandFailureException e){
-            log.error("[{}] forward tcp:{} 错误", deviceId, port);
+            log.error("[{}] forward tcp:{} 错误", deviceId, port, e.getMessage());
         }
         return false;
     }
@@ -120,7 +118,7 @@ public class ADBTools {
             command(deviceId, "reverse", String.format("localabstract:%s", sockName), String.format("tcp:%d", port));
             return true;
         }catch (CommandFailureException e){
-            log.error("[{}] reverse localabstract:{} tcp:{} 错误", deviceId, sockName, port);
+            log.error("[{}] reverse localabstract:{} tcp:{} 错误", deviceId, sockName, port, e.getMessage());
         }
         return false;
     }
@@ -155,15 +153,15 @@ public class ADBTools {
     }
 
     public static String getAbi(String deviceId) {
-        String result = commandShell(deviceId, "getprop", "ro.product.cpu.abi");
-        if(StringUtils.isNoneEmpty(result)) {
-            return result.trim();
-        }
-        return ERROR;
+        return getProp(deviceId, "ro.product.cpu.abi");
     }
 
     public static String getApi(String deviceId) {
-        String result = commandShell(deviceId, "getprop", "ro.build.version.sdk");
+        return getProp(deviceId, "ro.build.version.sdk");
+    }
+
+    public static String getProp(String deviceId, String propStr) {
+        String result = commandShell(deviceId, "getprop", propStr);
         if(StringUtils.isNoneEmpty(result)) {
             return result.trim();
         }
@@ -190,7 +188,15 @@ public class ADBTools {
 
 
     public static void uninstallApp(String deviceId, String basePackage) {
-        commandShell(deviceId, "am", basePackage);
+        command(deviceId, "uninstall", basePackage);
+    }
+
+    public static void tcpip(String deviceId, int tcpipPort) {
+        command(deviceId,"tcpip", String.valueOf(tcpipPort));
+    }
+
+    public static String isTcpip(String deviceId) {
+        return commandShell(deviceId,"getprop", "service.adb.tcp.port");
     }
 
     public static void main(String[] args) {

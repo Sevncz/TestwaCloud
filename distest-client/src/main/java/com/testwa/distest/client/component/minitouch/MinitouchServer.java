@@ -86,14 +86,16 @@ public class MinitouchServer {
             // push minicap
             String minicapPath = getMinitouchPath().toString();
             log.info("推送文件 local: {}, remote: {}", minicapPath, MINITOUCH_TMP_DIR);
-            ADBTools.pushFile(deviceId, getResource(minicapPath), MINITOUCH_TMP_DIR);
-            ADBTools.chmod(deviceId, MINITOUCH_TMP_DIR, "777");
+//            ADBTools.pushFile(deviceId, getResource(minicapPath), MINITOUCH_TMP_DIR);
+//            ADBTools.chmod(deviceId, MINITOUCH_TMP_DIR, "777");
+            ADBCommandUtils.pushFile(deviceId, getResource(minicapPath), MINITOUCH_TMP_DIR, "777");
 
             // push minicap-nopie
             String minicapNopiePath = getMinitouchNopiePath().toString();
             log.info("推送文件 local: {}, remote: {}", minicapNopiePath, MINITOUCH_NOPIE_TMP_DIR);
-            ADBTools.pushFile(deviceId, getResource(minicapNopiePath), MINITOUCH_NOPIE_TMP_DIR);
-            ADBTools.chmod(deviceId, MINITOUCH_NOPIE_TMP_DIR, "777");
+//            ADBTools.pushFile(deviceId, getResource(minicapNopiePath), MINITOUCH_NOPIE_TMP_DIR);
+//            ADBTools.chmod(deviceId, MINITOUCH_NOPIE_TMP_DIR, "777");
+            ADBCommandUtils.pushFile(deviceId, getResource(minicapNopiePath), MINITOUCH_NOPIE_TMP_DIR, "777");
 
             // forward port
             this.port = MinitouchPortProvider.pullPort();

@@ -114,18 +114,18 @@ public class XCodeBuilder {
         }
         List<String> command = new ArrayList<>();
         command.add(COMMAND_NAME);
-        command.add(RUN_TYPE);
-        command.add(TEST_BUILD);
+//        command.add(RUN_TYPE);
+//        command.add(TEST_BUILD);
         command.add(CLProperty.PROJECT.getValue());
         command.add(wdaPath);
         command.add(CLProperty.SCHEME.getValue());
         command.add(OS_SCHEME);
         command.add(CLProperty.DESTINATION.getValue());
         command.add(new DestinationBuilder().build());
-        command.add(CLProperty.ALLOW_PROVISIONING_UPDATES.getValue());
+//        command.add(CLProperty.ALLOW_PROVISIONING_UPDATES.getValue());
         Path xcodePath = Paths.get(Constant.XCODEBUILD_CONFIG_DIR, this.deviceId);
         command.add(String.format("%s=%s", CLProperty.CONFIGURATION_BUILD_DIR.getValue(), xcodePath.toString()));
-//        command.add(TEST);
+        command.add(TEST);
         return command.toArray(new String[0]);
     }
 

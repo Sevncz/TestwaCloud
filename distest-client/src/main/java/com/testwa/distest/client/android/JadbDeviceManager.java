@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.testwa.distest.jadb.JadbDevice.State.Device;
+
 
 /**
  * @author wen
@@ -26,20 +28,27 @@ public class JadbDeviceManager {
     public final static ApplicationContext context = ApplicationContextUtil.getApplicationContext();
 
     public synchronized static void putAll(List<JadbDevice> devices) {
-        devices.forEach( d-> {
-            JadbDevice device = jadbDeviceMap.get(d.getSerial());
-            if(device != null) {
+        for (JadbDevice jadbDevice : devices) {
+            try {
+                if (Device.equals(jadbDevice.getState())) {
+                    jadbDeviceMap.put(jadbDevice.getSerial(), jadbDevice);
+                }
+            } catch (IOException | JadbException e) {
+                continue;
+            }
+            JadbDevice device = jadbDeviceMap.get(jadbDevice.getSerial());
+            if (device != null) {
                 try {
-                    if(d.getState().equals(device.getState())) {
-                        changeState(d);
+                    if (!jadbDevice.getState().equals(device.getState())) {
+                        changeState(jadbDevice);
                     }
                 } catch (IOException | JadbException e) {
-                    changeState(d);
+                    changeState(jadbDevice);
                 }
-            }else{
-                changeState(d);
+            } else {
+                changeState(jadbDevice);
             }
-        });
+        }
 
         getJadbDeviceList().forEach( d -> {
             try {
@@ -141,7 +150,6 @@ public class JadbDeviceManager {
     }
 
     public static void onDisconnect(JadbDevice jadbDevice){
-        jadbDeviceMap.remove(jadbDevice.getSerial());
         context.publishEvent(new DeviceStatusChangeEvent(JadbDeviceManager.class, jadbDevice, DeviceStatusChangeRequest.LineStatus.DISCONNECTED));
     }
 }

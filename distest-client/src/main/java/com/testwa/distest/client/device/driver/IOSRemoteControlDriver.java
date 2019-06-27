@@ -6,10 +6,13 @@ import com.testwa.core.cmd.AppInfo;
 import com.testwa.core.cmd.KeyCode;
 import com.testwa.core.cmd.RemoteRunCommand;
 import com.testwa.distest.client.ApplicationContextUtil;
+import com.testwa.distest.client.component.Constant;
 import com.testwa.distest.client.component.appium.utils.Config;
 import com.testwa.distest.client.component.executor.task.*;
 import com.testwa.distest.client.component.logcat.DLogger;
 import com.testwa.distest.client.component.minicap.ScreenIOSProjection;
+import com.testwa.distest.client.component.minicap.ScreenIOSProjection2;
+import com.testwa.distest.client.component.minicap.ScreenIOSProjection3;
 import com.testwa.distest.client.component.wda.driver.DriverCapabilities;
 import com.testwa.distest.client.component.wda.driver.IOSDriver;
 import com.testwa.distest.client.device.listener.IOSComponentServiceRunningListener;
@@ -17,6 +20,8 @@ import com.testwa.distest.client.device.listener.callback.IRemoteCommandCallBack
 import com.testwa.distest.client.device.listener.callback.RemoteCommandCallBackUtils;
 import com.testwa.distest.client.device.manager.DeviceInitException;
 import com.testwa.distest.client.device.remote.DeivceRemoteApiClient;
+import com.testwa.distest.client.download.Downloader;
+import com.testwa.distest.client.exception.DownloadFailException;
 import com.testwa.distest.client.ios.IOSDeviceUtil;
 import com.testwa.distest.client.ios.IOSPhysicalSize;
 import com.testwa.distest.client.model.AgentInfo;
@@ -27,11 +32,15 @@ import io.rpc.testwa.push.ClientInfo;
 import io.rpc.testwa.push.Message;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -56,7 +65,7 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
     private DriverCapabilities iosDriverCapabilities;
 
     private DeivceRemoteApiClient api;
-    private ScreenIOSProjection screenIOSProjection;
+    private ScreenIOSProjection3 screenIOSProjection;
 
     /*------------------------------------------LOG----------------------------------------------------*/
 
@@ -67,6 +76,8 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
     private AbstractTestTask task = null;
 
     private AtomicInteger connectRetryTime = new AtomicInteger(0);
+
+    private ExecutorService executorService = Executors.newCachedThreadPool();
 
     public IOSRemoteControlDriver(IDeviceRemoteControlDriverCapabilities capabilities) {
 
@@ -101,9 +112,10 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
     @Override
     public void startScreen(String command) {
         stopScreen();
-        this.screenIOSProjection = new ScreenIOSProjection(udid, this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH), this.listener);
-        this.screenIOSProjection.start();
         this.iosDriver = new IOSDriver(this.iosDriverCapabilities);
+
+        this.screenIOSProjection = new ScreenIOSProjection3(udid, this.iosDriver.getScreenPort(), this.listener);
+        this.screenIOSProjection.start();
     }
 
     @Override
@@ -259,9 +271,26 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
     @Override
     public void installApp(String command) {
         AppInfo appInfo = JSON.parseObject(command, AppInfo.class);
-        if(this.iosDriver != null) {
-            this.iosDriver.installApp(appInfo.getPath());
-        }
+        String distestApiWeb = Config.getString("cloud.web.url");
+
+        String appUrl = String.format("%s/app/%s", distestApiWeb, appInfo.getPath());
+        String appLocalPath = Constant.localAppPath + File.separator + appInfo.getMd5() + File.separator + appInfo.getFileName();
+
+        executorService.submit(() -> {
+            // 检查是否有和该app md5一致的
+            try {
+                Downloader d = new Downloader();
+                d.start(appUrl, appLocalPath);
+                log.info("[Install ipa] {} to {} ", appLocalPath, udid);
+
+                if(iosDriver != null) {
+                    iosDriver.installApp(appLocalPath);
+//                this.iosDriver.launch(appInfo.getPackageName());
+                }
+            } catch (DownloadFailException | IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     @Override
@@ -338,6 +367,8 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
         this.iosDriverCapabilities.setDeviceId(udid);
         this.iosDriverCapabilities.setWdaPath(wdaProject.toString());
         this.iosDriverCapabilities.setSale(String.valueOf(scale));
+        this.iosDriverCapabilities.setLaunchTimeout(30);
+
 
         return ClientInfo.newBuilder()
                 .setDeviceId(udid)

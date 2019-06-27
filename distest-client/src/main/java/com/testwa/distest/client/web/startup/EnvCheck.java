@@ -39,10 +39,8 @@ import java.util.List;
 @Component
 public class EnvCheck implements CommandLineRunner {
 
-    @Value("${cloud.web.url}")
-    private String cloudWebUrl;
-    @Value("${cloud.socket.url}")
-    private String cloudSocketUrl;
+    @Value("${distest.api.web}")
+    private String apiHost;
     @Value("${username}")
     private String username;
     @Value("${password}")
@@ -116,8 +114,8 @@ public class EnvCheck implements CommandLineRunner {
         if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
             System.exit(0);
         }
-        String uri = StringUtils.isBlank(applicationName) ? cloudWebUrl : cloudWebUrl + "/" + applicationName;
-        String loginUrl = String.format("%s/v1/auth/login", uri);
+        String uri = StringUtils.isBlank(applicationName) ? apiHost : apiHost + "/" + applicationName;
+        String loginUrl = String.format("http://%s/v1/auth/login", uri);
         User loginUser = new User(username, password);
 
         String content = OkHttpUtil.postJsonParams(loginUrl, JSON.toJSONString(loginUser));

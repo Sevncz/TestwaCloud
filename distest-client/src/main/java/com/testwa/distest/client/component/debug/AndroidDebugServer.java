@@ -1,6 +1,7 @@
 package com.testwa.distest.client.component.debug;
 
 import com.sun.jna.Platform;
+import com.testwa.distest.client.android.ADBTools;
 import com.testwa.distest.client.util.CommonProcessListener;
 import com.testwa.distest.client.component.port.SocatPortProvider;
 import com.testwa.distest.client.component.port.TcpIpPortProvider;
@@ -24,14 +25,15 @@ public class AndroidDebugServer{
     private static final String SOCAT_CMD_LINUX = "/usr/local/bin/socat";
     private static final String SOCAT_CMD_WIN = "socat.exe";
     private StartedProcess mainProcess;
-
     private int tcpipPort;
     private int remotePort;
     private String socatExeFile;
+    private String deviceId;
 
-    public AndroidDebugServer(int tcpipPort, int remotePort, String resourcePath){
+    public AndroidDebugServer(String deviceId, int tcpipPort, int remotePort, String resourcePath){
         this.tcpipPort = tcpipPort;
         this.remotePort = remotePort;
+        this.deviceId = deviceId;
         this.socatExeFile = resourcePath + File.separator + "socat-windows" + File.separator + SOCAT_CMD_WIN;
     }
 
@@ -39,6 +41,8 @@ public class AndroidDebugServer{
         List<String> commandLine = getSocatCommandLine(this.tcpipPort, this.remotePort);
         CommonProcessListener processListener = new CommonProcessListener(String.join(" ", commandLine));
         try {
+            ADBTools.forward(this.deviceId, this.tcpipPort, this.tcpipPort);
+
             mainProcess = new ProcessExecutor()
                     .command(commandLine)
                     .redirectOutput(new LogOutputStream() {
@@ -57,6 +61,7 @@ public class AndroidDebugServer{
     public void stop() {
         TcpIpPortProvider.pushPort(this.tcpipPort);
         SocatPortProvider.pushPort(this.remotePort);
+        ADBTools.forwardRemove(this.deviceId, this.tcpipPort);
         if(mainProcess != null) {
             CommandLineExecutor.processQuit(mainProcess);
         }

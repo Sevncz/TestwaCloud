@@ -31,6 +31,8 @@ import org.apache.commons.lang.StringUtils;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -41,13 +43,19 @@ public class IOSDriver implements Driver {
     private CommandExecutor commandExecutor;
     private String sessionId;
 
+    private ExecutorService executorService;
+
     public IOSDriver(DriverCapabilities capabilities) {
         this.capabilities = capabilities;
         this.wdaRunner = new WebDriverAgentRunner(capabilities);
-        this.commandExecutor = new WDACommandExecutor(wdaRunner.getWdaUrl());
         this.wdaRunner.start();
+        this.commandExecutor = new WDACommandExecutor(wdaRunner.getWdaUrl());
         this.getSession();
+        this.executorService = Executors.newCachedThreadPool();
+    }
 
+    public int getScreenPort() {
+        return this.wdaRunner.getScreenPort();
     }
 
     @Override
@@ -83,7 +91,12 @@ public class IOSDriver implements Driver {
                 .collect(Collectors.toList());
 
         parameters.put(WDACommand.Parameter.VALUE.getKey(), keys);
-        execute(WDACommand.SEND_KEYS, new EnumMap<>(WDACommand.Wildcard.class), parameters);
+        this.executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                execute(WDACommand.SEND_KEYS, new EnumMap<>(WDACommand.Wildcard.class), parameters);
+            }
+        });
     }
 
     @Override
@@ -114,7 +127,12 @@ public class IOSDriver implements Driver {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(WDACommand.Parameter.BUNDLE_ID.getKey(), id);
         parameters.put(WDACommand.Parameter.ARGUMENTS.getKey(), buildArgs());
-        execute(WDACommand.LAUNCH, new EnumMap<>(WDACommand.Wildcard.class), parameters);
+        this.executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                execute(WDACommand.LAUNCH, new EnumMap<>(WDACommand.Wildcard.class), parameters);
+            }
+        });
     }
 
     @Override
@@ -122,7 +140,12 @@ public class IOSDriver implements Driver {
         String id = bundleId.length > 0 ? bundleId[0] : capabilities.getCapability(DriverCapabilities.Key.BUNDLE_ID);
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(WDACommand.Parameter.BUNDLE_ID.getKey(), id);
-        execute(WDACommand.TERMINATE, new EnumMap<>(WDACommand.Wildcard.class), parameters);
+        this.executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                execute(WDACommand.TERMINATE, new EnumMap<>(WDACommand.Wildcard.class), parameters);
+            }
+        });
     }
 
     @Override
@@ -145,27 +168,47 @@ public class IOSDriver implements Driver {
     @Override
     public void input(String text) {
         Map<String, Object> parameters = ImmutableMap.of("value", text.split(""));
-        execute(WDACommand.INPUT, new EnumMap<>(WDACommand.Wildcard.class), parameters);
+        this.executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                execute(WDACommand.INPUT, new EnumMap<>(WDACommand.Wildcard.class), parameters);
+            }
+        });
     }
 
     @Override
     public void tap(Integer x, Integer y) {
         double scale = Double.parseDouble(capabilities.getCapability(DriverCapabilities.Key.SCALE));
         Map<String, Object> parameters = ImmutableMap.of("x", x*scale, "y", y*scale);
-        execute(WDACommand.TAP, new EnumMap<>(WDACommand.Wildcard.class), parameters);
+        this.executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                execute(WDACommand.TAP, new EnumMap<>(WDACommand.Wildcard.class), parameters);
+            }
+        });
     }
 
     @Override
     public void swipe(Integer x1, Integer y1, Integer x2, Integer y2, int duration) {
         double scale = Double.parseDouble(capabilities.getCapability(DriverCapabilities.Key.SCALE));
         Map<String, Object> parameters = ImmutableMap.of("fromX", x1*scale, "fromY", y1*scale, "toX", x2*scale, "toY", y2*scale, "duration", String.valueOf(duration));
-        execute(WDACommand.SWIP, new EnumMap<>(WDACommand.Wildcard.class), parameters);
+        this.executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                execute(WDACommand.SWIP, new EnumMap<>(WDACommand.Wildcard.class), parameters);
+            }
+        });
     }
 
     @Override
     public void home() {
         Map<String, Object> parameters = new HashMap<>();
-        execute(WDACommand.HOME, new EnumMap<>(WDACommand.Wildcard.class), parameters);
+        this.executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                execute(WDACommand.HOME, new EnumMap<>(WDACommand.Wildcard.class), parameters);
+            }
+        });
     }
 
     @Override
@@ -175,11 +218,15 @@ public class IOSDriver implements Driver {
 
     @Override
     public RemoteResponse execute(String command, Map<WDACommand.Wildcard, String> wildcards, Map<String, ?> parameters) {
+        Long startTime = System.currentTimeMillis();
         if(StringUtils.isBlank(sessionId)) {
             this.getSession();
         }
         Optional.ofNullable(sessionId).ifPresent(id -> wildcards.put(WDACommand.Wildcard.SESSION_ID, sessionId));
-        return commandExecutor.execute(command, wildcards, parameters);
+        RemoteResponse response = commandExecutor.execute(command, wildcards, parameters);
+        Long endTime = System.currentTimeMillis();
+        log.info("[WDA execute {}], cast: {}ms", command, endTime - startTime);
+        return response;
     }
 
     @Override

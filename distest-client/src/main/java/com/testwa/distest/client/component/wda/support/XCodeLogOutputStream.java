@@ -12,6 +12,8 @@ public class XCodeLogOutputStream extends LogOutputStream {
 
     @Override
     protected void processLine(String s) {
-        log.info(s);
+        if(!s.contains("screenshots broadcast to")) {
+            log.info("[WDA Log] {}", s);
+        }
     }
 }

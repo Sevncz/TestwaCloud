@@ -114,21 +114,23 @@ public class MinicapAndroidServer {
             // push minicap
             String minicapPath = getMinicapPath().toString();
             log.info("推送文件 local: {}, remote: {}", minicapPath, MINICAP_TMP_DIR);
-            ADBTools.pushFile(deviceId, getResource(minicapPath), MINICAP_TMP_DIR);
-            ADBTools.chmod(deviceId, MINICAP_TMP_DIR, MODE);
+//            ADBTools.pushFile(deviceId, getResource(minicapPath), MINICAP_TMP_DIR);
+//            ADBTools.chmod(deviceId, MINICAP_TMP_DIR, MODE);
+            ADBCommandUtils.pushFile(deviceId, getResource(minicapPath), MINICAP_TMP_DIR, MODE);
 
             // push minicap-nopie
             String minicapNopiePath = getMinicapNopiePath().toString();
             log.info("推送文件 local: {}, remote: {}", minicapNopiePath, MINICAP_NOPIE_TMP_DIR);
-            ADBTools.pushFile(deviceId, getResource(minicapNopiePath), MINICAP_NOPIE_TMP_DIR);
-            ADBTools.chmod(deviceId, MINICAP_NOPIE_TMP_DIR, MODE);
+//            ADBTools.pushFile(deviceId, getResource(minicapNopiePath), MINICAP_NOPIE_TMP_DIR);
+//            ADBTools.chmod(deviceId, MINICAP_NOPIE_TMP_DIR, MODE);
+            ADBCommandUtils.pushFile(deviceId, getResource(minicapNopiePath), MINICAP_NOPIE_TMP_DIR, MODE);
 
             // push minicap.so
             String minicapSoPath = getMinicapSoPath().toString();
             log.info("推送文件 local: {}, remote: {}", minicapSoPath, MINICAP_SO_TMP_DIR);
-            ADBTools.pushFile(deviceId, getResource(minicapSoPath), MINICAP_SO_TMP_DIR);
-            ADBTools.chmod(deviceId, MINICAP_SO_TMP_DIR, MODE);
-
+//            ADBTools.pushFile(deviceId, getResource(minicapSoPath), MINICAP_SO_TMP_DIR);
+//            ADBTools.chmod(deviceId, MINICAP_SO_TMP_DIR, MODE);
+            ADBCommandUtils.pushFile(deviceId, getResource(minicapSoPath), MINICAP_SO_TMP_DIR, MODE);
 
             // forward port
             this.port = MinicapPortProvider.pullPort();

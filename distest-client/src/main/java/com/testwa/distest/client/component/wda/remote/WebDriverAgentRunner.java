@@ -24,6 +24,7 @@ import com.testwa.distest.client.util.CommandLineExecutor;
 import com.testwa.distest.client.component.wda.support.ResponseValueConverter;
 import com.testwa.distest.client.component.wda.support.XCodeBuilder;
 import com.testwa.distest.client.ios.IOSDeviceUtil;
+import com.testwa.distest.client.util.PortUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpStatus;
@@ -35,6 +36,7 @@ import org.zeroturnaround.exec.stream.LogOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ServerSocket;
 import java.net.URL;
 import java.util.Optional;
 import java.util.concurrent.*;
@@ -46,23 +48,22 @@ public class WebDriverAgentRunner {
     private static final String WDA_BASE_URL = "http://localhost";
     private static final String WDA_STATE_FIELD = "state";
     private static final int WDA_AGENT_PORT = 8100;
+    private static final int WDA_SCREEN_PORT = 9100;
     private static final int DEFAULT_LAUNCH_TIMEOUT = 60;
     private static final String IPROXY = "/usr/local/bin/iproxy";
 
     private DriverCapabilities capabilities;
-    private CommandExecutor commandExecutor;
+//    private CommandExecutor commandExecutor;
     private StartedProcess wdaProcess;
     private StartedProcess iproxyProcess;
+    private StartedProcess iproxyScreenProcess;
 
     private Integer iproxyPort;
-
-    private AtomicBoolean isStart = new AtomicBoolean(false);
+    private Integer iproxyScreenPort;
 
     public WebDriverAgentRunner(DriverCapabilities capabilities) {
         this.capabilities = capabilities;
-        this.iproxyPort = IProxyPortProvider.pullPort();
-        this.commandExecutor = new WDACommandExecutor(getWdaUrl());
-        this.iproxyProcess = CommandLineExecutor.asyncExecute(new String[]{IPROXY, String.valueOf(this.iproxyPort), String.valueOf(WDA_AGENT_PORT), capabilities.getCapability(DriverCapabilities.Key.DEVICE_ID)});
+//        this.commandExecutor = new WDACommandExecutor(getWdaUrl());
     }
 
     public void start() {
@@ -81,28 +82,38 @@ public class WebDriverAgentRunner {
                     .setLog(false)
                     .build();
 
+            try {
+                this.iproxyPort = PortUtil.getAvailablePort();
+                this.iproxyProcess = CommandLineExecutor.asyncExecute(new String[]{IPROXY, String.valueOf(this.iproxyPort), String.valueOf(WDA_AGENT_PORT), capabilities.getCapability(DriverCapabilities.Key.DEVICE_ID)});
+                this.iproxyScreenPort = PortUtil.getAvailablePort();
+                this.iproxyScreenProcess = CommandLineExecutor.asyncExecute(new String[]{IPROXY, String.valueOf(this.iproxyScreenPort), String.valueOf(WDA_SCREEN_PORT), capabilities.getCapability(DriverCapabilities.Key.DEVICE_ID)});
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            Thread checkThread = new Thread(() -> {
+                int timeout = Optional.ofNullable(capabilities.getCapability(DriverCapabilities.Key.LAUNCH_TIMEOUT))
+                        .map(Integer::valueOf)
+                        .orElse(DEFAULT_LAUNCH_TIMEOUT);
+                waitForReachability(getWdaUrl(), timeout);
+//                checkStatus();
+            });
+            checkThread.start();
+
         } else {
             log.info("Use existing WebDriverAgent process.");
         }
-
-        int timeout = Optional.ofNullable(capabilities.getCapability(DriverCapabilities.Key.LAUNCH_TIMEOUT))
-                .map(Integer::valueOf)
-                .orElse(DEFAULT_LAUNCH_TIMEOUT);
-
-        waitForReachability(getWdaUrl(), timeout);
-        checkStatus();
-        isStart.set(true);
     }
 
     public void stop() {
         log.info("Stop WebDriverAgent.");
-        isStart.set(false);
 //        CommandLineExecutor.processQuit(iproxyProcess);
 
         String udid = capabilities.getCapability(DriverCapabilities.Key.DEVICE_ID);
         if(StringUtils.isNotBlank(udid)) {
             // kill 进程
             try {
+                // kill iproxy
                 new ProcessExecutor()
                         .command("/bin/sh","-c","ps aux | grep iproxy | grep " + udid + " | awk {'print $2'} | xargs kill -9")
                         .redirectOutput(new LogOutputStream() {
@@ -111,7 +122,6 @@ public class WebDriverAgentRunner {
                                 log.info(line);
                             }
                         }).execute();
-
 
                 new ProcessExecutor()
                         .command("/bin/sh","-c","ps aux | grep xcodebuild | grep " + udid + " | awk {'print $2'} | xargs kill -9")
@@ -126,9 +136,12 @@ public class WebDriverAgentRunner {
                 e.printStackTrace();
             }
         }
-        if(this.iproxyPort != null) {
-            IProxyPortProvider.pushPort(this.iproxyPort);
-        }
+//        if(this.iproxyPort != null) {
+//            IProxyPortProvider.pushPort(this.iproxyPort);
+//        }
+//        if(this.iproxyScreenPort != null) {
+//            IProxyPortProvider.pushPort(this.iproxyScreenPort);
+//        }
 //        CommandLineExecutor.processQuit(wdaProcess);
     }
 
@@ -144,7 +157,7 @@ public class WebDriverAgentRunner {
         }
     }
 
-    private boolean waitForReachability(URL url, int timeout) {
+    public boolean waitForReachability(URL url, int timeout) {
         try {
             String urlStr = url.toString() + "/" + WDACommand.STATUS;
 
@@ -200,13 +213,13 @@ public class WebDriverAgentRunner {
      * @Author wen
      * @Date 2019-06-24 15:21
      */
-    private void checkStatus() {
-        RemoteResponse response = commandExecutor.execute(WDACommand.STATUS);
-        String state = (String) new ResponseValueConverter(response).toMap().get(WDA_STATE_FIELD);
-        log.info("[Check WebDriverAgent status] state: {}", state);
-        if (!"success".equals(state)) {
-            throw new WebDriverAgentException("WDA returned error state: " + state);
-        }
+    public void checkStatus() {
+//        RemoteResponse response = commandExecutor.execute(WDACommand.STATUS);
+//        String state = (String) new ResponseValueConverter(response).toMap().get(WDA_STATE_FIELD);
+//        log.info("[Check WebDriverAgent status] state: {}", state);
+//        if (!"success".equals(state)) {
+//            throw new WebDriverAgentException("WDA returned error state: " + state);
+//        }
     }
 
     private HttpURLConnection connectToUrl(URL url) throws IOException {
@@ -215,5 +228,9 @@ public class WebDriverAgentRunner {
         connection.setReadTimeout(1000);
         connection.connect();
         return connection;
+    }
+
+    public Integer getScreenPort() {
+        return this.iproxyScreenPort;
     }
 }

@@ -25,7 +25,7 @@ import java.util.List;
 
 public class IOSDeploy {
 
-    private static final String IOS_DEPLOY = "ios-deploy";
+    private static final String IOS_DEPLOY = "/usr/local/bin/ios-deploy";
     private String udid;
 
     public IOSDeploy(String udid) {

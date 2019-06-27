@@ -40,6 +40,8 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -82,7 +84,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
     private static final int BASE_WIDTH = 720;
     private float defaultScale = 0.5f;
     // 设置画质
-    private static final int QUALITY = 25;
+    private static final int QUALITY = 50 ;
 
     private final JadbDevice device;
     private ClientInfo clientInfo;
@@ -120,6 +122,8 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
     private AbstractTestTask task = null;
 
     private AtomicInteger connectRetryTime = new AtomicInteger(0);
+
+    private ExecutorService executorService = Executors.newCachedThreadPool();
 
     public AndroidRemoteControlDriver(IDeviceRemoteControlDriverCapabilities capabilities){
         this.capabilities = capabilities;
@@ -180,6 +184,8 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
 
         this.touchProjection = new TouchAndroidProjection(this.device.getSerial(), this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH));
         this.touchProjection.start();
+
+        log.info("屏幕已启动");
     }
 
     @Override
@@ -282,18 +288,14 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
 
     @Override
     public void debugStart() {
-        ADBTools.forward(device.getSerial(), this.tcpipPort, this.tcpipPort);
-        if(this.androidDebugServer == null) {
-            this.androidDebugServer = new AndroidDebugServer(this.tcpipPort, this.socatPort, this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH));
-        }
-        if(!this.androidDebugServer.isRunning()) {
-            this.androidDebugServer.start();
-        }
+        debugStop();
+        this.androidDebugServer = new AndroidDebugServer(this.device.getSerial(), this.tcpipPort, this.socatPort, this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH));
+        this.androidDebugServer.start();
     }
 
     @Override
     public void debugStop() {
-        if(this.androidDebugServer.isRunning()) {
+        if(this.androidDebugServer != null && this.androidDebugServer.isRunning()) {
             this.androidDebugServer.stop();
         }
     }
@@ -368,27 +370,30 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
     public void installApp(String command) {
 
         AppInfo appInfo = JSON.parseObject(command, AppInfo.class);
-        String distestApiWeb = Config.getString("distest.api.web");
+        String distestApiWeb = Config.getString("cloud.web.url");
 
-        String appUrl = String.format("http://%s/app/%s", distestApiWeb, appInfo.getPath());
+        String appUrl = String.format("%s/app/%s", distestApiWeb, appInfo.getPath());
         String appLocalPath = Constant.localAppPath + File.separator + appInfo.getMd5() + File.separator + appInfo.getFileName();
 
-        // 检查是否有和该app md5一致的
-        try {
-            Downloader d = new Downloader();
-            d.start(appUrl, appLocalPath);
-        } catch (DownloadFailException | IOException e) {
-            e.printStackTrace();
-        }
-        log.info("设备 {} 开始下载及安装App", device.getSerial());
+        executorService.submit(() -> {
+            // 检查是否有和该app md5一致的
+            try {
+                Downloader d = new Downloader();
+                d.start(appUrl, appLocalPath);
+            } catch (DownloadFailException | IOException e) {
+                e.printStackTrace();
+            }
+            log.info("[Install APK] {} to {} ", appLocalPath, device.getSerial());
 
-        ADBCommandUtils.installApp(device.getSerial(), appLocalPath);
-        ADBCommandUtils.launcherApp(device.getSerial(), appLocalPath);
+            ADBCommandUtils.installApp(device.getSerial(), appLocalPath);
+            ADBCommandUtils.launcherApp(device.getSerial(), appLocalPath);
+
+        });
     }
 
     @Override
-    public void uninstallApp(String url) {
-        ADBTools.uninstallApp(device.getSerial(), url);
+    public void uninstallApp(String basePackage) {
+        ADBTools.uninstallApp(device.getSerial(), basePackage);
     }
 
     @Override
@@ -438,99 +443,98 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
     private ClientInfo buildClientInfo() throws DeviceInitException {
         AgentInfo agentInfo = AgentInfo.getAgentInfo();
         log.info("[Register device to server] deviceId: {} agentInfo: {}", this.device.getSerial(), agentInfo.toString());
-        IDevice dev = AndroidHelper.getInstance().getAndroidDevice(this.device.getSerial()).getDevice();
-        if(dev != null && dev.isOnline()){
-            String brand = dev.getProperty("ro.product.brand");
-            if(StringUtils.isBlank(brand)){
-                if(buildClientInfoMaxTime <= 0){
-                    throw new DeviceInitException("无法获取设备["+this.device.getSerial()+"]属性");
+        try {
+            JadbDevice.State state = this.device.getState();
+            if(JadbDevice.State.Device.equals(state)) {
+                String brand = ADBTools.getProp(this.device.getSerial(), "ro.product.brand");
+                if(StringUtils.isBlank(brand)){
+                    if(buildClientInfoMaxTime <= 0){
+                        log.error("[Register device to server] Can't get {} ro.product.brand ", this.device.getSerial());
+                        throw new DeviceInitException("无法获取设备["+this.device.getSerial()+"]属性");
+                    }
+                    buildClientInfoMaxTime--;
+                    try {
+                        TimeUnit.SECONDS.sleep(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    return buildClientInfo();
                 }
-                buildClientInfoMaxTime--;
-                try {
-                    TimeUnit.SECONDS.sleep(1);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                String cpuabi = ADBTools.getProp(this.device.getSerial(), IDevice.PROP_DEVICE_CPU_ABI);
+                String sdk = ADBTools.getProp(this.device.getSerial(), IDevice.PROP_BUILD_API_LEVEL);
+                String host = ADBTools.getProp(this.device.getSerial(), "ro.build.host");
+                String model = ADBTools.getProp(this.device.getSerial(), IDevice.PROP_DEVICE_MODEL);
+                String version = ADBTools.getProp(this.device.getSerial(), IDevice.PROP_BUILD_VERSION);
+                String density = ADBTools.getProp(this.device.getSerial(), IDevice.PROP_DEVICE_DENSITY);
+                PhysicalSize size = ADBCommandUtils.getPhysicalSize(device.getSerial());
+                // 设置默认scale
+                if(size.getWidth() >= BASE_WIDTH) {
+                    double rate = BASE_WIDTH / (size.getWidth()*1.0);
+                    this.defaultScale = BigDecimal.valueOf(rate).setScale(1, BigDecimal.ROUND_HALF_UP).floatValue();
                 }
-                return buildClientInfo();
-            }
-            String cpuabi = dev.getProperty(IDevice.PROP_DEVICE_CPU_ABI);
-            String sdk = dev.getProperty(IDevice.PROP_BUILD_API_LEVEL);
-            String host = dev.getProperty("ro.build.host");
-            String model = dev.getProperty(IDevice.PROP_DEVICE_MODEL);
-            String version = dev.getProperty(IDevice.PROP_BUILD_VERSION);
-            String density = dev.getDensity() + "";
-            PhysicalSize size = ADBCommandUtils.getPhysicalSize(dev.getSerialNumber());
-            // 设置默认scale
-            if(size.getWidth() >= BASE_WIDTH) {
-                double rate = BASE_WIDTH / (size.getWidth()*1.0);
-                this.defaultScale = BigDecimal.valueOf(rate).setScale(1, BigDecimal.ROUND_HALF_UP).floatValue();
-            }
-            String width = String.valueOf(size.getWidth());
-            String height = String.valueOf(size.getHeight());
+                String width = String.valueOf(size.getWidth());
+                String height = String.valueOf(size.getHeight());
 
-
-            // 检查 uiautomator2、stfagent 等组件的安装情况
-            boolean stfagentInstall = ADBCommandUtils.isInstalledBasepackage(dev.getSerialNumber(), STF_SERVICE_PACKAGE);
-            if(!stfagentInstall) {
-                log.warn("{} 未安装 {}", dev.getName(), STF_SERVICE_PACKAGE);
+                // 检查 uiautomator2、stfagent 等组件的安装情况
+                boolean stfagentInstall = ADBCommandUtils.isInstalledBasepackage(device.getSerial(), STF_SERVICE_PACKAGE);
+                if(!stfagentInstall) {
+                    log.warn("{} 未安装 {}", device.getSerial(), STF_SERVICE_PACKAGE);
+                }
+                boolean appiumServerInstall = ADBCommandUtils.isInstalledBasepackage(device.getSerial(), UI2_SERVER_PACKAGE);
+                if(!appiumServerInstall) {
+                    log.warn("{} 未安装 {}", device.getSerial(), UI2_SERVER_PACKAGE);
+                }
+                boolean appiumDebugInstall = ADBCommandUtils.isInstalledBasepackage(device.getSerial(), UI2_DEBUG_PACKAGE);
+                if(!appiumDebugInstall) {
+                    log.debug("{} 未安装 {}", device.getSerial(), UI2_DEBUG_PACKAGE);
+                }
+                boolean unicodeIMEInstall = ADBCommandUtils.isInstalledBasepackage(device.getSerial(), UNICODEIME_PACKAGE);
+                if(!unicodeIMEInstall) {
+                    log.debug("{} 未安装 {}", device.getSerial(), UNICODEIME_PACKAGE);
+                }
+                boolean keyboardserviceInstall = ADBCommandUtils.isInstalledBasepackage(device.getSerial(), KEYBOARD_SERVICE_PACKAGE);
+                if(!keyboardserviceInstall) {
+                    log.warn("{} 未安装 {}", device.getSerial(), KEYBOARD_SERVICE_PACKAGE);
+                }
+                return ClientInfo.newBuilder()
+                        .setDeviceId(device.getSerial())
+                        .setBrand(brand)
+                        .setCpuabi(cpuabi)
+                        .setDensity(density)
+                        .setHeight(height)
+                        .setWidth(width)
+                        .setHost(host)
+                        .setModel(model)
+                        .setOsName("Android")
+                        .setSdk(sdk)
+                        .setUserFlag(UserInfo.token)
+                        .setVersion(version)
+                        .setSftagentInstall(stfagentInstall)
+                        .setAppiumUiautomator2ServerInstall(appiumServerInstall)
+                        .setAppiumUiautomator2DebugInstall(appiumDebugInstall)
+                        .setKeyboardserviceInstall(keyboardserviceInstall)
+                        .setUnicodeIMEInstall(unicodeIMEInstall)
+                        .setRemoteConnectPort(this.socatPort)
+                        .setIp(agentInfo.getHost())
+                        .setTcpipCommandSuccessed(this.enabledTcpip)
+                        .build();
             }
-            boolean appiumServerInstall = ADBCommandUtils.isInstalledBasepackage(dev.getSerialNumber(), UI2_SERVER_PACKAGE);
-            if(!appiumServerInstall) {
-                log.warn("{} 未安装 {}", dev.getName(), UI2_SERVER_PACKAGE);
-            }
-            boolean appiumDebugInstall = ADBCommandUtils.isInstalledBasepackage(dev.getSerialNumber(), UI2_DEBUG_PACKAGE);
-            if(!appiumDebugInstall) {
-                log.debug("{} 未安装 {}", dev.getName(), UI2_DEBUG_PACKAGE);
-            }
-            boolean unicodeIMEInstall = ADBCommandUtils.isInstalledBasepackage(dev.getSerialNumber(), UNICODEIME_PACKAGE);
-            if(!unicodeIMEInstall) {
-                log.debug("{} 未安装 {}", dev.getName(), UNICODEIME_PACKAGE);
-            }
-            boolean keyboardserviceInstall = ADBCommandUtils.isInstalledBasepackage(dev.getSerialNumber(), KEYBOARD_SERVICE_PACKAGE);
-            if(!keyboardserviceInstall) {
-                log.warn("{} 未安装 {}", dev.getName(), KEYBOARD_SERVICE_PACKAGE);
-            }
-            return ClientInfo.newBuilder()
-                    .setDeviceId(dev.getSerialNumber())
-                    .setBrand(brand)
-                    .setCpuabi(cpuabi)
-                    .setDensity(density)
-                    .setHeight(height)
-                    .setWidth(width)
-                    .setHost(host)
-                    .setModel(model)
-                    .setOsName("Android")
-                    .setSdk(sdk)
-                    .setUserFlag(UserInfo.token)
-                    .setVersion(version)
-                    .setSftagentInstall(stfagentInstall)
-                    .setAppiumUiautomator2ServerInstall(appiumServerInstall)
-                    .setAppiumUiautomator2DebugInstall(appiumDebugInstall)
-                    .setKeyboardserviceInstall(keyboardserviceInstall)
-                    .setUnicodeIMEInstall(unicodeIMEInstall)
-                    .setRemoteConnectPort(this.socatPort)
-                    .setIp(agentInfo.getHost())
-                    .setTcpipCommandSuccessed(this.enabledTcpip)
-                    .build();
-        }else{
-            throw new DeviceInitException("设备["+this.device.getSerial()+"不在线，无法初始化");
+        } catch (IOException | JadbException e) {
+            e.printStackTrace();
         }
-
+        log.error("[Register device to server] {} is not online ", this.device.getSerial());
+        throw new DeviceInitException("设备["+this.device.getSerial()+"不在线，无法初始化");
     }
 
     private synchronized void initTcpipCommand() {
         if(this.enabledTcpip) {
             return;
         }
-        try {
-            if(device != null) {
-                log.info("[Adb tcpip] {}", this.device.getSerial());
-                device.enableAdbOverTCP(this.tcpipPort);
-                this.tcpipTime = System.currentTimeMillis();
-                this.enabledTcpip = true;
-            }
-        } catch (IOException | JadbException e) {
-            log.error("tcpip 命令执行失败", e);
+        if(device != null) {
+            log.info("[Adb tcpip] {}", this.device.getSerial());
+            ADBTools.tcpip(device.getSerial(), this.tcpipPort);
+            this.tcpipTime = System.currentTimeMillis();
+            this.enabledTcpip = true;
         }
     }
 
@@ -568,6 +572,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
     public void onError(Throwable throwable) {
         // 出现异常，通常是连接失败
         try {
+            log.error("[Register fail] {} {}", device.getSerial(), throwable.getMessage());
             try {
                 TimeUnit.MILLISECONDS.sleep(connectRetryTime.get() * 200L);
             } catch (InterruptedException e) {
