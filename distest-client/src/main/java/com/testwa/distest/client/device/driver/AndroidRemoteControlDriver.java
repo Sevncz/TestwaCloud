@@ -176,13 +176,14 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
         }
         stopScreen();
         // 重建新的进程
+
+        this.touchProjection = new TouchAndroidProjection(this.device.getSerial(), this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH));
+        this.touchProjection.start();
+
         this.screenProjection = new ScreenAndroidProjection(this.device.getSerial(), this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH), this.listener);
         this.screenProjection.setRotate(rotate);
         this.screenProjection.setQuality(QUALITY);
         this.screenProjection.start();
-
-        this.touchProjection = new TouchAndroidProjection(this.device.getSerial(), this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH));
-        this.touchProjection.start();
 
         log.info("屏幕已启动");
     }
@@ -191,6 +192,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
     public void waitScreen() {
         this.listener.setScreenWait(true);
         this.stopScreen();
+        log.info("Android 屏幕已关闭");
     }
 
     @Override

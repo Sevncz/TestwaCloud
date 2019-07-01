@@ -26,6 +26,13 @@ public class DeviceManagerPool {
         borrowManger = new ConcurrentHashMap<>();
     }
 
+    public DeviceManager getInitialManager(String deviceId) {
+        if(borrowManger.containsKey(deviceId)) {
+            return borrowManger.get(deviceId);
+        }
+        return null;
+    }
+
     public DeviceManager getManager(String deviceId, DeviceType deviceType) {
         DeviceManager manager = null;
         try {

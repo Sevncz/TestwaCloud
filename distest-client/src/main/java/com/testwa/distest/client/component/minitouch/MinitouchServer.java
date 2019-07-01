@@ -1,5 +1,6 @@
 package com.testwa.distest.client.component.minitouch;
 
+import com.sun.jna.Platform;
 import com.testwa.distest.client.android.*;
 import com.testwa.distest.client.util.CommandLineExecutor;
 import com.testwa.distest.client.util.CommonUtil;
@@ -99,15 +100,16 @@ public class MinitouchServer {
 //            ADBTools.pushFile(deviceId, getResource(minicapNopiePath), MINITOUCH_NOPIE_TMP_DIR);
 //            ADBTools.chmod(deviceId, MINITOUCH_NOPIE_TMP_DIR, "777");
                 ADBCommandUtils.pushFile(deviceId, getResource(minicapNopiePath), MINITOUCH_NOPIE_TMP_DIR, "777");
+            }else{
+                log.info("[Minitouch 已安装]");
             }
 
             int processId = getMinitouchProcessID(deviceId);
             ADBTools.killProcess(deviceId, processId);
-
             // forward port
             this.port = PortUtil.getAvailablePort();
-            ADBTools.forward(deviceId, this.port, AB_NAME);
-            log.info("端口转发 tcp:{} localabstract:minicap", port);
+            boolean success = ADBTools.forward(deviceId, this.port, AB_NAME);
+            log.info("[Minitouch 端口转发] {} tcp:{} localabstract:minitouch", success, port);
 
             String command = getCommand();
             mainProcess = ADBTools.asyncCommandShell(deviceId, command);

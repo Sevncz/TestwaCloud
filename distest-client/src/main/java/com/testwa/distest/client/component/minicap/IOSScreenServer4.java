@@ -84,23 +84,6 @@ public class IOSScreenServer4 extends Thread implements Closeable {
 
     @Override
     public void run() {
-        boolean isconnected = false;
-//        while (isRunning.get() && !isconnected) {
-//            try {
-//                URLConnection urlConn = url.openConnection();
-//                urlConn.setReadTimeout(5000);
-//                urlConn.connect();
-//                urlStream = urlConn.getInputStream();
-//                isconnected = true;
-//            } catch (IOException e) {
-//                log.warn("[WDA 客户端] 连接失败，即将重试 {}", url.toString());
-//                try {
-//                    TimeUnit.SECONDS.sleep(2);
-//                } catch (InterruptedException e1) {
-//
-//                }
-//            }
-//        }
         while (isRunning.get()) {
             try {
                 try {

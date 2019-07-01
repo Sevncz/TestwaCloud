@@ -15,7 +15,9 @@ public class PortUtil {
 
         ServerSocket s = new ServerSocket(0);
 
-        return s.getLocalPort();
+        int port = s.getLocalPort();
+        s.close();
+        return port;
     }
 
     private static boolean isPortAvailable(final int port) throws IOException {

@@ -23,6 +23,7 @@ import org.zeroturnaround.exec.ProcessExecutor;
 import org.zeroturnaround.exec.ProcessResult;
 import org.zeroturnaround.exec.StartedProcess;
 import org.zeroturnaround.exec.listener.ProcessListener;
+import org.zeroturnaround.exec.stream.LogOutputStream;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -80,6 +81,12 @@ public class CommandLineExecutor {
                                 log.info("[{}] stop", commandArraysToString(command));
                             }
                         })
+//                    .redirectOutput(new LogOutputStream() {
+//                        @Override
+//                        protected void processLine(String s) {
+//                            log.info("[{} out:] {}", String.join(" ", command), s);
+//                        }
+//                    })
                         .start();
         } catch (IOException e) {
             throw new CommandFailureException(e);

@@ -33,7 +33,7 @@ public class ADBTools {
 
     private static String command(String deviceId, String... command) {
         String[] adbCommand = buildAdb(deviceId);
-        String[] notShellCommand =  ArrayUtils.addAll(adbCommand, command);
+        String[] notShellCommand = ArrayUtils.addAll(adbCommand, command);
         return CommandLineExecutor.execute(notShellCommand);
     }
 
@@ -109,7 +109,8 @@ public class ADBTools {
 
     public static Boolean forward(String deviceId, int port, String socketName) {
         try {
-            command(deviceId, "forward", String.format("tcp:%d", port), String.format("localabstract:%s", socketName));
+            String result = command(deviceId, "forward", String.format("tcp:%d", port), String.format("localabstract:%s", socketName));
+            log.info("[forward success] return: {}", result);
             return true;
         }catch (CommandFailureException e){
             log.error("[{}] forward tcp:{} 错误", deviceId, port, e.getMessage());
@@ -119,7 +120,8 @@ public class ADBTools {
 
     public static Boolean forward(String deviceId, int port, int remotePort) {
         try {
-            command(deviceId, "forward", String.format("tcp:%d", port), String.format("tcp:%s", remotePort));
+            String result = command(deviceId, "forward", String.format("tcp:%d", port), String.format("tcp:%s", remotePort));
+            log.info("[forward success] return: {}", result);
             return true;
         }catch (CommandFailureException e){
             log.error("[{}] forward tcp:{} tcp:{} 错误", deviceId, port, remotePort, e.getMessage());

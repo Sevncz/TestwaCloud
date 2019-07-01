@@ -122,6 +122,7 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
     public void waitScreen() {
         this.listener.setScreenWait(true);
         this.stopScreen();
+        log.info("iOS 屏幕已关闭");
     }
 
     @Override

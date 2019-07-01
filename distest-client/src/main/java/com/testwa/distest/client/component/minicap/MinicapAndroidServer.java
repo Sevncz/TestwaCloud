@@ -1,5 +1,6 @@
 package com.testwa.distest.client.component.minicap;
 
+import com.sun.jna.Platform;
 import com.testwa.distest.client.android.ADBCommandUtils;
 import com.testwa.distest.client.android.ADBTools;
 import com.testwa.distest.client.android.PhysicalSize;
@@ -111,7 +112,6 @@ public class MinicapAndroidServer {
 //            ADBTools.chmod(deviceId, MINICAP_TMP_DIR, MODE);
                 ADBCommandUtils.pushFile(deviceId, getResource(minicapPath), MINICAP_TMP_DIR, MODE);
 
-
                 // push minicap.so
                 String minicapSoPath = getMinicapSoPath().toString();
                 log.info("推送文件 local: {}, remote: {}", minicapSoPath, MINICAP_SO_TMP_DIR);
@@ -125,15 +125,18 @@ public class MinicapAndroidServer {
 //            ADBTools.pushFile(deviceId, getResource(minicapNopiePath), MINICAP_NOPIE_TMP_DIR);
 //            ADBTools.chmod(deviceId, MINICAP_NOPIE_TMP_DIR, MODE);
                 ADBCommandUtils.pushFile(deviceId, getResource(minicapNopiePath), MINICAP_NOPIE_TMP_DIR, MODE);
+            }else{
+                log.info("[Minitouch 已安装]");
             }
+
             int processId = getMinicapProcessID(deviceId);
             ADBTools.killProcess(deviceId, processId);
 
             // forward port
 //            this.port = MinicapPortProvider.pullPort();
             this.port = PortUtil.getAvailablePort();
-            ADBTools.forward(deviceId, port, SOCK_NAME);
-            log.info("端口转发 tcp:{} localabstract:minicap", port);
+            boolean success = ADBTools.forward(deviceId, port, SOCK_NAME);
+            log.info("[Minicap 端口转发] {} tcp:{} localabstract:minicap", success, port);
 
             String command = getCommand();
             this.mainProcess = ADBTools.asyncCommandShell(deviceId, command);
