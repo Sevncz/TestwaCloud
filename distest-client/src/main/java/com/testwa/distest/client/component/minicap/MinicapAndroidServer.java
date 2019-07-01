@@ -32,7 +32,6 @@ public class MinicapAndroidServer {
     private static final String MINICAP_SO_TMP_DIR = ANDROID_TMP_DIR + "minicap.so";
     /** 文件权限 */
     private static final String MODE = "777";
-    private static final String SOCK_NAME = "minicap";
 
     /** cpu abi */
     private String abi;
@@ -49,9 +48,6 @@ public class MinicapAndroidServer {
 
     /** resource 文件夹目录 */
     private String resourcePath;
-
-    private int retry = 10;
-
     private StartedProcess mainProcess;
     private String deviceId;
 
@@ -134,13 +130,6 @@ public class MinicapAndroidServer {
 
             String command = getCommand();
             this.mainProcess = ADBTools.asyncCommandShell(deviceId, command);
-
-            // forward port
-//            this.port = MinicapPortProvider.pullPort();
-            this.port = PortUtil.getAvailablePort();
-            boolean success = ADBTools.forward(deviceId, port, SOCK_NAME);
-            log.info("[{}] Minicap 端口转发 {} tcp:{} localabstract:minicap", deviceId, success, port);
-
         } catch (Exception e) {
             release();
             throw new IllegalStateException("Minicap服务启动失败", e);
@@ -229,10 +218,6 @@ public class MinicapAndroidServer {
      */
     protected Path getMinicapSoPath()  {
         return Paths.get("minicap", "shared", "android-" + getApi(), getAbi(), "minicap.so");
-    }
-
-    public int getPort() {
-        return this.port;
     }
 
     /**

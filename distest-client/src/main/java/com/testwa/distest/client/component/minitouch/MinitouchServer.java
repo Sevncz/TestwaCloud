@@ -27,9 +27,7 @@ public class MinitouchServer {
     private static final String MINITOUCH_TMP_DIR = ANDROID_TMP_DIR + "minitouch";
     /** minitouch-nopie 临时存放目录 */
     private static final String MINITOUCH_NOPIE_TMP_DIR = ANDROID_TMP_DIR + "minitouch-nopie";
-    private static final String AB_NAME = "minitouch";
 
-    private Integer port;
     private String deviceId;
     private String abi;
 
@@ -75,9 +73,6 @@ public class MinitouchServer {
         if(this.mainProcess != null) {
             CommandLineExecutor.processQuit(mainProcess);
         }
-        if(this.port != null) {
-            ADBTools.forwardRemove(deviceId, this.port);
-        }
     }
 
     public synchronized void start() {
@@ -109,13 +104,6 @@ public class MinitouchServer {
 
             String command = getCommand();
             mainProcess = ADBTools.asyncCommandShell(deviceId, command);
-
-            // forward port
-            this.port = PortUtil.getAvailablePort();
-            boolean success = ADBTools.forward(deviceId, this.port, AB_NAME);
-            log.info("[{}] 端口转发 {} tcp:{} localabstract:minitouch", deviceId, success, port);
-
-
         } catch (Exception e) {
             release();
             throw new IllegalStateException("[" + deviceId + "] 启动失败", e);
@@ -160,10 +148,6 @@ public class MinitouchServer {
      */
     protected Path getMinitouchNopiePath() throws Exception {
         return Paths.get("minitouch", getAbi(), "minitouch-nopie");
-    }
-
-    public int getPort() {
-        return this.port;
     }
 
     public boolean checkMinitouchInstallation(String deviceId) {

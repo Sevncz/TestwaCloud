@@ -629,7 +629,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
             }
             deviceInit();
         } catch (DeviceInitException e) {
-            log.error("[{}] 设备重新注册失败", this.device.getSerial(), throwable.getMessage());
+            log.error("[{}] Register retry error", this.device.getSerial(), throwable.getMessage());
         }
     }
 
@@ -640,6 +640,8 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
 
     public void changeRotation(int rotation) {
         this.userRotation = rotation;
-        restartScreen(rotation);
+        if(!this.listener.isScreenWait()) {
+            restartScreen(rotation);
+        }
     }
 }

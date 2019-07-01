@@ -150,4 +150,8 @@ public class AndroidComponentServiceRunningListener implements ScreenProjectionO
             }
         }
     }
+
+    public boolean isScreenWait() {
+        return this.isScreenWaitting;
+    }
 }
