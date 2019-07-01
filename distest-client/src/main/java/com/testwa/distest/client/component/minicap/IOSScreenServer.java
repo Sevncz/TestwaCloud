@@ -6,6 +6,8 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -18,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @create 2019-06-18 23:19
  */
 @Slf4j
-public class IOSScreenServer extends Thread implements Closeable {
+public class IOSScreenServer extends Thread implements Closeable, ScreenSubject {
     private static final String CONTENT_LENGTH = "Content-Length: ";
     private static final String CONTENT_TYPE = "Content-type: image/jpeg";
     private BlockingQueue<byte[]> frameQueue;
@@ -27,6 +29,7 @@ public class IOSScreenServer extends Thread implements Closeable {
     private URL url;
     private InputStream urlStream;
     private AtomicBoolean isRunning = new AtomicBoolean(false);
+    private List<ScreenProjectionObserver> observers = new ArrayList<>();
 
 
     public IOSScreenServer(int port) {
@@ -203,8 +206,24 @@ public class IOSScreenServer extends Thread implements Closeable {
     }
 
     public static void main(String[] args) {
-        IOSScreenServer screenServer3 = new IOSScreenServer(9002);
-        screenServer3.start();
+        IOSScreenServer screenServer = new IOSScreenServer(9002);
+        screenServer.start();
     }
 
+    @Override
+    public void registerObserver(ScreenProjectionObserver o) {
+        observers.add(o);
+    }
+
+    @Override
+    public void removeObserver(ScreenProjectionObserver o) {
+        observers.remove(o);
+    }
+
+    @Override
+    public void notifyObservers(byte[] image) {
+        for(ScreenProjectionObserver observer : observers) {
+            observer.frameImageChange(image);
+        }
+    }
 }

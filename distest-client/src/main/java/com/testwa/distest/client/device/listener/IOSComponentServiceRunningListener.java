@@ -3,6 +3,7 @@ package com.testwa.distest.client.device.listener;
 import com.testwa.distest.client.component.executor.task.TestTaskListener;
 import com.testwa.distest.client.component.logcat.LogListener;
 import com.testwa.distest.client.component.minicap.ScreenListener;
+import com.testwa.distest.client.component.minicap.ScreenProjectionObserver;
 import com.testwa.distest.client.device.remote.DeivceRemoteApiClient;
 import com.testwa.distest.client.util.ImgCompress;
 import io.grpc.stub.StreamObserver;
@@ -14,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
  * @create 2019-05-23 20:33
  */
 @Slf4j
-public class IOSComponentServiceRunningListener implements ScreenListener, LogListener, TestTaskListener {
+public class IOSComponentServiceRunningListener implements ScreenProjectionObserver, LogListener, TestTaskListener {
 
     private final String deviceId;
     private final DeivceRemoteApiClient api;
@@ -73,15 +74,16 @@ public class IOSComponentServiceRunningListener implements ScreenListener, LogLi
      * @Date 2019/6/11 17:13
      */
     @Override
-    public void projection(byte[] frame) {
+    public void frameImageChange(byte[] image) {
         if (!isScreenWaitting) {
             if (latesenttime == 0 || System.currentTimeMillis() - latesenttime > 1000/framerate) {
                 this.latesenttime = System.currentTimeMillis();
-                byte[] scaleByte = ImgCompress.decompressPicByte(frame, defaultScale);
+                byte[] scaleByte = ImgCompress.decompressPicByte(image, defaultScale);
                 this.observers.onNext(api.getScreenCaptureRequest(scaleByte, this.deviceId));
                 log.debug("[upload frame]");
             }
         }
+
     }
 
     public void rate(Integer rate) {
@@ -97,5 +99,4 @@ public class IOSComponentServiceRunningListener implements ScreenListener, LogLi
     public void setLogWait(boolean isWaitting) {
         this.isLogWaitting = isWaitting;
     }
-
 }

@@ -113,7 +113,7 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
         this.iosDriver = new IOSDriver(this.iosDriverCapabilities);
 
         this.screenIOSProjection = new ScreenIOSProjection(this.iosDriver.getScreenPort(), this.listener);
-        this.screenIOSProjection.start();
+        this.screenIOSProjection.startServer();
     }
 
     @Override

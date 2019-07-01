@@ -7,6 +7,7 @@ import com.testwa.distest.client.component.logcat.LogCatFilter;
 import com.testwa.distest.client.component.logcat.LogCatMessage;
 import com.testwa.distest.client.component.logcat.LogListener;
 import com.testwa.distest.client.component.minicap.ScreenListener;
+import com.testwa.distest.client.component.minicap.ScreenProjectionObserver;
 import com.testwa.distest.client.device.remote.DeivceRemoteApiClient;
 import com.testwa.distest.client.util.ImgCompress;
 import io.grpc.stub.StreamObserver;
@@ -25,7 +26,7 @@ import java.util.regex.Pattern;
  * @author wen
  * @create 2019-05-23 20:33
  */
-public class AndroidComponentServiceRunningListener implements ScreenListener, LogListener, TestTaskListener {
+public class AndroidComponentServiceRunningListener implements ScreenProjectionObserver, LogListener, TestTaskListener {
 
     private final String deviceId;
     private final DeivceRemoteApiClient api;
@@ -72,12 +73,16 @@ public class AndroidComponentServiceRunningListener implements ScreenListener, L
         api.sendLogcatMessages(logcatMessage, this.deviceId);
     }
 
+//    @Override
+//    public void projection(byte[] frame) {
+//    }
+
     @Override
-    public void projection(byte[] frame) {
+    public void frameImageChange(byte[] image) {
         if (!isScreenWaitting) {
             if (latesenttime == 0 || System.currentTimeMillis() - latesenttime > 1000/framerate) {
                 this.latesenttime = System.currentTimeMillis();
-                this.observers.onNext(api.getScreenCaptureRequest(frame, this.deviceId));
+                this.observers.onNext(api.getScreenCaptureRequest(image, this.deviceId));
             }
         }
     }
