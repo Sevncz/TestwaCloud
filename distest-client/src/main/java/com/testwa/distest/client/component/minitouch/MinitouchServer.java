@@ -82,41 +82,43 @@ public class MinitouchServer {
 
     public synchronized void start() {
         if(this.mainProcess != null && this.mainProcess.getProcess().isAlive()) {
-            log.error("minitouch已经在运行中");
+            log.error("[{}] 已经在运行中", deviceId);
             return;
         }
         try {
             // push minicap
             if(!checkMinitouchInstallation(deviceId)) {
                 String minicapPath = getMinitouchPath().toString();
-                log.info("推送文件 local: {}, remote: {}", minicapPath, MINITOUCH_TMP_DIR);
+                log.info("[{}] 推送文件 local: {}, remote: {}", deviceId, minicapPath, MINITOUCH_TMP_DIR);
 //            ADBTools.pushFile(deviceId, getResource(minicapPath), MINITOUCH_TMP_DIR);
 //            ADBTools.chmod(deviceId, MINITOUCH_TMP_DIR, "777");
                 ADBCommandUtils.pushFile(deviceId, getResource(minicapPath), MINITOUCH_TMP_DIR, "777");
 
                 // push minicap-nopie
                 String minicapNopiePath = getMinitouchNopiePath().toString();
-                log.info("推送文件 local: {}, remote: {}", minicapNopiePath, MINITOUCH_NOPIE_TMP_DIR);
+                log.info("[{}] 推送文件 local: {}, remote: {}", deviceId, minicapNopiePath, MINITOUCH_NOPIE_TMP_DIR);
 //            ADBTools.pushFile(deviceId, getResource(minicapNopiePath), MINITOUCH_NOPIE_TMP_DIR);
 //            ADBTools.chmod(deviceId, MINITOUCH_NOPIE_TMP_DIR, "777");
                 ADBCommandUtils.pushFile(deviceId, getResource(minicapNopiePath), MINITOUCH_NOPIE_TMP_DIR, "777");
             }else{
-                log.info("[Minitouch 已安装]");
+                log.info("[{}] 已安装", deviceId);
             }
 
             int processId = getMinitouchProcessID(deviceId);
             ADBTools.killProcess(deviceId, processId);
-            // forward port
-            this.port = PortUtil.getAvailablePort();
-            boolean success = ADBTools.forward(deviceId, this.port, AB_NAME);
-            log.info("[Minitouch 端口转发] {} tcp:{} localabstract:minitouch", success, port);
 
             String command = getCommand();
             mainProcess = ADBTools.asyncCommandShell(deviceId, command);
 
+            // forward port
+            this.port = PortUtil.getAvailablePort();
+            boolean success = ADBTools.forward(deviceId, this.port, AB_NAME);
+            log.info("[{}] 端口转发 {} tcp:{} localabstract:minitouch", deviceId, success, port);
+
+
         } catch (Exception e) {
             release();
-            throw new IllegalStateException("Minitouch服务启动失败");
+            throw new IllegalStateException("[" + deviceId + "] 启动失败", e);
         }
     }
 
@@ -188,7 +190,7 @@ public class MinitouchServer {
                     return false;
                 }
             } else {
-                log.error("Unexpected token: " + token + ", the whole result:" + ret);
+                log.error("[{" + deviceId + "}] Unexpected token: " + token + ", the whole result:" + ret);
                 return false;
             }
         }

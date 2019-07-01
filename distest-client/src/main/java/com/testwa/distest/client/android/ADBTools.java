@@ -89,7 +89,8 @@ public class ADBTools {
 
     public static boolean pushFile(String deviceId, String localFile, String remoteFile) {
         try {
-            command(deviceId, "push", localFile, remoteFile);
+            String result = command(deviceId, "push", localFile, remoteFile);
+            log.info("[{}] push file {} to {} return: {}", deviceId, localFile, remoteFile, result);
             return true;
         }catch (CommandFailureException e){
             log.error("[{}] pushFile 错误", deviceId, e);
@@ -110,7 +111,7 @@ public class ADBTools {
     public static Boolean forward(String deviceId, int port, String socketName) {
         try {
             String result = command(deviceId, "forward", String.format("tcp:%d", port), String.format("localabstract:%s", socketName));
-            log.info("[forward success] return: {}", result);
+            log.info("[{}] forward tcp:{} return: {}", deviceId, port, result);
             return true;
         }catch (CommandFailureException e){
             log.error("[{}] forward tcp:{} 错误", deviceId, port, e.getMessage());
@@ -121,7 +122,7 @@ public class ADBTools {
     public static Boolean forward(String deviceId, int port, int remotePort) {
         try {
             String result = command(deviceId, "forward", String.format("tcp:%d", port), String.format("tcp:%s", remotePort));
-            log.info("[forward success] return: {}", result);
+            log.info("[{}] forward tcp:{} return: {}", deviceId, port, result);
             return true;
         }catch (CommandFailureException e){
             log.error("[{}] forward tcp:{} tcp:{} 错误", deviceId, port, remotePort, e.getMessage());
@@ -131,7 +132,8 @@ public class ADBTools {
 
     public static Boolean forwardRemove(String deviceId, int port) {
         try {
-            command(deviceId, "forward", "--remove", String.format("tcp:%d", port));
+            String result = command(deviceId, "forward", "--remove", String.format("tcp:%d", port));
+            log.info("[{}] forward remove tcp:{} return: {}", deviceId, port, result);
             return true;
         }catch (CommandFailureException e){
             log.error("[{}] forward tcp:{} 错误", deviceId, port, e.getMessage());
@@ -141,7 +143,8 @@ public class ADBTools {
 
     public static Boolean reverse(String deviceId, String sockName, int port) {
         try {
-            command(deviceId, "reverse", String.format("localabstract:%s", sockName), String.format("tcp:%d", port));
+            String result = command(deviceId, "reverse", String.format("localabstract:%s", sockName), String.format("tcp:%d", port));
+            log.info("[{}] forward reverse {} {} return: {}", deviceId, sockName, port, result);
             return true;
         }catch (CommandFailureException e){
             log.error("[{}] reverse localabstract:{} tcp:{} 错误", deviceId, sockName, port, e.getMessage());

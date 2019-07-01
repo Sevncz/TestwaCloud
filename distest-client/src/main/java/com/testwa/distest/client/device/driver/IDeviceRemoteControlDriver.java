@@ -131,4 +131,6 @@ public interface IDeviceRemoteControlDriver {
     DeviceType getType();
 
     String getDeviceId();
+
+    void destory();
 }

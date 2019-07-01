@@ -16,6 +16,9 @@ import com.testwa.distest.client.component.minicap.ScreenAndroidProjection;
 import com.testwa.distest.client.component.minitouch.TouchAndroidProjection;
 import com.testwa.distest.client.component.port.SocatPortProvider;
 import com.testwa.distest.client.component.port.TcpIpPortProvider;
+import com.testwa.distest.client.component.stfagent.StfAgentClient;
+import com.testwa.distest.client.component.stfagent.StfAPKServer;
+import com.testwa.distest.client.component.stfagent.StfServiceClient;
 import com.testwa.distest.client.device.listener.AndroidComponentServiceRunningListener;
 import com.testwa.distest.client.device.listener.callback.IRemoteCommandCallBack;
 import com.testwa.distest.client.device.listener.callback.RemoteCommandCallBackUtils;
@@ -83,6 +86,9 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
      */
     private static final int BASE_WIDTH = 720;
     private float defaultScale = 0.5f;
+    private float userScale = 0.5f;
+    private int defaultRotation = 0;
+    private int userRotation = 0;
     // 设置画质
     private static final int QUALITY = 25;
 
@@ -98,6 +104,9 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
 
     private ScreenAndroidProjection screenProjection;
     private TouchAndroidProjection touchProjection;
+    private StfAPKServer stfAgentServer;
+    private StfAgentClient stfAgentClient;
+    private StfServiceClient stfServiceClient;
 
 
     /*------------------------------------------LOGCAT----------------------------------------------------*/
@@ -144,6 +153,15 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
         clientInfo = buildClientInfo();
         // 注册到server
         register();
+        // 启动 stfagent
+        this.stfAgentServer = new StfAPKServer(this.device.getSerial(), this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH));
+        this.stfAgentServer.start();
+        int agentPort = this.stfAgentServer.getAgentPort();
+        int servicePort = this.stfAgentServer.getServicePort();
+        this.stfAgentClient = new StfAgentClient(agentPort, this.device.getSerial());
+        this.stfServiceClient = new StfServiceClient(servicePort, this.device.getSerial(), this);
+        this.stfAgentClient.start();
+        this.stfServiceClient.start();
     }
 
     @Override
@@ -171,12 +189,18 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
         if (scale > 1.0) {scale = 1.0f;}
         // 设置旋转
         Integer rotate = obj.getInteger("rotate");
-        if (rotate == null) {
-            rotate = 0;
+        if (rotate != null) {
+            userRotation = rotate;
         }
-        stopScreen();
-        // 重建新的进程
+        restartScreen(userRotation);
 
+        log.info("[{}] 屏幕已启动", this.device.getSerial());
+    }
+
+    private void restartScreen(Integer rotate) {
+        stopScreen();
+
+        // 重建新的进程
         this.touchProjection = new TouchAndroidProjection(this.device.getSerial(), this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH));
         this.touchProjection.start();
 
@@ -184,15 +208,13 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
         this.screenProjection.setRotate(rotate);
         this.screenProjection.setQuality(QUALITY);
         this.screenProjection.start();
-
-        log.info("屏幕已启动");
     }
 
     @Override
     public void waitScreen() {
         this.listener.setScreenWait(true);
         this.stopScreen();
-        log.info("Android 屏幕已关闭");
+        log.info("[{}] 屏幕已关闭", this.device.getSerial());
     }
 
     @Override
@@ -235,6 +257,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
             }
         }
         this.listener.setLogWait(true);
+        log.info("[{}] {} 日志已启动", this.device.getSerial());
     }
 
     @Override
@@ -275,6 +298,20 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
     }
 
     @Override
+    public void destory() {
+
+        this.stopScreen();
+        this.stopLog();
+        this.stopRecorder();
+        if(this.stfAgentServer != null) {
+            this.stfAgentServer.close();
+        }
+        if(this.stfAgentClient != null) {
+            this.stfAgentClient.close();
+        }
+    }
+
+    @Override
     public boolean isRealOffline() {
         try {
             this.device.getState();
@@ -310,8 +347,8 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
 
     @Override
     public void keyevent(int keyCode) {
-        if (this.touchProjection != null && this.touchProjection.isRunning()) {
-            this.touchProjection.sendCode(keyCode);
+        if (this.stfAgentClient != null && this.stfAgentClient.isRunning()) {
+            this.stfAgentClient.onKeyEvent(keyCode);
         }
     }
 
@@ -323,8 +360,8 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
             ADBCommandUtils.inputTextADBKeyBoard(this.device.getSerial(), cmd, 5000L);
         }else{
             // 使用stfservice处理非中文字符
-            if (this.touchProjection != null && this.touchProjection.isRunning()) {
-                this.touchProjection.sendText(cmd);
+            if (this.stfAgentClient != null && this.stfAgentClient.isRunning()) {
+                this.stfAgentClient.onType(cmd);
             }
         }
     }
@@ -391,7 +428,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
             } catch (DownloadFailException | IOException e) {
                 e.printStackTrace();
             }
-            log.info("[Install APK] {} to {} ", appLocalPath, device.getSerial());
+            log.info("[{}] Install APK {} to {} ", this.device.getSerial(), appLocalPath, device.getSerial());
 
             ADBCommandUtils.installApp(device.getSerial(), appLocalPath);
             ADBCommandUtils.launcherApp(device.getSerial(), appLocalPath);
@@ -411,7 +448,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
 
     @Override
     public void startCrawlerTask(String command) {
-        log.info("设备 {}，开始遍历任务 {}", device.getSerial(), command);
+        log.info("[{}] 开始遍历任务 {}", device.getSerial(), command);
         RemoteRunCommand cmd = JSON.parseObject(command, RemoteRunCommand.class);
 //        defaultVideoRecorderStart(cmd.getTaskCode());
         task = new CrawlerTestTask(cmd, listener);
@@ -420,7 +457,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
 
     @Override
     public void startCompatibilityTask(String command) {
-        log.info("设备 {}，开始兼容任务 {}", device.getSerial(), command);
+        log.info("[{}] 开始兼容任务 {}", device.getSerial(), command);
         RemoteRunCommand cmd = JSON.parseObject(command, RemoteRunCommand.class);
 //        defaultVideoRecorderStart(cmd.getTaskCode());
         task = new CompatibilityAndroidTestTask(cmd, listener);
@@ -429,7 +466,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
 
     @Override
     public void startFunctionalTask(String command) {
-        log.info("设备 {}，开始任务 {}", device.getSerial(), command);
+        log.info("[{}] 开始任务 {}", device.getSerial(), command);
 //        switchADBKeyBoard();
         RemoteRunCommand cmd = JSON.parseObject(command, RemoteRunCommand.class);
 //        defaultVideoRecorderStart(cmd.getTaskCode());
@@ -450,14 +487,14 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
 
     private ClientInfo buildClientInfo() throws DeviceInitException {
         AgentInfo agentInfo = AgentInfo.getAgentInfo();
-        log.info("[Register device to server] deviceId: {} agentInfo: {}", this.device.getSerial(), agentInfo.toString());
+        log.info("[{}] Register device to server, agentInfo: {} ", this.device.getSerial(), agentInfo.toString());
         try {
             JadbDevice.State state = this.device.getState();
             if(JadbDevice.State.Device.equals(state)) {
                 String brand = ADBTools.getProp(this.device.getSerial(), "ro.product.brand");
                 if(StringUtils.isBlank(brand)){
                     if(buildClientInfoMaxTime <= 0){
-                        log.error("[Register device to server] Can't get {} ro.product.brand ", this.device.getSerial());
+                        log.error("[{}] Register fail, Can't get ro.product.brand ", this.device.getSerial());
                         throw new DeviceInitException("无法获取设备["+this.device.getSerial()+"]属性");
                     }
                     buildClientInfoMaxTime--;
@@ -528,9 +565,9 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
                         .build();
             }
         } catch (IOException | JadbException e) {
-            log.error("[Register device to server] {}", e.getMessage());
+            log.error("[{}] Register device to server error ", this.device.getSerial(), e.getMessage());
         }
-        log.error("[Register device to server] {} is not online ", this.device.getSerial());
+        log.error("[{}] device not online ", this.device.getSerial());
         throw new DeviceInitException("设备["+this.device.getSerial()+"不在线，无法初始化");
     }
 
@@ -539,7 +576,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
         try {
             int intPort = Integer.parseInt(content);
             if(intPort == 0) {
-                log.info("[Adb tcpip] {}", this.device.getSerial());
+                log.error("[{}] adb tcpip", this.device.getSerial());
                 ADBTools.tcpip(device.getSerial(), this.tcpipPort);
             }else{
                 this.tcpipPort = intPort;
@@ -555,7 +592,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
     @Override
     public void onNext(Message message) {
         if(Message.Topic.CONNECTED.equals(message.getTopicName())) {
-            log.info("[Connected to Server] {}", this.device.getSerial());
+            log.info("[{}] Connected to server", this.device.getSerial());
             // 已经连接
             try {
                 TimeUnit.SECONDS.sleep(3);
@@ -584,7 +621,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
     public void onError(Throwable throwable) {
         // 出现异常，通常是连接失败
         try {
-            log.error("[Register fail] {} {}", device.getSerial(), throwable.getMessage());
+            log.error("[{}] Register fail", this.device.getSerial(), throwable.getMessage());
             try {
                 TimeUnit.MILLISECONDS.sleep(connectRetryTime.get() * 200L);
             } catch (InterruptedException e) {
@@ -592,12 +629,17 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
             }
             deviceInit();
         } catch (DeviceInitException e) {
-            log.error("设备重新注册失败");
+            log.error("[{}] 设备重新注册失败", this.device.getSerial(), throwable.getMessage());
         }
     }
 
     @Override
     public void onCompleted() {
 
+    }
+
+    public void changeRotation(int rotation) {
+        this.userRotation = rotation;
+        restartScreen(rotation);
     }
 }

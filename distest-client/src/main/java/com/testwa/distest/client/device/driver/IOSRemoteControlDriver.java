@@ -203,6 +203,14 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
     }
 
     @Override
+    public void destory() {
+        // 停止所有服务
+        this.stopScreen();
+        this.stopLog();
+        this.stopRecorder();
+    }
+
+    @Override
     public boolean isRealOffline() {
         return false;
     }

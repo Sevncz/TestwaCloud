@@ -126,20 +126,20 @@ public class MinicapAndroidServer {
 //            ADBTools.chmod(deviceId, MINICAP_NOPIE_TMP_DIR, MODE);
                 ADBCommandUtils.pushFile(deviceId, getResource(minicapNopiePath), MINICAP_NOPIE_TMP_DIR, MODE);
             }else{
-                log.info("[Minitouch 已安装]");
+                log.info("[{}] Minitouch 已安装", deviceId);
             }
 
             int processId = getMinicapProcessID(deviceId);
             ADBTools.killProcess(deviceId, processId);
 
+            String command = getCommand();
+            this.mainProcess = ADBTools.asyncCommandShell(deviceId, command);
+
             // forward port
 //            this.port = MinicapPortProvider.pullPort();
             this.port = PortUtil.getAvailablePort();
             boolean success = ADBTools.forward(deviceId, port, SOCK_NAME);
-            log.info("[Minicap 端口转发] {} tcp:{} localabstract:minicap", success, port);
-
-            String command = getCommand();
-            this.mainProcess = ADBTools.asyncCommandShell(deviceId, command);
+            log.info("[{}] Minicap 端口转发 {} tcp:{} localabstract:minicap", deviceId, success, port);
 
         } catch (Exception e) {
             release();
