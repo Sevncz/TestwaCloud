@@ -11,8 +11,6 @@ import com.testwa.distest.client.component.appium.utils.Config;
 import com.testwa.distest.client.component.executor.task.*;
 import com.testwa.distest.client.component.logcat.DLogger;
 import com.testwa.distest.client.component.minicap.ScreenIOSProjection;
-import com.testwa.distest.client.component.minicap.ScreenIOSProjection2;
-import com.testwa.distest.client.component.minicap.ScreenIOSProjection3;
 import com.testwa.distest.client.component.wda.driver.DriverCapabilities;
 import com.testwa.distest.client.component.wda.driver.IOSDriver;
 import com.testwa.distest.client.device.listener.IOSComponentServiceRunningListener;
@@ -65,7 +63,7 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
     private DriverCapabilities iosDriverCapabilities;
 
     private DeivceRemoteApiClient api;
-    private ScreenIOSProjection3 screenIOSProjection;
+    private ScreenIOSProjection screenIOSProjection;
 
     /*------------------------------------------LOG----------------------------------------------------*/
 
@@ -114,7 +112,7 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
         stopScreen();
         this.iosDriver = new IOSDriver(this.iosDriverCapabilities);
 
-        this.screenIOSProjection = new ScreenIOSProjection3(udid, this.iosDriver.getScreenPort(), this.listener);
+        this.screenIOSProjection = new ScreenIOSProjection(this.iosDriver.getScreenPort(), this.listener);
         this.screenIOSProjection.start();
     }
 
