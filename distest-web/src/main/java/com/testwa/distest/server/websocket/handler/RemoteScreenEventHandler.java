@@ -64,11 +64,15 @@ public class RemoteScreenEventHandler {
 
     private final static String SUB_SCREEN = "sub_screen";
     private final static String WAIT_SCREEN = "wait_screen";
-    private final static String FRAME_RATE = "frame_rate";
+    private final static String NOTIFY_SCREEN = "notify_screen";
+    private final static String UNSUB_SCREEN = "unsub_screen";
     private final static String SUB_LOGCAT = "sub_logcat";
     private final static String FILTER_LOGCAT = "filter_logcat";
     private final static String WAIT_LOGCAT = "wait_logcat";
     private final static String DEBUG_ERROR = "debug_error";
+
+    private final static String SET_FRAME_RATE = "set_frame_rate";
+    private final static String SET_ROTATION = "set_rotation";
 
     private final static String JOB_DEBUG_NAME = "com.testwa.distest.quartz.job.EquipmentDebugJob";
     private final static String JOB_LOGCAT_NAME = "com.testwa.distest.quartz.job.EquipmentLogcatJob";
@@ -127,8 +131,9 @@ public class RemoteScreenEventHandler {
             }
         }else if("browser".equals(type)){
             // 浏览器连接, 订阅一个设备的图像输出流
-            String serial = client.getHandshakeData().getSingleUrlParam("serial");
-            deviceLockMgr.debugLock(serial, client.getSessionId().toString());
+//            String serial = client.getHandshakeData().getSingleUrlParam("serial");
+//            deviceLockMgr.debugLock(serial, client.getSessionId().toString());
+//            log.info("websocket 连接到服务器，准备订阅 {} 图像流", serial);
         } else {
             log.error("Illegal connection");
         }
@@ -161,11 +166,11 @@ public class RemoteScreenEventHandler {
             }
         }else if("browser".equals(type)){
             // 浏览器连接断开
-            log.debug("browser disconnect");
+//            String serial = client.getHandshakeData().getSingleUrlParam("serial");
+            log.info("browser disconnect");
             // 清理资源
-            String serial = client.getHandshakeData().getSingleUrlParam("serial");
-            deviceLockMgr.debugReleaseForce(serial);
-            deviceLockMgr.workRelease(serial);
+//            deviceLockMgr.debugReleaseForce(serial);
+//            deviceLockMgr.workRelease(serial);
         }
     }
 
@@ -192,21 +197,9 @@ public class RemoteScreenEventHandler {
             return;
         }
 
-        Map<String, Object> config = new HashMap<>();
-        config.put("scale", 0.5f);
-
-        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
-        if(observer != null ){
-            log.info("通知设备{}启动屏幕", deviceId);
-            // 通知设备启动
-//            Message message = Message.newBuilder().setTopicName(Message.Topic.COMPONENT_START).setStatus(STATUS_OK).setMessage(ByteString.copyFromUtf8(JSON.toJSONString(config))).build();
-//            observer.onNext(message);
-            Message message = Message.newBuilder().setTopicName(Message.Topic.SCREEN_START).setStatus(STATUS_OK).setMessage(ByteString.copyFromUtf8("screen start")).build();
-            observer.onNext(message);
+        if(startProjection(client, deviceId)) {
             deviceLockMgr.debugLock(deviceId, client.getSessionId().toString());
-        }else{
-            log.error("设备还未准备好 {}", deviceId);
-            client.sendEvent(DEBUG_ERROR, "设备还未准备好");
+        }else {
             return;
         }
         Device device = deviceService.findByDeviceId(deviceId);
@@ -234,15 +227,69 @@ public class RemoteScreenEventHandler {
         params.setSocketClientId(client.getSessionId().toString());
 
         DateTime now = new DateTime();
-        String cron = CronDateUtils.getCron(now.plusSeconds(2).toDate());
+        String cron = CronDateUtils.getCron(now.toDate());
         try {
-            jobService.addJob(JOB_DEBUG_NAME, deviceId, cron,  String.format("设备[%s]-[%s]-[%s]远程调试",device.getBrand(),device.getModel(),device.getDeviceId()), JSON.toJSONString(params));
+            jobService.addJob(JOB_DEBUG_NAME, deviceId, cron, String.format("设备[%s]-[%s]-[%s]远程调试", device.getBrand(), device.getModel(), device.getDeviceId()), JSON.toJSONString(params));
         } catch (BusinessException e) {
             e.printStackTrace();
         }
         client.sendEvent("devices", JSON.toJSON(device));
 
     }
+
+    @OnEvent(value = WAIT_SCREEN)
+    public void onWaitScreen(SocketIOClient client, String deviceId, AckRequest ackRequest) {
+        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
+        if (observer != null) {
+            Message message = Message.newBuilder().setTopicName(Message.Topic.PROJECTION_STOP).setStatus("OK").setMessage(ByteString.copyFromUtf8("screen wait")).build();
+            observer.onNext(message);
+        } else {
+            client.sendEvent("error", "设备还未准备好");
+        }
+    }
+
+    @OnEvent(value = NOTIFY_SCREEN)
+    public void onNotifyScreen(SocketIOClient client, String deviceId, AckRequest ackRequest) {
+        startProjection(client, deviceId);
+    }
+
+    private boolean startProjection(SocketIOClient client, String deviceId) {
+        Map<String, Object> config = new HashMap<>();
+        config.put("scale", 0.5f);
+
+        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
+        if (observer != null) {
+            log.info("通知设备{}启动屏幕", deviceId);
+            // 通知设备启动
+            Message message = Message.newBuilder().setTopicName(Message.Topic.PROJECTION_START).setStatus(STATUS_OK).setMessage(ByteString.copyFromUtf8(JSON.toJSONString(config))).build();
+            observer.onNext(message);
+            return true;
+        } else {
+            log.error("设备还未准备好 {}", deviceId);
+            client.sendEvent(DEBUG_ERROR, "设备还未准备好");
+        }
+        return false;
+    }
+
+    @OnEvent(value = UNSUB_SCREEN)
+    public void onUnsubScreen(SocketIOClient client, String deviceId, AckRequest ackRequest) {
+        try {
+            jobService.interrupt(JOB_DEBUG_NAME, deviceId);
+        } catch (BusinessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @OnEvent(value = SET_FRAME_RATE)
+    public void onFrameRate(SocketIOClient client, String data, AckRequest ackRequest) {
+        sendCmd(client, data, "cmd", "帧率不能为空", Message.Topic.SET_FRAME_RATE);
+    }
+
+    @OnEvent(value = SET_ROTATION)
+    public void onRotation(SocketIOClient client, String data, AckRequest ackRequest) {
+        sendCmd(client, data, "cmd", "旋转角度不能为空", Message.Topic.SET_ROTATION);
+    }
+
 
 
     /**
@@ -296,7 +343,7 @@ public class RemoteScreenEventHandler {
         debugParams.setSocketClientId(client.getSessionId().toString());
 
         DateTime now = new DateTime();
-        String cron = CronDateUtils.getCron(now.plusSeconds(2).toDate());
+        String cron = CronDateUtils.getCron(now.toDate());
         try {
             if("ios".equals(device.getOsName().toLowerCase())){
                 log.info("ios log start");
@@ -308,21 +355,6 @@ public class RemoteScreenEventHandler {
         } catch (BusinessException e) {
             e.printStackTrace();
         }
-    }
-
-    @OnEvent(value = WAIT_SCREEN)
-    public void onWaitScreen(SocketIOClient client, String deviceId, AckRequest ackRequest) {
-        try {
-            jobService.interrupt(JOB_DEBUG_NAME, deviceId);
-        } catch (BusinessException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @OnEvent(value = FRAME_RATE)
-    public void onFrameRate(SocketIOClient client, String data, AckRequest ackRequest) {
-
-        sendCmd(client, data, "cmd", "帧率不能为空", Message.Topic.FRAME_RATE);
     }
 
     @OnEvent(value = WAIT_LOGCAT)

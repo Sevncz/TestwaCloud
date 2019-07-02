@@ -30,7 +30,7 @@ public class AndroidComponentServiceRunningListener implements ScreenProjectionO
 
     private final String deviceId;
     private final DeivceRemoteApiClient api;
-    private boolean isScreenWaitting = true;
+//    private boolean isScreenWaitting = true;
     private boolean isLogWaitting = true;
     // 帧率
     private int framerate = 20;
@@ -79,11 +79,11 @@ public class AndroidComponentServiceRunningListener implements ScreenProjectionO
 
     @Override
     public void frameImageChange(byte[] image) {
-        if (!isScreenWaitting) {
-            if (latesenttime == 0 || System.currentTimeMillis() - latesenttime > 1000/framerate) {
-                this.latesenttime = System.currentTimeMillis();
-                this.observers.onNext(api.getScreenCaptureRequest(image, this.deviceId));
-            }
+//        if (!isScreenWaitting) {
+//        }
+        if (latesenttime == 0 || System.currentTimeMillis() - latesenttime > 1000/framerate) {
+            this.latesenttime = System.currentTimeMillis();
+            this.observers.onNext(api.getScreenCaptureRequest(image, this.deviceId));
         }
     }
 
@@ -93,9 +93,9 @@ public class AndroidComponentServiceRunningListener implements ScreenProjectionO
         }
     }
 
-    public void setScreenWait(boolean isWaitting) {
-        this.isScreenWaitting = isWaitting;
-    }
+//    public void setScreenWait(boolean isWaitting) {
+//        this.isScreenWaitting = isWaitting;
+//    }
 
     public void setLogWait(boolean isWaitting) {
         this.isLogWaitting = isWaitting;
@@ -151,7 +151,7 @@ public class AndroidComponentServiceRunningListener implements ScreenProjectionO
         }
     }
 
-    public boolean isScreenWait() {
-        return this.isScreenWaitting;
-    }
+//    public boolean isScreenWait() {
+//        return this.isScreenWaitting;
+//    }
 }

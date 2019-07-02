@@ -23,22 +23,22 @@ public class CommonProcessListener extends ProcessListener {
     @Override
     public void beforeStart(ProcessExecutor executor) {
         super.beforeStart(executor);
-        log.info("[ProcessExecutor ready start] {}", command);
+        log.info("[{}] before start", String.join(" ", command));
     }
 
     @Override
     public void afterStart(Process process, ProcessExecutor executor) {
-        log.info("[ProcessExecutor started] {}", command);
+        log.info("[{}] started", String.join(" ", command));
         this.process = process;
     }
 
     @Override
     public void afterFinish(Process process, ProcessResult result) {
-        log.info("[ProcessExecutor finished] {} exitCode: {} result: {}", command, result.getExitValue(), String.join("\n", result.getOutput().getLinesAsUTF8()));
+        log.info("[{}] finish exitCode: {} result: {}", String.join(" ", command), result.getExitValue(), String.join("\n", result.getOutput().getLinesAsUTF8()));
     }
 
     @Override
     public void afterStop(Process process) {
-        log.info("[ProcessExecutor stoped] {}", command);
+        log.info("[{}] stop", String.join(" ", command));
     }
 }

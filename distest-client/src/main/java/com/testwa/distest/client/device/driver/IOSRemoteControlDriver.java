@@ -108,30 +108,29 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
     }
 
     @Override
-    public void startScreen(String command) {
-        stopScreen();
-        this.iosDriver = new IOSDriver(this.iosDriverCapabilities);
+    public void startProjection(String command) {
+        stopProjection();
 
         this.screenIOSProjection = new ScreenIOSProjection(this.iosDriver.getScreenPort(), this.listener);
         this.screenIOSProjection.startServer();
     }
 
-    @Override
-    public void waitScreen() {
-        this.listener.setScreenWait(true);
-        this.stopScreen();
-        log.info("iOS 屏幕已关闭");
-    }
+//    @Override
+//    public void waitProjection() {
+//        this.listener.setScreenWait(true);
+//        this.stopProjection();
+//        log.info("iOS 屏幕已关闭");
+//    }
+//
+//    @Override
+//    public void notifyProjection() {
+//        this.listener.setScreenWait(false);
+//        Map<String, Object> config = new HashMap<>();
+//        this.startProjection(JSON.toJSONString(config));
+//    }
 
     @Override
-    public void notifyScreen() {
-        this.listener.setScreenWait(false);
-        Map<String, Object> config = new HashMap<>();
-        this.startScreen(JSON.toJSONString(config));
-    }
-
-    @Override
-    public void stopScreen() {
+    public void stopProjection() {
 
         if(this.screenIOSProjection != null) {
             this.screenIOSProjection.close();
@@ -205,7 +204,7 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
     @Override
     public void destory() {
         // 停止所有服务
-        this.stopScreen();
+        this.stopProjection();
         this.stopLog();
         this.stopRecorder();
     }
@@ -272,6 +271,11 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
 
     @Override
     public void tapAndHold(String cmd) {
+
+    }
+
+    @Override
+    public void setRotation(String cmd) {
 
     }
 
@@ -402,6 +406,8 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
             log.info("[Connected to Server] {}", this.udid);
             // 连上服务器之后归零
             connectRetryTime.set(0);
+            // 连接上服务器之后启动wda
+            this.iosDriver = new IOSDriver(this.iosDriverCapabilities);
             return;
         }
         IRemoteCommandCallBack call;

@@ -6,8 +6,11 @@ import com.testwa.distest.client.util.CommandLineExecutor;
 import com.testwa.distest.client.util.CommonUtil;
 import com.testwa.distest.client.util.PortUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.zeroturnaround.exec.ProcessExecutor;
 import org.zeroturnaround.exec.StartedProcess;
+import org.zeroturnaround.exec.stream.LogOutputStream;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -102,8 +105,20 @@ public class MinitouchServer {
             int processId = getMinitouchProcessID(deviceId);
             ADBTools.killProcess(deviceId, processId);
 
+            String[] shellCommand = ADBTools.buildAdbShell(deviceId);
             String command = getCommand();
-            mainProcess = ADBTools.asyncCommandShell(deviceId, command);
+            String[] mainCommand =  ArrayUtils.addAll(shellCommand, command);
+
+            this.mainProcess = new ProcessExecutor()
+                    .command(mainCommand)
+                    .readOutput(true)
+                    .redirectOutput(new LogOutputStream() {
+                        @Override
+                        protected void processLine(String s) {
+                            log.info("[{}] minitouch out: {}", deviceId, s);
+                        }
+                    })
+                    .start();
         } catch (Exception e) {
             release();
             throw new IllegalStateException("[" + deviceId + "] 启动失败", e);

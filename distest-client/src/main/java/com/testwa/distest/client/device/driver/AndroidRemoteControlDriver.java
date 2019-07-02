@@ -153,15 +153,6 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
         clientInfo = buildClientInfo();
         // 注册到server
         register();
-        // 启动 stfagent
-        this.stfAgentServer = new StfAPKServer(this.device.getSerial(), this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH));
-        this.stfAgentServer.start();
-        int agentPort = this.stfAgentServer.getAgentPort();
-        int servicePort = this.stfAgentServer.getServicePort();
-        this.stfAgentClient = new StfAgentClient(agentPort, this.device.getSerial());
-        this.stfServiceClient = new StfServiceClient(servicePort, this.device.getSerial(), this);
-        this.stfAgentClient.start();
-        this.stfServiceClient.start();
     }
 
     @Override
@@ -179,7 +170,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
     }
 
     @Override
-    public void startScreen(String command) {
+    public void startProjection(String command) {
         // 获取请求的配置
         JSONObject obj = JSON.parseObject(command);
         Float scale = obj.getFloat("scale");
@@ -192,14 +183,13 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
         if (rotate != null) {
             userRotation = rotate;
         }
-        restartScreen(userRotation);
+        restartProjection(userRotation);
 
         log.info("[{}] 屏幕已启动", this.device.getSerial());
     }
 
-    private void restartScreen(Integer rotate) {
-        stopScreen();
-
+    private void restartProjection(Integer rotate) {
+        stopProjection();
         // 重建新的进程
         this.touchProjection = new TouchAndroidProjection(this.device.getSerial(), this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH));
         this.touchProjection.start();
@@ -211,21 +201,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
     }
 
     @Override
-    public void waitScreen() {
-        this.listener.setScreenWait(true);
-        this.stopScreen();
-        log.info("[{}] 屏幕已关闭", this.device.getSerial());
-    }
-
-    @Override
-    public void notifyScreen() {
-        this.listener.setScreenWait(false);
-        Map<String, Object> config = new HashMap<>();
-        this.startScreen(JSON.toJSONString(config));
-    }
-
-    @Override
-    public void stopScreen() {
+    public void stopProjection() {
         if(this.screenProjection != null) {
             this.screenProjection.close();
         }
@@ -300,15 +276,10 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
     @Override
     public void destory() {
 
-        this.stopScreen();
+        this.stopProjection();
         this.stopLog();
         this.stopRecorder();
-        if(this.stfAgentServer != null) {
-            this.stfAgentServer.close();
-        }
-        if(this.stfAgentClient != null) {
-            this.stfAgentClient.close();
-        }
+        this.stopStf();
     }
 
     @Override
@@ -409,6 +380,14 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
     @Override
     public void tapAndHold(String cmd) {
         log.error("iOS event {}", cmd);
+    }
+
+    @Override
+    public void setRotation(String cmd) {
+        if(this.stfAgentClient != null) {
+            int rotation = Integer.parseInt(cmd);
+            this.stfAgentClient.setRotation(rotation);
+        }
     }
 
     @Override
@@ -601,6 +580,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
             }
             // 连上服务器之后归零
             connectRetryTime.set(0);
+            startStf();
             return;
         }
         IRemoteCommandCallBack call;
@@ -613,7 +593,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
             }
             call.callback(message.getMessage());
         } catch (Exception e) {
-            log.error("回调错误", e);
+            log.error("["+device.getSerial()+"] command error", e);
         }
     }
 
@@ -640,8 +620,50 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
 
     public void changeRotation(int rotation) {
         this.userRotation = rotation;
-        if(!this.listener.isScreenWait()) {
-            restartScreen(rotation);
+        if(this.screenProjection == null) {
+            return;
+        }
+        if(this.screenProjection.isRunning()) {
+            restartProjection(rotation);
+        }
+    }
+
+    /**
+     * @Description: 启动 stfagent
+     * @Param: []
+     * @Return: void
+     * @Author wen
+     * @Date 2019-07-02 22:48
+     */
+    private void startStf(){
+        // start server
+        this.stfAgentServer = new StfAPKServer(this.device.getSerial(), this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH));
+        this.stfAgentServer.start();
+
+        // start service and agent
+        this.stfAgentClient = new StfAgentClient(this.device.getSerial());
+        this.stfServiceClient = new StfServiceClient(this.device.getSerial(), this);
+        this.stfAgentClient.start();
+        this.stfServiceClient.start();
+    }
+
+    /**
+     * @Description: 关闭stf
+     * @Param: []
+     * @Return: void
+     * @Author wen
+     * @Date 2019-07-02 22:48
+     */
+    private void stopStf(){
+        // 启动 stfagent
+        if(this.stfAgentServer != null) {
+            this.stfAgentServer.close();
+        }
+        if(this.stfAgentClient != null) {
+            this.stfAgentClient.close();
+        }
+        if(this.stfServiceClient != null) {
+            this.stfServiceClient.close();
         }
     }
 }

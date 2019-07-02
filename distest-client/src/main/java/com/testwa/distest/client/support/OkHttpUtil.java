@@ -59,7 +59,7 @@ public class OkHttpUtil{
                 throw new HttpRequestException("Status code is not OK during http request execution: " + status);
             }
         } catch (Exception e) {
-            log.error("okhttp3 put error >> ex = {}", ExceptionUtils.getMessage(e));
+            log.error("[okhttp3] request {} error ex = {}", request.url().toString(), ExceptionUtils.getMessage(e));
             throw new HttpRequestException(e);
         } finally {
             if (response != null) {

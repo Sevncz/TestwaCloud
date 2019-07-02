@@ -59,7 +59,7 @@ public class EquipmentLogJob implements BaseJob, InterruptableJob {
                 Object obj = logQueue.pop(deviceId);
                 if(obj != null) {
                     byte[] bytes = (byte[]) obj;
-                    log.info("获取{}日志，bytes 长度 {}", deviceId, bytes.length);
+                    log.debug("获取{}日志，bytes 长度 {}", deviceId, bytes.length);
                     if(bytes.length != 0) {
                         client.sendEvent("logcat", new String(bytes));
                         continue;

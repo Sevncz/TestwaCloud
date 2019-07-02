@@ -8,8 +8,13 @@ import com.testwa.distest.client.util.CommandLineExecutor;
 import com.testwa.distest.client.util.CommonUtil;
 import com.testwa.distest.client.util.PortUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.zeroturnaround.exec.ProcessExecutor;
+import org.zeroturnaround.exec.ProcessResult;
 import org.zeroturnaround.exec.StartedProcess;
+import org.zeroturnaround.exec.listener.ProcessListener;
+import org.zeroturnaround.exec.stream.LogOutputStream;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -21,7 +26,7 @@ import java.util.concurrent.*;
  * Created by wen on 2017/4/17.
  */
 @Slf4j
-public class MinicapAndroidServer {
+public class MinicapServer {
     /** android 临时文件存放目录 */
     private static final String ANDROID_TMP_DIR = "/data/local/tmp/";
     /** minicap 临时存放目录 */
@@ -51,7 +56,7 @@ public class MinicapAndroidServer {
     private StartedProcess mainProcess;
     private String deviceId;
 
-    public MinicapAndroidServer(String deviceId, String resourcePath) {
+    public MinicapServer(String deviceId, String resourcePath) {
         this.resourcePath = resourcePath;
         this.deviceId = deviceId;
     }
@@ -101,35 +106,50 @@ public class MinicapAndroidServer {
         }
         try {
             // push minicap
+            // TODO 需要挪到设备初始化里面去
             if(!checkMinicapInstallation(deviceId)) {
                 String minicapPath = getMinicapPath().toString();
-                log.info("推送文件 local: {}, remote: {}", minicapPath, MINICAP_TMP_DIR);
+                log.info("[{}] 推送文件 local: {}, remote: {}", minicapPath, MINICAP_TMP_DIR);
 //            ADBTools.pushFile(deviceId, getResource(minicapPath), MINICAP_TMP_DIR);
 //            ADBTools.chmod(deviceId, MINICAP_TMP_DIR, MODE);
                 ADBCommandUtils.pushFile(deviceId, getResource(minicapPath), MINICAP_TMP_DIR, MODE);
 
                 // push minicap.so
                 String minicapSoPath = getMinicapSoPath().toString();
-                log.info("推送文件 local: {}, remote: {}", minicapSoPath, MINICAP_SO_TMP_DIR);
+                log.info("[{}] 推送文件 local: {}, remote: {}", minicapSoPath, MINICAP_SO_TMP_DIR);
 //            ADBTools.pushFile(deviceId, getResource(minicapSoPath), MINICAP_SO_TMP_DIR);
 //            ADBTools.chmod(deviceId, MINICAP_SO_TMP_DIR, MODE);
                 ADBCommandUtils.pushFile(deviceId, getResource(minicapSoPath), MINICAP_SO_TMP_DIR, MODE);
 
                 // push minicap-nopie
                 String minicapNopiePath = getMinicapNopiePath().toString();
-                log.info("推送文件 local: {}, remote: {}", minicapNopiePath, MINICAP_NOPIE_TMP_DIR);
+                log.info("[{}] 推送文件 local: {}, remote: {}", minicapNopiePath, MINICAP_NOPIE_TMP_DIR);
 //            ADBTools.pushFile(deviceId, getResource(minicapNopiePath), MINICAP_NOPIE_TMP_DIR);
 //            ADBTools.chmod(deviceId, MINICAP_NOPIE_TMP_DIR, MODE);
                 ADBCommandUtils.pushFile(deviceId, getResource(minicapNopiePath), MINICAP_NOPIE_TMP_DIR, MODE);
             }else{
-                log.info("[{}] Minitouch 已安装", deviceId);
+                log.info("[{}] minitouch is already installed on the device", deviceId);
             }
 
             int processId = getMinicapProcessID(deviceId);
             ADBTools.killProcess(deviceId, processId);
 
+            String[] shellCommand = ADBTools.buildAdbShell(deviceId);
+
             String command = getCommand();
-            this.mainProcess = ADBTools.asyncCommandShell(deviceId, command);
+            String[] mainCommand =  ArrayUtils.addAll(shellCommand, command);
+
+            this.mainProcess = new ProcessExecutor()
+                    .command(mainCommand)
+                    .readOutput(true)
+                    .redirectOutput(new LogOutputStream() {
+                        @Override
+                        protected void processLine(String s) {
+                            log.info("[{}] minicap out: {}", deviceId, s);
+                        }
+                    })
+                    .start();
+
         } catch (Exception e) {
             release();
             throw new IllegalStateException("Minicap服务启动失败", e);

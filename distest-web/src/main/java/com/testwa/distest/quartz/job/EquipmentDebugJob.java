@@ -61,8 +61,9 @@ public class EquipmentDebugJob implements BaseJob, InterruptableJob {
                 Object obj = screenStreamQueue.pop(deviceId);
                 if(obj != null) {
                     byte[] imgData = (byte[]) obj;
-                    log.info("获取{}屏幕，bytes 长度 {}", deviceId, imgData.length);
+                    log.debug("[{}] 获取屏幕，bytes 长度 {}", deviceId, imgData.length);
                     if(imgData.length != 0) {
+                        log.debug("[{}] client {} channel {}", deviceId, client.isChannelOpen());
                         client.sendEvent("minicap", imgData);
                         continue;
                     }
@@ -75,9 +76,7 @@ public class EquipmentDebugJob implements BaseJob, InterruptableJob {
         log.info("ws connect status {} {} ", client.isChannelOpen(), devLog.toString());
         StreamObserver<Message> devObserver = CacheUtil.serverCache.getObserver(deviceId);
         if(devObserver != null ) {
-//            Message message = Message.newBuilder().setTopicName(Message.Topic.COMPONENT_STOP).setStatus("OK").setMessage(ByteString.copyFromUtf8("stop")).build();
-//            devObserver.onNext(message);
-            Message message = Message.newBuilder().setTopicName(Message.Topic.SCREEN_WAIT).setStatus("OK").setMessage(ByteString.copyFromUtf8("screen wait")).build();
+            Message message = Message.newBuilder().setTopicName(Message.Topic.PROJECTION_STOP).setStatus("OK").setMessage(ByteString.copyFromUtf8("screen wait")).build();
             devObserver.onNext(message);
         }
         deviceLockMgr.debugRelease(deviceId, socketClientId);

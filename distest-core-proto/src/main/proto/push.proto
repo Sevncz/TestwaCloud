@@ -62,39 +62,42 @@ message TopicInfo {
 message Message {
     enum Topic {
         ADB = 0;
-        COMPONENT_START = 1;
-        SCREEN_WAIT = 2;
-        COMPONENT_STOP = 3;
-        DEVICE_INFO = 4;
-        SCREENSHOT = 5;
-        KEY_EVENT = 6;
-        INPUT = 7;
-        TOUCH = 8;
-        TASK_START = 9;
-        TASK_CANCEL = 10;
-        LOGCAT_START = 11;
-        LOGCAT_WAIT = 12;
-        LOGCAT_STOP = 13;
-        INSTALL_APP = 14;
-        UNINSTALL_APP = 15;
-        PUSH_FILE = 16;
-        BACK = 17;
-        HOME = 18;
-        MENU = 19;
-        SHELL = 20;
-        OPENWEB = 21;
-        MESSAGE = 22;
-        SCREEN_START = 23;
+
+        PROJECTION_START = 1;
+        PROJECTION_WAIT = 2;
+        PROJECTION_NOTIFY = 3;
+        PROJECTION_STOP = 4;
+
+        DEVICE_INFO = 5;
+        SCREENSHOT = 6;
+        KEY_EVENT = 7;
+        INPUT = 8;
+        TOUCH = 9;
+        TASK_START = 10;
+        TASK_CANCEL = 11;
+        LOGCAT_START = 12;
+        LOGCAT_WAIT = 13;
+        LOGCAT_STOP = 14;
+        INSTALL_APP = 15;
+        UNINSTALL_APP = 16;
+        PUSH_FILE = 17;
+        BACK = 18;
+        HOME = 19;
+        MENU = 20;
+        SHELL = 21;
+        OPENWEB = 22;
+        MESSAGE = 23;
         DEL = 24;
         JR_TASK_START = 25;
         CRAWLER_TASK_START = 26;
+
         DEBUG_START = 30;
         DEBUG_STOP = 31;
 
-
         TAP = 40;
         SWIP = 41;
-        FRAME_RATE = 42;
+        SET_FRAME_RATE = 42;
+        SET_ROTATION = 43;
 
         CONNECTED = 99;
     }

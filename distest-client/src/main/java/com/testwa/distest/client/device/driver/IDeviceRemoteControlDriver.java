@@ -28,22 +28,22 @@ public interface IDeviceRemoteControlDriver {
     /**
      * 屏幕和操作同步
      */
-    void startScreen(String command);
+    void startProjection(String command);
 
     /**
-     * 屏幕同步暂停
+     * 屏幕同步暂停 同 stop
      */
-    void waitScreen();
+//    void waitProjection();
 
     /**
-     * 屏幕同步唤醒
+     * 屏幕同步唤醒 同 start
      */
-    void notifyScreen();
+//    void notifyProjection();
 
     /**
      * 屏幕同步关闭
      */
-    void stopScreen();
+    void stopProjection();
 
     /**
      * 屏幕帧率
@@ -91,6 +91,8 @@ public interface IDeviceRemoteControlDriver {
     void swip(String cmd);
     void tap(String cmd);
     void tapAndHold(String cmd);
+
+    void setRotation(String cmd);
 
     void installApp(String command);
 

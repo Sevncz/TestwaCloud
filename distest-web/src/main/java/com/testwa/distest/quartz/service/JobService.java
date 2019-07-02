@@ -140,7 +140,6 @@ public class JobService {
 
             JobDetail jobDetail = JobBuilder.newJob(clazz).withIdentity(jobKey).withDescription(jobDescription).build();
             jobDetail.getJobDataMap().put("params", params);
-
             scheduler.scheduleJob(jobDetail, trigger);
         } catch (SchedulerException | ClassNotFoundException e) {
             log.error("添加job失败, jobName=%s,jobGroup=%s,e=%s", jobName, jobGroup, e);

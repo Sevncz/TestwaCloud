@@ -22,12 +22,16 @@
 <button id="del">DEL</button>
 
 <br>
-<button id="sub">SUB</button>
-<button id="wait">WAIT</button>
-<button id="reset_minicap">RESET_MINICAP</button>
+<button id="sub">开始使用设备</button>
+<button id="wait">暂停使用设备</button>
+<button id="notify">恢复使用设备</button>
+<button id="unsub">停止使用设备</button>
 <br>
 <button id="debugStart">启动debug</button>
 <button id="debugStop">关闭debug</button>
+<br>
+<button id="rotation90">旋转90</button>
+<!--<button id="frameRate">帧率</button>-->
 
 
 <!-- jQuery -->
@@ -64,7 +68,7 @@ var BLANK_IMG =
 
 var canvas = document.getElementById('phone-screen')
   , g = canvas.getContext('2d')
-var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjcsKwjAQRf9l1gkkTTKT9D9ciZQ8JlCRWtoUBfHfjbhxe8_h3BfsR4IRHrwoDQKOnbdpLn05Tdp58so4QqeQiLDzvHFs3Ll2qExAQ0FrFLDn-8owni8C-Ln-sB2cpiBgju3f78YS0-0badvBAq5t7n9EtURTlPR2KNIOKctYS5bOEhpPHKsN8P4AAAD__w.HFT7Wc4vmcQXBZU7hqNAffA5IFVlPpxXzY0EKi65u-k";
+var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjc0KwjAQhN9lzyl002yy6Xt4KlLyCxGtpU1BEN_dKB68DMPMx8wT9sPDCC7eygICjj1tc4ktOc1IvcUmikgZ1oy6AWFLrqYGIGnZE9lBGkQBe7ivCcbpLCA91l_NygxSQHH1n2_E4vz1M1K3Iwm41NIOAyumbPvOY-ZO6a-zposh2MyOMEoNrzcAAAD__w.BUo75S6LqAx-w9OWzXTytF2b7qEGQGdGYTozur0Fr2w";
 var socket = io('http://127.0.0.1:9092?type=browser&token=' + token);
 
 var deviceId = '3JU5T18313001420';
@@ -185,6 +189,14 @@ function waitScreen() {
     console.log("wait")
     socket.emit("wait_screen", deviceId)
 }
+function notifyScreen() {
+    console.log("notify")
+    socket.emit("notify_screen", deviceId)
+}
+function unsubScreen() {
+    console.log("unsub")
+    socket.emit("unsub_screen", deviceId)
+}
 function debugStart() {
     console.log("debugStart")
     socket.emit("remote_debug_start", deviceId)
@@ -192,6 +204,14 @@ function debugStart() {
 function debugStop() {
     console.log("debugStop")
     socket.emit("remote_debug_stop", deviceId)
+}
+function rotation() {
+    console.log("rotation 90")
+    var params = {
+        deviceId: deviceId,
+        cmd: "90"
+    }
+    socket.emit("set_rotation", JSON.stringify(params))
 }
 
 function getDevices() {
@@ -300,17 +320,16 @@ $("#sub").click(function () {
 $("#wait").click(function () {
     waitScreen();
 });
+
+$("#notify").click(function () {
+    notifyScreen();
+});
+
+$("#unsub").click(function () {
+    unsubScreen();
+});
 $("#devices").click(function () {
     getDevices();
-});
-$("#reset_minicap").click(function () {
-
-    var params = {
-        deviceId: deviceId,
-        scale: 0.5,   //  分辨率，画质，越小越模糊
-        rotate: 90.0  // 屏幕旋转度数，支持0,90,180,270 4个值
-    }
-    socket.emit("reset_minicap", JSON.stringify(params))
 });
 
 $("#openBaidu").click(function () {
@@ -326,6 +345,9 @@ $("#debugStart").click(function () {
 })
 $("#debugStop").click(function () {
     debugStop();
+})
+$("#rotation90").click(function () {
+    rotation();
 })
 
 </script>
