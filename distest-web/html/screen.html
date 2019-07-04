@@ -9,29 +9,42 @@
 <script src="js/socket.io-1.4.5.js"></script>
 
 <br>
-<button id="devices">DEVICES</button>
-<button id="back">BACK</button>
-<button id="home" >HOME</button>
-<button id="menu">MENU</button>
-<button id="openBaidu">OPENBAIDU</button>
-<button id="shell">SHELL</button>
-
-<br>
-<input type="text" id="text" />
-<button id="send">SEND</button>
-<button id="del">DEL</button>
-
-<br>
 <button id="sub">开始使用设备</button>
 <button id="wait">暂停使用设备</button>
 <button id="notify">恢复使用设备</button>
 <button id="unsub">停止使用设备</button>
 <br>
+<button id="devices">DEVICES</button>
+<button id="back">返回</button>
+<button id="home" >HOME</button>
+<button id="menu">菜单</button>
+<button id="camera">拍照</button>
+<button id="power">电源</button>
+<button id="setting">设置</button>
+<button id="notification">通知</button>
+<button id="search">搜索</button>
+<br>
+<button id="openBaidu">OPENBAIDU</button>
+<button id="shell">SHELL</button>
+<br>
+<input type="text" id="text" />
+<button id="send">SEND</button>
+<button id="del">DEL</button>
+<br>
+<button id="rotation90">横屏</button>
+<button id="rotation0">竖屏</button>
+<br>
+<button id="browsers">查看浏览器App</button>
+<button id="deviceInfo">设备信息</button>
+<br>
+<button id="wake">唤醒</button>
+<button id="unlock">键盘锁解锁</button>
+<button id="lock">键盘锁锁定</button>
+<input type="text" id="clipboard_text" />
+<button id="clipboard">剪切板</button>
+<br>
 <button id="debugStart">启动debug</button>
 <button id="debugStop">关闭debug</button>
-<br>
-<button id="rotation90">旋转90</button>
-<!--<button id="frameRate">帧率</button>-->
 
 
 <!-- jQuery -->
@@ -68,7 +81,7 @@ var BLANK_IMG =
 
 var canvas = document.getElementById('phone-screen')
   , g = canvas.getContext('2d')
-var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjc0KwjAQhN9lzyl002yy6Xt4KlLyCxGtpU1BEN_dKB68DMPMx8wT9sPDCC7eygICjj1tc4ktOc1IvcUmikgZ1oy6AWFLrqYGIGnZE9lBGkQBe7ivCcbpLCA91l_NygxSQHH1n2_E4vz1M1K3Iwm41NIOAyumbPvOY-ZO6a-zposh2MyOMEoNrzcAAAD__w.BUo75S6LqAx-w9OWzXTytF2b7qEGQGdGYTozur0Fr2w";
+var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjc0KwjAQhN9lzwm4af627-GpSEnbDUS0liYFQXx3V_DgZQ7zfcy8oB4T9JCWe1lBwVF5H8sizXlEdyKUsM7ZEH1EL8K8c2osAjpvDAok9F5BnR8bQz9cFPBz--GOjCMFJbV_X4w1TbfvSNsPVnBtRQ7ZmGxj7nSwlLVFO-kYmHRYXCZMyVPs4P0BAAD__w.Kx5GDlqvVAFY7KKFX-fJ9CZrnH19DZY0FoO4h2aOC-k";
 var socket = io('http://127.0.0.1:9092?type=browser&token=' + token);
 
 var deviceId = '3JU5T18313001420';
@@ -138,18 +151,13 @@ function getXAndY(control, event){
     return {x:x2,y:y2};
 }
 
-function sendHome() {
-    console.log("home")
-    socket.emit("home", deviceId)
-}
-function sendBack() {
-    socket.emit("back", deviceId)
-}
-function sendMenu() {
-    socket.emit("menu", deviceId)
-}
-function sendDel() {
-    socket.emit("del", deviceId)
+function pressKey(value) {
+    var params = {
+        deviceId: deviceId,
+        keyCode: value
+    }
+
+    socket.emit("press_key", JSON.stringify(params))
 }
 function sendUrl(url) {
     var params = {
@@ -205,13 +213,37 @@ function debugStop() {
     console.log("debugStop")
     socket.emit("remote_debug_stop", deviceId)
 }
-function rotation() {
-    console.log("rotation 90")
+function rotation(value) {
+    console.log("rotation " + value)
     var params = {
         deviceId: deviceId,
-        cmd: "90"
+        rotation: value,
+        isLock: false
     }
     socket.emit("set_rotation", JSON.stringify(params))
+}
+function wake() {
+    console.log("wake ")
+    var params = {
+        deviceId: deviceId,
+    }
+    socket.emit("set_wake", JSON.stringify(params))
+}
+function clipboard(value) {
+    console.log("clipboard " + value)
+    var params = {
+        deviceId: deviceId,
+        text: value
+    }
+    socket.emit("set_clipboard", JSON.stringify(params))
+}
+function keyguard(value) {
+    console.log("set_keyguard_status " + value)
+    var params = {
+        deviceId: deviceId,
+        status: value
+    }
+    socket.emit("set_keyguard_status", JSON.stringify(params))
 }
 
 function getDevices() {
@@ -296,16 +328,31 @@ canvas.onmouseup = function (event) {
 };
 
 $("#back").click(function () {
-    sendBack();
+    pressKey(4);
 })
 $("#home").click(function () {
-    sendHome();
+    pressKey(3);
 })
 $("#menu").click(function () {
-    sendMenu();
+    pressKey(82);
 })
 $("#del").click(function () {
-    sendDel();
+    pressKey(67);
+})
+$("#camera").click(function () {
+    pressKey(27);
+})
+$("#power").click(function () {
+    pressKey(26);
+})
+$("#setting").click(function () {
+    pressKey(176);
+})
+$("#notification").click(function () {
+    pressKey(83);
+})
+$("#search").click(function () {
+    pressKey(84);
 })
 
 $("#send").click(function () {
@@ -347,7 +394,31 @@ $("#debugStop").click(function () {
     debugStop();
 })
 $("#rotation90").click(function () {
-    rotation();
+    rotation(90);
+})
+$("#rotation0").click(function () {
+    rotation(0);
+})
+$("#wake").click(function () {
+    wake();
+})
+$("#clipboard").click(function () {
+    var text = $("#clipboard_text").val();
+    clipboard(text);
+})
+$("#unlock").click(function () {
+    keyguard(false);
+})
+$("#lock").click(function () {
+    keyguard(true);
+})
+
+
+$("#browsers").click(function () {
+    socket.emit("browsers", deviceId)
+})
+$("#deviceInfo").click(function () {
+    socket.emit("device_info", deviceId)
 })
 
 </script>

@@ -96,8 +96,8 @@ message Message {
 
         TAP = 40;
         SWIP = 41;
-        SET_FRAME_RATE = 42;
-        SET_ROTATION = 43;
+        STF = 42;
+
 
         CONNECTED = 99;
     }

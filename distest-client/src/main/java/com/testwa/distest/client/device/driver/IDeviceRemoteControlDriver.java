@@ -92,8 +92,6 @@ public interface IDeviceRemoteControlDriver {
     void tap(String cmd);
     void tapAndHold(String cmd);
 
-    void setRotation(String cmd);
-
     void installApp(String command);
 
     void uninstallApp(String command);
@@ -102,6 +100,9 @@ public interface IDeviceRemoteControlDriver {
 
 
     /*==========================任务相关接口===============================*/
+
+    void information();
+
     /**
      * 启动遍历测试任务
      * @param command

@@ -8,6 +8,7 @@ import com.corundumstudio.socketio.annotation.OnDisconnect;
 import com.corundumstudio.socketio.annotation.OnEvent;
 import com.google.protobuf.ByteString;
 import com.testwa.core.base.util.CronDateUtils;
+import com.testwa.distest.common.android.KeyCode;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.config.security.JwtTokenUtil;
 import com.testwa.distest.exception.BusinessException;
@@ -31,6 +32,7 @@ import com.testwa.distest.server.web.device.mgr.DeviceOnlineMgr;
 import com.testwa.distest.server.web.device.validator.DeviceValidatoer;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.push.Message;
+import jp.co.cyberagent.stf.proto.Wire;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -51,10 +53,6 @@ public class RemoteScreenEventHandler {
     private final static String TAP = "tap";
     private final static String SWIP = "swip";
     private final static String INPUT = "input";
-    private final static String HOME = "home";
-    private final static String BACK = "back";
-    private final static String MENU = "menu";
-    private final static String DEL = "del";
     private final static String CLEAR = "clear";
     private final static String GET_DEVICES = "get_devices";
     private final static String SHELL = "shell";
@@ -73,6 +71,13 @@ public class RemoteScreenEventHandler {
 
     private final static String SET_FRAME_RATE = "set_frame_rate";
     private final static String SET_ROTATION = "set_rotation";
+    private final static String SET_WAKE = "set_wake";
+    private final static String SET_CLIPBOARD = "set_clipboard";
+    private final static String SET_KEYGUARD_STATUS = "set_keyguard_status";
+
+    private final static String PRESS_KEY = "press_key";
+    private final static String BROWSER_APP_LIST = "browsers";
+    private final static String DEVICE_INFO = "device_info";
 
     private final static String JOB_DEBUG_NAME = "com.testwa.distest.quartz.job.EquipmentDebugJob";
     private final static String JOB_LOGCAT_NAME = "com.testwa.distest.quartz.job.EquipmentLogcatJob";
@@ -280,18 +285,6 @@ public class RemoteScreenEventHandler {
         }
     }
 
-    @OnEvent(value = SET_FRAME_RATE)
-    public void onFrameRate(SocketIOClient client, String data, AckRequest ackRequest) {
-        sendCmd(client, data, "cmd", "帧率不能为空", Message.Topic.SET_FRAME_RATE);
-    }
-
-    @OnEvent(value = SET_ROTATION)
-    public void onRotation(SocketIOClient client, String data, AckRequest ackRequest) {
-        sendCmd(client, data, "cmd", "旋转角度不能为空", Message.Topic.SET_ROTATION);
-    }
-
-
-
     /**
      * logcat cmd eg: adb logcat ActivityManager:I MyApp:D *:S
      * 订阅logcat消息，需要先拼接好命令
@@ -404,63 +397,143 @@ public class RemoteScreenEventHandler {
 
     }
 
-    @OnEvent(value = HOME)
-    public void onHome(SocketIOClient client, String deviceId, AckRequest ackRequest) {
+    @OnEvent(value = PRESS_KEY)
+    private void onPressKey(SocketIOClient client, String data, AckRequest ackRequest) {
+        Map params = JSON.parseObject(data, Map.class);
+        String deviceId = (String) params.get("deviceId");
+        if (isIllegalDeviceId(client, deviceId)) {
+            return;
+        }
+        Integer keyCode = (Integer) params.get("keyCode");
+
+        Wire.KeyEventRequest.Builder request = Wire.KeyEventRequest.newBuilder();
+        request.setEvent(Wire.KeyEvent.PRESS);
+        request.setKeyCode(keyCode);
+
+        Wire.Envelope.Builder builder = Wire.Envelope.newBuilder();
+        builder.setType(Wire.MessageType.DO_KEYEVENT);
+        builder.setMessage(request.build().toByteString());
+
+        sendStfCmd(client, deviceId, builder.build());
+    }
+
+    @OnEvent(value = BROWSER_APP_LIST)
+    private void onBrowserAppList(SocketIOClient client, String deviceId, AckRequest ackRequest) {
+        if (isIllegalDeviceId(client, deviceId)) {
+            return;
+        }
+        Wire.GetBrowsersRequest.Builder request = Wire.GetBrowsersRequest.newBuilder();
+
+        Wire.Envelope.Builder builder = Wire.Envelope.newBuilder();
+        builder.setType(Wire.MessageType.GET_BROWSERS);
+        builder.setMessage(request.build().toByteString());
+
+        sendStfCmd(client, deviceId, builder.build());
+    }
+
+    @OnEvent(value = DEVICE_INFO)
+    private void onDeviceInfo(SocketIOClient client, String deviceId, AckRequest ackRequest) {
         if (isIllegalDeviceId(client, deviceId)) {
             return;
         }
         StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
-        if(observer != null ){
-            Message message = Message.newBuilder().setTopicName(Message.Topic.HOME).setStatus(STATUS_OK).setMessage(ByteString.copyFromUtf8(HOME)).build();
+        if (observer != null) {
+            Message message = Message.newBuilder().setTopicName(Message.Topic.DEVICE_INFO).setStatus(STATUS_OK).build();
             observer.onNext(message);
-        }else{
+        } else {
             client.sendEvent("error", "设备还未准备好");
         }
-
     }
-    @OnEvent(value = BACK)
-    public void onBack(SocketIOClient client, String deviceId, AckRequest ackRequest) {
+
+    @OnEvent(value = SET_FRAME_RATE)
+    public void onFrameRate(SocketIOClient client, String data, AckRequest ackRequest) {
+        Map params = JSON.parseObject(data, Map.class);
+        String deviceId = (String) params.get("deviceId");
+        if (isIllegalDeviceId(client, deviceId)) {
+            return;
+        }
+        String content = (String) params.get("cmd");
+        // TODO
+    }
+
+    @OnEvent(value = SET_ROTATION)
+    public void onRotation(SocketIOClient client, String data, AckRequest ackRequest) {
+        Map params = JSON.parseObject(data, Map.class);
+        String deviceId = (String) params.get("deviceId");
+        if (isIllegalDeviceId(client, deviceId)) {
+            return;
+        }
+        Integer rotation = (Integer) params.get("rotation");
+        Boolean isLock = (Boolean) params.get("isLock");
+
+        Wire.SetRotationRequest.Builder request = Wire.SetRotationRequest.newBuilder();
+        request.setRotation(rotation);
+        request.setLock(isLock);
+
+        Wire.Envelope.Builder builder = Wire.Envelope.newBuilder();
+        builder.setType(Wire.MessageType.SET_ROTATION);
+        builder.setMessage(request.build().toByteString());
+
+        sendStfCmd(client, deviceId, builder.build());
+    }
+
+    @OnEvent(value = SET_WAKE)
+    public void onWake(SocketIOClient client, String data, AckRequest ackRequest) {
+        Map params = JSON.parseObject(data, Map.class);
+        String deviceId = (String) params.get("deviceId");
+        if (isIllegalDeviceId(client, deviceId)) {
+            return;
+        }
+        Wire.DoWakeRequest.Builder request = Wire.DoWakeRequest.newBuilder();
+
+        Wire.Envelope.Builder builder = Wire.Envelope.newBuilder();
+        builder.setType(Wire.MessageType.DO_WAKE);
+        builder.setMessage(request.build().toByteString());
+
+        sendStfCmd(client, deviceId, builder.build());
+    }
+
+    @OnEvent(value = SET_CLIPBOARD)
+    public void onClipboard(SocketIOClient client, String data, AckRequest ackRequest) {
+        Map params = JSON.parseObject(data, Map.class);
+        String deviceId = (String) params.get("deviceId");
         if (isIllegalDeviceId(client, deviceId)) {
             return;
         }
 
-        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
-        if(observer != null ){
-            Message message = Message.newBuilder().setTopicName(Message.Topic.BACK).setStatus(STATUS_OK).setMessage(ByteString.copyFromUtf8(BACK)).build();
-            observer.onNext(message);
-        }else{
-            client.sendEvent("error", "设备还未准备好");
-        }
+        String text = (String) params.get("text");
 
+        Wire.SetClipboardRequest.Builder request = Wire.SetClipboardRequest.newBuilder();
+        request.setText(text);
+        request.setType(Wire.ClipboardType.TEXT);
+
+        Wire.Envelope.Builder builder = Wire.Envelope.newBuilder();
+        builder.setType(Wire.MessageType.SET_CLIPBOARD);
+        builder.setMessage(request.build().toByteString());
+
+        sendStfCmd(client, deviceId, builder.build());
     }
 
-    @OnEvent(value = MENU)
-    public void onMenu(SocketIOClient client, String deviceId, AckRequest ackRequest) {
+    @OnEvent(value = SET_KEYGUARD_STATUS)
+    public void onKeyguardStatus(SocketIOClient client, String data, AckRequest ackRequest) {
+        Map params = JSON.parseObject(data, Map.class);
+        String deviceId = (String) params.get("deviceId");
         if (isIllegalDeviceId(client, deviceId)) {
             return;
         }
-        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
-        if(observer != null ){
-            Message message = Message.newBuilder().setTopicName(Message.Topic.MENU).setStatus(STATUS_OK).setMessage(ByteString.copyFromUtf8(MENU)).build();
-            observer.onNext(message);
-        }else{
-            client.sendEvent("error", "设备还未准备好");
-        }
+
+        Boolean status = (Boolean) params.get("status");
+
+        Wire.SetKeyguardStateRequest.Builder request = Wire.SetKeyguardStateRequest.newBuilder();
+        request.setEnabled(status);
+
+        Wire.Envelope.Builder builder = Wire.Envelope.newBuilder();
+        builder.setType(Wire.MessageType.SET_KEYGUARD_STATE);
+        builder.setMessage(request.build().toByteString());
+
+        sendStfCmd(client, deviceId, builder.build());
     }
 
-    @OnEvent(value = DEL)
-    public void onDel(SocketIOClient client, String deviceId, AckRequest ackRequest) {
-        if (isIllegalDeviceId(client, deviceId)) {
-            return;
-        }
-        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
-        if(observer != null ){
-            Message message = Message.newBuilder().setTopicName(Message.Topic.DEL).setStatus(STATUS_OK).setMessage(ByteString.copyFromUtf8(DEL)).build();
-            observer.onNext(message);
-        }else{
-            client.sendEvent("error", "设备还未准备好");
-        }
-    }
 
     @OnEvent(value = GET_DEVICES)
     public void onGetDevices(SocketIOClient client, String deviceId, AckRequest ackRequest) {
@@ -537,6 +610,17 @@ public class RemoteScreenEventHandler {
         StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
         if (observer != null) {
             Message message = Message.newBuilder().setTopicName(topic).setStatus(STATUS_OK).setMessage(ByteString.copyFromUtf8(content)).build();
+            observer.onNext(message);
+        } else {
+            client.sendEvent("error", "设备还未准备好");
+        }
+    }
+
+
+    private void sendStfCmd(SocketIOClient client, String deviceId, Wire.Envelope envelope) {
+        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
+        if (observer != null) {
+            Message message = Message.newBuilder().setTopicName(Message.Topic.STF).setStatus(STATUS_OK).setMessage(envelope.toByteString()).build();
             observer.onNext(message);
         } else {
             client.sendEvent("error", "设备还未准备好");

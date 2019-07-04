@@ -50,7 +50,7 @@ public class XCodeBuilder {
     private List<ProcessListener> listeners = new ArrayList<>();
 
     public StartedProcess build() {
-        log.info("[Start xcode build process] {}", deviceId);
+        log.info("[{}] Start xcode build process", deviceId);
         String[] commandLine = getCommand();
         CommonProcessListener processListener = new CommonProcessListener(String.join(" ", commandLine));
         try {

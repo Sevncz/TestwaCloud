@@ -3,6 +3,8 @@ package com.testwa.distest.client.device.driver;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.android.ddmlib.IDevice;
+import com.google.protobuf.ByteString;
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.testwa.core.cmd.AppInfo;
 import com.testwa.core.cmd.RemoteRunCommand;
 import com.testwa.distest.client.ApplicationContextUtil;
@@ -16,6 +18,7 @@ import com.testwa.distest.client.component.minicap.ScreenAndroidProjection;
 import com.testwa.distest.client.component.minitouch.TouchAndroidProjection;
 import com.testwa.distest.client.component.port.SocatPortProvider;
 import com.testwa.distest.client.component.port.TcpIpPortProvider;
+import com.testwa.distest.client.component.stfagent.DevInformationAssembly;
 import com.testwa.distest.client.component.stfagent.StfAgentClient;
 import com.testwa.distest.client.component.stfagent.StfAPKServer;
 import com.testwa.distest.client.component.stfagent.StfServiceClient;
@@ -34,18 +37,14 @@ import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.device.DeviceType;
 import io.rpc.testwa.push.ClientInfo;
 import io.rpc.testwa.push.Message;
+import jp.co.cyberagent.stf.proto.Wire;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -383,14 +382,6 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
     }
 
     @Override
-    public void setRotation(String cmd) {
-        if(this.stfAgentClient != null) {
-            int rotation = Integer.parseInt(cmd);
-            this.stfAgentClient.setRotation(rotation);
-        }
-    }
-
-    @Override
     public void installApp(String command) {
 
         AppInfo appInfo = JSON.parseObject(command, AppInfo.class);
@@ -423,6 +414,13 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
     @Override
     public void openWeb(String cmd) {
         ADBTools.openWeb(this.device.getSerial(), cmd);
+    }
+
+    @Override
+    public void information() {
+        DevInformationAssembly devInformationAssembly = this.stfServiceClient.getDevInformationAssembly();
+        // TODO 上传到服务器
+        log.info(devInformationAssembly.toString());
     }
 
     @Override
@@ -567,7 +565,6 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
 
     }
 
-
     @Override
     public void onNext(Message message) {
         if(Message.Topic.CONNECTED.equals(message.getTopicName())) {
@@ -583,6 +580,10 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
             startStf();
             return;
         }
+        if(Message.Topic.STF.equals(message.getTopicName())) {
+            processStfCmd(message.getMessage());
+            return;
+        }
         IRemoteCommandCallBack call;
         try {
             if(cache.containsKey(message.getTopicName())){
@@ -595,6 +596,52 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
         } catch (Exception e) {
             log.error("["+device.getSerial()+"] command error", e);
         }
+    }
+
+    private void processStfCmd(ByteString message) {
+        try {
+            Wire.Envelope envelope = Wire.Envelope.parseFrom(message);
+
+            switch (envelope.getType()){
+                case DO_KEYEVENT:
+                    this.handleAgent(envelope);
+                    break;
+                case DO_IDENTIFY:
+                    break;
+                case DO_WAKE:
+                    this.handleService(envelope);
+                    break;
+                case GET_CLIPBOARD:
+                    break;
+                case GET_PROPERTIES:
+                    break;
+                case GET_VERSION:
+                    break;
+                case GET_DISPLAY:
+                    break;
+                case GET_WIFI_STATUS:
+                    break;
+                case GET_SD_STATUS:
+                    break;
+                case GET_BROWSERS:
+                    this.handleService(envelope);
+                    break;
+                case SET_CLIPBOARD:
+                    this.handleService(envelope);
+                    break;
+                case SET_ROTATION:
+                    this.handleService(envelope);
+                    break;
+                case SET_KEYGUARD_STATE:
+                    this.handleService(envelope);
+                    break;
+                default:
+                    log.error("[{}] receive server push msg Unknowing eventType: {}", this.device.getSerial(), envelope.getType());
+            }
+        } catch (InvalidProtocolBufferException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
@@ -626,6 +673,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
         if(this.screenProjection.isRunning()) {
             restartProjection(rotation);
         }
+        // TODO: 通知服务器
     }
 
     /**
@@ -666,4 +714,19 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
             this.stfServiceClient.close();
         }
     }
+
+    private void handleService(Wire.Envelope envelope) {
+        if(this.stfServiceClient != null) {
+            this.stfServiceClient.executeKeyEvent(envelope);
+        }
+    }
+
+
+
+    private void handleAgent(Wire.Envelope envelope) {
+        if(this.stfAgentClient != null) {
+            this.stfAgentClient.executeKeyEvent(envelope);
+        }
+    }
+
 }

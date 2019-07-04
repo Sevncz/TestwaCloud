@@ -34,8 +34,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -111,32 +109,15 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
     public void startProjection(String command) {
         stopProjection();
 
-        this.screenIOSProjection = new ScreenIOSProjection(this.iosDriver.getScreenPort(), this.listener);
+        this.screenIOSProjection = new ScreenIOSProjection(this.udid, this.listener);
         this.screenIOSProjection.startServer();
     }
 
-//    @Override
-//    public void waitProjection() {
-//        this.listener.setScreenWait(true);
-//        this.stopProjection();
-//        log.info("iOS 屏幕已关闭");
-//    }
-//
-//    @Override
-//    public void notifyProjection() {
-//        this.listener.setScreenWait(false);
-//        Map<String, Object> config = new HashMap<>();
-//        this.startProjection(JSON.toJSONString(config));
-//    }
 
     @Override
     public void stopProjection() {
-
         if(this.screenIOSProjection != null) {
             this.screenIOSProjection.close();
-        }
-        if(this.iosDriver != null) {
-            this.iosDriver.quit();
         }
     }
 
@@ -207,6 +188,9 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
         this.stopProjection();
         this.stopLog();
         this.stopRecorder();
+        if(this.iosDriver != null) {
+            this.iosDriver.quit();
+        }
     }
 
     @Override
@@ -275,11 +259,6 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
     }
 
     @Override
-    public void setRotation(String cmd) {
-
-    }
-
-    @Override
     public void installApp(String command) {
         AppInfo appInfo = JSON.parseObject(command, AppInfo.class);
         String distestApiWeb = Config.getString("cloud.web.url");
@@ -292,7 +271,7 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
             try {
                 Downloader d = new Downloader();
                 d.start(appUrl, appLocalPath);
-                log.info("[Install ipa] {} to {} ", appLocalPath, udid);
+                log.info("[{}] install app {}", udid, appLocalPath);
 
                 if(iosDriver != null) {
                     iosDriver.installApp(appLocalPath);
@@ -323,8 +302,13 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
     }
 
     @Override
+    public void information() {
+
+    }
+
+    @Override
     public void startCrawlerTask(String command) {
-        log.info("设备 {}，开始遍历任务 {}", udid, command);
+        log.info("[{}] 开始遍历任务 {}", udid, command);
         RemoteRunCommand cmd = JSON.parseObject(command, RemoteRunCommand.class);
 //        defaultVideoRecorderStart(cmd.getTaskCode());
         task = new CrawlerTestTask(cmd, listener);
@@ -333,7 +317,7 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
 
     @Override
     public void startCompatibilityTask(String command) {
-        log.info("设备 {}，开始兼容任务 {}", udid, command);
+        log.info("[{} 开始兼容任务 {}", udid, command);
         RemoteRunCommand cmd = JSON.parseObject(command, RemoteRunCommand.class);
 //        defaultVideoRecorderStart(cmd.getTaskCode());
         task = new CompatibilityAndroidTestTask(cmd, listener);
@@ -342,7 +326,7 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
 
     @Override
     public void startFunctionalTask(String command) {
-        log.info("设备 {}，开始任务 {}", udid, command);
+        log.info("[{}] 开始回归测试任务 {}", udid, command);
 //        switchADBKeyBoard();
         RemoteRunCommand cmd = JSON.parseObject(command, RemoteRunCommand.class);
 //        defaultVideoRecorderStart(cmd.getTaskCode());
@@ -363,7 +347,7 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
 
     private ClientInfo buildClientInfo() throws DeviceInitException {
         AgentInfo agentInfo = AgentInfo.getAgentInfo();
-        log.info("[Register device to server] uuid: {} agentInfo: {}", udid, agentInfo.toString());
+        log.info("[{}] Register device to server, agentInfo: {}", udid, agentInfo.toString());
         String cpu = IOSDeviceUtil.getCPUArchitecture(udid);
         String model = IOSDeviceUtil.getModel(udid);
         String productVersion = IOSDeviceUtil.getProductVersion(udid);
@@ -403,7 +387,7 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
     @Override
     public void onNext(Message message) {
         if(Message.Topic.CONNECTED.equals(message.getTopicName())) {
-            log.info("[Connected to Server] {}", this.udid);
+            log.info("[{}] Connected to Server", this.udid);
             // 连上服务器之后归零
             connectRetryTime.set(0);
             // 连接上服务器之后启动wda

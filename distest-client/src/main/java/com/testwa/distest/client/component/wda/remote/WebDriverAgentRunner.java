@@ -47,25 +47,20 @@ public class WebDriverAgentRunner {
     private static final String IPROXY = "/usr/local/bin/iproxy";
 
     private DriverCapabilities capabilities;
-//    private CommandExecutor commandExecutor;
     private StartedProcess wdaProcess;
     private StartedProcess iproxyProcess;
-    private StartedProcess iproxyScreenProcess;
-
     private Integer iproxyPort;
-    private Integer iproxyScreenPort;
 
     public WebDriverAgentRunner(DriverCapabilities capabilities) {
         this.capabilities = capabilities;
-//        this.commandExecutor = new WDACommandExecutor(getWdaUrl());
     }
 
     public void start() {
+        String udid = capabilities.getCapability(DriverCapabilities.Key.DEVICE_ID);
         boolean startNewProcess = Optional.ofNullable(capabilities.getCapability(DriverCapabilities.Key.PREBUILT_WDA))
                 .map(k -> !Boolean.valueOf(k))
                 .orElse(true);
         if (startNewProcess) {
-            String udid = capabilities.getCapability(DriverCapabilities.Key.DEVICE_ID);
             killWdaProcess(udid);
             try {
                 log.info("[Start WebDriverAgent] {}", udid);
@@ -80,8 +75,6 @@ public class WebDriverAgentRunner {
                         .build();
                 this.iproxyPort = PortUtil.getAvailablePort();
                 this.iproxyProcess = CommandLineExecutor.asyncExecute(new String[]{IPROXY, String.valueOf(this.iproxyPort), String.valueOf(WDA_AGENT_PORT), capabilities.getCapability(DriverCapabilities.Key.DEVICE_ID)});
-                this.iproxyScreenPort = PortUtil.getAvailablePort();
-                this.iproxyScreenProcess = CommandLineExecutor.asyncExecute(new String[]{IPROXY, String.valueOf(this.iproxyScreenPort), String.valueOf(WDA_SCREEN_PORT), capabilities.getCapability(DriverCapabilities.Key.DEVICE_ID)});
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -91,38 +84,28 @@ public class WebDriverAgentRunner {
                         .map(Integer::valueOf)
                         .orElse(DEFAULT_LAUNCH_TIMEOUT);
                 waitForReachability(getWdaUrl(), timeout);
-//                checkStatus();
             });
             checkThread.start();
 
         } else {
-            log.info("Use existing WebDriverAgent process.");
+            log.info("[{}] Use existing WebDriverAgent process.", udid);
         }
     }
 
     public void stop() {
-        log.info("Stop WebDriverAgent.");
-//        CommandLineExecutor.processQuit(iproxyProcess);
-
         String udid = capabilities.getCapability(DriverCapabilities.Key.DEVICE_ID);
+        log.info("[{}] Stop WebDriverAgent.", udid);
         if(StringUtils.isNotBlank(udid)) {
             // kill 进程
             killWdaProcess(udid);
         }
-//        if(this.iproxyPort != null) {
-//            IProxyPortProvider.pushPort(this.iproxyPort);
-//        }
-//        if(this.iproxyScreenPort != null) {
-//            IProxyPortProvider.pushPort(this.iproxyScreenPort);
-//        }
-//        CommandLineExecutor.processQuit(wdaProcess);
     }
 
     private void killWdaProcess(String udid) {
         try {
             // kill iproxy
             new ProcessExecutor()
-                    .command("/bin/sh","-c","ps aux | grep iproxy | grep " + udid + " | awk {'print $2'} | xargs kill -9")
+                    .command("/bin/sh","-c","ps aux | grep iproxy | grep " + iproxyProcess + " | awk {'print $2'} | xargs kill -9")
                     .redirectOutput(new LogOutputStream() {
                         @Override
                         protected void processLine(String line) {
@@ -227,9 +210,5 @@ public class WebDriverAgentRunner {
         connection.setReadTimeout(1000);
         connection.connect();
         return connection;
-    }
-
-    public Integer getScreenPort() {
-        return this.iproxyScreenPort;
     }
 }

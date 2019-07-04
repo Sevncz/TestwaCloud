@@ -54,10 +54,6 @@ public class IOSDriver implements Driver {
         this.executorService = Executors.newCachedThreadPool();
     }
 
-    public int getScreenPort() {
-        return this.wdaRunner.getScreenPort();
-    }
-
     @Override
     public List<Element> findElements(IOSLocator locator) {
         Map<String, String> parameters = new HashMap<>();
