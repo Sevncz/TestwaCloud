@@ -26,8 +26,8 @@ import com.testwa.distest.client.model.AgentInfo;
 import com.testwa.distest.client.model.UserInfo;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.device.DeviceType;
-import io.rpc.testwa.push.ClientInfo;
-import io.rpc.testwa.push.Message;
+import io.rpc.testwa.agent.ClientInfo;
+import io.rpc.testwa.agent.Message;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -299,6 +299,16 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
         if(this.iosDriver != null) {
 //            this.iosDriver.openWeb(cmd);
         }
+    }
+
+    @Override
+    public void runShell(String cmd) {
+        // TODO
+    }
+
+    @Override
+    public void capture() {
+
     }
 
     @Override

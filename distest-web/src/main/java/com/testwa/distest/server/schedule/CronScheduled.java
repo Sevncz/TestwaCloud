@@ -13,7 +13,7 @@ import com.testwa.distest.server.web.device.mgr.DeviceLockMgr;
 import com.testwa.distest.server.web.task.mgr.PerformanceRedisMgr;
 import com.testwa.distest.server.web.task.mgr.ProcedureRedisMgr;
 import io.grpc.stub.StreamObserver;
-import io.rpc.testwa.push.Message;
+import io.rpc.testwa.agent.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

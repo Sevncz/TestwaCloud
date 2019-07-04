@@ -8,7 +8,6 @@ import com.corundumstudio.socketio.annotation.OnDisconnect;
 import com.corundumstudio.socketio.annotation.OnEvent;
 import com.google.protobuf.ByteString;
 import com.testwa.core.base.util.CronDateUtils;
-import com.testwa.distest.common.android.KeyCode;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.config.security.JwtTokenUtil;
 import com.testwa.distest.exception.BusinessException;
@@ -31,7 +30,7 @@ import com.testwa.distest.server.web.device.mgr.DeviceLockMgr;
 import com.testwa.distest.server.web.device.mgr.DeviceOnlineMgr;
 import com.testwa.distest.server.web.device.validator.DeviceValidatoer;
 import io.grpc.stub.StreamObserver;
-import io.rpc.testwa.push.Message;
+import io.rpc.testwa.agent.Message;
 import jp.co.cyberagent.stf.proto.Wire;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -41,6 +40,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.testwa.distest.server.websocket.handler.SysSettingKey.*;
 
 /**
  * Created by wen on 2016/9/24.
@@ -76,8 +77,10 @@ public class RemoteScreenEventHandler {
     private final static String SET_KEYGUARD_STATUS = "set_keyguard_status";
 
     private final static String PRESS_KEY = "press_key";
-    private final static String BROWSER_APP_LIST = "browsers";
+    private final static String BROWSER_APP_LIST = "browser_apps";
     private final static String DEVICE_INFO = "device_info";
+    private final static String OPEN_SYS_SETTING = "open_sys_setting";
+    private final static String SCREENSHOT = "screenshot";
 
     private final static String JOB_DEBUG_NAME = "com.testwa.distest.quartz.job.EquipmentDebugJob";
     private final static String JOB_LOGCAT_NAME = "com.testwa.distest.quartz.job.EquipmentLogcatJob";
@@ -234,7 +237,7 @@ public class RemoteScreenEventHandler {
         DateTime now = new DateTime();
         String cron = CronDateUtils.getCron(now.toDate());
         try {
-            jobService.addJob(JOB_DEBUG_NAME, deviceId, cron, String.format("设备[%s]-[%s]-[%s]远程调试", device.getBrand(), device.getModel(), device.getDeviceId()), JSON.toJSONString(params));
+            jobService.addJobAndProceed(JOB_DEBUG_NAME, deviceId, cron, String.format("设备[%s]-[%s]-[%s]远程调试", device.getBrand(), device.getModel(), device.getDeviceId()), JSON.toJSONString(params));
         } catch (BusinessException e) {
             e.printStackTrace();
         }
@@ -340,10 +343,10 @@ public class RemoteScreenEventHandler {
         try {
             if("ios".equals(device.getOsName().toLowerCase())){
                 log.info("ios log start");
-                jobService.addJob(JOB_LOG_NAME, deviceId, cron, String.format("设备[%s]-[%s]-[%s]获取Log",device.getBrand(),device.getModel(),device.getDeviceId()), JSON.toJSONString(debugParams));
+                jobService.addJobAndProceed(JOB_LOG_NAME, deviceId, cron, String.format("设备[%s]-[%s]-[%s]获取Log",device.getBrand(),device.getModel(),device.getDeviceId()), JSON.toJSONString(debugParams));
             }
             if("android".equals(device.getOsName().toLowerCase())){
-                jobService.addJob(JOB_LOGCAT_NAME, deviceId, cron, String.format("设备[%s]-[%s]-[%s]获取Logcat",device.getBrand(),device.getModel(),device.getDeviceId()), JSON.toJSONString(debugParams));
+                jobService.addJobAndProceed(JOB_LOGCAT_NAME, deviceId, cron, String.format("设备[%s]-[%s]-[%s]获取Logcat",device.getBrand(),device.getModel(),device.getDeviceId()), JSON.toJSONString(debugParams));
             }
         } catch (BusinessException e) {
             e.printStackTrace();
@@ -417,6 +420,13 @@ public class RemoteScreenEventHandler {
         sendStfCmd(client, deviceId, builder.build());
     }
 
+    /**
+     * @Description: 查看第三方应用
+     * @Param: [client, deviceId, ackRequest]
+     * @Return: void
+     * @Author wen
+     * @Date 2019-07-04 19:01
+     */
     @OnEvent(value = BROWSER_APP_LIST)
     private void onBrowserAppList(SocketIOClient client, String deviceId, AckRequest ackRequest) {
         if (isIllegalDeviceId(client, deviceId)) {
@@ -439,6 +449,62 @@ public class RemoteScreenEventHandler {
         StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
         if (observer != null) {
             Message message = Message.newBuilder().setTopicName(Message.Topic.DEVICE_INFO).setStatus(STATUS_OK).build();
+            observer.onNext(message);
+        } else {
+            client.sendEvent("error", "设备还未准备好");
+        }
+    }
+
+    @OnEvent(value = OPEN_SYS_SETTING)
+    private void onOpenSysSetting(SocketIOClient client, String data, AckRequest ackRequest) {
+        Map params = JSON.parseObject(data, Map.class);
+        String deviceId = (String) params.get("deviceId");
+        if (isIllegalDeviceId(client, deviceId)) {
+            return;
+        }
+        String name = (String) params.get("name");
+        SysSettingKey settingName = valueOf(name);
+        switch (settingName) {
+            case SYS:
+                AppsController.openSettings(deviceId);
+                break;
+            case WIFI:
+                AppsController.openWiFiSettings(deviceId);
+                break;
+            case LOCALE:
+                AppsController.openLocaleSettings(deviceId);
+                break;
+            case IME:
+                AppsController.openIMESettings(deviceId);
+                break;
+            case DISPLAY:
+                AppsController.openDisplaySettings(deviceId);
+                break;
+            case DEVICE_INFO:
+                AppsController.openDeviceInfo(deviceId);
+                break;
+            case MANAGE_APPS:
+                AppsController.openManageApps(deviceId);
+                break;
+            case RUNNING_APPS:
+                AppsController.openRunningApps(deviceId);
+                break;
+            case DEVELOPER:
+                AppsController.openDeveloperSettings(deviceId);
+                break;
+            default:
+                break;
+        }
+    }
+
+    @OnEvent(value = SCREENSHOT)
+    private void onScreenshot(SocketIOClient client, String deviceId, AckRequest ackRequest) {
+        if (isIllegalDeviceId(client, deviceId)) {
+            return;
+        }
+        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
+        if (observer != null) {
+            Message message = Message.newBuilder().setTopicName(Message.Topic.SCREENSHOT).setStatus(STATUS_OK).build();
             observer.onNext(message);
         } else {
             client.sendEvent("error", "设备还未准备好");
@@ -554,7 +620,14 @@ public class RemoteScreenEventHandler {
 
     @OnEvent(value = SHELL)
     public void onShell(SocketIOClient client, String data, AckRequest ackRequest) {
-        sendCmd(client, data, "cmd", "shell命令不能为空", Message.Topic.SHELL);
+        Map params = JSON.parseObject(data, Map.class);
+        String deviceId = (String) params.get("deviceId");
+        if (isIllegalDeviceId(client, deviceId)) {
+            return;
+        }
+
+        String cmd = (String) params.get("cmd");
+        runShell(client, deviceId, cmd);
     }
 
     @OnEvent(value = WEB)
@@ -621,6 +694,16 @@ public class RemoteScreenEventHandler {
         StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
         if (observer != null) {
             Message message = Message.newBuilder().setTopicName(Message.Topic.STF).setStatus(STATUS_OK).setMessage(envelope.toByteString()).build();
+            observer.onNext(message);
+        } else {
+            client.sendEvent("error", "设备还未准备好");
+        }
+    }
+
+    private void runShell(SocketIOClient client, String deviceId, String cmd) {
+        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
+        if (observer != null) {
+            Message message = Message.newBuilder().setTopicName(Message.Topic.SHELL).setStatus(STATUS_OK).setMessage(ByteString.copyFromUtf8(cmd)).build();
             observer.onNext(message);
         } else {
             client.sendEvent("error", "设备还未准备好");

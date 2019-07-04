@@ -200,12 +200,16 @@ public class MinicapServer {
      * Get display projection (<w>x<h>@<w>x<h>/{0|90|180|270})
      * @return Display projection
      */
-    protected String getProjection()  {
+    protected String getProjection(Integer targetWidth)  {
         PhysicalSize size = getSize();
-        int width = 480;
-        int height = (int) ((width*1.0/size.getWidth())*size.getHeight());
+        if(targetWidth == null) {
+            targetWidth = 480;
+        }else{
+            targetWidth = size.getWidth();
+        }
+        int targetHeight = (int) ((targetWidth*1.0/size.getWidth())*size.getHeight());
         return String.format("%sx%s@%sx%s/%s", size.getWidth(), size.getHeight(),
-                width, height, rotate);
+                targetWidth, targetHeight, rotate);
     }
 
     /**
@@ -213,7 +217,7 @@ public class MinicapServer {
      * @return shell命令
      */
     protected String getCommand()  {
-        return String.format("LD_LIBRARY_PATH=/data/local/tmp /data/local/tmp/minicap -P %s -Q %s", getProjection(), quality);
+        return String.format("LD_LIBRARY_PATH=/data/local/tmp /data/local/tmp/minicap -P %s -Q %s", getProjection(null), quality);
     }
 
     /**
@@ -303,6 +307,5 @@ public class MinicapServer {
         ret = ret.trim();
         return CommonUtil.resolveProcessID(ret, "minicap");
     }
-
 
 }

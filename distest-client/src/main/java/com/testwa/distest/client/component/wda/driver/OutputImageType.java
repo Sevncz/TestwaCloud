@@ -29,7 +29,7 @@ public interface OutputImageType<T> {
     OutputImageType<byte[]> BYTES = base64Png -> Base64.getMimeDecoder().decode(base64Png);
     OutputImageType<File> FILE = base64Png -> {
         try {
-            File tmpFile = File.createTempFile("screenshot", ".png");
+            File tmpFile = File.createTempFile("capture", ".png");
             tmpFile.deleteOnExit();
             try(FileOutputStream stream = new FileOutputStream(tmpFile)) {
                 stream.write(BYTES.convertFromBase64Png(base64Png));

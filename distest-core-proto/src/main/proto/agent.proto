@@ -1,14 +1,14 @@
 syntax = "proto3";
 
 option java_multiple_files = true;
-option java_package = "io.rpc.testwa.push";
-option java_outer_classname = "PushProto";
-option objc_class_prefix = "PUSH";
+option java_package = "io.rpc.testwa.agent";
+option java_outer_classname = "AgentProto";
+option objc_class_prefix = "Agent";
 
-package push;
+package agent;
 
-
-service Push {
+// 推送服务
+service PushService {
     rpc registerToServer (ClientInfo) returns (stream Message) {}
 
     rpc subscribe (TopicInfo) returns (Status) {}
@@ -16,6 +16,19 @@ service Push {
     rpc cancel (TopicInfo) returns (Status){}
 
     rpc logoutFromServer (ClientInfo) returns (Status) {}
+}
+
+// 运行情况监控服务
+service MonitorService {
+    // 截图
+    rpc screenshot ( ScreenshotEvent ) returns (Status) {}
+    // 命令行
+    rpc shell ( ShellEvent ) returns (Status) {}
+    // 显示信息
+    rpc display ( DisplayEvent ) returns (Status) {}
+    // 电池信息
+    rpc battery ( BatteryEvent ) returns (Status) {}
+
 }
 
 
@@ -106,3 +119,38 @@ message Message {
 	bytes message = 3;
 }
 
+
+
+message ScreenshotEvent {
+    string serial = 1;
+    bytes img = 2;
+}
+
+message ShellEvent {
+    string serial = 1;
+    string ret = 2;
+}
+
+message BatteryEvent {
+    string status = 1;
+    string health = 2;
+    string source = 3;
+    uint32 level = 4;
+    uint32 scale = 5;
+    double temp = 6;
+    double voltage = 7;
+    string serial = 10;
+}
+
+message DisplayEvent {
+    bool success = 1;
+    int32 width = 2;
+    int32 height = 3;
+    float xdpi = 4;
+    float ydpi = 5;
+    float fps = 6;
+    float density = 7;
+    int32 rotation = 8;
+    bool secure = 9;
+    string serial = 10;
+}

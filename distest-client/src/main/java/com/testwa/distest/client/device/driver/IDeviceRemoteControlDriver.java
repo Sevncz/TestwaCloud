@@ -98,6 +98,9 @@ public interface IDeviceRemoteControlDriver {
 
     void openWeb(String cmd);
 
+    void runShell(String cmd);
+
+    void capture();
 
     /*==========================任务相关接口===============================*/
 

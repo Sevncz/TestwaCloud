@@ -15,14 +15,23 @@
 <button id="unsub">停止使用设备</button>
 <br>
 <button id="devices">DEVICES</button>
-<button id="back">返回</button>
-<button id="home" >HOME</button>
-<button id="menu">菜单</button>
-<button id="camera">拍照</button>
-<button id="power">电源</button>
-<button id="setting">设置</button>
-<button id="notification">通知</button>
-<button id="search">搜索</button>
+<button id="back">返回键</button>
+<button id="home" >home键</button>
+<button id="menu">菜单键</button>
+<button id="camera">拍照键</button>
+<button id="power">电源键</button>
+<!--<button id="notification">通知键</button>-->
+<!--<button id="search">搜索键</button>-->
+<br>
+<button id="openSettings">打开系统设置</button>
+<button id="openDeveloperSettings">打开开发者选项</button>
+<button id="openManageApps">打开应用管理</button>
+<button id="openRunningApps">打开运行应用</button>
+<button id="openDeviceInfo">打开设备信息</button>
+<button id="openDisplaySettings">打开显示设置</button>
+<button id="openLocaleSettings">打开语言设置</button>
+<button id="openIMESettings">打开IME设置</button>
+<button id="openWiFiSettings">打开WIFI设置</button>
 <br>
 <button id="openBaidu">OPENBAIDU</button>
 <button id="shell">SHELL</button>
@@ -34,7 +43,7 @@
 <button id="rotation90">横屏</button>
 <button id="rotation0">竖屏</button>
 <br>
-<button id="browsers">查看浏览器App</button>
+<button id="browserApps">第三方应用</button>
 <button id="deviceInfo">设备信息</button>
 <br>
 <button id="wake">唤醒</button>
@@ -45,6 +54,9 @@
 <br>
 <button id="debugStart">启动debug</button>
 <button id="debugStop">关闭debug</button>
+<br>
+<canvas id="screenshot_canvas"></canvas>
+<button id="screenshot">截图</button>
 
 
 <!-- jQuery -->
@@ -81,7 +93,7 @@ var BLANK_IMG =
 
 var canvas = document.getElementById('phone-screen')
   , g = canvas.getContext('2d')
-var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjc0KwjAQhN9lzwm4af627-GpSEnbDUS0liYFQXx3V_DgZQ7zfcy8oB4T9JCWe1lBwVF5H8sizXlEdyKUsM7ZEH1EL8K8c2osAjpvDAok9F5BnR8bQz9cFPBz--GOjCMFJbV_X4w1TbfvSNsPVnBtRQ7ZmGxj7nSwlLVFO-kYmHRYXCZMyVPs4P0BAAD__w.Kx5GDlqvVAFY7KKFX-fJ9CZrnH19DZY0FoO4h2aOC-k";
+var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMzU0KwjAQBeC7zDqBTH6mSe_hSqRM0ylEtJY2BUG8uxFcuJnFex9vXrAfI_TA070soODYZRvK1JLTgMEkbMeH4LtIEamBvAlXaQADWeuNi9Qlo2DPj1WgP18UyHP91ZQwkoLC9d83sfB4-47U7RAF11raw-xmIs6oeRavPaLR0VvSPFnXJTfm4BHeHwAAAP__.qyoLXByt7fpIl1V-e1ww_Cmc2rY5uJoD4wLFViJh9fk";
 var socket = io('http://127.0.0.1:9092?type=browser&token=' + token);
 
 var deviceId = '3JU5T18313001420';
@@ -97,19 +109,19 @@ socket.on('devices', function(message){
 });
 socket.on('minicap', function(message){
     var blob = new Blob([message], {type: 'image/jpeg'})
-  var URL = window.URL || window.webkitURL
-  var img = new Image()
+    var URL = window.URL || window.webkitURL
+    var img = new Image()
     img.src = URL.createObjectURL(blob);
-  img.onload = function() {
-    canvas.width = img.width * util.scala
-    canvas.height = img.height * util.scala
-    g.drawImage(img, 0, 0, img.width * util.scala, img.height * util.scala)
-    img.onload = null
-    img.src = BLANK_IMG
-    img = null
-    u = null
-    blob = null
-  }
+    img.onload = function() {
+        canvas.width = img.width * util.scala
+        canvas.height = img.height * util.scala
+        g.drawImage(img, 0, 0, img.width * util.scala, img.height * util.scala)
+        img.onload = null
+        img.src = BLANK_IMG
+        img = null
+        u = null
+        blob = null
+    }
 });
 socket.on('disconnect', function(){
     util.serverConnected = false;
@@ -119,6 +131,30 @@ socket.on('remote_debug_start', function(message){
 });
 socket.on('remote_debug_stop', function(message){
     console.log(message)
+});
+socket.on('display', function(message){
+    console.log(message)
+});
+socket.on('battery', function(message){
+    console.log(message)
+});
+socket.on('screenshot', function(message){
+    var blob = new Blob([message], {type: 'image/jpeg'})
+    var URL = window.URL || window.webkitURL
+    var img = new Image()
+    img.src = URL.createObjectURL(blob);
+    var screen_canvas = document.getElementById('screenshot_canvas')
+        , screen_g = screen_canvas.getContext('2d')
+    img.onload = function() {
+        screen_canvas.width = img.width * util.scala
+        screen_canvas.height = img.height * util.scala
+        screen_g.drawImage(img, 0, 0, img.width * util.scala, img.height * util.scala)
+        img.onload = null
+        img.src = BLANK_IMG
+        img = null
+        u = null
+        blob = null
+    }
 });
 
 var isDown = false;
@@ -158,6 +194,15 @@ function pressKey(value) {
     }
 
     socket.emit("press_key", JSON.stringify(params))
+}
+
+function openSysSetting(value) {
+    var params = {
+        deviceId: deviceId,
+        name: value
+    }
+
+    socket.emit("open_sys_setting", JSON.stringify(params))
 }
 function sendUrl(url) {
     var params = {
@@ -345,8 +390,32 @@ $("#camera").click(function () {
 $("#power").click(function () {
     pressKey(26);
 })
-$("#setting").click(function () {
-    pressKey(176);
+$("#openSettings").click(function () {
+    openSysSetting("SYS");
+})
+$("#openDeveloperSettings").click(function () {
+    openSysSetting("DEVELOPER");
+})
+$("#openManageApps").click(function () {
+    openSysSetting("MANAGE_APPS");
+})
+$("#openRunningApps").click(function () {
+    openSysSetting("RUNNING_APPS");
+})
+$("#openDeviceInfo").click(function () {
+    openSysSetting("DEVICE_INFO");
+})
+$("#openDisplaySettings").click(function () {
+    openSysSetting("DISPLAY");
+})
+$("#openLocaleSettings").click(function () {
+    openSysSetting("LOCALE");
+})
+$("#openIMESettings").click(function () {
+    openSysSetting("IME");
+})
+$("#openWiFiSettings").click(function () {
+    openSysSetting("WIFI");
 })
 $("#notification").click(function () {
     pressKey(83);
@@ -414,11 +483,14 @@ $("#lock").click(function () {
 })
 
 
-$("#browsers").click(function () {
-    socket.emit("browsers", deviceId)
+$("#browserApps").click(function () {
+    socket.emit("browserApps", deviceId)
 })
 $("#deviceInfo").click(function () {
     socket.emit("device_info", deviceId)
+})
+$("#screenshot").click(function () {
+    socket.emit("screenshot", deviceId)
 })
 
 </script>

@@ -26,7 +26,7 @@ import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.service.testcase.service.TestcaseService;
 import com.testwa.distest.server.web.task.vo.TaskStartResultVO;
 import io.grpc.stub.StreamObserver;
-import io.rpc.testwa.push.Message;
+import io.rpc.testwa.agent.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;

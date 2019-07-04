@@ -149,7 +149,7 @@ public class JobService {
 
 
     /**
-     * 立即执行一次
+     * 立即执行一次已有的任务
      *
      * @param jobName
      * @param jobGroup
@@ -164,23 +164,16 @@ public class JobService {
             log.info("添加jobName=%s,jobGroup=%s,jobDescription=%s", jobName, jobGroup, jobDescription);
 
             if (checkExists(jobName, jobGroup)) {
-                log.error("Job已经存在, jobName=%s,jobGroup=%s", jobName, jobGroup);
-                throw new JobException(ResultCode.ILLEGAL_PARAM, String.format("Job已经存在, jobName=%s,jobGroup=%s", jobName, jobGroup));
+                JobKey jobKey = JobKey.jobKey(jobName, jobGroup);
+
+                JobDataMap dataMap = new JobDataMap();
+                dataMap.put("params", params);
+
+                scheduler.triggerJob(jobKey, dataMap);
             }
 
-//            TriggerKey triggerKey = TriggerKey.triggerKey(jobName, jobGroup);
-            JobKey jobKey = JobKey.jobKey(jobName, jobGroup);
-
-//            Class<? extends Job> clazz = (Class<? extends Job>) Class.forName(jobName);
-//            JobDetail jobDetail = JobBuilder.newJob(clazz).withIdentity(jobKey).withDescription(jobDescription).build();
-//            jobDetail.getJobDataMap().put("params", params);
-
-            JobDataMap dataMap = new JobDataMap();
-            dataMap.put("params", params);
-
-            scheduler.triggerJob(jobKey, dataMap);
         } catch (SchedulerException e) {
-            log.error("添加job失败, jobName=%s,jobGroup=%s,e=%s", jobName, jobGroup, e);
+            log.error("执行job失败, jobName=%s,jobGroup=%s,e=%s", jobName, jobGroup, e);
             throw new JobException(ResultCode.ILLEGAL_PARAM, "类名不存在或执行表达式错误");
         }
     }

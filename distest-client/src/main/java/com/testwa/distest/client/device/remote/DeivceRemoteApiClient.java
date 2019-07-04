@@ -6,11 +6,14 @@ import com.testwa.distest.client.device.listener.callback.remote.ScreenObserver;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.device.*;
-import io.rpc.testwa.push.*;
+import io.rpc.testwa.agent.*;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.springboot.autoconfigure.grpc.client.GrpcClient;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -51,27 +54,29 @@ public class DeivceRemoteApiClient {
      * grpc
      */
     public void registerToServer(ClientInfo request, StreamObserver<Message> observer) {
-        PushGrpc.PushStub pushStub = PushGrpc.newStub(channel);
+
+
+        PushServiceGrpc.PushServiceStub pushStub = PushServiceGrpc.newStub(channel);
         pushStub.registerToServer(request, observer);
     }
 
     public String subscribe(ClientInfo request, String topic){
         TopicInfo topicInfo = TopicInfo.newBuilder().setTopicName(topic).setClientInfo(request).build();
-        PushGrpc.PushBlockingStub pushBlockingStub = PushGrpc.newBlockingStub(channel);
-        Status status = pushBlockingStub.subscribe(topicInfo);
+        PushServiceGrpc.PushServiceBlockingStub PushServiceBlockingStub = PushServiceGrpc.newBlockingStub(channel);
+        Status status = PushServiceBlockingStub.subscribe(topicInfo);
         return status.getStatus();
     }
 
     public String cancel(ClientInfo request, String topic){
         TopicInfo topicInfo = TopicInfo.newBuilder().setTopicName(topic).setClientInfo(request).build();
-        PushGrpc.PushBlockingStub pushBlockingStub = PushGrpc.newBlockingStub(channel);
-        Status status = pushBlockingStub.cancel(topicInfo);
+        PushServiceGrpc.PushServiceBlockingStub PushServiceBlockingStub = PushServiceGrpc.newBlockingStub(channel);
+        Status status = PushServiceBlockingStub.cancel(topicInfo);
         return status.getStatus();
     }
 
     public String logoutFromServer(ClientInfo request){
-        PushGrpc.PushBlockingStub pushBlockingStub = PushGrpc.newBlockingStub(channel);
-        Status status = pushBlockingStub.logoutFromServer(request);
+        PushServiceGrpc.PushServiceBlockingStub PushServiceBlockingStub = PushServiceGrpc.newBlockingStub(channel);
+        Status status = PushServiceBlockingStub.logoutFromServer(request);
         return status.getStatus();
     }
 
@@ -117,6 +122,23 @@ public class DeivceRemoteApiClient {
             // TODO 可以查看返回的消息
             log.debug(reply.getMessage());
         } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendCapture(String filename, String deviceId) {
+        try {
+            byte[] screeByte = Files.readAllBytes(Paths.get(filename));
+            ScreenshotEvent request = ScreenshotEvent.newBuilder()
+                    .setSerial(deviceId)
+                    .setImg(ByteString.copyFrom(screeByte))
+                    .build();
+            MonitorServiceGrpc.MonitorServiceFutureStub monitorServiceFutureStub = MonitorServiceGrpc.newFutureStub(channel);
+            ListenableFuture<Status> replyListenableFuture = monitorServiceFutureStub.screenshot(request);
+            Status status = replyListenableFuture.get();
+            // TODO 可以查看返回的消息
+            log.debug(status.getStatus());
+        } catch (IOException | InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
     }

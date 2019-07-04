@@ -27,18 +27,21 @@ import com.testwa.distest.client.device.listener.callback.IRemoteCommandCallBack
 import com.testwa.distest.client.device.listener.callback.RemoteCommandCallBackUtils;
 import com.testwa.distest.client.device.manager.DeviceInitException;
 import com.testwa.distest.client.device.remote.DeivceRemoteApiClient;
+import com.testwa.distest.client.device.screen.Capture;
 import com.testwa.distest.client.download.Downloader;
 import com.testwa.distest.client.exception.DownloadFailException;
 import com.testwa.distest.client.model.AgentInfo;
 import com.testwa.distest.client.model.UserInfo;
+import com.testwa.distest.client.util.CommandLineExecutor;
 import com.testwa.distest.jadb.JadbDevice;
 import com.testwa.distest.jadb.JadbException;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.device.DeviceType;
-import io.rpc.testwa.push.ClientInfo;
-import io.rpc.testwa.push.Message;
+import io.rpc.testwa.agent.ClientInfo;
+import io.rpc.testwa.agent.Message;
 import jp.co.cyberagent.stf.proto.Wire;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -362,6 +365,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
     public void touch(String cmd) {
         if (this.touchProjection != null && this.touchProjection.isRunning()) {
             this.touchProjection.sendEvent(cmd);
+            updateDisplay();
         }
     }
 
@@ -414,6 +418,20 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
     @Override
     public void openWeb(String cmd) {
         ADBTools.openWeb(this.device.getSerial(), cmd);
+    }
+
+    @Override
+    public void runShell(String cmd) {
+        ADBTools.asyncCommandShell(device.getSerial(), cmd + " --activity-clear-top");
+    }
+
+    @Override
+    public void capture() {
+        if(this.stfServiceClient != null) {
+            DevInformationAssembly devInformationAssembly = this.stfServiceClient.getDevInformationAssembly();
+            String filename = Capture.androidScreenCapture(devInformationAssembly.getDevDisplay());
+            api.sendCapture(filename, device.getSerial());
+        }
     }
 
     @Override
@@ -578,6 +596,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
             // 连上服务器之后归零
             connectRetryTime.set(0);
             startStf();
+            updateDisplay();
             return;
         }
         if(Message.Topic.STF.equals(message.getTopicName())) {
@@ -673,7 +692,15 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
         if(this.screenProjection.isRunning()) {
             restartProjection(rotation);
         }
-        // TODO: 通知服务器
+        updateDisplay();
+    }
+
+    private void updateDisplay() {
+        executorService.submit(() -> {
+            if(this.stfServiceClient != null) {
+                this.stfServiceClient.buildDevDisplay();
+            }
+        });
     }
 
     /**

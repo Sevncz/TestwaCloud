@@ -19,7 +19,7 @@ package com.testwa.distest.client.component.wda.driver;
 public interface Screenshotable {
 
     /**
-     * Takes screenshot and saves it in required format
+     * Takes capture and saves it in required format
      *
      * @see OutputImageType
      */

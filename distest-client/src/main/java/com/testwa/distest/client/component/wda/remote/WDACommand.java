@@ -108,8 +108,8 @@ public class WDACommand {
         commands.put(STATUS, get("/status"));
         commands.put(GET_PAGE_SOURCE, get("/source"));
         commands.put(GET_CURRENT_WINDOW_SIZE, get("/session/:sessionId/window/size"));
-        commands.put(GET_WINDOW_SCREENSHOT, get("/screenshot"));
-        commands.put(GET_ELEMENT_SCREENSHOT, get("/session/:sessionId/element/:uuid/screenshot"));
+        commands.put(GET_WINDOW_SCREENSHOT, get("/capture"));
+        commands.put(GET_ELEMENT_SCREENSHOT, get("/session/:sessionId/element/:uuid/capture"));
         commands.put(PRESS_REMOTE_BUTTON, post("/remote/press/:button"));
         commands.put(FIND_ELEMENT, post("/session/:sessionId/element"));
         commands.put(FIND_ELEMENTS, post("/session/:sessionId/elements"));

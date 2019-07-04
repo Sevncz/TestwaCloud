@@ -52,6 +52,10 @@ public class CommandLineExecutor {
     }
 
     public static StartedProcess asyncExecute(String[] command) {
+        return asyncExecute(command, false);
+    }
+
+    public static StartedProcess asyncExecute(String[] command, boolean printLog) {
         try {
             return new ProcessExecutor()
                         .command(command)
@@ -60,33 +64,35 @@ public class CommandLineExecutor {
                             @Override
                             public void beforeStart(ProcessExecutor executor) {
                                 super.beforeStart(executor);
-                                log.info("[{}] ready start", commandArraysToString(command));
+                                log.info("[{}] running", commandArraysToString(command));
                             }
 
                             @Override
                             public void afterStart(Process process, ProcessExecutor executor) {
                                 super.afterStart(process, executor);
-                                log.info("[{}] started", commandArraysToString(command));
+                                log.debug("[{}] started", commandArraysToString(command));
                             }
 
                             @Override
                             public void afterFinish(Process process, ProcessResult result) {
                                 super.afterFinish(process, result);
-                                log.info("[{}] finish, {}", commandArraysToString(command), result.getOutput().getUTF8());
+                                log.debug("[{}] finish, {}", commandArraysToString(command), result.getOutput().getUTF8());
                             }
 
                             @Override
                             public void afterStop(Process process) {
                                 super.afterStop(process);
-                                log.info("[{}] stop", commandArraysToString(command));
+                                log.debug("[{}] stop", commandArraysToString(command));
                             }
                         })
-//                    .redirectOutput(new LogOutputStream() {
-//                        @Override
-//                        protected void processLine(String s) {
-//                            log.info("[{} out:] {}", String.join(" ", command), s);
-//                        }
-//                    })
+                    .redirectOutput(new LogOutputStream() {
+                        @Override
+                        protected void processLine(String s) {
+                            if(printLog) {
+                                log.info("[{} out:] {}", String.join(" ", command), s);
+                            }
+                        }
+                    })
                         .start();
         } catch (IOException e) {
             throw new CommandFailureException(e);

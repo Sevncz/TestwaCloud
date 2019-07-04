@@ -98,6 +98,30 @@ public class ADBTools {
         return true;
     }
 
+    public static boolean pullFile(String deviceId, String remoteFile, String localFile) {
+        try {
+            String result = command(deviceId, "pull", remoteFile, localFile);
+            log.info("[{}] pull file {} to {} \n out: {}", deviceId, remoteFile, localFile, result);
+            return true;
+        }catch (CommandFailureException e){
+            log.error("[{}] pull file 错误", deviceId, e);
+        }
+        return true;
+
+    }
+
+    public static boolean deleteFile(String deviceId, String remoteFile) {
+        try {
+            String result = shell(deviceId, "rm", "-f", remoteFile);
+            log.info("[{}] delete file {} return: {}", deviceId, remoteFile, result);
+            return true;
+        }catch (CommandFailureException e){
+            log.error("[{}] delete file 错误", deviceId, e);
+        }
+        return true;
+
+    }
+
     public static Boolean chmod(String deviceId, String remoteFile, String mode) {
         try {
             shell(deviceId, "chmod", "-R", mode, remoteFile);

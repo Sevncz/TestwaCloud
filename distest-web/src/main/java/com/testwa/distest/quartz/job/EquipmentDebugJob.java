@@ -10,7 +10,7 @@ import com.testwa.distest.server.service.cache.queue.ScreenProjectionQueue;
 import com.testwa.distest.server.service.device.service.DeviceLogService;
 import com.testwa.distest.server.web.device.mgr.DeviceLockMgr;
 import io.grpc.stub.StreamObserver;
-import io.rpc.testwa.push.Message;
+import io.rpc.testwa.agent.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;

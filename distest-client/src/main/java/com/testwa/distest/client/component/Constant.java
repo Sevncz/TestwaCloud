@@ -22,7 +22,7 @@ public class Constant {
 	public static final String localScriptTmpPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "script_tmp").toString();
 
 	public static final String localAppiumLogPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "appium").toString();
-	public static final String localScreenshotPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "screenshot").toString();
+	public static final String localScreenshotPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "capture").toString();
 	public static final String localLogcatPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "logcat").toString();
 
 	public static final String localActionScreenPath = Paths.get(System.getProperty("java.io.tmpdir"), "distest_agent", "action").toString();
