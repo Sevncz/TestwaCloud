@@ -30,7 +30,7 @@
         <result column="unlockInstall" property="unlockInstall" jdbcType="TINYINT" />
         <result column="unicodeIMEInstall" property="unicodeIMEInstall" jdbcType="TINYINT" />
         <result column="selendroidInstall" property="selendroidInstall" jdbcType="TINYINT" />
-        <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
+
         <result column="ip" property="ip" jdbcType="VARCHAR" />
         <result column="remote_connect_port" property="remoteConnectPort" jdbcType="INTEGER" />
         <result column="enable_connected" property="enableConnected" jdbcType="TINYINT" />

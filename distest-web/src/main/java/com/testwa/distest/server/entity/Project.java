@@ -29,8 +29,6 @@ public class Project extends BaseEntity {
     @Column(name = "updateBy")
     private Long updateBy;
 
-    @JsonIgnore
-    @Column(name = "lock_version")
-    private Long lockVersion;
+
 
 }

@@ -6,6 +6,9 @@ import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.agent.Message;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * see https://github.com/aosp-mirror/platform_packages_apps_settings/blob/master/AndroidManifest.xml
+ */
 @Slf4j
 public class AppsController {
 

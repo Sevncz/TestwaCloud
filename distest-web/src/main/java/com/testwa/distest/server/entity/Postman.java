@@ -14,7 +14,5 @@ public class Postman extends ProjectBase{
     @Column(name = "collection_path")
     private String collectionPath;
 
-    @JsonIgnore
-    @Column(name = "lock_version")
-    private Long lockVersion;
+
 }

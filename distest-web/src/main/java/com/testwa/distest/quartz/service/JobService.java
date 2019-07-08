@@ -109,6 +109,36 @@ public class JobService {
         }
     }
 
+    public void addSimpleJob(String jobName, String jobGroup, String jobDescription, String params) throws JobException {
+        if (StringUtils.isAnyBlank(jobName, jobGroup, jobDescription)) {
+            throw new JobException(ResultCode.ILLEGAL_PARAM, String.format("参数错误, jobName=%s,jobGroup=%s,jobDescription=%s", jobName, jobGroup, jobDescription));
+        }
+        String createTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        try {
+            log.info("添加jobName={},jobGroup={},jobDescription={}", jobName, jobGroup, jobDescription);
+            JobKey jobKey = JobKey.jobKey(jobName, jobGroup);
+            SimpleTrigger trigger = TriggerBuilder
+                    .newTrigger()
+                    .withIdentity(jobName, jobGroup)
+                    .startAt(new Date())
+                    // startNow()
+                    // 执行一次
+                    .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                            .withIntervalInMilliseconds(1)
+                            .withRepeatCount(1))
+                    .build();
+
+            Class<? extends Job> clazz = (Class<? extends Job>) Class.forName(jobName);
+
+            JobDetail jobDetail = JobBuilder.newJob(clazz).withIdentity(jobKey).withDescription(jobDescription).build();
+            jobDetail.getJobDataMap().put("params", params);
+            scheduler.scheduleJob(jobDetail, trigger);
+        } catch (SchedulerException | ClassNotFoundException e) {
+            log.error("添加job失败, jobName={},jobGroup={},e={}", jobName, jobGroup, e);
+            throw new JobException(ResultCode.ILLEGAL_PARAM, "类名不存在或执行表达式错误");
+        }
+    }
+
     /**
      * 添加并且立即执行一次
      *

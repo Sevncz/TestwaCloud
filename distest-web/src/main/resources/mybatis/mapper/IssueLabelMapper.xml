@@ -9,7 +9,7 @@
         <result column="num" property="num" jdbcType="BIGINT" />
         <result column="create_by" property="createBy" jdbcType="BIGINT" />
         <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
-        <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
+
     </resultMap>
 
     <sql id="Base_Column_List" >

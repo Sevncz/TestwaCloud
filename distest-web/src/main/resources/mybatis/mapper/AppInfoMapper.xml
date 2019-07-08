@@ -14,7 +14,7 @@
         <result column="createBy" property="createBy" jdbcType="BIGINT" />
         <result column="updateBy" property="updateBy" jdbcType="BIGINT" />
         <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
-        <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
+
     </resultMap>
 
     <sql id="Base_Column_List" >

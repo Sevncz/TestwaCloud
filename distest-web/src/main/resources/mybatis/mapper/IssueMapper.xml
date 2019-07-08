@@ -12,7 +12,7 @@
         <result column="state" property="state" jdbcType="TINYINT"  />
         <result column="comment_num" property="commentNum" jdbcType="BIGINT" />
         <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
-        <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
+
     </resultMap>
 
     <select id="listByCondition" resultMap="BaseResultMap" >

@@ -8,7 +8,7 @@
         <result column="inviteBy" property="inviteBy" jdbcType="BIGINT" />
         <result column="projectRole" property="projectRole"  jdbcType="TINYINT" />
         <result column="createTime" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
-        <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
+
 
     </resultMap>
     <resultMap id="MemberResultMap" type="com.testwa.distest.server.entity.User" >

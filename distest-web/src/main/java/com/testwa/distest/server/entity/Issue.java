@@ -37,9 +37,7 @@ public class Issue extends BaseEntity {
     // 优先级
     @Column(name = "priority")
     private DB.IssuePriorityEnum priority;
-    @JsonIgnore
-    @Column(name = "lock_version")
-    private Long lockVersion;
+
     @Column(name = "comment_num")
     private Long commentNum;
 }

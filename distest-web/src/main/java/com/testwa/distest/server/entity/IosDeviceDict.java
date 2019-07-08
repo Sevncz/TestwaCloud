@@ -24,7 +24,5 @@ public class IosDeviceDict extends BaseEntity {
     @Column(name = "height")
     private Integer height;
 
-    @JsonIgnore
-    @Column(name = "lock_version")
-    private Long lockVersion;
+
 }

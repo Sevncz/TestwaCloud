@@ -234,10 +234,10 @@ public class RemoteScreenEventHandler {
         params.setDevLogId(devLogId);
         params.setSocketClientId(client.getSessionId().toString());
 
-        DateTime now = new DateTime();
-        String cron = CronDateUtils.getCron(now.toDate());
+//        DateTime now = new DateTime();
+//        String cron = CronDateUtils.getCron(now.plusSeconds(1).toDate());
         try {
-            jobService.addJobAndProceed(JOB_DEBUG_NAME, deviceId, cron, String.format("设备[%s]-[%s]-[%s]远程调试", device.getBrand(), device.getModel(), device.getDeviceId()), JSON.toJSONString(params));
+            jobService.addSimpleJob(JOB_DEBUG_NAME, deviceId, String.format("设备[%s]-[%s]-[%s]远程调试", device.getBrand(), device.getModel(), device.getDeviceId()), JSON.toJSONString(params));
         } catch (BusinessException e) {
             e.printStackTrace();
         }
@@ -338,15 +338,15 @@ public class RemoteScreenEventHandler {
         debugParams.setDevLogId(devLogId);
         debugParams.setSocketClientId(client.getSessionId().toString());
 
-        DateTime now = new DateTime();
-        String cron = CronDateUtils.getCron(now.toDate());
+//        DateTime now = new DateTime();
+//        String cron = CronDateUtils.getCron(now.plusSeconds(1).toDate());
         try {
             if("ios".equals(device.getOsName().toLowerCase())){
                 log.info("ios log start");
-                jobService.addJobAndProceed(JOB_LOG_NAME, deviceId, cron, String.format("设备[%s]-[%s]-[%s]获取Log",device.getBrand(),device.getModel(),device.getDeviceId()), JSON.toJSONString(debugParams));
+                jobService.addSimpleJob(JOB_LOG_NAME, deviceId, String.format("设备[%s]-[%s]-[%s]获取Log",device.getBrand(),device.getModel(),device.getDeviceId()), JSON.toJSONString(debugParams));
             }
             if("android".equals(device.getOsName().toLowerCase())){
-                jobService.addJobAndProceed(JOB_LOGCAT_NAME, deviceId, cron, String.format("设备[%s]-[%s]-[%s]获取Logcat",device.getBrand(),device.getModel(),device.getDeviceId()), JSON.toJSONString(debugParams));
+                jobService.addSimpleJob(JOB_LOGCAT_NAME, deviceId, String.format("设备[%s]-[%s]-[%s]获取Logcat",device.getBrand(),device.getModel(),device.getDeviceId()), JSON.toJSONString(debugParams));
             }
         } catch (BusinessException e) {
             e.printStackTrace();

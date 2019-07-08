@@ -7,7 +7,7 @@
         <result column="name" property="name" jdbcType="VARCHAR" />
         <result column="height" property="height" jdbcType="INTEGER" />
         <result column="width" property="width" jdbcType="INTEGER" />
-        <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
+
     </resultMap>
 
     <select id="findByProductType" resultMap="BaseResultMap" >

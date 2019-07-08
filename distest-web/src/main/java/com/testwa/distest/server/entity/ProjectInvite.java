@@ -29,8 +29,6 @@ public class ProjectInvite extends BaseEntity {
     @Column(name = "status")
     private int status;  // 接收状态
 
-    @JsonIgnore
-    @Column(name = "lock_version")
-    private Long lockVersion;
+
 
 }

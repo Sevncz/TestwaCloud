@@ -17,7 +17,7 @@
         <result column="testcaseJson" property="testcaseJson" jdbcType="VARCHAR" javaType="String"/>
         <result column="scriptJson" property="scriptJson" jdbcType="VARCHAR" javaType="String"/>
         <result column="taskType" property="taskType" jdbcType="TINYINT" />
-        <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
+
     </resultMap>
 
     <sql id="Base_Column_List" >

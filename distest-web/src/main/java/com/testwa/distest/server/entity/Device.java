@@ -87,8 +87,6 @@ public class Device extends BaseEntity {
     @Column(name = "enable_connected")
     private Boolean enableConnected;
 
-    @JsonIgnore
-    @Column(name = "lock_version")
-    private Long lockVersion;
+
 
 }

@@ -10,7 +10,7 @@
         <result column="running" property="running" jdbcType="TINYINT"/>
         <result column="startTime" property="startTime" jdbcType="BIGINT"/>
         <result column="endTime" property="endTime" jdbcType="BIGINT"/>
-        <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
+
 
     </resultMap>
 

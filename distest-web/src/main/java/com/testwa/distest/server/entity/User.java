@@ -73,8 +73,6 @@ public class User extends BaseEntity {
     @Column(name="realName")
     private String realName;
 
-    @JsonIgnore
-    @Column(name = "lock_version")
-    private Long lockVersion;
+
 
 }
