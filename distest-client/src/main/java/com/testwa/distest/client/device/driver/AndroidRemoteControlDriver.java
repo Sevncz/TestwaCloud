@@ -18,10 +18,7 @@ import com.testwa.distest.client.component.minicap.ScreenAndroidProjection;
 import com.testwa.distest.client.component.minitouch.TouchAndroidProjection;
 import com.testwa.distest.client.component.port.SocatPortProvider;
 import com.testwa.distest.client.component.port.TcpIpPortProvider;
-import com.testwa.distest.client.component.stfagent.DevInformationAssembly;
-import com.testwa.distest.client.component.stfagent.StfAgentClient;
-import com.testwa.distest.client.component.stfagent.StfAPKServer;
-import com.testwa.distest.client.component.stfagent.StfServiceClient;
+import com.testwa.distest.client.component.stfagent.*;
 import com.testwa.distest.client.device.listener.AndroidComponentServiceRunningListener;
 import com.testwa.distest.client.device.listener.callback.IRemoteCommandCallBack;
 import com.testwa.distest.client.device.listener.callback.RemoteCommandCallBackUtils;
@@ -32,7 +29,6 @@ import com.testwa.distest.client.download.Downloader;
 import com.testwa.distest.client.exception.DownloadFailException;
 import com.testwa.distest.client.model.AgentInfo;
 import com.testwa.distest.client.model.UserInfo;
-import com.testwa.distest.client.util.CommandLineExecutor;
 import com.testwa.distest.jadb.JadbDevice;
 import com.testwa.distest.jadb.JadbException;
 import io.grpc.stub.StreamObserver;
@@ -41,7 +37,6 @@ import io.rpc.testwa.agent.ClientInfo;
 import io.rpc.testwa.agent.Message;
 import jp.co.cyberagent.stf.proto.Wire;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -186,7 +181,6 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
             userRotation = rotate;
         }
         restartProjection(userRotation);
-
         log.info("[{}] 屏幕已启动", this.device.getSerial());
     }
 
@@ -339,14 +333,14 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
         }
     }
 
-
     /**
-     * 是否包含汉字<br>
-     * 根据汉字编码范围进行判断<br>
-     * CJK统一汉字（不包含中文的，。《》（）“‘’”、！￥等符号）<br>
-     *
-     * @param str
-     * @return
+     * @Description: 是否包含汉字<br>
+     *               根据汉字编码范围进行判断<br>
+     *               CJK统一汉字（不包含中文的，。《》（）“‘’”、！￥等符号）<br>
+     * @Param: [str]
+     * @Return: boolean
+     * @Author wen
+     * @Date 2019-07-09 18:11
      */
     private boolean hasChineseByRange(String str) {
         if (str == null) {
@@ -365,7 +359,6 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
     public void touch(String cmd) {
         if (this.touchProjection != null && this.touchProjection.isRunning()) {
             this.touchProjection.sendEvent(cmd);
-            updateDisplay();
         }
     }
 
@@ -417,12 +410,16 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
 
     @Override
     public void openWeb(String cmd) {
-        ADBTools.openWeb(this.device.getSerial(), cmd);
+        ADBTools.shell(device.getSerial(), "am", "start", "-a", "android.intent.action.VIEW", "-d", cmd);
     }
 
     @Override
     public void runShell(String cmd) {
-        ADBTools.asyncCommandShell(device.getSerial(), cmd + " --activity-clear-top");
+
+        executorService.submit(() -> {
+            String shellResult = ADBTools.shell(device.getSerial(), cmd);
+            api.handleEventShellResult(device.getSerial(), shellResult);
+        });
     }
 
     @Override
@@ -585,35 +582,39 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
 
     @Override
     public void onNext(Message message) {
-        if(Message.Topic.CONNECTED.equals(message.getTopicName())) {
-            log.info("[{}] Connected to server", this.device.getSerial());
-            // 已经连接
-            try {
-                TimeUnit.SECONDS.sleep(3);
-            } catch (InterruptedException e) {
+        switch (message.getTopicName()) {
+            case CONNECTED:
+                log.info("[{}] Connected to server", this.device.getSerial());
+                // 已经连接
+                try {
+                    TimeUnit.SECONDS.sleep(3);
+                } catch (InterruptedException e) {
 
-            }
-            // 连上服务器之后归零
-            connectRetryTime.set(0);
-            startStf();
-            updateDisplay();
-            return;
-        }
-        if(Message.Topic.STF.equals(message.getTopicName())) {
-            processStfCmd(message.getMessage());
-            return;
-        }
-        IRemoteCommandCallBack call;
-        try {
-            if(cache.containsKey(message.getTopicName())){
-                call = cache.get(message.getTopicName());
-            }else{
-                call = RemoteCommandCallBackUtils.getCallBack(message.getTopicName(), this);
-                cache.put(message.getTopicName(), call);
-            }
-            call.callback(message.getMessage());
-        } catch (Exception e) {
-            log.error("["+device.getSerial()+"] command error", e);
+                }
+                // 连上服务器之后归零
+                connectRetryTime.set(0);
+                restartStf();
+                break;
+            case STF:
+                processStfCmd(message.getMessage());
+                break;
+            case STF_RESTART:
+                restartStf();
+                break;
+            default:
+                IRemoteCommandCallBack call;
+                try {
+                    if(cache.containsKey(message.getTopicName())){
+                        call = cache.get(message.getTopicName());
+                    }else{
+                        call = RemoteCommandCallBackUtils.getCallBack(message.getTopicName(), this);
+                        cache.put(message.getTopicName(), call);
+                    }
+                    call.callback(message.getMessage());
+                } catch (Exception e) {
+                    log.error("[{}] command error", device.getSerial(), e);
+                }
+                break;
         }
     }
 
@@ -637,6 +638,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
                 case GET_VERSION:
                     break;
                 case GET_DISPLAY:
+                    getDisplay();
                     break;
                 case GET_WIFI_STATUS:
                     break;
@@ -649,7 +651,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
                     this.handleService(envelope);
                     break;
                 case SET_ROTATION:
-                    this.handleService(envelope);
+                    this.handleAgent(envelope);
                     break;
                 case SET_KEYGUARD_STATE:
                     this.handleService(envelope);
@@ -684,18 +686,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
 
     }
 
-    public void changeRotation(int rotation) {
-        this.userRotation = rotation;
-        if(this.screenProjection == null) {
-            return;
-        }
-        if(this.screenProjection.isRunning()) {
-            restartProjection(rotation);
-        }
-        updateDisplay();
-    }
-
-    private void updateDisplay() {
+    private void getDisplay() {
         executorService.submit(() -> {
             if(this.stfServiceClient != null) {
                 this.stfServiceClient.buildDevDisplay();
@@ -710,16 +701,40 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
      * @Author wen
      * @Date 2019-07-02 22:48
      */
-    private void startStf(){
-        // start server
-        this.stfAgentServer = new StfAPKServer(this.device.getSerial(), this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH));
-        this.stfAgentServer.start();
+    private void restartStf(){
+        executorService.submit(() -> {
+            boolean success = false;
+            while(!success) {
 
-        // start service and agent
-        this.stfAgentClient = new StfAgentClient(this.device.getSerial());
-        this.stfServiceClient = new StfServiceClient(this.device.getSerial(), this);
-        this.stfAgentClient.start();
-        this.stfServiceClient.start();
+                try {
+                    // 这里会需要一直重启
+                    stopStf();
+                    // start server
+                    this.stfAgentServer = new StfAPKServer(this.device.getSerial(), this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH));
+                    this.stfAgentServer.start();
+
+                    // start service and agent
+                    this.stfAgentClient = new StfAgentClient(this.device.getSerial());
+                    this.stfServiceClient = new StfServiceClient(this.device.getSerial(), this);
+                    this.stfAgentClient.start();
+                    this.stfServiceClient.start();
+                    // 启动之后更新display
+                    success = true;
+                    while(this.stfServiceClient.getDevInformationAssembly().getDevDisplay().getHeight() == 0 && this.stfServiceClient.isRunning()) {
+                        TimeUnit.MILLISECONDS.sleep(100);
+                        this.stfServiceClient.buildDevDisplay();
+                    }
+                }catch (Exception e) {
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(100);
+                    } catch (InterruptedException e1) {
+                    }
+                    log.error("[{}] stf server start error {}", device.getSerial(), e.getMessage());
+                }finally {
+                    api.handleEventAgentInstall(this.device.getSerial(), success);
+                }
+            }
+        });
     }
 
     /**
@@ -756,4 +771,23 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
         }
     }
 
+
+    public void eventRotation(int rotation) {
+        this.userRotation = rotation;
+        if(this.screenProjection == null) {
+            return;
+        }
+        if(this.screenProjection.isRunning()) {
+            restartProjection(rotation);
+        }
+        getDisplay();
+    }
+
+    public void eventDisplay(DevInformationAssembly devInformationAssembly) {
+        api.handleEventDisplay(this.device.getSerial(), devInformationAssembly.getDevDisplay());
+    }
+
+    public void eventBrowserApp(Wire.GetBrowsersResponse response) {
+        api.handleEventBrowserApp(this.device.getSerial(), response);
+    }
 }

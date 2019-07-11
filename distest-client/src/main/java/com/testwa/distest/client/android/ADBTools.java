@@ -231,15 +231,6 @@ public class ADBTools {
         CommandLineExecutor.execute(new String[]{AndroidSdk.adb().getName(), "start-server"});
     }
 
-    public static String openWeb(String deviceId, String url) {
-        String result = shell(deviceId, "am", "start", "-a", "android.intent.action.VIEW", "-d", url);
-        if(StringUtils.isNoneEmpty(result)) {
-            return result.trim();
-        }
-        return ERROR;
-    }
-
-
     public static void uninstallApp(String deviceId, String basePackage) {
         command(deviceId, "uninstall", basePackage);
     }

@@ -1,7 +1,6 @@
 package com.testwa.distest.client.device.screen;
 
 import com.testwa.distest.client.android.ADBTools;
-import com.testwa.distest.client.android.PhysicalSize;
 import com.testwa.distest.client.component.Constant;
 import com.testwa.distest.client.component.stfagent.DevDisplay;
 import com.testwa.distest.client.util.CommandLineExecutor;

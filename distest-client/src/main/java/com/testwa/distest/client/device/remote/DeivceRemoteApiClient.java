@@ -2,11 +2,13 @@ package com.testwa.distest.client.device.remote;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
+import com.testwa.distest.client.component.stfagent.DevDisplay;
 import com.testwa.distest.client.device.listener.callback.remote.ScreenObserver;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.device.*;
 import io.rpc.testwa.agent.*;
+import jp.co.cyberagent.stf.proto.Wire;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.springboot.autoconfigure.grpc.client.GrpcClient;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -141,5 +144,98 @@ public class DeivceRemoteApiClient {
         } catch (IOException | InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
+    }
+
+    public void handleEventDisplay(String deviceId, DevDisplay devDisplay) {
+
+        try {
+            DisplayEvent request = DisplayEvent.newBuilder()
+                    .setSerial(deviceId)
+                    .setDensity(devDisplay.getDensity())
+                    .setFps(devDisplay.getFps())
+                    .setHeight(devDisplay.getHeight())
+                    .setWidth(devDisplay.getWidth())
+                    .setRotation(devDisplay.getRotation())
+                    .setXdpi(devDisplay.getXdpi())
+                    .setYdpi(devDisplay.getYdpi())
+                    .build();
+            MonitorServiceGrpc.MonitorServiceFutureStub monitorServiceFutureStub = MonitorServiceGrpc.newFutureStub(channel);
+            ListenableFuture<Status> replyListenableFuture = monitorServiceFutureStub.display(request);
+            Status status = replyListenableFuture.get();
+            // TODO 可以查看返回的消息
+            log.debug(status.getStatus());
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void handleEventBrowserApp(String deviceId, Wire.GetBrowsersResponse response) {
+
+        try {
+            List<BrowserApp> apps = new ArrayList<>();
+            response.getAppsList().forEach(app -> {
+                BrowserApp app3 = BrowserApp.newBuilder()
+                        .setComponent(app.getComponent())
+                        .setName(app.getName())
+                        .setSystem(app.getSystem())
+                        .setSelected(app.getSelected())
+                        .build();
+                apps.add(app3);
+            });
+
+            BrowserAppEvent request = BrowserAppEvent.newBuilder()
+                    .setSerial(deviceId)
+                    .setSelected(response.getSelected())
+                    .setSuccess(response.getSuccess())
+                    .addAllApps(apps)
+                    .build();
+            MonitorServiceGrpc.MonitorServiceFutureStub monitorServiceFutureStub = MonitorServiceGrpc.newFutureStub(channel);
+            ListenableFuture<Status> replyListenableFuture = monitorServiceFutureStub.browserApp(request);
+            Status status = replyListenableFuture.get();
+            log.debug(status.getStatus());
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void handleEventShellResult(String deviceId, String shellResult) {
+
+        try {
+            ShellEvent request = ShellEvent.newBuilder()
+                    .setSerial(deviceId)
+                    .setRet(shellResult)
+                    .build();
+            MonitorServiceGrpc.MonitorServiceFutureStub monitorServiceFutureStub = MonitorServiceGrpc.newFutureStub(channel);
+            ListenableFuture<Status> replyListenableFuture = monitorServiceFutureStub.shell(request);
+            Status status = replyListenableFuture.get();
+            log.debug(status.getStatus());
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * @Description: STF agent 安装情况
+     * @Param: [serial]
+     * @Return: void
+     * @Author wen
+     * @Date 2019-07-09 17:58
+     */
+    public void handleEventAgentInstall(String serial, boolean success) {
+
+        try {
+            StfAgentEvent request = StfAgentEvent.newBuilder()
+                    .setSerial(serial)
+                    .setSuccess(success)
+                    .build();
+            MonitorServiceGrpc.MonitorServiceFutureStub monitorServiceFutureStub = MonitorServiceGrpc.newFutureStub(channel);
+            ListenableFuture<Status> replyListenableFuture = monitorServiceFutureStub.stfAgentInstallEvent(request);
+            Status status = replyListenableFuture.get();
+            log.debug(status.getStatus());
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
     }
 }
