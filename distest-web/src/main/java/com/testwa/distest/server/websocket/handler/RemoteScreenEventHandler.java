@@ -54,6 +54,10 @@ public class RemoteScreenEventHandler {
     private final static String TAP = "tap";
     private final static String SWIP = "swip";
     private final static String INPUT = "input";
+    private final static String HOME = "home";
+    private final static String BACK = "back";
+    private final static String MENU = "menu";
+    private final static String DEL = "del";
     private final static String CLEAR = "clear";
     private final static String GET_DEVICES = "get_devices";
     private final static String SHELL = "shell";
@@ -76,8 +80,10 @@ public class RemoteScreenEventHandler {
     private final static String SET_CLIPBOARD = "set_clipboard";
     private final static String SET_KEYGUARD_STATUS = "set_keyguard_status";
 
+    private final static String RESTART_AGENT_APK = "restart_agent_apk";
+
     private final static String PRESS_KEY = "press_key";
-    private final static String BROWSER_APP_LIST = "browser_apps";
+    private final static String BROWSER_APP_LIST = "browser_app";
     private final static String DEVICE_INFO = "device_info";
     private final static String OPEN_SYS_SETTING = "open_sys_setting";
     private final static String SCREENSHOT = "screenshot";
@@ -421,7 +427,7 @@ public class RemoteScreenEventHandler {
     }
 
     /**
-     * @Description: 查看第三方应用
+     * @Description: 查看浏览器应用
      * @Param: [client, deviceId, ackRequest]
      * @Return: void
      * @Author wen
@@ -600,6 +606,80 @@ public class RemoteScreenEventHandler {
         sendStfCmd(client, deviceId, builder.build());
     }
 
+    @OnEvent(value = RESTART_AGENT_APK)
+    public void onRestartAgentApk(SocketIOClient client, String deviceId, AckRequest ackRequest) {
+        if (isIllegalDeviceId(client, deviceId)) {
+            return;
+        }
+
+        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
+        if (observer != null) {
+            Message message = Message.newBuilder().setTopicName(Message.Topic.STF_RESTART).setStatus(STATUS_OK).build();
+            observer.onNext(message);
+        } else {
+            client.sendEvent("error", "设备还未准备好");
+        }
+    }
+
+
+
+    @OnEvent(value = HOME)
+    public void onHome(SocketIOClient client, String deviceId, AckRequest ackRequest) {
+        if (isIllegalDeviceId(client, deviceId)) {
+            return;
+        }
+        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
+        if(observer != null ){
+            Message message = Message.newBuilder().setTopicName(Message.Topic.HOME).setStatus(STATUS_OK).setMessage(ByteString.copyFromUtf8(HOME)).build();
+            observer.onNext(message);
+        }else{
+            client.sendEvent("error", "设备还未准备好");
+        }
+
+    }
+    @OnEvent(value = BACK)
+    public void onBack(SocketIOClient client, String deviceId, AckRequest ackRequest) {
+        if (isIllegalDeviceId(client, deviceId)) {
+            return;
+        }
+
+        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
+        if(observer != null ){
+            Message message = Message.newBuilder().setTopicName(Message.Topic.BACK).setStatus(STATUS_OK).setMessage(ByteString.copyFromUtf8(BACK)).build();
+            observer.onNext(message);
+        }else{
+            client.sendEvent("error", "设备还未准备好");
+        }
+
+    }
+
+    @OnEvent(value = MENU)
+    public void onMenu(SocketIOClient client, String deviceId, AckRequest ackRequest) {
+        if (isIllegalDeviceId(client, deviceId)) {
+            return;
+        }
+        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
+        if(observer != null ){
+            Message message = Message.newBuilder().setTopicName(Message.Topic.MENU).setStatus(STATUS_OK).setMessage(ByteString.copyFromUtf8(MENU)).build();
+            observer.onNext(message);
+        }else{
+            client.sendEvent("error", "设备还未准备好");
+        }
+    }
+
+    @OnEvent(value = DEL)
+    public void onDel(SocketIOClient client, String deviceId, AckRequest ackRequest) {
+        if (isIllegalDeviceId(client, deviceId)) {
+            return;
+        }
+        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
+        if(observer != null ){
+            Message message = Message.newBuilder().setTopicName(Message.Topic.DEL).setStatus(STATUS_OK).setMessage(ByteString.copyFromUtf8(DEL)).build();
+            observer.onNext(message);
+        }else{
+            client.sendEvent("error", "设备还未准备好");
+        }
+    }
 
     @OnEvent(value = GET_DEVICES)
     public void onGetDevices(SocketIOClient client, String deviceId, AckRequest ackRequest) {

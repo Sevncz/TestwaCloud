@@ -115,24 +115,35 @@ public class JobService {
         }
         String createTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         try {
-            log.info("添加jobName={},jobGroup={},jobDescription={}", jobName, jobGroup, jobDescription);
-            JobKey jobKey = JobKey.jobKey(jobName, jobGroup);
-            SimpleTrigger trigger = TriggerBuilder
-                    .newTrigger()
-                    .withIdentity(jobName, jobGroup)
-                    .startAt(new Date())
-                    // startNow()
-                    // 执行一次
-                    .withSchedule(SimpleScheduleBuilder.simpleSchedule()
-                            .withIntervalInMilliseconds(1)
-                            .withRepeatCount(1))
-                    .build();
+            if (checkExists(jobName, jobGroup)) {
+                JobKey jobKey = JobKey.jobKey(jobName, jobGroup);
 
-            Class<? extends Job> clazz = (Class<? extends Job>) Class.forName(jobName);
+                JobDataMap dataMap = new JobDataMap();
+                dataMap.put("params", params);
 
-            JobDetail jobDetail = JobBuilder.newJob(clazz).withIdentity(jobKey).withDescription(jobDescription).build();
-            jobDetail.getJobDataMap().put("params", params);
-            scheduler.scheduleJob(jobDetail, trigger);
+                scheduler.triggerJob(jobKey, dataMap);
+            }else {
+
+                log.info("添加jobName={},jobGroup={},jobDescription={}", jobName, jobGroup, jobDescription);
+                JobKey jobKey = JobKey.jobKey(jobName, jobGroup);
+                SimpleTrigger trigger = TriggerBuilder
+                        .newTrigger()
+                        .withIdentity(jobName, jobGroup)
+                        .startAt(new Date())
+                        // startNow()
+                        // 执行一次
+                        .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                                .withIntervalInMilliseconds(1)
+                                .withRepeatCount(1))
+                        .build();
+
+                Class<? extends Job> clazz = (Class<? extends Job>) Class.forName(jobName);
+
+                JobDetail jobDetail = JobBuilder.newJob(clazz).withIdentity(jobKey).withDescription(jobDescription).build();
+                jobDetail.getJobDataMap().put("params", params);
+                scheduler.scheduleJob(jobDetail, trigger);
+
+            }
         } catch (SchedulerException | ClassNotFoundException e) {
             log.error("添加job失败, jobName={},jobGroup={},e={}", jobName, jobGroup, e);
             throw new JobException(ResultCode.ILLEGAL_PARAM, "类名不存在或执行表达式错误");

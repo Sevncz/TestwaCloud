@@ -18,6 +18,7 @@
 <button id="back">返回键</button>
 <button id="home" >home键</button>
 <button id="menu">菜单键</button>
+<button id="appSwitch">切换app</button>
 <button id="camera">拍照键</button>
 <button id="power">电源键</button>
 <!--<button id="notification">通知键</button>-->
@@ -33,17 +34,22 @@
 <button id="openIMESettings">打开IME设置</button>
 <button id="openWiFiSettings">打开WIFI设置</button>
 <br>
-<button id="openBaidu">OPENBAIDU</button>
-<button id="shell">SHELL</button>
+<button id="openBaidu">输入地址打开浏览器</button>
+<br>
+
+<button id="shell">shell命令</button><input type="text" id="shell_text" />
+结果：<input type="text" id="shell_result" />
 <br>
 <input type="text" id="text" />
-<button id="send">SEND</button>
-<button id="del">DEL</button>
+<button id="send">输入</button>
+<button id="del">回退删除</button>
 <br>
 <button id="rotation90">横屏</button>
 <button id="rotation0">竖屏</button>
 <br>
-<button id="browserApps">第三方应用</button>
+<button id="restartAgentApk">重启Agent Apk</button>
+<br>
+<button id="browserApps">浏览器应用</button>
 <button id="deviceInfo">设备信息</button>
 <br>
 <button id="wake">唤醒</button>
@@ -93,10 +99,10 @@ var BLANK_IMG =
 
 var canvas = document.getElementById('phone-screen')
   , g = canvas.getContext('2d')
-var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMzUEKwyAQBdC7zFrB0eho7tFVKcHoBCxtGhKFQunda-mmm1n8__jzgqPNMELM97KCgHbwPpXck9OEVgXsZ7B2IO88ug7SzrFyB2id1sGTohCUgCM9NobxfBHAz-1XG01WkYAS67_vYo3z7TtS98YCrrX0h0FppLR4qRMvcsiGZPTGSRMJ3YzaGkJ4fwAAAP__.Owskj9mCGnxj4zni9EecO7MzdHmcCcrcuQAE2ADF1V4";
+var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjsEKwkAMRP8l511ottk02__wJFLSdoUVrdJuQRD_3QgevAxD5jGZF2z7CD3ofCsLONi3vA5ltsthwNgkNKEYqRMWZAOmNWvNBmDkwCwSKAVxsE33R4b-eHKQn49fnDoO5KBo_eeNWHS8fkvqumcHl1rsYTq31JIkP6GIN8NeNKifmQltAWoT4f0BAAD__w.f2rH4QRvp1opJQC0yPUDDaPa7fIk0fevhZUeaZGkJ1w";
 var socket = io('http://127.0.0.1:9092?type=browser&token=' + token);
 
-var deviceId = '3JU5T18313001420';
+var deviceId = '3419953f9905';
 
 socket.on('connect', function(){
     util.serverConnected = true
@@ -136,6 +142,16 @@ socket.on('display', function(message){
     console.log(message)
 });
 socket.on('battery', function(message){
+    console.log(message)
+});
+socket.on('browser_app', function(message){
+    console.log(message)
+});
+socket.on('shell', function(message){
+    console.log(message)
+    $("#shell_result").val(message);
+});
+socket.on('stfagent_success', function(message){
     console.log(message)
 });
 socket.on('screenshot', function(message){
@@ -381,6 +397,9 @@ $("#home").click(function () {
 $("#menu").click(function () {
     pressKey(82);
 })
+$("#appSwitch").click(function () {
+    pressKey(187);
+})
 $("#del").click(function () {
     pressKey(67);
 })
@@ -453,7 +472,8 @@ $("#openBaidu").click(function () {
     sendUrl(url);
 })
 $("#shell").click(function () {
-    var cmd = "getprop ro.build.version.sdk"
+    //var cmd = "getprop ro.build.version.sdk"
+    var cmd = $("#shell_text").val();
     sendShell(cmd);
 })
 $("#debugStart").click(function () {
@@ -484,13 +504,16 @@ $("#lock").click(function () {
 
 
 $("#browserApps").click(function () {
-    socket.emit("browserApps", deviceId)
+    socket.emit("browser_app", deviceId)
 })
 $("#deviceInfo").click(function () {
     socket.emit("device_info", deviceId)
 })
 $("#screenshot").click(function () {
     socket.emit("screenshot", deviceId)
+})
+$("#restartAgentApk").click(function () {
+    socket.emit("restart_agent_apk", deviceId)
 })
 
 </script>
