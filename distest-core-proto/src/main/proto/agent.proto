@@ -28,6 +28,10 @@ service MonitorService {
     rpc display ( DisplayEvent ) returns (Status) {}
     // 电池信息
     rpc battery ( BatteryEvent ) returns (Status) {}
+    // 第三方 App 信息
+    rpc browserApp ( BrowserAppEvent ) returns (Status) {}
+    // 通知服务器 STF agent 安装情况
+    rpc stfAgentInstallEvent ( StfAgentEvent ) returns (Status) {}
 
 }
 
@@ -110,6 +114,7 @@ message Message {
         TAP = 40;
         SWIP = 41;
         STF = 42;
+        STF_RESTART = 43;
 
 
         CONNECTED = 99;
@@ -153,4 +158,23 @@ message DisplayEvent {
     int32 rotation = 8;
     bool secure = 9;
     string serial = 10;
+}
+
+message BrowserAppEvent {
+    bool success = 1;
+    bool selected = 2;
+    repeated BrowserApp apps = 3;
+    string serial = 4;
+}
+
+message BrowserApp {
+    string name = 1;
+    string component = 2;
+    bool selected = 3;
+    bool system = 4;
+}
+
+message StfAgentEvent {
+    bool success = 1;
+    string serial = 2;
 }
