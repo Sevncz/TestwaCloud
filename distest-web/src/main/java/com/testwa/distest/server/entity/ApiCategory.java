@@ -43,8 +43,6 @@ public class ApiCategory extends ProjectBase{
     @Column(name = "seq")
     private Integer seq;
 
-    @JsonIgnore
-    @Column(name = "lock_version")
-    private Long lockVersion;
+
 
 }

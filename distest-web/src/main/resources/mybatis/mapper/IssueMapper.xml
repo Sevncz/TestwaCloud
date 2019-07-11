@@ -12,18 +12,20 @@
         <result column="state" property="state" jdbcType="TINYINT"  />
         <result column="comment_num" property="commentNum" jdbcType="BIGINT" />
         <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
-        <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
+
     </resultMap>
 
     <select id="listByCondition" resultMap="BaseResultMap" >
         SELECT distinct t.*
-        FROM dis_issue t left join dis_issue_label_map m on t.id = m.issue_id
+        FROM dis_issue t
+        left join dis_issue_label_map m on t.id = m.issue_id
+        left join dis_issue_assignee a on t.id = a.issue_id
         WHERE t.enabled = 1
         <if test="query.projectId != null">and t.project_id = #{query.projectId}</if>
-        <if test="query.assigneeId != null">and t.assignee_id = #{query.assigneeId}</if>
         <if test="query.authorId != null">and t.author_id = #{query.authorId}</if>
         <if test="query.state != null">and t.state = #{query.state}</if>
         <if test="query.search != null">and t.title like CONCAT('%', #{query.search}, '%')</if>
+        <if test="query.assigneeId != null">and a.assignee_id = #{query.assigneeId}</if>
         <if test="labelIds != null and labelIds.size > 0">
           and m.label_id in <foreach item="item" index="index" collection="labelIds" open="(" separator="," close=")">#{item} </foreach>
         </if>
@@ -31,13 +33,15 @@
 
     <select id="getCountGroupByState" resultType="com.testwa.distest.server.service.issue.dto.IssueStateCountDTO" >
         SELECT t.state as issueState, count(distinct t.id) as countValue
-        FROM dis_issue t left join dis_issue_label_map m on t.id = m.issue_id
+        FROM dis_issue t
+        left join dis_issue_label_map m on t.id = m.issue_id
+        left join dis_issue_assignee a on t.id = a.issue_id
         WHERE t.enabled = 1
         <if test="query.projectId != null">and t.project_id = #{query.projectId}</if>
-        <if test="query.assigneeId != null">and t.assignee_id = #{query.assigneeId}</if>
         <if test="query.authorId != null">and t.author_id = #{query.authorId}</if>
         <if test="query.state != null">and t.state = #{query.state}</if>
         <if test="query.search != null">and t.title like CONCAT('%', #{query.search}, '%')</if>
+        <if test="query.assigneeId != null">and a.assignee_id = #{query.assigneeId}</if>
         <if test="labelIds != null and labelIds.size > 0">
           and m.label_id in <foreach item="item" index="index" collection="labelIds" open="(" separator="," close=")">#{item} </foreach>
         </if>

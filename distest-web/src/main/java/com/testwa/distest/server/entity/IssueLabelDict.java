@@ -15,8 +15,6 @@ public class IssueLabelDict extends BaseEntity {
     @Column(name = "color")
     private String color;
 
-    @JsonIgnore
-    @Column(name = "lock_version")
-    private Long lockVersion;
+
 
 }

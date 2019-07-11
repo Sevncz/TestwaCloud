@@ -54,14 +54,14 @@ public class IndexController {
             // "sessionId":"ace91834-73c7-4fc0-8a85-004caec5154d","deviceId":"b15d91f","testSuit":"3",
             // "testcaseId":"3","taskCode":"185","screenshotPath":"1527502356422.png",
             // "description":"No Driver found for this session, probably appium error, please restart appium!",
-            // "command":{"action":"等待","params":"60000ms"}}
+            // "shellCommand":{"action":"等待","params":"60000ms"}}
             String value = appiumStepJson.getString("value");
             if(StringUtils.isBlank(value)){
                 value = "null";
             }
             Integer status = appiumStepJson.getInteger("status");
             Long runtime = appiumStepJson.getLong("runtime");
-            JSONObject command = appiumStepJson.getJSONObject("command");
+            JSONObject command = appiumStepJson.getJSONObject("shellCommand");
             String action = command.getString("action");
             String params = command.getString("params");
 

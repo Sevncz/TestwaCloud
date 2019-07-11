@@ -75,15 +75,15 @@ public class PrepareInterceptor implements Interceptor {
                         log.info("插入操作时设置enabled: 1");
                     }
                 }
-                Field fieldLockVersion = mataDate.getFieldMap().get("lockVersion");
-                if(fieldLockVersion != null) {
-                    fieldLockVersion.setAccessible(true);
-                    Object valueLockVersion = fieldLockVersion.get(parameter);
-                    if (valueLockVersion == null) {
-                        fieldLockVersion.set(parameter, 1L);
-                        log.info("插入操作时设置lockVersion: 1");
-                    }
-                }
+//                Field fieldLockVersion = mataDate.getFieldMap().get("lockVersion");
+//                if(fieldLockVersion != null) {
+//                    fieldLockVersion.setAccessible(true);
+//                    Object valueLockVersion = fieldLockVersion.get(parameter);
+//                    if (valueLockVersion == null) {
+//                        fieldLockVersion.set(parameter, 1L);
+//                        log.info("插入操作时设置lockVersion: 1");
+//                    }
+//                }
                 Field fieldModifyTime = mataDate.getFieldMap().get("updateTime");
                 if(fieldModifyTime != null) {
                     fieldModifyTime.setAccessible(true);

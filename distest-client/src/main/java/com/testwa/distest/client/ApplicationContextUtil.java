@@ -22,6 +22,10 @@ public class ApplicationContextUtil implements ApplicationContextAware {
         return applicationContext.getBean(beanName);
     }
 
+    public static <T> T getBean(Class<T> clazz) {
+        return applicationContext.getBean(clazz);
+    }
+
     @SuppressWarnings("unchecked")
     public static <T> T getBeanDetail(String beanName) throws BeansException {
         return (T) applicationContext.getBean(beanName);

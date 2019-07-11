@@ -8,23 +8,63 @@
 <canvas id="phone-screen"></canvas>
 <script src="js/socket.io-1.4.5.js"></script>
 
+<br>
+<button id="sub">开始使用设备</button>
+<button id="wait">暂停使用设备</button>
+<button id="notify">恢复使用设备</button>
+<button id="unsub">停止使用设备</button>
+<br>
 <button id="devices">DEVICES</button>
-<button id="back">BACK</button>
-<button id="home" >HOME</button>
-<button id="menu">MENU</button>
-<button id="openBaidu">OPENBAIDU</button>
-<button id="shell">SHELL</button>
+<button id="back">返回键</button>
+<button id="home" >home键</button>
+<button id="menu">菜单键</button>
+<button id="appSwitch">切换app</button>
+<button id="camera">拍照键</button>
+<button id="power">电源键</button>
+<!--<button id="notification">通知键</button>-->
+<!--<button id="search">搜索键</button>-->
+<br>
+<button id="openSettings">打开系统设置</button>
+<button id="openDeveloperSettings">打开开发者选项</button>
+<button id="openManageApps">打开应用管理</button>
+<button id="openRunningApps">打开运行应用</button>
+<button id="openDeviceInfo">打开设备信息</button>
+<button id="openDisplaySettings">打开显示设置</button>
+<button id="openLocaleSettings">打开语言设置</button>
+<button id="openIMESettings">打开IME设置</button>
+<button id="openWiFiSettings">打开WIFI设置</button>
+<br>
+<button id="openBaidu">输入地址打开浏览器</button>
+<br>
 
+<button id="shell">shell命令</button><input type="text" id="shell_text" />
+结果：<input type="text" id="shell_result" />
+<br>
 <input type="text" id="text" />
-<button id="send">SEND</button>
-<button id="del">DEL</button>
+<button id="send">输入</button>
+<button id="del">回退删除</button>
+<br>
+<button id="rotation90">横屏</button>
+<button id="rotation0">竖屏</button>
+<br>
+<button id="restartAgentApk">重启Agent Apk</button>
+<br>
+<button id="browserApps">浏览器应用</button>
+<button id="deviceInfo">设备信息</button>
+<br>
+<button id="wake">唤醒</button>
+<button id="unlock">键盘锁解锁</button>
+<button id="lock">键盘锁锁定</button>
+<input type="text" id="clipboard_text" />
+<button id="clipboard">剪切板</button>
+<br>
+<button id="debugStart">启动debug</button>
+<button id="debugStop">关闭debug</button>
+<br>
+<canvas id="screenshot_canvas"></canvas>
+<button id="screenshot">截图</button>
 
 
-<button id="sub">SUB</button>
-<button id="wait">WAIT</button>
-
-
-<button id="reset_minicap">RESET_MINICAP</button>
 <!-- jQuery -->
 <script src="js/jquery.min.js"></script>
 <script src="js/jquery.jsonp.js"></script>
@@ -59,12 +99,10 @@ var BLANK_IMG =
 
 var canvas = document.getElementById('phone-screen')
   , g = canvas.getContext('2d')
-var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjcsKwjAQRf9l1glMnkz6H65EStKOEJFa0hQF8d-dggs3d3HPfbxh2wsM8OQFDSjYN25jncU5jTGGRJZcSta6iM4KnxrnzsJN8GLaQxwq2KbHyjCcLwr4tf5wMlJUUHP_z0tiyeV-jPS2s4Jbr_Jng6dSPOmImLRnQzrlkHUgJJ4x-PlK8PkCAAD__w.w4ojEdq8E02s_iSFhiaak6QC3b_veo5_r-CuG7XZ_WU";
-// var socket = io('http://cloud.test.testwa.com:9092?type=browser&token=' + token);
+var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjsEKwkAMRP8l511ottk02__wJFLSdoUVrdJuQRD_3QgevAxD5jGZF2z7CD3ofCsLONi3vA5ltsthwNgkNKEYqRMWZAOmNWvNBmDkwCwSKAVxsE33R4b-eHKQn49fnDoO5KBo_eeNWHS8fkvqumcHl1rsYTq31JIkP6GIN8NeNKifmQltAWoT4f0BAAD__w.f2rH4QRvp1opJQC0yPUDDaPa7fIk0fevhZUeaZGkJ1w";
 var socket = io('http://127.0.0.1:9092?type=browser&token=' + token);
 
-// var deviceId = '98895a44324f494f4d';
-var deviceId = 'VGMFAU8D99999999';
+var deviceId = '3419953f9905';
 
 socket.on('connect', function(){
     util.serverConnected = true
@@ -77,22 +115,62 @@ socket.on('devices', function(message){
 });
 socket.on('minicap', function(message){
     var blob = new Blob([message], {type: 'image/jpeg'})
-  var URL = window.URL || window.webkitURL
-  var img = new Image()
+    var URL = window.URL || window.webkitURL
+    var img = new Image()
     img.src = URL.createObjectURL(blob);
-  img.onload = function() {
-    canvas.width = img.width * util.scala
-    canvas.height = img.height * util.scala
-    g.drawImage(img, 0, 0, img.width * util.scala, img.height * util.scala)
-    img.onload = null
-    img.src = BLANK_IMG
-    img = null
-    u = null
-    blob = null
-  }
+    img.onload = function() {
+        canvas.width = img.width * util.scala
+        canvas.height = img.height * util.scala
+        g.drawImage(img, 0, 0, img.width * util.scala, img.height * util.scala)
+        img.onload = null
+        img.src = BLANK_IMG
+        img = null
+        u = null
+        blob = null
+    }
 });
 socket.on('disconnect', function(){
     util.serverConnected = false;
+});
+socket.on('remote_debug_start', function(message){
+    console.log(message)
+});
+socket.on('remote_debug_stop', function(message){
+    console.log(message)
+});
+socket.on('display', function(message){
+    console.log(message)
+});
+socket.on('battery', function(message){
+    console.log(message)
+});
+socket.on('browser_app', function(message){
+    console.log(message)
+});
+socket.on('shell', function(message){
+    console.log(message)
+    $("#shell_result").val(message);
+});
+socket.on('stfagent_success', function(message){
+    console.log(message)
+});
+socket.on('screenshot', function(message){
+    var blob = new Blob([message], {type: 'image/jpeg'})
+    var URL = window.URL || window.webkitURL
+    var img = new Image()
+    img.src = URL.createObjectURL(blob);
+    var screen_canvas = document.getElementById('screenshot_canvas')
+        , screen_g = screen_canvas.getContext('2d')
+    img.onload = function() {
+        screen_canvas.width = img.width * util.scala
+        screen_canvas.height = img.height * util.scala
+        screen_g.drawImage(img, 0, 0, img.width * util.scala, img.height * util.scala)
+        img.onload = null
+        img.src = BLANK_IMG
+        img = null
+        u = null
+        blob = null
+    }
 });
 
 var isDown = false;
@@ -125,18 +203,22 @@ function getXAndY(control, event){
     return {x:x2,y:y2};
 }
 
-function sendHome() {
-    console.log("home")
-    socket.emit("home", deviceId)
+function pressKey(value) {
+    var params = {
+        deviceId: deviceId,
+        keyCode: value
+    }
+
+    socket.emit("press_key", JSON.stringify(params))
 }
-function sendBack() {
-    socket.emit("back", deviceId)
-}
-function sendMenu() {
-    socket.emit("menu", deviceId)
-}
-function sendDel() {
-    socket.emit("del", deviceId)
+
+function openSysSetting(value) {
+    var params = {
+        deviceId: deviceId,
+        name: value
+    }
+
+    socket.emit("open_sys_setting", JSON.stringify(params))
 }
 function sendUrl(url) {
     var params = {
@@ -156,7 +238,7 @@ function sendShell(cmd) {
 function sendTouchEvent(minitouchStr) {
     var params = {
         deviceId: deviceId,
-        touch: minitouchStr
+        cmd: minitouchStr
     }
     socket.emit("touch", JSON.stringify(params))
 }
@@ -175,6 +257,54 @@ function subScreen() {
 function waitScreen() {
     console.log("wait")
     socket.emit("wait_screen", deviceId)
+}
+function notifyScreen() {
+    console.log("notify")
+    socket.emit("notify_screen", deviceId)
+}
+function unsubScreen() {
+    console.log("unsub")
+    socket.emit("unsub_screen", deviceId)
+}
+function debugStart() {
+    console.log("debugStart")
+    socket.emit("remote_debug_start", deviceId)
+}
+function debugStop() {
+    console.log("debugStop")
+    socket.emit("remote_debug_stop", deviceId)
+}
+function rotation(value) {
+    console.log("rotation " + value)
+    var params = {
+        deviceId: deviceId,
+        rotation: value,
+        isLock: false
+    }
+    socket.emit("set_rotation", JSON.stringify(params))
+}
+function wake() {
+    console.log("wake ")
+    var params = {
+        deviceId: deviceId,
+    }
+    socket.emit("set_wake", JSON.stringify(params))
+}
+function clipboard(value) {
+    console.log("clipboard " + value)
+    var params = {
+        deviceId: deviceId,
+        text: value
+    }
+    socket.emit("set_clipboard", JSON.stringify(params))
+}
+function keyguard(value) {
+    console.log("set_keyguard_status " + value)
+    var params = {
+        deviceId: deviceId,
+        status: value
+    }
+    socket.emit("set_keyguard_status", JSON.stringify(params))
 }
 
 function getDevices() {
@@ -259,16 +389,58 @@ canvas.onmouseup = function (event) {
 };
 
 $("#back").click(function () {
-    sendBack();
+    pressKey(4);
 })
 $("#home").click(function () {
-    sendHome();
+    pressKey(3);
 })
 $("#menu").click(function () {
-    sendMenu();
+    pressKey(82);
+})
+$("#appSwitch").click(function () {
+    pressKey(187);
 })
 $("#del").click(function () {
-    sendDel();
+    pressKey(67);
+})
+$("#camera").click(function () {
+    pressKey(27);
+})
+$("#power").click(function () {
+    pressKey(26);
+})
+$("#openSettings").click(function () {
+    openSysSetting("SYS");
+})
+$("#openDeveloperSettings").click(function () {
+    openSysSetting("DEVELOPER");
+})
+$("#openManageApps").click(function () {
+    openSysSetting("MANAGE_APPS");
+})
+$("#openRunningApps").click(function () {
+    openSysSetting("RUNNING_APPS");
+})
+$("#openDeviceInfo").click(function () {
+    openSysSetting("DEVICE_INFO");
+})
+$("#openDisplaySettings").click(function () {
+    openSysSetting("DISPLAY");
+})
+$("#openLocaleSettings").click(function () {
+    openSysSetting("LOCALE");
+})
+$("#openIMESettings").click(function () {
+    openSysSetting("IME");
+})
+$("#openWiFiSettings").click(function () {
+    openSysSetting("WIFI");
+})
+$("#notification").click(function () {
+    pressKey(83);
+})
+$("#search").click(function () {
+    pressKey(84);
 })
 
 $("#send").click(function () {
@@ -283,26 +455,65 @@ $("#sub").click(function () {
 $("#wait").click(function () {
     waitScreen();
 });
+
+$("#notify").click(function () {
+    notifyScreen();
+});
+
+$("#unsub").click(function () {
+    unsubScreen();
+});
 $("#devices").click(function () {
     getDevices();
 });
-$("#reset_minicap").click(function () {
-
-    var params = {
-        deviceId: deviceId,
-        scale: 0.5,   //  分辨率，画质，越小越模糊
-        rotate: 90.0  // 屏幕旋转度数，支持0,90,180,270 4个值
-    }
-    socket.emit("reset_minicap", JSON.stringify(params))
-});
 
 $("#openBaidu").click(function () {
-    var url = "http://www.baidu.com"
+    var url = "https://www.baidu.com"
     sendUrl(url);
 })
 $("#shell").click(function () {
-    var cmd = "getprop ro.build.version.sdk"
+    //var cmd = "getprop ro.build.version.sdk"
+    var cmd = $("#shell_text").val();
     sendShell(cmd);
+})
+$("#debugStart").click(function () {
+    debugStart();
+})
+$("#debugStop").click(function () {
+    debugStop();
+})
+$("#rotation90").click(function () {
+    rotation(90);
+})
+$("#rotation0").click(function () {
+    rotation(0);
+})
+$("#wake").click(function () {
+    wake();
+})
+$("#clipboard").click(function () {
+    var text = $("#clipboard_text").val();
+    clipboard(text);
+})
+$("#unlock").click(function () {
+    keyguard(false);
+})
+$("#lock").click(function () {
+    keyguard(true);
+})
+
+
+$("#browserApps").click(function () {
+    socket.emit("browser_app", deviceId)
+})
+$("#deviceInfo").click(function () {
+    socket.emit("device_info", deviceId)
+})
+$("#screenshot").click(function () {
+    socket.emit("screenshot", deviceId)
+})
+$("#restartAgentApk").click(function () {
+    socket.emit("restart_agent_apk", deviceId)
 })
 
 </script>

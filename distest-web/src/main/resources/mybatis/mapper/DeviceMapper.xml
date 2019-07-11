@@ -30,7 +30,10 @@
         <result column="unlockInstall" property="unlockInstall" jdbcType="TINYINT" />
         <result column="unicodeIMEInstall" property="unicodeIMEInstall" jdbcType="TINYINT" />
         <result column="selendroidInstall" property="selendroidInstall" jdbcType="TINYINT" />
-        <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
+
+        <result column="ip" property="ip" jdbcType="VARCHAR" />
+        <result column="remote_connect_port" property="remoteConnectPort" jdbcType="INTEGER" />
+        <result column="enable_connected" property="enableConnected" jdbcType="TINYINT" />
     </resultMap>
 
     <insert id="insertAndroid" useGeneratedKeys="true"  keyProperty="id" parameterType="com.testwa.distest.server.entity.Device">
@@ -40,7 +43,7 @@
         INSERT INTO device
         (deviceId,phoneOS,onlineStatus,workStatus,debugStatus,createTime,model,brand,cpuabi,sdk,width,height,osName,
         density,osVersion,host,stfagentInstall,appiumserverInstall,appiumserverdebugInstall,keyboardserviceInstall,
-        settingsInstall,unlockInstall,unicodeIMEInstall,selendroidInstall,lastUserId)
+        settingsInstall,unlockInstall,unicodeIMEInstall,selendroidInstall,lastUserId,ip,remote_connect_port,enable_connected)
         VALUES
         (#{deviceId},#{phoneOS},
         #{onlineStatus},
@@ -48,7 +51,7 @@
         #{workStatus},
         #{createTime},#{model},#{brand},#{cpuabi},#{sdk},#{width},#{height},#{osName},#{density},#{osVersion},#{host},
         #{stfagentInstall},#{appiumserverInstall},#{appiumserverdebugInstall},#{keyboardserviceInstall},
-        #{settingsInstall},#{unlockInstall},#{unicodeIMEInstall},#{selendroidInstall},#{lastUserId})
+        #{settingsInstall},#{unlockInstall},#{unicodeIMEInstall},#{selendroidInstall},#{lastUserId},#{ip},#{remoteConnectPort},#{enableConnected})
 
     </insert>
     <update id="updateAndroid" parameterType="com.testwa.distest.server.entity.Device">
@@ -77,7 +80,11 @@
             settingsInstall=#{settingsInstall},
             unlockInstall=#{unlockInstall},
             unicodeIMEInstall=#{unicodeIMEInstall},
-            selendroidInstall=#{selendroidInstall}
+            selendroidInstall=#{selendroidInstall},
+            enabled=#{enabled},
+            ip=#{ip},
+            remote_connect_port=#{remoteConnectPort},
+            enable_connected=#{enableConnected}
         </trim>
         WHERE
         deviceId = #{deviceId}
@@ -130,9 +137,10 @@
     </select>
 
     <select id="findPrivateList" parameterType="java.util.HashMap" resultType="com.testwa.distest.server.service.device.dto.PrivateDeviceDTO" >
-        SELECT t1.id, t1.deviceId, t1.phoneOS, t1.updateTime, t1.model, t1.brand, t1.cpuabi, t1.sdk, t1.width, t1.height, t1.osName, t1.density, t1.host, t1.lastUserId,
+        SELECT distinct t1.id, t1.deviceId, t1.phoneOS, t1.updateTime, t1.model, t1.brand, t1.cpuabi, t1.sdk, t1.width, t1.height, t1.osName, t1.density, t1.host, t1.lastUserId,
         1 AS onlineStatus, t1.workStatus, t1.debugStatus, t1.osVersion,t1.stfagentInstall,t1.appiumserverInstall,t1.appiumserverdebugInstall,t1.keyboardserviceInstall,
-        t1.settingsInstall,t1.unlockInstall,t1.unicodeIMEInstall,t1.selendroidInstall, t2.share_scope as shareScope
+        t1.settingsInstall,t1.unlockInstall,t1.unicodeIMEInstall,t1.selendroidInstall,t1.ip,t1.remote_connect_port,t1.enable_connected,
+        t2.share_scope as shareScope
         FROM device t1 left join dis_device_share_scope t2 on t1.deviceId = t2.device_id
         <trim prefix="WHERE" prefixOverrides="AND | OR">
             t1.lastUserId = t2.create_by
@@ -155,9 +163,10 @@
     </select>
 
     <select id="searchPrivateList" parameterType="java.util.HashMap" resultType="com.testwa.distest.server.service.device.dto.PrivateDeviceDTO" >
-        SELECT t1.id, t1.deviceId, t1.phoneOS, t1.updateTime, t1.model, t1.brand, t1.cpuabi, t1.sdk, t1.width, t1.height, t1.osName, t1.density, t1.host, t1.lastUserId,
+        SELECT distinct t1.id, t1.deviceId, t1.phoneOS, t1.updateTime, t1.model, t1.brand, t1.cpuabi, t1.sdk, t1.width, t1.height, t1.osName, t1.density, t1.host, t1.lastUserId,
         1 AS onlineStatus, t1.workStatus, t1.debugStatus, t1.osVersion,t1.stfagentInstall,t1.appiumserverInstall,t1.appiumserverdebugInstall,t1.keyboardserviceInstall,
-        t1.settingsInstall,t1.unlockInstall,t1.unicodeIMEInstall,t1.selendroidInstall, t2.share_scope as shareScope
+        t1.settingsInstall,t1.unlockInstall,t1.unicodeIMEInstall,t1.selendroidInstall,t1.ip,t1.remote_connect_port,t1.enable_connected,
+        t2.share_scope as shareScope
         FROM device t1 left join dis_device_share_scope t2 on t1.deviceId = t2.device_id
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             t1.lastUserId = t2.create_by
@@ -182,9 +191,9 @@
 
 
     <select id="findOnlineAndPublicDeviceList" parameterType="java.util.HashMap" resultMap="BaseResultMap" >
-        SELECT t1.id, t1.deviceId, t1.phoneOS, t1.updateTime, t1.model, t1.brand, t1.cpuabi, t1.sdk, t1.width, t1.height, t1.osName, t1.density, t1.host, t1.lastUserId,
+        SELECT distinct t1.id, t1.deviceId, t1.phoneOS, t1.updateTime, t1.model, t1.brand, t1.cpuabi, t1.sdk, t1.width, t1.height, t1.osName, t1.density, t1.host, t1.lastUserId,
         1 AS onlineStatus, t1.workStatus, t1.debugStatus, t1.osVersion,t1.stfagentInstall,t1.appiumserverInstall,t1.appiumserverdebugInstall,t1.keyboardserviceInstall,
-        t1.settingsInstall,t1.unlockInstall,t1.unicodeIMEInstall,t1.selendroidInstall
+        t1.settingsInstall,t1.unlockInstall,t1.unicodeIMEInstall,t1.selendroidInstall,t1.ip,t1.remote_connect_port,t1.enable_connected
         FROM device t1 left join dis_device_share_scope t2 on t1.deviceId = t2.device_id
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             t2.share_scope = 2
@@ -207,9 +216,9 @@
     </select>
 
     <select id="searchOnlineAndPublicDeviceList" parameterType="java.util.HashMap" resultMap="BaseResultMap" >
-        SELECT t1.id, t1.deviceId, t1.phoneOS, t1.updateTime, t1.model, t1.brand, t1.cpuabi, t1.sdk, t1.width, t1.height, t1.osName, t1.density, t1.host, t1.lastUserId,
+        SELECT distinct t1.id, t1.deviceId, t1.phoneOS, t1.updateTime, t1.model, t1.brand, t1.cpuabi, t1.sdk, t1.width, t1.height, t1.osName, t1.density, t1.host, t1.lastUserId,
         1 AS onlineStatus, t1.workStatus, t1.debugStatus, t1.osVersion,t1.stfagentInstall,t1.appiumserverInstall,t1.appiumserverdebugInstall,t1.keyboardserviceInstall,
-        t1.settingsInstall,t1.unlockInstall,t1.unicodeIMEInstall,t1.selendroidInstall,t1.lock_version
+        t1.settingsInstall,t1.unlockInstall,t1.unicodeIMEInstall,t1.selendroidInstall,t1.lock_version,t1.ip,t1.remote_connect_port,t1.enable_connected
         FROM device t1 left join dis_device_share_scope t2 on t1.deviceId = t2.device_id
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             t2.share_scope = 2
@@ -235,7 +244,7 @@
     <select id="searchCloudList" parameterType="java.util.HashMap" resultMap="BaseResultMap" >
         SELECT id, deviceId, phoneOS, updateTime, model, brand, cpuabi, sdk, width, height, osName, density, host, lastUserId,
         1 AS onlineStatus, workStatus, debugStatus, osVersion,stfagentInstall,appiumserverInstall,appiumserverdebugInstall,keyboardserviceInstall,
-        settingsInstall,unlockInstall,unicodeIMEInstall,selendroidInstall,lock_version
+        settingsInstall,unlockInstall,unicodeIMEInstall,selendroidInstall,lock_version,ip,remote_connect_port,enable_connected
         FROM device
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             <if test="deviceId != null">and deviceId = #{deviceId}</if>
@@ -263,7 +272,7 @@
         <if test="onlineDeviceList == null or onlineDeviceList.size == 0">
             2 as onlineStatus
         </if>
-        ,stfagentInstall,appiumserverInstall,appiumserverdebugInstall,keyboardserviceInstall,settingsInstall,unlockInstall,unicodeIMEInstall,selendroidInstall,lock_version
+        ,stfagentInstall,appiumserverInstall,appiumserverdebugInstall,keyboardserviceInstall,settingsInstall,unlockInstall,unicodeIMEInstall,selendroidInstall,lock_version,ip,remote_connect_port,enable_connected
         FROM device
         <trim prefix="WHERE" prefixOverrides="AND |OR ">
             <if test="query.deviceId != null">and deviceId = #{query.deviceId}</if>
@@ -279,7 +288,7 @@
         SELECT device.id, device.deviceId, device.phoneOS, device.updateTime, device.model, device.brand, device.cpuabi, device.sdk,
         device.width, device.height, device.osName, device.osVersion, device.density, device.host,device.stfagentInstall,
         device.appiumserverInstall,device.appiumserverdebugInstall,device.keyboardserviceInstall,device_auth.id as deviceAuth_id,
-        device.settingsInstall,device.unlockInstall,device.unicodeIMEInstall,device.selendroidInstall,device.lock_version,
+        device.settingsInstall,device.unlockInstall,device.unicodeIMEInstall,device.selendroidInstall,device.lock_version,device.ip,device.remote_connect_port,device.enable_connected,
         device_auth.userId,user.id as user_id,user.username as username, user.email as email,
         <if test="onlineDeviceList != null and onlineDeviceList.size > 0">
             CASE WHEN device.deviceId in <foreach item="onlineDev" index="index" collection="onlineDeviceList" open="(" separator="," close=")">#{onlineDev} </foreach> THEN 1 ELSE 2 END AS onlineStatus
@@ -307,6 +316,7 @@
         WHERE deviceId IN
         <foreach item="item" index="index" collection="deviceIds" open="(" separator="," close=")">#{item} </foreach>
     </select>
+
     <select id="findOne" resultMap="BaseResultMap" >
         SELECT device.*
         FROM device

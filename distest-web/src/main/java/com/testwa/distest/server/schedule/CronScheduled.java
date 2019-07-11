@@ -13,11 +13,10 @@ import com.testwa.distest.server.web.device.mgr.DeviceLockMgr;
 import com.testwa.distest.server.web.task.mgr.PerformanceRedisMgr;
 import com.testwa.distest.server.web.task.mgr.ProcedureRedisMgr;
 import io.grpc.stub.StreamObserver;
-import io.rpc.testwa.push.Message;
+import io.rpc.testwa.agent.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -98,7 +97,7 @@ public class CronScheduled {
      *@Date: 2018/5/9
      */
     @Async
-    @Scheduled(fixedDelay = 3000)
+    @Scheduled(fixedDelay = 5000)
     public void checkDeviceOnline(){
         Set<String> deviceIds = deviceOnlineMgr.allOnlineDevices();
         log.debug("online device num: {}", deviceIds.size());
@@ -107,12 +106,12 @@ public class CronScheduled {
             StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(d);
             if(observer == null){
                 log.error("{} observer is null", d);
-                deviceOnlineMgr.offline(d);
+                deviceOnlineMgr.offline(d, DB.PhoneOnlineStatus.DISCONNECT);
             }else{
                 int tryTime = 5;
                 while(tryTime >= 0) {
                     try{
-                        Message message = Message.newBuilder().setTopicName(Message.Topic.ADB).setStatus("OK").setMessage(ByteString.copyFromUtf8("0")).build();
+                        Message message = Message.newBuilder().setTopicName(Message.Topic.ADB).setMessage(ByteString.copyFromUtf8("0")).build();
                         observer.onNext(message);
                         break;
                     }catch (Exception e) {
@@ -125,7 +124,7 @@ public class CronScheduled {
                     }
                 }
                 if(tryTime <= 0) {
-                    deviceOnlineMgr.offline(d);
+                    deviceOnlineMgr.offline(d, DB.PhoneOnlineStatus.DISCONNECT);
                     log.warn("通信失败 {}", d);
                 }
             }

@@ -8,7 +8,7 @@
         <result column="assign_role" property="assignRole" jdbcType="TINYINT" />
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
-        <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
+
     </resultMap>
 
     <delete id="deleteByIssueId">

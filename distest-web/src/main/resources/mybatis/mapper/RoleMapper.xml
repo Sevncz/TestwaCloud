@@ -8,7 +8,7 @@
         <result column="updateTime" property="updateTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="createBy" property="createBy" jdbcType="BIGINT" />
         <result column="updateBy" property="updateBy" jdbcType="BIGINT" />
-        <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
+
 
     </resultMap>
 

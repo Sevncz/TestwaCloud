@@ -31,9 +31,7 @@ public class IssueAssignee extends BaseEntity {
     // 创建时间
     @Column(name = "create_time")
     private Date createTime;
-    @JsonIgnore
-    @Column(name = "lock_version")
-    private Long lockVersion;
+
 
 
 }

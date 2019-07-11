@@ -1,0 +1,180 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "io.rpc.testwa.agent";
+option java_outer_classname = "AgentProto";
+option objc_class_prefix = "Agent";
+
+package agent;
+
+// 推送服务
+service PushService {
+    rpc registerToServer (ClientInfo) returns (stream Message) {}
+
+    rpc subscribe (TopicInfo) returns (Status) {}
+
+    rpc cancel (TopicInfo) returns (Status){}
+
+    rpc logoutFromServer (ClientInfo) returns (Status) {}
+}
+
+// 运行情况监控服务
+service MonitorService {
+    // 截图
+    rpc screenshot ( ScreenshotEvent ) returns (Status) {}
+    // 命令行
+    rpc shell ( ShellEvent ) returns (Status) {}
+    // 显示信息
+    rpc display ( DisplayEvent ) returns (Status) {}
+    // 电池信息
+    rpc battery ( BatteryEvent ) returns (Status) {}
+    // 第三方 App 信息
+    rpc browserApp ( BrowserAppEvent ) returns (Status) {}
+    // 通知服务器 STF agent 安装情况
+    rpc stfAgentInstallEvent ( StfAgentEvent ) returns (Status) {}
+
+}
+
+
+message ClientInfo {
+
+    string deviceId = 1;
+    string cpuabi = 3; // armeabi-v7a
+    string sdk = 4; // 23
+    string width = 5;
+    string height = 6;
+    string osName = 7; // 设备系统 ANDROID23(6.0)
+    string density = 8; // 密度
+    string model = 9; // 型号  Nexus 6
+    string brand = 10; // 品牌 google
+    string version = 11; // 系统版本 6.0.1
+    string host = 12; // vpba27.mtv.corp.google.com
+    string userFlag = 13;
+
+    bool sftagentInstall = 14;
+    bool appiumUiautomator2ServerInstall = 15;
+    bool appiumUiautomator2DebugInstall = 16;
+    bool keyboardserviceInstall = 17;
+    bool settingsInstall = 18;
+    bool unlockInstall = 19;
+    bool unicodeIMEInstall = 20;
+    bool selendroidInstall = 21;
+
+    uint32 remoteConnectPort = 22;
+    string ip = 23;
+    bool tcpipCommandSuccessed = 24;
+}
+
+message Status {
+	string status = 1;
+}
+
+//订阅信息
+message TopicInfo {
+	ClientInfo clientInfo = 1;
+	string topicName = 2;
+}
+
+//以ProtoBuf为通用格式返回数据
+message Message {
+    enum Topic {
+        ADB = 0;
+
+        PROJECTION_START = 1;
+        PROJECTION_WAIT = 2;
+        PROJECTION_NOTIFY = 3;
+        PROJECTION_STOP = 4;
+
+        DEVICE_INFO = 5;
+        SCREENSHOT = 6;
+        KEY_EVENT = 7;
+        INPUT = 8;
+        TOUCH = 9;
+        TASK_START = 10;
+        TASK_CANCEL = 11;
+        LOGCAT_START = 12;
+        LOGCAT_WAIT = 13;
+        LOGCAT_STOP = 14;
+        INSTALL_APP = 15;
+        UNINSTALL_APP = 16;
+        PUSH_FILE = 17;
+        BACK = 18;
+        HOME = 19;
+        MENU = 20;
+        SHELL = 21;
+        OPENWEB = 22;
+        MESSAGE = 23;
+        DEL = 24;
+        JR_TASK_START = 25;
+        CRAWLER_TASK_START = 26;
+
+        DEBUG_START = 30;
+        DEBUG_STOP = 31;
+
+        TAP = 40;
+        SWIP = 41;
+        STF = 42;
+        STF_RESTART = 43;
+
+
+        CONNECTED = 99;
+    }
+	Topic topicName = 1;
+	string status = 2;
+	bytes message = 3;
+}
+
+
+
+message ScreenshotEvent {
+    string serial = 1;
+    bytes img = 2;
+}
+
+message ShellEvent {
+    string serial = 1;
+    string ret = 2;
+}
+
+message BatteryEvent {
+    string status = 1;
+    string health = 2;
+    string source = 3;
+    uint32 level = 4;
+    uint32 scale = 5;
+    double temp = 6;
+    double voltage = 7;
+    string serial = 10;
+}
+
+message DisplayEvent {
+    bool success = 1;
+    int32 width = 2;
+    int32 height = 3;
+    float xdpi = 4;
+    float ydpi = 5;
+    float fps = 6;
+    float density = 7;
+    int32 rotation = 8;
+    bool secure = 9;
+    string serial = 10;
+}
+
+message BrowserAppEvent {
+    bool success = 1;
+    bool selected = 2;
+    repeated BrowserApp apps = 3;
+    string serial = 4;
+}
+
+message BrowserApp {
+    string name = 1;
+    string component = 2;
+    bool selected = 3;
+    bool system = 4;
+}
+
+message StfAgentEvent {
+    bool success = 1;
+    string serial = 2;
+}

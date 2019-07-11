@@ -27,7 +27,5 @@ public class ProjectMember extends BaseEntity {
     @Column(name = "projectRole")
     private DB.ProjectRole projectRole;
 
-    @JsonIgnore
-    @Column(name = "lock_version")
-    private Long lockVersion;
+
 }

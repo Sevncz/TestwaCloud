@@ -22,9 +22,7 @@ public class TestcaseDetail extends BaseEntity implements Comparable<TestcaseDet
     @Column(name="seq")
     private int seq;
 
-    @JsonIgnore
-    @Column(name = "lock_version")
-    private Long lockVersion;
+
 
     @Transient
     private Script script;

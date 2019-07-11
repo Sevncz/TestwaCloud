@@ -19,8 +19,6 @@ public class IssueContent extends BaseEntity {
     @Column(name = "issue_id")
     private Long issueId;
 
-    @JsonIgnore
-    @Column(name = "lock_version")
-    private Long lockVersion;
+
 
 }

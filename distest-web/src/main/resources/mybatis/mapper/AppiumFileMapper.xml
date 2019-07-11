@@ -7,7 +7,7 @@
         <result column="filename" property="filename" jdbcType="VARCHAR" />
         <result column="task_code" property="taskCode" jdbcType="BIGINT" />
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
-        <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
+
     </resultMap>
 
     <delete id="removeFromTask" >

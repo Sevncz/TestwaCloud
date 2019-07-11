@@ -31,6 +31,8 @@
         <module>distest-message</module>
         <module>distest-file</module>
         <module>distest-task</module>
+        <module>distest-client-2</module>
+        <module>distest-jadb</module>
     </modules>
 
     <properties>
@@ -92,6 +94,11 @@
             <dependency>
                 <groupId>com.testwa</groupId>
                 <artifactId>distest-core-haredis</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.testwa</groupId>
+                <artifactId>distest-jadb</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
 
@@ -229,17 +236,28 @@
                 <artifactId>grpc-stub</artifactId>
                 <version>${grpc.version}</version>
             </dependency>
+            <!--<dependency>-->
+                <!--<groupId>io.github.lognet</groupId>-->
+                <!--<artifactId>grpc-spring-boot-starter</artifactId>-->
+                <!--<version>${grpc-spring-boot-starter.version}</version>-->
+                <!--<exclusions>-->
+                    <!--<exclusion>-->
+                        <!--<groupId>org.springframework.boot</groupId>-->
+                        <!--<artifactId>spring-boot-starter</artifactId>-->
+                    <!--</exclusion>-->
+                <!--</exclusions>-->
+            <!--</dependency>-->
             <dependency>
-                <groupId>io.github.lognet</groupId>
-                <artifactId>grpc-spring-boot-starter</artifactId>
-                <version>${grpc-spring-boot-starter.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-starter</artifactId>
-                    </exclusion>
-                </exclusions>
+                <groupId>net.devh</groupId>
+                <artifactId>grpc-server-spring-boot-starter</artifactId>
+                <version>1.4.1.RELEASE</version>
             </dependency>
+            <dependency>
+                <groupId>net.devh</groupId>
+                <artifactId>grpc-client-spring-boot-starter</artifactId>
+                <version>1.4.1.RELEASE</version>
+            </dependency>
+
             <!-- grpc end -->
 
             <dependency>
@@ -247,7 +265,6 @@
                 <artifactId>device-api</artifactId>
                 <version>0.9.3</version>
             </dependency>
-
 
             <dependency>
                 <groupId>io.appium</groupId>
@@ -447,6 +464,21 @@
                 <version>1.7R3</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.zeroturnaround</groupId>
+                <artifactId>zt-exec</artifactId>
+                <version>1.10</version>
+            </dependency>
+            <dependency>
+                <groupId>org.zeroturnaround</groupId>
+                <artifactId>zt-process-killer</artifactId>
+                <version>1.10</version>
+            </dependency>
+            <dependency>
+                <groupId>org.asynchttpclient</groupId>
+                <artifactId>async-http-client</artifactId>
+                <version>2.8.1</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

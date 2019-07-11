@@ -39,7 +39,5 @@ public class AgentLoginLog extends BaseEntity {
     @Column(name = "logout_time")
     private Date logoutTime;
 
-    @JsonIgnore
-    @Column(name = "lock_version")
-    private Long lockVersion;
+
 }

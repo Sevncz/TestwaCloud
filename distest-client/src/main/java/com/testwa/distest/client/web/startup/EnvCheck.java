@@ -1,24 +1,21 @@
 package com.testwa.distest.client.web.startup;
 
-import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.testwa.distest.client.android.AndroidHelper;
-import com.testwa.distest.client.android.DeviceManager;
 import com.testwa.distest.client.component.appium.utils.Config;
 import com.testwa.distest.client.component.executor.task.TaskDispatcher;
-import com.testwa.distest.client.component.port.ApkPortProvider;
-import com.testwa.distest.client.component.port.AppiumPortProvider;
-import com.testwa.distest.client.component.port.MinicapPortProvider;
-import com.testwa.distest.client.component.port.MinitouchPortProvider;
+import com.testwa.distest.client.component.port.*;
 import com.testwa.distest.client.config.PortConfig;
+import com.testwa.distest.client.model.AgentInfo;
 import com.testwa.distest.client.model.UserInfo;
-import com.testwa.distest.client.service.HttpService;
 import com.testwa.distest.client.component.Constant;
+import com.testwa.distest.client.support.OkHttpUtil;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.MediaType;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -42,10 +39,8 @@ import java.util.List;
 @Component
 public class EnvCheck implements CommandLineRunner {
 
-    @Value("${cloud.web.url}")
-    private String cloudWebUrl;
-    @Value("${cloud.socket.url}")
-    private String cloudSocketUrl;
+    @Value("${distest.api.web}")
+    private String apiHost;
     @Value("${username}")
     private String username;
     @Value("${password}")
@@ -54,18 +49,16 @@ public class EnvCheck implements CommandLineRunner {
     private String applicationName;
     @Autowired
     private Environment env;
-    @Autowired
-    private HttpService httpService;
 
     @Override
     public void run(String... strings) throws Exception {
         Config.setEnv(env);
-        MinicapPortProvider.init(PortConfig.screenPortStart, PortConfig.screenPortEnd);
-        MinitouchPortProvider.init(PortConfig.touchPortStart, PortConfig.touchPortEnd);
-        ApkPortProvider.init(PortConfig.apkPortStart, PortConfig.apkPortEnd);
         AppiumPortProvider.init(PortConfig.appiumPortStart, PortConfig.appiumPortEnd);
-//        ADBCommandUtils.restart();
+        TcpIpPortProvider.init(PortConfig.tcpipStart, PortConfig.tcpipEnd);
+        SocatPortProvider.init(PortConfig.socatStart, PortConfig.socatEnd);
+
         AndroidHelper.getInstance();
+
         checkSupportEnv();
         checkAuth(username, password);
         checkTempDirPath();
@@ -117,58 +110,23 @@ public class EnvCheck implements CommandLineRunner {
         if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
             System.exit(0);
         }
-        String uri = StringUtils.isBlank(applicationName) ? cloudWebUrl : cloudWebUrl + "/" + applicationName;
-        String loginUrl = String.format("%s/v1/auth/login", uri);
-        FutureCallback cb = new FutureCallback<HttpResponse>() {
-            @Override
-            public void completed(HttpResponse response) {
-                int code = response.getStatusLine().getStatusCode();
-                if (code != 200) {
-                    log.error("Login is not 200， code is {}", code);
-                    System.exit(0);
-                } else {
-                    try {
-                        String content = EntityUtils.toString(response.getEntity());
-                        Object result = JSONObject.parse(content);
-                        Integer resultCode = ((JSONObject) result).getInteger("code");
+        String uri = StringUtils.isBlank(applicationName) ? apiHost : apiHost + "/" + applicationName;
+        String loginUrl = String.format("http://%s/v1/auth/login", uri);
+        User loginUser = new User(username, password);
 
-                        if (resultCode == 0) {
-                            JSONObject data = (JSONObject) ((JSONObject) result).get("data");
-                            String token = data.getString("accessToken");
-                            UserInfo.token = token;
-                            UserInfo.username = username;
+        String content = OkHttpUtil.postJsonParams(loginUrl, JSON.toJSONString(loginUser));
+        Object result = JSONObject.parse(content);
+        Integer resultCode = ((JSONObject) result).getInteger("code");
 
-                            startDeviceManager();
-                        } else {
-                            log.error("登录{}失败，返回{}", loginUrl, content);
-                            System.exit(0);
-                        }
-
-                    } catch (IOException e) {
-                        log.error("Remote server fail", e);
-                        System.exit(0);
-                    } catch (JSONException e) {
-                        // 公司代理环境下 返回html页面
-                        log.error("Remote server response not parsable!", e);
-                        System.exit(0);
-                    }
-                }
-            }
-
-            @Override
-            public void failed(Exception ex) {
-                log.error("Request failed", ex);
-                System.exit(0);
-            }
-
-            @Override
-            public void cancelled() {
-                log.error("Request cancelled");
-                System.exit(0);
-
-            }
-        };
-        httpService.postJson(loginUrl, new User(username, password), cb);
+        if (resultCode == 0) {
+            JSONObject data = (JSONObject) ((JSONObject) result).get("data");
+            UserInfo.token = data.getString("accessToken");
+            UserInfo.username = username;
+            log.info("登录成功，username: {}, token: {}", UserInfo.username, UserInfo.token);
+        } else {
+            log.error("登录{}失败，返回{}", loginUrl, content);
+            System.exit(0);
+        }
     }
 
     private class User {
@@ -230,12 +188,6 @@ public class EnvCheck implements CommandLineRunner {
         log.info("Script: {}", Constant.localScriptPath);
         log.info("Video: {}", Constant.localVideoPath);
         log.info("Crawler: {}", Constant.localCrawlerOutPath);
-    }
-
-    private void startDeviceManager() {
-        Thread t = new Thread(() -> DeviceManager.getInstance().start());
-        t.setDaemon(false);
-        t.start();
     }
 
 }

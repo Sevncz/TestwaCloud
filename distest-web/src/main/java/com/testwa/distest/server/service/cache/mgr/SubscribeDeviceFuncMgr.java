@@ -37,9 +37,11 @@ public class SubscribeDeviceFuncMgr {
     public void delAllSubscribes() {
 
         Set<String> keys = redisCacheMgr.keys(subscribe_device_func_partern);
-        keys.forEach(k -> {
-            redisCacheMgr.remove(k);
-        });
+        if(keys != null && !keys.isEmpty()) {
+            keys.forEach(k -> {
+                redisCacheMgr.remove(k);
+            });
+        }
     }
 
     public void delSubscribe(String deviceId, String func, String sessionId) {

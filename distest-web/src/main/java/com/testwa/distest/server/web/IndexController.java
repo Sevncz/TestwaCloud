@@ -5,7 +5,7 @@ import com.testwa.core.base.vo.Result;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.distest.server.rpc.cache.CacheUtil;
 import io.grpc.stub.StreamObserver;
-import io.rpc.testwa.push.Message;
+import io.rpc.testwa.agent.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -1,6 +1,7 @@
 package com.testwa.distest.server.rpc;
 
 import com.corundumstudio.socketio.SocketIOServer;
+import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.config.security.JwtTokenUtil;
 import com.testwa.distest.server.entity.Device;
 import com.testwa.distest.server.entity.User;
@@ -13,7 +14,7 @@ import com.testwa.distest.server.web.device.mgr.DeviceOnlineMgr;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.device.*;
 import lombok.extern.slf4j.Slf4j;
-import org.lognet.springboot.grpc.GRpcService;
+import net.devh.springboot.autoconfigure.grpc.server.GrpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.text.DecimalFormat;
@@ -23,7 +24,7 @@ import java.util.List;
  * Created by wen on 2017/06/09.
  */
 @Slf4j
-@GRpcService
+@GrpcService(DeviceServiceGrpc.class)
 public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     private final static DecimalFormat format = new DecimalFormat("###.0");
 
@@ -77,79 +78,31 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
         }
     }
 
+
     @Override
-    public void disconnect(DeviceStatusChangeRequest request, StreamObserver<CommonReply> responseObserver) {
-        log.info("device {} disconnect", request.getDeviceId());
-        deviceOnlineMgr.offline(request.getDeviceId());
+    public void stateChange(DeviceStatusChangeRequest request, StreamObserver<CommonReply> responseObserver) {
+        DB.PhoneOnlineStatus status = DB.PhoneOnlineStatus.valueOf(request.getStatusValue());
+        if(DeviceStatusChangeRequest.LineStatus.ONLINE.equals(request.getStatus())) {
+            deviceOnlineMgr.online(request.getDeviceId());
+        }else if(DeviceStatusChangeRequest.LineStatus.OFFLINE.equals(request.getStatus()) ||
+            DeviceStatusChangeRequest.LineStatus.DISCONNECTED.equals(request.getStatus()) ) {
+            deviceOnlineMgr.offline(request.getDeviceId(), status);
+        }else{
+            deviceOnlineMgr.otherStatus(request.getDeviceId(), status);
+        }
         final CommonReply.Builder replyBuilder = CommonReply.newBuilder().setMessage("OK ");
         responseObserver.onNext(replyBuilder.build());
         responseObserver.onCompleted();
     }
 
-    @Override
-    public void offline(DeviceStatusChangeRequest request, StreamObserver<CommonReply> responseObserver) {
-        log.info("device {} offline", request.getDeviceId());
-        deviceOnlineMgr.offline(request.getDeviceId());
-        final CommonReply.Builder replyBuilder = CommonReply.newBuilder().setMessage("OK ");
-        responseObserver.onNext(replyBuilder.build());
-        responseObserver.onCompleted();
-    }
-
-    @Override
-    public void online(DeviceStatusChangeRequest request, StreamObserver<CommonReply> responseObserver) {
-        log.info("device {} online", request.getDeviceId());
-        deviceOnlineMgr.online(request.getDeviceId());
-        final CommonReply.Builder replyBuilder = CommonReply.newBuilder().setMessage("OK ");
-        responseObserver.onNext(replyBuilder.build());
-        responseObserver.onCompleted();
-    }
 
     /**
-     *@Description: android设备连接
-     *@Param: [request, responseObserver]
-     *@Return: void
-     *@Author: wen
-     *@Date: 2018/5/7
+     * @Description: log for android
+     * @Param: [request, responseObserver]
+     * @Return: void
+     * @Author wen
+     * @Date 2019/6/13 18:51
      */
-//    @Override
-//    public void connect(ConnectedRequest request, StreamObserver<CommonReply> responseObserver) {
-//        log.info("device {} connected", request.getDeviceId());
-//        String username = jwtTokenUtil.getUsernameFromToken(request.getUserCode());
-//        CurrentUser user = userService.findByUsername(username);
-//        Device device = new Device();
-//        device.setBrand(request.getBrand());
-//        device.setCpuabi(request.getCpuabi());
-//        device.setDensity(request.getDensity());
-//        device.setDeviceId(request.getDeviceId());
-//        device.setHeight(request.getHeight());
-//        device.setHost(request.getHost());
-//        device.setModel(request.getModel());
-//        device.setOsName(request.getOsName());
-//        device.setOsVersion(request.getVersion());
-//        device.setSdk(request.getSdk());
-//        device.setWidth(request.getWidth());
-//        device.setLastUserId(user.getId());
-//        device.setLastUserToken(request.getUserCode());
-//        device.setPhoneOS(DB.PhoneOS.ANDROID);
-//        // 连接上来的设备设置为在线状态
-//        device.setOnlineStatus(DB.PhoneOnlineStatus.ONLINE);
-//        // 设置为空闲状态
-//        device.setWorkStatus(DB.PhoneWorkStatus.FREE);
-//
-//        Device deviceBase = deviceService.findByDeviceId(request.getDeviceId());
-//        if(deviceBase == null){
-//            deviceService.insertAndroid(device);
-//        }else{
-//            deviceService.updateAndroid(device);
-//        }
-//        deviceAuthMgr.online(request.getDeviceId());
-//
-//        final CommonReply.Builder replyBuilder = CommonReply.newBuilder().setMessage("OK ");
-//        responseObserver.onNext(replyBuilder.build());
-//        responseObserver.onCompleted();
-//    }
-
-
     @Override
     public void logcat(LogcatRequest request, StreamObserver<CommonReply> responseObserver) {
         String serial = request.getSerial();
@@ -162,12 +115,45 @@ public class DeviceGvice extends DeviceServiceGrpc.DeviceServiceImplBase{
     }
 
 
+    /**
+     * @Description: log for ios
+     * @Param: [request, responseObserver]
+     * @Return: void
+     * @Author wen
+     * @Date 2019/6/13 18:51
+     */
     @Override
-    public void screen(ScreenCaptureRequest request, StreamObserver<CommonReply> responseObserver) {
+    public void log(LogRequest request, StreamObserver<CommonReply> responseObserver) {
         String serial = request.getSerial();
-        screenStreamQueue.push(serial, request.getImg());
+        log.info("接收到 ios 日志，存入redis log.{}", serial);
+        logQueue.push(serial, request.getContent().getBytes());
         final CommonReply.Builder replyBuilder = CommonReply.newBuilder().setMessage("OK ");
         responseObserver.onNext(replyBuilder.build());
         responseObserver.onCompleted();
+    }
+
+
+    @Override
+    public StreamObserver<ScreenCaptureRequest> screen(StreamObserver<CommonReply> responseObserver) {
+        return new StreamObserver<ScreenCaptureRequest>() {
+
+            @Override
+            public void onNext(ScreenCaptureRequest request) {
+                String serial = request.getSerial();
+                screenStreamQueue.push(serial, request.getImg());
+            }
+
+            @Override
+            public void onError(Throwable t) {
+
+            }
+
+            @Override
+            public void onCompleted() {
+                responseObserver.onNext(CommonReply.newBuilder().setMessage("OK ")
+                        .build());
+                responseObserver.onCompleted();
+            }
+        };
     }
 }

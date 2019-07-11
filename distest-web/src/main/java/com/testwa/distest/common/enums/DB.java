@@ -69,11 +69,29 @@ public final class DB {
         }
     }
 
+    /**
+     *
+     ONLINE = 0;
+     OFFLINE = 1;
+     BOOTLOADER = 2;
+     RECOVERY = 3;
+     UNAUTHORIZED = 4;
+     AUTHORIZING = 5;
+     CONNECTING = 6;
+     SIDELOAD = 7;
+     DISCONNECTED = 10;
+     */
     public enum PhoneOnlineStatus implements ValueEnum {
-        UNKNOWN(0, "未知"),
-        ONLINE(1, "在线"),
-        OFFLINE(2, "离线"),
-        DISCONNECT(3, "断开");
+        ONLINE(0, "ONLINE"),
+        OFFLINE(1, "OFFLINE"),
+        BOOTLOADER(2, "BOOTLOADER"),
+        RECOVERY(3, "RECOVERY"),
+        UNAUTHORIZED(4, "UNAUTHORIZED"),
+        AUTHORIZING(5, "AUTHORIZING"),
+        CONNECTING(6, "CONNECTING"),
+        SIDELOAD(7, "SIDELOAD"),
+        DISCONNECT(10, "DISCONNECT"),
+        ;
         private int value;
         private String desc;
         PhoneOnlineStatus(int value, String desc){
@@ -88,14 +106,20 @@ public final class DB {
             return desc;
         }
         public static PhoneOnlineStatus valueOf(int value) {
-            PhoneOnlineStatus os = UNKNOWN;
+            PhoneOnlineStatus status = DISCONNECT;
             switch (value) {
-                case 1: os = ONLINE;break;
-                case 2: os = OFFLINE;break;
-                case 3: os = DISCONNECT;break;
-                default: os = UNKNOWN;
+                case 0: status = ONLINE;break;
+                case 1: status = OFFLINE;break;
+                case 2: status = BOOTLOADER;break;
+                case 3: status = RECOVERY;break;
+                case 4: status = UNAUTHORIZED;break;
+                case 5: status = AUTHORIZING;break;
+                case 6: status = CONNECTING;break;
+                case 7: status = SIDELOAD;break;
+                case 10: status = DISCONNECT;break;
+                default: status = DISCONNECT;
             }
-            return os;
+            return status;
         }
     }
 

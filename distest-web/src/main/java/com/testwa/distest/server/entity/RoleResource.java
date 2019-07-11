@@ -28,9 +28,7 @@ public class RoleResource extends BaseEntity {
     @Column(name = "updateTime")
     private Date updateTime;
 
-    @JsonIgnore
-    @Column(name = "lock_version")
-    private Long lockVersion;
+
 
 
 }

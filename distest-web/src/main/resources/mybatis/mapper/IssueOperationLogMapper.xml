@@ -9,7 +9,7 @@
         <result column="content" property="content" jdbcType="VARCHAR" />
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
-        <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
+
     </resultMap>
 
     <select id="listOperationUserId" resultType="java.lang.Long">

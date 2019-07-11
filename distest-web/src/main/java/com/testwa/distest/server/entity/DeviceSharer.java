@@ -33,9 +33,7 @@ public class DeviceSharer extends BaseEntity {
     @Column(name = "share_scope_type")
     private DB.DeviceShareScopeTypeEnum shareScopeType;
 
-    @JsonIgnore
-    @Column(name = "lock_version")
-    private Long lockVersion;
+
 
 
 }

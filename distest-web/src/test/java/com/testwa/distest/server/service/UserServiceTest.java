@@ -32,14 +32,34 @@ public class UserServiceTest {
     public void testInsert() {
         long countBefore =userService.count();
         User user = new User();
-        user.setUsername("wen01");
-        user.setPassword("12345^");
-        user.setEmail("admin1@testwa.com");
+        user.setUsername("admin");
+        user.setPassword("admin");
+        user.setEmail("admin@testwa.com");
+        user.setEnabled(true);
+        user.setIsActive(true);
         user.setSex(DB.Sex.MALE);
         String code = userService.save(user);
         System.out.println(code);
         long countAfter =userService.count();
         Assert.assertEquals(++countBefore,countAfter);
+    }
+
+    @Test
+    public void testBatchInsert() {
+        List<String> usernames = Arrays.asList("test1", "test2", "test3", "test4", "test5", "test6", "test7", "test8");
+        String password = "123456";
+        for (String name : usernames) {
+            long countBefore =userService.count();
+            User user = new User();
+            user.setUsername(name);
+            user.setPassword(password);
+            user.setEmail(name + "@testwa.com");
+            user.setEnabled(true);
+            user.setIsActive(true);
+            user.setSex(DB.Sex.MALE);
+            String code = userService.save(user);
+            System.out.println(code);
+        }
     }
 
     @Test

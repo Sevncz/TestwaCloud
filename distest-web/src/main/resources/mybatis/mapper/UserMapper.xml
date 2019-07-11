@@ -23,7 +23,7 @@
         <result column="isActive" property="isActive" jdbcType="BOOLEAN" />
         <result column="isRealNameAuth" property="isRealNameAuth" jdbcType="BOOLEAN" />
         <result column="realName" property="realName" jdbcType="VARCHAR" />
-        <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
+
         <collection property="roles" ofType="com.testwa.distest.server.entity.Role">
             <id column="role_id" property="id"/>
             <result column="roleName" property="roleName"/>

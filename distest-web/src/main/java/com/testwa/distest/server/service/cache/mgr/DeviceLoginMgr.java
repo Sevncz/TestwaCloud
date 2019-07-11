@@ -41,8 +41,10 @@ public class DeviceLoginMgr {
 
     public void delAllDeviceSessions() {
         Set<String> keys = redisCacheMgr.keys(ws_device_remoteClient_pattern);
-        keys.forEach(k -> {
-            redisCacheMgr.remove(k);
-        });
+        if(keys != null && !keys.isEmpty()) {
+            keys.forEach(k -> {
+                redisCacheMgr.remove(k);
+            });
+        }
     }
 }

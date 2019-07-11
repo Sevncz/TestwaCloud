@@ -26,8 +26,8 @@ import com.testwa.distest.server.websocket.service.MessageNotifyService;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.task.*;
 import lombok.extern.slf4j.Slf4j;
+import net.devh.springboot.autoconfigure.grpc.server.GrpcService;
 import org.apache.commons.lang3.StringUtils;
-import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
@@ -44,7 +44,7 @@ import java.util.Map;
  * Created by wen on 09/09/2017.
  */
 @Slf4j
-@GRpcService
+@GrpcService(TaskServiceGrpc.class)
 public class TaskGvice extends TaskServiceGrpc.TaskServiceImplBase{
     private int mStatus = 200;
     private String mMessage = "";

@@ -18,8 +18,6 @@ public class UserRole extends BaseEntity{
     @Column(name="roleId")
     private Long roleId;
 
-    @JsonIgnore
-    @Column(name = "lock_version")
-    private Long lockVersion;
+
 
 }

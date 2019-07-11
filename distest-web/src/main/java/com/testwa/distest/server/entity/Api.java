@@ -43,7 +43,5 @@ public class Api extends ProjectBase{
     @Column(name = "description")
     private String description;
 
-    @JsonIgnore
-    @Column(name = "lock_version")
-    private Long lockVersion;
+
 }

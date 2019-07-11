@@ -22,7 +22,5 @@ public class IssueLabel extends BaseEntity {
     @Column(name = "num")
     private Long num;
 
-    @JsonIgnore
-    @Column(name = "lock_version")
-    private Long lockVersion;
+
 }

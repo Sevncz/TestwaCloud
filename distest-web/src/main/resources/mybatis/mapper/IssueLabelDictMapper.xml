@@ -5,6 +5,6 @@
         <id column="id" property="id" jdbcType="BIGINT" />
         <result column="name" property="name" jdbcType="VARCHAR" />
         <result column="color" property="color" jdbcType="VARCHAR" />
-        <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
+
     </resultMap>
 </mapper>

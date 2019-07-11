@@ -68,9 +68,9 @@ public class TestcaseService extends BaseService<Testcase, Long> {
         testcase.setCreateBy(currentUser.getId());
         testcase.setCreateTime(new Date());
         testcase.setEnabled(true);
-        long testcaseId = testcaseMapper.insert(testcase);
-        saveTestcaseScript(form.getScriptIds(), testcaseId);
-        return testcaseId;
+        testcaseMapper.insert(testcase);
+        saveTestcaseScript(form.getScriptIds(), testcase.getId());
+        return testcase.getId();
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -85,9 +85,9 @@ public class TestcaseService extends BaseService<Testcase, Long> {
         testcase.setCreateBy(currentUser.getId());
         testcase.setCreateTime(new Date());
         testcase.setEnabled(true);
-        long testcaseId = testcaseMapper.insert(testcase);
-        saveTestcaseScript(scriptIds, testcaseId);
-        testcase.setId(testcaseId);
+        testcaseMapper.insert(testcase);
+        saveTestcaseScript(scriptIds, testcase.getId());
+        testcase.setId(testcase.getId());
         return testcase;
     }
 

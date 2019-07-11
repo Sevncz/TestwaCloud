@@ -57,8 +57,6 @@ public class App extends ProjectBaseEntity {
     @Column(name = "platform")
     private DB.PhoneOS platform;
 
-    @JsonIgnore
-    @Column(name = "lock_version")
-    private Long lockVersion;
+
 
 }

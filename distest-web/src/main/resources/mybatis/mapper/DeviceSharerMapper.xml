@@ -10,7 +10,7 @@
         <result column="end_time" property="endTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="share_scope_type" property="shareScopeType" jdbcType="TINYINT" />
-        <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
+
     </resultMap>
 
     <select id="findShareUserIn" resultMap="BaseResultMap" >

@@ -16,8 +16,8 @@
         <plugin interceptor="com.testwa.distest.common.plugin.PrepareInterceptor"/>
         <plugin interceptor="com.testwa.core.base.mybatis.plugin.ResultMapInterceptor"/>
         <plugin interceptor="com.testwa.core.base.mybatis.plugin.MyBatisShowSQLInterceptor"/>
-        <plugin interceptor="com.testwa.core.base.mybatis.plugin.OptimisticLocker">
-            <property name="versionColumn" value="lock_version"/>
-        </plugin>
+        <!--<plugin interceptor="com.testwa.core.base.mybatis.plugin.OptimisticLocker">-->
+            <!--<property name="versionColumn" value="lock_version"/>-->
+        <!--</plugin>-->
     </plugins>
 </configuration>

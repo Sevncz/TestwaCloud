@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Device</title>
+</head>
+<canvas id="phone-screen"></canvas>
+<script src="js/socket.io-1.4.5.js"></script>
+
+<br>
+<button id="devices">DEVICES</button>
+<button id="back">BACK</button>
+<button id="home" >HOME</button>
+<button id="menu">MENU</button>
+<button id="openBaidu">OPENBAIDU</button>
+<button id="shell">SHELL</button>
+
+<br>
+<input type="text" id="text" />
+<button id="send">SEND</button>
+<button id="del">DEL</button>
+
+<br>
+<button id="sub">SUB</button>
+<button id="wait">WAIT</button>
+<button id="reset_minicap">RESET_MINICAP</button>
+<br>
+<button id="debugStart">启动debug</button>
+<button id="debugStop">关闭debug</button>
+<br>
+<input type="text" id="ratetext" />
+<button id="rate">帧率设置</button>
+
+
+<!-- jQuery -->
+<script src="js/jquery.min.js"></script>
+<script src="js/jquery.jsonp.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/bootstrap-notify.min.js"></script>
+<script src="js/keyeventConvert.js"></script>
+<script src="js/encoding-indexes.js"></script>
+<script src="js/encoding.js"></script>
+
+<script>
+/*jshint browser:true*/
+var util = {
+    setMinicapScale:function (scale) {
+        localStorage.setItem("minicap_scale", scale);
+    },
+    getMinicapScale:function () {
+        return localStorage.getItem("minicap_scale");
+    },
+    setMinicapRotate:function (rotate) {
+        localStorage.setItem("minicap_rotate", rotate);
+    },
+    getMinicapRotate:function () {
+        return localStorage.getItem("minicap_rotate");
+    },
+    isRotate: false,
+    screenW: 1080,
+    screenH: 1920,
+    scala: 0.5,
+}
+var BLANK_IMG =
+  'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
+
+var canvas = document.getElementById('phone-screen')
+  , g = canvas.getContext('2d')
+var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjcEKwjAQRP9lzwls2mw27X94EilJu4WK1NKkKIj_7goevA3zHjMvKEeGHh6yogMDR5F9WCZtToOjyBFb4kAYmDkoH3dJVZQ7Ctg0SKghGCjjfRPozxcD8tx-2HctOgNLqv--GmvKt-9I3Q8xcK2L_rFnnyJNNtDcWZ_F2xhdtr6bWe8x5dzC-wMAAP__.YCA718R4E62wPeOcdUMkJRl57sNYfEx-AiV5Wr86oFs";
+// var socket = io('http://cloud.test.testwa.com:9092?type=browser&token=' + token);
+var socket = io('http://127.0.0.1:9092?type=browser&token=' + token);
+
+// var deviceId = '98895a44324f494f4d';
+var deviceId = '8f45336f66ff83bb61fce2aa57a33b695e5878db';
+// var deviceId = '4205dccb';
+
+socket.on('connect', function(){
+    util.serverConnected = true
+});
+socket.on('devices', function(message){
+    var device = message
+    console.log(device)
+    util.screenW = parseFloat(device.width)
+    util.screenH = parseFloat(device.height)
+});
+socket.on('minicap', function(message){
+    var blob = new Blob([message], {type: 'image/jpeg'})
+  var URL = window.URL || window.webkitURL
+  var img = new Image()
+    img.src = URL.createObjectURL(blob);
+  img.onload = function() {
+    canvas.width = img.width * util.scala
+    canvas.height = img.height * util.scala
+    g.drawImage(img, 0, 0, img.width * util.scala, img.height * util.scala)
+    img.onload = null
+    img.src = BLANK_IMG
+    img = null
+    u = null
+    blob = null
+  }
+});
+socket.on('disconnect', function(){
+    util.serverConnected = false;
+});
+socket.on('remote_debug_start', function(message){
+    console.log(message)
+});
+socket.on('remote_debug_stop', function(message){
+    console.log(message)
+});
+
+var isDown = false;
+
+// 获取鼠标在html中的绝对位置
+function mouseCoords(event){
+    if(event.pageX || event.pageY){
+        return {x:event.pageX, y:event.pageY};
+    }
+    return{
+        x:event.clientX + document.body.scrollLeft - document.body.clientLeft,
+        y:event.clientY + document.body.scrollTop - document.body.clientTop
+    };
+}
+// 获取鼠标在控件的相对位置
+function getXAndY(control, event){
+    //鼠标点击的绝对位置
+    Ev= event || window.event;
+    var mousePos = mouseCoords(event);
+    var x = mousePos.x;
+    var y = mousePos.y;
+
+    //获取div在body中的绝对位置
+    var x1 = control.offsetLeft;
+    var y1 = control.offsetTop;
+
+    //鼠标点击位置相对于div的坐标
+    var x2 = x - x1;
+    var y2 = y - y1;
+    return {x:x2,y:y2};
+}
+
+function sendHome() {
+    console.log("home")
+    socket.emit("home", deviceId)
+}
+function sendBack() {
+    socket.emit("back", deviceId)
+}
+function sendMenu() {
+    socket.emit("menu", deviceId)
+}
+function sendDel() {
+    socket.emit("del", deviceId)
+}
+function sendUrl(url) {
+    var params = {
+        deviceId: deviceId,
+        url: url
+    }
+    socket.emit("web", JSON.stringify(params))
+}
+function sendShell(cmd) {
+    var params = {
+        deviceId: deviceId,
+        cmd: cmd
+    }
+    socket.emit("shell", JSON.stringify(params))
+}
+
+function sendTapEvent(minitouchStr) {
+    var params = {
+        deviceId: deviceId,
+        cmd: minitouchStr
+    }
+    socket.emit("tap", JSON.stringify(params))
+}
+function sendInputText(text) {
+    var params = {
+        deviceId: deviceId,
+        input: text
+    }
+    socket.emit("input", JSON.stringify(params))
+}
+
+function subScreen() {
+    console.log("subScreen")
+    socket.emit("sub_screen", deviceId)
+}
+function waitScreen() {
+    console.log("wait")
+    socket.emit("wait_screen", deviceId)
+}
+function debugStart() {
+    console.log("debugStart")
+    socket.emit("remote_debug_start", deviceId)
+}
+function debugStop() {
+    console.log("debugStop")
+    socket.emit("remote_debug_stop", deviceId)
+}
+function rate() {
+    var rateText = $("#ratetext").val()
+    var v1 = {
+        rate: rateText
+    }
+    var params = {
+        deviceId: deviceId,
+        cmd: JSON.stringify(v1)
+    }
+    console.log("rate")
+    socket.emit("frame_rate", JSON.stringify(params))
+}
+
+function getDevices() {
+    console.log("devices")
+    socket.emit("get_devices", deviceId)
+}
+
+function sendDown(argx, argy, isRo) {
+    var scalex = util.screenW / canvas.width;
+    var scaley = util.screenH / canvas.height;
+    var x = argx, y = argy;
+//    if (isRo) {
+//        x = (canvas.height - argy) * (canvas.width / canvas.height);
+//        y = argx * (canvas.height / canvas.width);
+//    }
+    x = Math.round(x * scalex);
+    y = Math.round(y * scaley);
+    var command = {
+        x: x,
+        y: y
+    };
+    console.log("command: " + JSON.stringify(command))
+    sendTapEvent(JSON.stringify(command));
+}
+
+function sendMove(argx, argy, isRo) {
+    var scalex = util.screenW / canvas.width;
+    var scaley = util.screenH / canvas.height;
+    var x = argx, y = argy;
+    if (isRo) {
+        x = (canvas.height - argy) * (canvas.width / canvas.height);
+        y = argx * (canvas.height / canvas.width);
+    }
+    x = Math.round(x * scalex);
+    y = Math.round(y * scaley);
+
+    var command = "m 0 " + x + " " + y + " 50\n";
+    command += "c\n";
+    console.log("command: " + command)
+    // sendTapEvent(command);
+}
+
+function sendUp() {
+    var command = "u 0\n";
+    command += "c\n";
+    sendTapEvent(command);
+}
+
+canvas.onmousedown = function (event) {
+    if (!util.serverConnected) {
+        return;
+    }
+    isDown = true;
+    var pos = getXAndY(canvas, event);
+    sendDown(pos.x, pos.y, util.isRotate);
+};
+
+canvas.onmousemove = function (event) {
+    if (!util.serverConnected || !isDown) {
+        return;
+    }
+    var pos = getXAndY(canvas, event);
+    // sendMove(pos.x, pos.y, util.isRotate);
+};
+
+canvas.onmouseover = function (event) {
+    console.log("onmouseover");
+};
+
+canvas.onmouseout = function (event) {
+    if (!util.serverConnected || !isDown) {
+        return;
+    }
+    isDown = false;
+};
+
+canvas.onmouseup = function (event) {
+    if (!util.serverConnected || !isDown) {
+        return;
+    }
+    isDown = false;
+};
+
+$("#back").click(function () {
+    sendBack();
+})
+$("#home").click(function () {
+    sendHome();
+})
+$("#menu").click(function () {
+    sendMenu();
+})
+$("#del").click(function () {
+    sendDel();
+})
+
+$("#send").click(function () {
+    var text = $("#text").val()
+    sendInputText(text);
+})
+
+$("#sub").click(function () {
+    subScreen();
+});
+
+$("#wait").click(function () {
+    waitScreen();
+});
+$("#devices").click(function () {
+    getDevices();
+});
+$("#reset_minicap").click(function () {
+
+    var params = {
+        deviceId: deviceId,
+        scale: 0.5,   //  分辨率，画质，越小越模糊
+        rotate: 90.0  // 屏幕旋转度数，支持0,90,180,270 4个值
+    }
+    socket.emit("reset_minicap", JSON.stringify(params))
+});
+
+$("#openBaidu").click(function () {
+    var url = "https://www.baidu.com"
+    sendUrl(url);
+})
+$("#shell").click(function () {
+    var cmd = "getprop ro.build.version.sdk"
+    sendShell(cmd);
+})
+$("#debugStart").click(function () {
+    debugStart();
+})
+$("#debugStop").click(function () {
+    debugStop();
+})
+$("#rate").click(function () {
+    rate();
+})
+
+</script>
+
+</body>
+</html>

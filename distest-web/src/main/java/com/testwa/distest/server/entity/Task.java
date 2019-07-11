@@ -47,9 +47,7 @@ public class Task extends ProjectBaseEntity {
     @Column(name = "status")
     private DB.TaskStatus status;
 
-    @JsonIgnore
-    @Column(name = "lock_version")
-    private Long lockVersion;
+
 
     @Transient
     private Map<String, Integer> deviceStatusStatis;

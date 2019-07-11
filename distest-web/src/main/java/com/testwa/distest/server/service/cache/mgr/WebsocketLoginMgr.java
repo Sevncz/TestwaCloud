@@ -34,9 +34,11 @@ public class WebsocketLoginMgr {
     }
     public void delAllClientSessions(){
         Set<String> keys = redisCacheMgr.keys(ws_client_pattern);
-        keys.forEach(k -> {
-            redisCacheMgr.remove(k);
-        });
+        if(keys != null && !keys.isEmpty()){
+            keys.forEach(k -> {
+                redisCacheMgr.remove(k);
+            });
+        }
     }
 
 

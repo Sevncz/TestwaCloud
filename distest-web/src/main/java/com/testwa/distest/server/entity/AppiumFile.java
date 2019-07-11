@@ -24,9 +24,7 @@ public class AppiumFile extends BaseEntity {
     @Column(name = "create_time")
     private Date createTime;
 
-    @JsonIgnore
-    @Column(name = "lock_version")
-    private Long lockVersion;
+
 
     /**
      * 返回url的相对路径

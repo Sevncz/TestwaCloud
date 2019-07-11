@@ -160,13 +160,13 @@ public class AuthController extends BaseController {
         if(!Validator.isEmail(email)){
             return Result.error(ResultCode.ILLEGAL_PARAM,"邮箱格式不正确");
         }
-        User usernameUser = userService.findByEmail(email);
-        if(usernameUser != null){
-            return Result.error(ResultCode.ILLEGAL_PARAM,"邮箱已存在");
-        }
+//        User usernameUser = userService.findByEmail(email);
+//        if(usernameUser == null){
+//            return Result.error(ResultCode.ILLEGAL_PARAM,"邮箱不存在");
+//        }
         User user = userService.findByEmail(email);
         if(user == null) {
-            return Result.error(ResultCode.ILLEGAL_PARAM,"邮箱已存在");
+            return Result.error(ResultCode.ILLEGAL_PARAM,"邮箱不存在");
         }
         authMgr.sendForgetPasswordEmail(user);
         return Result.success();

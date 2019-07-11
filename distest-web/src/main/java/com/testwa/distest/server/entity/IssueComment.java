@@ -31,8 +31,6 @@ public class IssueComment extends BaseEntity {
     @Column(name = "create_time")
     private Date createTime;
 
-    @JsonIgnore
-    @Column(name = "lock_version")
-    private Long lockVersion;
+
 
 }

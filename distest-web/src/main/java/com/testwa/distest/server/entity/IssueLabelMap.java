@@ -18,7 +18,5 @@ public class IssueLabelMap extends BaseEntity {
     private Long issueId;
     private Long labelId;
 
-    @JsonIgnore
-    @Column(name = "lock_version")
-    private Long lockVersion;
+
 }

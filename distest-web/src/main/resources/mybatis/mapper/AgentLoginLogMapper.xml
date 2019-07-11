@@ -14,7 +14,7 @@
         <result column="ip" property="ip" jdbcType="INTEGER" />
         <result column="login_time" property="loginTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
         <result column="logout_time" property="logoutTime" jdbcType="TIMESTAMP" javaType="java.sql.Timestamp"/>
-        <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
+
     </resultMap>
 
     <select id="findRecentLoginOne" resultMap="BaseResultMap" >

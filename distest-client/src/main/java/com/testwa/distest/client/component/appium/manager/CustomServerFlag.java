@@ -14,7 +14,8 @@ public enum CustomServerFlag implements ServerArgument {
     PORT("--port"),
     UNLOCK_TYPE("--unlockType"),
     SET_DEVICE("-U"),
-    NO_RESET("--no-reset");
+    NO_RESET("--no-reset"),
+    ;
 
     private final String arg;
 

@@ -6,7 +6,7 @@
         <result column="issue_id" property="issueId" jdbcType="BIGINT" />
         <result column="label_id" property="labelId" jdbcType="BIGINT" />
         <result column="enabled" property="enabled" jdbcType="BOOLEAN" />
-        <result column="lock_version" property="lockVersion" jdbcType="BIGINT" />
+
     </resultMap>
 
    <delete id="deleteByLabelId" >

@@ -29,9 +29,7 @@ public class Testcase extends ProjectBaseEntity {
     @Column(name = "appName")
     private String appName;
 
-    @JsonIgnore
-    @Column(name = "lock_version")
-    private Long lockVersion;
+
 
     @Transient
     private List<TestcaseDetail> testcaseDetails;
