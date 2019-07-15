@@ -11,8 +11,10 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class AppsController {
+    private static final String SUFFIX_CLEAR_TOP = " --activity-clear-top";
 
     private static void run(String deviceId, String cmd) {
+        cmd += SUFFIX_CLEAR_TOP;
         StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
         if (observer != null) {
             Message message = Message.newBuilder().setTopicName(Message.Topic.SHELL).setStatus("OK").setMessage(ByteString.copyFromUtf8(cmd)).build();

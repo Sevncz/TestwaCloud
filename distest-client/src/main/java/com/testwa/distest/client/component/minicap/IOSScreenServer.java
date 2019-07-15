@@ -111,13 +111,13 @@ public class IOSScreenServer extends Thread implements Closeable, ScreenSubject 
         while (isRunning.get()) {
             try {
                 try {
-                    this.url = new URL("Http://127.0.0.1:" + this.iproxyScreenPort);
+                    this.url = new URL("http://127.0.0.1:" + this.iproxyScreenPort);
                     URLConnection urlConn = url.openConnection();
                     urlConn.setReadTimeout(5000);
                     urlConn.connect();
                     urlStream = urlConn.getInputStream();
                 } catch (IOException e) {
-                    log.warn("[{}] WDA {} connect {} failure", udid, this.iproxyScreenPort, url.toString());
+                    log.warn("[{}] WDA connect {} failure", udid, url.toString());
                     try {
                         TimeUnit.SECONDS.sleep(2);
                     } catch (InterruptedException e1) {

@@ -45,7 +45,7 @@ public class TaskExecuteJob implements BaseJob, InterruptableJob {
         Task t = taskService.findByCode(taskCode);
         boolean timeout = false;
         while(!_interrupted) {
-            Integer taskCount = taskCountMgr.getSubTaskCount(taskCode);
+            Long taskCount = taskCountMgr.getSubTaskCount(taskCode);
             if(taskCount > 0){
                 // 检查超时，超过30分钟自动关闭
                 DateTime startTime = new DateTime(t.getCreateTime());

@@ -1,15 +1,16 @@
 package com.testwa.distest.server.startup;
 
-import com.testwa.core.redis.RedisCacheManager;
 import com.testwa.distest.server.entity.Issue;
 import com.testwa.distest.server.entity.Project;
 import com.testwa.distest.server.service.issue.service.IssueService;
 import com.testwa.distest.server.service.project.service.ProjectService;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -23,8 +24,8 @@ import java.util.List;
 public class IssueSeqInitRunner implements CommandLineRunner {
     @Autowired
     private IssueService issueService;
-    @Autowired
-    private RedisCacheManager redisCacheManager;
+    @Resource
+    private RedissonClient redissonClient;
     @Autowired
     private ProjectService projectService;
 
@@ -38,9 +39,9 @@ public class IssueSeqInitRunner implements CommandLineRunner {
             String issueSeqKey = issueService.getIssueSeqRedisKey(project.getId());
             Issue issue = issueService.getIssueMaxSeq(project.getId());
             if(issue == null) {
-                redisCacheManager.putString(issueSeqKey, -1, "0");
+//                redisCacheManager.putString(issueSeqKey, -1, "0");
             }else{
-                redisCacheManager.putString(issueSeqKey, -1, issue.getIssueSeq().toString());
+//                redisCacheManager.putString(issueSeqKey, -1, issue.getIssueSeq().toString());
             }
         });
     }
