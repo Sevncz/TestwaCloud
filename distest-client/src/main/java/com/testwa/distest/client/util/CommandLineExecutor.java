@@ -85,14 +85,14 @@ public class CommandLineExecutor {
                                 log.debug("[{}] stop", commandArraysToString(command));
                             }
                         })
-                    .redirectOutput(new LogOutputStream() {
-                        @Override
-                        protected void processLine(String s) {
-                            if(printLog) {
-                                log.info("[{} out:] {}", String.join(" ", command), s);
+                        .redirectOutput(new LogOutputStream() {
+                            @Override
+                            protected void processLine(String s) {
+                                if(printLog) {
+                                    log.info("[{} out:] {}", String.join(" ", command), s);
+                                }
                             }
-                        }
-                    })
+                        })
                         .start();
         } catch (IOException e) {
             throw new CommandFailureException(e);

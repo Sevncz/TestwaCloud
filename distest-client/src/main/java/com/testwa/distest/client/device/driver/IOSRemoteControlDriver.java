@@ -108,7 +108,6 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
     @Override
     public void startProjection(String command) {
         stopProjection();
-
         this.screenIOSProjection = new ScreenIOSProjection(this.udid, this.listener);
         this.screenIOSProjection.startServer();
     }
@@ -179,7 +178,7 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
 
     @Override
     public String getDeviceId() {
-        return null;
+        return this.udid;
     }
 
     @Override
@@ -421,6 +420,7 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
     @Override
     public void onError(Throwable throwable) {
         // 出现异常
+        log.warn("[{}] register error {}", udid, throwable);
         try {
             try {
                 TimeUnit.MILLISECONDS.sleep(connectRetryTime.get() * 200L);

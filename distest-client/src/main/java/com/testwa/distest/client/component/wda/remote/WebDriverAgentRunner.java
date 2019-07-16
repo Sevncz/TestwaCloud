@@ -18,6 +18,7 @@ package com.testwa.distest.client.component.wda.remote;
 
 import com.testwa.distest.client.component.wda.driver.DriverCapabilities;
 import com.testwa.distest.client.component.wda.exception.WebDriverAgentException;
+import com.testwa.distest.client.component.wda.support.ResponseValueConverter;
 import com.testwa.distest.client.util.CommandLineExecutor;
 import com.testwa.distest.client.component.wda.support.XCodeBuilder;
 import com.testwa.distest.client.util.PortUtil;
@@ -63,7 +64,7 @@ public class WebDriverAgentRunner {
         if (startNewProcess) {
             killWdaProcess(udid);
             try {
-                log.info("[Start WebDriverAgent] {}", udid);
+                log.info("[{}] Start WebDriverAgent", udid);
                 wdaProcess = new XCodeBuilder()
                         .setWdaPath(capabilities.getCapability(DriverCapabilities.Key.WDA_PATH))
                         .setPlatform(capabilities.getCapability(DriverCapabilities.Key.PLATFORM))
@@ -79,13 +80,12 @@ public class WebDriverAgentRunner {
                 e.printStackTrace();
             }
 
-            Thread checkThread = new Thread(() -> {
-                int timeout = Optional.ofNullable(capabilities.getCapability(DriverCapabilities.Key.LAUNCH_TIMEOUT))
-                        .map(Integer::valueOf)
-                        .orElse(DEFAULT_LAUNCH_TIMEOUT);
-                waitForReachability(getWdaUrl(), timeout);
-            });
-            checkThread.start();
+            int timeout = Optional.ofNullable(capabilities.getCapability(DriverCapabilities.Key.LAUNCH_TIMEOUT))
+                    .map(Integer::valueOf)
+                    .orElse(DEFAULT_LAUNCH_TIMEOUT);
+            if(waitForReachability(getWdaUrl(), timeout)) {
+                log.info("[{}] wda was reachable", udid);
+            }
 
         } else {
             log.info("[{}] Use existing WebDriverAgent process.", udid);
@@ -142,10 +142,16 @@ public class WebDriverAgentRunner {
     public boolean waitForReachability(URL url, int timeout) {
         try {
             String urlStr = url.toString() + "/" + WDACommand.STATUS;
+            URL statusUrl = new URL(urlStr);
+            while(!isUrlReachable(statusUrl)) {
+                try {
+                    TimeUnit.MILLISECONDS.sleep(200);
+                } catch (InterruptedException e) {
 
-            new UrlChecker().waitUntilAvailable(timeout, TimeUnit.SECONDS, new URL(urlStr));
+                }
+            }
             return true;
-        } catch (UrlChecker.TimeoutException | MalformedURLException e) {
+        } catch (MalformedURLException e) {
             return false;
         }
     }

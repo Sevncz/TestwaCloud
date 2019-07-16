@@ -45,7 +45,7 @@ public class IOSScreenServer extends Thread implements Closeable, ScreenSubject 
     private List<ScreenProjectionObserver> observers = new ArrayList<>();
 
     private StartedProcess iproxyScreenProcess;
-    private int iproxyScreenPort;
+    private Integer iproxyScreenPort;
 
     private String udid;
 
@@ -103,10 +103,21 @@ public class IOSScreenServer extends Thread implements Closeable, ScreenSubject 
         try {
             killScreenProcess();
             this.iproxyScreenPort = PortUtil.getAvailablePort();
-            this.iproxyScreenProcess = CommandLineExecutor.asyncExecute(new String[]{IPROXY, String.valueOf(this.iproxyScreenPort), String.valueOf(WDA_SCREEN_PORT), udid});
+//            this.iproxyScreenProcess = CommandLineExecutor.asyncExecute(new String[]{IPROXY, String.valueOf(this.iproxyScreenPort), String.valueOf(WDA_SCREEN_PORT), udid});
+            this.iproxyScreenProcess = new ProcessExecutor()
+                    .command(IPROXY, String.valueOf(this.iproxyScreenPort), String.valueOf(WDA_SCREEN_PORT), udid)
+                    .readOutput(true)
+                    .redirectOutput(new LogOutputStream() {
+                        @Override
+                        protected void processLine(String s) {
+                        log.debug("[{}] iproxy out: {}", udid, s);
+                        }
+                    })
+                    .start();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        log.info("[{}] WDA screen start", udid);
 
         while (isRunning.get()) {
             try {
@@ -117,7 +128,7 @@ public class IOSScreenServer extends Thread implements Closeable, ScreenSubject 
                     urlConn.connect();
                     urlStream = urlConn.getInputStream();
                 } catch (IOException e) {
-                    log.warn("[{}] WDA {} connect {} failure", udid, this.iproxyScreenPort, url.toString());
+                    log.debug("[{}] WDA {} connect {} failure", udid, this.iproxyScreenPort, url.toString());
                     try {
                         TimeUnit.SECONDS.sleep(2);
                     } catch (InterruptedException e1) {
@@ -127,7 +138,7 @@ public class IOSScreenServer extends Thread implements Closeable, ScreenSubject 
                 }
                 byte[] imageBytes = retrieveNextImage();
                 log.debug("[{}] Get one frame", udid);
-                offer(imageBytes);
+                notifyObservers(imageBytes);
                 try {
                     if(urlStream != null) {
                         urlStream.close();
@@ -136,11 +147,11 @@ public class IOSScreenServer extends Thread implements Closeable, ScreenSubject 
 
                 }
             } catch (Exception e) {
-                log.error("[{}] frame parse error", udid, e);
+                log.warn("[{}] WDA frame parse error {}", udid, e.getMessage());
             }
 
         }
-        log.info("[{}] wda screen quite", udid);
+        log.info("[{}] WDA screen stop", udid);
     }
 
     /**
@@ -248,15 +259,17 @@ public class IOSScreenServer extends Thread implements Closeable, ScreenSubject 
 
     private void killScreenProcess() {
         try {
-            // kill iproxy
-            new ProcessExecutor()
-                    .command("/bin/sh","-c","ps aux | grep iproxy | grep " + this.iproxyScreenPort + " | awk {'print $2'} | xargs kill -9")
-                    .redirectOutput(new LogOutputStream() {
-                        @Override
-                        protected void processLine(String line) {
-                            log.info(line);
-                        }
-                    }).execute();
+            if(this.iproxyScreenPort != null) {
+                // kill iproxy
+                new ProcessExecutor()
+                        .command("/bin/sh","-c","ps aux | grep iproxy | grep " + this.iproxyScreenPort + " | awk {'print $2'} | xargs kill -9")
+                        .redirectOutput(new LogOutputStream() {
+                            @Override
+                            protected void processLine(String line) {
+                                log.info(line);
+                            }
+                        }).execute();
+            }
         } catch (IOException | InterruptedException | TimeoutException e) {
             e.printStackTrace();
         }

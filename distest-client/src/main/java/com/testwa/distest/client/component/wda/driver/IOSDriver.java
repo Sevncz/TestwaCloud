@@ -1,19 +1,3 @@
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * See the NOTICE file distributed with this work for additional
- * information regarding copyright ownership.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.testwa.distest.client.component.wda.driver;
 
 import com.google.common.collect.ImmutableMap;
@@ -42,16 +26,17 @@ public class IOSDriver implements Driver {
     private WebDriverAgentRunner wdaRunner;
     private CommandExecutor commandExecutor;
     private String sessionId;
+    private String udid;
 
-    private ExecutorService executorService;
 
     public IOSDriver(DriverCapabilities capabilities) {
         this.capabilities = capabilities;
+        this.udid = capabilities.getCapability(DriverCapabilities.Key.DEVICE_ID);
         this.wdaRunner = new WebDriverAgentRunner(capabilities);
         this.wdaRunner.start();
         this.commandExecutor = new WDACommandExecutor(wdaRunner.getWdaUrl());
-        this.getSession();
-        this.executorService = Executors.newCachedThreadPool();
+        getSession();
+        log.info("[{}] iOS driver init success !", udid);
     }
 
     @Override
@@ -87,12 +72,7 @@ public class IOSDriver implements Driver {
                 .collect(Collectors.toList());
 
         parameters.put(WDACommand.Parameter.VALUE.getKey(), keys);
-        this.executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                execute(WDACommand.SEND_KEYS, new EnumMap<>(WDACommand.Wildcard.class), parameters);
-            }
-        });
+        execute(WDACommand.SEND_KEYS, new EnumMap<>(WDACommand.Wildcard.class), parameters);
     }
 
     @Override
@@ -123,12 +103,7 @@ public class IOSDriver implements Driver {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(WDACommand.Parameter.BUNDLE_ID.getKey(), id);
         parameters.put(WDACommand.Parameter.ARGUMENTS.getKey(), buildArgs());
-        this.executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                execute(WDACommand.LAUNCH, new EnumMap<>(WDACommand.Wildcard.class), parameters);
-            }
-        });
+        execute(WDACommand.LAUNCH, new EnumMap<>(WDACommand.Wildcard.class), parameters);
     }
 
     @Override
@@ -136,12 +111,7 @@ public class IOSDriver implements Driver {
         String id = bundleId.length > 0 ? bundleId[0] : capabilities.getCapability(DriverCapabilities.Key.BUNDLE_ID);
         Map<String, Object> parameters = new HashMap<>();
         parameters.put(WDACommand.Parameter.BUNDLE_ID.getKey(), id);
-        this.executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                execute(WDACommand.TERMINATE, new EnumMap<>(WDACommand.Wildcard.class), parameters);
-            }
-        });
+        execute(WDACommand.TERMINATE, new EnumMap<>(WDACommand.Wildcard.class), parameters);
     }
 
     @Override
@@ -164,47 +134,27 @@ public class IOSDriver implements Driver {
     @Override
     public void input(String text) {
         Map<String, Object> parameters = ImmutableMap.of("value", text.split(""));
-        this.executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                execute(WDACommand.INPUT, new EnumMap<>(WDACommand.Wildcard.class), parameters);
-            }
-        });
+        execute(WDACommand.INPUT, new EnumMap<>(WDACommand.Wildcard.class), parameters);
     }
 
     @Override
     public void tap(Integer x, Integer y) {
         double scale = Double.parseDouble(capabilities.getCapability(DriverCapabilities.Key.SCALE));
         Map<String, Object> parameters = ImmutableMap.of("x", x*scale, "y", y*scale);
-        this.executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                execute(WDACommand.TAP, new EnumMap<>(WDACommand.Wildcard.class), parameters);
-            }
-        });
+        execute(WDACommand.TAP, new EnumMap<>(WDACommand.Wildcard.class), parameters);
     }
 
     @Override
     public void swipe(Integer x1, Integer y1, Integer x2, Integer y2, int duration) {
         double scale = Double.parseDouble(capabilities.getCapability(DriverCapabilities.Key.SCALE));
         Map<String, Object> parameters = ImmutableMap.of("fromX", x1*scale, "fromY", y1*scale, "toX", x2*scale, "toY", y2*scale, "duration", String.valueOf(duration));
-        this.executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                execute(WDACommand.SWIP, new EnumMap<>(WDACommand.Wildcard.class), parameters);
-            }
-        });
+        execute(WDACommand.SWIP, new EnumMap<>(WDACommand.Wildcard.class), parameters);
     }
 
     @Override
     public void home() {
         Map<String, Object> parameters = new HashMap<>();
-        this.executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                execute(WDACommand.HOME, new EnumMap<>(WDACommand.Wildcard.class), parameters);
-            }
-        });
+        execute(WDACommand.HOME, new EnumMap<>(WDACommand.Wildcard.class), parameters);
     }
 
     @Override
@@ -221,7 +171,7 @@ public class IOSDriver implements Driver {
         Optional.ofNullable(sessionId).ifPresent(id -> wildcards.put(WDACommand.Wildcard.SESSION_ID, sessionId));
         RemoteResponse response = commandExecutor.execute(command, wildcards, parameters);
         Long endTime = System.currentTimeMillis();
-        log.info("[WDA execute {}], cast: {}ms", command, endTime - startTime);
+        log.debug("[{}] WDA execute {}, cast: {}ms", udid, command, endTime - startTime);
         return response;
     }
 
@@ -239,12 +189,12 @@ public class IOSDriver implements Driver {
     private void getSession() {
         RemoteResponse response = commandExecutor.execute(WDACommand.STATUS);
         this.sessionId = response.getSessionId();
-        log.info("[Start get WebDriverAgent session] sessionId: {}", sessionId);
+        log.info("[{}] Get WebDriverAgent session sessionId: {}", udid, sessionId);
     }
 
 
     private void createSession() {
-        log.info("Starting new WebDriverAgent session.");
+        log.info("[{}] Starting new WebDriverAgent session.", udid);
         log.debug("Capabilities: " + capabilities.toString());
         String command = WDACommand.NEW_SESSION;
 

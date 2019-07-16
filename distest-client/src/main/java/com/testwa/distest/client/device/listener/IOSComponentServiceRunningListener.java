@@ -19,7 +19,6 @@ public class IOSComponentServiceRunningListener implements ScreenProjectionObser
 
     private final String deviceId;
     private final DeivceRemoteApiClient api;
-    private boolean isScreenWaitting = true;
     private boolean isLogWaitting = true;
     // 帧率
     private int framerate = 30;
@@ -75,25 +74,18 @@ public class IOSComponentServiceRunningListener implements ScreenProjectionObser
      */
     @Override
     public void frameImageChange(byte[] image) {
-        if (!isScreenWaitting) {
-            if (latesenttime == 0 || System.currentTimeMillis() - latesenttime > 1000/framerate) {
-                this.latesenttime = System.currentTimeMillis();
-                byte[] scaleByte = ImgCompress.decompressPicByte(image, defaultScale);
-                this.observers.onNext(api.getScreenCaptureRequest(scaleByte, this.deviceId));
-                log.debug("[upload frame]");
-            }
+        if (latesenttime == 0 || System.currentTimeMillis() - latesenttime > 1000/framerate) {
+            this.latesenttime = System.currentTimeMillis();
+            byte[] scaleByte = ImgCompress.decompressPicByte(image, defaultScale);
+            this.observers.onNext(api.getScreenCaptureRequest(scaleByte, this.deviceId));
+            log.debug("[upload frame]");
         }
-
     }
 
     public void rate(Integer rate) {
         if(rate > 2 && rate < 100) {
             this.framerate = rate;
         }
-    }
-
-    public void setScreenWait(boolean isWaitting) {
-        this.isScreenWaitting = isWaitting;
     }
 
     public void setLogWait(boolean isWaitting) {

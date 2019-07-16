@@ -21,6 +21,7 @@ import com.testwa.distest.client.component.wda.exception.WebDriverAgentException
 import com.testwa.distest.client.util.CommonProcessListener;
 import lombok.extern.slf4j.Slf4j;
 import org.zeroturnaround.exec.ProcessExecutor;
+import org.zeroturnaround.exec.ProcessResult;
 import org.zeroturnaround.exec.StartedProcess;
 import org.zeroturnaround.exec.listener.ProcessListener;
 import org.zeroturnaround.exec.stream.LogOutputStream;
@@ -52,7 +53,6 @@ public class XCodeBuilder {
     public StartedProcess build() {
         log.info("[{}] Start xcode build process", deviceId);
         String[] commandLine = getCommand();
-        CommonProcessListener processListener = new CommonProcessListener(String.join(" ", commandLine));
         try {
             ProcessExecutor executor = new ProcessExecutor()
                     .command(commandLine)
@@ -65,7 +65,26 @@ public class XCodeBuilder {
                     executor.addListener(l);
                 }
             }else{
-                executor.addListener(processListener);
+                executor.addListener(new ProcessListener() {
+
+                    @Override
+                    public void afterStart(Process process, ProcessExecutor executor) {
+                        super.afterStart(process, executor);
+                        log.info("[{}] wda has start, command is [{}]", deviceId, String.join(" ", commandLine));
+                    }
+
+                    @Override
+                    public void afterFinish(Process process, ProcessResult result) {
+                        super.afterFinish(process, result);
+                        log.info("[{}] wda has finish", deviceId);
+                    }
+
+                    @Override
+                    public void afterStop(Process process) {
+                        super.afterStop(process);
+                        log.info("[{}] wda has stop", deviceId);
+                    }
+                });
             }
             return executor.start();
         } catch (IOException e) {
