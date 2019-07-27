@@ -124,6 +124,8 @@ public interface Driver extends Screenshotable, CommandExecutor {
 
     void tap(Integer x, Integer y);
 
+    void tapAndHold(Integer x, Integer y, Float duration);
+
     void swipe(Integer x1, Integer y1, Integer x2, Integer y2, int duration);
 
     void home();

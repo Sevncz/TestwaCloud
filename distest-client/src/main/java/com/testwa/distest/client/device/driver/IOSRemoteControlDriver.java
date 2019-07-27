@@ -254,7 +254,12 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
 
     @Override
     public void tapAndHold(String cmd) {
-
+        if(this.iosDriver != null) {
+            JSONObject tapCommand = JSON.parseObject(cmd);
+            Integer x = tapCommand.getInteger("x");
+            Integer y = tapCommand.getInteger("y");
+            this.iosDriver.tapAndHold(x, y, 1.0f);
+        }
     }
 
     @Override

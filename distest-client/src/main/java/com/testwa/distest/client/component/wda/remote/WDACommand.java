@@ -54,6 +54,7 @@ public class WDACommand {
     public static final String TERMINATE;
     public static final String ACTIVATE;
     public static final String TAP;
+    public static final String TOUCH_AND_HOLD;
     public static final String SWIP;
     public static final String HOME;
     public static final String INPUT;
@@ -94,6 +95,7 @@ public class WDACommand {
         TERMINATE = "terminateApp";
         ACTIVATE = "activateApp";
         TAP = "tap";
+        TOUCH_AND_HOLD = "touchAndHold";
         SWIP = "swip";
         HOME = "home";
         INPUT = "input";
@@ -131,6 +133,7 @@ public class WDACommand {
         commands.put(TERMINATE, post("/session/:sessionId/wda/apps/terminate"));
         commands.put(ACTIVATE, post("/session/:sessionId/wda/apps/activate"));
         commands.put(TAP, post("/session/:sessionId/wda/tap/0"));
+        commands.put(TAP, post("/session/:sessionId/wda/touchAndHold"));
         commands.put(SWIP, post("/session/:sessionId/wda/dragfromtoforduration"));
         commands.put(HOME, post("/wda/homescreen"));
         commands.put(INPUT, post("/session/:sessionId/wda/keys"));

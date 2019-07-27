@@ -145,6 +145,14 @@ public class IOSDriver implements Driver {
     }
 
     @Override
+    public void tapAndHold(Integer x, Integer y, Float duration) {
+        double scale = Double.parseDouble(capabilities.getCapability(DriverCapabilities.Key.SCALE));
+        Map<String, Object> parameters = ImmutableMap.of("x", x*scale, "y", y*scale, "duration", duration);
+        execute(WDACommand.TOUCH_AND_HOLD, new EnumMap<>(WDACommand.Wildcard.class), parameters);
+
+    }
+
+    @Override
     public void swipe(Integer x1, Integer y1, Integer x2, Integer y2, int duration) {
         double scale = Double.parseDouble(capabilities.getCapability(DriverCapabilities.Key.SCALE));
         Map<String, Object> parameters = ImmutableMap.of("fromX", x1*scale, "fromY", y1*scale, "toX", x2*scale, "toY", y2*scale, "duration", String.valueOf(duration));

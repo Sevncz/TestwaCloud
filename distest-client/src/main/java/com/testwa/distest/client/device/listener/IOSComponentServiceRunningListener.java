@@ -27,13 +27,9 @@ public class IOSComponentServiceRunningListener implements ScreenProjectionObser
 
     private final static String adb_log_line_regex = "(.\\S*) *(.\\S*) *(\\d*) *(\\d*) *([A-Z]) *([^:]*): *(.*?)$";
 
-    private StreamObserver<ScreenCaptureRequest> observers;
-
-
     public IOSComponentServiceRunningListener(String deviceId, DeivceRemoteApiClient api) {
         this.deviceId = deviceId;
         this.api = api;
-        this.observers = api.getScreenStub();
     }
 
     @Override
@@ -77,7 +73,7 @@ public class IOSComponentServiceRunningListener implements ScreenProjectionObser
         if (latesenttime == 0 || System.currentTimeMillis() - latesenttime > 1000/framerate) {
             this.latesenttime = System.currentTimeMillis();
             byte[] scaleByte = ImgCompress.decompressPicByte(image, defaultScale);
-            this.observers.onNext(api.getScreenCaptureRequest(scaleByte, this.deviceId));
+            api.getScreenStub().onNext(api.getScreenCaptureRequest(scaleByte, this.deviceId));
             log.debug("[upload frame]");
         }
     }

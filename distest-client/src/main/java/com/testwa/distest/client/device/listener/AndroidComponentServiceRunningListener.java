@@ -42,14 +42,11 @@ public class AndroidComponentServiceRunningListener implements ScreenProjectionO
     private final static String adb_log_line_regex = "(.\\S*) *(.\\S*) *(\\d*) *(\\d*) *([A-Z]) *([^:]*): *(.*?)$";
     private Pattern logAndroidPattern;
     private LogCatFilter logCatFilter;
-    private StreamObserver<ScreenCaptureRequest> observers;
-
 
     public AndroidComponentServiceRunningListener(String deviceId, DeivceRemoteApiClient api) {
         this.deviceId = deviceId;
         this.api = api;
         this.logAndroidPattern = Pattern.compile(adb_log_line_regex);
-        this.observers = api.getScreenStub();
     }
 
     @Override
@@ -83,7 +80,7 @@ public class AndroidComponentServiceRunningListener implements ScreenProjectionO
 //        }
         if (latesenttime == 0 || System.currentTimeMillis() - latesenttime > 1000/framerate) {
             this.latesenttime = System.currentTimeMillis();
-            this.observers.onNext(api.getScreenCaptureRequest(image, this.deviceId));
+            api.getScreenStub().onNext(api.getScreenCaptureRequest(image, this.deviceId));
         }
     }
 

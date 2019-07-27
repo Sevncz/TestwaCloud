@@ -11,6 +11,7 @@ import io.rpc.testwa.agent.*;
 import jp.co.cyberagent.stf.proto.Wire;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.springboot.autoconfigure.grpc.client.GrpcClient;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -84,10 +85,10 @@ public class DeivceRemoteApiClient {
     }
 
     public ScreenCaptureRequest getScreenCaptureRequest(byte[] frame, String deviceId) {
-            return ScreenCaptureRequest.newBuilder()
-                    .setImg(ByteString.copyFrom(frame))
-                    .setSerial(deviceId)
-                    .build();
+        return ScreenCaptureRequest.newBuilder()
+                .setImg(ByteString.copyFrom(frame))
+                .setSerial(deviceId)
+                .build();
     }
 
     public StreamObserver<ScreenCaptureRequest> getScreenStub() {
@@ -129,6 +130,7 @@ public class DeivceRemoteApiClient {
         }
     }
 
+    @Async
     public void sendCapture(String filename, String deviceId) {
         try {
             byte[] screeByte = Files.readAllBytes(Paths.get(filename));
