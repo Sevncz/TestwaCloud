@@ -4,6 +4,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
 import com.testwa.distest.client.component.stfagent.DevDisplay;
 import com.testwa.distest.client.device.listener.callback.remote.ScreenObserver;
+import com.testwa.distest.client.ios.IOSApp;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.device.*;
@@ -20,6 +21,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 /**
  * 设备远程API客户端
@@ -225,7 +227,6 @@ public class DeivceRemoteApiClient {
      * @Date 2019-07-09 17:58
      */
     public void handleEventAgentInstall(String serial, boolean success) {
-
         try {
             StfAgentEvent request = StfAgentEvent.newBuilder()
                     .setSerial(serial)
@@ -233,6 +234,37 @@ public class DeivceRemoteApiClient {
                     .build();
             MonitorServiceGrpc.MonitorServiceFutureStub monitorServiceFutureStub = MonitorServiceGrpc.newFutureStub(channel);
             ListenableFuture<Status> replyListenableFuture = monitorServiceFutureStub.stfAgentInstallEvent(request);
+            Status status = replyListenableFuture.get();
+            log.debug(status.getStatus());
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    /**
+     * @Description: 返回App列表
+     * @Param: [serial, apps]
+     * @Return: void
+     * @Author wen
+     * @Date 2019-07-31 14:23
+     */
+    public void handleEventAppList(String serial, List<IOSApp> apps) {
+
+        List<AgentApp> agentApps = apps.stream().map( app -> AgentApp.newBuilder()
+                .setAppName(app.getAppName())
+                .setAppVersion(app.getAppVersion())
+                .setBundleId(app.getBundleId())
+                .build()).collect(Collectors.toList());
+
+        AppListEvent event = AppListEvent.newBuilder()
+                .setSerial(serial)
+                .addAllApps(agentApps)
+                .build();
+
+        try {
+            MonitorServiceGrpc.MonitorServiceFutureStub monitorServiceFutureStub = MonitorServiceGrpc.newFutureStub(channel);
+            ListenableFuture<Status> replyListenableFuture = monitorServiceFutureStub.appList(event);
             Status status = replyListenableFuture.get();
             log.debug(status.getStatus());
         } catch (InterruptedException | ExecutionException e) {

@@ -102,6 +102,11 @@ public interface IDeviceRemoteControlDriver {
 
     void capture();
 
+    /**
+     * 应用列表
+     */
+    void apps();
+
     /*==========================任务相关接口===============================*/
 
     void information();

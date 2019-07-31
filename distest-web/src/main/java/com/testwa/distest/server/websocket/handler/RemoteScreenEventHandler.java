@@ -82,6 +82,8 @@ public class RemoteScreenEventHandler {
 
     private final static String RESTART_AGENT_APK = "restart_agent_apk";
 
+    private final static String APP_LIST = "app_list";
+    private final static String UNINSTALL = "uninstall";
     private final static String PRESS_KEY = "press_key";
     private final static String BROWSER_APP_LIST = "browser_app";
     private final static String DEVICE_INFO = "device_info";
@@ -445,6 +447,25 @@ public class RemoteScreenEventHandler {
         builder.setMessage(request.build().toByteString());
 
         sendStfCmd(client, deviceId, builder.build());
+    }
+
+    @OnEvent(value = APP_LIST)
+    private void onAppList(SocketIOClient client, String deviceId, AckRequest ackRequest) {
+        if (isIllegalDeviceId(client, deviceId)) {
+            return;
+        }
+        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
+        if (observer != null) {
+            Message message = Message.newBuilder().setTopicName(Message.Topic.APP_LIST).setStatus(STATUS_OK).build();
+            observer.onNext(message);
+        } else {
+            client.sendEvent("error", "设备还未准备好");
+        }
+    }
+
+    @OnEvent(value = UNINSTALL)
+    private void onUninstall(SocketIOClient client, String data, AckRequest ackRequest) {
+        sendCmd(client, data, "bundleId", "请输入bundleId", Message.Topic.UNINSTALL_APP);
     }
 
     @OnEvent(value = DEVICE_INFO)

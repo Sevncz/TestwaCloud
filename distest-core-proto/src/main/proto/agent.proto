@@ -32,6 +32,8 @@ service MonitorService {
     rpc browserApp ( BrowserAppEvent ) returns (Status) {}
     // 通知服务器 STF agent 安装情况
     rpc stfAgentInstallEvent ( StfAgentEvent ) returns (Status) {}
+    // App列表
+    rpc appList ( AppListEvent ) returns (Status) {}
 
 }
 
@@ -115,6 +117,7 @@ message Message {
         SWIP = 41;
         STF = 42;
         STF_RESTART = 43;
+        APP_LIST = 44;
 
 
         CONNECTED = 99;
@@ -177,4 +180,15 @@ message BrowserApp {
 message StfAgentEvent {
     bool success = 1;
     string serial = 2;
+}
+
+message AppListEvent {
+    string serial = 1;
+    repeated AgentApp apps = 2;
+}
+
+message AgentApp {
+    string appName = 1;
+    string appVersion = 2;
+    string bundleId = 3;
 }

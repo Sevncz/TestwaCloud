@@ -31,6 +31,10 @@
 <br>
 <input type="text" id="ratetext" />
 <button id="rate">帧率设置</button>
+<br>
+<button id="app_list">应用列表</button>
+<input type="text" id="bundletext" />
+<button id="uninstall">卸载</button>
 
 
 <!-- jQuery -->
@@ -67,12 +71,12 @@ var BLANK_IMG =
 
 var canvas = document.getElementById('phone-screen')
   , g = canvas.getContext('2d')
-var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjcEKwjAQRP9lzwls2mw27X94EilJu4WK1NKkKIj_7goevA3zHjMvKEeGHh6yogMDR5F9WCZtToOjyBFb4kAYmDkoH3dJVZQ7Ctg0SKghGCjjfRPozxcD8tx-2HctOgNLqv--GmvKt-9I3Q8xcK2L_rFnnyJNNtDcWZ_F2xhdtr6bWe8x5dzC-wMAAP__.YCA718R4E62wPeOcdUMkJRl57sNYfEx-AiV5Wr86oFs";
+var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjcEKwjAQRP9lzyl06yab9D88FSlps4WI1tKkIIj_7goevAzMzGPmBeWYoIeY7nkFA0eRfcxJk_OItg2oQtYSe-fRKTDvEqsogNZpYUMgT2igzI9NoB8uBuS5_WpPHMhAjvWfV2KN0-07UvdDDFxr1kNGJF46bFzyXUPM3ERZktolts6xn_EE7w8AAAD__w.z--LGL3BjTB-Wst5GmAbMCt0rRUsvQlBRZ6vLu_3fpI";
 // var socket = io('http://cloud.test.testwa.com:9092?type=browser&token=' + token);
 var socket = io('http://127.0.0.1:9092?type=browser&token=' + token);
 
 // var deviceId = '98895a44324f494f4d';
-var deviceId = '8f45336f66ff83bb61fce2aa57a33b695e5878db';
+var deviceId = '8e9e4b90bf9f8ad4d544b5e3d9d6b5940e0912e4';
 // var deviceId = '4205dccb';
 
 socket.on('connect', function(){
@@ -107,6 +111,9 @@ socket.on('remote_debug_start', function(message){
     console.log(message)
 });
 socket.on('remote_debug_stop', function(message){
+    console.log(message)
+});
+socket.on('app_list', function(message){
     console.log(message)
 });
 
@@ -211,7 +218,6 @@ function rate() {
     console.log("rate")
     socket.emit("frame_rate", JSON.stringify(params))
 }
-
 function getDevices() {
     console.log("devices")
     socket.emit("get_devices", deviceId)
@@ -347,6 +353,20 @@ $("#debugStop").click(function () {
 })
 $("#rate").click(function () {
     rate();
+})
+
+$("#app_list").click(function () {
+    console.log("app_list")
+    socket.emit("app_list", deviceId)
+})
+$("#uninstall").click(function () {
+    var text = $("#bundletext").val()
+    var params = {
+        deviceId: deviceId,
+        bundleId: text
+    }
+    console.log("uninstall")
+    socket.emit("uninstall", JSON.stringify(params))
 })
 
 </script>

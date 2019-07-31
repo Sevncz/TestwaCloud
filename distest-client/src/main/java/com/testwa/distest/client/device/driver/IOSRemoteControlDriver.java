@@ -20,6 +20,7 @@ import com.testwa.distest.client.device.manager.DeviceInitException;
 import com.testwa.distest.client.device.remote.DeivceRemoteApiClient;
 import com.testwa.distest.client.download.Downloader;
 import com.testwa.distest.client.exception.DownloadFailException;
+import com.testwa.distest.client.ios.IOSApp;
 import com.testwa.distest.client.ios.IOSDeviceUtil;
 import com.testwa.distest.client.ios.IOSPhysicalSize;
 import com.testwa.distest.client.model.AgentInfo;
@@ -34,6 +35,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -313,6 +315,12 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
     @Override
     public void capture() {
 
+    }
+
+    @Override
+    public void apps() {
+        List<IOSApp> apps = IOSDeviceUtil.getApps(this.udid);
+        api.handleEventAppList(this.udid, apps);
     }
 
     @Override
