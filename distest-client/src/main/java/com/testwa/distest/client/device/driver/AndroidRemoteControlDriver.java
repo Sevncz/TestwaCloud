@@ -185,7 +185,11 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
     }
 
     private void restartProjection(Integer rotate) {
-        stopProjection();
+        try {
+            stopProjection();
+        }catch (Exception e) {
+            log.warn("[{}] stop minitouch or minicap error", this.device.getSerial(), e);
+        }
         // 重建新的进程
         this.touchProjection = new TouchAndroidProjection(this.device.getSerial(), this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH));
         this.touchProjection.start();
