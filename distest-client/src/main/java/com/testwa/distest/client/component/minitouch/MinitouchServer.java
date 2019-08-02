@@ -218,7 +218,7 @@ public class MinitouchServer {
         String resourcePath = "/Users/wen/IdeaProjects/distest/distest-client/bin/resources";
         MinitouchServer server = new MinitouchServer(deviceId, resourcePath);
         server.start();
-        TimeUnit.SECONDS.sleep(10);
+        TimeUnit.MILLISECONDS.sleep(200);
         MinitouchClient client = new MinitouchClient(deviceId);
         client.start();
         TimeUnit.SECONDS.sleep(120);
