@@ -119,7 +119,7 @@ public class Minitouch {
                         @Override
                         protected void processLine(String s) {
                             log.info("[{}] minitouch out: {}", deviceId, s);
-                            if(s.startsWith("Type B touch")) {
+                            if(s.startsWith("Type")) {
                                 client = new MinitouchClient(deviceId);
                                 client.start();
                             }
