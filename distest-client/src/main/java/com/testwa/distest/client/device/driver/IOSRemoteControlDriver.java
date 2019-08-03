@@ -13,6 +13,7 @@ import com.testwa.distest.client.component.logcat.DLogger;
 import com.testwa.distest.client.component.minicap.ScreenIOSProjection;
 import com.testwa.distest.client.component.wda.driver.DriverCapabilities;
 import com.testwa.distest.client.component.wda.driver.IOSDriver;
+import com.testwa.distest.client.component.wda.driver.OutputImageType;
 import com.testwa.distest.client.device.listener.IOSComponentServiceRunningListener;
 import com.testwa.distest.client.device.listener.callback.IRemoteCommandCallBack;
 import com.testwa.distest.client.device.listener.callback.RemoteCommandCallBackUtils;
@@ -314,7 +315,10 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
 
     @Override
     public void capture() {
-
+        if(this.iosDriver != null) {
+            byte[] bytes = this.iosDriver.getScreenshot(OutputImageType.BYTES);
+            api.sendCapture(bytes, udid);
+        }
     }
 
     @Override

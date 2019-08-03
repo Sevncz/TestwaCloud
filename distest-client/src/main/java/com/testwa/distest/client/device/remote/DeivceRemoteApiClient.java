@@ -136,6 +136,15 @@ public class DeivceRemoteApiClient {
     public void sendCapture(String filename, String deviceId) {
         try {
             byte[] screeByte = Files.readAllBytes(Paths.get(filename));
+            sendCapture(screeByte, deviceId);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Async
+    public void sendCapture(byte[] screeByte, String deviceId) {
+        try {
             ScreenshotEvent request = ScreenshotEvent.newBuilder()
                     .setSerial(deviceId)
                     .setImg(ByteString.copyFrom(screeByte))
@@ -145,7 +154,7 @@ public class DeivceRemoteApiClient {
             Status status = replyListenableFuture.get();
             // TODO 可以查看返回的消息
             log.debug(status.getStatus());
-        } catch (IOException | InterruptedException | ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
     }

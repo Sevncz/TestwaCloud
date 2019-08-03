@@ -35,6 +35,9 @@
 <button id="app_list">应用列表</button>
 <input type="text" id="bundletext" />
 <button id="uninstall">卸载</button>
+<br>
+<canvas id="screenshot_canvas"></canvas>
+<button id="screenshot">截图</button>
 
 
 <!-- jQuery -->
@@ -71,7 +74,7 @@ var BLANK_IMG =
 
 var canvas = document.getElementById('phone-screen')
   , g = canvas.getContext('2d')
-var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjcEKwjAQRP9lzyl06yab9D88FSlps4WI1tKkIIj_7goevAzMzGPmBeWYoIeY7nkFA0eRfcxJk_OItg2oQtYSe-fRKTDvEqsogNZpYUMgT2igzI9NoB8uBuS5_WpPHMhAjvWfV2KN0-07UvdDDFxr1kNGJF46bFzyXUPM3ERZktolts6xn_EE7w8AAAD__w.z--LGL3BjTB-Wst5GmAbMCt0rRUsvQlBRZ6vLu_3fpI";
+var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMzUEKwjAQBdC7zDqBpM1MJr2HK5GSpFOIaC1tCoJ4dyNu3Mzi_8efF-xHggHidC8LKDh22cYyteQ0WjTBtuMQnWdiSw3kTWKVBiyS8yEwovFBwZ4fq8BwviiQ5_qruWNCVFBi_fdNLDHdviN1O0TBtZb2sHNiO0dZh5lYOzasU2-8jnNvsxeyaQrw_gAAAP__.ILmx5EXZT0AUudVH_eS8JQXwoLzmXnmg0zfnzKCSuA0";
 // var socket = io('http://cloud.test.testwa.com:9092?type=browser&token=' + token);
 var socket = io('http://127.0.0.1:9092?type=browser&token=' + token);
 
@@ -115,6 +118,24 @@ socket.on('remote_debug_stop', function(message){
 });
 socket.on('app_list', function(message){
     console.log(message)
+});
+socket.on('screenshot', function(message){
+    var blob = new Blob([message], {type: 'image/jpeg'})
+    var URL = window.URL || window.webkitURL
+    var img = new Image()
+    img.src = URL.createObjectURL(blob);
+    var screen_canvas = document.getElementById('screenshot_canvas')
+        , screen_g = screen_canvas.getContext('2d')
+    img.onload = function() {
+        screen_canvas.width = img.width * util.scala
+        screen_canvas.height = img.height * util.scala
+        screen_g.drawImage(img, 0, 0, img.width * util.scala, img.height * util.scala)
+        img.onload = null
+        img.src = BLANK_IMG
+        img = null
+        u = null
+        blob = null
+    }
 });
 
 var isDown = false;
@@ -367,6 +388,9 @@ $("#uninstall").click(function () {
     }
     console.log("uninstall")
     socket.emit("uninstall", JSON.stringify(params))
+})
+$("#screenshot").click(function () {
+    socket.emit("screenshot", deviceId)
 })
 
 </script>
