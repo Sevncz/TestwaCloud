@@ -76,7 +76,7 @@ public class XCodeBuilder {
                     @Override
                     public void afterFinish(Process process, ProcessResult result) {
                         super.afterFinish(process, result);
-                        log.info("[{}] wda has finish", deviceId);
+                        log.info("[{}] wda has finish \n out: {}", deviceId, result.outputUTF8());
                     }
 
                     @Override

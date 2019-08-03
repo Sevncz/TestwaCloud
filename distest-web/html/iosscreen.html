@@ -74,12 +74,13 @@ var BLANK_IMG =
 
 var canvas = document.getElementById('phone-screen')
   , g = canvas.getContext('2d')
-var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMzUEKwjAQBdC7zDqBpM1MJr2HK5GSpFOIaC1tCoJ4dyNu3Mzi_8efF-xHggHidC8LKDh22cYyteQ0WjTBtuMQnWdiSw3kTWKVBiyS8yEwovFBwZ4fq8BwviiQ5_qruWNCVFBi_fdNLDHdviN1O0TBtZb2sHNiO0dZh5lYOzasU2-8jnNvsxeyaQrw_gAAAP__.ILmx5EXZT0AUudVH_eS8JQXwoLzmXnmg0zfnzKCSuA0";
+var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMzUEKwjAQBdC7zDqBjJmkSe_hSqRkkhEiWkubgiDe3Qgu3Mzi_8efF2w7wwip3OsMCvZN1qmWnhwndCZiP-QcDcEH9B3kVVKTDtB5CkgxWIOoYMuPRWA8nRXIc_nVZIdgFdTU_n0Xc-Lbd6Stuyi4ttofDubA6SKsjS9OUxCj2UavMzOS9TGVLPD-AAAA__8.0oQ1pccKxsO3ko17oB_sGO2aUBxExRUpx_aIb1li-Mc";
 // var socket = io('http://cloud.test.testwa.com:9092?type=browser&token=' + token);
 var socket = io('http://127.0.0.1:9092?type=browser&token=' + token);
 
 // var deviceId = '98895a44324f494f4d';
-var deviceId = '8e9e4b90bf9f8ad4d544b5e3d9d6b5940e0912e4';
+// var deviceId = '8e9e4b90bf9f8ad4d544b5e3d9d6b5940e0912e4';
+var deviceId = 'b744a5044ba752237b66655dcd7e85618bec2d37';
 // var deviceId = '4205dccb';
 
 socket.on('connect', function(){

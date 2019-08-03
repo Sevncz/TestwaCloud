@@ -10,6 +10,7 @@ import com.testwa.distest.client.component.Constant;
 import com.testwa.distest.client.component.appium.utils.Config;
 import com.testwa.distest.client.component.executor.task.*;
 import com.testwa.distest.client.component.logcat.DLogger;
+import com.testwa.distest.client.component.minicap.ScreenIOSLowerProjection;
 import com.testwa.distest.client.component.minicap.ScreenIOSProjection;
 import com.testwa.distest.client.component.wda.driver.DriverCapabilities;
 import com.testwa.distest.client.component.wda.driver.IOSDriver;
@@ -37,6 +38,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -65,6 +67,7 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
 
     private DeivceRemoteApiClient api;
     private ScreenIOSProjection screenIOSProjection;
+    private ScreenIOSLowerProjection screenIOSLowerProjection;
 
     /*------------------------------------------LOG----------------------------------------------------*/
 
@@ -110,9 +113,23 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
 
     @Override
     public void startProjection(String command) {
-        stopProjection();
-        this.screenIOSProjection = new ScreenIOSProjection(this.udid, this.listener);
-        this.screenIOSProjection.startServer();
+        String version = IOSDeviceUtil.getProductVersion(udid);
+        StringTokenizer st = new StringTokenizer(version, ".");
+        String mainVersionStr = st.nextToken();
+        int mainVersion = Integer.parseInt(mainVersionStr);
+        // 高于iOS11的版本可以使用该接口
+        try {
+            stopProjection();
+        }catch (Exception e) {
+
+        }
+        if(mainVersion >= 11) {
+            this.screenIOSProjection = new ScreenIOSProjection(this.udid, this.listener);
+            this.screenIOSProjection.startServer();
+        } else {
+            this.screenIOSLowerProjection = new ScreenIOSLowerProjection(this.udid, this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH), this.listener);
+            this.screenIOSLowerProjection.startServer();
+        }
     }
 
 
@@ -120,6 +137,9 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
     public void stopProjection() {
         if(this.screenIOSProjection != null) {
             this.screenIOSProjection.close();
+        }
+        if(this.screenIOSLowerProjection != null) {
+            this.screenIOSLowerProjection.close();
         }
     }
 
@@ -317,7 +337,9 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
     public void capture() {
         if(this.iosDriver != null) {
             byte[] bytes = this.iosDriver.getScreenshot(OutputImageType.BYTES);
-            api.sendCapture(bytes, udid);
+            if(bytes != null) {
+                api.sendCapture(bytes, udid);
+            }
         }
     }
 

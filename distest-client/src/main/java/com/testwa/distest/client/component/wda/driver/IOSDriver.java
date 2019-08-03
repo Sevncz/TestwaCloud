@@ -167,7 +167,12 @@ public class IOSDriver implements Driver {
 
     @Override
     public <T> T getScreenshot(OutputImageType<T> outputType) {
-        return outputType.convertFromBase64Png((String) execute(WDACommand.GET_WINDOW_SCREENSHOT).getValue());
+        String value = (String) execute(WDACommand.GET_WINDOW_SCREENSHOT).getValue();
+        if(StringUtils.isBlank(value)) {
+            log.error("[{}] screenshot is null", this.udid);
+            return null;
+        }
+        return outputType.convertFromBase64Png(value);
     }
 
     @Override

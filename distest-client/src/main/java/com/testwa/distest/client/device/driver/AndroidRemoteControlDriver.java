@@ -584,6 +584,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
             }
 
         }catch (Exception e) {
+            ADBTools.tcpip(device.getSerial(), this.tcpipPort);
             return;
         }
 
