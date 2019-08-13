@@ -89,6 +89,7 @@ public class RemoteScreenEventHandler {
     private final static String DEVICE_INFO = "device_info";
     private final static String OPEN_SYS_SETTING = "open_sys_setting";
     private final static String SCREENSHOT = "screenshot";
+    private final static String IOS_TOUCH_MULTI_PERFORM = "ios_touch_multi_perform";
 
     private final static String JOB_DEBUG_NAME = "com.testwa.distest.quartz.job.EquipmentDebugJob";
     private final static String JOB_LOGCAT_NAME = "com.testwa.distest.quartz.job.EquipmentLogcatJob";
@@ -532,6 +533,23 @@ public class RemoteScreenEventHandler {
         StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
         if (observer != null) {
             Message message = Message.newBuilder().setTopicName(Message.Topic.SCREENSHOT).setStatus(STATUS_OK).build();
+            observer.onNext(message);
+        } else {
+            client.sendEvent("error", "设备还未准备好");
+        }
+    }
+
+    @OnEvent(value = IOS_TOUCH_MULTI_PERFORM)
+    private void onIOSTouchMultiPerform(SocketIOClient client, String data, AckRequest ackRequest) {
+        Map params = JSON.parseObject(data, Map.class);
+        String deviceId = (String) params.get("deviceId");
+        if (isIllegalDeviceId(client, deviceId)) {
+            return;
+        }
+        String cmd = (String) params.get("cmd");
+        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
+        if (observer != null) {
+            Message message = Message.newBuilder().setTopicName(Message.Topic.IOS_TOUCH_MULTI_PERFORM).setMessage(ByteString.copyFrom(cmd.getBytes())).setStatus(STATUS_OK).build();
             observer.onNext(message);
         } else {
             client.sendEvent("error", "设备还未准备好");

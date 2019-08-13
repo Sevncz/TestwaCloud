@@ -275,13 +275,30 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
 
     }
 
+    public void doubleTap(String cmd) {
+        if(this.iosDriver != null) {
+            JSONObject tapCommand = JSON.parseObject(cmd);
+            Integer x = tapCommand.getInteger("x");
+            Integer y = tapCommand.getInteger("y");
+            this.iosDriver.doubleTap(x, y);
+        }
+    }
+
+    public void touchMultiPerform(String cmd) {
+        if(this.iosDriver != null) {
+            List<TouchMultiPerformAction> actions = JSON.parseArray(cmd, TouchMultiPerformAction.class);
+            this.iosDriver.touchMultiPerform(actions);
+        }
+    }
+
     @Override
     public void tapAndHold(String cmd) {
         if(this.iosDriver != null) {
             JSONObject tapCommand = JSON.parseObject(cmd);
             Integer x = tapCommand.getInteger("x");
             Integer y = tapCommand.getInteger("y");
-            this.iosDriver.tapAndHold(x, y, 1.0f);
+            Float duration = tapCommand.getFloat("duration");
+            this.iosDriver.tapAndHold(x, y, duration);
         }
     }
 
@@ -434,25 +451,34 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
 
     @Override
     public void onNext(Message message) {
-        if(Message.Topic.CONNECTED.equals(message.getTopicName())) {
-            log.info("[{}] Connected to Server", this.udid);
-            // 连上服务器之后归零
-            connectRetryTime.set(0);
-            // 连接上服务器之后启动wda
-            this.iosDriver = new IOSDriver(this.iosDriverCapabilities);
-            return;
-        }
-        IRemoteCommandCallBack call;
-        try {
-            if(cache.containsKey(message.getTopicName())){
-                call = cache.get(message.getTopicName());
-            }else{
-                call = RemoteCommandCallBackUtils.getCallBack(message.getTopicName(), this);
-                cache.put(message.getTopicName(), call);
-            }
-            call.callback(message.getMessage());
-        } catch (Exception e) {
-            log.error("回调错误", e);
+        switch (message.getTopicName()) {
+            case CONNECTED:
+                log.info("[{}] Connected to Server", this.udid);
+                // 连上服务器之后归零
+                connectRetryTime.set(0);
+                // 连接上服务器之后启动wda
+                this.iosDriver = new IOSDriver(this.iosDriverCapabilities);
+                return;
+            case IOS_MULTI_TAP:
+                break;
+            case IOS_TOUCH_MULTI_PERFORM:
+                String cmd = message.getMessage().toStringUtf8();
+                touchMultiPerform(cmd);
+                break;
+            default:
+                IRemoteCommandCallBack call;
+                try {
+                    if(cache.containsKey(message.getTopicName())){
+                        call = cache.get(message.getTopicName());
+                    }else{
+                        call = RemoteCommandCallBackUtils.getCallBack(message.getTopicName(), this);
+                        cache.put(message.getTopicName(), call);
+                    }
+                    call.callback(message.getMessage());
+                } catch (Exception e) {
+                    log.error("[{}] command error", udid, e);
+                }
+                break;
         }
     }
 

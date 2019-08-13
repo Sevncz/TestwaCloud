@@ -9,6 +9,7 @@ import com.testwa.distest.client.component.wda.remote.WDACommandExecutor;
 import com.testwa.distest.client.component.wda.remote.WebDriverAgentRunner;
 import com.testwa.distest.client.component.wda.support.IOSDeploy;
 import com.testwa.distest.client.component.wda.support.ResponseValueConverter;
+import com.testwa.distest.client.device.driver.TouchMultiPerformAction;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
@@ -149,6 +150,31 @@ public class IOSDriver implements Driver {
         double scale = Double.parseDouble(capabilities.getCapability(DriverCapabilities.Key.SCALE));
         Map<String, Object> parameters = ImmutableMap.of("x", x*scale, "y", y*scale, "duration", duration);
         execute(WDACommand.TOUCH_AND_HOLD, new EnumMap<>(WDACommand.Wildcard.class), parameters);
+
+    }
+
+    @Override
+    public void doubleTap(Integer x, Integer y) {
+        double scale = Double.parseDouble(capabilities.getCapability(DriverCapabilities.Key.SCALE));
+        Map<String, Object> parameters = ImmutableMap.of("x", x*scale, "y", y*scale);
+        execute(WDACommand.DOUBLE_TAP, new EnumMap<>(WDACommand.Wildcard.class), parameters);
+    }
+
+    @Override
+    public void touchMultiPerform(List<TouchMultiPerformAction> actions) {
+        double scale = Double.parseDouble(capabilities.getCapability(DriverCapabilities.Key.SCALE));
+        List<TouchMultiPerformAction>  actionScale = actions.stream().map(a -> {
+            double x1 = a.getOptions().getX() * scale;
+            double y1 = a.getOptions().getY() * scale;
+            a.getOptions().setX((int) x1);
+            a.getOptions().setY((int) y1);
+            return a;
+        }).collect(Collectors.toList());
+
+
+        Map<String, Object> parameters = ImmutableMap.of("actions", actionScale);
+
+        execute(WDACommand.MULTI_PERFORM, new EnumMap<>(WDACommand.Wildcard.class), parameters);
 
     }
 

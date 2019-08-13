@@ -119,6 +119,8 @@ message Message {
         STF_RESTART = 43;
         APP_LIST = 44;
 
+        IOS_MULTI_TAP = 60;
+        IOS_TOUCH_MULTI_PERFORM = 61;
 
         CONNECTED = 99;
     }

@@ -146,6 +146,8 @@ public class MinicapServer {
                         @Override
                         protected void processLine(String s) {
                             log.info("[{}] minicap out: {}", deviceId, s);
+                            // for JPG encoder
+
                         }
                     })
                     .start();

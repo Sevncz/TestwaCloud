@@ -58,6 +58,8 @@ public class WDACommand {
     public static final String SWIP;
     public static final String HOME;
     public static final String INPUT;
+    public static final String MULTI_PERFORM;
+    public static final String DOUBLE_TAP;
 
 
     public static final Map<String, RemoteCommandInfo> commands;
@@ -99,6 +101,8 @@ public class WDACommand {
         SWIP = "swip";
         HOME = "home";
         INPUT = "input";
+        MULTI_PERFORM = "multi_perform";
+        DOUBLE_TAP = "double_tap";
 
         commands = new HashMap<>();
         commands.put(DISMISS_ALERT, post("/session/:sessionId/alert/dismiss"));
@@ -137,6 +141,8 @@ public class WDACommand {
         commands.put(SWIP, post("/session/:sessionId/wda/dragfromtoforduration"));
         commands.put(HOME, post("/wda/homescreen"));
         commands.put(INPUT, post("/session/:sessionId/wda/keys"));
+        commands.put(MULTI_PERFORM, post("/session/:sessionId/wda/touch/multi/perform"));
+        commands.put(DOUBLE_TAP, post("/session/:sessionId/wda/doubleTap"));
     }
 
     public enum Wildcard {
