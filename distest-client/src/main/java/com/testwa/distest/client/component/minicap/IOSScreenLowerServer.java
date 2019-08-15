@@ -1,19 +1,13 @@
 package com.testwa.distest.client.component.minicap;
 
-import com.testwa.distest.client.component.wda.driver.IOSDriver;
-import com.testwa.distest.client.component.wda.driver.OutputImageType;
 import com.testwa.distest.client.util.CommandLineExecutor;
-import com.testwa.distest.client.util.PortUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.zeroturnaround.exec.ProcessExecutor;
 import org.zeroturnaround.exec.StartedProcess;
 import org.zeroturnaround.exec.stream.LogOutputStream;
 import sun.misc.BASE64Decoder;
 
 import java.io.*;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;

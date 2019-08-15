@@ -441,6 +441,16 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
     }
 
     @Override
+    public void appTerminate(String cmd) {
+
+    }
+
+    @Override
+    public void appActivate(String cmd) {
+
+    }
+
+    @Override
     public void information() {
         DevInformationAssembly devInformationAssembly = this.stfServiceClient.getDevInformationAssembly();
         // TODO 上传到服务器

@@ -118,6 +118,8 @@ message Message {
         STF = 42;
         STF_RESTART = 43;
         APP_LIST = 44;
+        APP_ACTIVATE = 45;
+        APP_TERMINATE = 46;
 
         IOS_MULTI_TAP = 60;
         IOS_TOUCH_MULTI_PERFORM = 61;
@@ -193,4 +195,5 @@ message AgentApp {
     string appName = 1;
     string appVersion = 2;
     string bundleId = 3;
+    int32 state = 4;
 }

@@ -1,12 +1,12 @@
 package com.testwa.distest.client.component.minicap;
 
-import com.testwa.distest.client.util.PortUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.zeroturnaround.exec.ProcessExecutor;
 import org.zeroturnaround.exec.StartedProcess;
-import org.zeroturnaround.exec.stream.LogOutputStream;
 
-import java.io.*;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -24,13 +23,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @create 2019-06-18 23:19
  */
 @Slf4j
-public class IOSScreenServer extends Thread implements Closeable, ScreenSubject {
-    private static final String WDA_BASE_URL = "http://localhost";
-    private static final String WDA_STATE_FIELD = "state";
-    private static final int WDA_AGENT_PORT = 8100;
-    private static final int WDA_SCREEN_PORT = 9100;
-    private static final int DEFAULT_LAUNCH_TIMEOUT = 60;
-    private static final String IPROXY = "/usr/local/bin/iproxy";
+public class IOSScreenServer2 extends Thread implements Closeable, ScreenSubject {
+    private static final String BASE_URL = "http://localhost";
+    private static final int PORT = 9100;
     private static final String CONTENT_LENGTH = "Content-Length: ";
     private static final String CONTENT_TYPE = "Content-type: image/jpeg";
     private BlockingQueue<byte[]> frameQueue;
@@ -46,8 +41,8 @@ public class IOSScreenServer extends Thread implements Closeable, ScreenSubject 
 
     private String udid;
 
-    public IOSScreenServer(String udid) {
-        super("wda-client");
+    public IOSScreenServer2(String udid) {
+        super("iTool-client");
         this.udid = udid;
         init();
     }
@@ -81,7 +76,6 @@ public class IOSScreenServer extends Thread implements Closeable, ScreenSubject 
         } catch (IOException e) {
 
         }
-        killScreenProcess();
         this.interrupt();
     }
 
@@ -97,52 +91,36 @@ public class IOSScreenServer extends Thread implements Closeable, ScreenSubject 
 
     @Override
     public void run() {
+        log.info("[{}] itool screen start", udid);
+        URLConnection urlConn = null;
         try {
-            killScreenProcess();
-            this.iproxyScreenPort = PortUtil.getAvailablePort();
-//            this.iproxyScreenProcess = CommandLineExecutor.asyncExecute(new String[]{IPROXY, String.valueOf(this.iproxyScreenPort), String.valueOf(WDA_SCREEN_PORT), udid});
-            this.iproxyScreenProcess = new ProcessExecutor()
-                    .command(IPROXY, String.valueOf(this.iproxyScreenPort), String.valueOf(WDA_SCREEN_PORT), udid)
-                    .readOutput(true)
-                    .redirectOutput(new LogOutputStream() {
-                        @Override
-                        protected void processLine(String s) {
-                        log.debug("[{}] iproxy out: {}", udid, s);
-                        }
-                    })
-                    .start();
+            this.url = new URL("Http://127.0.0.1:" + PORT);
+            urlConn = url.openConnection();
+//                    urlConn.setReadTimeout(5000);
+            urlConn.connect();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.debug("[{}] WDA {} connect {} failure", udid, this.iproxyScreenPort, url.toString());
+            try {
+                TimeUnit.SECONDS.sleep(2);
+            } catch (InterruptedException e1) {
+
+            }
+//            continue;
         }
-        log.info("[{}] WDA screen start", udid);
 
         while (isRunning.get()) {
             try {
-                try {
-                    this.url = new URL("Http://127.0.0.1:" + this.iproxyScreenPort);
-                    URLConnection urlConn = url.openConnection();
-                    urlConn.setReadTimeout(5000);
-                    urlConn.connect();
-                    urlStream = urlConn.getInputStream();
-                } catch (IOException e) {
-                    log.debug("[{}] WDA {} connect {} failure", udid, this.iproxyScreenPort, url.toString());
-                    try {
-                        TimeUnit.SECONDS.sleep(2);
-                    } catch (InterruptedException e1) {
-
-                    }
-                    continue;
-                }
+                urlStream = urlConn.getInputStream();
                 byte[] imageBytes = retrieveNextImage();
-                log.debug("[{}] Get one frame", udid);
-                notifyObservers(imageBytes);
-                try {
-                    if(urlStream != null) {
-                        urlStream.close();
-                    }
-                } catch (IOException e) {
-
-                }
+                log.debug("[{}] Get one frame {}", udid, imageBytes.length);
+//                notifyObservers(imageBytes);
+//                try {
+//                    if(urlStream != null) {
+//                        urlStream.close();
+//                    }
+//                } catch (IOException e) {
+//
+//                }
             } catch (Exception e) {
                 log.warn("[{}] WDA frame parse error {}", udid, e.getMessage());
             }
@@ -254,21 +232,9 @@ public class IOSScreenServer extends Thread implements Closeable, ScreenSubject 
         }
     }
 
-    private void killScreenProcess() {
-        try {
-            if(this.iproxyScreenPort != null) {
-                // kill iproxy
-                new ProcessExecutor()
-                        .command("/bin/sh","-c","ps aux | grep iproxy | grep " + this.iproxyScreenPort + " | awk {'print $2'} | xargs kill -9")
-                        .redirectOutput(new LogOutputStream() {
-                            @Override
-                            protected void processLine(String line) {
-                                log.info(line);
-                            }
-                        }).execute();
-            }
-        } catch (IOException | InterruptedException | TimeoutException e) {
-            e.printStackTrace();
-        }
+    public static void main(String[] args) {
+        String udid = "8e9e4b90bf9f8ad4d544b5e3d9d6b5940e0912e4";
+        IOSScreenServer2 screenServer2 = new IOSScreenServer2(udid);
+        screenServer2.start();
     }
 }

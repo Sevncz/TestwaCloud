@@ -36,6 +36,10 @@
 <input type="text" id="bundletext" />
 <button id="uninstall">卸载</button>
 <br>
+<button id="multi_click">连点</button>
+<button id="app_activate">启动网易新闻</button>
+<button id="app_terminate">关闭网易新闻</button>
+<br>
 <canvas id="screenshot_canvas"></canvas>
 <button id="screenshot">截图</button>
 
@@ -74,13 +78,13 @@ var BLANK_IMG =
 
 var canvas = document.getElementById('phone-screen')
   , g = canvas.getContext('2d')
-var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMzUEKwjAQBdC7zDqBjJmkSe_hSqRkkhEiWkubgiDe3Qgu3Mzi_8efF2w7wwip3OsMCvZN1qmWnhwndCZiP-QcDcEH9B3kVVKTDtB5CkgxWIOoYMuPRWA8nRXIc_nVZIdgFdTU_n0Xc-Lbd6Stuyi4ttofDubA6SKsjS9OUxCj2UavMzOS9TGVLPD-AAAA__8.0oQ1pccKxsO3ko17oB_sGO2aUBxExRUpx_aIb1li-Mc";
+var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMzUEKwjAQBdC7zDqBmSaTpL2HK5GStFOIaC1NCoJ4dyO4cDOL_x9_XlCOBAPE-Z5XUHAU2cc8t-Q0EmNP7Vhm64ML5BqYdolVGiB2HBgJqUdUUKbHJjCcLwrkuf1qH3okBTnWf9_EGtPtO1L3QxRca24PU_IxGGa9GJm1Tcbr0HWok_BixTtjXYD3BwAA__8.-tHNll5At3LMtUe0y8OiXTwZSHpAis-UZ3QCGDyvjJM";
 // var socket = io('http://cloud.test.testwa.com:9092?type=browser&token=' + token);
 var socket = io('http://127.0.0.1:9092?type=browser&token=' + token);
 
 // var deviceId = '98895a44324f494f4d';
-// var deviceId = '8e9e4b90bf9f8ad4d544b5e3d9d6b5940e0912e4';
-var deviceId = 'b744a5044ba752237b66655dcd7e85618bec2d37';
+var deviceId = '8f45336f66ff83bb61fce2aa57a33b695e5878db';
+// var deviceId = 'b744a5044ba752237b66655dcd7e85618bec2d37';
 // var deviceId = '4205dccb';
 
 socket.on('connect', function(){
@@ -392,6 +396,53 @@ $("#uninstall").click(function () {
 })
 $("#screenshot").click(function () {
     socket.emit("screenshot", deviceId)
+})
+$("#multi_click").click(function () {
+    var cmd = [
+        {
+            "action":"press",
+            "options":{
+                "x":245,
+                "y":526,
+                "count": 1
+            }
+        },
+        {
+            "action":"moveTo",
+            "options":{
+                "x":532,
+                "y":581
+            }
+        },
+        {
+            "action":"moveTo",
+            "options":{
+                "x":368,
+                "y":928
+            }
+        },
+        {
+            "action":"release"
+        }];
+    var params = {
+        deviceId: deviceId,
+        cmd: JSON.stringify(cmd)
+    };
+    socket.emit("ios_touch_multi_perform", JSON.stringify(params))
+})
+$("#app_activate").click(function () {
+    var params = {
+        deviceId: deviceId,
+        bundleId: "com.netease.news"
+    };
+    socket.emit("app_activate", JSON.stringify(params))
+})
+$("#app_terminate").click(function () {
+    var params = {
+        deviceId: deviceId,
+        bundleId: "com.netease.news"
+    };
+    socket.emit("app_terminate", JSON.stringify(params))
 })
 
 </script>

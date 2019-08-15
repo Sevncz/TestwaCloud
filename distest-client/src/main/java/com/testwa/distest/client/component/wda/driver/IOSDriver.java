@@ -9,15 +9,13 @@ import com.testwa.distest.client.component.wda.remote.WDACommandExecutor;
 import com.testwa.distest.client.component.wda.remote.WebDriverAgentRunner;
 import com.testwa.distest.client.component.wda.support.IOSDeploy;
 import com.testwa.distest.client.component.wda.support.ResponseValueConverter;
-import com.testwa.distest.client.device.driver.TouchMultiPerformAction;
+import com.testwa.distest.client.device.driver.TouchPerformAction;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import java.awt.*;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -161,9 +159,9 @@ public class IOSDriver implements Driver {
     }
 
     @Override
-    public void touchMultiPerform(List<TouchMultiPerformAction> actions) {
+    public void touchMultiPerform(List<TouchPerformAction> actions) {
         double scale = Double.parseDouble(capabilities.getCapability(DriverCapabilities.Key.SCALE));
-        List<TouchMultiPerformAction>  actionScale = actions.stream().map(a -> {
+        List<TouchPerformAction>  actionScale = actions.stream().map(a -> {
             double x1 = a.getOptions().getX() * scale;
             double y1 = a.getOptions().getY() * scale;
             a.getOptions().setX((int) x1);
@@ -175,6 +173,32 @@ public class IOSDriver implements Driver {
         Map<String, Object> parameters = ImmutableMap.of("actions", actionScale);
 
         execute(WDACommand.MULTI_PERFORM, new EnumMap<>(WDACommand.Wildcard.class), parameters);
+
+    }
+
+    @Override
+    public void touchPerform(List<TouchPerformAction> actions) {
+        double scale = Double.parseDouble(capabilities.getCapability(DriverCapabilities.Key.SCALE));
+        List<TouchPerformAction>  actionScale = actions.stream().map(a -> {
+            if(a.getOptions() == null) {
+                return a;
+            }
+            if(a.getOptions().getX() != null) {
+                double x1 = a.getOptions().getX() * scale;
+                a.getOptions().setX((int) x1);
+            }
+            if(a.getOptions().getY() != null) {
+                double y1 = a.getOptions().getY() * scale;
+                a.getOptions().setY((int) y1);
+            }
+
+            return a;
+        }).collect(Collectors.toList());
+
+
+        Map<String, Object> parameters = ImmutableMap.of("actions", actionScale);
+
+        execute(WDACommand.PERFORM_TOUCH, new EnumMap<>(WDACommand.Wildcard.class), parameters);
 
     }
 
@@ -199,6 +223,16 @@ public class IOSDriver implements Driver {
             return null;
         }
         return outputType.convertFromBase64Png(value);
+    }
+
+    public Integer getAppState(String bundleId) {
+        Map<String, Object> parameters = ImmutableMap.of("bundleId", bundleId);
+        RemoteResponse response = execute(WDACommand.APP_STATE, new EnumMap<>(WDACommand.Wildcard.class), parameters);
+        Integer state = 0;
+        if(response.getValue() != null) {
+            state = (Integer) response.getValue();
+        }
+        return state;
     }
 
     @Override

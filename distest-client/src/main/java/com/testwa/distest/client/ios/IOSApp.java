@@ -9,4 +9,5 @@ public class IOSApp {
     private String bundleId;
     private String appName;
     private String appVersion;
+    private Integer state;
 }

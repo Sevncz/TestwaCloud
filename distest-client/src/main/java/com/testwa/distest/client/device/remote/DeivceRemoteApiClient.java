@@ -264,6 +264,7 @@ public class DeivceRemoteApiClient {
                 .setAppName(app.getAppName())
                 .setAppVersion(app.getAppVersion())
                 .setBundleId(app.getBundleId())
+                .setState(app.getState())
                 .build()).collect(Collectors.toList());
 
         AppListEvent event = AppListEvent.newBuilder()

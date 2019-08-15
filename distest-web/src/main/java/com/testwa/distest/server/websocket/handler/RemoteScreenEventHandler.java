@@ -83,6 +83,8 @@ public class RemoteScreenEventHandler {
     private final static String RESTART_AGENT_APK = "restart_agent_apk";
 
     private final static String APP_LIST = "app_list";
+    private final static String APP_ACTIVATE = "app_activate";
+    private final static String APP_TERMINATE = "app_terminate";
     private final static String UNINSTALL = "uninstall";
     private final static String PRESS_KEY = "press_key";
     private final static String BROWSER_APP_LIST = "browser_app";
@@ -458,6 +460,40 @@ public class RemoteScreenEventHandler {
         StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
         if (observer != null) {
             Message message = Message.newBuilder().setTopicName(Message.Topic.APP_LIST).setStatus(STATUS_OK).build();
+            observer.onNext(message);
+        } else {
+            client.sendEvent("error", "设备还未准备好");
+        }
+    }
+
+    @OnEvent(value = APP_ACTIVATE)
+    private void onAppActivate(SocketIOClient client, String data, AckRequest ackRequest) {
+        Map params = JSON.parseObject(data, Map.class);
+        String deviceId = (String) params.get("deviceId");
+        if (isIllegalDeviceId(client, deviceId)) {
+            return;
+        }
+        String bundleId = (String) params.get("bundleId");
+        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
+        if (observer != null) {
+            Message message = Message.newBuilder().setTopicName(Message.Topic.APP_ACTIVATE).setMessage(ByteString.copyFrom(bundleId.getBytes())).setStatus(STATUS_OK).build();
+            observer.onNext(message);
+        } else {
+            client.sendEvent("error", "设备还未准备好");
+        }
+    }
+
+    @OnEvent(value = APP_TERMINATE)
+    private void onAppTerminate(SocketIOClient client, String data, AckRequest ackRequest) {
+        Map params = JSON.parseObject(data, Map.class);
+        String deviceId = (String) params.get("deviceId");
+        if (isIllegalDeviceId(client, deviceId)) {
+            return;
+        }
+        String bundleId = (String) params.get("bundleId");
+        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
+        if (observer != null) {
+            Message message = Message.newBuilder().setTopicName(Message.Topic.APP_TERMINATE).setMessage(ByteString.copyFrom(bundleId.getBytes())).setStatus(STATUS_OK).build();
             observer.onNext(message);
         } else {
             client.sendEvent("error", "设备还未准备好");

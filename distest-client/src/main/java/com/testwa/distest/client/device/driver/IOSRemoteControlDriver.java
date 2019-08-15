@@ -44,6 +44,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * iOS设备驱动
@@ -284,10 +285,10 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
         }
     }
 
-    public void touchMultiPerform(String cmd) {
+    public void touchPerform(String cmd) {
         if(this.iosDriver != null) {
-            List<TouchMultiPerformAction> actions = JSON.parseArray(cmd, TouchMultiPerformAction.class);
-            this.iosDriver.touchMultiPerform(actions);
+            List<TouchPerformAction> actions = JSON.parseArray(cmd, TouchPerformAction.class);
+            this.iosDriver.touchPerform(actions);
         }
     }
 
@@ -363,7 +364,29 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
     @Override
     public void apps() {
         List<IOSApp> apps = IOSDeviceUtil.getApps(this.udid);
-        api.handleEventAppList(this.udid, apps);
+        // 获取启动状态
+        List<IOSApp> appsStateList =  apps.stream().peek(app -> {
+            if(this.iosDriver != null) {
+                Integer state = this.iosDriver.getAppState(app.getBundleId());
+                app.setState(state);
+            }
+        }).sorted((o1, o2) -> o2.getState().compareTo(o1.getState())).collect(Collectors.toList());
+        api.handleEventAppList(this.udid, appsStateList);
+    }
+
+    @Override
+    public void appTerminate(String cmd) {
+        if(this.iosDriver != null) {
+            this.iosDriver.terminate(cmd);
+        }
+    }
+
+    @Override
+    public void appActivate(String cmd) {
+        if(this.iosDriver != null) {
+            this.iosDriver.activate(cmd);
+        }
+
     }
 
     @Override
@@ -463,7 +486,7 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
                 break;
             case IOS_TOUCH_MULTI_PERFORM:
                 String cmd = message.getMessage().toStringUtf8();
-                touchMultiPerform(cmd);
+                touchPerform(cmd);
                 break;
             default:
                 IRemoteCommandCallBack call;
