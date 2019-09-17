@@ -111,8 +111,10 @@ public class IOSScreenServer2 extends Thread implements Closeable, ScreenSubject
         while (isRunning.get()) {
             try {
                 urlStream = urlConn.getInputStream();
+                Long start = System.currentTimeMillis();
                 byte[] imageBytes = retrieveNextImage();
-                log.debug("[{}] Get one frame {}", udid, imageBytes.length);
+                Long end = System.currentTimeMillis();
+                log.debug("[{}] Get one frame {} {}", udid, imageBytes.length, end-start);
 //                notifyObservers(imageBytes);
 //                try {
 //                    if(urlStream != null) {
