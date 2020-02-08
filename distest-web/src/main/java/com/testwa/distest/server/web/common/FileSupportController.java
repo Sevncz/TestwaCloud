@@ -32,11 +32,6 @@ public class FileSupportController {
     @Autowired
     private FdfsStorageService fdfsStorageService;
 
-    @Value("${fdfs.host}")
-    private String host;
-    @Value("${fdfs.port}")
-    private Integer port;
-
     @PostMapping("/single")
     @ApiOperation(value = "上传一个文件", notes = "上传一个文件", httpMethod = "POST")
     public String singleFile(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws BusinessException {
@@ -68,15 +63,6 @@ public class FileSupportController {
     public Boolean deleteFile(@RequestParam("path") String path) {
         Boolean success = fdfsStorageService.deleteFile(path);
         return success;
-    }
-
-    @GetMapping("/server-info")
-    @ApiOperation(value = "文件服务器地址信息", notes = "文件服务器地址信息", httpMethod = "GET")
-    public Map<String, Object> serverInfo() {
-        Map<String, Object> serverInfo = new HashMap<>();
-        serverInfo.put("host", host);
-        serverInfo.put("port", port);
-        return serverInfo;
     }
 
     @PostMapping("/multi")
