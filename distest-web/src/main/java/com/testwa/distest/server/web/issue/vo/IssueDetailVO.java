@@ -24,6 +24,8 @@ public class IssueDetailVO {
     private String title;
     // 内容
     private String content;
+    // 内容
+    private String[] issueAttachments;
     // 状态
     private DB.IssueStateEnum state;
     // 优先级

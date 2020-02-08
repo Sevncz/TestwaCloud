@@ -27,14 +27,8 @@ public class FdfsStorageService {
         return path;
     }
 
-    public Boolean deleteFile(String path){
-        try {
-            storageClient.deleteFile(GROUP, path.replace(GROUP + "/", ""));
-        }catch (FdfsServerException e) {
-            log.error("删除文件失败 {}", e.getMessage());
-            return false;
-        }
-        return true;
+    public void deleteFile(String path){
+        fastFileStorageClient.deleteFile(path);
     }
 
 }

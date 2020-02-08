@@ -58,11 +58,15 @@ public class FileSupportController {
         return path;
     }
 
-    @DeleteMapping("/single")
-    @ApiOperation(value = "删除一个已上传的文件", notes = "删除一个已上传的文件", httpMethod = "DELETE")
+    @PostMapping("/delete")
+    @ApiOperation(value = "删除一个已上传的文件", notes = "删除一个已上传的文件", httpMethod = "POST")
     public Boolean deleteFile(@RequestParam("path") String path) {
-        Boolean success = fdfsStorageService.deleteFile(path);
-        return success;
+        try {
+            fdfsStorageService.deleteFile(path);
+        }catch (Exception e) {
+            throw new BusinessException(ResultCode.NOT_FOUND, e.getMessage());
+        }
+        return true;
     }
 
     @PostMapping("/multi")

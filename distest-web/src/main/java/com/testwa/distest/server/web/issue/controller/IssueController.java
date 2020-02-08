@@ -22,6 +22,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.util.Strings;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -162,6 +163,9 @@ public class IssueController {
         BeanUtils.copyProperties(vo, detailVO);
         if(content != null) {
             detailVO.setContent(content.getContent());
+            if(StringUtils.isNotBlank(content.getIssueAttachments())) {
+                detailVO.setIssueAttachments(Strings.split(content.getIssueAttachments(), ','));
+            }
         }else{
             detailVO.setContent("");
         }

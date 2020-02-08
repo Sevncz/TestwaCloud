@@ -148,7 +148,7 @@ public class IssueMgr {
             Issue issue = issueService.save(projectId, form.getTitle(), form.getPriority(), DB.IssueStateEnum.OPEN, seq);
 
             // 保存 issue content
-            issueService.saveIssueContent(issue.getId(), form.getContent());
+            issueService.saveIssueContent(issue.getId(), form.getContent(), form.getAttachments());
 
             // 保存 assignee
             if(form.getAssigneeIds() != null && !form.getAssigneeIds().isEmpty()) {
