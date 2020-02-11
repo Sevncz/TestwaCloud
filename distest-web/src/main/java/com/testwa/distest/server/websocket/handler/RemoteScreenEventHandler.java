@@ -835,10 +835,12 @@ public class RemoteScreenEventHandler {
             client.sendEvent("error", tips);
             return;
         }
+        log.info("[{}] ready send {} to mobile", deviceId, content);
         StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
         if (observer != null) {
             Message message = Message.newBuilder().setTopicName(topic).setStatus(STATUS_OK).setMessage(ByteString.copyFromUtf8(content)).build();
             observer.onNext(message);
+            log.info("[{}] send {} OK", deviceId, content);
         } else {
             client.sendEvent("error", "设备还未准备好");
         }

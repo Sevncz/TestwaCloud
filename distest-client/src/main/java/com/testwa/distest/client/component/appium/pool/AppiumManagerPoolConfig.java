@@ -8,7 +8,7 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 public class AppiumManagerPoolConfig extends GenericObjectPoolConfig {
 
     public AppiumManagerPoolConfig() {
-        setMinIdle(5);
+        setMinIdle(2);
         setMaxIdle(10);
         setMaxTotal(20);
         setMaxWaitMillis(-1);

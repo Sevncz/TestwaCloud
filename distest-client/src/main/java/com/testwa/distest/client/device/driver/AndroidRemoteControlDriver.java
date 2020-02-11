@@ -361,7 +361,9 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
 
     @Override
     public void touch(String cmd) {
+        log.debug("[{}] minitouch touch {}", this.device.getSerial(), cmd);
         if (this.touchProjection != null && this.touchProjection.isRunning()) {
+            log.debug("[{}] minitouch send event", this.device.getSerial());
             this.touchProjection.sendEvent(cmd);
         }
     }
