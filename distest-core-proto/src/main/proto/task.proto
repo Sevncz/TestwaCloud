@@ -67,9 +67,10 @@ message StepRequest {
         start = 2;
         installApp = 3;
         launch = 4;
-        operation = 5;
+        runScript = 5;
         uninstallApp = 6;
         complete = 7;
+        scriptStep = 10;
         stop = 999;
     }
     string img = 1;

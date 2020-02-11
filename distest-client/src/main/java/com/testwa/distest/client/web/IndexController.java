@@ -74,7 +74,7 @@ public class IndexController {
             builder.setToken(UserInfo.token)
                     .setTaskCode(Long.parseLong(taskId))
                     .setDeviceId(appiumStepJson.getString("deviceId"))
-                    .setAction(StepRequest.StepAction.operation)
+                    .setAction(StepRequest.StepAction.scriptStep)
                     .setStatus(stepStatus)
                     .setRuntime(runtime)
                     .setValue(value)
