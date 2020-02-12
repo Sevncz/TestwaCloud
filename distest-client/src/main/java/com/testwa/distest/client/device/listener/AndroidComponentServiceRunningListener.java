@@ -35,6 +35,7 @@ public class AndroidComponentServiceRunningListener implements ScreenProjectionO
     // 帧率
     private int framerate = 20;
     private long latesenttime = 0;
+    private byte[] imageByte;
 
     /**
      * 在Android的ADB的情况下，我们是使用adb logcat -v brief -v threadtime
@@ -56,7 +57,7 @@ public class AndroidComponentServiceRunningListener implements ScreenProjectionO
 
     @Override
     public byte[] takeFrame() {
-        return new byte[0];
+        return this.imageByte;
     }
 
     @Override
@@ -82,6 +83,7 @@ public class AndroidComponentServiceRunningListener implements ScreenProjectionO
             this.latesenttime = System.currentTimeMillis();
             api.getScreenStub().onNext(api.getScreenCaptureRequest(image, this.deviceId));
         }
+        this.imageByte = image;
     }
 
     public void rate(Integer rate) {

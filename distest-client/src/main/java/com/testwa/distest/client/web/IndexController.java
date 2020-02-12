@@ -2,6 +2,8 @@ package com.testwa.distest.client.web;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.testwa.distest.client.component.executor.worker.FunctionalPythonExecutor;
+import com.testwa.distest.client.config.CacheProperty;
 import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.service.GrpcClientService;
 import io.rpc.testwa.task.StepRequest;
@@ -19,6 +21,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Map;
 
 /**
@@ -71,9 +75,10 @@ public class IndexController {
             }
             log.info(urlInfo);
             StepRequest.Builder builder = StepRequest.newBuilder();
+            String deviceId = appiumStepJson.getString("deviceId");
             builder.setToken(UserInfo.token)
                     .setTaskCode(Long.parseLong(taskId))
-                    .setDeviceId(appiumStepJson.getString("deviceId"))
+                    .setDeviceId(deviceId)
                     .setAction(StepRequest.StepAction.scriptStep)
                     .setStatus(stepStatus)
                     .setRuntime(runtime)
@@ -84,9 +89,20 @@ public class IndexController {
                     .setSessionId(sessionId);
 
             String screenPath = appiumStepJson.getString("screenshotPath");
-            if(StringUtils.isNotBlank(screenPath)) {
-                builder.setImg(screenPath);
-            }
+//            if(StringUtils.isNotBlank(screenPath)) {
+//                try {
+//                    Long fileSize = Files.size(Paths.get(screenPath));
+//                    log.info("[{}] 步骤截图路径:{} 文件大小: {}", appiumStepJson.getString("deviceId"), screenPath, fileSize);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+            log.info("[{}] appium 截图 {}", deviceId, screenPath);
+            FunctionalPythonExecutor executor = CacheProperty.getDeviceExcutorMap(deviceId);
+            screenPath = executor.screenshoot();
+            log.info("[{}] 截图 {}", deviceId, screenPath);
+            builder.setImg(screenPath);
+
             if(StringUtils.isNotBlank(action)) {
                 builder.setCommadAction(action);
             }
