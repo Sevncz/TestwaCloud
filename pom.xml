@@ -27,12 +27,12 @@
         <module>distest-client</module>
         <module>distest-web</module>
         <module>distest-data</module>
-        <module>distest-report</module>
         <module>distest-message</module>
         <module>distest-file</module>
-        <module>distest-task</module>
         <module>distest-client-2</module>
         <module>distest-jadb</module>
+        <module>distest-worker-core</module>
+        <module>distest-worker</module>
     </modules>
 
     <properties>
@@ -99,6 +99,11 @@
             <dependency>
                 <groupId>com.testwa</groupId>
                 <artifactId>distest-jadb</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.testwa</groupId>
+                <artifactId>distest-worker-core</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
 

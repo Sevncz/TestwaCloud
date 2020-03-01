@@ -1,0 +1,3 @@
+ allure generate .\report\raw\ -o .\report\html\ --clean
+
+ pytest .\testSeleniumChrome.py --alluredir .\report\raw\

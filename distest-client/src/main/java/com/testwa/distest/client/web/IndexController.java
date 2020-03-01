@@ -79,7 +79,7 @@ public class IndexController {
             builder.setToken(UserInfo.token)
                     .setTaskCode(Long.parseLong(taskId))
                     .setDeviceId(deviceId)
-                    .setAction(StepRequest.StepAction.scriptStep)
+                    .setAction(StepRequest.StepAction.operationStep)
                     .setStatus(stepStatus)
                     .setRuntime(runtime)
                     .setValue(value)

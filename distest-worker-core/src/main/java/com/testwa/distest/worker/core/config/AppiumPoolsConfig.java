@@ -1,7 +1,7 @@
-package com.testwa.distest.client.config;
+package com.testwa.distest.worker.core.config;
 
-import com.testwa.distest.client.component.appium.pool.CustomAppiumManagerPool;
-import com.testwa.distest.client.component.appium.pool.CustomAppiumManagerPoolConfig;
+import com.testwa.distest.worker.core.appium.pool.AppiumManagerPool;
+import com.testwa.distest.worker.core.appium.pool.AppiumManagerPoolConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -15,24 +15,24 @@ import javax.annotation.PreDestroy;
  */
 @Slf4j
 @Configuration
-public class CustomAppiumPoolsConfig {
-    private CustomAppiumManagerPool pool;
+public class AppiumPoolsConfig {
+    private AppiumManagerPool pool;
 
     @Autowired
     private Environment env;
 
-    @Bean("customAppiumManagerPool")
-    public CustomAppiumManagerPool appiumPool() {
+    @Bean("appiumManagerPool")
+    public AppiumManagerPool appiumPool(){
         String nodePath = env.getProperty("node.excute.path");
         String appiumPath = env.getProperty("appium.js.path");
 //        String agentWebUrl = env.getProperty("cloud.web.url");
         String port = env.getProperty("server.port");
         String contextPath = env.getProperty("server.context-path");
         String clientWebUrl = String.format("http://127.0.0.1:%s%s/client", port, contextPath);
-        CustomAppiumManagerPoolConfig poolConfig = new CustomAppiumManagerPoolConfig();
-        pool = new CustomAppiumManagerPool(nodePath, appiumPath, clientWebUrl, poolConfig);
-        initPool(1, poolConfig.getMaxIdle());
-        log.info("启动 CustomAppiumManagerPool");
+        AppiumManagerPoolConfig poolConfig = new AppiumManagerPoolConfig();
+        pool = new AppiumManagerPool(nodePath, appiumPath, clientWebUrl, poolConfig);
+        initPool(poolConfig.getMinIdle(), poolConfig.getMaxIdle());
+        log.info("启动 AppiumManagerPool");
         return pool;
     }
 
