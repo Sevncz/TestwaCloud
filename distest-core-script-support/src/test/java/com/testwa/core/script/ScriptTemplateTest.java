@@ -1,6 +1,5 @@
 package com.testwa.core.script;
 
-import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import org.junit.Test;
@@ -41,7 +40,7 @@ public class ScriptTemplateTest {
         model.put("platformVersion", "13.3");
         model.put("appPath", "/Users/wen/dev/TestApp.zip");
         model.put("port", "4723");
-        Template template = freeMarkerConfigurer.getConfiguration().getTemplate("test_base_template.ftl");
+        Template template = freeMarkerConfigurer.getConfiguration().getTemplate("test_py_template.ftl");
         String scriptContent = FreeMarkerTemplateUtils.processTemplateIntoString(template, model);
         System.out.println(scriptContent);
     }
@@ -61,7 +60,7 @@ public class ScriptTemplateTest {
         String xcodeOrgId = "xcodeOrgId";
         String appPath = "/Users/wen/dev/TestApp.zip";
         String port = "4723";
-        String scriptContent = scriptGenerator.toIOSScript(actionList, udid, xcodeOrgId, platformVersion, appPath, port);
+        String scriptContent = scriptGenerator.toIosPyScript(actionList, udid, xcodeOrgId, platformVersion, appPath, port);
         System.out.println(scriptContent);
     }
 

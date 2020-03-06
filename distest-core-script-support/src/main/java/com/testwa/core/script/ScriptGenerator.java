@@ -21,7 +21,7 @@ public class ScriptGenerator {
     @Autowired
     private FreeMarkerConfigurer freeMarkerConfigurer;
 
-    public String toIOSScript(List<Action> actions, String udid, String xcodeOrgId, String platformVersion, String app, String appiumPort) {
+    public String toIosPyScript(List<Action> actions, String udid, String xcodeOrgId, String platformVersion, String app, String appiumPort) {
         Map<String, Object> model = new HashMap<>();
         model.put("actions", actions);
         model.put("udid", udid);
@@ -39,8 +39,24 @@ public class ScriptGenerator {
         return null;
     }
 
+    public String toAndroidPyScript(List<Action> actions, String platformVersion, String app, String appiumPort) {
+        Map<String, Object> model = new HashMap<>();
+        model.put("actions", actions);
+        model.put("platformVersion", platformVersion);
+        model.put("appPath", app);
+        model.put("port", appiumPort);
+        model.put("type", "Android");
+        try {
+            Template template = getPyTemplate();
+            return FreeMarkerTemplateUtils.processTemplateIntoString(template, model);
+        } catch (IOException | TemplateException e) {
+            log.error("脚本生成失败", e);
+        }
+        return null;
+    }
+
     private Template getPyTemplate() throws IOException {
-        return freeMarkerConfigurer.getConfiguration().getTemplate("test_base_template.ftl");
+        return freeMarkerConfigurer.getConfiguration().getTemplate("test_py_template.ftl");
     }
 
 }
