@@ -26,13 +26,12 @@
         <module>distest-cloud-eureka</module>
         <module>distest-client</module>
         <module>distest-web</module>
-        <module>distest-data</module>
         <module>distest-message</module>
         <module>distest-file</module>
         <module>distest-client-2</module>
         <module>distest-jadb</module>
         <module>distest-worker-core</module>
-        <module>distest-worker</module>
+        <module>distest-core-script-support</module>
     </modules>
 
     <properties>
@@ -104,6 +103,11 @@
             <dependency>
                 <groupId>com.testwa</groupId>
                 <artifactId>distest-worker-core</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.testwa</groupId>
+                <artifactId>distest-core-script-support</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
 
@@ -192,10 +196,10 @@
                 <artifactId>netty-socketio</artifactId>
                 <version>${netty-socketio.version}</version>
                 <!--<exclusions>-->
-                    <!--<exclusion>-->
-                        <!--<groupId>io.netty</groupId>-->
-                        <!--<artifactId>*</artifactId>-->
-                    <!--</exclusion>-->
+                <!--<exclusion>-->
+                <!--<groupId>io.netty</groupId>-->
+                <!--<artifactId>*</artifactId>-->
+                <!--</exclusion>-->
                 <!--</exclusions>-->
             </dependency>
             <dependency>
@@ -242,15 +246,15 @@
                 <version>${grpc.version}</version>
             </dependency>
             <!--<dependency>-->
-                <!--<groupId>io.github.lognet</groupId>-->
-                <!--<artifactId>grpc-spring-boot-starter</artifactId>-->
-                <!--<version>${grpc-spring-boot-starter.version}</version>-->
-                <!--<exclusions>-->
-                    <!--<exclusion>-->
-                        <!--<groupId>org.springframework.boot</groupId>-->
-                        <!--<artifactId>spring-boot-starter</artifactId>-->
-                    <!--</exclusion>-->
-                <!--</exclusions>-->
+            <!--<groupId>io.github.lognet</groupId>-->
+            <!--<artifactId>grpc-spring-boot-starter</artifactId>-->
+            <!--<version>${grpc-spring-boot-starter.version}</version>-->
+            <!--<exclusions>-->
+            <!--<exclusion>-->
+            <!--<groupId>org.springframework.boot</groupId>-->
+            <!--<artifactId>spring-boot-starter</artifactId>-->
+            <!--</exclusion>-->
+            <!--</exclusions>-->
             <!--</dependency>-->
             <dependency>
                 <groupId>net.devh</groupId>
@@ -322,9 +326,9 @@
                 <version>${quartz.version}</version>
             </dependency>
             <!--<dependency>-->
-                <!--<groupId>com.novemberain</groupId>-->
-                <!--<artifactId>quartz-mongodb</artifactId>-->
-                <!--<version>${quartz-mongodb.version}</version>-->
+            <!--<groupId>com.novemberain</groupId>-->
+            <!--<artifactId>quartz-mongodb</artifactId>-->
+            <!--<version>${quartz-mongodb.version}</version>-->
             <!--</dependency>-->
 
 
@@ -381,9 +385,9 @@
             </dependency>
             <!-- DruidDataSource -->
             <!--<dependency>-->
-                <!--<groupId>com.alibaba</groupId>-->
-                <!--<artifactId>druid</artifactId>-->
-                <!--<version>${druid.version}</version>-->
+            <!--<groupId>com.alibaba</groupId>-->
+            <!--<artifactId>druid</artifactId>-->
+            <!--<version>${druid.version}</version>-->
             <!--</dependency>-->
 
             <dependency>
@@ -394,15 +398,15 @@
 
             <!-- mybatis start-->
             <!--<dependency>-->
-                <!--<groupId>org.mybatis</groupId>-->
-                <!--<artifactId>mybatis</artifactId>-->
-                <!--<version>${mybatis.version}</version>-->
+            <!--<groupId>org.mybatis</groupId>-->
+            <!--<artifactId>mybatis</artifactId>-->
+            <!--<version>${mybatis.version}</version>-->
             <!--</dependency>-->
 
             <!--<dependency>-->
-                <!--<groupId>org.mybatis</groupId>-->
-                <!--<artifactId>mybatis-spring</artifactId>-->
-                <!--<version>${mybatis.spring.version}</version>-->
+            <!--<groupId>org.mybatis</groupId>-->
+            <!--<artifactId>mybatis-spring</artifactId>-->
+            <!--<version>${mybatis.spring.version}</version>-->
             <!--</dependency>-->
             <dependency>
                 <groupId>org.mybatis.spring.boot</groupId>
@@ -415,6 +419,13 @@
                 <artifactId>pagehelper-spring-boot-starter</artifactId>
                 <version>${pagehelper-spring-boot-starter}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus</artifactId>
+                <version>3.3.1</version>
+            </dependency>
+
 
             <dependency>
                 <groupId>com.github.dreamroute</groupId>
@@ -489,6 +500,12 @@
                 <groupId>com.github.tobato</groupId>
                 <artifactId>fastdfs-client</artifactId>
                 <version>1.26.7</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-plugin-api</artifactId>
+                <version>2.13.2</version>
             </dependency>
 
         </dependencies>
