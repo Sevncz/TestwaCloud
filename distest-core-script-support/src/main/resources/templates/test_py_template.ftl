@@ -100,10 +100,12 @@ class TestIOSBasic():
         request.addfinalizer(fin)
         return driver
 
-<#list actions as action>
-    @allure.feature("${action.feature}") # 模块名称
-    @allure.title("${action.title}") # 用例标题
-    @allure.severity("${action.severity}")# 用例等级
-    def test_action_${action_index}(self, driver):
-        ${action.function}
+<#list functions as function>
+    @allure.feature("${function.feature}") # 模块名称
+    @allure.title("${function.title}") # 用例标题
+    @allure.severity("${function.severity}")# 用例等级
+    def test_action_${function_index}(self, driver):
+    <#list function.actions as action>
+        ${action}
+    </#list>
 </#list>

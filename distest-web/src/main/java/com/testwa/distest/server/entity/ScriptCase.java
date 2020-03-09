@@ -19,5 +19,15 @@ public class ScriptCase extends ProjectBase {
      */
     @Column(name = "script_case_id")
     private String scriptCaseId;
+    /**
+     * 脚本名称
+     */
+    @Column(name = "script_case_name")
+    private String scriptCaseName;
+    /**
+     * 脚本描述
+     */
+    @Column(name = "script_case_desc")
+    private String scriptCaseDesc;
 
 }

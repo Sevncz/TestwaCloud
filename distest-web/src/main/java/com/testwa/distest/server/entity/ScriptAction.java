@@ -22,7 +22,12 @@ public class ScriptAction extends ProjectBase {
      * 脚本案例ID
      */
     @Column(name = "script_case_id")
-    private Long scriptCaseId;
+    private String scriptCaseId;
+    /**
+     * 脚本方法ID
+     */
+    @Column(name = "script_function_id")
+    private Long scriptFunctionId;
     /**
      * 方法uuid
      */
@@ -38,5 +43,10 @@ public class ScriptAction extends ProjectBase {
      */
     @Column(name = "parameter")
     private String parameter;
+    /**
+     * 方法顺序
+     */
+    @Column(name = "seq")
+    private Integer seq;
 
 }

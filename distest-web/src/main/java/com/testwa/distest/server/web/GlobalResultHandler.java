@@ -1,5 +1,6 @@
 package com.testwa.distest.server.web;
 
+import com.alibaba.fastjson.JSON;
 import com.testwa.core.base.vo.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
@@ -20,8 +21,11 @@ public class GlobalResultHandler implements ResponseBodyAdvice {
 
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
-        if (body instanceof Result || body instanceof String) {
+        if (body instanceof Result) {
             return body;
+        }
+        if (body instanceof String) {
+            return JSON.toJSONString(Result.success(body));
         }
         return Result.success(body);
     }

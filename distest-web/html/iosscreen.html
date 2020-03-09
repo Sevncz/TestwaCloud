@@ -400,7 +400,7 @@ $("#screenshot").click(function () {
 $("#multi_click").click(function () {
     var cmd = [
         {
-            "action":"press",
+            "function":"press",
             "options":{
                 "x":245,
                 "y":526,
@@ -408,21 +408,21 @@ $("#multi_click").click(function () {
             }
         },
         {
-            "action":"moveTo",
+            "function":"moveTo",
             "options":{
                 "x":532,
                 "y":581
             }
         },
         {
-            "action":"moveTo",
+            "function":"moveTo",
             "options":{
                 "x":368,
                 "y":928
             }
         },
         {
-            "action":"release"
+            "function":"release"
         }];
     var params = {
         deviceId: deviceId,

@@ -80,7 +80,7 @@ message StepRequest {
     string deviceId = 5;
     StepStatus status = 6;
     int64 runtime = 7;
-    StepAction action = 8;
+    StepAction function = 8;
     string errormsg = 9;
 
     int64 timestamp = 10;
@@ -193,7 +193,7 @@ message CrawlerConfigRequest {
 }
 
 message TriggerActionRequest {
-    string action = 1;
+    string function = 1;
     string xpath = 2;
     int32 times = 3;
 }

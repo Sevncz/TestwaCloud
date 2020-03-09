@@ -1,6 +1,6 @@
 package com.testwa.distest.server.script;
 
-import com.testwa.core.script.Action;
+import com.testwa.core.script.Function;
 import com.testwa.core.script.ScriptGenerator;
 import com.testwa.distest.DistestWebApplication;
 import freemarker.template.Template;
@@ -31,15 +31,18 @@ public class ScriptTemplateTest {
 
     @Test
     public void iosTemplateFreemarkTest() throws IOException, TemplateException {
-        List<Action> actionList = new ArrayList<>();
-        Action action = new Action();
-        action.setFeature("模版测试");
-        action.setFunction("driver.find_element_by_accessibility_id('show alert').click()");
-        action.setSeverity("trivial");
-        action.setTitle("模版测试弹框");
-        actionList.add(action);
+        List<Function> functionList = new ArrayList<>();
+        Function function = new Function();
+        function.setFeature("模版测试");
+        List<String> actions = new ArrayList<>();
+        actions.add("el = driver.find_element_by_accessibility_id('show alert')");
+        actions.add("el.click()");
+        function.setActions(actions);
+        function.setSeverity("trivial");
+        function.setTitle("模版测试弹框");
+        functionList.add(function);
         Map<String, Object> model = new HashMap<>();
-        model.put("actions", actionList);
+        model.put("actions", functionList);
         model.put("udid", "5a94a4eefd68f77083a73e4ca73079ce0eebdcf7");
         model.put("xcodeOrgId", "xcodeOrgId");
         model.put("platformVersion", "13.3");
@@ -52,20 +55,23 @@ public class ScriptTemplateTest {
 
     @Test
     public void iosTemplateTest() {
-        List<Action> actionList = new ArrayList<>();
-        Action action = new Action();
-        action.setFeature("模版测试");
-        action.setFunction("driver.find_element_by_accessibility_id('show alert').click()");
-        action.setSeverity("trivial");
-        action.setTitle("模版测试弹框");
-        actionList.add(action);
+        List<Function> functionList = new ArrayList<>();
+        Function function = new Function();
+        function.setFeature("模版测试");
+        List<String> actions = new ArrayList<>();
+        actions.add("el = driver.find_element_by_accessibility_id('show alert')");
+        actions.add("el.click()");
+        function.setActions(actions);
+        function.setSeverity("trivial");
+        function.setTitle("模版测试弹框");
+        functionList.add(function);
 
         String udid = "5a94a4eefd68f77083a73e4ca73079ce0eebdcf7";
         String platformVersion = "13.3";
         String xcodeOrgId = "xcodeOrgId";
         String appPath = "/Users/wen/dev/TestApp.zip";
         String port = "4723";
-        String scriptContent = scriptGenerator.toIosPyScript(actionList, udid, xcodeOrgId, platformVersion, appPath, port);
+        String scriptContent = scriptGenerator.toIosPyScript(functionList, udid, xcodeOrgId, platformVersion, appPath, port);
         System.out.println(scriptContent);
     }
 

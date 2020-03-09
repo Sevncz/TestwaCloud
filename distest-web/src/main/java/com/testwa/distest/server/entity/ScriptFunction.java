@@ -20,7 +20,7 @@ public class ScriptFunction extends ProjectBase {
      * 脚本案例ID
      */
     @Column(name = "script_case_id")
-    private Long scriptCaseId;
+    private String scriptCaseId;
     /**
      * 方法uuid
      */

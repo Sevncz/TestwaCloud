@@ -1,6 +1,5 @@
 package com.testwa.core.script;
 
-import freemarker.cache.StringTemplateLoader;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import lombok.extern.slf4j.Slf4j;
@@ -21,9 +20,9 @@ public class ScriptGenerator {
     @Autowired
     private FreeMarkerConfigurer freeMarkerConfigurer;
 
-    public String toIosPyScript(List<Action> actions, String udid, String xcodeOrgId, String platformVersion, String app, String appiumPort) {
+    public String toIosPyScript(List<Function> functions, String udid, String xcodeOrgId, String platformVersion, String app, String appiumPort) {
         Map<String, Object> model = new HashMap<>();
-        model.put("actions", actions);
+        model.put("functions", functions);
         model.put("udid", udid);
         model.put("xcodeOrgId", xcodeOrgId);
         model.put("platformVersion", platformVersion);
@@ -39,9 +38,9 @@ public class ScriptGenerator {
         return null;
     }
 
-    public String toAndroidPyScript(List<Action> actions, String platformVersion, String app, String appiumPort) {
+    public String toAndroidPyScript(List<Function> functions, String platformVersion, String app, String appiumPort) {
         Map<String, Object> model = new HashMap<>();
-        model.put("actions", actions);
+        model.put("actions", functions);
         model.put("platformVersion", platformVersion);
         model.put("appPath", app);
         model.put("port", appiumPort);

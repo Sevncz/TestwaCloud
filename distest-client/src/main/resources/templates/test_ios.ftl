@@ -95,10 +95,10 @@ class TestIOSBasicInteractions():
         request.addfinalizer(fin)
         return driver
 
-    <#list actions as action>
-    @allure.feature(${action.feature}) # 模块名称
-    @allure.title(${action.title})
-    @allure.severity(${action.severity})# 用例等级
+    <#list functions as function>
+    @allure.feature(${function.feature}) # 模块名称
+    @allure.title(${function.title})
+    @allure.severity(${function.severity})# 用例等级
     def test_should_send_keys_to_inputs(self, driver):
         text_field_el = driver.find_element_by_id('TextField1')
         text_field_el.send_keys('Hello World!')
