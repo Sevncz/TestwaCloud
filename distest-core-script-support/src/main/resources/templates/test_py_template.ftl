@@ -101,9 +101,15 @@ class TestIOSBasic():
         return driver
 
 <#list functions as function>
+    <#if function.feature??>
     @allure.feature("${function.feature}") # 模块名称
+    </#if>
+    <#if function.title??>
     @allure.title("${function.title}") # 用例标题
+    </#if>
+    <#if function.severity??>
     @allure.severity("${function.severity}")# 用例等级
+    </#if>
     def test_action_${function_index}(self, driver):
     <#list function.actions as action>
         ${action}

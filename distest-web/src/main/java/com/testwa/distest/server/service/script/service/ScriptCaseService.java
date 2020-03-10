@@ -2,12 +2,14 @@ package com.testwa.distest.server.service.script.service;
 
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.testwa.core.base.constant.ResultCode;
 import com.testwa.core.base.service.BaseService;
 import com.testwa.core.base.util.VoUtil;
 import com.testwa.core.tools.SnowflakeIdWorker;
 import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.exception.BusinessException;
+import com.testwa.distest.server.condition.IssueCondition;
 import com.testwa.distest.server.condition.ScriptCondition;
 import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.mapper.ScriptActionMapper;
@@ -49,7 +51,7 @@ public class ScriptCaseService extends BaseService<ScriptCase, Long> {
     private SnowflakeIdWorker commonIdWorker;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void saveCase(Project project, ScriptCaseSaveForm form) {
+    public ScriptCase saveCase(Project project, ScriptCaseSaveForm form) {
         List<ScriptFunctionSaveForm> scriptFunctionSaveForms = form.getScriptFunctions();
         ScriptCase scriptCase = new ScriptCase();
         scriptCase.setScriptCaseName(form.getScriptName());
@@ -77,7 +79,7 @@ public class ScriptCaseService extends BaseService<ScriptCase, Long> {
             scriptAction.setAction(f.getAction());
             scriptAction.setFunctionId(f.getFunctionId());
             scriptAction.setParameter(JSON.toJSONString(f.getParameter()));
-            scriptAction.setSeq(f.getSeq());
+            scriptAction.setSeq(scriptFunctionSaveForms.indexOf(f));
 
             ScriptFunction function = functionMap.get(f.getFunctionId());
             scriptAction.setScriptCaseId(scriptCase.getScriptCaseId());
@@ -89,7 +91,7 @@ public class ScriptCaseService extends BaseService<ScriptCase, Long> {
 
             scriptActionService.insert(scriptAction);
         });
-
+        return scriptCase;
     }
 
     public List<ScriptCase> list(Long projectId, ScriptCaseListForm queryForm) {
@@ -121,5 +123,19 @@ public class ScriptCaseService extends BaseService<ScriptCase, Long> {
             f.setActions(actionVOS);
         });
         return vo;
+    }
+
+    public PageInfo<ScriptCase> page(Long projectId, ScriptCaseListForm pageForm) {
+        ScriptCase query = new ScriptCase();
+        query.setProjectId(projectId);
+        if(StringUtils.isNotBlank(pageForm.getScriptName())) {
+            query.setScriptCaseName(pageForm.getScriptName());
+        }
+        PageInfo<ScriptCase> page = new PageInfo<>();
+        //分页处理
+        page = PageHelper.startPage(pageForm.getPageNo(), pageForm.getPageSize())
+                .setOrderBy(pageForm.getOrderBy() + " " + pageForm.getOrder())
+                .doSelectPageInfo(()-> scriptCaseMapper.selectByCondition(query));
+        return page;
     }
 }

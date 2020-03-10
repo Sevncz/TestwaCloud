@@ -15,12 +15,12 @@ import lombok.ToString;
 @ToString
 @Table(name = "dis_script_metadata")
 public class ScriptMetadata extends BaseEntity {
-    @Column(name = "strategy")
-    private String strategy;
     @Column(name = "language")
     private DB.ScriptLN language;
-    @Column(name = "strategy_name")
-    private String strategyName;
+    @Column(name = "strategy_key")
+    private String strategyKey;
+    @Column(name = "strategy_value")
+    private String strategyValue;
     @Column(name = "strategy_desc")
     private String strategyDesc;
 }

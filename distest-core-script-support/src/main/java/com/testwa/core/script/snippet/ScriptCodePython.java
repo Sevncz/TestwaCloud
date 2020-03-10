@@ -14,9 +14,9 @@ public class ScriptCodePython implements ScriptCode {
         }
         String strategyContent = suffixMap.get(strategy);
         if (isArray) {
-            return String.format("%s = driver.find_elements_by_%s(%s)", localVar, strategyContent, locator);
+            return String.format("%s = driver.find_elements_by_%s('%s')", localVar, strategyContent, locator);
         }
-        return String.format("%s = driver.find_element_by_%s(%s)", localVar, strategyContent, locator);
+        return String.format("%s = driver.find_element_by_%s('%s')", localVar, strategyContent, locator);
     }
 
     @Override
@@ -31,7 +31,7 @@ public class ScriptCodePython implements ScriptCode {
 
     @Override
     public String codeFor_sendKeys(String varName, String text) {
-        return String.format("%s.send_keys(%s)", varName, text);
+        return String.format("%s.send_keys('%s')", varName, text);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class ScriptCodePython implements ScriptCode {
 
     @Override
     public String codeFor_isAppInstalledOnDevice(String varName, String app) {
-        return String.format("is_app_installed = driver.isAppInstalled(\"%s\")", app);
+        return String.format("is_app_installed = driver.isAppInstalled('%s')", app);
     }
 
     @Override
@@ -80,7 +80,7 @@ public class ScriptCodePython implements ScriptCode {
 
     @Override
     public String codeFor_backgroundApp(String varName, String timeout) {
-        return String.format("driver.background_app(%s)", timeout);
+        return String.format("driver.background_app('%s')", timeout);
     }
 
     @Override
@@ -300,7 +300,7 @@ public class ScriptCodePython implements ScriptCode {
 
     @Override
     public String codeFor_updateSettings(String varName, String settingsJson) {
-        return String.format("driver.update_settings(%s))", settingsJson);
+        return String.format("driver.update_settings('%s'))", settingsJson);
     }
 
     @Override

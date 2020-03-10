@@ -2,6 +2,7 @@ package com.testwa.core.script;
 
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -44,4 +45,10 @@ public class Function {
      */
     private String valueJson;
 
+    public void addCode(String codeStr) {
+        if(this.actions == null) {
+            this.actions = new ArrayList<>();
+        }
+        this.actions.add(codeStr);
+    }
 }

@@ -29,5 +29,10 @@ public class ScriptCase extends ProjectBase {
      */
     @Column(name = "script_case_desc")
     private String scriptCaseDesc;
+    /**
+     * 脚本描述
+     */
+    @Column(name = "app_base_package")
+    private String appBasePackage;
 
 }

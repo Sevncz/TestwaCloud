@@ -80,7 +80,7 @@ message StepRequest {
     string deviceId = 5;
     StepStatus status = 6;
     int64 runtime = 7;
-    StepAction function = 8;
+    StepAction action = 8;
     string errormsg = 9;
 
     int64 timestamp = 10;
