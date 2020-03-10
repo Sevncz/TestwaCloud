@@ -62,7 +62,10 @@
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-eureka</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>com.testwa</groupId>
+			<artifactId>distest-core-script-support</artifactId>
+		</dependency>
 		<!-- junit test -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

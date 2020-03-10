@@ -1,6 +1,5 @@
 package com.testwa.distest.client.config;
 
-import com.testwa.distest.client.component.appium.pool.AppiumManagerPool;
 import com.testwa.distest.client.component.appium.pool.CustomAppiumManagerPool;
 import com.testwa.distest.client.component.appium.pool.CustomAppiumManagerPoolConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +22,7 @@ public class CustomAppiumPoolsConfig {
     private Environment env;
 
     @Bean("customAppiumManagerPool")
-    public CustomAppiumManagerPool appiumPool(){
+    public CustomAppiumManagerPool appiumPool() {
         String nodePath = env.getProperty("node.excute.path");
         String appiumPath = env.getProperty("appium.js.path");
 //        String agentWebUrl = env.getProperty("cloud.web.url");

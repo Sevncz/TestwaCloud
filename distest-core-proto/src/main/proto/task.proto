@@ -193,7 +193,7 @@ message CrawlerConfigRequest {
 }
 
 message TriggerActionRequest {
-    string action = 1;
+    string function = 1;
     string xpath = 2;
     int32 times = 3;
 }

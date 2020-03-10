@@ -644,6 +644,4 @@ public final class DB {
             return issueAssignRoleEnum;
         }
     }
-
-
 }
