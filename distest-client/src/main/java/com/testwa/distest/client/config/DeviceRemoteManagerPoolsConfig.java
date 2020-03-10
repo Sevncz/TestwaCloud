@@ -23,6 +23,7 @@ public class DeviceRemoteManagerPoolsConfig {
     @Bean("deviceManagerPool")
     public DeviceManagerPool deviceManagerPool(){
         DeviceManagerPoolConfig poolConfig = new DeviceManagerPoolConfig();
+        CacheProperty.setResourcePath(resourcePath);
         return new DeviceManagerPool(grpcHost, grpcPort, resourcePath, poolConfig);
     }
 }

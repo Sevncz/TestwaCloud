@@ -61,7 +61,7 @@ public class JobService {
             resultVO = new PageResult<JobInfoVO>(list.stream().skip((page > 1 ? page - 1 : 0) * size).limit(size).collect(Collectors.toList()), list.size());
 
         } catch (SchedulerException e) {
-            log.error("分页查询定时任务失败，page=%s,size=%s,e=%s", page, size, e);
+            log.error("分页查询定时任务失败，page={},size={},e={}", page, size, e);
         }
 
         return resultVO;
@@ -164,10 +164,10 @@ public class JobService {
         }
         String createTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         try {
-            log.info("添加jobName=%s,jobGroup=%s,cronExpression=%s,jobDescription=%s", jobName, jobGroup, cronExpression, jobDescription);
+            log.info("添加jobName={},jobGroup={},cronExpression={},jobDescription={}", jobName, jobGroup, cronExpression, jobDescription);
 
             if (checkExists(jobName, jobGroup)) {
-                log.error("Job已经存在, jobName=%s,jobGroup=%s", jobName, jobGroup);
+                log.error("Job已经存在, jobName={},jobGroup={}", jobName, jobGroup);
                 throw new JobException(ResultCode.ILLEGAL_OP, String.format("Job已经存在, jobName=%s,jobGroup=%s", jobName, jobGroup));
             }
 
@@ -183,7 +183,7 @@ public class JobService {
             jobDetail.getJobDataMap().put("params", params);
             scheduler.scheduleJob(jobDetail, trigger);
         } catch (SchedulerException | ClassNotFoundException e) {
-            log.error("添加job失败, jobName=%s,jobGroup=%s,e=%s", jobName, jobGroup, e);
+            log.error("添加job失败, jobName={},jobGroup={},e={}", jobName, jobGroup, e);
             throw new JobException(ResultCode.ILLEGAL_PARAM, "类名不存在或执行表达式错误");
         }
     }
@@ -202,7 +202,7 @@ public class JobService {
         }
         String createTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         try {
-            log.info("添加jobName=%s,jobGroup=%s,jobDescription=%s", jobName, jobGroup, jobDescription);
+            log.info("添加jobName={},jobGroup={},jobDescription={}", jobName, jobGroup, jobDescription);
 
             if (checkExists(jobName, jobGroup)) {
                 JobKey jobKey = JobKey.jobKey(jobName, jobGroup);
@@ -214,7 +214,7 @@ public class JobService {
             }
 
         } catch (SchedulerException e) {
-            log.error("执行job失败, jobName=%s,jobGroup=%s,e=%s", jobName, jobGroup, e);
+            log.error("执行job失败, jobName={},jobGroup={},e={}", jobName, jobGroup, e);
             throw new JobException(ResultCode.ILLEGAL_PARAM, "类名不存在或执行表达式错误");
         }
     }
@@ -235,9 +235,9 @@ public class JobService {
         String createTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 
         try {
-            log.info("修改jobName=%s,jobGroup=%s,cronExpression=%s,jobDescription=%s", jobName, jobGroup, cronExpression, jobDescription);
+            log.info("修改jobName={},jobGroup={},cronExpression={},jobDescription={}", jobName, jobGroup, cronExpression, jobDescription);
             if (!checkExists(jobName, jobGroup)) {
-                log.error("Job不存在, jobName=%s,jobGroup=%s", jobName, jobGroup);
+                log.error("Job不存在, jobName={},jobGroup={}", jobName, jobGroup);
                 throw new JobException(ResultCode.ILLEGAL_PARAM, String.format("Job不存在, jobName=%s,jobGroup=%s", jobName, jobGroup));
             }
             TriggerKey triggerKey = TriggerKey.triggerKey(jobName, jobGroup);
@@ -252,7 +252,7 @@ public class JobService {
 
             scheduler.scheduleJob(jobDetail, triggerSet, true);
         } catch (SchedulerException e) {
-            log.error("修改job失败, jobName=%s,jobGroup=%s,e=%s", jobName, jobGroup, e);
+            log.error("修改job失败, jobName={}, jobGroup={},e={}", jobName, jobGroup, e);
             throw new JobException(ResultCode.ILLEGAL_OP, "类名不存在或执行表达式错误");
         }
     }
@@ -265,14 +265,14 @@ public class JobService {
      */
     public void unschedule(String jobName, String jobGroup) throws JobException {
         try {
-            log.info("删除jobName=%s,jobGroup=%s", jobName, jobGroup);
+            log.info("删除jobName={},jobGroup={}", jobName, jobGroup);
             TriggerKey triggerKey = TriggerKey.triggerKey(jobName, jobGroup);
             if (checkExists(jobName, jobGroup)) {
                 scheduler.pauseTrigger(triggerKey);
                 scheduler.unscheduleJob(triggerKey);
             }
         } catch (SchedulerException e) {
-            log.error("删除job失败, jobName=%s,jobGroup=%s,e=%s", jobName, jobGroup, e);
+            log.error("删除job失败, jobName={},jobGroup={},e={}", jobName, jobGroup, e);
             throw new JobException(ResultCode.ILLEGAL_OP, e.getMessage());
         }
     }
@@ -286,11 +286,11 @@ public class JobService {
      */
     public void delete(String jobName, String jobGroup) throws JobException {
         try {
-            log.info("删除jobName=%s,jobGroup=%s", jobName, jobGroup);
+            log.info("删除jobName={}},jobGroup={}", jobName, jobGroup);
             JobKey jobKey = new JobKey(jobName, jobGroup);
             scheduler.deleteJob(jobKey);
         } catch (SchedulerException e) {
-            log.error("删除job失败, jobName=%s,jobGroup=%s,e=%s", jobName, jobGroup, e);
+            log.error("删除job失败, jobName={},jobGroup={},e={}", jobName, jobGroup, e);
             throw new JobException(ResultCode.ILLEGAL_OP, e.getMessage());
         }
     }
@@ -303,15 +303,15 @@ public class JobService {
      */
     public void pause(String jobName, String jobGroup) throws JobException {
         try {
-            log.info("暂停jobName=%s,jobGroup=%s", jobName, jobGroup);
+            log.info("暂停jobName={},jobGroup={}", jobName, jobGroup);
             TriggerKey triggerKey = TriggerKey.triggerKey(jobName, jobGroup);
             if (!checkExists(jobName, jobGroup)) {
-                log.error("Job不存在, jobName=%s,jobGroup=%s", jobName, jobGroup);
-                throw new JobException(ResultCode.ILLEGAL_PARAM, String.format("Job不存在, jobName=%s,jobGroup=%s", jobName, jobGroup));
+                log.error("Job不存在, jobName={},jobGroup={}", jobName, jobGroup);
+                throw new JobException(ResultCode.ILLEGAL_PARAM, String.format("Job不存在, jobName={},jobGroup={}", jobName, jobGroup));
             }
             scheduler.pauseTrigger(triggerKey);
         } catch (SchedulerException e) {
-            log.error("暂停job失败, jobName=%s,jobGroup=%s,e=%s", jobName, jobGroup, e);
+            log.error("暂停job失败, jobName={},jobGroup={},e={}", jobName, jobGroup, e);
             throw new JobException(ResultCode.ILLEGAL_OP, e.getMessage());
         }
     }
@@ -324,15 +324,15 @@ public class JobService {
      */
     public void interrupt(String jobName, String jobGroup) throws JobException {
         try {
-            log.info("终止jobName=%s,jobGroup=%s", jobName, jobGroup);
+            log.info("终止jobName={},jobGroup={}", jobName, jobGroup);
             if (!checkExists(jobName, jobGroup)) {
-                log.error("Job不存在, jobName=%s,jobGroup=%s", jobName, jobGroup);
+                log.error("Job不存在, jobName={},jobGroup={}", jobName, jobGroup);
                 throw new JobException(ResultCode.ILLEGAL_PARAM, String.format("Job不存在, jobName=%s,jobGroup=%s", jobName, jobGroup));
             }
             JobKey jobKey = new JobKey(jobName, jobGroup);
             scheduler.interrupt(jobKey);
         } catch (SchedulerException e) {
-            log.error("暂停job失败, jobName=%s,jobGroup=%s,e=%s", jobName, jobGroup, e);
+            log.error("暂停job失败, jobName={},jobGroup={},e={}", jobName, jobGroup, e);
             throw new JobException(ResultCode.ILLEGAL_OP, e.getMessage());
         }
 
@@ -346,15 +346,15 @@ public class JobService {
      */
     public void resume(String jobName, String jobGroup) throws JobException {
         try {
-            log.info("重启jobName=%s,jobGroup=%s", jobName, jobGroup);
+            log.info("重启jobName={},jobGroup={}", jobName, jobGroup);
             TriggerKey triggerKey = TriggerKey.triggerKey(jobName, jobGroup);
             if (!checkExists(jobName, jobGroup)) {
-                log.error("Job不存在, jobName=%s,jobGroup=%s", jobName, jobGroup);
+                log.error("Job不存在, jobName={},jobGroup={}", jobName, jobGroup);
                 throw new JobException(ResultCode.ILLEGAL_PARAM, String.format("Job不存在, jobName=%s,jobGroup=%s", jobName, jobGroup));
             }
             scheduler.resumeTrigger(triggerKey);
         } catch (SchedulerException e) {
-            log.error("重启job失败, jobName=%s,jobGroup=%s,e=%s", jobName, jobGroup, e);
+            log.error("重启job失败, jobName={},jobGroup={},e={}", jobName, jobGroup, e);
             throw new JobException(ResultCode.ILLEGAL_OP, e.getMessage());
         }
     }
@@ -367,15 +367,15 @@ public class JobService {
      */
     public void trigger(String jobName, String jobGroup) throws JobException {
         try {
-            log.info("立即执行jobName=%s,jobGroup=%s", jobName, jobGroup);
+            log.info("立即执行jobName={},jobGroup={}", jobName, jobGroup);
             if (!checkExists(jobName, jobGroup)) {
-                log.error("Job不存在, jobName=%s,jobGroup=%s", jobName, jobGroup);
+                log.error("Job不存在, jobName={},jobGroup={}", jobName, jobGroup);
                 throw new JobException(ResultCode.ILLEGAL_PARAM, String.format("Job不存在, jobName=%s,jobGroup=%s", jobName, jobGroup));
             }
             JobKey jobKey = new JobKey(jobName, jobGroup);
             scheduler.triggerJob(jobKey);
         } catch (SchedulerException e) {
-            log.error("立即执行job失败, jobName=%s,jobGroup=%s,e=%s", jobName, jobGroup, e);
+            log.error("立即执行job失败, jobName={},jobGroup={},e={}", jobName, jobGroup, e);
             throw new JobException(ResultCode.ILLEGAL_OP, e.getMessage());
         }
     }

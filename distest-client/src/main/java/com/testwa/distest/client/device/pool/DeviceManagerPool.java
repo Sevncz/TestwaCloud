@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Slf4j
 public class DeviceManagerPool {
-    private final ConcurrentHashMap<String, DeviceManager> borrowManger;
+    private final ConcurrentHashMap<String, DeviceManager> borrowManger = new ConcurrentHashMap<>();
     private final GenericObjectPool<DeviceManager> pool;
 
     /**
@@ -23,7 +23,6 @@ public class DeviceManagerPool {
      */
     public DeviceManagerPool(String host, int port, String resourcePath, GenericObjectPoolConfig config) {
         pool = new GenericObjectPool<>(new DeviceManagerFactory(host, port, resourcePath), config);
-        borrowManger = new ConcurrentHashMap<>();
     }
 
     public DeviceManager getInitialManager(String deviceId) {

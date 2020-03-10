@@ -2,6 +2,7 @@ package com.testwa.distest.server.service.issue.service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 import com.testwa.core.base.constant.ResultCode;
 import com.testwa.core.base.service.BaseService;
 import com.testwa.core.redis.RedisCacheManager;
@@ -167,10 +168,11 @@ public class IssueService extends BaseService<Issue, Long> {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void saveIssueContent(Long issueId, String content) {
+    public void saveIssueContent(Long issueId, String content, List<String> attachments) {
         IssueContent issueContent = new IssueContent();
         issueContent.setContent(content);
         issueContent.setIssueId(issueId);
+        issueContent.setIssueAttachments(String.join(",", attachments));
         issueContentMapper.insert(issueContent);
     }
 

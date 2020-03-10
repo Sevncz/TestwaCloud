@@ -212,4 +212,15 @@ public class MinitouchServer {
         ret = ret.trim();
         return CommonUtil.resolveProcessID(ret, "minitouch");
     }
+
+    public static void main(String[] args) throws InterruptedException {
+        String deviceId = "b5534977";
+        String resourcePath = "/Users/wen/IdeaProjects/distest/distest-client/bin/resources";
+        MinitouchServer server = new MinitouchServer(deviceId, resourcePath);
+        server.start();
+        TimeUnit.MILLISECONDS.sleep(200);
+        MinitouchClient client = new MinitouchClient(deviceId);
+        client.start();
+        TimeUnit.SECONDS.sleep(120);
+    }
 }

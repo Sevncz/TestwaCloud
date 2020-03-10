@@ -10,9 +10,11 @@ import com.testwa.distest.client.component.Constant;
 import com.testwa.distest.client.component.appium.utils.Config;
 import com.testwa.distest.client.component.executor.task.*;
 import com.testwa.distest.client.component.logcat.DLogger;
+import com.testwa.distest.client.component.minicap.ScreenIOSLowerProjection;
 import com.testwa.distest.client.component.minicap.ScreenIOSProjection;
 import com.testwa.distest.client.component.wda.driver.DriverCapabilities;
 import com.testwa.distest.client.component.wda.driver.IOSDriver;
+import com.testwa.distest.client.component.wda.driver.OutputImageType;
 import com.testwa.distest.client.device.listener.IOSComponentServiceRunningListener;
 import com.testwa.distest.client.device.listener.callback.IRemoteCommandCallBack;
 import com.testwa.distest.client.device.listener.callback.RemoteCommandCallBackUtils;
@@ -20,6 +22,7 @@ import com.testwa.distest.client.device.manager.DeviceInitException;
 import com.testwa.distest.client.device.remote.DeivceRemoteApiClient;
 import com.testwa.distest.client.download.Downloader;
 import com.testwa.distest.client.exception.DownloadFailException;
+import com.testwa.distest.client.ios.IOSApp;
 import com.testwa.distest.client.ios.IOSDeviceUtil;
 import com.testwa.distest.client.ios.IOSPhysicalSize;
 import com.testwa.distest.client.model.AgentInfo;
@@ -34,11 +37,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * iOS设备驱动
@@ -62,6 +68,7 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
 
     private DeivceRemoteApiClient api;
     private ScreenIOSProjection screenIOSProjection;
+    private ScreenIOSLowerProjection screenIOSLowerProjection;
 
     /*------------------------------------------LOG----------------------------------------------------*/
 
@@ -107,10 +114,23 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
 
     @Override
     public void startProjection(String command) {
-        stopProjection();
+        String version = IOSDeviceUtil.getProductVersion(udid);
+        StringTokenizer st = new StringTokenizer(version, ".");
+        String mainVersionStr = st.nextToken();
+        int mainVersion = Integer.parseInt(mainVersionStr);
+        // 高于iOS11的版本可以使用该接口
+        try {
+            stopProjection();
+        }catch (Exception e) {
 
-        this.screenIOSProjection = new ScreenIOSProjection(this.udid, this.listener);
-        this.screenIOSProjection.startServer();
+        }
+        if(mainVersion >= 11) {
+            this.screenIOSProjection = new ScreenIOSProjection(this.udid, this.listener);
+            this.screenIOSProjection.startServer();
+        } else {
+            this.screenIOSLowerProjection = new ScreenIOSLowerProjection(this.udid, this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH), this.listener);
+            this.screenIOSLowerProjection.startServer();
+        }
     }
 
 
@@ -118,6 +138,9 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
     public void stopProjection() {
         if(this.screenIOSProjection != null) {
             this.screenIOSProjection.close();
+        }
+        if(this.screenIOSLowerProjection != null) {
+            this.screenIOSLowerProjection.close();
         }
     }
 
@@ -179,7 +202,7 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
 
     @Override
     public String getDeviceId() {
-        return null;
+        return this.udid;
     }
 
     @Override
@@ -253,9 +276,31 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
 
     }
 
+    public void doubleTap(String cmd) {
+        if(this.iosDriver != null) {
+            JSONObject tapCommand = JSON.parseObject(cmd);
+            Integer x = tapCommand.getInteger("x");
+            Integer y = tapCommand.getInteger("y");
+            this.iosDriver.doubleTap(x, y);
+        }
+    }
+
+    public void touchPerform(String cmd) {
+        if(this.iosDriver != null) {
+            List<TouchPerformAction> actions = JSON.parseArray(cmd, TouchPerformAction.class);
+            this.iosDriver.touchPerform(actions);
+        }
+    }
+
     @Override
     public void tapAndHold(String cmd) {
-
+        if(this.iosDriver != null) {
+            JSONObject tapCommand = JSON.parseObject(cmd);
+            Integer x = tapCommand.getInteger("x");
+            Integer y = tapCommand.getInteger("y");
+            Float duration = tapCommand.getFloat("duration");
+            this.iosDriver.tapAndHold(x, y, duration);
+        }
     }
 
     @Override
@@ -308,6 +353,39 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
 
     @Override
     public void capture() {
+        if(this.iosDriver != null) {
+            byte[] bytes = this.iosDriver.getScreenshot(OutputImageType.BYTES);
+            if(bytes != null) {
+                api.sendCapture(bytes, udid);
+            }
+        }
+    }
+
+    @Override
+    public void apps() {
+        List<IOSApp> apps = IOSDeviceUtil.getApps(this.udid);
+        // 获取启动状态
+        List<IOSApp> appsStateList =  apps.stream().peek(app -> {
+            if(this.iosDriver != null) {
+                Integer state = this.iosDriver.getAppState(app.getBundleId());
+                app.setState(state);
+            }
+        }).sorted((o1, o2) -> o2.getState().compareTo(o1.getState())).collect(Collectors.toList());
+        api.handleEventAppList(this.udid, appsStateList);
+    }
+
+    @Override
+    public void appTerminate(String cmd) {
+        if(this.iosDriver != null) {
+            this.iosDriver.terminate(cmd);
+        }
+    }
+
+    @Override
+    public void appActivate(String cmd) {
+        if(this.iosDriver != null) {
+            this.iosDriver.activate(cmd);
+        }
 
     }
 
@@ -396,31 +474,41 @@ public class IOSRemoteControlDriver implements IDeviceRemoteControlDriver, Strea
 
     @Override
     public void onNext(Message message) {
-        if(Message.Topic.CONNECTED.equals(message.getTopicName())) {
-            log.info("[{}] Connected to Server", this.udid);
-            // 连上服务器之后归零
-            connectRetryTime.set(0);
-            // 连接上服务器之后启动wda
-            this.iosDriver = new IOSDriver(this.iosDriverCapabilities);
-            return;
-        }
-        IRemoteCommandCallBack call;
-        try {
-            if(cache.containsKey(message.getTopicName())){
-                call = cache.get(message.getTopicName());
-            }else{
-                call = RemoteCommandCallBackUtils.getCallBack(message.getTopicName(), this);
-                cache.put(message.getTopicName(), call);
-            }
-            call.callback(message.getMessage());
-        } catch (Exception e) {
-            log.error("回调错误", e);
+        switch (message.getTopicName()) {
+            case CONNECTED:
+                log.info("[{}] Connected to Server", this.udid);
+                // 连上服务器之后归零
+                connectRetryTime.set(0);
+                // 连接上服务器之后启动wda
+                this.iosDriver = new IOSDriver(this.iosDriverCapabilities);
+                return;
+            case IOS_MULTI_TAP:
+                break;
+            case IOS_TOUCH_MULTI_PERFORM:
+                String cmd = message.getMessage().toStringUtf8();
+                touchPerform(cmd);
+                break;
+            default:
+                IRemoteCommandCallBack call;
+                try {
+                    if(cache.containsKey(message.getTopicName())){
+                        call = cache.get(message.getTopicName());
+                    }else{
+                        call = RemoteCommandCallBackUtils.getCallBack(message.getTopicName(), this);
+                        cache.put(message.getTopicName(), call);
+                    }
+                    call.callback(message.getMessage());
+                } catch (Exception e) {
+                    log.error("[{}] command error", udid, e);
+                }
+                break;
         }
     }
 
     @Override
     public void onError(Throwable throwable) {
         // 出现异常
+        log.warn("[{}] register error {}", udid, throwable);
         try {
             try {
                 TimeUnit.MILLISECONDS.sleep(connectRetryTime.get() * 200L);

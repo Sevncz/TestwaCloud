@@ -52,7 +52,11 @@ public class EquipmentDebugJob implements BaseJob, InterruptableJob {
                 return;
             }
             devLog.setEndTime(System.currentTimeMillis());
-            deviceLogService.update(devLog);
+            try {
+                deviceLogService.update(devLog);
+            }catch (Exception e) {
+                log.error("[EquipmentDebugJob] 更新devLog失败, {}", JSON.toJSONString(devLog), e);
+            }
             return;
         }
 

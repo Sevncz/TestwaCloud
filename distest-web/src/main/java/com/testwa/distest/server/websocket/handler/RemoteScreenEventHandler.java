@@ -82,11 +82,16 @@ public class RemoteScreenEventHandler {
 
     private final static String RESTART_AGENT_APK = "restart_agent_apk";
 
+    private final static String APP_LIST = "app_list";
+    private final static String APP_ACTIVATE = "app_activate";
+    private final static String APP_TERMINATE = "app_terminate";
+    private final static String UNINSTALL = "uninstall";
     private final static String PRESS_KEY = "press_key";
     private final static String BROWSER_APP_LIST = "browser_app";
     private final static String DEVICE_INFO = "device_info";
     private final static String OPEN_SYS_SETTING = "open_sys_setting";
     private final static String SCREENSHOT = "screenshot";
+    private final static String IOS_TOUCH_MULTI_PERFORM = "ios_touch_multi_perform";
 
     private final static String JOB_DEBUG_NAME = "com.testwa.distest.quartz.job.EquipmentDebugJob";
     private final static String JOB_LOGCAT_NAME = "com.testwa.distest.quartz.job.EquipmentLogcatJob";
@@ -447,6 +452,59 @@ public class RemoteScreenEventHandler {
         sendStfCmd(client, deviceId, builder.build());
     }
 
+    @OnEvent(value = APP_LIST)
+    private void onAppList(SocketIOClient client, String deviceId, AckRequest ackRequest) {
+        if (isIllegalDeviceId(client, deviceId)) {
+            return;
+        }
+        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
+        if (observer != null) {
+            Message message = Message.newBuilder().setTopicName(Message.Topic.APP_LIST).setStatus(STATUS_OK).build();
+            observer.onNext(message);
+        } else {
+            client.sendEvent("error", "设备还未准备好");
+        }
+    }
+
+    @OnEvent(value = APP_ACTIVATE)
+    private void onAppActivate(SocketIOClient client, String data, AckRequest ackRequest) {
+        Map params = JSON.parseObject(data, Map.class);
+        String deviceId = (String) params.get("deviceId");
+        if (isIllegalDeviceId(client, deviceId)) {
+            return;
+        }
+        String bundleId = (String) params.get("bundleId");
+        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
+        if (observer != null) {
+            Message message = Message.newBuilder().setTopicName(Message.Topic.APP_ACTIVATE).setMessage(ByteString.copyFrom(bundleId.getBytes())).setStatus(STATUS_OK).build();
+            observer.onNext(message);
+        } else {
+            client.sendEvent("error", "设备还未准备好");
+        }
+    }
+
+    @OnEvent(value = APP_TERMINATE)
+    private void onAppTerminate(SocketIOClient client, String data, AckRequest ackRequest) {
+        Map params = JSON.parseObject(data, Map.class);
+        String deviceId = (String) params.get("deviceId");
+        if (isIllegalDeviceId(client, deviceId)) {
+            return;
+        }
+        String bundleId = (String) params.get("bundleId");
+        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
+        if (observer != null) {
+            Message message = Message.newBuilder().setTopicName(Message.Topic.APP_TERMINATE).setMessage(ByteString.copyFrom(bundleId.getBytes())).setStatus(STATUS_OK).build();
+            observer.onNext(message);
+        } else {
+            client.sendEvent("error", "设备还未准备好");
+        }
+    }
+
+    @OnEvent(value = UNINSTALL)
+    private void onUninstall(SocketIOClient client, String data, AckRequest ackRequest) {
+        sendCmd(client, data, "bundleId", "请输入bundleId", Message.Topic.UNINSTALL_APP);
+    }
+
     @OnEvent(value = DEVICE_INFO)
     private void onDeviceInfo(SocketIOClient client, String deviceId, AckRequest ackRequest) {
         if (isIllegalDeviceId(client, deviceId)) {
@@ -511,6 +569,23 @@ public class RemoteScreenEventHandler {
         StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
         if (observer != null) {
             Message message = Message.newBuilder().setTopicName(Message.Topic.SCREENSHOT).setStatus(STATUS_OK).build();
+            observer.onNext(message);
+        } else {
+            client.sendEvent("error", "设备还未准备好");
+        }
+    }
+
+    @OnEvent(value = IOS_TOUCH_MULTI_PERFORM)
+    private void onIOSTouchMultiPerform(SocketIOClient client, String data, AckRequest ackRequest) {
+        Map params = JSON.parseObject(data, Map.class);
+        String deviceId = (String) params.get("deviceId");
+        if (isIllegalDeviceId(client, deviceId)) {
+            return;
+        }
+        String cmd = (String) params.get("cmd");
+        StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
+        if (observer != null) {
+            Message message = Message.newBuilder().setTopicName(Message.Topic.IOS_TOUCH_MULTI_PERFORM).setMessage(ByteString.copyFrom(cmd.getBytes())).setStatus(STATUS_OK).build();
             observer.onNext(message);
         } else {
             client.sendEvent("error", "设备还未准备好");
@@ -760,10 +835,12 @@ public class RemoteScreenEventHandler {
             client.sendEvent("error", tips);
             return;
         }
+        log.info("[{}] ready send {} to mobile", deviceId, content);
         StreamObserver<Message> observer = CacheUtil.serverCache.getObserver(deviceId);
         if (observer != null) {
             Message message = Message.newBuilder().setTopicName(topic).setStatus(STATUS_OK).setMessage(ByteString.copyFromUtf8(content)).build();
             observer.onNext(message);
+            log.info("[{}] send {} OK", deviceId, content);
         } else {
             client.sendEvent("error", "设备还未准备好");
         }

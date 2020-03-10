@@ -33,4 +33,19 @@ public class AppiumManagerPool {
         pool.returnObject(o);
     }
 
+    public void addObject() {
+        try {
+            pool.addObject();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void close() {
+        try {
+            pool.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

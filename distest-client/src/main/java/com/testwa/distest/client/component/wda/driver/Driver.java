@@ -19,6 +19,7 @@ package com.testwa.distest.client.component.wda.driver;
 
 import com.testwa.distest.client.component.wda.element.Element;
 import com.testwa.distest.client.component.wda.element.IOSLocator;
+import com.testwa.distest.client.device.driver.TouchPerformAction;
 
 import java.awt.*;
 import java.util.List;
@@ -123,6 +124,14 @@ public interface Driver extends Screenshotable, CommandExecutor {
     void input(String text);
 
     void tap(Integer x, Integer y);
+
+    void tapAndHold(Integer x, Integer y, Float duration);
+
+    void doubleTap(Integer x, Integer y);
+
+    void touchMultiPerform(List<TouchPerformAction> actions);
+
+    void touchPerform(List<TouchPerformAction> actions);
 
     void swipe(Integer x1, Integer y1, Integer x2, Integer y2, int duration);
 

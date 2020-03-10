@@ -31,6 +31,17 @@
 <br>
 <input type="text" id="ratetext" />
 <button id="rate">帧率设置</button>
+<br>
+<button id="app_list">应用列表</button>
+<input type="text" id="bundletext" />
+<button id="uninstall">卸载</button>
+<br>
+<button id="multi_click">连点</button>
+<button id="app_activate">启动网易新闻</button>
+<button id="app_terminate">关闭网易新闻</button>
+<br>
+<canvas id="screenshot_canvas"></canvas>
+<button id="screenshot">截图</button>
 
 
 <!-- jQuery -->
@@ -67,12 +78,13 @@ var BLANK_IMG =
 
 var canvas = document.getElementById('phone-screen')
   , g = canvas.getContext('2d')
-var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMjcEKwjAQRP9lzwls2mw27X94EilJu4WK1NKkKIj_7goevA3zHjMvKEeGHh6yogMDR5F9WCZtToOjyBFb4kAYmDkoH3dJVZQ7Ctg0SKghGCjjfRPozxcD8tx-2HctOgNLqv--GmvKt-9I3Q8xcK2L_rFnnyJNNtDcWZ_F2xhdtr6bWe8x5dzC-wMAAP__.YCA718R4E62wPeOcdUMkJRl57sNYfEx-AiV5Wr86oFs";
+var token = "eyJhbGciOiJIUzI1NiIsInppcCI6IkRFRiJ9.eNpMzUEKwjAQBdC7zDqBmSaTpL2HK5GStFOIaC1NCoJ4dyO4cDOL_x9_XlCOBAPE-Z5XUHAU2cc8t-Q0EmNP7Vhm64ML5BqYdolVGiB2HBgJqUdUUKbHJjCcLwrkuf1qH3okBTnWf9_EGtPtO1L3QxRca24PU_IxGGa9GJm1Tcbr0HWok_BixTtjXYD3BwAA__8.-tHNll5At3LMtUe0y8OiXTwZSHpAis-UZ3QCGDyvjJM";
 // var socket = io('http://cloud.test.testwa.com:9092?type=browser&token=' + token);
 var socket = io('http://127.0.0.1:9092?type=browser&token=' + token);
 
 // var deviceId = '98895a44324f494f4d';
 var deviceId = '8f45336f66ff83bb61fce2aa57a33b695e5878db';
+// var deviceId = 'b744a5044ba752237b66655dcd7e85618bec2d37';
 // var deviceId = '4205dccb';
 
 socket.on('connect', function(){
@@ -108,6 +120,27 @@ socket.on('remote_debug_start', function(message){
 });
 socket.on('remote_debug_stop', function(message){
     console.log(message)
+});
+socket.on('app_list', function(message){
+    console.log(message)
+});
+socket.on('screenshot', function(message){
+    var blob = new Blob([message], {type: 'image/jpeg'})
+    var URL = window.URL || window.webkitURL
+    var img = new Image()
+    img.src = URL.createObjectURL(blob);
+    var screen_canvas = document.getElementById('screenshot_canvas')
+        , screen_g = screen_canvas.getContext('2d')
+    img.onload = function() {
+        screen_canvas.width = img.width * util.scala
+        screen_canvas.height = img.height * util.scala
+        screen_g.drawImage(img, 0, 0, img.width * util.scala, img.height * util.scala)
+        img.onload = null
+        img.src = BLANK_IMG
+        img = null
+        u = null
+        blob = null
+    }
 });
 
 var isDown = false;
@@ -211,7 +244,6 @@ function rate() {
     console.log("rate")
     socket.emit("frame_rate", JSON.stringify(params))
 }
-
 function getDevices() {
     console.log("devices")
     socket.emit("get_devices", deviceId)
@@ -347,6 +379,70 @@ $("#debugStop").click(function () {
 })
 $("#rate").click(function () {
     rate();
+})
+
+$("#app_list").click(function () {
+    console.log("app_list")
+    socket.emit("app_list", deviceId)
+})
+$("#uninstall").click(function () {
+    var text = $("#bundletext").val()
+    var params = {
+        deviceId: deviceId,
+        bundleId: text
+    }
+    console.log("uninstall")
+    socket.emit("uninstall", JSON.stringify(params))
+})
+$("#screenshot").click(function () {
+    socket.emit("screenshot", deviceId)
+})
+$("#multi_click").click(function () {
+    var cmd = [
+        {
+            "function":"press",
+            "options":{
+                "x":245,
+                "y":526,
+                "count": 1
+            }
+        },
+        {
+            "function":"moveTo",
+            "options":{
+                "x":532,
+                "y":581
+            }
+        },
+        {
+            "function":"moveTo",
+            "options":{
+                "x":368,
+                "y":928
+            }
+        },
+        {
+            "function":"release"
+        }];
+    var params = {
+        deviceId: deviceId,
+        cmd: JSON.stringify(cmd)
+    };
+    socket.emit("ios_touch_multi_perform", JSON.stringify(params))
+})
+$("#app_activate").click(function () {
+    var params = {
+        deviceId: deviceId,
+        bundleId: "com.netease.news"
+    };
+    socket.emit("app_activate", JSON.stringify(params))
+})
+$("#app_terminate").click(function () {
+    var params = {
+        deviceId: deviceId,
+        bundleId: "com.netease.news"
+    };
+    socket.emit("app_terminate", JSON.stringify(params))
 })
 
 </script>

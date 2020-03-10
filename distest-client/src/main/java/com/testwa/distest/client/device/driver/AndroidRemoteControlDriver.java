@@ -185,7 +185,11 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
     }
 
     private void restartProjection(Integer rotate) {
-        stopProjection();
+        try {
+            stopProjection();
+        }catch (Exception e) {
+            log.warn("[{}] stop minitouch or minicap error", this.device.getSerial(), e);
+        }
         // 重建新的进程
         this.touchProjection = new TouchAndroidProjection(this.device.getSerial(), this.capabilities.getCapability(IDeviceRemoteControlDriverCapabilities.IDeviceKey.RESOURCE_PATH));
         this.touchProjection.start();
@@ -357,7 +361,9 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
 
     @Override
     public void touch(String cmd) {
+        log.debug("[{}] minitouch touch {}", this.device.getSerial(), cmd);
         if (this.touchProjection != null && this.touchProjection.isRunning()) {
+            log.debug("[{}] minitouch send event", this.device.getSerial());
             this.touchProjection.sendEvent(cmd);
         }
     }
@@ -429,6 +435,21 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
             String filename = Capture.androidScreenCapture(devInformationAssembly.getDevDisplay());
             api.sendCapture(filename, device.getSerial());
         }
+    }
+
+    @Override
+    public void apps() {
+
+    }
+
+    @Override
+    public void appTerminate(String cmd) {
+
+    }
+
+    @Override
+    public void appActivate(String cmd) {
+
     }
 
     @Override
@@ -575,6 +596,7 @@ public class AndroidRemoteControlDriver implements IDeviceRemoteControlDriver, S
             }
 
         }catch (Exception e) {
+            ADBTools.tcpip(device.getSerial(), this.tcpipPort);
             return;
         }
 

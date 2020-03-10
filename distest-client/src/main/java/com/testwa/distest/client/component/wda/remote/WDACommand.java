@@ -53,10 +53,15 @@ public class WDACommand {
     public static final String LAUNCH;
     public static final String TERMINATE;
     public static final String ACTIVATE;
+    public static final String APP_STATE;
     public static final String TAP;
+    public static final String TOUCH_AND_HOLD;
+    public static final String PERFORM_TOUCH;
     public static final String SWIP;
     public static final String HOME;
     public static final String INPUT;
+    public static final String MULTI_PERFORM;
+    public static final String DOUBLE_TAP;
 
 
     public static final Map<String, RemoteCommandInfo> commands;
@@ -93,10 +98,15 @@ public class WDACommand {
         LAUNCH = "launchApp";
         TERMINATE = "terminateApp";
         ACTIVATE = "activateApp";
+        APP_STATE = "appState";
         TAP = "tap";
+        TOUCH_AND_HOLD = "touchAndHold";
+        PERFORM_TOUCH = "performTouch";
         SWIP = "swip";
         HOME = "home";
         INPUT = "input";
+        MULTI_PERFORM = "multi_perform";
+        DOUBLE_TAP = "double_tap";
 
         commands = new HashMap<>();
         commands.put(DISMISS_ALERT, post("/session/:sessionId/alert/dismiss"));
@@ -108,7 +118,7 @@ public class WDACommand {
         commands.put(STATUS, get("/status"));
         commands.put(GET_PAGE_SOURCE, get("/source"));
         commands.put(GET_CURRENT_WINDOW_SIZE, get("/session/:sessionId/window/size"));
-        commands.put(GET_WINDOW_SCREENSHOT, get("/capture"));
+        commands.put(GET_WINDOW_SCREENSHOT, get("/screenshot"));
         commands.put(GET_ELEMENT_SCREENSHOT, get("/session/:sessionId/element/:uuid/capture"));
         commands.put(PRESS_REMOTE_BUTTON, post("/remote/press/:button"));
         commands.put(FIND_ELEMENT, post("/session/:sessionId/element"));
@@ -130,10 +140,15 @@ public class WDACommand {
         commands.put(LAUNCH, post("/session/:sessionId/wda/apps/launch"));
         commands.put(TERMINATE, post("/session/:sessionId/wda/apps/terminate"));
         commands.put(ACTIVATE, post("/session/:sessionId/wda/apps/activate"));
+        commands.put(APP_STATE, post("/session/:sessionId/wda/apps/state"));
         commands.put(TAP, post("/session/:sessionId/wda/tap/0"));
+        commands.put(TOUCH_AND_HOLD, post("/session/:sessionId/wda/touchAndHold"));
         commands.put(SWIP, post("/session/:sessionId/wda/dragfromtoforduration"));
         commands.put(HOME, post("/wda/homescreen"));
         commands.put(INPUT, post("/session/:sessionId/wda/keys"));
+        commands.put(MULTI_PERFORM, post("/session/:sessionId/wda/touch/multi/perform"));
+        commands.put(PERFORM_TOUCH, post("/session/:sessionId/wda/touch/perform"));
+        commands.put(DOUBLE_TAP, post("/session/:sessionId/wda/doubleTap"));
     }
 
     public enum Wildcard {

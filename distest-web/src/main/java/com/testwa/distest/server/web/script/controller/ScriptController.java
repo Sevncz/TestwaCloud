@@ -128,7 +128,7 @@ public class ScriptController extends BaseController {
 
     @ApiOperation(value="删除脚本", notes="")
     @ResponseBody
-    @PostMapping(value = "/script/deleteByIds")
+    @PostMapping(value = "/script/delete")
     public void delete(@RequestBody @Valid IDListForm form) {
         List<Testcase> testcases = testcaseService.findByScripts(form.getEntityIds());
         if(testcases != null && !testcases.isEmpty()) {

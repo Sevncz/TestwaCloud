@@ -9,11 +9,11 @@ public class TcpIpPortProvider {
 		portProvider = new PortProvider(portStart,portEnd);
 	}
 	
-	public synchronized static int pullPort(){
+	public static int pullPort(){
 		return portProvider.pullPort();
 	}
 	
-	public synchronized static boolean pushPort(int port){
+	public static boolean pushPort(int port){
 		return portProvider.pushPort(port);
 	}
 }

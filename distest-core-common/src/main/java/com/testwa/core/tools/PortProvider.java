@@ -36,7 +36,7 @@ public class PortProvider {
 	 * 获取可用端口号
 	 * @return int 端口号。如果返回值>=0，则获取的端口号可用，如果端口号<0，则端口号获取失败
 	 */
-	public int pullPort(){
+	public synchronized int pullPort(){
 		Iterator<Integer> it = set.iterator();
 		if(it.hasNext()){
 			Integer port = it.next();
@@ -52,7 +52,7 @@ public class PortProvider {
 	 * @param port 端口号
 	 * @return boolean
 	 */
-	public boolean pushPort(int port){
+	public synchronized boolean pushPort(int port){
 		if(set.size()<portNums && port>=portStart && port<=portEnd){
 			return set.add(port);
 		}else{

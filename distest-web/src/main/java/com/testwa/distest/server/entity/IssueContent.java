@@ -18,7 +18,6 @@ public class IssueContent extends BaseEntity {
     //  对应的 issue
     @Column(name = "issue_id")
     private Long issueId;
-
-
-
+    @Column(name = "issue_attachments")
+    private String issueAttachments;
 }

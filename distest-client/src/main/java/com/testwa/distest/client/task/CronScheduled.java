@@ -51,8 +51,13 @@ public class CronScheduled {
         List<JadbDevice> devices = JadbDeviceManager.getJadbDeviceList();
         List<Future<DeviceManager>> resultList = new ArrayList<>();
         devices.forEach(d -> {
-            Future<DeviceManager> future = deviceExecutor.submit(new DeviceManagerTask(d.getSerial(), DeviceType.ANDROID));
-            resultList.add(future);
+            try {
+                Future<DeviceManager> future = deviceExecutor.submit(new DeviceManagerTask(d.getSerial(), DeviceType.ANDROID));
+                resultList.add(future);
+                TimeUnit.MILLISECONDS.sleep(100);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
 
         //遍历任务的结果
@@ -76,9 +81,14 @@ public class CronScheduled {
             log.debug("udids {}", udids.toString());
             List<Future<DeviceManager>> resultList = new ArrayList<>();
             udids.forEach(udid -> {
-                IOSDeviceUtil.addOnline(udid);
-                Future<DeviceManager> future = deviceExecutor.submit(new DeviceManagerTask(udid, DeviceType.IOS));
-                resultList.add(future);
+                try {
+                    IOSDeviceUtil.addOnline(udid);
+                    Future<DeviceManager> future = deviceExecutor.submit(new DeviceManagerTask(udid, DeviceType.IOS));
+                    resultList.add(future);
+                    TimeUnit.MILLISECONDS.sleep(100);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             });
             //遍历任务的结果
             for (Future<DeviceManager> fs : resultList){
