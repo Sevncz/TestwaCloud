@@ -10,6 +10,7 @@ import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.script.service.ScriptCaseService;
 import com.testwa.distest.server.service.script.service.ScriptMetadataService;
 import com.testwa.distest.server.service.task.form.TaskV2StartByScriptsForm;
+import com.testwa.distest.server.service.task.service.TaskResultService;
 import com.testwa.distest.server.web.app.validator.AppValidator;
 import com.testwa.distest.server.web.device.mgr.DeviceLockMgr;
 import com.testwa.distest.server.web.device.mgr.DeviceOnlineMgr;
@@ -71,6 +72,8 @@ public class TaskV2Controller extends BaseController {
     private RedissonClient redissonClient;
     @Autowired
     private ScriptMetadataService scriptMetadataService;
+    @Autowired
+    private TaskResultService taskResultService;
 
     @ApiOperation(value = "通过脚本运行任务", notes = "")
     @ResponseBody
@@ -150,5 +153,13 @@ public class TaskV2Controller extends BaseController {
         RTopic topic = redissonClient.getTopic(deviceId);
         topic.publish(taskVO);
         return "成功";
+    }
+
+    @ApiOperation(value = "保存任务执行结果Result", notes = "")
+    @ResponseBody
+    @PostMapping(value = "/task/result")
+    public TaskResult saveTaskResult(@RequestBody @Valid TaskResult result) {
+        taskResultService.insert(result);
+        return result;
     }
 }

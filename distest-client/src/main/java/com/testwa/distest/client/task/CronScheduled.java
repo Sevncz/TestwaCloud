@@ -36,14 +36,29 @@ import org.redisson.api.RedissonClient;
 import org.redisson.api.listener.MessageListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.FormHttpMessageConverter;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.ResourceHttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -69,6 +84,8 @@ public class CronScheduled {
     private ScriptCode scriptCodePython;
     @Autowired
     private CustomAppiumManagerPool customAppiumManagerPool;
+    @Autowired
+    private RestTemplate restTemplate;
 
     /**
      *@Description: android设备在线情况的补充检查
@@ -290,7 +307,6 @@ public class CronScheduled {
     private void runPyScript(TaskVO msg, String scriptContent) {
         String pyPath = Constant.localScriptPath + File.separator + msg.getTaskCode() + ".py";
         String resultPath = Constant.localScriptPath + File.separator + msg.getTaskCode() + "result";
-        String reportPath = Constant.localScriptPath + File.separator + msg.getTaskCode() + "report";
         log.info("python 脚本路径 {} ", pyPath);
         try {
             if (!Files.exists(Paths.get(pyPath))) {
@@ -309,16 +325,19 @@ public class CronScheduled {
             try {
                 pyexecs.exec();
                 // 生成报告 allure generate ./result -o ./report/ --clean
-                CommandLine commandLine2 = new CommandLine("allure");
-                commandLine2.addArgument("generate");
-                commandLine2.addArgument(resultPath);
-                commandLine2.addArgument("-o");
-                commandLine2.addArgument(reportPath);
-                commandLine2.addArgument("--clean");
-                pyexecs = new UTF8CommonExecs(commandLine2);
-                pyexecs.setTimeout(60 * 1000L);
-                pyexecs.exec();
-                // 上传报告
+//                CommandLine commandLine2 = new CommandLine("allure");
+//                commandLine2.addArgument("generate");
+//                commandLine2.addArgument(resultPath);
+//                commandLine2.addArgument("-o");
+//                commandLine2.addArgument(reportPath);
+//                commandLine2.addArgument("--clean");
+//                pyexecs = new UTF8CommonExecs(commandLine2);
+//                pyexecs.setTimeout(60 * 1000L);
+//                pyexecs.exec();
+                // 上传result json
+                Files.list(Paths.get(resultPath)).forEach( f -> {
+
+                });
 
             } catch (IOException e) {
                 String output = pyexecs.getOutput();
@@ -329,5 +348,4 @@ public class CronScheduled {
             log.error("py 写入失败", e);
         }
     }
-
 }
