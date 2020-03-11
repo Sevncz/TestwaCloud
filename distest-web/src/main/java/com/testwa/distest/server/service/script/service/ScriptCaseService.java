@@ -6,30 +6,26 @@ import com.github.pagehelper.PageInfo;
 import com.testwa.core.base.constant.ResultCode;
 import com.testwa.core.base.service.BaseService;
 import com.testwa.core.base.util.VoUtil;
+import com.testwa.core.script.vo.ScriptActionVO;
+import com.testwa.core.script.vo.ScriptCaseVO;
+import com.testwa.core.script.vo.ScriptFunctionVO;
 import com.testwa.core.tools.SnowflakeIdWorker;
-import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.exception.BusinessException;
-import com.testwa.distest.server.condition.IssueCondition;
 import com.testwa.distest.server.condition.ScriptCondition;
 import com.testwa.distest.server.entity.*;
-import com.testwa.distest.server.mapper.ScriptActionMapper;
 import com.testwa.distest.server.mapper.ScriptCaseMapper;
 import com.testwa.distest.server.service.script.form.ScriptCaseListForm;
 import com.testwa.distest.server.service.script.form.ScriptCaseSaveForm;
 import com.testwa.distest.server.service.script.form.ScriptFunctionSaveForm;
-import com.testwa.distest.server.service.script.form.ScriptListForm;
-import com.testwa.distest.server.web.script.vo.ScriptActionVO;
-import com.testwa.distest.server.web.script.vo.ScriptCaseVO;
-import com.testwa.distest.server.web.script.vo.ScriptFunctionVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -137,5 +133,9 @@ public class ScriptCaseService extends BaseService<ScriptCase, Long> {
                 .setOrderBy(pageForm.getOrderBy() + " " + pageForm.getOrder())
                 .doSelectPageInfo(()-> scriptCaseMapper.selectByCondition(query));
         return page;
+    }
+
+    public List<ScriptCase> listAll(List<String> scriptCaseIds) {
+        return scriptCaseIds.stream().map(this::getByScriptCaseId).collect(Collectors.toList());
     }
 }

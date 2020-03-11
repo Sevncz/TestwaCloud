@@ -8,15 +8,8 @@ import allure
 
 from appium import webdriver
 
-
-ANDROID_BASE_CAPS = {
-    'app': os.path.abspath('../apps/ApiDemos-debug.apk'),
-    'automationName': 'UIAutomator2',
-    'platformName': 'Android',
-    'platformVersion': os.getenv('ANDROID_PLATFORM_VERSION') or '8.0',
-    'deviceName': os.getenv('ANDROID_DEVICE_VERSION') or 'Android Emulator',
-}
-
+<#if type??>
+    <#if type = 'iOS'>
 IOS_BASE_CAPS = {
     'app': os.path.abspath('${appPath}'),
     'automationName': 'xcuitest',
@@ -25,12 +18,33 @@ IOS_BASE_CAPS = {
     'deviceName': 'iPhone',
     'udid': '${udid}',
     "xcodeOrgId": '${xcodeOrgId}',
-    "xcodeSigningId": "iPhone Developer"
+    "xcodeSigningId": "iPhone Developer",
+    "wdaEventloopIdleDelay": "1",
+    "wdaLocalPort": "${wdaLocalPort}",
+    "mjpegServerPort": "${mjpegServerPort}"
     # 'showIOSLog': False,
 }
+    </#if>
+    <#if type = 'Android'>
+ANDROID_BASE_CAPS = {
+    'app': os.path.abspath('${appPath}'),
+    'automationName': 'UIAutomator2',
+    'platformName': 'Android',
+    'platformVersion': '${platformVersion}',
+    'deviceName': '${deviceName}',
+}
+    </#if>
+<#else>
+ANDROID_BASE_CAPS = {
+    'app': os.path.abspath('${appPath}'),
+    'automationName': 'UIAutomator2',
+    'platformName': 'Android',
+    'platformVersion': '${platformVersion}',
+    'deviceName': '${deviceName}',
+}
+</#if>
 
 EXECUTOR = 'http://127.0.0.1:${port}/wd/hub'
-
 
 def ensure_dir(directory):
     if not os.path.exists(directory):
@@ -67,6 +81,9 @@ class Singleton(object):
             <#if type = 'iOS'>
             caps = copy.copy(IOS_BASE_CAPS)
             </#if>
+            <#if type = 'Android'>
+            caps = copy.copy(ANDROID_BASE_CAPS)
+            </#if>
         <#else>
             caps = copy.copy(ANDROID_BASE_CAPS)
         </#if>
@@ -83,7 +100,7 @@ class DriverClient(Singleton):
     pass
 
 
-class TestIOSBasic():
+class TestWaBasic():
 
     def setup_class(cls):
         cls.client = DriverClient().driver
@@ -96,7 +113,16 @@ class TestIOSBasic():
         calling_request = request._pyfuncitem.name
         driver = DriverClient().driver
         def fin():
+    <#if type??>
+        <#if type = 'iOS'>
             take_screenshot_and_syslog(driver, calling_request)
+        </#if>
+        <#if type = 'Android'>
+            take_screenshot_and_logcat(driver, calling_request)
+        </#if>
+    <#else>
+            take_screenshot_and_logcat(driver, calling_request)
+    </#if>
         request.addfinalizer(fin)
         return driver
 

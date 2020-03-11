@@ -7,13 +7,12 @@ import com.testwa.core.script.Function;
 import com.testwa.core.script.ScriptGenerator;
 import com.testwa.core.script.snippet.ScriptActionEnum;
 import com.testwa.core.script.snippet.ScriptCode;
-import com.testwa.core.script.snippet.ScriptCodePython;
+import com.testwa.core.script.vo.ScriptActionVO;
+import com.testwa.core.script.vo.ScriptCaseVO;
+import com.testwa.core.script.vo.ScriptFunctionVO;
 import com.testwa.distest.DistestWebApplication;
 import com.testwa.distest.server.service.script.service.ScriptCaseService;
 import com.testwa.distest.server.service.script.service.ScriptMetadataService;
-import com.testwa.distest.server.web.script.vo.ScriptActionVO;
-import com.testwa.distest.server.web.script.vo.ScriptCaseVO;
-import com.testwa.distest.server.web.script.vo.ScriptFunctionVO;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import lombok.extern.slf4j.Slf4j;
@@ -90,7 +89,7 @@ public class ScriptTemplateTest {
         String xcodeOrgId = "xcodeOrgId";
         String appPath = "/Users/wen/dev/TestApp.zip";
         String port = "4723";
-        String scriptContent = scriptGenerator.toIosPyScript(functionList, udid, xcodeOrgId, platformVersion, appPath, port);
+        String scriptContent = scriptGenerator.toIosPyScript(functionList, udid, xcodeOrgId, platformVersion, appPath, port, "8100", "9100");
         System.out.println(scriptContent);
     }
 
@@ -139,7 +138,7 @@ public class ScriptTemplateTest {
         String xcodeOrgId = "xcodeOrgId";
         String appPath = "/Users/wen/dev/TestApp.zip";
         String port = "4723";
-        String scriptContent = scriptGenerator.toIosPyScript(templateFunctions, udid, xcodeOrgId, platformVersion, appPath, port);
+        String scriptContent = scriptGenerator.toIosPyScript(templateFunctions, udid, xcodeOrgId, platformVersion, appPath, port, "8100", "9100");
         log.info(scriptContent);
     }
 

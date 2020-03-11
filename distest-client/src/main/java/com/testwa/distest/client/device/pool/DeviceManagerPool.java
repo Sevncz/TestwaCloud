@@ -60,6 +60,10 @@ public class DeviceManagerPool {
         }
     }
 
+    public boolean hasExist(String deviceId) {
+        return borrowManger.containsKey(deviceId);
+    }
+
     public void release(DeviceManager o) {
         pool.returnObject(o);
         borrowManger.remove(o.getDeviceId());

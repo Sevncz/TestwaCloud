@@ -1,8 +1,5 @@
-package com.testwa.distest.server.web.script.vo;
+package com.testwa.core.script.vo;
 
-import com.testwa.core.base.mybatis.annotation.Column;
-import com.testwa.distest.common.enums.DB;
-import com.testwa.distest.server.entity.ScriptFunction;
 import lombok.Data;
 
 import java.util.Date;
@@ -21,6 +18,7 @@ public class ScriptCaseVO {
     private Long updateBy;
     private Date createTime;
     private Long createBy;
+    private String platform;
 
     private List<ScriptFunctionVO> functions;
 

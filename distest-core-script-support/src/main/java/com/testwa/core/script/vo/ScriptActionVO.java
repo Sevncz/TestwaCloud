@@ -1,9 +1,6 @@
-package com.testwa.distest.server.web.script.vo;
+package com.testwa.core.script.vo;
 
-import com.testwa.core.base.mybatis.annotation.Column;
 import lombok.Data;
-
-import java.util.List;
 
 @Data
 public class ScriptActionVO {

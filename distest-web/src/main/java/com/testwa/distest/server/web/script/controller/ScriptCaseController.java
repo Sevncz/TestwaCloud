@@ -4,25 +4,27 @@ package com.testwa.distest.server.web.script.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.github.pagehelper.PageInfo;
+import com.testwa.core.base.constant.ResultCode;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.util.VoUtil;
-import com.testwa.core.base.vo.PageResult;
 import com.testwa.core.script.Function;
 import com.testwa.core.script.ScriptGenerator;
 import com.testwa.core.script.snippet.ScriptActionEnum;
 import com.testwa.core.script.snippet.ScriptCode;
-import com.testwa.distest.server.entity.*;
+import com.testwa.core.script.vo.ScriptActionVO;
+import com.testwa.core.script.vo.ScriptCaseVO;
+import com.testwa.core.script.vo.ScriptFunctionVO;
+import com.testwa.distest.common.enums.DB;
+import com.testwa.distest.exception.BusinessException;
+import com.testwa.distest.server.entity.Project;
+import com.testwa.distest.server.entity.ScriptCase;
 import com.testwa.distest.server.service.script.form.ScriptCaseListForm;
 import com.testwa.distest.server.service.script.form.ScriptCaseSaveForm;
 import com.testwa.distest.server.service.script.service.ScriptActionService;
 import com.testwa.distest.server.service.script.service.ScriptCaseService;
 import com.testwa.distest.server.service.script.service.ScriptFunctionService;
 import com.testwa.distest.server.service.script.service.ScriptMetadataService;
-import com.testwa.distest.server.service.testcase.form.TestcaseListForm;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
-import com.testwa.distest.server.web.script.vo.ScriptActionVO;
-import com.testwa.distest.server.web.script.vo.ScriptCaseVO;
-import com.testwa.distest.server.web.script.vo.ScriptFunctionVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -57,15 +59,18 @@ public class ScriptCaseController extends BaseController {
     @Autowired
     private ScriptGenerator scriptGenerator;
 
-    @ApiOperation(value="创建一个脚本", notes="")
+    @ApiOperation(value = "创建一个脚本", notes = "")
     @ResponseBody
     @PostMapping(value = "/project/{projectId}/script/save")
     public ScriptCase save(@PathVariable Long projectId, @RequestBody ScriptCaseSaveForm form) {
+        if(!ScriptCase.PLATFORM_ANDROID.equals(form.getPlatform()) && !ScriptCase.PLATFORM_IOS.equals(form.getPlatform())) {
+            throw new BusinessException(ResultCode.ILLEGAL_PARAM, "平台只支持Android和iOS");
+        }
         Project project = projectValidator.validateProjectExist(projectId);
         return scriptCaseService.saveCase(project, form);
     }
 
-    @ApiOperation(value="脚本列表", notes="")
+    @ApiOperation(value = "脚本列表", notes = "")
     @ResponseBody
     @GetMapping(value = "/project/{projectId}/script/all")
     public List<ScriptCase> listAll(@PathVariable Long projectId) {
@@ -74,7 +79,7 @@ public class ScriptCaseController extends BaseController {
         return scriptCases;
     }
 
-    @ApiOperation(value="脚本分页列表", notes="")
+    @ApiOperation(value = "脚本分页列表", notes = "")
     @ResponseBody
     @GetMapping(value = "/project/{projectId}/script/page")
     public PageInfo<ScriptCase> page(@PathVariable Long projectId, @Valid ScriptCaseListForm pageForm) {
@@ -83,19 +88,21 @@ public class ScriptCaseController extends BaseController {
         return scriptCaseResult;
     }
 
-    @ApiOperation(value="脚本详情", notes="")
+    @ApiOperation(value = "脚本详情", notes = "")
     @ResponseBody
     @GetMapping(value = "/script/{scriptCaseId}/detail")
     public ScriptCaseVO detail(@PathVariable String scriptCaseId) {
         return scriptCaseService.getScriptCaseDetailVO(scriptCaseId);
     }
-    @ApiOperation(value="脚本详情", notes="")
+
+    @ApiOperation(value = "脚本详情", notes = "")
     @ResponseBody
     @GetMapping(value = "/script/{scriptCaseId}/py")
     public String py(@PathVariable String scriptCaseId) {
         ScriptCaseVO scriptCaseDetailVO = scriptCaseService.getScriptCaseDetailVO(scriptCaseId);
-        List<ScriptFunctionVO> functionList = scriptCaseDetailVO.getFunctions();
         Map<String, String> map = scriptMetadataService.getPython();
+
+        List<ScriptFunctionVO> functionList = scriptCaseDetailVO.getFunctions();
         List<Function> templateFunctions = new ArrayList<>();
         for (ScriptFunctionVO scriptFunctionVO : functionList) {
             List<ScriptActionVO> actionVOS = scriptFunctionVO.getActions();
@@ -126,17 +133,33 @@ public class ScriptCaseController extends BaseController {
                         e.printStackTrace();
                     }
                 }
+                if (ScriptActionEnum.sendKeys.name().equals(action)) {
+                    try {
+                        code = scriptCodePython.codeFor_sendKeys(jsonArray.getString(0), jsonArray.getString(1));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
                 function.addCode(code);
             }
             templateFunctions.add(function);
         }
-
-        String udid = "udid";
-        String platformVersion = "13.3";
-        String xcodeOrgId = "xcodeOrgId";
-        String appPath = "/app/path";
-        String port = "4723";
-        String scriptContent = scriptGenerator.toIosPyScript(templateFunctions, udid, xcodeOrgId, platformVersion, appPath, port);
+        String scriptContent = "";
+        if(ScriptCase.PLATFORM_ANDROID.equals(scriptCaseDetailVO.getPlatform())) {
+            String deviceId = "xxxx";
+            String platformVersion = "9";
+            String appPath = "/app/path";
+            String port = "4723";
+            scriptContent = scriptGenerator.toAndroidPyScript(templateFunctions, deviceId, platformVersion, appPath, port);
+        }
+        if(ScriptCase.PLATFORM_IOS.equals(scriptCaseDetailVO.getPlatform())) {
+            String udid = "udid";
+            String platformVersion = "13.3";
+            String xcodeOrgId = "xcodeOrgId";
+            String appPath = "/app/path";
+            String port = "4723";
+            scriptContent = scriptGenerator.toIosPyScript(templateFunctions, udid, xcodeOrgId, platformVersion, appPath, port, "8100", "9100");
+        }
         return scriptContent;
     }
 

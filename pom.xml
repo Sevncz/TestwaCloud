@@ -64,6 +64,7 @@
         <jedis.version>2.9.0</jedis.version>
         <lombok.version>1.16.18</lombok.version>
         <selenium.version>3.12.0</selenium.version>
+        <redisson.version>2.15.1</redisson.version>
     </properties>
 
     <dependencyManagement>
@@ -447,7 +448,17 @@
                 <artifactId>jedis</artifactId>
                 <version>${jedis.version}</version>
             </dependency>
-
+            <!-- redisson -->
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson</artifactId>
+                <version>${redisson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson-spring-boot-starter</artifactId>
+                <version>${redisson.version}</version>
+            </dependency>
             <!-- video -->
 
             <dependency>

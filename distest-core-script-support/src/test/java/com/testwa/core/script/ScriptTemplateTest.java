@@ -66,7 +66,7 @@ public class ScriptTemplateTest {
         String xcodeOrgId = "xcodeOrgId";
         String appPath = "/Users/wen/dev/TestApp.zip";
         String port = "4723";
-        String scriptContent = scriptGenerator.toIosPyScript(functionList, udid, xcodeOrgId, platformVersion, appPath, port);
+        String scriptContent = scriptGenerator.toIosPyScript(functionList, udid, xcodeOrgId, platformVersion, appPath, port, "8100", "9100");
         System.out.println(scriptContent);
     }
 

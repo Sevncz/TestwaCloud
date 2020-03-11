@@ -124,6 +124,8 @@ message Message {
         IOS_MULTI_TAP = 60;
         IOS_TOUCH_MULTI_PERFORM = 61;
 
+        TASK_V2_START = 70;
+
         CONNECTED = 99;
     }
 	Topic topicName = 1;

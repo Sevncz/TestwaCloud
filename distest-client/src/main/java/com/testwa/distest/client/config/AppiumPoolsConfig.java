@@ -14,7 +14,7 @@ import javax.annotation.PreDestroy;
  * Created by wen on 13/08/2017.
  */
 @Slf4j
-@Configuration
+//@Configuration
 public class AppiumPoolsConfig {
     private AppiumManagerPool pool;
 

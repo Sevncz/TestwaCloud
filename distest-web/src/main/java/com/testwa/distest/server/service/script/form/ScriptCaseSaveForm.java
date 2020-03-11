@@ -9,5 +9,6 @@ import java.util.List;
 public class ScriptCaseSaveForm extends RequestFormBase {
     private String scriptName;
     private String scriptDesc;
+    private String platform;
     private List<ScriptFunctionSaveForm> scriptFunctions;
 }
