@@ -21,6 +21,7 @@ import com.testwa.distest.server.rpc.cache.CacheUtil;
 import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.cache.mgr.TaskCountMgr;
 import com.testwa.distest.server.service.device.service.DeviceService;
+import com.testwa.distest.server.service.script.service.ScriptMetadataService;
 import com.testwa.distest.server.service.script.service.ScriptService;
 import com.testwa.distest.server.service.task.form.TaskStopForm;
 import com.testwa.distest.server.service.task.service.SubTaskService;
@@ -44,6 +45,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by wen on 25/10/2017.
@@ -76,6 +78,8 @@ public class ExecuteMgr {
     private User currentUser;
     @Autowired
     private RedissonClient redissonClient;
+    @Autowired
+    private ScriptMetadataService scriptMetadataService;
 
     /**
      * @Description: 开始执行一个回归测试任务
@@ -286,6 +290,7 @@ public class ExecuteMgr {
         return df.format(num);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public TaskStartResultVO startFunctionalTestTaskV2(List<String> deviceIds, App app, ScriptCaseVO scriptCaseDetailVO) {
         // 记录task的执行信息
         Long taskCode = taskIdWorker.nextId();
@@ -300,17 +305,25 @@ public class ExecuteMgr {
         task.setScriptJson(JSON.toJSONString(scriptCaseDetailVO));
         task.setTaskName("执行[" + scriptCaseDetailVO.getScriptCaseName() + "]");
 
+        Map<String, String> map = scriptMetadataService.getPython();
         TaskVO taskVO = new TaskVO();
         taskVO.setScriptCase(scriptCaseDetailVO);
         taskVO.setAppUrl(app.getPath());
         taskVO.setTaskCode(taskCode);
+        taskVO.setMetadata(map);
 
         // 启动任务
         for (String key : deviceIds) {
             // 发布任务
             RTopic topic = redissonClient.getTopic(key);
-            topic.publish(taskVO);
-            deviceService.work(key);
+            if(topic == null) {
+                Device d = deviceService.findByDeviceId(key);
+                result.addUnableDevice(d);
+            }else{
+                taskVO.setDeviceId(key);
+                topic.publish(taskVO);
+                deviceService.work(key);
+            }
         }
         task.setCreateBy(currentUser.getId());
         task.setCreateTime(new Date());

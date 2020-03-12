@@ -140,6 +140,13 @@ public class ScriptCaseController extends BaseController {
                         e.printStackTrace();
                     }
                 }
+                if (ScriptActionEnum.swipe.name().equals(action)) {
+                    try {
+                        code = scriptCodePython.codeFor_swipe(jsonArray.getString(0), jsonArray.getString(1), jsonArray.getString(2), jsonArray.getString(3), jsonArray.getString(4));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
                 function.addCode(code);
             }
             templateFunctions.add(function);

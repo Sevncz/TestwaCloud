@@ -1,12 +1,17 @@
 package com.testwa.distest.server.web.task.controller;
 
 import com.testwa.core.base.controller.BaseController;
+import com.testwa.core.script.util.FileUtil;
 import com.testwa.core.script.vo.ScriptCaseVO;
 import com.testwa.core.script.vo.TaskVO;
 import com.testwa.distest.common.enums.DB;
-import com.testwa.distest.server.entity.*;
+import com.testwa.distest.server.entity.App;
+import com.testwa.distest.server.entity.Device;
+import com.testwa.distest.server.entity.TaskResult;
+import com.testwa.distest.server.entity.User;
 import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.device.service.DeviceService;
+import com.testwa.distest.server.service.fdfs.service.FdfsStorageService;
 import com.testwa.distest.server.service.script.service.ScriptCaseService;
 import com.testwa.distest.server.service.script.service.ScriptMetadataService;
 import com.testwa.distest.server.service.task.form.TaskV2StartByScriptsForm;
@@ -30,6 +35,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +83,10 @@ public class TaskV2Controller extends BaseController {
     private ScriptMetadataService scriptMetadataService;
     @Autowired
     private TaskResultService taskResultService;
+    @Value("${base.report.dir}")
+    private String reportDir;
+    @Autowired
+    private FdfsStorageService fdfsStorageService;
 
     @ApiOperation(value = "通过脚本运行任务", notes = "")
     @ResponseBody
@@ -93,21 +106,21 @@ public class TaskV2Controller extends BaseController {
         List<Device> deviceList = deviceService.findAll(form.getDeviceIds());
         List<Device> unableDevices = new ArrayList<>();
         List<String> unableDeviceIds = new ArrayList<>();
-        for(Device device : deviceList) {
-            if(!onlineDeviceIdList.contains(device.getDeviceId())
+        for (Device device : deviceList) {
+            if (!onlineDeviceIdList.contains(device.getDeviceId())
                     || !DB.DeviceWorkStatus.FREE.equals(device.getWorkStatus())
-                    || !DB.DeviceDebugStatus.FREE.equals(device.getDebugStatus())){
+                    || !DB.DeviceDebugStatus.FREE.equals(device.getDebugStatus())) {
                 unableDevices.add(device);
                 unableDeviceIds.add(device.getDeviceId());
             }
         }
         List<String> useableList = form.getDeviceIds().stream().filter(item -> !unableDeviceIds.contains(item)).collect(toList());
         TaskStartResultVO vo = new TaskStartResultVO();
-        if(useableList.isEmpty()) {
+        if (useableList.isEmpty()) {
             vo.addUnableDevice(unableDevices);
             return vo;
         }
-        for(String deviceId : useableList) {
+        for (String deviceId : useableList) {
             deviceLockMgr.workLock(deviceId, currentUser.getUserCode(), workExpireTime);
         }
         ScriptCaseVO scriptCaseDetailVO = scriptCaseService.getScriptCaseDetailVO(form.getScriptCaseId());
@@ -161,5 +174,32 @@ public class TaskV2Controller extends BaseController {
     public TaskResult saveTaskResult(@RequestBody @Valid TaskResult result) {
         taskResultService.insert(result);
         return result;
+    }
+
+    @ApiOperation(value = "根据Result生成report", notes = "")
+    @ResponseBody
+    @PostMapping(value = "/task/{taskCode}/report")
+    public String report(@PathVariable Long taskCode) throws IOException {
+        // 下载到目录
+        Path taskPath = Paths.get(reportDir, taskCode.toString());
+        if (Files.notExists(taskPath)) {
+            Files.createDirectory(taskPath);
+        }
+        Path resultPath = Paths.get(taskPath.toString(), "result");
+        FileUtil.ensureExistEmptyDir(resultPath.toString());
+        if(Files.notExists(resultPath)) {
+            Files.createDirectory(resultPath);
+        }
+        Path reportPath = Paths.get(taskPath.toString(), "report");
+
+        List<TaskResult> results = taskResultService.listByCode(taskCode);
+        for (TaskResult result : results) {
+            fdfsStorageService.downloadResult(result, resultPath);
+        }
+        // 执行allure generate ./result -o ./report/ --clean
+        String[] cmd = {"allure", "generate", resultPath.toString(), "-o", reportPath.toString(), "--clean"};
+        Runtime.getRuntime().exec(cmd);
+
+        return "成功";
     }
 }

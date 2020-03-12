@@ -54,6 +54,7 @@ public class ScriptCaseService extends BaseService<ScriptCase, Long> {
         scriptCase.setScriptCaseDesc(form.getScriptDesc());
         scriptCase.setProjectId(project.getId());
         scriptCase.setScriptCaseId(String.valueOf(commonIdWorker.nextId()));
+        scriptCase.setAppBasePackage(form.getAppBasePackage());
         scriptCaseMapper.insert(scriptCase);
         List<String> functions = new ArrayList<>();
 //        List<ScriptAction> actions = new ArrayList<>();

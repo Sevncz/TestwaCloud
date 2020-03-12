@@ -10,5 +10,6 @@ public class ScriptCaseSaveForm extends RequestFormBase {
     private String scriptName;
     private String scriptDesc;
     private String platform;
+    private String appBasePackage;
     private List<ScriptFunctionSaveForm> scriptFunctions;
 }

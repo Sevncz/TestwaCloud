@@ -7,11 +7,9 @@ import com.testwa.core.script.Function;
 import com.testwa.core.script.ScriptGenerator;
 import com.testwa.core.script.snippet.ScriptActionEnum;
 import com.testwa.core.script.snippet.ScriptCode;
+import com.testwa.core.script.util.FileUtil;
 import com.testwa.core.script.util.VoUtil;
-import com.testwa.core.script.vo.ScriptActionVO;
-import com.testwa.core.script.vo.ScriptCaseVO;
-import com.testwa.core.script.vo.ScriptFunctionVO;
-import com.testwa.core.script.vo.TaskVO;
+import com.testwa.core.script.vo.*;
 import com.testwa.core.shell.UTF8CommonExecs;
 import com.testwa.distest.client.android.ADBCommandUtils;
 import com.testwa.distest.client.android.JadbDeviceManager;
@@ -21,7 +19,10 @@ import com.testwa.distest.client.component.appium.pool.CustomAppiumManagerPool;
 import com.testwa.distest.client.component.appium.utils.Config;
 import com.testwa.distest.client.device.manager.DeviceManager;
 import com.testwa.distest.client.device.pool.DeviceManagerPool;
+import com.testwa.distest.client.download.Downloader;
+import com.testwa.distest.client.exception.DownloadFailException;
 import com.testwa.distest.client.ios.IOSDeviceUtil;
+import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.service.DeviceGvice;
 import com.testwa.distest.client.util.PortUtil;
 import com.testwa.distest.jadb.JadbDevice;
@@ -35,11 +36,10 @@ import org.redisson.api.RTopic;
 import org.redisson.api.RedissonClient;
 import org.redisson.api.listener.MessageListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.*;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.ResourceHttpMessageConverter;
@@ -57,9 +57,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.*;
 
 /**
@@ -86,6 +84,10 @@ public class CronScheduled {
     private CustomAppiumManagerPool customAppiumManagerPool;
     @Autowired
     private RestTemplate restTemplate;
+    @Value("${distest.api.web}")
+    private String apiUrl;
+    @Value("${download.url}")
+    private String downloadUrl;
 
     /**
      *@Description: android设备在线情况的补充检查
@@ -118,14 +120,11 @@ public class CronScheduled {
 
                             String deviceId = msg.getDeviceId();
                             String platformVersion = ADBCommandUtils.getPlatformVersion(deviceId);
-                            String appPath = msg.getAppUrl();
+                            String appLocalPath = downloadApp(msg.getAppUrl());
 
                             CustomAppiumManager manager = customAppiumManagerPool.getManager();
                             String port = manager.getPort() + "";
-//                                String appLocalPath = Constant.localAppPath + File.separator + appInfo.getFileAliasName();
-//                                Downloader downloader = new Downloader();
-//                                downloader.start(appPath, );
-                            String scriptContent = scriptGenerator.toAndroidPyScript(templateFunctions, deviceId, platformVersion, appPath, port);
+                            String scriptContent = scriptGenerator.toAndroidPyScript(templateFunctions, deviceId, platformVersion, appLocalPath, port);
                             runPyScript(msg, scriptContent);
                         }
                     });
@@ -312,6 +311,7 @@ public class CronScheduled {
             if (!Files.exists(Paths.get(pyPath))) {
                 Files.createFile(Paths.get(pyPath));
             }
+            FileUtil.ensureExistEmptyDir(resultPath);
             Files.write(Paths.get(pyPath), scriptContent.getBytes());
             CommandLine commandLine = new CommandLine("pytest");
             commandLine.addArgument(pyPath);
@@ -336,7 +336,29 @@ public class CronScheduled {
 //                pyexecs.exec();
                 // 上传result json
                 Files.list(Paths.get(resultPath)).forEach( f -> {
+                    String url = "http://"+apiUrl+"/v1/fileSupport/single";
+                    FileSystemResource resource = new FileSystemResource(f.toFile());
+                    MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
+                    param.add("file", resource);
 
+                    HttpHeaders requestHeaders = new HttpHeaders();
+                    requestHeaders.set("X-TOKEN", UserInfo.token);
+
+                    HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(param, requestHeaders);
+                    ResponseEntity<FileUploadEntity> responseEntity = restTemplate.exchange(url, HttpMethod.POST, httpEntity, FileUploadEntity.class);
+                    log.info("上传返回：{}", responseEntity.getBody().getData());
+                    if(responseEntity.getStatusCode().value() == 200 && responseEntity.getBody().getCode() == 0) {
+                        // 生成TaskResult对象
+                        TaskResultVO resultVO = new TaskResultVO();
+                        resultVO.setResult(f.getFileName().toString().replace(resultPath, ""));
+                        resultVO.setTaskCode(msg.getTaskCode());
+                        resultVO.setUrl(responseEntity.getBody().getData());
+                        String url2 = "http://"+apiUrl+"/v2/task/result";
+                        requestHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+                        HttpEntity<String> formEntity = new HttpEntity<>(JSON.toJSONString(resultVO), requestHeaders);
+                        ResponseEntity<String> responseEntity1 = this.restTemplate.postForEntity(url2, formEntity, String.class);
+                        log.info("保存TaskResult返回：{}", responseEntity1.getBody());
+                    }
                 });
 
             } catch (IOException e) {
@@ -347,5 +369,19 @@ public class CronScheduled {
         } catch (IOException e) {
             log.error("py 写入失败", e);
         }
+    }
+
+    private String downloadApp(String appPath) {
+        String appUrl = String.format("http://%s/app/%s", downloadUrl, appPath);
+        String appLocalPath = Constant.localAppPath + File.separator + appPath;
+
+        // 检查是否有和该app md5一致的
+        try {
+            Downloader d = new Downloader();
+            d.start(appUrl, appLocalPath);
+        } catch (DownloadFailException | IOException e) {
+            e.printStackTrace();
+        }
+        return appLocalPath;
     }
 }
