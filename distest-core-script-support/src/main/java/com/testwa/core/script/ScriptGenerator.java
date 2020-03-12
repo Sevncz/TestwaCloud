@@ -58,4 +58,52 @@ public class ScriptGenerator {
         return null;
     }
 
+    public String toPyClassScript(List<Function> functions) {
+        Map<String, Object> model = new HashMap<>();
+        model.put("functions", functions);
+
+        try {
+            Template template = freeMarkerConfigurer.getConfiguration().getTemplate("test_py_class_template.ftl");
+            return FreeMarkerTemplateUtils.processTemplateIntoString(template, model);
+        } catch (IOException | TemplateException e) {
+            log.error("Android脚本生成失败", e);
+        }
+        return null;
+    }
+
+    public String toIOSPyHeaderScript(String deviceName, String xcodeOrgId, String platformVersion, String app, String appiumPort, String wdaLocalPort, String mjpegServerPort) {
+        Map<String, Object> model = new HashMap<>();
+        model.put("platformVersion", platformVersion);
+        model.put("deviceName", deviceName);
+        model.put("appPath", app);
+        model.put("port", appiumPort);
+        model.put("type", "iOS");
+        model.put("xcodeOrgId", xcodeOrgId);
+        model.put("wdaLocalPort", StringUtil.isBlank(wdaLocalPort)?"8100":wdaLocalPort);
+        model.put("mjpegServerPort", StringUtil.isBlank(mjpegServerPort)?"9100":mjpegServerPort);
+        try {
+            Template template = freeMarkerConfigurer.getConfiguration().getTemplate("test_py_header_template.ftl");
+            return FreeMarkerTemplateUtils.processTemplateIntoString(template, model);
+        } catch (IOException | TemplateException e) {
+            log.error("Android脚本生成失败", e);
+        }
+        return null;
+    }
+
+    public String toAndroidPyHeaderScript(String deviceName, String platformVersion, String app, String appiumPort) {
+        Map<String, Object> model = new HashMap<>();
+        model.put("platformVersion", platformVersion);
+        model.put("deviceName", deviceName);
+        model.put("appPath", app);
+        model.put("port", appiumPort);
+        model.put("type", "Android");
+        try {
+            Template template = freeMarkerConfigurer.getConfiguration().getTemplate("test_py_header_template.ftl");
+            return FreeMarkerTemplateUtils.processTemplateIntoString(template, model);
+        } catch (IOException | TemplateException e) {
+            log.error("Android脚本生成失败", e);
+        }
+        return null;
+    }
+
 }

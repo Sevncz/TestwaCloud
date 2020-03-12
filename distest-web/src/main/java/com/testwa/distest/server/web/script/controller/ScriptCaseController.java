@@ -108,13 +108,21 @@ public class ScriptCaseController extends BaseController {
     public String py(@PathVariable String scriptCaseId) {
         ScriptCaseVO scriptCaseDetailVO = scriptCaseService.getScriptCaseDetailVO(scriptCaseId);
         List<Function> templateFunctions = getFunctions(scriptCaseDetailVO);
+        return scriptGenerator.toPyClassScript(templateFunctions);
+    }
+
+    @ApiOperation(value = "脚本头", notes = "")
+    @ResponseBody
+    @GetMapping(value = "/script/{scriptCaseId}/header")
+    public String header(@PathVariable String scriptCaseId) {
+        ScriptCaseVO scriptCaseDetailVO = scriptCaseService.getScriptCaseDetailVO(scriptCaseId);
         String scriptContent = "";
         if(ScriptCase.PLATFORM_ANDROID.equals(scriptCaseDetailVO.getPlatform())) {
             String deviceId = "xxxx";
             String platformVersion = "9";
             String appPath = "/app/path";
             String port = "4723";
-            scriptContent = scriptGenerator.toAndroidPyScript(templateFunctions, deviceId, platformVersion, appPath, port);
+            scriptContent = scriptGenerator.toAndroidPyHeaderScript(deviceId, platformVersion, appPath, port);
         }
         if(ScriptCase.PLATFORM_IOS.equals(scriptCaseDetailVO.getPlatform())) {
             String udid = "udid";
@@ -122,8 +130,9 @@ public class ScriptCaseController extends BaseController {
             String xcodeOrgId = "xcodeOrgId";
             String appPath = "/app/path";
             String port = "4723";
-            scriptContent = scriptGenerator.toIosPyScript(templateFunctions, udid, xcodeOrgId, platformVersion, appPath, port, "8100", "9100");
+            scriptContent = scriptGenerator.toIOSPyHeaderScript(udid, xcodeOrgId, platformVersion, appPath, port, "8100", "9100");
         }
+
         return scriptContent;
     }
 
