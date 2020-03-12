@@ -316,10 +316,11 @@ public class ExecuteMgr {
         for (String key : deviceIds) {
             // 发布任务
             RTopic topic = redissonClient.getTopic(key);
+            Device d = deviceService.findByDeviceId(key);
             if(topic == null) {
-                Device d = deviceService.findByDeviceId(key);
                 result.addUnableDevice(d);
             }else{
+                result.addRunningDevice(d);
                 taskVO.setDeviceId(key);
                 topic.publish(taskVO);
                 deviceService.work(key);
@@ -330,6 +331,7 @@ public class ExecuteMgr {
         task.setEnabled(true);
         task.setDevicesJson(JSON.toJSONString(result.getRunningDevices()));
         task.setStatus(DB.TaskStatus.RUNNING);
+        task.setDevicesJson(JSON.toJSONString(result.getRunningDevices()));
         taskService.insert(task);
 
         return result;

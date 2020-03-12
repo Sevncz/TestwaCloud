@@ -5,17 +5,17 @@ import com.testwa.core.script.util.FileUtil;
 import com.testwa.core.script.vo.ScriptCaseVO;
 import com.testwa.core.script.vo.TaskVO;
 import com.testwa.distest.common.enums.DB;
-import com.testwa.distest.server.entity.App;
-import com.testwa.distest.server.entity.Device;
-import com.testwa.distest.server.entity.TaskResult;
-import com.testwa.distest.server.entity.User;
+import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.fdfs.service.FdfsStorageService;
+import com.testwa.distest.server.service.script.form.ScriptCaseListForm;
 import com.testwa.distest.server.service.script.service.ScriptCaseService;
 import com.testwa.distest.server.service.script.service.ScriptMetadataService;
+import com.testwa.distest.server.service.task.form.TaskListForm;
 import com.testwa.distest.server.service.task.form.TaskV2StartByScriptsForm;
 import com.testwa.distest.server.service.task.service.TaskResultService;
+import com.testwa.distest.server.service.task.service.TaskService;
 import com.testwa.distest.server.web.app.validator.AppValidator;
 import com.testwa.distest.server.web.device.mgr.DeviceLockMgr;
 import com.testwa.distest.server.web.device.mgr.DeviceOnlineMgr;
@@ -39,10 +39,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 
@@ -87,6 +84,8 @@ public class TaskV2Controller extends BaseController {
     private String reportDir;
     @Autowired
     private FdfsStorageService fdfsStorageService;
+    @Autowired
+    private TaskService taskService;
 
     @ApiOperation(value = "通过脚本运行任务", notes = "")
     @ResponseBody
@@ -175,6 +174,23 @@ public class TaskV2Controller extends BaseController {
         taskResultService.insert(result);
         String deviceId = result.getDeviceId();
         deviceLockMgr.workRelease(deviceId);
+        Task task = taskService.findByCode(result.getTaskCode());
+        task.setStatus(DB.TaskStatus.COMPLETE);
+        task.setEndTime(new Date());
+        taskService.update(task);
+        return result;
+    }
+
+    @ApiOperation(value = "任务执行完全失败，没有文件产生", notes = "")
+    @ResponseBody
+    @PostMapping(value = "/task/fail")
+    public TaskResult failTaskResult(@RequestBody @Valid TaskResult result) {
+        String deviceId = result.getDeviceId();
+        deviceLockMgr.workRelease(deviceId);
+        Task task = taskService.findByCode(result.getTaskCode());
+        task.setStatus(DB.TaskStatus.ERROR);
+        task.setEndTime(new Date());
+        taskService.update(task);
         return result;
     }
 
