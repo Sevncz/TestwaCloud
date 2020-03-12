@@ -140,4 +140,5 @@ class TestWaBasic():
     <#list function.actions as action>
         ${action}
     </#list>
+
 </#list>

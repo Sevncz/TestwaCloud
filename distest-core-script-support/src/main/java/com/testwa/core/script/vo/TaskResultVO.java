@@ -9,4 +9,5 @@ public class TaskResultVO {
     private Long taskCode;
     private String url;
     private String result;
+    private String deviceId;
 }

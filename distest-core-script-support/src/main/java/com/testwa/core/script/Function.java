@@ -11,7 +11,7 @@ public class Function {
     /**
      * 脚本ID
      */
-    private Long scriptv2Id;
+    private String scriptCaseId;
     /**
      * 方法内代码
      */

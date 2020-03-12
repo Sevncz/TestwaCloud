@@ -70,6 +70,13 @@ public class ScriptCaseController extends BaseController {
         return scriptCaseService.saveCase(project, form);
     }
 
+    @ApiOperation(value = "删除脚本")
+    @ResponseBody
+    @DeleteMapping(value = "/script/delete")
+    public void delete(@RequestParam("scriptCaseId") String scriptCaseId) {
+
+    }
+
     @ApiOperation(value = "脚本列表", notes = "")
     @ResponseBody
     @GetMapping(value = "/project/{projectId}/script/all")
@@ -100,6 +107,35 @@ public class ScriptCaseController extends BaseController {
     @GetMapping(value = "/script/{scriptCaseId}/py")
     public String py(@PathVariable String scriptCaseId) {
         ScriptCaseVO scriptCaseDetailVO = scriptCaseService.getScriptCaseDetailVO(scriptCaseId);
+        List<Function> templateFunctions = getFunctions(scriptCaseDetailVO);
+        String scriptContent = "";
+        if(ScriptCase.PLATFORM_ANDROID.equals(scriptCaseDetailVO.getPlatform())) {
+            String deviceId = "xxxx";
+            String platformVersion = "9";
+            String appPath = "/app/path";
+            String port = "4723";
+            scriptContent = scriptGenerator.toAndroidPyScript(templateFunctions, deviceId, platformVersion, appPath, port);
+        }
+        if(ScriptCase.PLATFORM_IOS.equals(scriptCaseDetailVO.getPlatform())) {
+            String udid = "udid";
+            String platformVersion = "13.3";
+            String xcodeOrgId = "xcodeOrgId";
+            String appPath = "/app/path";
+            String port = "4723";
+            scriptContent = scriptGenerator.toIosPyScript(templateFunctions, udid, xcodeOrgId, platformVersion, appPath, port, "8100", "9100");
+        }
+        return scriptContent;
+    }
+
+    @ApiOperation(value = "脚本action code", notes = "")
+    @ResponseBody
+    @GetMapping(value = "/script/{scriptCaseId}/pyActionCode")
+    public List<Function> pyActionCode(@PathVariable String scriptCaseId) {
+        ScriptCaseVO scriptCaseDetailVO = scriptCaseService.getScriptCaseDetailVO(scriptCaseId);
+        return getFunctions(scriptCaseDetailVO);
+    }
+
+    private List<Function> getFunctions(ScriptCaseVO scriptCaseDetailVO) {
         Map<String, String> map = scriptMetadataService.getPython();
 
         List<ScriptFunctionVO> functionList = scriptCaseDetailVO.getFunctions();
@@ -108,6 +144,7 @@ public class ScriptCaseController extends BaseController {
             List<ScriptActionVO> actionVOS = scriptFunctionVO.getActions();
             Function function = VoUtil.buildVO(scriptFunctionVO, Function.class);
             function.setActions(null);
+            function.setScriptCaseId(scriptCaseDetailVO.getScriptCaseId());
             for (ScriptActionVO scriptActionVO : actionVOS) {
                 String code = "";
                 String action = scriptActionVO.getAction();
@@ -151,23 +188,7 @@ public class ScriptCaseController extends BaseController {
             }
             templateFunctions.add(function);
         }
-        String scriptContent = "";
-        if(ScriptCase.PLATFORM_ANDROID.equals(scriptCaseDetailVO.getPlatform())) {
-            String deviceId = "xxxx";
-            String platformVersion = "9";
-            String appPath = "/app/path";
-            String port = "4723";
-            scriptContent = scriptGenerator.toAndroidPyScript(templateFunctions, deviceId, platformVersion, appPath, port);
-        }
-        if(ScriptCase.PLATFORM_IOS.equals(scriptCaseDetailVO.getPlatform())) {
-            String udid = "udid";
-            String platformVersion = "13.3";
-            String xcodeOrgId = "xcodeOrgId";
-            String appPath = "/app/path";
-            String port = "4723";
-            scriptContent = scriptGenerator.toIosPyScript(templateFunctions, udid, xcodeOrgId, platformVersion, appPath, port, "8100", "9100");
-        }
-        return scriptContent;
+        return templateFunctions;
     }
 
 

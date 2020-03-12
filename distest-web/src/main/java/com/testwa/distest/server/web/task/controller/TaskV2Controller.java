@@ -173,6 +173,8 @@ public class TaskV2Controller extends BaseController {
     @PostMapping(value = "/task/result")
     public TaskResult saveTaskResult(@RequestBody @Valid TaskResult result) {
         taskResultService.insert(result);
+        String deviceId = result.getDeviceId();
+        deviceLockMgr.workRelease(deviceId);
         return result;
     }
 

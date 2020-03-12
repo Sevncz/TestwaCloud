@@ -256,51 +256,22 @@ public class CronScheduled {
         }
     }
 
-    private List<Function> generatorFunctions(TaskVO msg) {
-        ScriptCaseVO scriptCaseVO = msg.getScriptCase();
-        List<ScriptFunctionVO> functionList = scriptCaseVO.getFunctions();
-        List<Function> templateFunctions = new ArrayList<>();
-        for (ScriptFunctionVO scriptFunctionVO : functionList) {
-            List<ScriptActionVO> actionVOS = scriptFunctionVO.getActions();
-            Function function = VoUtil.buildVO(scriptFunctionVO, Function.class);
-            function.setActions(null);
-            for (ScriptActionVO scriptActionVO : actionVOS) {
-                String code = "";
-                String action = scriptActionVO.getAction();
-                JSONArray jsonArray = JSON.parseArray(scriptActionVO.getParameter());
-                if (ScriptActionEnum.findAndAssign.name().equals(action)) {
-                    try {
-                        code = scriptCodePython.codeFor_findAndAssign(jsonArray.getString(0), jsonArray.getString(1), jsonArray.getString(2), jsonArray.getBoolean(3), msg.getMetadata());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (ScriptActionEnum.click.name().equals(action)) {
-                    try {
-                        code = scriptCodePython.codeFor_click(jsonArray.getString(0));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (ScriptActionEnum.tap.name().equals(action)) {
-                    try {
-                        code = scriptCodePython.codeFor_tap(jsonArray.getString(0), jsonArray.getString(1), jsonArray.getString(2));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (ScriptActionEnum.sendKeys.name().equals(action)) {
-                    try {
-                        code = scriptCodePython.codeFor_sendKeys(jsonArray.getString(0), jsonArray.getString(1));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                function.addCode(code);
-            }
-            templateFunctions.add(function);
+    private List<Function> generatorFunctions(TaskVO msg) throws Exception {
+        String url = "http://"+apiUrl+"/v2/script/"+msg.getScriptCase().getScriptCaseId()+"/pyActionCode";
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.set("X-TOKEN", UserInfo.token);
+        requestHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+        HttpEntity<String> request = new HttpEntity<>(requestHeaders);
+        ResponseEntity<FunctionCodeEntity> responseEntity = this.restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                request,
+                FunctionCodeEntity.class
+        );
+        if(responseEntity.getStatusCode().value() == 200 && responseEntity.getBody().getCode() == 0) {
+            return responseEntity.getBody().getData();
         }
-        return templateFunctions;
+        throw new Exception("代码生成异常");
     }
 
     private void runPyScript(TaskVO msg, String scriptContent) {
@@ -324,16 +295,6 @@ public class CronScheduled {
             pyexecs.setTimeout(30 * 60 * 1000L);
             try {
                 pyexecs.exec();
-                // 生成报告 allure generate ./result -o ./report/ --clean
-//                CommandLine commandLine2 = new CommandLine("allure");
-//                commandLine2.addArgument("generate");
-//                commandLine2.addArgument(resultPath);
-//                commandLine2.addArgument("-o");
-//                commandLine2.addArgument(reportPath);
-//                commandLine2.addArgument("--clean");
-//                pyexecs = new UTF8CommonExecs(commandLine2);
-//                pyexecs.setTimeout(60 * 1000L);
-//                pyexecs.exec();
                 // 上传result json
                 Files.list(Paths.get(resultPath)).forEach( f -> {
                     String url = "http://"+apiUrl+"/v1/fileSupport/single";
@@ -353,6 +314,7 @@ public class CronScheduled {
                         resultVO.setResult(f.getFileName().toString().replace(resultPath, ""));
                         resultVO.setTaskCode(msg.getTaskCode());
                         resultVO.setUrl(responseEntity.getBody().getData());
+                        resultVO.setDeviceId(msg.getDeviceId());
                         String url2 = "http://"+apiUrl+"/v2/task/result";
                         requestHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
                         HttpEntity<String> formEntity = new HttpEntity<>(JSON.toJSONString(resultVO), requestHeaders);
@@ -377,8 +339,11 @@ public class CronScheduled {
 
         // 检查是否有和该app md5一致的
         try {
-            Downloader d = new Downloader();
-            d.start(appUrl, appLocalPath);
+            log.info("应用路径：{}", appLocalPath);
+            if(Files.notExists(Paths.get(appLocalPath))) {
+                Downloader d = new Downloader();
+                d.start(appUrl, appLocalPath);
+            }
         } catch (DownloadFailException | IOException e) {
             e.printStackTrace();
         }

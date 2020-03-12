@@ -13,4 +13,6 @@ public class TaskResult extends ProjectBase {
     private String url;
     @Column(name = "result")
     private String result;
+    @Column(name = "device_id")
+    private String deviceId;
 }

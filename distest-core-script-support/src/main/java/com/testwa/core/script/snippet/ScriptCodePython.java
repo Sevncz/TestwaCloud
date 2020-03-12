@@ -46,11 +46,7 @@ public class ScriptCodePython implements ScriptCode {
 
     @Override
     public String codeFor_swipe(String varName, String x1, String y1, String x2, String y2) {
-        return String.format("TouchAction(driver) \n" +
-                "  .press(x=%s, y=%s) \n" +
-                "  .move_to(x=%s, y=%s) \n" +
-                "  .release() \\\n" +
-                "  .perform()", x1, y1, x2, y2);
+        return String.format("TouchAction(driver).press(x=%s, y=%s).move_to(x=%s, y=%s).release().perform()", x1, y1, x2, y2);
     }
 
     @Override
