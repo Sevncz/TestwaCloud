@@ -5,6 +5,7 @@ import pytest
 import os
 import copy
 import allure
+import time
 from appium.webdriver.common.touch_action import TouchAction
 
 from appium import webdriver
@@ -138,6 +139,7 @@ class TestWaBasic():
     @allure.severity("${function.severity}")# 用例等级
     </#if>
     def test_action_${function_index}(self, driver):
+        time.sleep(2)
     <#list function.actions as action>
         ${action}
     </#list>

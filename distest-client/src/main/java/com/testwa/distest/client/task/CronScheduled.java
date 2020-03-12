@@ -1,15 +1,13 @@
 package com.testwa.distest.client.task;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.sun.jna.Platform;
 import com.testwa.core.script.Function;
 import com.testwa.core.script.ScriptGenerator;
-import com.testwa.core.script.snippet.ScriptActionEnum;
 import com.testwa.core.script.snippet.ScriptCode;
 import com.testwa.core.script.util.FileUtil;
-import com.testwa.core.script.util.VoUtil;
-import com.testwa.core.script.vo.*;
+import com.testwa.core.script.vo.TaskResultVO;
+import com.testwa.core.script.vo.TaskVO;
 import com.testwa.core.shell.UTF8CommonExecs;
 import com.testwa.distest.client.android.ADBCommandUtils;
 import com.testwa.distest.client.android.JadbDeviceManager;
@@ -40,11 +38,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
-import org.springframework.http.converter.FormHttpMessageConverter;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.ResourceHttpMessageConverter;
-import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -53,11 +46,10 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.*;
 
 /**
@@ -90,11 +82,11 @@ public class CronScheduled {
     private String downloadUrl;
 
     /**
-     *@Description: android设备在线情况的补充检查
-     *@Param: []
-     *@Return: void
-     *@Author: wen
-     *@Date: 2018/5/8
+     * @Description: android设备在线情况的补充检查
+     * @Param: []
+     * @Return: void
+     * @Author: wen
+     * @Date: 2018/5/8
      */
     @Scheduled(fixedDelay = 5000, initialDelay = 1000)
     public void androidInit() {
@@ -103,7 +95,7 @@ public class CronScheduled {
         List<Future<DeviceManager>> resultList = new ArrayList<>();
         devices.forEach(d -> {
             try {
-                if(!deviceManagerPool.hasExist(d.getSerial())) {
+                if (!deviceManagerPool.hasExist(d.getSerial())) {
                     Future<DeviceManager> future = deviceExecutor.submit(new DeviceManagerTask(d.getSerial(), DeviceType.ANDROID));
                     resultList.add(future);
                     TimeUnit.MILLISECONDS.sleep(100);
@@ -135,8 +127,8 @@ public class CronScheduled {
         });
 
         //遍历任务的结果
-        for (Future<DeviceManager> fs : resultList){
-            while(!fs.isDone()){
+        for (Future<DeviceManager> fs : resultList) {
+            while (!fs.isDone()) {
                 try {
                     TimeUnit.MILLISECONDS.sleep(1);
                 } catch (InterruptedException e) {
@@ -150,14 +142,14 @@ public class CronScheduled {
     public void iOSInit() {
         Config.setEnv(env);
 
-        if(Platform.isMac()) {
+        if (Platform.isMac()) {
             List<String> udids = IOSDeviceUtil.getUDID();
             log.debug("udids {}", udids.toString());
             List<Future<DeviceManager>> resultList = new ArrayList<>();
             udids.forEach(udid -> {
                 try {
                     boolean success = IOSDeviceUtil.addOnline(udid);
-                    if(success) {
+                    if (success) {
                         RTopic rTopic = redissonClient.getTopic(udid);
                         log.info("[{}]增加任务监听", udid);
                         rTopic.addListener(TaskVO.class, new MessageListener<TaskVO>() {
@@ -193,8 +185,8 @@ public class CronScheduled {
                 }
             });
             //遍历任务的结果
-            for (Future<DeviceManager> fs : resultList){
-                while(!fs.isDone()){
+            for (Future<DeviceManager> fs : resultList) {
+                while (!fs.isDone()) {
                     try {
                         TimeUnit.MILLISECONDS.sleep(1);
                     } catch (InterruptedException e) {
@@ -202,21 +194,6 @@ public class CronScheduled {
                     }
                 }
             }
-        }
-    }
-
-    class DeviceManagerTask implements Callable<DeviceManager> {
-        private String deviceId;
-        private DeviceType type;
-
-        public DeviceManagerTask(String deviceId, DeviceType type) {
-            this.deviceId = deviceId;
-            this.type = type;
-        }
-
-        @Override
-        public DeviceManager call() throws Exception {
-            return deviceManagerPool.getManager(deviceId, type);
         }
     }
 
@@ -234,7 +211,6 @@ public class CronScheduled {
         }
     }
 
-
     @Scheduled(fixedDelay = 3000)
     public void androidClear() {
         List<JadbDevice> devices = JadbDeviceManager.getJadbDeviceList();
@@ -243,8 +219,8 @@ public class CronScheduled {
                 JadbDevice.State state = jadbDevice.getState();
             } catch (IOException | JadbException e) {
                 DeviceManager manager = deviceManagerPool.getInitialManager(jadbDevice.getSerial());
-                if(manager != null) {
-                    if(manager.deviceIsRealOffline()) {
+                if (manager != null) {
+                    if (manager.deviceIsRealOffline()) {
                         deviceManagerPool.release(manager);
                         JadbDeviceManager.jadbDeviceMap.remove(jadbDevice.getSerial());
                         deviceGvice.stateChange(jadbDevice.getSerial(), DeviceStatusChangeRequest.LineStatus.DISCONNECTED);
@@ -257,7 +233,7 @@ public class CronScheduled {
     }
 
     private List<Function> generatorFunctions(TaskVO msg) throws Exception {
-        String url = "http://"+apiUrl+"/v2/script/"+msg.getScriptCase().getScriptCaseId()+"/pyActionCode";
+        String url = "http://" + apiUrl + "/v2/script/" + msg.getScriptCase().getScriptCaseId() + "/pyActionCode";
         HttpHeaders requestHeaders = new HttpHeaders();
         requestHeaders.set("X-TOKEN", UserInfo.token);
         requestHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
@@ -268,7 +244,7 @@ public class CronScheduled {
                 request,
                 FunctionCodeEntity.class
         );
-        if(responseEntity.getStatusCode().value() == 200 && responseEntity.getBody().getCode() == 0) {
+        if (responseEntity.getStatusCode().value() == 200 && responseEntity.getBody().getCode() == 0) {
             return responseEntity.getBody().getData();
         }
         throw new Exception("代码生成异常");
@@ -295,42 +271,68 @@ public class CronScheduled {
             pyexecs.setTimeout(30 * 60 * 1000L);
             try {
                 pyexecs.exec();
-                // 上传result json
-                Files.list(Paths.get(resultPath)).forEach( f -> {
-                    String url = "http://"+apiUrl+"/v1/fileSupport/single";
-                    FileSystemResource resource = new FileSystemResource(f.toFile());
-                    MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
-                    param.add("file", resource);
-
-                    HttpHeaders requestHeaders = new HttpHeaders();
-                    requestHeaders.set("X-TOKEN", UserInfo.token);
-
-                    HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(param, requestHeaders);
-                    ResponseEntity<FileUploadEntity> responseEntity = restTemplate.exchange(url, HttpMethod.POST, httpEntity, FileUploadEntity.class);
-                    log.info("上传返回：{}", responseEntity.getBody().getData());
-                    if(responseEntity.getStatusCode().value() == 200 && responseEntity.getBody().getCode() == 0) {
-                        // 生成TaskResult对象
-                        TaskResultVO resultVO = new TaskResultVO();
-                        resultVO.setResult(f.getFileName().toString().replace(resultPath, ""));
-                        resultVO.setTaskCode(msg.getTaskCode());
-                        resultVO.setUrl(responseEntity.getBody().getData());
-                        resultVO.setDeviceId(msg.getDeviceId());
-                        String url2 = "http://"+apiUrl+"/v2/task/result";
-                        requestHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-                        HttpEntity<String> formEntity = new HttpEntity<>(JSON.toJSONString(resultVO), requestHeaders);
-                        ResponseEntity<String> responseEntity1 = this.restTemplate.postForEntity(url2, formEntity, String.class);
-                        log.info("保存TaskResult返回：{}", responseEntity1.getBody());
-                    }
-                });
-
             } catch (IOException e) {
                 String output = pyexecs.getOutput();
                 log.error(output);
                 log.error("py 执行失败", e);
+            } finally {
+                // 上传result json
+                uploadResult(msg, resultPath);
             }
         } catch (IOException e) {
             log.error("py 写入失败", e);
         }
+    }
+
+    private void uploadResult(TaskVO msg, String resultPath) throws IOException {
+
+        if (Files.list(Paths.get(resultPath)).count() > 0) {
+            Files.list(Paths.get(resultPath)).forEach(f -> {
+                String url = "http://" + apiUrl + "/v1/fileSupport/single";
+                HttpHeaders requestHeadersFile = new HttpHeaders();
+                requestHeadersFile.set("X-TOKEN", UserInfo.token);
+                FileSystemResource resource = new FileSystemResource(f.toFile());
+                MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
+                param.add("file", resource);
+                HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(param, requestHeadersFile);
+                ResponseEntity<FileUploadEntity> responseEntity = restTemplate.exchange(url, HttpMethod.POST, httpEntity, FileUploadEntity.class);
+                log.info("上传返回：{}", responseEntity.getBody().getData());
+                if (responseEntity.getStatusCode().value() == 200 && responseEntity.getBody().getCode() == 0) {
+                    // 生成TaskResult对象
+                    TaskResultVO resultVO = new TaskResultVO();
+                    resultVO.setResult(f.getFileName().toString().replace(resultPath, ""));
+                    resultVO.setTaskCode(msg.getTaskCode());
+                    resultVO.setUrl(responseEntity.getBody().getData());
+                    resultVO.setDeviceId(msg.getDeviceId());
+                    String url2 = "http://" + apiUrl + "/v2/task/result";
+                    HttpHeaders requestHeaders = new HttpHeaders();
+                    requestHeaders.set("X-TOKEN", UserInfo.token);
+                    requestHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+                    HttpEntity<String> formEntity = new HttpEntity<>(JSON.toJSONString(resultVO), requestHeaders);
+                    ResponseEntity<String> responseEntity1 = this.restTemplate.postForEntity(url2, formEntity, String.class);
+                    log.info("保存TaskResult返回：{}", responseEntity1.getBody());
+                }
+            });
+        } else {
+            TaskResultVO resultVO = new TaskResultVO();
+            resultVO.setTaskCode(msg.getTaskCode());
+            resultVO.setDeviceId(msg.getDeviceId());
+            String url = "http://" + apiUrl + "/v2/task/fail";
+            HttpHeaders requestHeaders = new HttpHeaders();
+            requestHeaders.set("X-TOKEN", UserInfo.token);
+            requestHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+            HttpEntity<String> formEntity = new HttpEntity<>(JSON.toJSONString(resultVO), requestHeaders);
+            ResponseEntity<String> responseEntity1 = this.restTemplate.postForEntity(url, formEntity, String.class);
+            log.info("保存TaskResult返回：{}", responseEntity1.getBody());
+        }
+        // 生成报告
+        String url = "http://" + apiUrl + "/v2/task/" + msg.getTaskCode() + "/report";
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.set("X-TOKEN", UserInfo.token);
+        HttpEntity<String> formEntity = new HttpEntity<>(requestHeaders);
+        ResponseEntity<String> responseEntity = this.restTemplate.postForEntity(url, formEntity, String.class);
+        log.info("生成报告返回：{}", responseEntity.getBody());
+
     }
 
     private String downloadApp(String appPath) {
@@ -340,7 +342,7 @@ public class CronScheduled {
         // 检查是否有和该app md5一致的
         try {
             log.info("应用路径：{}", appLocalPath);
-            if(Files.notExists(Paths.get(appLocalPath))) {
+            if (Files.notExists(Paths.get(appLocalPath))) {
                 Downloader d = new Downloader();
                 d.start(appUrl, appLocalPath);
             }
@@ -348,5 +350,20 @@ public class CronScheduled {
             e.printStackTrace();
         }
         return appLocalPath;
+    }
+
+    class DeviceManagerTask implements Callable<DeviceManager> {
+        private String deviceId;
+        private DeviceType type;
+
+        public DeviceManagerTask(String deviceId, DeviceType type) {
+            this.deviceId = deviceId;
+            this.type = type;
+        }
+
+        @Override
+        public DeviceManager call() throws Exception {
+            return deviceManagerPool.getManager(deviceId, type);
+        }
     }
 }

@@ -76,7 +76,11 @@ public class Task extends ProjectBaseEntity {
         if(StringUtils.isEmpty(this.scriptJson)){
             return new ArrayList<>();
         }
-        return JSON.parseArray(this.scriptJson, Script.class);
+        try {
+            return JSON.parseArray(this.scriptJson, Script.class);
+        }catch (Exception e) {
+            return new ArrayList<>();
+        }
     }
 
     public void setDeviceStatusStatis(List<TaskDeviceStatusStatis> tds) {
