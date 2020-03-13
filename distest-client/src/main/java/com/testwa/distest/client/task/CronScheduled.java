@@ -45,11 +45,13 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,19 +76,9 @@ public class CronScheduled {
     @Autowired
     private ScriptGenerator scriptGenerator;
     @Autowired
-    private EnvGenerator envGenerator;
-    @Autowired
-    private ScriptCode scriptCodePython;
-    @Autowired
     private CustomAppiumManagerPool customAppiumManagerPool;
     @Autowired
-    private RestTemplate restTemplate;
-    @Value("${distest.api.web}")
-    private String apiUrl;
-    @Value("${download.url}")
-    private String downloadUrl;
-    @Value("${application.version}")
-    private String applicationVersion;
+    private PyTaskProvider pyTaskProvider;
 
     /**
      * @Description: android设备在线情况的补充检查
@@ -115,16 +107,16 @@ public class CronScheduled {
                         public void onMessage(CharSequence channel, TaskVO msg) {
                             log.info("监听到消息: {}", JSON.toJSONString(msg));
                             // 生成脚本
-                            List<Function> templateFunctions = generatorFunctions(msg);
+                            List<Function> templateFunctions = pyTaskProvider.generatorFunctions(msg);
 
                             String deviceId = msg.getDeviceId();
                             String platformVersion = ADBCommandUtils.getPlatformVersion(deviceId);
-                            String appLocalPath = downloadApp(msg.getAppUrl());
+                            String appLocalPath = pyTaskProvider.downloadApp(msg.getAppUrl());
 
                             CustomAppiumManager manager = customAppiumManagerPool.getManager();
                             String port = manager.getPort() + "";
                             String scriptContent = scriptGenerator.toAndroidPyScript(templateFunctions, deviceId, platformVersion, appLocalPath, port);
-                            runPyScript(msg, scriptContent);
+                            pyTaskProvider.runPyScript(msg, scriptContent);
                         }
                     });
                 }
@@ -165,22 +157,19 @@ public class CronScheduled {
                             public void onMessage(CharSequence channel, TaskVO msg) {
                                 log.info("监听到消息: {}", JSON.toJSONString(msg));
                                 // 生成脚本
-                                List<Function> templateFunctions = generatorFunctions(msg);
+                                List<Function> templateFunctions = pyTaskProvider.generatorFunctions(msg);
 
                                 String udid = msg.getDeviceId();
                                 String platformVersion = "13.3";
                                 String xcodeOrgId = "UNW569G4GD";
-                                String appPath = msg.getAppUrl();
+                                String appLocalPath = pyTaskProvider.downloadApp(msg.getAppUrl());
 
                                 CustomAppiumManager manager = customAppiumManagerPool.getManager();
                                 String port = manager.getPort() + "";
                                 String wdaLocalPort = PortUtil.getAvailablePort() + "";
                                 String mjpegServerPort = PortUtil.getAvailablePort() + "";
-//                                String appLocalPath = Constant.localAppPath + File.separator + appInfo.getFileAliasName();
-//                                Downloader downloader = new Downloader();
-//                                downloader.start(appPath, );
-                                String scriptContent = scriptGenerator.toIosPyScript(templateFunctions, udid, xcodeOrgId, platformVersion, appPath, port, wdaLocalPort, mjpegServerPort);
-                                runPyScript(msg, scriptContent);
+                                String scriptContent = scriptGenerator.toIosPyScript(templateFunctions, udid, xcodeOrgId, platformVersion, appLocalPath, port, wdaLocalPort, mjpegServerPort);
+                                pyTaskProvider.runPyScript(msg, scriptContent);
                             }
                         });
                     }
@@ -237,126 +226,6 @@ public class CronScheduled {
                 }
             }
         }
-    }
-
-    private List<Function> generatorFunctions(TaskVO msg) throws Exception {
-        String url = "http://" + apiUrl + "/v2/script/" + msg.getScriptCase().getScriptCaseId() + "/pyActionCode";
-        HttpHeaders requestHeaders = new HttpHeaders();
-        requestHeaders.set("X-TOKEN", UserInfo.token);
-        requestHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-        HttpEntity<String> request = new HttpEntity<>(requestHeaders);
-        ResponseEntity<FunctionCodeEntity> responseEntity = this.restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                request,
-                FunctionCodeEntity.class
-        );
-        if (responseEntity.getStatusCode().value() == 200 && responseEntity.getBody().getCode() == 0) {
-            return responseEntity.getBody().getData();
-        }
-        throw new Exception("代码生成异常");
-    }
-
-    private void runPyScript(TaskVO msg, String scriptContent) {
-        String pyPath = Constant.localScriptPath + File.separator + msg.getTaskCode() + ".py";
-        String resultPath = Constant.localScriptPath + File.separator + msg.getTaskCode() + "result";
-        log.info("python 脚本路径 {} ", pyPath);
-        try {
-            if (!Files.exists(Paths.get(pyPath))) {
-                Files.createFile(Paths.get(pyPath));
-            }
-            FileUtil.ensureExistEmptyDir(resultPath);
-            Files.write(Paths.get(pyPath), scriptContent.getBytes());
-            CommandLine commandLine = new CommandLine("pytest");
-            commandLine.addArgument(pyPath);
-            commandLine.addArgument("--alluredir");
-            commandLine.addArgument(resultPath);
-//                                    commandLine.addArgument("-reruns");
-//                                    commandLine.addArgument("3");
-            UTF8CommonExecs pyexecs = new UTF8CommonExecs(commandLine);
-            // 设置最大执行时间，30分钟
-            pyexecs.setTimeout(30 * 60 * 1000L);
-            int success = 0;
-            try {
-                pyexecs.exec();
-            } catch (IOException e) {
-                success = success + 1;
-                String output = pyexecs.getOutput();
-                log.error(output);
-                log.error("py 执行失败", e);
-            } finally {
-                // 上传result json
-                uploadResult(msg, resultPath, success);
-            }
-        } catch (IOException e) {
-            log.error("py 写入失败", e);
-        }
-    }
-
-    private void uploadResult(TaskVO msg, String resultPath, int success) throws IOException {
-
-        if (Files.list(Paths.get(resultPath)).count() > 0) {
-            Files.list(Paths.get(resultPath)).forEach(f -> {
-                String url = "http://" + apiUrl + "/v1/fileSupport/single";
-                HttpHeaders requestHeadersFile = new HttpHeaders();
-                requestHeadersFile.set("X-TOKEN", UserInfo.token);
-                FileSystemResource resource = new FileSystemResource(f.toFile());
-                MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
-                param.add("file", resource);
-                HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(param, requestHeadersFile);
-                ResponseEntity<FileUploadEntity> responseEntity = restTemplate.exchange(url, HttpMethod.POST, httpEntity, FileUploadEntity.class);
-                log.info("上传返回：{}", responseEntity.getBody().getData());
-                if (responseEntity.getStatusCode().value() == 200 && responseEntity.getBody().getCode() == 0) {
-                    // 生成TaskResult对象
-                    TaskResultVO resultVO = new TaskResultVO();
-                    resultVO.setResult(f.getFileName().toString().replace(resultPath, ""));
-                    resultVO.setTaskCode(msg.getTaskCode());
-                    resultVO.setUrl(responseEntity.getBody().getData());
-                    resultVO.setDeviceId(msg.getDeviceId());
-                    String url2 = "http://" + apiUrl + "/v2/task/result";
-                    HttpHeaders requestHeaders = new HttpHeaders();
-                    requestHeaders.set("X-TOKEN", UserInfo.token);
-                    requestHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-                    HttpEntity<String> formEntity = new HttpEntity<>(JSON.toJSONString(resultVO), requestHeaders);
-                    ResponseEntity<String> responseEntity1 = this.restTemplate.postForEntity(url2, formEntity, String.class);
-                    log.info("保存TaskResult返回：{}", responseEntity1.getBody());
-                }
-            });
-        }
-        // 上传完成，通知任务已完成
-        TaskEnvVO envVO = new TaskEnvVO();
-        AgentInfo agentInfo = AgentInfo.getAgentInfo();
-        envVO.setAgentVersion(applicationVersion);
-        envVO.setJavaVersion(agentInfo.getJavaVersion());
-        envVO.setOsVersion(agentInfo.getOsVersion());
-        envVO.setNodeVersion("1.13");
-        envVO.setPythonVersion("3.7");
-        envVO.setDeviceId(msg.getDeviceId());
-
-        String url = "http://" + apiUrl + "/v2/task/" + msg.getTaskCode() + "/finish/" + success;
-        HttpHeaders requestHeaders = new HttpHeaders();
-        requestHeaders.set("X-TOKEN", UserInfo.token);
-        requestHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-        HttpEntity<String> formEntity = new HttpEntity<>(JSON.toJSONString(envVO), requestHeaders);
-        ResponseEntity<String> responseEntity = this.restTemplate.postForEntity(url, formEntity, String.class);
-        log.info("生成报告返回：{}", responseEntity.getBody());
-    }
-
-    private String downloadApp(String appPath) {
-        String appUrl = String.format("http://%s/app/%s", downloadUrl, appPath);
-        String appLocalPath = Constant.localAppPath + File.separator + appPath;
-
-        // 检查是否有和该app md5一致的
-        try {
-            log.info("应用路径：{}", appLocalPath);
-            if (Files.notExists(Paths.get(appLocalPath))) {
-                Downloader d = new Downloader();
-                d.start(appUrl, appLocalPath);
-            }
-        } catch (DownloadFailException | IOException e) {
-            e.printStackTrace();
-        }
-        return appLocalPath;
     }
 
     class DeviceManagerTask implements Callable<DeviceManager> {
