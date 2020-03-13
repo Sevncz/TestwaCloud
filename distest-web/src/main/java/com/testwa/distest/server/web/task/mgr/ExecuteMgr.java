@@ -32,6 +32,7 @@ import io.grpc.stub.StreamObserver;
 import io.rpc.testwa.agent.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
+import org.redisson.api.RAtomicLong;
 import org.redisson.api.RTopic;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
@@ -324,6 +325,7 @@ public class ExecuteMgr {
                 taskVO.setDeviceId(key);
                 topic.publish(taskVO);
                 deviceService.work(key);
+                redissonClient.getAtomicLong("task::number::" + taskCode).addAndGet(1);
             }
         }
         task.setCreateBy(currentUser.getId());

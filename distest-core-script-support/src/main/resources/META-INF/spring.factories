@@ -1,6 +1,7 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
   com.testwa.core.script.config.FreemarkConfig,\
   com.testwa.core.script.ScriptGenerator,\
+  com.testwa.core.script.EnvGenerator,\
   com.testwa.core.script.snippet.ScriptCodePython,\
   com.testwa.core.script.config.RedissonSpringDataConfig
 

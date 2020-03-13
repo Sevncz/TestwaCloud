@@ -2,10 +2,12 @@ package com.testwa.distest.client.task;
 
 import com.alibaba.fastjson.JSON;
 import com.sun.jna.Platform;
+import com.testwa.core.script.EnvGenerator;
 import com.testwa.core.script.Function;
 import com.testwa.core.script.ScriptGenerator;
 import com.testwa.core.script.snippet.ScriptCode;
 import com.testwa.core.script.util.FileUtil;
+import com.testwa.core.script.vo.TaskEnvVO;
 import com.testwa.core.script.vo.TaskResultVO;
 import com.testwa.core.script.vo.TaskVO;
 import com.testwa.core.shell.UTF8CommonExecs;
@@ -20,6 +22,7 @@ import com.testwa.distest.client.device.pool.DeviceManagerPool;
 import com.testwa.distest.client.download.Downloader;
 import com.testwa.distest.client.exception.DownloadFailException;
 import com.testwa.distest.client.ios.IOSDeviceUtil;
+import com.testwa.distest.client.model.AgentInfo;
 import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.service.DeviceGvice;
 import com.testwa.distest.client.util.PortUtil;
@@ -71,6 +74,8 @@ public class CronScheduled {
     @Autowired
     private ScriptGenerator scriptGenerator;
     @Autowired
+    private EnvGenerator envGenerator;
+    @Autowired
     private ScriptCode scriptCodePython;
     @Autowired
     private CustomAppiumManagerPool customAppiumManagerPool;
@@ -80,6 +85,8 @@ public class CronScheduled {
     private String apiUrl;
     @Value("${download.url}")
     private String downloadUrl;
+    @Value("${application.version}")
+    private String applicationVersion;
 
     /**
      * @Description: android设备在线情况的补充检查
@@ -269,22 +276,24 @@ public class CronScheduled {
             UTF8CommonExecs pyexecs = new UTF8CommonExecs(commandLine);
             // 设置最大执行时间，30分钟
             pyexecs.setTimeout(30 * 60 * 1000L);
+            int success = 0;
             try {
                 pyexecs.exec();
             } catch (IOException e) {
+                success = success + 1;
                 String output = pyexecs.getOutput();
                 log.error(output);
                 log.error("py 执行失败", e);
             } finally {
                 // 上传result json
-                uploadResult(msg, resultPath);
+                uploadResult(msg, resultPath, success);
             }
         } catch (IOException e) {
             log.error("py 写入失败", e);
         }
     }
 
-    private void uploadResult(TaskVO msg, String resultPath) throws IOException {
+    private void uploadResult(TaskVO msg, String resultPath, int success) throws IOException {
 
         if (Files.list(Paths.get(resultPath)).count() > 0) {
             Files.list(Paths.get(resultPath)).forEach(f -> {
@@ -313,26 +322,24 @@ public class CronScheduled {
                     log.info("保存TaskResult返回：{}", responseEntity1.getBody());
                 }
             });
-        } else {
-            TaskResultVO resultVO = new TaskResultVO();
-            resultVO.setTaskCode(msg.getTaskCode());
-            resultVO.setDeviceId(msg.getDeviceId());
-            String url = "http://" + apiUrl + "/v2/task/fail";
-            HttpHeaders requestHeaders = new HttpHeaders();
-            requestHeaders.set("X-TOKEN", UserInfo.token);
-            requestHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-            HttpEntity<String> formEntity = new HttpEntity<>(JSON.toJSONString(resultVO), requestHeaders);
-            ResponseEntity<String> responseEntity1 = this.restTemplate.postForEntity(url, formEntity, String.class);
-            log.info("保存TaskResult返回：{}", responseEntity1.getBody());
         }
-        // 生成报告
-        String url = "http://" + apiUrl + "/v2/task/" + msg.getTaskCode() + "/report";
+        // 上传完成，通知任务已完成
+        TaskEnvVO envVO = new TaskEnvVO();
+        AgentInfo agentInfo = AgentInfo.getAgentInfo();
+        envVO.setAgentVersion(applicationVersion);
+        envVO.setJavaVersion(agentInfo.getJavaVersion());
+        envVO.setOsVersion(agentInfo.getOsVersion());
+        envVO.setNodeVersion("1.13");
+        envVO.setPythonVersion("3.7");
+        envVO.setDeviceId(msg.getDeviceId());
+
+        String url = "http://" + apiUrl + "/v2/task/" + msg.getTaskCode() + "/finish/" + success;
         HttpHeaders requestHeaders = new HttpHeaders();
         requestHeaders.set("X-TOKEN", UserInfo.token);
-        HttpEntity<String> formEntity = new HttpEntity<>(requestHeaders);
+        requestHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+        HttpEntity<String> formEntity = new HttpEntity<>(JSON.toJSONString(envVO), requestHeaders);
         ResponseEntity<String> responseEntity = this.restTemplate.postForEntity(url, formEntity, String.class);
         log.info("生成报告返回：{}", responseEntity.getBody());
-
     }
 
     private String downloadApp(String appPath) {
