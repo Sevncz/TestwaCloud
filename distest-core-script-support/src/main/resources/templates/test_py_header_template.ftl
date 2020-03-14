@@ -23,6 +23,7 @@ ANDROID_BASE_CAPS = {
     'platformName': 'Android',
     'platformVersion': '${platformVersion}',
     'deviceName': '${deviceName}',
+    'autoGrantPermissions': 'true',
 }
     </#if>
 <#else>

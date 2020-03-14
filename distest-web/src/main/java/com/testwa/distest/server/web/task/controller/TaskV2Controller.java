@@ -102,8 +102,6 @@ public class TaskV2Controller extends BaseController {
     private FreeMarkerConfigurer freeMarkerConfigurer;
     @Autowired
     private TaskEnvService taskEnvService;
-    @Autowired
-    private UserService userService;
 
     @ApiOperation(value = "通过脚本运行任务", notes = "")
     @ResponseBody
