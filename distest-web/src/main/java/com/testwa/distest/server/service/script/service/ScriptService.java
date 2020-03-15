@@ -72,14 +72,14 @@ public class ScriptService extends BaseService<Script, Long> {
         return scriptMapper.findOneInProject(scriptId, projectId);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(rollbackFor = Exception.class)
     public void uploadMulti(List<MultipartFile> uploadfiles) throws IOException {
         for(MultipartFile f : uploadfiles){
             upload(f);
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(rollbackFor = Exception.class)
     public void uploadMulti(List<MultipartFile> uploadfiles, Long projectId) throws IOException {
         for(MultipartFile f : uploadfiles){
             upload(f, projectId);
@@ -92,7 +92,7 @@ public class ScriptService extends BaseService<Script, Long> {
      * @return
      * @throws IOException
      */
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(rollbackFor = Exception.class)
     public Script upload(MultipartFile uploadfile) throws IOException {
         return upload(uploadfile, null);
     }
@@ -104,7 +104,7 @@ public class ScriptService extends BaseService<Script, Long> {
      * @return
      * @throws IOException
      */
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(rollbackFor = Exception.class)
     public Script upload(MultipartFile uploadfile, Long projectId) throws IOException {
         // 解析文件
         String filename = uploadfile.getOriginalFilename();
@@ -188,7 +188,7 @@ public class ScriptService extends BaseService<Script, Long> {
     }
 
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(rollbackFor = Exception.class)
     public void update(ScriptUpdateForm form) {
 
         Script script = findOne(form.getScriptId());
@@ -203,7 +203,7 @@ public class ScriptService extends BaseService<Script, Long> {
         scriptMapper.update(script);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(rollbackFor = Exception.class)
     public void appendInfo(ScriptUpdateForm form) {
 
         Script script = findOne(form.getScriptId());
@@ -219,7 +219,7 @@ public class ScriptService extends BaseService<Script, Long> {
         scriptMapper.update(script);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(rollbackFor = Exception.class)
     public void delete(List<Long> entityIds) {
         scriptMapper.disableAll(entityIds);
     }
@@ -269,7 +269,7 @@ public class ScriptService extends BaseService<Script, Long> {
         return scriptMapper.findBy(script, startTime, endTime);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(rollbackFor = Exception.class)
     public void modifyContent(Long scriptId, String content) throws IOException {
         Script script = findOne(scriptId);
         if(script == null) {

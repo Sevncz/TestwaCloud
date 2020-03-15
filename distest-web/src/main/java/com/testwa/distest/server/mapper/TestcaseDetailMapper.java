@@ -11,8 +11,6 @@ import java.util.List;
 @Repository
 public interface TestcaseDetailMapper extends BaseMapper<TestcaseDetail, Long> {
 
-    List<TestcaseDetail> findByTestcaseId(TestcaseDetail testcaseDetail);
-
     int deleteByTestcaseId(Long testcaseId);
 
 }

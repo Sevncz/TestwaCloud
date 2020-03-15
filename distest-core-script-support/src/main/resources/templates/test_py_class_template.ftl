@@ -1,10 +1,12 @@
-class TestWaBasic():
+<#list cases as functions>
+class TestWaBasic_${functions_index}():
 
     def setup_class(cls):
         cls.client = DriverClient().driver
+        cls.client.launchApp();
 
     def teardown_class(cls):
-        cls.client.quit()
+        cls.client.closeApp();
 
     @pytest.fixture(scope='function')
     def driver(self, request):
@@ -40,4 +42,5 @@ class TestWaBasic():
         ${action}
     </#list>
 
+</#list>
 </#list>

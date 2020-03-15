@@ -420,14 +420,6 @@
                 <artifactId>pagehelper-spring-boot-starter</artifactId>
                 <version>${pagehelper-spring-boot-starter}</version>
             </dependency>
-
-            <dependency>
-                <groupId>com.baomidou</groupId>
-                <artifactId>mybatis-plus</artifactId>
-                <version>3.3.1</version>
-            </dependency>
-
-
             <dependency>
                 <groupId>com.github.dreamroute</groupId>
                 <artifactId>locker</artifactId>

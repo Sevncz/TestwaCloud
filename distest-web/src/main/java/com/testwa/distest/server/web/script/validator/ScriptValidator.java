@@ -34,7 +34,7 @@ public class ScriptValidator {
     }
 
     public List<ScriptCase> validateScriptCasesExist(List<String> scriptCaseIds) {
-        List<ScriptCase> scriptList = scriptCaseService.listAll(scriptCaseIds);
+        List<ScriptCase> scriptList = scriptCaseService.listByScriptCaseId(scriptCaseIds);
         if (scriptList == null || scriptList.size() != scriptCaseIds.size()) {
             throw new BusinessException(ResultCode.NOT_FOUND, "脚本不存在");
         }
@@ -87,7 +87,7 @@ public class ScriptValidator {
     }
 
     public void validateScriptCaseBelongApp(List<String> scriptcaseIds, String packageName) {
-        List<ScriptCase> scriptCaseList = scriptCaseService.listAll(scriptcaseIds);
+        List<ScriptCase> scriptCaseList = scriptCaseService.listByScriptCaseId(scriptcaseIds);
         for (ScriptCase script : scriptCaseList) {
             if (StringUtils.isNotBlank(script.getAppBasePackage())) {
                 if (!packageName.equals(script.getAppBasePackage())) {

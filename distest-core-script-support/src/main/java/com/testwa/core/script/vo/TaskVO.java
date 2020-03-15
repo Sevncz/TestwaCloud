@@ -2,6 +2,7 @@ package com.testwa.core.script.vo;
 
 import lombok.Data;
 
+import java.util.List;
 import java.util.Map;
 
 @Data
@@ -10,7 +11,7 @@ public class TaskVO {
     /**
      * 脚本详情
      */
-    private ScriptCaseVO scriptCase;
+    private List<ScriptCaseVO> scriptCases;
     /**
      * 需要下载的app路径
      */

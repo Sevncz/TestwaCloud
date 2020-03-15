@@ -43,13 +43,8 @@ import java.util.Map;
 @RestController
 @RequestMapping(path = "/v2")
 public class ScriptCaseController extends BaseController {
-
-    @Autowired
-    private ScriptFunctionService scriptFunctionService;
     @Autowired
     private ScriptCaseService scriptCaseService;
-    @Autowired
-    private ScriptActionService scriptActionService;
     @Autowired
     private ProjectValidator projectValidator;
     @Autowired

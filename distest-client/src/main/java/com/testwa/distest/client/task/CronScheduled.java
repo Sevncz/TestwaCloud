@@ -41,6 +41,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -107,7 +108,7 @@ public class CronScheduled {
                         public void onMessage(CharSequence channel, TaskVO msg) {
                             log.info("监听到消息: {}", JSON.toJSONString(msg));
                             // 生成脚本
-                            List<Function> templateFunctions = pyTaskProvider.generatorFunctions(msg);
+                            List<List<Function>> templateFunctions = pyTaskProvider.generatorFunctions(msg);
 
                             String deviceId = msg.getDeviceId();
                             String platformVersion = ADBCommandUtils.getPlatformVersion(deviceId);
@@ -157,7 +158,7 @@ public class CronScheduled {
                             public void onMessage(CharSequence channel, TaskVO msg) {
                                 log.info("监听到消息: {}", JSON.toJSONString(msg));
                                 // 生成脚本
-                                List<Function> templateFunctions = pyTaskProvider.generatorFunctions(msg);
+                                List<List<Function>> templateFunctions = pyTaskProvider.generatorFunctions(msg);
 
                                 String udid = msg.getDeviceId();
                                 String platformVersion = "13.3";

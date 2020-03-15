@@ -18,7 +18,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 处理具体脚本
@@ -70,8 +73,20 @@ public class PyTaskProvider extends BaseProvider{
     }
 
 
-    public List<Function> generatorFunctions(TaskVO msg) throws Exception {
-        String url = "http://" + apiUrl + "/v2/script/" + msg.getScriptCase().getScriptCaseId() + "/pyActionCode";
+    public List<List<Function>> generatorFunctions(TaskVO msg) throws Exception {
+        return msg.getScriptCases().stream().map(scriptCaseVO -> {
+            try {
+                return generatorFunctions(scriptCaseVO.getScriptCaseId());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+    }
+
+
+    public List<Function> generatorFunctions(String scriptCaseId) throws Exception {
+        String url = "http://" + apiUrl + "/v2/script/" + scriptCaseId + "/pyActionCode";
         HttpHeaders requestHeaders = new HttpHeaders();
         requestHeaders.set("X-TOKEN", UserInfo.token);
         requestHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);

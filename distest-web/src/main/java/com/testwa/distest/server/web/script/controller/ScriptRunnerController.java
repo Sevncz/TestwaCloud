@@ -1,9 +1,8 @@
-package com.testwa.distest.server.web.task.controller;
+package com.testwa.distest.server.web.script.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.util.VoUtil;
-import com.testwa.core.script.EnvGenerator;
 import com.testwa.core.script.util.FileUtil;
 import com.testwa.core.script.vo.ExcutorVO;
 import com.testwa.core.script.vo.ScriptCaseVO;
@@ -14,19 +13,19 @@ import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.device.service.DeviceService;
 import com.testwa.distest.server.service.fdfs.service.FdfsStorageService;
-import com.testwa.distest.server.service.script.form.ScriptCaseListForm;
 import com.testwa.distest.server.service.script.service.ScriptCaseService;
+import com.testwa.distest.server.service.script.service.ScriptCaseSetService;
 import com.testwa.distest.server.service.script.service.ScriptMetadataService;
-import com.testwa.distest.server.service.task.form.TaskListForm;
+import com.testwa.distest.server.service.task.form.TaskV2StartByScriptSetForm;
 import com.testwa.distest.server.service.task.form.TaskV2StartByScriptsForm;
 import com.testwa.distest.server.service.task.service.TaskEnvService;
 import com.testwa.distest.server.service.task.service.TaskResultService;
 import com.testwa.distest.server.service.task.service.TaskService;
-import com.testwa.distest.server.service.user.service.UserService;
 import com.testwa.distest.server.web.app.validator.AppValidator;
 import com.testwa.distest.server.web.device.mgr.DeviceLockMgr;
 import com.testwa.distest.server.web.device.mgr.DeviceOnlineMgr;
 import com.testwa.distest.server.web.device.validator.DeviceValidatoer;
+import com.testwa.distest.server.web.script.validator.ScriptCaseSetValidator;
 import com.testwa.distest.server.web.script.validator.ScriptValidator;
 import com.testwa.distest.server.web.task.mgr.ExecuteMgr;
 import com.testwa.distest.server.web.task.validator.TaskValidatoer;
@@ -56,16 +55,18 @@ import java.util.*;
 import static java.util.stream.Collectors.toList;
 
 @Slf4j
-@Api(value = "任务执行相关api", tags = "V2.0")
+@Api(value = "脚本执行相关api", tags = "V2.0")
 @Validated
 @RestController
 @RequestMapping("/v2")
-public class TaskV2Controller extends BaseController {
+public class ScriptRunnerController extends BaseController {
 
     @Autowired
     private ExecuteMgr executeMgr;
     @Autowired
     private ScriptCaseService scriptCaseService;
+    @Autowired
+    private ScriptCaseSetService scriptCaseSetService;
     @Autowired
     private AppValidator appValidator;
     @Autowired
@@ -74,6 +75,8 @@ public class TaskV2Controller extends BaseController {
     private TaskValidatoer taskValidatoer;
     @Autowired
     private ScriptValidator scriptValidator;
+    @Autowired
+    private ScriptCaseSetValidator scriptCaseSetValidator;
     @Autowired
     private AppService appService;
     @Autowired
@@ -139,7 +142,45 @@ public class TaskV2Controller extends BaseController {
             deviceLockMgr.workLock(deviceId, currentUser.getUserCode(), workExpireTime);
         }
         ScriptCaseVO scriptCaseDetailVO = scriptCaseService.getScriptCaseDetailVO(form.getScriptCaseId());
-        vo = executeMgr.startFunctionalTestTaskV2(useableList, app, scriptCaseDetailVO);
+        vo = executeMgr.startScriptOnDevices(useableList, app, scriptCaseDetailVO);
+        vo.addUnableDevice(unableDevices);
+        return vo;
+    }
+
+    @ApiOperation(value = "通过测试集运行任务", notes = "")
+    @ResponseBody
+    @PostMapping(value = "/run/functional/bySet")
+    public TaskStartResultVO runScriptSet(@RequestBody @Valid TaskV2StartByScriptSetForm form) {
+        appValidator.validateAppExist(form.getAppId());
+        appValidator.validateAppInPorject(form.getAppId(), form.getProjectId());
+        scriptCaseSetValidator.validateScriptCaseSetIdExist(form.getScriptCaseSetId());
+
+        taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
+
+        App app = appService.get(form.getAppId());
+
+        Set<String> onlineDeviceIdList = deviceOnlineMgr.allOnlineDevices();
+        List<Device> deviceList = deviceService.findAll(form.getDeviceIds());
+        List<Device> unableDevices = new ArrayList<>();
+        List<String> unableDeviceIds = new ArrayList<>();
+        for (Device device : deviceList) {
+            if (!onlineDeviceIdList.contains(device.getDeviceId())
+                    || !DB.DeviceWorkStatus.FREE.equals(device.getWorkStatus())
+                    || !DB.DeviceDebugStatus.FREE.equals(device.getDebugStatus())) {
+                unableDevices.add(device);
+                unableDeviceIds.add(device.getDeviceId());
+            }
+        }
+        List<String> useableList = form.getDeviceIds().stream().filter(item -> !unableDeviceIds.contains(item)).collect(toList());
+        TaskStartResultVO vo = new TaskStartResultVO();
+        if (useableList.isEmpty()) {
+            vo.addUnableDevice(unableDevices);
+            return vo;
+        }
+        for (String deviceId : useableList) {
+            deviceLockMgr.workLock(deviceId, currentUser.getUserCode(), workExpireTime);
+        }
+        vo = executeMgr.startScriptSetOnDevices(useableList, app, form.getScriptCaseSetId());
         vo.addUnableDevice(unableDevices);
         return vo;
     }
@@ -153,7 +194,7 @@ public class TaskV2Controller extends BaseController {
         ScriptCaseVO scriptCaseDetailVO = scriptCaseService.getScriptCaseDetailVO("246380799165857792");
         Map<String, String> map = scriptMetadataService.getPython();
         TaskVO taskVO = new TaskVO();
-        taskVO.setScriptCase(scriptCaseDetailVO);
+        taskVO.setScriptCases(Collections.singletonList(scriptCaseDetailVO));
         taskVO.setAppUrl("/Users/wen/dev/TestApp.zip");
         taskVO.setTaskCode(123456L);
         taskVO.setMetadata(map);
@@ -172,7 +213,7 @@ public class TaskV2Controller extends BaseController {
         ScriptCaseVO scriptCaseDetailVO = scriptCaseService.getScriptCaseDetailVO("246772097710424064");
         Map<String, String> map = scriptMetadataService.getPython();
         TaskVO taskVO = new TaskVO();
-        taskVO.setScriptCase(scriptCaseDetailVO);
+        taskVO.setScriptCases(Collections.singletonList(scriptCaseDetailVO));
         taskVO.setAppUrl("/Users/wen/dev/repositories/appium/sample-code/apps/ApiDemos-debug.apk");
         taskVO.setTaskCode(223456L);
         taskVO.setMetadata(map);
@@ -243,7 +284,6 @@ public class TaskV2Controller extends BaseController {
     public String report(@PathVariable Long taskCode) throws IOException {
         // 下载到目录
         runReport(taskCode);
-
         return "成功";
     }
 

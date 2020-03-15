@@ -46,7 +46,7 @@ public class ScriptCaseService extends BaseService<ScriptCase, Long> {
     @Autowired
     private SnowflakeIdWorker commonIdWorker;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(rollbackFor = Exception.class)
     public ScriptCase saveCase(Project project, ScriptCaseSaveForm form) {
         List<ScriptFunctionSaveForm> scriptFunctionSaveForms = form.getScriptFunctions();
         ScriptCase scriptCase = new ScriptCase();
@@ -136,7 +136,7 @@ public class ScriptCaseService extends BaseService<ScriptCase, Long> {
         return page;
     }
 
-    public List<ScriptCase> listAll(List<String> scriptCaseIds) {
+    public List<ScriptCase> listByScriptCaseId(List<String> scriptCaseIds) {
         return scriptCaseIds.stream().map(this::getByScriptCaseId).collect(Collectors.toList());
     }
 }

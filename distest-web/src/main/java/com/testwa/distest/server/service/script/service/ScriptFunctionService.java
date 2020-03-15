@@ -28,7 +28,7 @@ public class ScriptFunctionService extends BaseService<ScriptFunction, Long> {
     @Autowired
     private User currentUser;
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(rollbackFor = Exception.class)
     public ScriptFunction createFunction(Long projectId, String scriptCaseId, String fuuid) {
         ScriptFunction scriptFunction = new ScriptFunction();
         scriptFunction.setProjectId(projectId);

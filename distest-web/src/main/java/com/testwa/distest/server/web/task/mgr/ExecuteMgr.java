@@ -21,6 +21,8 @@ import com.testwa.distest.server.rpc.cache.CacheUtil;
 import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.cache.mgr.TaskCountMgr;
 import com.testwa.distest.server.service.device.service.DeviceService;
+import com.testwa.distest.server.service.script.service.ScriptCaseService;
+import com.testwa.distest.server.service.script.service.ScriptCaseSetService;
 import com.testwa.distest.server.service.script.service.ScriptMetadataService;
 import com.testwa.distest.server.service.script.service.ScriptService;
 import com.testwa.distest.server.service.task.form.TaskStopForm;
@@ -43,10 +45,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by wen on 25/10/2017.
@@ -81,6 +81,10 @@ public class ExecuteMgr {
     private RedissonClient redissonClient;
     @Autowired
     private ScriptMetadataService scriptMetadataService;
+    @Autowired
+    private ScriptCaseService scriptCaseService;
+    @Autowired
+    private ScriptCaseSetService scriptCaseSetService;
 
     /**
      * @Description: 开始执行一个回归测试任务
@@ -292,7 +296,7 @@ public class ExecuteMgr {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public TaskStartResultVO startFunctionalTestTaskV2(List<String> deviceIds, App app, ScriptCaseVO scriptCaseDetailVO) {
+    public TaskStartResultVO startScriptOnDevices(List<String> deviceIds, App app, ScriptCaseVO scriptCaseDetailVO) {
         // 记录task的执行信息
         Long taskCode = taskIdWorker.nextId();
         TaskStartResultVO result = new TaskStartResultVO();
@@ -308,7 +312,7 @@ public class ExecuteMgr {
 
         Map<String, String> map = scriptMetadataService.getPython();
         TaskVO taskVO = new TaskVO();
-        taskVO.setScriptCase(scriptCaseDetailVO);
+        taskVO.setScriptCases(Collections.singletonList(scriptCaseDetailVO));
         taskVO.setAppUrl(app.getPath());
         taskVO.setTaskCode(taskCode);
         taskVO.setMetadata(map);
@@ -337,6 +341,60 @@ public class ExecuteMgr {
         taskService.insert(task);
 
         return result;
+    }
 
+    @Transactional(rollbackFor = Exception.class)
+    public TaskStartResultVO startScriptSetOnDevices(List<String> deviceIds, App app, String scriptCaseSetId) {
+        ScriptCaseSet scriptCaseSet = scriptCaseSetService.getByScriptCaseSetId(scriptCaseSetId);
+        String scriptCaseIdStr = scriptCaseSet.getScriptCaseIds();
+        List<String> scriptCaseIds = JSON.parseArray(scriptCaseIdStr, String.class);
+        List<ScriptCaseVO> scriptCaseVOS = scriptCaseIds.stream().map(caseId -> {
+            return scriptCaseService.getScriptCaseDetailVO(caseId);
+        }).collect(Collectors.toList());
+        //
+        // 记录task的执行信息
+        Long taskCode = taskIdWorker.nextId();
+        TaskStartResultVO result = new TaskStartResultVO();
+        result.setTaskCode(taskCode);
+        Task task = new Task();
+        task.setTaskCode(taskCode);
+        task.setTaskType(DB.TaskType.FUNCTIONAL);
+        task.setProjectId(app.getProjectId());
+        task.setAppId(app.getId());
+        task.setAppJson(JSON.toJSONString(app));
+        task.setTestcaseJson(JSON.toJSONString(scriptCaseVOS));
+        task.setTaskName("执行[" + scriptCaseSet.getCaseName() + "]");
+
+        Map<String, String> map = scriptMetadataService.getPython();
+        TaskVO taskVO = new TaskVO();
+        taskVO.setScriptCases(scriptCaseVOS);
+        taskVO.setAppUrl(app.getPath());
+        taskVO.setTaskCode(taskCode);
+        taskVO.setMetadata(map);
+
+        // 启动任务
+        for (String key : deviceIds) {
+            // 发布任务
+            RTopic topic = redissonClient.getTopic(key);
+            Device d = deviceService.findByDeviceId(key);
+            if(topic == null) {
+                result.addUnableDevice(d);
+            }else{
+                result.addRunningDevice(d);
+                taskVO.setDeviceId(key);
+                topic.publish(taskVO);
+                deviceService.work(key);
+                redissonClient.getAtomicLong("task::number::" + taskCode).addAndGet(1);
+            }
+        }
+        task.setCreateBy(currentUser.getId());
+        task.setCreateTime(new Date());
+        task.setEnabled(true);
+        task.setDevicesJson(JSON.toJSONString(result.getRunningDevices()));
+        task.setStatus(DB.TaskStatus.RUNNING);
+        task.setDevicesJson(JSON.toJSONString(result.getRunningDevices()));
+        taskService.insert(task);
+
+        return result;
     }
 }

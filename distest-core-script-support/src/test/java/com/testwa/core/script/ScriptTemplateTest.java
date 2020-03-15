@@ -11,10 +11,7 @@ import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -66,7 +63,7 @@ public class ScriptTemplateTest {
         String xcodeOrgId = "xcodeOrgId";
         String appPath = "/Users/wen/dev/TestApp.zip";
         String port = "4723";
-        String scriptContent = scriptGenerator.toIosPyScript(functionList, udid, xcodeOrgId, platformVersion, appPath, port, "8100", "9100");
+        String scriptContent = scriptGenerator.toIosPyScript(Collections.singletonList(functionList), udid, xcodeOrgId, platformVersion, appPath, port, "8100", "9100");
         System.out.println(scriptContent);
     }
 

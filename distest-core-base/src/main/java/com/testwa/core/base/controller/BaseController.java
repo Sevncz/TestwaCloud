@@ -59,7 +59,7 @@ public class BaseController implements ApplicationContextAware {
         return result;
     }
 
-    public final boolean validTimestamp(long ts) {
+    protected final boolean validTimestamp(long ts) {
         return ts >= MIN_TIMESTAMP && ts <= System.currentTimeMillis();
     }
 

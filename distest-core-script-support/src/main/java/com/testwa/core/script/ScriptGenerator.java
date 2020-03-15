@@ -21,9 +21,9 @@ public class ScriptGenerator {
     @Autowired
     private FreeMarkerConfigurer freeMarkerConfigurer;
 
-    public String toIosPyScript(List<Function> functions, String udid, String xcodeOrgId, String platformVersion, String app, String appiumPort, String wdaLocalPort, String mjpegServerPort) {
+    public String toIosPyScript(List<List<Function>> cases, String udid, String xcodeOrgId, String platformVersion, String app, String appiumPort, String wdaLocalPort, String mjpegServerPort) {
         Map<String, Object> model = new HashMap<>();
-        model.put("functions", functions);
+        model.put("cases", cases);
         model.put("udid", udid);
         model.put("xcodeOrgId", xcodeOrgId);
         model.put("platformVersion", platformVersion);
@@ -41,9 +41,9 @@ public class ScriptGenerator {
         return null;
     }
 
-    public String toAndroidPyScript(List<Function> functions, String deviceName, String platformVersion, String app, String appiumPort) {
+    public String toAndroidPyScript(List<List<Function>> cases, String deviceName, String platformVersion, String app, String appiumPort) {
         Map<String, Object> model = new HashMap<>();
-        model.put("functions", functions);
+        model.put("cases", cases);
         model.put("platformVersion", platformVersion);
         model.put("deviceName", deviceName);
         model.put("appPath", app);
