@@ -10,6 +10,7 @@ import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +61,7 @@ public class ScriptGenerator {
 
     public String toPyClassScript(List<Function> functions) {
         Map<String, Object> model = new HashMap<>();
-        model.put("functions", functions);
+        model.put("cases", Collections.singleton(functions));
 
         try {
             Template template = freeMarkerConfigurer.getConfiguration().getTemplate("test_py_class_template.ftl");

@@ -14,15 +14,12 @@ import com.testwa.core.script.snippet.ScriptCode;
 import com.testwa.core.script.vo.ScriptActionVO;
 import com.testwa.core.script.vo.ScriptCaseVO;
 import com.testwa.core.script.vo.ScriptFunctionVO;
-import com.testwa.distest.common.enums.DB;
 import com.testwa.distest.exception.BusinessException;
 import com.testwa.distest.server.entity.Project;
 import com.testwa.distest.server.entity.ScriptCase;
 import com.testwa.distest.server.service.script.form.ScriptCaseListForm;
 import com.testwa.distest.server.service.script.form.ScriptCaseSaveForm;
-import com.testwa.distest.server.service.script.service.ScriptActionService;
 import com.testwa.distest.server.service.script.service.ScriptCaseService;
-import com.testwa.distest.server.service.script.service.ScriptFunctionService;
 import com.testwa.distest.server.service.script.service.ScriptMetadataService;
 import com.testwa.distest.server.web.project.validator.ProjectValidator;
 import io.swagger.annotations.Api;
@@ -58,7 +55,7 @@ public class ScriptCaseController extends BaseController {
     @ResponseBody
     @PostMapping(value = "/project/{projectId}/script/save")
     public ScriptCase save(@PathVariable Long projectId, @RequestBody ScriptCaseSaveForm form) {
-        if(!ScriptCase.PLATFORM_ANDROID.equals(form.getPlatform()) && !ScriptCase.PLATFORM_IOS.equals(form.getPlatform())) {
+        if (!ScriptCase.PLATFORM_ANDROID.equals(form.getPlatform()) && !ScriptCase.PLATFORM_IOS.equals(form.getPlatform())) {
             throw new BusinessException(ResultCode.ILLEGAL_PARAM, "平台只支持Android和iOS");
         }
         Project project = projectValidator.validateProjectExist(projectId);
@@ -75,9 +72,10 @@ public class ScriptCaseController extends BaseController {
     @ApiOperation(value = "脚本列表", notes = "")
     @ResponseBody
     @GetMapping(value = "/project/{projectId}/script/all")
-    public List<ScriptCase> listAll(@PathVariable Long projectId) {
+    public List<ScriptCase> listAll(@PathVariable Long projectId,
+                                    @RequestParam(required = false, name = "basePackage") String basePackage) {
         projectValidator.validateProjectExist(projectId);
-        List<ScriptCase> scriptCases = scriptCaseService.list(projectId, new ScriptCaseListForm());
+        List<ScriptCase> scriptCases = scriptCaseService.list(projectId, new ScriptCaseListForm(), basePackage);
         return scriptCases;
     }
 
@@ -112,14 +110,14 @@ public class ScriptCaseController extends BaseController {
     public String header(@PathVariable String scriptCaseId) {
         ScriptCaseVO scriptCaseDetailVO = scriptCaseService.getScriptCaseDetailVO(scriptCaseId);
         String scriptContent = "";
-        if(ScriptCase.PLATFORM_ANDROID.equals(scriptCaseDetailVO.getPlatform())) {
+        if (ScriptCase.PLATFORM_ANDROID.equals(scriptCaseDetailVO.getPlatform())) {
             String deviceId = "xxxx";
             String platformVersion = "9";
             String appPath = "/app/path";
             String port = "4723";
             scriptContent = scriptGenerator.toAndroidPyHeaderScript(deviceId, platformVersion, appPath, port);
         }
-        if(ScriptCase.PLATFORM_IOS.equals(scriptCaseDetailVO.getPlatform())) {
+        if (ScriptCase.PLATFORM_IOS.equals(scriptCaseDetailVO.getPlatform())) {
             String udid = "udid";
             String platformVersion = "13.3";
             String xcodeOrgId = "xcodeOrgId";

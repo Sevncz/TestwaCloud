@@ -11,6 +11,7 @@ import com.testwa.core.script.vo.ScriptCaseVO;
 import com.testwa.core.script.vo.ScriptFunctionVO;
 import com.testwa.core.tools.SnowflakeIdWorker;
 import com.testwa.distest.exception.BusinessException;
+import com.testwa.distest.server.condition.ScriptCaseCondition;
 import com.testwa.distest.server.condition.ScriptCondition;
 import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.mapper.ScriptCaseMapper;
@@ -91,12 +92,15 @@ public class ScriptCaseService extends BaseService<ScriptCase, Long> {
         return scriptCase;
     }
 
-    public List<ScriptCase> list(Long projectId, ScriptCaseListForm queryForm) {
+    public List<ScriptCase> list(Long projectId, ScriptCaseListForm queryForm, String basePackage) {
         PageHelper.orderBy(queryForm.getOrderBy() + " " + queryForm.getOrder());
-        ScriptCondition query = new ScriptCondition();
+        ScriptCaseCondition query = new ScriptCaseCondition();
         query.setProjectId(projectId);
         if(StringUtils.isNotBlank(queryForm.getScriptName())) {
-            query.setScriptName(queryForm.getScriptName());
+            query.setScriptCaseName(queryForm.getScriptName());
+        }
+        if(StringUtils.isNotBlank(basePackage)) {
+            query.setAppBasePackage("%" + basePackage + "%");
         }
         return scriptCaseMapper.selectByCondition(query);
     }
