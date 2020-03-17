@@ -74,7 +74,7 @@ public class ProjectMemberService extends BaseService<ProjectMember, Long> {
             return;
         }
         Project project = projectService.get(form.getProjectId());
-        if (!project.getCreateBy().equals(currentUser.getId())) {
+        if (project != null && !project.getCreateBy().equals(currentUser.getId())) {
             log.error("login auth not owner of the project, projectId: {}, currentUsername: {}", form.getProjectId(), currentUser.getUsername());
             throw new AuthorizedException(ResultCode.ILLEGAL_OP, "您不是项目所有者，无法添加项目成员");
         }
@@ -90,7 +90,7 @@ public class ProjectMemberService extends BaseService<ProjectMember, Long> {
             ProjectMember p = new ProjectMember();
             p.setMemberId(m.getId());
             p.setInviteBy(currentUser.getId());
-            p.setProjectId(project.getId());
+            p.setProjectId(form.getProjectId());
             p.setCreateTime(new Date());
             p.setProjectRole(DB.ProjectRole.MEMBER);
             pms.add(p);
