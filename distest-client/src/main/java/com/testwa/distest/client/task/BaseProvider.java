@@ -85,7 +85,7 @@ public class BaseProvider {
         requestHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
         HttpEntity<String> formEntity = new HttpEntity<>(JSON.toJSONString(envVO), requestHeaders);
         ResponseEntity<String> responseEntity = this.restTemplate.postForEntity(url, formEntity, String.class);
-        log.info("生成报告返回：{}", responseEntity.getBody());
+        log.info("通知任务结束：{}", responseEntity.getBody());
     }
 
 

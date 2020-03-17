@@ -27,7 +27,6 @@
         <module>distest-client</module>
         <module>distest-web</module>
         <module>distest-message</module>
-        <module>distest-file</module>
         <module>distest-client-2</module>
         <module>distest-jadb</module>
         <module>distest-worker-core</module>

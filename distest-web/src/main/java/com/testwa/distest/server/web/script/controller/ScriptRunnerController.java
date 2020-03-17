@@ -108,24 +108,24 @@ public class ScriptRunnerController extends BaseController {
 
     @ApiOperation(value = "通过脚本运行任务", notes = "")
     @ResponseBody
-    @PostMapping(value = "/run/functional/byScript")
+    @PostMapping(value = "/run/functional/byScripts")
     public TaskStartResultVO run(@RequestBody @Valid TaskV2StartByScriptsForm form) {
         appValidator.validateAppExist(form.getAppId());
         appValidator.validateAppInPorject(form.getAppId(), form.getProjectId());
-        scriptValidator.validateScriptCaseExist(form.getScriptCaseId());
+        scriptValidator.validateScriptCasesExist(form.getScriptCaseIds());
 
         taskValidatoer.validateAppAndDevicePlatform(form.getAppId(), form.getDeviceIds());
 
         App app = appService.get(form.getAppId());
 
-        scriptValidator.validateScriptCaseBelongApp(form.getScriptCaseId(), app.getPackageName());
+        scriptValidator.validateScriptCaseBelongApp(form.getScriptCaseIds(), app.getPackageName());
 
         Set<String> onlineDeviceIdList = deviceOnlineMgr.allOnlineDevices();
         List<Device> deviceList = deviceService.findAll(form.getDeviceIds());
         List<Device> unableDevices = new ArrayList<>();
         List<String> unableDeviceIds = new ArrayList<>();
         for (Device device : deviceList) {
-            if (!onlineDeviceIdList.contains(device.getDeviceId())
+            if (!DB.PhoneOnlineStatus.ONLINE.equals(device.getOnlineStatus())
                     || !DB.DeviceWorkStatus.FREE.equals(device.getWorkStatus())
                     || !DB.DeviceDebugStatus.FREE.equals(device.getDebugStatus())) {
                 unableDevices.add(device);
@@ -141,8 +141,7 @@ public class ScriptRunnerController extends BaseController {
         for (String deviceId : useableList) {
             deviceLockMgr.workLock(deviceId, currentUser.getUserCode(), workExpireTime);
         }
-        ScriptCaseVO scriptCaseDetailVO = scriptCaseService.getScriptCaseDetailVO(form.getScriptCaseId());
-        vo = executeMgr.startScriptOnDevices(useableList, app, scriptCaseDetailVO);
+        vo = executeMgr.startScriptsOnDevices(useableList, app, form.getScriptCaseIds());
         vo.addUnableDevice(unableDevices);
         return vo;
     }

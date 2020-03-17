@@ -296,7 +296,8 @@ public class ExecuteMgr {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public TaskStartResultVO startScriptOnDevices(List<String> deviceIds, App app, ScriptCaseVO scriptCaseDetailVO) {
+    public TaskStartResultVO startScriptsOnDevices(List<String> deviceIds, App app, List<String> scriptCaseIds) {
+        List<ScriptCaseVO> scriptCaseVOS = scriptCaseIds.stream().map(scriptCaseService::getScriptCaseDetailVO).collect(Collectors.toList());
         // 记录task的执行信息
         Long taskCode = taskIdWorker.nextId();
         TaskStartResultVO result = new TaskStartResultVO();
@@ -307,12 +308,12 @@ public class ExecuteMgr {
         task.setProjectId(app.getProjectId());
         task.setAppId(app.getId());
         task.setAppJson(JSON.toJSONString(app));
-        task.setScriptJson(JSON.toJSONString(scriptCaseDetailVO));
-        task.setTaskName("执行[" + scriptCaseDetailVO.getScriptCaseName() + "]");
+        task.setTestcaseJson(JSON.toJSONString(scriptCaseVOS));
+        task.setTaskName("测试[" + app.getPackageName() + "]");
 
         Map<String, String> map = scriptMetadataService.getPython();
         TaskVO taskVO = new TaskVO();
-        taskVO.setScriptCases(Collections.singletonList(scriptCaseDetailVO));
+        taskVO.setScriptCases(scriptCaseVOS);
         taskVO.setAppUrl(app.getPath());
         taskVO.setTaskCode(taskCode);
         taskVO.setMetadata(map);
@@ -348,9 +349,7 @@ public class ExecuteMgr {
         ScriptCaseSet scriptCaseSet = scriptCaseSetService.getByScriptCaseSetId(scriptCaseSetId);
         String scriptCaseIdStr = scriptCaseSet.getScriptCaseIds();
         List<String> scriptCaseIds = JSON.parseArray(scriptCaseIdStr, String.class);
-        List<ScriptCaseVO> scriptCaseVOS = scriptCaseIds.stream().map(caseId -> {
-            return scriptCaseService.getScriptCaseDetailVO(caseId);
-        }).collect(Collectors.toList());
+        List<ScriptCaseVO> scriptCaseVOS = scriptCaseIds.stream().map(caseId -> scriptCaseService.getScriptCaseDetailVO(caseId)).collect(Collectors.toList());
         //
         // 记录task的执行信息
         Long taskCode = taskIdWorker.nextId();

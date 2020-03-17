@@ -3,10 +3,10 @@ class TestWaBasic_${functions_index}():
 
     def setup_class(cls):
         cls.client = DriverClient().driver
-        cls.client.launchApp();
+        cls.client.launch_app()
 
     def teardown_class(cls):
-        cls.client.closeApp();
+        cls.client.close_app()
 
     @pytest.fixture(scope='function')
     def driver(self, request):
