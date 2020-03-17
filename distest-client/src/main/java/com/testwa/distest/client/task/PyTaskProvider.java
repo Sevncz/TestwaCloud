@@ -51,7 +51,7 @@ public class PyTaskProvider extends BaseProvider{
             commandLine.addArgument("--alluredir");
             commandLine.addArgument(resultPath);
             commandLine.addArgument("--reruns");
-            commandLine.addArgument("3");
+            commandLine.addArgument("5");
             UTF8CommonExecs pyexecs = new UTF8CommonExecs(commandLine);
             // 设置最大执行时间，30分钟
             pyexecs.setTimeout(30 * 60 * 1000L);

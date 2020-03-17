@@ -37,7 +37,6 @@ class TestWaBasic_${functions_index}():
     @allure.severity("${function.severity}")# 用例等级
     </#if>
     def test_action_${function_index}(self, driver):
-        time.sleep(2)
     <#list function.actions as action>
         ${action}
     </#list>
