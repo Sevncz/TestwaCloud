@@ -42,7 +42,7 @@ public class ScriptGenerator {
         return null;
     }
 
-    public String toAndroidPyScript(List<List<Function>> cases, String deviceName, String platformVersion, String app, String appiumPort) {
+    public String toAndroidPyScript(List<List<Function>> cases, String deviceName, String platformVersion, String app, String appiumPort, String systemPort) {
         Map<String, Object> model = new HashMap<>();
         model.put("cases", cases);
         model.put("platformVersion", platformVersion);
@@ -50,6 +50,7 @@ public class ScriptGenerator {
         model.put("appPath", app);
         model.put("port", appiumPort);
         model.put("type", "Android");
+        model.put("systemPort", systemPort);
         try {
             Template template = freeMarkerConfigurer.getConfiguration().getTemplate("test_py_template.ftl");
             return FreeMarkerTemplateUtils.processTemplateIntoString(template, model);

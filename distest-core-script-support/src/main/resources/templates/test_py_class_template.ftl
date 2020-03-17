@@ -3,7 +3,6 @@ class TestWaBasic_${functions_index}():
 
     def setup_class(cls):
         cls.client = DriverClient().driver
-        cls.client.launch_app()
 
     def teardown_class(cls):
         cls.client.close_app()

@@ -1,14 +1,27 @@
 package com.testwa.distest.client.task;
 
 import com.alibaba.fastjson.JSON;
+import com.android.ddmlib.IDevice;
+import com.testwa.core.cmd.KeyCode;
 import com.testwa.core.script.vo.TaskEnvVO;
 import com.testwa.core.script.vo.TaskVO;
+import com.testwa.distest.client.android.ADBCommandUtils;
+import com.testwa.distest.client.android.ADBTools;
+import com.testwa.distest.client.android.JadbDeviceManager;
 import com.testwa.distest.client.component.Constant;
+import com.testwa.distest.client.component.StepResult;
+import com.testwa.distest.client.component.executor.uiautomator2.Bounds;
+import com.testwa.distest.client.component.executor.uiautomator2.Ui2Command;
+import com.testwa.distest.client.device.driver.IDeviceRemoteControlDriverCapabilities;
 import com.testwa.distest.client.download.Downloader;
 import com.testwa.distest.client.exception.DownloadFailException;
+import com.testwa.distest.client.exception.InstallAppException;
 import com.testwa.distest.client.model.AgentInfo;
 import com.testwa.distest.client.model.UserInfo;
+import com.testwa.distest.jadb.JadbDevice;
+import io.rpc.testwa.task.StepRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
@@ -23,10 +36,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.Map;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
+
+import static com.testwa.distest.client.component.executor.worker.AbstractExecutor.TESTWA_PWD;
 
 /**
  * 处理基本逻辑，上传，下载，和脚本语言无关
@@ -119,5 +135,11 @@ public class BaseProvider {
         return responseEntity;
     }
 
+    public void installApp(String deviceId, String appPath) {
+        ADBCommandUtils.unlockWindow(deviceId);
+        ADBCommandUtils.inputCode(deviceId, KeyCode.KEYCODE_HOME);
+        log.info("[{}] 开始安装应用", deviceId);
+        ADBCommandUtils.installApp(deviceId, appPath);
+    }
 
 }

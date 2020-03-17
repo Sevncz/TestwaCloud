@@ -17,6 +17,8 @@ import com.testwa.distest.client.component.Constant;
 import com.testwa.distest.client.component.appium.manager.CustomAppiumManager;
 import com.testwa.distest.client.component.appium.pool.CustomAppiumManagerPool;
 import com.testwa.distest.client.component.appium.utils.Config;
+import com.testwa.distest.client.component.executor.uiautomator2.Ui2Command;
+import com.testwa.distest.client.component.executor.uiautomator2.Ui2Server;
 import com.testwa.distest.client.device.manager.DeviceManager;
 import com.testwa.distest.client.device.pool.DeviceManagerPool;
 import com.testwa.distest.client.download.Downloader;
@@ -80,6 +82,9 @@ public class CronScheduled {
     private CustomAppiumManagerPool customAppiumManagerPool;
     @Autowired
     private PyTaskProvider pyTaskProvider;
+    @Autowired
+    private BaseProvider baseProvider;
+
 
     /**
      * @Description: android设备在线情况的补充检查
@@ -103,21 +108,45 @@ public class CronScheduled {
                     RTopic rTopic = redissonClient.getTopic(d.getSerial());
                     log.info("[{}]增加任务监听", d.getSerial());
                     rTopic.addListener(TaskVO.class, new MessageListener<TaskVO>() {
-                        @SneakyThrows
                         @Override
                         public void onMessage(CharSequence channel, TaskVO msg) {
                             log.info("监听到消息: {}", JSON.toJSONString(msg));
-                            // 生成脚本
-                            List<List<Function>> templateFunctions = pyTaskProvider.generatorFunctions(msg);
+                            CustomAppiumManager manager = customAppiumManagerPool.getManager();
+                            String port = manager.getPort() + "";
 
                             String deviceId = msg.getDeviceId();
                             String platformVersion = ADBCommandUtils.getPlatformVersion(deviceId);
                             String appLocalPath = pyTaskProvider.downloadApp(msg.getAppUrl());
 
-                            CustomAppiumManager manager = customAppiumManagerPool.getManager();
-                            String port = manager.getPort() + "";
-                            String scriptContent = scriptGenerator.toAndroidPyScript(templateFunctions, deviceId, platformVersion, appLocalPath, port);
-                            pyTaskProvider.runPyScript(msg, scriptContent);
+                            // 启动ui2
+                            Ui2Server ui2Server = new Ui2Server(msg.getDeviceId());
+                            ui2Server.start();
+                            Ui2Command ui2Command = new Ui2Command(ui2Server.getUiServerPort());
+                            try {
+                                // 生成脚本
+                                List<List<Function>> templateFunctions = pyTaskProvider.generatorFunctions(msg);
+
+                                ui2Command.startInstallCheck(deviceId);
+                                // 手动安装app
+                                baseProvider.installApp(deviceId, appLocalPath);
+                                ui2Command.stopInstallCheck();
+
+                                ui2Command.startProcessRunningAlter();
+                                log.info("[{}]安装app {}", deviceId, appLocalPath);
+                                // 手动启动app
+                                ADBCommandUtils.launcherApp(deviceId, appLocalPath);
+                                TimeUnit.SECONDS.sleep(15);
+                                ui2Command.stopProcessRunningAlter();
+
+                                ui2Server.close();
+
+                                log.info("[{}]启动app {}", deviceId, appLocalPath);
+                                String systemPort = String.valueOf(PortUtil.getAvailablePort());
+                                String scriptContent = scriptGenerator.toAndroidPyScript(templateFunctions, deviceId, platformVersion, appLocalPath, port, systemPort);
+                                pyTaskProvider.runPyScript(msg, scriptContent);
+                            }catch (Exception e) {
+
+                            }
                         }
                     });
                 }

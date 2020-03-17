@@ -278,7 +278,12 @@
             <dependency>
                 <groupId>io.appium</groupId>
                 <artifactId>java-client</artifactId>
-                <version>7.2.0</version>
+                <version>7.3.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.seleniumhq.selenium</groupId>
+                <artifactId>selenium-java</artifactId>
+                <version>3.141.59</version>
             </dependency>
 
             <dependency>
@@ -512,5 +517,10 @@
 
         </dependencies>
     </dependencyManagement>
-
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
 </project>

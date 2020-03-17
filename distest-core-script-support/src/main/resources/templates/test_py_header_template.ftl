@@ -24,6 +24,8 @@ ANDROID_BASE_CAPS = {
     'platformVersion': '${platformVersion}',
     'deviceName': '${deviceName}',
     'autoGrantPermissions': 'true',
+    'systemPort': '${systemPort}',
+    'autoLaunch': 'false',
 }
     </#if>
 <#else>
