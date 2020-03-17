@@ -1,6 +1,5 @@
 package com.testwa.distest.client.component.appium.pool;
 
-import com.testwa.distest.client.component.appium.manager.AppiumManager;
 import com.testwa.distest.client.component.appium.manager.CustomAppiumManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.impl.GenericObjectPool;
