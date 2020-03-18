@@ -99,8 +99,7 @@ public class ScriptCaseController extends BaseController {
     public String py(@PathVariable String scriptCaseId) {
         ScriptCaseVO scriptCaseDetailVO = scriptCaseService.getScriptCaseDetailVO(scriptCaseId);
         Map<String, String> map = scriptMetadataService.getPython();
-        List<Function> templateFunctions = scriptGenerator.getFunctions(scriptCaseDetailVO, map);
-        return scriptGenerator.toPyClassScript(templateFunctions);
+        return scriptGenerator.toPyClassScript(scriptCaseDetailVO, map);
     }
 
     @ApiOperation(value = "脚本头", notes = "")

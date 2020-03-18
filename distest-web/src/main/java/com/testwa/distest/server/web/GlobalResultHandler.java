@@ -27,6 +27,9 @@ public class GlobalResultHandler implements ResponseBodyAdvice {
         if (body instanceof String) {
             return JSON.toJSONString(Result.success(body));
         }
+        if(body == null) {
+            return JSON.toJSONString(Result.success());
+        }
         return Result.success(body);
     }
 

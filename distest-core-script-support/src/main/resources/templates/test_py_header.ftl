@@ -2,7 +2,7 @@
 <#if type??>
     <#if type = 'iOS'>
 IOS_BASE_CAPS = {
-    'app': os.path.abspath('${appPath}'),
+    'app': os.path.abspath(r'${appPath}'),
     'automationName': 'xcuitest',
     'platformName': 'iOS',
     'platformVersion': '${platformVersion}',

@@ -1,3 +1,4 @@
+#  -*-coding:utf8 -*-
 import sys
 from selenium.common.exceptions import InvalidSessionIdException
 from datetime import datetime
@@ -18,7 +19,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 def start_case():
     log = logging.getLogger('start_case')
-    r = requests.post(url='http://127.0.0.1:8008/testwa-agent/case/start',json={'deviceId': '${deviceName}', 'appPath':'${appPath}', 'systemPort':'${systemPort}'},headers={'Content-Type':'application/json'})
+    r = requests.post(url='http://127.0.0.1:8008/testwa-agent/case/start',json={'deviceId': '${deviceName}', 'appPath':r'${appPath}', 'systemPort':'${systemPort}'},headers={'Content-Type':'application/json'})
     log.debug(r)
 
 

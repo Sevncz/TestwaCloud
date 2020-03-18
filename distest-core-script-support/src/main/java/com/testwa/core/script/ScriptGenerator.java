@@ -69,9 +69,12 @@ public class ScriptGenerator {
         return null;
     }
 
-    public String toPyClassScript(List<Function> functions) {
+    public String toPyClassScript(ScriptCaseVO scriptCaseVO, Map<String, String> stragyMap) {
+        List<ScriptCaseVO> cases =  Collections.singletonList(scriptCaseVO);
+        List<Function> templateFunctions = getFunctions(scriptCaseVO, stragyMap);
         Map<String, Object> model = new HashMap<>();
-        model.put("cases", Collections.singleton(functions));
+        model.put("cases", cases);
+        model.put("functions", Collections.singletonList(templateFunctions));
 
         try {
             Template template = freeMarkerConfigurer.getConfiguration().getTemplate("test_py_class.ftl");
