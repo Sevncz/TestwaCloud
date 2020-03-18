@@ -2,8 +2,8 @@
 class TestWaBasic_${functions_index}():
 
     def setup_class(cls):
-        start_case()
         cls.client = DriverClient().driver
+        start_case()
 
     def teardown_class(cls):
         cls.client.close_app()
