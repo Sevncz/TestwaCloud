@@ -52,7 +52,7 @@ public class ScriptCaseService extends BaseService<ScriptCase, Long> {
         List<ScriptFunctionSaveForm> scriptFunctionSaveForms = form.getScriptFunctions();
         ScriptCase scriptCase = new ScriptCase();
         scriptCase.setScriptCaseName(form.getScriptName());
-        scriptCase.setScriptCaseDesc(form.getScriptDesc());
+        scriptCase.setScriptCaseDesc(StringUtils.isNotBlank(form.getScriptDesc())?form.getScriptDesc():form.getScriptName());
         scriptCase.setProjectId(project.getId());
         scriptCase.setScriptCaseId(String.valueOf(commonIdWorker.nextId()));
         scriptCase.setAppBasePackage(form.getAppBasePackage());

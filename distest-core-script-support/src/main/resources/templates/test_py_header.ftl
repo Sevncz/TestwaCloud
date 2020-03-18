@@ -18,7 +18,7 @@ IOS_BASE_CAPS = {
     </#if>
     <#if type = 'Android'>
 ANDROID_BASE_CAPS = {
-    'app': os.path.abspath('${appPath}'),
+    'app': os.path.abspath(r'${appPath}'),
     'automationName': 'UIAutomator2',
     'platformName': 'Android',
     'platformVersion': '${platformVersion}',
@@ -30,7 +30,7 @@ ANDROID_BASE_CAPS = {
     </#if>
 <#else>
 ANDROID_BASE_CAPS = {
-    'app': os.path.abspath('${appPath}'),
+    'app': os.path.abspath(r'${appPath}'),
     'automationName': 'UIAutomator2',
     'platformName': 'Android',
     'platformVersion': '${platformVersion}',

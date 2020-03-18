@@ -37,6 +37,11 @@ public class ScriptFunction extends ProjectBase {
     @Column(name = "feature")
     private String feature;
     /**
+     * 方法描述
+     */
+    @Column(name = "func_desc")
+    private String funcDesc;
+    /**
      * 测试案例链接
      */
     @Column(name = "testcase_link")

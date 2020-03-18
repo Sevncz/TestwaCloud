@@ -237,39 +237,39 @@ public class ScriptRunnerController extends BaseController {
     @ResponseBody
     @PostMapping(value = "/task/{taskCode}/finish/{status}")
     public String finish(@PathVariable Long taskCode, @PathVariable Integer status, @RequestBody TaskEnvVO envVO) {
-        Task task = taskService.findByCode(taskCode);
-        if(status == 0) {
-            task.setStatus(DB.TaskStatus.COMPLETE);
-        }
-        if(status != 0) {
-            task.setStatus(DB.TaskStatus.ERROR);
-        }
-        task.setEndTime(new Date());
-        taskService.update(task);
-        TaskEnv taskEnv = taskEnvService.getByTaskCodeAndDeviceId(taskCode, envVO.getDeviceId());
-        boolean isExist = taskEnv != null;
-        if(isExist) {
-            taskEnv.setUpdateTime(new Date());
-            taskEnv.setUpdateBy(currentUser.getId());
-            taskEnv.setAgentVersion(envVO.getAgentVersion());
-            taskEnv.setJavaVersion(envVO.getJavaVersion());
-            taskEnv.setNodeVersion(envVO.getNodeVersion());
-            taskEnv.setOsVersion(envVO.getOsVersion());
-            taskEnv.setPythonVersion(envVO.getPythonVersion());
-            taskEnvService.update(taskEnv);
-        }else{
-            taskEnv = VoUtil.buildVO(envVO, TaskEnv.class);
-            taskEnv.setProjectId(task.getProjectId());
-            taskEnv.setCreateTime(new Date());
-            taskEnv.setCreateBy(currentUser.getId());
-            taskEnv.setTaskCode(taskCode);
-            taskEnvService.insert(taskEnv);
-        }
         long number = redissonClient.getAtomicLong("task::number::" + taskCode).addAndGet(-1);
         if(number <= 0) {
             // 触发结束
             try {
                 runReport(taskCode);
+                Task task = taskService.findByCode(taskCode);
+                if(status == 0) {
+                    task.setStatus(DB.TaskStatus.COMPLETE);
+                }
+                if(status != 0) {
+                    task.setStatus(DB.TaskStatus.ERROR);
+                }
+                task.setEndTime(new Date());
+                taskService.update(task);
+                TaskEnv taskEnv = taskEnvService.getByTaskCodeAndDeviceId(taskCode, envVO.getDeviceId());
+                boolean isExist = taskEnv != null;
+                if(isExist) {
+                    taskEnv.setUpdateTime(new Date());
+                    taskEnv.setUpdateBy(currentUser.getId());
+                    taskEnv.setAgentVersion(envVO.getAgentVersion());
+                    taskEnv.setJavaVersion(envVO.getJavaVersion());
+                    taskEnv.setNodeVersion(envVO.getNodeVersion());
+                    taskEnv.setOsVersion(envVO.getOsVersion());
+                    taskEnv.setPythonVersion(envVO.getPythonVersion());
+                    taskEnvService.update(taskEnv);
+                }else{
+                    taskEnv = VoUtil.buildVO(envVO, TaskEnv.class);
+                    taskEnv.setProjectId(task.getProjectId());
+                    taskEnv.setCreateTime(new Date());
+                    taskEnv.setCreateBy(currentUser.getId());
+                    taskEnv.setTaskCode(taskCode);
+                    taskEnvService.insert(taskEnv);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }

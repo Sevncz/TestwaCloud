@@ -11,6 +11,7 @@ public class ScriptFunctionVO {
     private String functionId;
     private String title;
     private String feature;
+    private String funcDesc;
     private String testcaseLink;
     private String issueLink;
     private String severity;

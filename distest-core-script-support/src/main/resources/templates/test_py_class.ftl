@@ -3,6 +3,11 @@
 @allure.feature("${case.scriptCaseName}")
 </#if>
 class TestWaBasic_${case_index}():
+<#if case.scriptCaseDesc??>
+    """
+    ${case.scriptCaseDesc}
+    """
+</#if>
 
     def setup_class(cls):
         cls.client = DriverClient().driver
@@ -39,6 +44,12 @@ class TestWaBasic_${case_index}():
     @allure.severity("critical")
     </#if>
     def test_action_${function_index}(self, driver):
+    <#if function.funcDesc??>
+        """
+        ${function.funcDesc}
+        """
+    </#if>
+
     <#list function.actions as action>
         ${action}
     </#list>
