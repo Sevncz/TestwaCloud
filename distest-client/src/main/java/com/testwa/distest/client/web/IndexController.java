@@ -2,10 +2,14 @@ package com.testwa.distest.client.web;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.testwa.distest.client.android.ADBCommandUtils;
+import com.testwa.distest.client.component.executor.uiautomator2.Ui2Command;
+import com.testwa.distest.client.component.executor.uiautomator2.Ui2Server;
 import com.testwa.distest.client.component.executor.worker.FunctionalPythonExecutor;
 import com.testwa.distest.client.config.CacheProperty;
 import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.service.GrpcClientService;
+import com.testwa.distest.client.task.BaseProvider;
 import io.rpc.testwa.task.StepRequest;
 import io.rpc.testwa.task.StepRequestOrBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -24,134 +28,42 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by wen on 7/30/16.
  */
 @Slf4j
-@Controller
+@RestController
 public class IndexController {
     @Autowired
-    private GrpcClientService grpcClientService;
+    private BaseProvider baseProvider;
 
-    @RequestMapping("/")
-    String index() {
-        return "Hello World!";
+    @GetMapping("/")
+    public String index() {
+        return "hello";
     }
 
-    @RequestMapping({ "/client" })
-    @ResponseBody
-    public String action(HttpServletRequest request) {
-        String urlInfo = parseInputStreamFormUrlToJson(request);
-        if(StringUtils.isBlank(urlInfo) || !urlInfo.contains("executionTaskId")) {
-            log.warn("appium 。。。。。。。。。。");
-            return "error";
-        }
-        grpcClientService.procedureInfoUpload(urlInfo);
-        JSONObject appiumStepJson = JSON.parseObject(urlInfo);
-        String taskId = appiumStepJson.getString("executionTaskId");
-        String scriptId = appiumStepJson.getString("testSuit");
-        String testcaseId = appiumStepJson.getString("testcaseId");
-        String sessionId = appiumStepJson.getString("sessionId");
-        if(StringUtils.isNotBlank(taskId) && StringUtils.isNotBlank(scriptId) && StringUtils.isNotBlank(testcaseId) && StringUtils.isNotBlank(sessionId)){
-            // {"getSource":0,"value":null,"runtime":468,"cpurate":"22","memory":"100012","battery":null,
-            // "sessionId":"ace91834-73c7-4fc0-8a85-004caec5154d","deviceId":"b15d91f","testSuit":"3",
-            // "testcaseId":"3","taskCode":"185","screenshotPath":"1527502356422.png",
-            // "description":"No Driver found for this session, probably appium error, please restart appium!",
-            // "shellCommand":{"action":"等待","params":"60000ms"}}
-            String value = appiumStepJson.getString("value");
-            if(StringUtils.isBlank(value)){
-                value = "null";
-            }
-            Integer status = appiumStepJson.getInteger("status");
-            Long runtime = appiumStepJson.getLong("runtime");
-            JSONObject command = appiumStepJson.getJSONObject("shellCommand");
-            String action = command.getString("action");
-            String params = command.getString("params");
+    @PostMapping("/case/start")
+    public void caseStart(@RequestBody CaseStartVO vo) throws InterruptedException {
 
-            StepRequest.StepStatus stepStatus = StepRequest.StepStatus.forNumber(status);
-            if(stepStatus == null) {
-                stepStatus = StepRequest.StepStatus.FAIL;
-            }
-            log.info(urlInfo);
-            StepRequest.Builder builder = StepRequest.newBuilder();
-            String deviceId = appiumStepJson.getString("deviceId");
-            builder.setToken(UserInfo.token)
-                    .setTaskCode(Long.parseLong(taskId))
-                    .setDeviceId(deviceId)
-                    .setAction(StepRequest.StepAction.operationStep)
-                    .setStatus(stepStatus)
-                    .setRuntime(runtime)
-                    .setValue(value)
-                    .setTimestamp(System.currentTimeMillis())
-                    .setTestcaseId(Long.parseLong(testcaseId))
-                    .setScriptId(Long.parseLong(scriptId))
-                    .setSessionId(sessionId);
+        // 启动ui2
+//        Ui2Server ui2Server = new Ui2Server(vo.getDeviceId());
+//        ui2Server.start();
+        Ui2Command ui2Command = new Ui2Command(vo.getSystemPort());
+        ui2Command.startInstallCheck(vo.getDeviceId());
+        // 手动安装app
+        baseProvider.installApp(vo.getDeviceId(), vo.getAppPath());
+        ui2Command.stopInstallCheck();
 
-            String screenPath = appiumStepJson.getString("screenshotPath");
-//            if(StringUtils.isNotBlank(screenPath)) {
-//                try {
-//                    Long fileSize = Files.size(Paths.get(screenPath));
-//                    log.info("[{}] 步骤截图路径:{} 文件大小: {}", appiumStepJson.getString("deviceId"), screenPath, fileSize);
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-            log.info("[{}] appium 截图 {}", deviceId, screenPath);
-            FunctionalPythonExecutor executor = CacheProperty.getDeviceExcutorMap(deviceId);
-            screenPath = executor.screenshoot();
-            log.info("[{}] 截图 {}", deviceId, screenPath);
-            builder.setImg(screenPath);
-
-            if(StringUtils.isNotBlank(action)) {
-                builder.setCommadAction(action);
-            }
-            if(StringUtils.isNotBlank(params)) {
-                builder.setCommadParams(params);
-            }
-            grpcClientService.saveStep(builder.build());
-        }
-
-        return "ok";
-    }
-
-    @RequestMapping({ "/client/{deviceId}/{testcaselogId}/{prot}" })
-    @ResponseBody
-    public String start(@PathVariable("deviceId")String deviceId, @PathVariable("testcaselogId")Integer testcaselogId, @PathVariable("prot")Integer prot, HttpServletRequest request){
-        log.info("runOneScript schedule py");
-        return "ok";
-    }
-
-    public String parseInputStreamFormUrlToJson(ServletRequest request) {
-        StringBuffer urlInfo = new StringBuffer();
-
-        InputStream in = null;
-        try {
-            in = request.getInputStream();
-            BufferedInputStream buf = new BufferedInputStream(in);
-
-            byte[] buffer = new byte[1024];
-            int iRead;
-            while ((iRead = buf.read(buffer)) != -1) {
-                urlInfo.append(new String(buffer, 0, iRead, "UTF-8"));
-            }
-        } catch (Exception e) {
-            if (in != null)
-                try {
-                    in.close();
-                } catch (IOException ioe) {
-                    ioe.printStackTrace();
-                }
-            return null;
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                }
-            }
-        }
-        return urlInfo.toString();
+        ui2Command.startProcessRunningAlter();
+        log.info("[{}]安装app {}", vo.getDeviceId(), vo.getAppPath());
+        // 手动启动app
+        ADBCommandUtils.launcherApp(vo.getDeviceId(), vo.getAppPath());
+        TimeUnit.SECONDS.sleep(5);
+        ui2Command.stopProcessRunningAlter();
+        log.info("[{}]启动app {}", vo.getDeviceId(), vo.getAppPath());
+//        ui2Server.close();
     }
 
 }

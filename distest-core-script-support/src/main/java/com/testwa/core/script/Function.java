@@ -12,6 +12,7 @@ public class Function {
      * 脚本ID
      */
     private String scriptCaseId;
+    private String scriptCaseName;
     /**
      * 方法内代码
      */

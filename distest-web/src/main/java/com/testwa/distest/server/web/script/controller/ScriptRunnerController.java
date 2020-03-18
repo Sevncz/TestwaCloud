@@ -158,12 +158,12 @@ public class ScriptRunnerController extends BaseController {
 
         App app = appService.get(form.getAppId());
 
-        Set<String> onlineDeviceIdList = deviceOnlineMgr.allOnlineDevices();
+//        Set<String> onlineDeviceIdList = deviceOnlineMgr.allOnlineDevices();
         List<Device> deviceList = deviceService.findAll(form.getDeviceIds());
         List<Device> unableDevices = new ArrayList<>();
         List<String> unableDeviceIds = new ArrayList<>();
         for (Device device : deviceList) {
-            if (!onlineDeviceIdList.contains(device.getDeviceId())
+            if (!DB.PhoneOnlineStatus.ONLINE.equals(device.getOnlineStatus())
                     || !DB.DeviceWorkStatus.FREE.equals(device.getWorkStatus())
                     || !DB.DeviceDebugStatus.FREE.equals(device.getDebugStatus())) {
                 unableDevices.add(device);

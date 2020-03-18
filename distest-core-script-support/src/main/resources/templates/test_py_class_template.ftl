@@ -2,6 +2,7 @@
 class TestWaBasic_${functions_index}():
 
     def setup_class(cls):
+        start_case()
         cls.client = DriverClient().driver
 
     def teardown_class(cls):
@@ -27,13 +28,17 @@ class TestWaBasic_${functions_index}():
 
 <#list functions as function>
     <#if function.feature??>
-    @allure.feature("${function.feature}") # 模块名称
+    @allure.feature("${function.feature}")
+    <#else >
+    @allure.feature("${function.scriptCaseName}")
     </#if>
     <#if function.title??>
-    @allure.title("${function.title}") # 用例标题
+    @allure.story("${function.title}")
     </#if>
     <#if function.severity??>
-    @allure.severity("${function.severity}")# 用例等级
+    @allure.severity("${function.severity}")
+    <#else >
+    @allure.severity("critical")
     </#if>
     def test_action_${function_index}(self, driver):
     <#list function.actions as action>

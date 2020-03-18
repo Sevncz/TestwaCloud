@@ -29,11 +29,12 @@ public class ScriptFunctionService extends BaseService<ScriptFunction, Long> {
     private User currentUser;
 
     @Transactional(rollbackFor = Exception.class)
-    public ScriptFunction createFunction(Long projectId, String scriptCaseId, String fuuid) {
+    public ScriptFunction createFunction(Long projectId, String scriptCaseId, String fuuid, String title) {
         ScriptFunction scriptFunction = new ScriptFunction();
         scriptFunction.setProjectId(projectId);
         scriptFunction.setScriptCaseId(scriptCaseId);
         scriptFunction.setFunctionId(fuuid);
+        scriptFunction.setTitle(title);
         scriptFunction.setCreateTime(new Date());
         scriptFunction.setCreateBy(currentUser.getId());
         scriptFunction.setUpdateTime(new Date());

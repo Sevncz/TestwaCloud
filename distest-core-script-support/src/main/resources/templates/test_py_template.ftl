@@ -6,11 +6,21 @@ import os
 import copy
 import allure
 import time
+import requests
 from appium.webdriver.common.touch_action import TouchAction
 
 from appium import webdriver
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 <#include "test_py_header_template.ftl">
+
+def start_case():
+    log = logging.getLogger('start_case')
+    r = requests.post(url='http://127.0.0.1:8008/testwa-agent/case/start',json={'deviceId': '${deviceName}', 'appPath':'${appPath}', 'systemPort':'${systemPort}'},headers={'Content-Type':'application/json'})
+    log.debug(r)
+
 
 def ensure_dir(directory):
     if not os.path.exists(directory):
@@ -64,7 +74,5 @@ class Singleton(object):
 
 class DriverClient(Singleton):
     pass
-
-<#include "test_py_alter_process.ftl">
 
 <#include "test_py_class_template.ftl">

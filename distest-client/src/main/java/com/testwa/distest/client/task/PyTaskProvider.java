@@ -8,6 +8,7 @@ import com.testwa.distest.client.component.Constant;
 import com.testwa.distest.client.model.UserInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.exec.CommandLine;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -35,9 +36,8 @@ public class PyTaskProvider extends BaseProvider{
     @Value("${distest.api.web}")
     private String apiUrl;
 
-
     public void runPyScript(TaskVO msg, String scriptContent) {
-        String pyPath = Constant.localScriptPath + File.separator + msg.getTaskCode() + ".py";
+        String pyPath = Constant.localScriptPath + File.separator + msg.getTaskCode() + System.currentTimeMillis() + ".py";
         String resultPath = Constant.localScriptPath + File.separator + msg.getTaskCode() + "result";
         log.info("python 脚本路径 {} ", pyPath);
         try {

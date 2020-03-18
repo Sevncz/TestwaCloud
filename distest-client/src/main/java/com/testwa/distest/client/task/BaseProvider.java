@@ -57,8 +57,6 @@ public class BaseProvider {
     private AsyncProvider asyncProvider;
     @Value("${distest.api.web}")
     private String apiUrl;
-    @Value("${application.version}")
-    private String applicationVersion;
     @Value("${download.url}")
     private String downloadUrl;
 
@@ -85,23 +83,6 @@ public class BaseProvider {
                 e.printStackTrace();
             }
         }
-        // 上传完成，通知任务已完成
-        TaskEnvVO envVO = new TaskEnvVO();
-        AgentInfo agentInfo = AgentInfo.getAgentInfo();
-        envVO.setAgentVersion(applicationVersion);
-        envVO.setJavaVersion(agentInfo.getJavaVersion());
-        envVO.setOsVersion(agentInfo.getOsVersion());
-        envVO.setNodeVersion("1.13");
-        envVO.setPythonVersion("3.7");
-        envVO.setDeviceId(msg.getDeviceId());
-
-        String url = "http://" + apiUrl + "/v2/task/" + msg.getTaskCode() + "/finish/" + success;
-        HttpHeaders requestHeaders = new HttpHeaders();
-        requestHeaders.set("X-TOKEN", UserInfo.token);
-        requestHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-        HttpEntity<String> formEntity = new HttpEntity<>(JSON.toJSONString(envVO), requestHeaders);
-        ResponseEntity<String> responseEntity = this.restTemplate.postForEntity(url, formEntity, String.class);
-        log.info("通知任务结束：{}", responseEntity.getBody());
     }
 
 

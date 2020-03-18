@@ -58,17 +58,20 @@ public class ScriptCaseService extends BaseService<ScriptCase, Long> {
         scriptCase.setAppBasePackage(form.getAppBasePackage());
         scriptCaseMapper.insert(scriptCase);
         List<String> functions = new ArrayList<>();
+        List<String> titles = new ArrayList<>();
 //        List<ScriptAction> actions = new ArrayList<>();
 
         scriptFunctionSaveForms.forEach(f -> {
             if(!functions.contains(f.getFunctionId())){
                 functions.add(f.getFunctionId());
+                titles.add(f.getTitle());
             }
         });
         // 创建方法
         Map<String, ScriptFunction> functionMap = new HashMap<>();
         functions.forEach(fuuid -> {
-            ScriptFunction scriptFunction = scriptFunctionService.createFunction(project.getId(), scriptCase.getScriptCaseId(), fuuid);
+            String title = titles.get(functions.indexOf(fuuid));
+            ScriptFunction scriptFunction = scriptFunctionService.createFunction(project.getId(), scriptCase.getScriptCaseId(), fuuid, title);
             functionMap.put(fuuid, scriptFunction);
         });
         // 创建action

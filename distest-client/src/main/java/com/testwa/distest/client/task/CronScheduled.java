@@ -7,6 +7,7 @@ import com.testwa.core.script.Function;
 import com.testwa.core.script.ScriptGenerator;
 import com.testwa.core.script.snippet.ScriptCode;
 import com.testwa.core.script.util.FileUtil;
+import com.testwa.core.script.vo.ScriptCaseVO;
 import com.testwa.core.script.vo.TaskEnvVO;
 import com.testwa.core.script.vo.TaskResultVO;
 import com.testwa.core.script.vo.TaskVO;
@@ -57,8 +58,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by wen on 16/9/4.
@@ -84,6 +87,12 @@ public class CronScheduled {
     private PyTaskProvider pyTaskProvider;
     @Autowired
     private BaseProvider baseProvider;
+    @Value("${application.version}")
+    private String applicationVersion;
+    @Value("${distest.api.web}")
+    private String apiUrl;
+    @Autowired
+    private RestTemplate restTemplate;
 
 
     /**
@@ -117,35 +126,37 @@ public class CronScheduled {
                             String deviceId = msg.getDeviceId();
                             String platformVersion = ADBCommandUtils.getPlatformVersion(deviceId);
                             String appLocalPath = pyTaskProvider.downloadApp(msg.getAppUrl());
-
-                            // 启动ui2
-                            Ui2Server ui2Server = new Ui2Server(msg.getDeviceId());
-                            ui2Server.start();
-                            Ui2Command ui2Command = new Ui2Command(ui2Server.getUiServerPort());
+                            int success = 0;
                             try {
-                                // 生成脚本
-                                List<List<Function>> templateFunctions = pyTaskProvider.generatorFunctions(msg);
-
-                                ui2Command.startInstallCheck(deviceId);
-                                // 手动安装app
-                                baseProvider.installApp(deviceId, appLocalPath);
-                                ui2Command.stopInstallCheck();
-
-                                ui2Command.startProcessRunningAlter();
-                                log.info("[{}]安装app {}", deviceId, appLocalPath);
-                                // 手动启动app
-                                ADBCommandUtils.launcherApp(deviceId, appLocalPath);
-                                TimeUnit.SECONDS.sleep(15);
-                                ui2Command.stopProcessRunningAlter();
-
-                                ui2Server.close();
-
-                                log.info("[{}]启动app {}", deviceId, appLocalPath);
+                                List<List<Function>> templateFunctions = new ArrayList<>();
                                 String systemPort = String.valueOf(PortUtil.getAvailablePort());
+                                // 生成脚本
+                                for (ScriptCaseVO scriptCase : msg.getScriptCases()) {
+                                    List<Function> functions = pyTaskProvider.generatorFunctions(scriptCase.getScriptCaseId());
+                                    templateFunctions.add(functions.stream().peek(f -> f.setScriptCaseName(scriptCase.getScriptCaseName())).collect(Collectors.toList()));
+                                }
                                 String scriptContent = scriptGenerator.toAndroidPyScript(templateFunctions, deviceId, platformVersion, appLocalPath, port, systemPort);
                                 pyTaskProvider.runPyScript(msg, scriptContent);
                             }catch (Exception e) {
+                                success += 1;
+                            }finally {
+                                // 上传完成，通知任务已完成
+                                TaskEnvVO envVO = new TaskEnvVO();
+                                AgentInfo agentInfo = AgentInfo.getAgentInfo();
+                                envVO.setAgentVersion(applicationVersion);
+                                envVO.setJavaVersion(agentInfo.getJavaVersion());
+                                envVO.setOsVersion(agentInfo.getOsVersion());
+                                envVO.setNodeVersion("1.13");
+                                envVO.setPythonVersion("3.7");
+                                envVO.setDeviceId(msg.getDeviceId());
 
+                                String url = "http://" + apiUrl + "/v2/task/" + msg.getTaskCode() + "/finish/" + success;
+                                HttpHeaders requestHeaders = new HttpHeaders();
+                                requestHeaders.set("X-TOKEN", UserInfo.token);
+                                requestHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+                                HttpEntity<String> formEntity = new HttpEntity<>(JSON.toJSONString(envVO), requestHeaders);
+                                ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, formEntity, String.class);
+                                log.info("通知任务结束：{}", responseEntity.getBody());
                             }
                         }
                     });
