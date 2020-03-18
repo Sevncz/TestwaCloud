@@ -14,7 +14,7 @@ import logging
 
 logging.basicConfig(level=logging.DEBUG)
 
-<#include "test_py_header_template.ftl">
+<#include "test_py_header.ftl">
 
 def start_case():
     log = logging.getLogger('start_case')
@@ -75,4 +75,4 @@ class Singleton(object):
 class DriverClient(Singleton):
     pass
 
-<#include "test_py_class_template.ftl">
+<#include "test_py_class.ftl">

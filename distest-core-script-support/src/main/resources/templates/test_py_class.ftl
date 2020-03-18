@@ -1,5 +1,8 @@
-<#list cases as functions>
-class TestWaBasic_${functions_index}():
+<#list cases as case>
+<#if case.scriptCaseName??>
+@allure.feature("${case.scriptCaseName}")
+</#if>
+class TestWaBasic_${case_index}():
 
     def setup_class(cls):
         cls.client = DriverClient().driver
@@ -26,12 +29,7 @@ class TestWaBasic_${functions_index}():
         request.addfinalizer(fin)
         return driver
 
-<#list functions as function>
-    <#if function.feature??>
-    @allure.feature("${function.feature}")
-    <#else >
-    @allure.feature("${function.scriptCaseName}")
-    </#if>
+<#list functions[case_index] as function>
     <#if function.title??>
     @allure.story("${function.title}")
     </#if>
@@ -46,4 +44,5 @@ class TestWaBasic_${functions_index}():
     </#list>
 
 </#list>
+
 </#list>

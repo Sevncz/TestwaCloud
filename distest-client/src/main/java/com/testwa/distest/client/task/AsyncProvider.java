@@ -38,7 +38,7 @@ public class AsyncProvider {
         param.add("file", resource);
         HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(param, requestHeadersFile);
         ResponseEntity<FileUploadEntity> responseEntity = restTemplate.exchange(url, HttpMethod.POST, httpEntity, FileUploadEntity.class);
-        log.info("上传返回：{}", responseEntity.getBody().getData());
+        log.debug("上传返回：{}", responseEntity.getBody().getData());
 
         if (responseEntity.getStatusCode().value() == 200 && responseEntity.getBody().getCode() == 0) {
             // 生成TaskResult对象
@@ -53,7 +53,7 @@ public class AsyncProvider {
             requestHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
             HttpEntity<String> formEntity = new HttpEntity<>(JSON.toJSONString(resultVO), requestHeaders);
             ResponseEntity<String> responseEntity1 = this.restTemplate.postForEntity(url2, formEntity, String.class);
-            log.info("保存TaskResult返回：{}", responseEntity1.getBody());
+            log.debug("保存TaskResult返回：{}", responseEntity1.getBody());
         }
         return CompletableFuture.completedFuture(responseEntity);
     }

@@ -132,10 +132,10 @@ public class CronScheduled {
                                 String systemPort = String.valueOf(PortUtil.getAvailablePort());
                                 // 生成脚本
                                 for (ScriptCaseVO scriptCase : msg.getScriptCases()) {
-                                    List<Function> functions = pyTaskProvider.generatorFunctions(scriptCase.getScriptCaseId());
+                                    List<Function> functions = scriptGenerator.getFunctions(scriptCase, msg.getMetadata());
                                     templateFunctions.add(functions.stream().peek(f -> f.setScriptCaseName(scriptCase.getScriptCaseName())).collect(Collectors.toList()));
                                 }
-                                String scriptContent = scriptGenerator.toAndroidPyScript(templateFunctions, deviceId, platformVersion, appLocalPath, port, systemPort);
+                                String scriptContent = scriptGenerator.toAndroidPyScript(msg.getScriptCases(), templateFunctions, deviceId, platformVersion, appLocalPath, port, systemPort);
                                 pyTaskProvider.runPyScript(msg, scriptContent);
                             }catch (Exception e) {
                                 success += 1;
@@ -198,7 +198,13 @@ public class CronScheduled {
                             public void onMessage(CharSequence channel, TaskVO msg) {
                                 log.info("监听到消息: {}", JSON.toJSONString(msg));
                                 // 生成脚本
-                                List<List<Function>> templateFunctions = pyTaskProvider.generatorFunctions(msg);
+                                List<List<Function>> templateFunctions = new ArrayList<>();
+                                String systemPort = String.valueOf(PortUtil.getAvailablePort());
+                                // 生成脚本
+                                for (ScriptCaseVO scriptCase : msg.getScriptCases()) {
+                                    List<Function> functions = scriptGenerator.getFunctions(scriptCase, msg.getMetadata());
+                                    templateFunctions.add(functions.stream().peek(f -> f.setScriptCaseName(scriptCase.getScriptCaseName())).collect(Collectors.toList()));
+                                }
 
                                 String udid = msg.getDeviceId();
                                 String platformVersion = "13.3";

@@ -60,7 +60,7 @@ public class BaseProvider {
     @Value("${download.url}")
     private String downloadUrl;
 
-    public void uploadResult(TaskVO msg, String resultPath, int success) throws IOException {
+    public void uploadResult(TaskVO msg, String resultPath) throws IOException {
 
         if (Files.list(Paths.get(resultPath)).count() > 0) {
             List<CompletableFuture<ResponseEntity<FileUploadEntity>>> responseFutures = Files.list(Paths.get(resultPath)).map(f -> asyncProvider.asyncUploadTaskResult(f, msg, resultPath)).collect(Collectors.toList());
@@ -88,19 +88,19 @@ public class BaseProvider {
 
     public String downloadApp(String appPath) {
         String appUrl = String.format("http://%s/app/%s", downloadUrl, appPath);
-        String appLocalPath = Constant.localAppPath + File.separator + appPath;
+        Path appLocalPath = Paths.get(Constant.localAppPath, appPath);
 
         // 检查是否有和该app md5一致的
         try {
             log.info("应用路径：{}", appLocalPath);
-            if (Files.notExists(Paths.get(appLocalPath))) {
+            if (Files.notExists(appLocalPath)) {
                 Downloader d = new Downloader();
-                d.start(appUrl, appLocalPath);
+                d.start(appUrl, appLocalPath.toString());
             }
         } catch (DownloadFailException | IOException e) {
             e.printStackTrace();
         }
-        return appLocalPath;
+        return appLocalPath.toString();
     }
 
     public ResponseEntity<FileUploadEntity> uploadFile(Path f) {

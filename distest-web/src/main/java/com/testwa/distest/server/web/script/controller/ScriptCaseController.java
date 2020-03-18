@@ -45,11 +45,9 @@ public class ScriptCaseController extends BaseController {
     @Autowired
     private ProjectValidator projectValidator;
     @Autowired
-    private ScriptCode scriptCodePython;
+    private ScriptGenerator scriptGenerator;
     @Autowired
     private ScriptMetadataService scriptMetadataService;
-    @Autowired
-    private ScriptGenerator scriptGenerator;
 
     @ApiOperation(value = "创建一个脚本", notes = "")
     @ResponseBody
@@ -100,7 +98,8 @@ public class ScriptCaseController extends BaseController {
     @GetMapping(value = "/script/{scriptCaseId}/py")
     public String py(@PathVariable String scriptCaseId) {
         ScriptCaseVO scriptCaseDetailVO = scriptCaseService.getScriptCaseDetailVO(scriptCaseId);
-        List<Function> templateFunctions = getFunctions(scriptCaseDetailVO);
+        Map<String, String> map = scriptMetadataService.getPython();
+        List<Function> templateFunctions = scriptGenerator.getFunctions(scriptCaseDetailVO, map);
         return scriptGenerator.toPyClassScript(templateFunctions);
     }
 
@@ -134,63 +133,8 @@ public class ScriptCaseController extends BaseController {
     @GetMapping(value = "/script/{scriptCaseId}/pyActionCode")
     public List<Function> pyActionCode(@PathVariable String scriptCaseId) {
         ScriptCaseVO scriptCaseDetailVO = scriptCaseService.getScriptCaseDetailVO(scriptCaseId);
-        return getFunctions(scriptCaseDetailVO);
-    }
-
-    private List<Function> getFunctions(ScriptCaseVO scriptCaseDetailVO) {
         Map<String, String> map = scriptMetadataService.getPython();
-
-        List<ScriptFunctionVO> functionList = scriptCaseDetailVO.getFunctions();
-        List<Function> templateFunctions = new ArrayList<>();
-        for (ScriptFunctionVO scriptFunctionVO : functionList) {
-            List<ScriptActionVO> actionVOS = scriptFunctionVO.getActions();
-            Function function = VoUtil.buildVO(scriptFunctionVO, Function.class);
-            function.setActions(null);
-            function.setScriptCaseId(scriptCaseDetailVO.getScriptCaseId());
-            for (ScriptActionVO scriptActionVO : actionVOS) {
-                String code = "";
-                String action = scriptActionVO.getAction();
-                JSONArray jsonArray = JSON.parseArray(scriptActionVO.getParameter());
-                if (ScriptActionEnum.findAndAssign.name().equals(action)) {
-                    try {
-                        code = scriptCodePython.codeFor_findAndAssign(jsonArray.getString(0), jsonArray.getString(1), jsonArray.getString(2), jsonArray.getBoolean(3), map);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (ScriptActionEnum.click.name().equals(action)) {
-                    try {
-                        code = scriptCodePython.codeFor_click(jsonArray.getString(0));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (ScriptActionEnum.tap.name().equals(action)) {
-                    try {
-                        code = scriptCodePython.codeFor_tap(jsonArray.getString(0), jsonArray.getString(1), jsonArray.getString(2));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (ScriptActionEnum.sendKeys.name().equals(action)) {
-                    try {
-                        code = scriptCodePython.codeFor_sendKeys(jsonArray.getString(0), jsonArray.getString(1));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (ScriptActionEnum.swipe.name().equals(action)) {
-                    try {
-                        code = scriptCodePython.codeFor_swipe(jsonArray.getString(0), jsonArray.getString(1), jsonArray.getString(2), jsonArray.getString(3), jsonArray.getString(4));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                function.addCode(code);
-            }
-            templateFunctions.add(function);
-        }
-        return templateFunctions;
+        return scriptGenerator.getFunctions(scriptCaseDetailVO, map);
     }
 
 
