@@ -187,45 +187,6 @@ public class ScriptRunnerController extends BaseController {
         return vo;
     }
 
-
-    @ApiOperation(value = "测试发布任务", notes = "")
-    @ResponseBody
-    @PostMapping(value = "/testios/push/{deviceId}")
-    public String runScript(@PathVariable String deviceId) {
-
-        ScriptCaseVO scriptCaseDetailVO = scriptCaseService.getScriptCaseDetailVO("246380799165857792");
-        Map<String, String> map = scriptMetadataService.getPython();
-        TaskVO taskVO = new TaskVO();
-        taskVO.setScriptCases(Collections.singletonList(scriptCaseDetailVO));
-        taskVO.setAppUrl("/Users/wen/dev/TestApp.zip");
-        taskVO.setTaskCode(123456L);
-        taskVO.setMetadata(map);
-        taskVO.setDeviceId(deviceId);
-
-        RTopic topic = redissonClient.getTopic(deviceId);
-        topic.publish(taskVO);
-        return "成功";
-    }
-
-    @ApiOperation(value = "测试发布任务", notes = "")
-    @ResponseBody
-    @PostMapping(value = "/testandroid/push/{deviceId}")
-    public String runAndroidScript(@PathVariable String deviceId) {
-
-        ScriptCaseVO scriptCaseDetailVO = scriptCaseService.getScriptCaseDetailVO("246772097710424064");
-        Map<String, String> map = scriptMetadataService.getPython();
-        TaskVO taskVO = new TaskVO();
-        taskVO.setScriptCases(Collections.singletonList(scriptCaseDetailVO));
-        taskVO.setAppUrl("/Users/wen/dev/repositories/appium/sample-code/apps/ApiDemos-debug.apk");
-        taskVO.setTaskCode(223456L);
-        taskVO.setMetadata(map);
-        taskVO.setDeviceId(deviceId);
-
-        RTopic topic = redissonClient.getTopic(deviceId);
-        topic.publish(taskVO);
-        return "成功";
-    }
-
     @ApiOperation(value = "保存任务执行结果Result", notes = "")
     @ResponseBody
     @PostMapping(value = "/task/result")

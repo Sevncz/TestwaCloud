@@ -49,7 +49,6 @@ class TestWaBasic_${case_index}():
         ${function.funcDesc}
         """
     </#if>
-
     <#list function.actions as action>
         ${action}
     </#list>

@@ -198,4 +198,12 @@ public class AppController extends BaseController {
         return buildVOs(appList, AppVO.class);
     }
 
+    @ApiOperation(value="根据basePackage获取app", notes="")
+    @ResponseBody
+    @GetMapping(value = "/project/{projectId}/app")
+    public AppInfoVO getAppInfo(@PathVariable Long projectId, @RequestParam String basePackage) {
+        AppInfo appInfo = appInfoService.getByPackage(projectId, basePackage);
+        return getAppInfoVO(appInfo);
+    }
+
 }

@@ -22,19 +22,15 @@ def start_case():
     r = requests.post(url='http://127.0.0.1:8008/testwa-agent/case/start',json={'deviceId': '${deviceName}', 'appPath':os.path.abspath(r'${appPath}'), 'systemPort':'${systemPort}'},headers={'Content-Type':'application/json'})
     log.debug(r)
 
-
 def ensure_dir(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-
 def take_screenshot_and_logcat(driver, calling_request):
     __save_log_type(driver, calling_request, "logcat")
 
-
 def take_screenshot_and_syslog(driver, calling_request):
     __save_log_type(driver, calling_request, "syslog")
-
 
 def __save_log_type(driver, calling_request, type):
     try:
@@ -47,7 +43,6 @@ def __save_log_type(driver, calling_request, type):
         data_string = data_string + "%s:  %s\n" % (data["timestamp"], data["message"].encode("utf-8"))
     allure.attach(data_string, "日志", allure.attachment_type.TEXT)
     allure.attach(driver.get_screenshot_as_png(), "操作截图", allure.attachment_type.PNG)
-
 
 class Singleton(object):
     driver = None

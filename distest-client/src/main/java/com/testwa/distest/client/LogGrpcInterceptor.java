@@ -9,11 +9,6 @@ import io.grpc.ClientCall;
 import io.grpc.ClientInterceptor;
 import io.grpc.MethodDescriptor;
 
-/**
- * User: Michael
- * Email: yidongnan@gmail.com
- * Date: 2016/12/8
- */
 public class LogGrpcInterceptor implements ClientInterceptor {
 
     private static final Logger log = LoggerFactory.getLogger(LogGrpcInterceptor.class);
