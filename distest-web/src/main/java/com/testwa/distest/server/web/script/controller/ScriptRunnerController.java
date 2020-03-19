@@ -51,6 +51,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -227,6 +230,8 @@ public class ScriptRunnerController extends BaseController {
     @ResponseBody
     @PostMapping(value = "/task/result")
     public TaskResult saveTaskResult(@RequestBody @Valid TaskResult result) {
+        Task task = taskService.findByCode(result.getTaskCode());
+        result.setProjectId(task.getProjectId());
         taskResultService.insert(result);
         String deviceId = result.getDeviceId();
         deviceLockMgr.workRelease(deviceId);
@@ -287,6 +292,7 @@ public class ScriptRunnerController extends BaseController {
     }
 
     private void runReport(Long taskCode) throws IOException {
+        Task task = taskService.findByCode(taskCode);
         Path taskPath = Paths.get(reportDir, taskCode.toString());
         if (Files.notExists(taskPath)) {
             Files.createDirectory(taskPath);
@@ -297,13 +303,31 @@ public class ScriptRunnerController extends BaseController {
             Files.createDirectory(resultPath);
         }
         Path reportPath = Paths.get(taskPath.toString(), "report");
+        // 同时写到项目目录下
+        Path projectResultPath = Paths.get(reportDir, task.getProjectId() + "", "result");
+        Path projectReportPath = Paths.get(reportDir, task.getProjectId() + "", "report");
 
         List<TaskResult> results = taskResultService.listByCode(taskCode);
-        for (TaskResult result : results) {
-            fdfsStorageService.downloadResult(result, resultPath);
+        List<CompletableFuture<Boolean>> responseFutures = results.stream().map(r -> fdfsStorageService.downloadResult(r, resultPath)).collect(Collectors.toList());
+        CompletableFuture<Void> allFutures = CompletableFuture.allOf(responseFutures.toArray(new CompletableFuture[responseFutures.size()]));
+        CompletableFuture<List<Boolean>> allResponseFuture = allFutures.thenApply(v -> {
+            return responseFutures.stream()
+                    .map(future -> future.join())
+                    .collect(Collectors.toList());
+        });
+        CompletableFuture<Long> countFuture = allResponseFuture.thenApply(responses -> {
+            return responses.stream()
+                    .filter(b -> b)
+                    .count();
+        });
+        try {
+            log.info("下载结果文件数量：{}", countFuture.get());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
         }
 
-        Task task = taskService.findByCode(taskCode);
         App app = task.getApp();
         List<Device> devices = task.getDevices();
         List<TaskEnv> taskEnvList = taskEnvService.listByCode(taskCode);
@@ -332,7 +356,9 @@ public class ScriptRunnerController extends BaseController {
         Files.write(Paths.get(resultPath.toString(), "executor.json"), excutorContent.getBytes(), StandardOpenOption.CREATE);
 
         // 执行allure generate ./result -o ./report/ --clean
-        String[] cmd = {"allure", "generate", resultPath.toString(), "-o", reportPath.toString(), "--clean"};
-        Runtime.getRuntime().exec(cmd);
+        String[] cmd1 = {"allure", "generate", resultPath.toString(), "-o", reportPath.toString(), "--clean"};
+        Runtime.getRuntime().exec(cmd1);
+        String[] cmd2 = {"allure", "generate", projectResultPath.toString(), "-o", projectReportPath.toString(), "--clean"};
+        Runtime.getRuntime().exec(cmd2);
     }
 }

@@ -7,6 +7,8 @@ import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import com.testwa.distest.server.entity.TaskResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -14,6 +16,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -35,17 +38,23 @@ public class FdfsStorageService {
         fastFileStorageClient.deleteFile(path);
     }
 
-    public void downloadResult(TaskResult result, Path toDir) {
+    @Async
+    public CompletableFuture<Boolean> downloadResult(TaskResult result, Path... toDir) {
         DownloadByteArray callback = new DownloadByteArray();
+        boolean success = true;
         byte[] b = fastFileStorageClient.downloadFile(GROUP, result.getUrl().replace(GROUP+"/", ""), callback);
-        Path resultFile = Paths.get(toDir.toString(), result.getResult());
-        try {
-            if(Files.notExists(resultFile)) {
-                Files.createFile(resultFile);
+        for(Path d : toDir) {
+            Path resultFile = Paths.get(d.toString(), result.getResult());
+            try {
+                if(Files.notExists(resultFile)) {
+                    Files.createFile(resultFile);
+                }
+                Files.write(resultFile, b);
+            } catch (IOException e) {
+                log.error("下载报告结果失败", e);
+                success = false;
             }
-            Files.write(resultFile, b);
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+        return CompletableFuture.completedFuture(success);
     }
 }

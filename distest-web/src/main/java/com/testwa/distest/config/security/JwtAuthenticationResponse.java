@@ -1,7 +1,11 @@
 package com.testwa.distest.config.security;
 
+import lombok.Data;
+import lombok.Getter;
+
 import java.io.Serializable;
 
+@Getter
 public class JwtAuthenticationResponse implements Serializable {
 
     private static final long serialVersionUID = 1250166508152483573L;
@@ -15,17 +19,5 @@ public class JwtAuthenticationResponse implements Serializable {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
         this.expiresIn = expiresIn;
-    }
-
-    public String getAccessToken() {
-        return accessToken;
-    }
-
-    public String getRefreshToken() {
-        return refreshToken;
-    }
-
-    public long getExpiresIn() {
-        return expiresIn;
     }
 }
