@@ -1,6 +1,7 @@
 package com.testwa.distest.server.web.script.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.testwa.core.base.constant.ResultCode;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.util.VoUtil;
 import com.testwa.core.script.util.FileUtil;
@@ -9,6 +10,7 @@ import com.testwa.core.script.vo.ScriptCaseVO;
 import com.testwa.core.script.vo.TaskEnvVO;
 import com.testwa.core.script.vo.TaskVO;
 import com.testwa.distest.common.enums.DB;
+import com.testwa.distest.exception.BusinessException;
 import com.testwa.distest.server.entity.*;
 import com.testwa.distest.server.service.app.service.AppService;
 import com.testwa.distest.server.service.device.service.DeviceService;
@@ -113,6 +115,9 @@ public class ScriptRunnerController extends BaseController {
     @ResponseBody
     @PostMapping(value = "/run/functional/byScripts")
     public TaskStartResultVO run(@RequestBody @Valid TaskV2StartByScriptsForm form) {
+        if(form.getScriptCaseIds() == null || form.getScriptCaseIds().isEmpty()) {
+            throw new BusinessException(ResultCode.ILLEGAL_PARAM, "参数错误，请选择脚本");
+        }
         appValidator.validateAppExist(form.getAppId());
         appValidator.validateAppInPorject(form.getAppId(), form.getProjectId());
         scriptValidator.validateScriptCasesExist(form.getScriptCaseIds());
