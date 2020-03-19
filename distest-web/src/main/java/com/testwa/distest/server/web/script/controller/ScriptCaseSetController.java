@@ -53,6 +53,14 @@ public class ScriptCaseSetController extends BaseController {
         return "保存成功";
     }
 
+    @ApiOperation(value = "创建空的脚本测试集", notes = "")
+    @PostMapping(value = "/project/{projectId}/scriptCaseSet/simpleSave")
+    public String simpleSave(@PathVariable Long projectId, @RequestBody ScriptCaseSetSaveForm scriptCaseSetSaveForm) {
+        Project project = projectValidator.validateProjectExist(projectId);
+        scriptCaseSetService.saveSimple(project, scriptCaseSetSaveForm.getCaseName());
+        return "保存成功";
+    }
+
     @ApiOperation(value = "测试集分页列表", notes = "")
     @GetMapping(value = "/project/{projectId}/scriptCaseSet/page")
     public PageInfo<ScriptCaseSet> page(@PathVariable Long projectId, @Valid ScriptCaseSetListForm pageForm) {

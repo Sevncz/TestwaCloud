@@ -60,6 +60,15 @@ public class ScriptCaseSetService extends BaseService<ScriptCaseSet, Long> {
     }
 
     @Transactional(rollbackFor = Exception.class)
+    public void saveSimple(Project project, String caseName) {
+        ScriptCaseSet scriptCaseSet = new ScriptCaseSet();
+        scriptCaseSet.setCaseName(caseName);
+        scriptCaseSet.setProjectId(project.getId());
+        scriptCaseSet.setScriptCaseSetId(String.valueOf(commonIdWorker.nextId()));
+        scriptCaseSetMapper.insert(scriptCaseSet);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
     public void deleteAll(Long[] entityIds) {
         Arrays.stream(entityIds).forEach(id -> {
             scriptCaseSetMapper.delete(id);
@@ -80,4 +89,5 @@ public class ScriptCaseSetService extends BaseService<ScriptCaseSet, Long> {
     public ScriptCaseSet getByScriptCaseSetId(String scriptCaseSetId) {
         return scriptCaseSetMapper.selectByProperty(ScriptCaseSet::getScriptCaseSetId, scriptCaseSetId);
     }
+
 }
