@@ -105,11 +105,13 @@ public class ScriptCaseService extends BaseService<ScriptCase, Long> {
         if(StringUtils.isNotBlank(basePackage)) {
             query.setAppBasePackage("%" + basePackage + "%");
         }
+        query.setEnabled(true);
         return scriptCaseMapper.selectByCondition(query);
     }
 
     public ScriptCase getByScriptCaseId(String scriptCaseId) {
-        return scriptCaseMapper.selectByProperty(ScriptCase::getScriptCaseId, scriptCaseId);
+        ScriptCase scriptCase = scriptCaseMapper.selectByProperty(ScriptCase::getScriptCaseId, scriptCaseId);
+        return scriptCase.getEnabled()?scriptCase:null;
     }
 
     public ScriptCaseVO getScriptCaseDetailVO(String scriptCaseId) {
@@ -132,6 +134,7 @@ public class ScriptCaseService extends BaseService<ScriptCase, Long> {
     public PageInfo<ScriptCase> page(Long projectId, ScriptCaseListForm pageForm) {
         ScriptCase query = new ScriptCase();
         query.setProjectId(projectId);
+        query.setEnabled(true);
         if(StringUtils.isNotBlank(pageForm.getScriptName())) {
             query.setScriptCaseName(pageForm.getScriptName());
         }
@@ -144,6 +147,6 @@ public class ScriptCaseService extends BaseService<ScriptCase, Long> {
     }
 
     public List<ScriptCase> listByScriptCaseId(List<String> scriptCaseIds) {
-        return scriptCaseIds.stream().map(this::getByScriptCaseId).collect(Collectors.toList());
+        return scriptCaseIds.stream().map(this::getByScriptCaseId).filter(Objects::nonNull).collect(Collectors.toList());
     }
 }

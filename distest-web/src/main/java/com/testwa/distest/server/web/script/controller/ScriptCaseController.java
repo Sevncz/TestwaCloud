@@ -64,7 +64,8 @@ public class ScriptCaseController extends BaseController {
     @ResponseBody
     @DeleteMapping(value = "/script/delete")
     public void delete(@RequestParam("scriptCaseId") String scriptCaseId) {
-
+        ScriptCase scriptCase = scriptCaseService.getByScriptCaseId(scriptCaseId);
+        scriptCaseService.disable(scriptCase.getId());
     }
 
     @ApiOperation(value = "脚本列表", notes = "")
