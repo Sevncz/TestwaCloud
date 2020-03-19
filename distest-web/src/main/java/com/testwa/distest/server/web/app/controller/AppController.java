@@ -1,11 +1,13 @@
 package com.testwa.distest.server.web.app.controller;
 
+import com.testwa.core.base.constant.ResultCode;
 import com.testwa.core.base.form.IDForm;
 import com.testwa.core.base.constant.WebConstants;
 import com.testwa.core.base.controller.BaseController;
 import com.testwa.core.base.form.IDListForm;
 import com.testwa.core.base.vo.PageResult;
 import com.testwa.distest.common.validator.FileUploadValidator;
+import com.testwa.distest.exception.BusinessException;
 import com.testwa.distest.server.entity.App;
 import com.testwa.distest.server.entity.AppInfo;
 import com.testwa.distest.server.entity.User;
@@ -149,6 +151,9 @@ public class AppController extends BaseController {
     }
 
     private AppInfoVO getAppInfoVO(AppInfo appInfo) {
+        if(appInfo == null) {
+            return null;
+        }
         AppInfoVO vo = buildVO(appInfo, AppInfoVO.class);
         appInfoMgr.setLastestAppToVO(appInfo, vo);
         return vo;
@@ -160,6 +165,9 @@ public class AppController extends BaseController {
     public AppInfoVO searchOneApp(@PathVariable("projectId") Long projectId, @PathVariable("query") String query) {
         projectValidator.validateProjectExist(projectId);
         AppInfo appInfo = appInfoService.getByQuery(projectId, query);
+        if(appInfo == null) {
+            throw new BusinessException(ResultCode.NOT_FOUND, "该应用未上传");
+        }
         return getAppInfoVO(appInfo);
     }
 
@@ -203,6 +211,9 @@ public class AppController extends BaseController {
     @GetMapping(value = "/project/{projectId}/app")
     public AppInfoVO getAppInfo(@PathVariable Long projectId, @RequestParam String basePackage) {
         AppInfo appInfo = appInfoService.getByPackage(projectId, basePackage);
+        if(appInfo == null) {
+            throw new BusinessException(ResultCode.NOT_FOUND, "该应用未上传");
+        }
         return getAppInfoVO(appInfo);
     }
 
