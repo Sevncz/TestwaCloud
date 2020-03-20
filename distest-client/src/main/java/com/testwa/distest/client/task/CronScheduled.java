@@ -1,6 +1,7 @@
 package com.testwa.distest.client.task;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.sun.jna.Platform;
 import com.testwa.core.script.EnvGenerator;
 import com.testwa.core.script.Function;
@@ -28,7 +29,10 @@ import com.testwa.distest.client.ios.IOSDeviceUtil;
 import com.testwa.distest.client.model.AgentInfo;
 import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.service.DeviceGvice;
+import com.testwa.distest.client.support.OkHttpUtil;
 import com.testwa.distest.client.util.PortUtil;
+import com.testwa.distest.client.web.LoginService;
+import com.testwa.distest.client.web.startup.EnvCheck;
 import com.testwa.distest.jadb.JadbDevice;
 import com.testwa.distest.jadb.JadbException;
 import io.rpc.testwa.device.DeviceStatusChangeRequest;
@@ -36,6 +40,7 @@ import io.rpc.testwa.device.DeviceType;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.exec.CommandLine;
+import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RTopic;
 import org.redisson.api.RedissonClient;
 import org.redisson.api.listener.MessageListener;
@@ -93,6 +98,8 @@ public class CronScheduled {
     private String apiUrl;
     @Autowired
     private RestTemplate restTemplate;
+    @Autowired
+    private LoginService loginService;
 
 
     /**
@@ -273,6 +280,11 @@ public class CronScheduled {
                 }
             }
         }
+    }
+
+    @Scheduled(cron = "0 0 7 * * ?")
+    public void login() {
+        loginService.login();
     }
 
     class DeviceManagerTask implements Callable<DeviceManager> {

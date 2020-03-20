@@ -11,6 +11,7 @@ import com.testwa.distest.client.model.AgentInfo;
 import com.testwa.distest.client.model.UserInfo;
 import com.testwa.distest.client.component.Constant;
 import com.testwa.distest.client.support.OkHttpUtil;
+import com.testwa.distest.client.web.LoginService;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.MediaType;
 import okhttp3.Request;
@@ -49,6 +50,8 @@ public class EnvCheck implements CommandLineRunner {
     private String applicationName;
     @Autowired
     private Environment env;
+    @Autowired
+    private LoginService loginService;
 
     @Override
     public void run(String... strings) throws Exception {
@@ -110,34 +113,12 @@ public class EnvCheck implements CommandLineRunner {
         if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
             System.exit(0);
         }
-        String uri = StringUtils.isBlank(applicationName) ? apiHost : apiHost + "/" + applicationName;
-        String loginUrl = String.format("http://%s/v1/auth/login", uri);
-        User loginUser = new User(username, password);
-
-        String content = OkHttpUtil.postJsonParams(loginUrl, JSON.toJSONString(loginUser));
-        Object result = JSONObject.parse(content);
-        Integer resultCode = ((JSONObject) result).getInteger("code");
-
-        if (resultCode == 0) {
-            JSONObject data = (JSONObject) ((JSONObject) result).get("data");
-            UserInfo.token = data.getString("accessToken");
-            UserInfo.username = username;
-            log.info("登录成功，username: {}, token: {}", UserInfo.username, UserInfo.token);
-        } else {
-            log.error("登录{}失败，返回{}", loginUrl, content);
+        boolean success = loginService.login();
+        if(!success) {
             System.exit(0);
         }
     }
 
-    private class User {
-        public String username;
-        public String password;
-
-        public User(String username, String password) {
-            this.username = username;
-            this.password = password;
-        }
-    }
 
     private void checkTempDirPath() {
         File localAppDir = new File(Constant.localAppPath);
