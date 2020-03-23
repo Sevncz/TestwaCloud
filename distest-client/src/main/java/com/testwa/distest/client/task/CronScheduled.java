@@ -122,11 +122,11 @@ public class CronScheduled {
                     TimeUnit.MILLISECONDS.sleep(100);
 
                     RTopic rTopic = redissonClient.getTopic(d.getSerial());
-                    log.info("[{}]增加任务监听", d.getSerial());
+                    log.info("[{}] ADD Listener", d.getSerial());
                     rTopic.addListener(TaskVO.class, new MessageListener<TaskVO>() {
                         @Override
                         public void onMessage(CharSequence channel, TaskVO msg) {
-                            log.info("监听到消息: {}", JSON.toJSONString(msg));
+                            log.info("Listen message: {}", JSON.toJSONString(msg));
                             CustomAppiumManager manager = customAppiumManagerPool.getManager();
                             String port = manager.getPort() + "";
 
@@ -145,7 +145,8 @@ public class CronScheduled {
                                 String scriptContent = scriptGenerator.toAndroidPyScript(msg.getScriptCases(), templateFunctions, deviceId, platformVersion, appLocalPath, port, systemPort);
                                 pyTaskProvider.runPyScript(msg, scriptContent);
                             }catch (Exception e) {
-                                success += 1;
+                                log.error("Script runner error", e);
+//                                success += 1;
                             }finally {
                                 // 上传完成，通知任务已完成
                                 TaskEnvVO envVO = new TaskEnvVO();
@@ -163,7 +164,7 @@ public class CronScheduled {
                                 requestHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
                                 HttpEntity<String> formEntity = new HttpEntity<>(JSON.toJSONString(envVO), requestHeaders);
                                 ResponseEntity<String> responseEntity = restTemplate.postForEntity(url, formEntity, String.class);
-                                log.info("通知任务结束：{}", responseEntity.getBody());
+                                log.info("notify: task {} end：{}", msg.getTaskCode(), responseEntity.getBody());
                             }
                         }
                     });

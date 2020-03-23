@@ -76,7 +76,7 @@ public class BaseProvider {
                         .count();
             });
             try {
-                log.info("保存结果文件数量：{}", countFuture.get());
+                log.info("save file count：{}", countFuture.get());
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (ExecutionException e) {
@@ -92,8 +92,9 @@ public class BaseProvider {
 
         // 检查是否有和该app md5一致的
         try {
-            log.info("应用路径：{}", appLocalPath);
+            log.info("App local path：{}", appLocalPath);
             if (Files.notExists(appLocalPath)) {
+                log.info("App file {} not exists, downloader ready.", appLocalPath);
                 Downloader d = new Downloader();
                 d.start(appUrl, appLocalPath.toString());
             }
@@ -112,15 +113,17 @@ public class BaseProvider {
         param.add("file", resource);
         HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(param, requestHeadersFile);
         ResponseEntity<FileUploadEntity> responseEntity = restTemplate.exchange(url, HttpMethod.POST, httpEntity, FileUploadEntity.class);
-        log.info("上传返回：{}", responseEntity.getBody().getData());
+        log.info("upload return ：{}", responseEntity.getBody().getData());
         return responseEntity;
     }
 
     public void installApp(String deviceId, String appPath) {
         ADBCommandUtils.unlockWindow(deviceId);
+        log.info("[{}] Unlock window", deviceId);
         ADBCommandUtils.inputCode(deviceId, KeyCode.KEYCODE_HOME);
-        log.info("[{}] 开始安装应用", deviceId);
+        log.info("[{}] Click home", deviceId);
         ADBCommandUtils.installApp(deviceId, appPath);
+        log.info("[{}] Install App", deviceId);
     }
 
 }
