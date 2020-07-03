@@ -40,7 +40,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <slf4j.version>1.7.25</slf4j.version>
         <json.version>20141113</json.version>
-        <quartz.version>2.3.0</quartz.version>
+        <quartz.version>2.3.2</quartz.version>
         <netty-socketio.version>1.7.14</netty-socketio.version>
         <socket.io-client.version>0.8.3</socket.io-client.version>
         <okhttp.version>3.7.0</okhttp.version>
