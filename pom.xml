@@ -47,7 +47,7 @@
         <okhttp-ws.version>3.4.2</okhttp-ws.version>
         <grpc.version>1.15.0</grpc.version>
         <grpc-spring-boot-starter.version>3.0.0</grpc-spring-boot-starter.version>
-        <protobuf-java.version>3.5.1</protobuf-java.version>
+        <protobuf-java.version>3.16.1</protobuf-java.version>
         <protobuf-java-format.version>1.4</protobuf-java-format.version>
 
 
