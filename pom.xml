@@ -52,7 +52,7 @@
 
 
         <mongodb.version>3.3.0</mongodb.version>
-        <fastjson.version>1.2.31</fastjson.version>
+        <fastjson.version>1.2.83</fastjson.version>
         <ffmpeg.version>0.6.1</ffmpeg.version>
         <com.google.guava.version>22.0</com.google.guava.version>
         <mysql-connector>5.1.39</mysql-connector>
